@@ -1,4 +1,4 @@
-use super::super::array_handle_cache::with_array_box_ready;
+use super::super::array_handle_cache::with_array_text_session_cached;
 use super::super::handle_cache::valid_handle_idx;
 use super::array_string_slot_helpers::{
     array_text_read_ref_demand, string_indexof_fast_str, with_compiler_const_utf8_ptr_len,
@@ -38,7 +38,10 @@ pub(in super::super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    with_array_box_ready(handle, |arr| arr.slot_text_len_raw(idx).unwrap_or(0)).unwrap_or(0)
+    with_array_text_session_cached(handle, |session| {
+        session.slot_text_len_raw(idx).unwrap_or(0)
+    })
+    .unwrap_or(0)
 }
 
 #[inline(always)]
@@ -47,6 +50,15 @@ pub(in super::super) fn array_string_indexof_by_index(handle: i64, idx: i64, nee
     with_cached_needle_str(needle_h, |needle| {
         array_string_indexof_by_index_str(handle, idx, needle)
     })
+}
+
+#[inline(always)]
+pub(in super::super) fn array_string_session_indexof_by_index(
+    handle: i64,
+    idx: i64,
+    needle_h: i64,
+) -> i64 {
+    array_string_indexof_by_index(handle, idx, needle_h)
 }
 
 #[inline(always)]
@@ -64,6 +76,16 @@ pub(in super::super) fn array_string_indexof_by_index_const_utf8(
 }
 
 #[inline(always)]
+pub(in super::super) fn array_string_session_indexof_by_index_const_utf8(
+    handle: i64,
+    idx: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+) -> i64 {
+    array_string_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
+}
+
+#[inline(always)]
 fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64 {
     if !valid_handle_idx(handle, idx) {
         return if needle.is_empty() { 0 } else { -1 };
@@ -71,8 +93,9 @@ fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64
     if needle.is_empty() {
         return 0;
     }
-    with_array_box_ready(handle, |arr| {
-        arr.slot_with_text_raw(idx, |hay| string_indexof_fast_str(hay, needle))
+    with_array_text_session_cached(handle, |session| {
+        session
+            .slot_with_text_raw(idx, |hay| string_indexof_fast_str(hay, needle))
             .unwrap_or(-1)
     })
     .unwrap_or(-1)

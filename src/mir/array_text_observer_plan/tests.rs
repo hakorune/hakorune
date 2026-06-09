@@ -32,6 +32,16 @@ fn detects_array_get_indexof_found_predicate_route() {
     assert_eq!(route.publication_boundary(), "none");
     assert_eq!(route.result_repr(), "scalar_i64");
     assert!(!route.keep_get_live());
+    assert_eq!(
+        route.selected_route(),
+        "hako.array_text.session_indexof_const_utf8"
+    );
+    assert_eq!(
+        route.selected_bridge_symbol(),
+        "hako.array_text.session_indexof_const_utf8"
+    );
+    assert_eq!(route.fallback_route(), "nyash.array.string_indexof_hisi");
+    assert_eq!(route.fallback_policy(), "fail_fast");
 }
 
 #[test]
@@ -52,6 +62,16 @@ fn detects_array_get_indexof_direct_scalar_route() {
     assert_eq!(route.consumer_shape(), "direct_scalar");
     assert_eq!(route.observer_kind(), "indexof");
     assert_eq!(route.proof_region(), "array_get_receiver_indexof");
+    assert_eq!(
+        route.selected_route(),
+        "hako.array_text.session_indexof_const_utf8"
+    );
+    assert_eq!(
+        route.selected_bridge_symbol(),
+        "hako.array_text.session_indexof_const_utf8"
+    );
+    assert_eq!(route.fallback_route(), "nyash.array.string_indexof_hisi");
+    assert_eq!(route.fallback_policy(), "fail_fast");
 }
 
 #[test]

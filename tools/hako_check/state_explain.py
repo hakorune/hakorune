@@ -119,6 +119,21 @@ def function_metadata_rows(data: dict[str, Any], key: str) -> list[dict[str, Any
     return rows
 
 
+def function_metadata_object_rows(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for function in root_list(data, "functions"):
+        metadata = function.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+        value = metadata.get(key)
+        if not isinstance(value, dict):
+            continue
+        copied = dict(value)
+        copied.setdefault("function", function.get("name", "unknown"))
+        rows.append(copied)
+    return rows
+
+
 def field_name(row: dict[str, Any]) -> str:
     return str(row.get("name", "unknown"))
 
@@ -220,6 +235,13 @@ def main() -> int:
     direct_state_plans = root_list(data, "direct_state_plans")
     record_layout_plans = root_list(data, "record_layout_plans")
     record_state_residence_plans = root_list(data, "record_state_residence_plans")
+    array_text_state_residence_routes = function_metadata_object_rows(
+        data, "array_text_state_residence_route"
+    )
+    array_text_residence_session_rows = function_metadata_rows(
+        data, "array_text_residence_sessions"
+    )
+    array_text_observer_routes = function_metadata_rows(data, "array_text_observer_routes")
     record_state_field_access_plans = function_metadata_rows(
         data, "record_state_field_access_plans"
     )
@@ -288,6 +310,21 @@ def main() -> int:
         if args.box_filter is None
         or str(plan.get("owner_box", "unknown")) == args.box_filter
     ]
+    selected_array_text_state_residence_routes = [
+        route
+        for route in array_text_state_residence_routes
+        if args.box_filter is None or str(route.get("function", "unknown")) == args.box_filter
+    ]
+    selected_array_text_residence_sessions = [
+        route
+        for route in array_text_residence_session_rows
+        if args.box_filter is None or str(route.get("function", "unknown")) == args.box_filter
+    ]
+    selected_array_text_observer_routes = [
+        route
+        for route in array_text_observer_routes
+        if args.box_filter is None or str(route.get("function", "unknown")) == args.box_filter
+    ]
     record_state_access_exact_slot_covered_count = 0
     record_state_access_exact_slot_missing_count = 0
     for plan in selected_record_state_access_plans:
@@ -316,8 +353,87 @@ def main() -> int:
             record_state_lowering_owner_next_bridge = "fix_typed_object_slot_coverage_first"
     else:
         record_state_lowering_owner_selected = "none"
-        record_state_lowering_owner_reason = "record_state_access_sites_not_ready"
-        record_state_lowering_owner_next_bridge = "record_state_field_access_site_measurement"
+    record_state_lowering_owner_reason = "record_state_access_sites_not_ready"
+    record_state_lowering_owner_next_bridge = "record_state_field_access_site_measurement"
+
+    array_text_selected_route_count = sum(
+        1
+        for route in selected_array_text_state_residence_routes
+        if str(route.get("selected_route", "")).startswith("hako.array_text.")
+    )
+    array_text_selected_bridge_symbol_count = sum(
+        1
+        for route in selected_array_text_state_residence_routes
+        if str(route.get("selected_bridge_symbol", "")).startswith("hako.array_text.")
+    )
+    array_text_compat_string_indexof_count = sum(
+        1
+        for route in selected_array_text_state_residence_routes
+        if str(route.get("fallback_route", "")).startswith("nyash.array.string_indexof_")
+    )
+    array_text_selected_session_count = sum(
+        1
+        for route in selected_array_text_residence_sessions
+        if str(route.get("consumer_capability", "")).startswith("slot_text_len_store_session")
+    )
+    array_text_selected_publication_count = sum(
+        1
+        for route in selected_array_text_residence_sessions
+        if str(route.get("publication_boundary", "")).lower() != "none"
+    )
+    array_text_registry_carrier_count = sum(
+        1
+        for route in selected_array_text_residence_sessions
+        if "registry" in str(route.get("carrier", "")).lower()
+    )
+    array_text_silent_fallback_count = sum(
+        1
+        for route in selected_array_text_state_residence_routes
+        if str(route.get("fallback_policy", "")) != "fail_fast"
+    )
+    array_text_observer_indexof_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if str(route.get("observer_kind", "")) == "indexof"
+    )
+    array_text_observer_selected_route_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if str(route.get("selected_route", "")).startswith("hako.array_text.")
+    )
+    array_text_observer_selected_bridge_symbol_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if str(route.get("selected_bridge_symbol", "")).startswith("hako.array_text.")
+    )
+    array_text_observer_found_predicate_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if str(route.get("consumer_shape", "")) == "found_predicate"
+    )
+    array_text_observer_publication_in_selected_region_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if str(route.get("publication_boundary", "")).lower() != "none"
+    )
+    array_text_observer_registry_carrier_in_selected_region_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if isinstance(route.get("executor_contract"), dict)
+        and "registry"
+        in str(route["executor_contract"].get("carrier", "")).lower()
+    )
+    array_text_observer_publication_none_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if str(route.get("publication_boundary", "")) == "none"
+    )
+    array_text_observer_executor_contract_count = sum(
+        1
+        for route in selected_array_text_observer_routes
+        if isinstance(route.get("executor_contract"), dict)
+        and str(route["executor_contract"].get("publication_boundary", "")) == "none"
+    )
 
     lines = [
         "output_contract=hako-check-state-explain-v0",
@@ -373,6 +489,25 @@ def main() -> int:
         f"record_state_lowering_owner_next_bridge={record_state_lowering_owner_next_bridge}",
         f"record_state_residence_candidate_field_count={len(record_state_candidate_fields)}",
         f"record_state_handle_reject_field_count={len(handle_reject_fields)}",
+        f"array_text_state_residence_route_count={len(selected_array_text_state_residence_routes)}",
+        f"array_text_selected_route_count={array_text_selected_route_count}",
+        f"array_text_selected_bridge_symbol_count={array_text_selected_bridge_symbol_count}",
+        f"array_text_compat_string_indexof_hisi_count={array_text_compat_string_indexof_count}",
+        f"array_text_session_count={len(selected_array_text_residence_sessions)}",
+        f"array_text_session_begin_count={array_text_selected_session_count}",
+        f"array_text_session_end_count={array_text_selected_session_count}",
+        f"array_text_publication_in_selected_region_count={array_text_selected_publication_count}",
+        f"array_text_registry_carrier_in_selected_region_count={array_text_registry_carrier_count}",
+        f"array_text_silent_fallback_after_selected_route_count={array_text_silent_fallback_count}",
+        f"array_text_observer_route_count={len(selected_array_text_observer_routes)}",
+        f"array_text_observer_indexof_count={array_text_observer_indexof_count}",
+        f"array_text_observer_selected_route_count={array_text_observer_selected_route_count}",
+        f"array_text_observer_selected_bridge_symbol_count={array_text_observer_selected_bridge_symbol_count}",
+        f"array_text_observer_found_predicate_count={array_text_observer_found_predicate_count}",
+        f"array_text_observer_publication_in_selected_region_count={array_text_observer_publication_in_selected_region_count}",
+        f"array_text_observer_registry_carrier_in_selected_region_count={array_text_observer_registry_carrier_in_selected_region_count}",
+        f"array_text_observer_publication_none_count={array_text_observer_publication_none_count}",
+        f"array_text_observer_executor_contract_count={array_text_observer_executor_contract_count}",
         "record_state_source_migration_selected=0",
         "whole_record_abi_enabled=0",
         "public_materialization_enabled=0",
@@ -472,6 +607,55 @@ def main() -> int:
                 f"{prefix}_field_id={row.get('field_id', 'unknown')}",
             ]
         )
+
+    for idx, route in enumerate(selected_array_text_state_residence_routes[: max(0, args.topn)]):
+        prefix = f"array_text_state_residence_route_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={route.get('function', 'unknown')}",
+                f"{prefix}_selected_route={route.get('selected_route', 'unknown')}",
+                f"{prefix}_selected_bridge_symbol={route.get('selected_bridge_symbol', 'unknown')}",
+                f"{prefix}_fallback_route={route.get('fallback_route', 'unknown')}",
+                f"{prefix}_fallback_policy={route.get('fallback_policy', 'unknown')}",
+            ]
+        )
+
+    for idx, route in enumerate(selected_array_text_residence_sessions[: max(0, args.topn)]):
+        prefix = f"array_text_residence_session_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={route.get('function', 'unknown')}",
+                f"{prefix}_begin_block={route.get('begin_block', 'unknown')}",
+                f"{prefix}_end_block={route.get('end_block', 'unknown')}",
+                f"{prefix}_publication_boundary={route.get('publication_boundary', 'unknown')}",
+                f"{prefix}_carrier={route.get('carrier', 'unknown')}",
+            ]
+        )
+
+    for idx, route in enumerate(selected_array_text_observer_routes[: max(0, args.topn)]):
+        prefix = f"array_text_observer_route_{idx}"
+        lines.extend(
+            [
+                f"{prefix}_function={route.get('function', 'unknown')}",
+                f"{prefix}_observer_kind={route.get('observer_kind', 'unknown')}",
+                f"{prefix}_consumer_shape={route.get('consumer_shape', 'unknown')}",
+                f"{prefix}_proof_region={route.get('proof_region', 'unknown')}",
+                f"{prefix}_publication_boundary={route.get('publication_boundary', 'unknown')}",
+                f"{prefix}_selected_route={route.get('selected_route', 'unknown')}",
+                f"{prefix}_selected_bridge_symbol={route.get('selected_bridge_symbol', 'unknown')}",
+                f"{prefix}_fallback_route={route.get('fallback_route', 'unknown')}",
+                f"{prefix}_fallback_policy={route.get('fallback_policy', 'unknown')}",
+            ]
+        )
+        executor_contract = route.get("executor_contract")
+        if isinstance(executor_contract, dict):
+            lines.extend(
+                [
+                    f"{prefix}_executor_contract_publication_boundary={executor_contract.get('publication_boundary', 'unknown')}",
+                    f"{prefix}_executor_contract_proof_region={executor_contract.get('proof_region', 'unknown')}",
+                    f"{prefix}_executor_contract_carrier={executor_contract.get('carrier', 'unknown')}",
+                ]
+            )
 
     clean = len(record_state_residence_plans) == 0 or all(
         bool(row.get("summary", "ok") == "ok") for row in record_state_residence_plans

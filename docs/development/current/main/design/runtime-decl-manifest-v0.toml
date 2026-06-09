@@ -187,8 +187,64 @@ memory = "read"
 lanes = ["pure-first", "compare"]
 
 [[rows]]
+symbol = "hako.array_text.slot_len"
+args = ["handle_owned", "imm_i64"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
 symbol = "nyash.array.string_indexof_hih"
 args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako.array_text.slot_indexof_handle_needle"
+args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako.array_text.session_indexof_handle_needle"
+args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako.array_text.slot_indexof_handle_hih"
+args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako.array_text.slot_indexof_const_utf8"
+args = ["handle_owned", "imm_i64", "ptr_const_i8", "imm_i64"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako.array_text.session_indexof_const_utf8"
+args = ["handle_owned", "imm_i64", "ptr_const_i8", "imm_i64"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako.array_text.slot_indexof_const_utf8_hisi"
+args = ["handle_owned", "imm_i64", "ptr_const_i8", "imm_i64"]
 ret = "imm_i64"
 attrs = ["nounwind", "readonly", "willreturn"]
 memory = "read"

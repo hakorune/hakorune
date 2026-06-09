@@ -5,6 +5,43 @@ use super::value_codec::{
 use super::value_demand::ARRAY_GENERIC_GET_ENCODED;
 use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
 
+#[derive(Debug)]
+pub(crate) struct ArrayTextSession<'a> {
+    arr: &'a ArrayBox,
+}
+
+impl<'a> ArrayTextSession<'a> {
+    #[inline(always)]
+    pub(crate) fn new(arr: &'a ArrayBox) -> Self {
+        Self { arr }
+    }
+
+    #[inline(always)]
+    pub(crate) fn len(&self) -> usize {
+        self.arr.len()
+    }
+
+    #[inline(always)]
+    pub(crate) fn slot_text_len_raw(&self, idx: i64) -> Option<i64> {
+        self.arr.slot_text_len_raw(idx)
+    }
+
+    #[inline(always)]
+    pub(crate) fn slot_with_text_raw<R>(&self, idx: i64, f: impl FnOnce(&str) -> R) -> Option<R> {
+        self.arr.slot_with_text_raw(idx, f)
+    }
+
+    #[inline(always)]
+    pub(crate) fn slot_store_text_raw(&self, idx: i64, value: String) -> bool {
+        self.arr.slot_store_text_raw(idx, value)
+    }
+
+    #[inline(always)]
+    pub(crate) fn slot_store_box_raw(&self, idx: i64, value: Box<dyn NyashBox>) -> bool {
+        self.arr.slot_store_box_raw(idx, value)
+    }
+}
+
 #[inline(always)]
 fn encode_array_item_to_i64(item: &dyn NyashBox) -> i64 {
     let _demand = ARRAY_GENERIC_GET_ENCODED;
@@ -49,6 +86,7 @@ pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> 
 }
 
 #[inline(always)]
+#[allow(dead_code)]
 pub(crate) fn with_array_box_direct<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
     if handle <= 0 {
         return None;
@@ -69,6 +107,18 @@ pub(crate) fn with_array_box_ready<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> 
         Some(f(arr))
     })
     .flatten()
+}
+
+#[inline(always)]
+pub(crate) fn with_array_text_session_cached<R>(
+    handle: i64,
+    f: impl FnOnce(ArrayTextSession<'_>) -> R,
+) -> Option<R> {
+    if handle <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    with_array_box_at_epoch(handle, drop_epoch, |arr| f(ArrayTextSession::new(arr)))
 }
 
 #[inline(always)]

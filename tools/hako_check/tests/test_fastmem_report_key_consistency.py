@@ -521,6 +521,201 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
             )
             self.assertIn("typed_object_exact_route_sample_count=1", text)
 
+    def test_state_explain_emits_array_text_session_route_rows(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "array_text_indexof",
+                    "metadata": {
+                        "array_text_state_residence_route": {
+                            "selected_route": "hako.array_text.session_indexof_const_utf8",
+                            "selected_bridge_symbol": "hako.array_text.session_indexof_const_utf8",
+                            "fallback_route": "nyash.array.string_indexof_hisi",
+                            "fallback_policy": "fail_fast",
+                        },
+                        "array_text_residence_sessions": [
+                            {
+                                "begin_block": 1,
+                                "begin_to_header_block": 2,
+                                "begin_placement": "begin",
+                                "header_block": 3,
+                                "body_block": 4,
+                                "exit_block": 5,
+                                "update_block": 6,
+                                "update_instruction_index": 7,
+                                "update_placement": "update",
+                                "end_block": 8,
+                                "end_placement": "end",
+                                "route_instruction_index": 9,
+                                "array_value": 10,
+                                "index_value": 11,
+                                "source_value": 12,
+                                "result_len_value": 13,
+                                "middle_value": 14,
+                                "middle_length": 15,
+                                "skip_instruction_indices": [],
+                                "scope": "selected",
+                                "proof": "array_text_session_route",
+                                "consumer_capability": "slot_text_len_store_session",
+                                "publication_boundary": "none",
+                                "carrier": "array_lane_text_cell",
+                            }
+                        ],
+                    },
+                }
+            ],
+            "typed_object_plans": [],
+            "user_box_decls": [],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mir_path = Path(tmpdir) / "mir.json"
+            out_path = Path(tmpdir) / "state.kv"
+            mir_path.write_text(json.dumps(mir), encoding="utf-8")
+            old_argv = sys.argv[:]
+            try:
+                sys.argv = [
+                    "state_explain.py",
+                    "--mir-json",
+                    str(mir_path),
+                    "--out",
+                    str(out_path),
+                ]
+                rc = state_explain.main()
+            finally:
+                sys.argv = old_argv
+
+            self.assertEqual(rc, 0)
+            text = out_path.read_text(encoding="utf-8")
+            self.assertIn("array_text_state_residence_route_count=1", text)
+            self.assertIn("array_text_selected_route_count=1", text)
+            self.assertIn("array_text_selected_bridge_symbol_count=1", text)
+            self.assertIn("array_text_compat_string_indexof_hisi_count=1", text)
+            self.assertIn("array_text_session_count=1", text)
+            self.assertIn("array_text_session_begin_count=1", text)
+            self.assertIn("array_text_session_end_count=1", text)
+            self.assertIn(
+                "array_text_publication_in_selected_region_count=0",
+                text,
+            )
+            self.assertIn(
+                "array_text_registry_carrier_in_selected_region_count=0",
+                text,
+            )
+            self.assertIn(
+                "array_text_silent_fallback_after_selected_route_count=0",
+                text,
+            )
+            self.assertIn(
+                "array_text_state_residence_route_0_selected_route=hako.array_text.session_indexof_const_utf8",
+                text,
+            )
+            self.assertIn(
+                "array_text_state_residence_route_0_selected_bridge_symbol=hako.array_text.session_indexof_const_utf8",
+                text,
+            )
+            self.assertIn(
+                "array_text_residence_session_0_carrier=array_lane_text_cell",
+                text,
+            )
+
+    def test_state_explain_emits_array_text_observer_route_rows(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "array_text_indexof",
+                    "metadata": {
+                        "array_text_observer_routes": [
+                            {
+                                "observer_kind": "indexof",
+                                "consumer_shape": "found_predicate",
+                                "proof_region": "array_get_receiver_indexof",
+                                "publication_boundary": "none",
+                                "selected_route": "hako.array_text.session_indexof_const_utf8",
+                                "selected_bridge_symbol": "hako.array_text.session_indexof_const_utf8",
+                                "fallback_route": "nyash.array.string_indexof_hisi",
+                                "fallback_policy": "fail_fast",
+                                "executor_contract": {
+                                    "publication_boundary": "none",
+                                    "proof_region": "observe.indexof",
+                                    "carrier": "array_lane_text_cell",
+                                },
+                            }
+                        ]
+                    },
+                }
+            ],
+            "typed_object_plans": [],
+            "user_box_decls": [],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mir_path = Path(tmpdir) / "mir.json"
+            out_path = Path(tmpdir) / "state.kv"
+            mir_path.write_text(json.dumps(mir), encoding="utf-8")
+            old_argv = sys.argv[:]
+            try:
+                sys.argv = [
+                    "state_explain.py",
+                    "--mir-json",
+                    str(mir_path),
+                    "--out",
+                    str(out_path),
+                ]
+                rc = state_explain.main()
+            finally:
+                sys.argv = old_argv
+
+            self.assertEqual(rc, 0)
+            text = out_path.read_text(encoding="utf-8")
+            self.assertIn("array_text_observer_route_count=1", text)
+            self.assertIn("array_text_observer_indexof_count=1", text)
+            self.assertIn("array_text_observer_selected_route_count=1", text)
+            self.assertIn("array_text_observer_selected_bridge_symbol_count=1", text)
+            self.assertIn("array_text_observer_found_predicate_count=1", text)
+            self.assertIn(
+                "array_text_observer_publication_in_selected_region_count=0",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_registry_carrier_in_selected_region_count=0",
+                text,
+            )
+            self.assertIn("array_text_observer_publication_none_count=1", text)
+            self.assertIn("array_text_observer_executor_contract_count=1", text)
+            self.assertIn(
+                "array_text_observer_route_0_observer_kind=indexof",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_consumer_shape=found_predicate",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_publication_boundary=none",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_selected_route=hako.array_text.session_indexof_const_utf8",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_selected_bridge_symbol=hako.array_text.session_indexof_const_utf8",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_fallback_route=nyash.array.string_indexof_hisi",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_fallback_policy=fail_fast",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_executor_contract_publication_boundary=none",
+                text,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

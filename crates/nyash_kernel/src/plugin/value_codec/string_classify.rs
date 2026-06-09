@@ -46,7 +46,6 @@ impl VerifiedTextSource {
             .map(f)
     }
 
-    #[cfg(test)]
     #[inline(always)]
     pub(crate) fn into_keep(self) -> SourceLifetimeKeep {
         self.keep

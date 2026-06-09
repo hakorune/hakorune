@@ -693,6 +693,46 @@ mod tests {
     }
 
     #[test]
+    fn hako_array_text_selected_route_aliases_match_compat_route() {
+        let handle = new_array_handle();
+        let hay_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+        let needle = b"line";
+        let miss = b"none";
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, hay_handle), 1);
+        assert_eq!(
+            hako_array_text_session_indexof_const_utf8_alias(
+                handle,
+                0,
+                needle.as_ptr() as *const i8,
+                4
+            ),
+            0
+        );
+        assert_eq!(
+            hako_array_text_session_indexof_const_utf8_alias(
+                handle,
+                0,
+                miss.as_ptr() as *const i8,
+                4
+            ),
+            -1
+        );
+        assert_eq!(
+            hako_array_text_session_indexof_handle_needle_alias(handle, 0, hay_handle),
+            0
+        );
+        assert_eq!(
+            hako_array_text_session_indexof_handle_needle_alias(handle, 3, hay_handle),
+            -1
+        );
+        assert_eq!(hako_array_text_slot_len_hi_alias(handle, 0), 9);
+    }
+
+    #[test]
     fn string_indexof_raw_alias_keeps_empty_needle_fail_safe_contract() {
         let handle = new_array_handle();
         let empty_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

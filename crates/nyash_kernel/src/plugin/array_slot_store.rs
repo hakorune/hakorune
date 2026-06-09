@@ -1,4 +1,6 @@
-use super::array_handle_cache::{with_array_box, with_array_box_ready};
+use super::array_handle_cache::{
+    with_array_box, with_array_box_ready, with_array_text_session_cached,
+};
 use super::array_slot_backend;
 use super::array_string_slot::{
     array_string_store_handle_at, array_string_store_kernel_text_slot_at,
@@ -46,14 +48,16 @@ pub(super) fn array_slot_store_any(handle: i64, idx: i64, val_any: i64) -> i64 {
         }) else {
             return;
         };
-        string_lane_result = Some(with_array_box_ready(handle, |arr| {
-            if arr.slot_store_text_raw(idx, value) {
-                1
-            } else {
-                0
-            }
-        })
-        .unwrap_or(0));
+        string_lane_result = Some(
+            with_array_text_session_cached(handle, |session| {
+                if session.slot_store_text_raw(idx, value) {
+                    1
+                } else {
+                    0
+                }
+            })
+            .unwrap_or(0),
+        );
     });
     if let Some(result) = string_lane_result {
         return result;

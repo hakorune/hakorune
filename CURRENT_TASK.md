@@ -15,12 +15,13 @@ Scope: current lane / next lane / restart order only.
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
 3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
-4. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
-5. `docs/development/current/main/05-Restart-Quick-Resume.md`
-6. `docs/development/current/main/10-Now.md`
-7. `git status -sb`
-8. `bash tools/checks/current_state_pointer_guard.sh`
-9. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+4. `docs/development/current/main/design/array-text-session-route-ssot.md`
+5. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
+6. `docs/development/current/main/05-Restart-Quick-Resume.md`
+7. `docs/development/current/main/10-Now.md`
+8. `git status -sb`
+9. `bash tools/checks/current_state_pointer_guard.sh`
+10. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -36,6 +37,7 @@ Scope: current lane / next lane / restart order only.
 - implementation_gap_count=0
 - current work is typed-object exact slot ABI split before further user-box counter-heavy optimization
 - typed-object exact slot report/check vocabulary is landing in the current slice
+- adjacent array-text session route design is documented, and the selected-route session boundary is now landing
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules

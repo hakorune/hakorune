@@ -129,6 +129,10 @@ impl ArrayTextObserverArgRepr {
         }
     }
 
+    fn is_const_utf8(&self) -> bool {
+        matches!(self, Self::ConstUtf8 { .. })
+    }
+
     fn text(&self) -> Option<&str> {
         match self {
             Self::ConstUtf8 { text, .. } => Some(text.as_str()),
@@ -163,6 +167,10 @@ pub struct ArrayTextObserverRoute {
     publication_boundary: ArrayTextObserverPublicationBoundary,
     result_repr: ArrayTextObserverResultRepr,
     keep_get_live: bool,
+    selected_route: &'static str,
+    selected_bridge_symbol: &'static str,
+    fallback_route: &'static str,
+    fallback_policy: &'static str,
     executor_contract: Option<ArrayTextObserverExecutorContract>,
 }
 
@@ -254,6 +262,22 @@ impl ArrayTextObserverRoute {
         self.keep_get_live
     }
 
+    pub fn selected_route(&self) -> &'static str {
+        self.selected_route
+    }
+
+    pub fn selected_bridge_symbol(&self) -> &'static str {
+        self.selected_bridge_symbol
+    }
+
+    pub fn fallback_route(&self) -> &'static str {
+        self.fallback_route
+    }
+
+    pub fn fallback_policy(&self) -> &'static str {
+        self.fallback_policy
+    }
+
     pub fn executor_contract(&self) -> Option<&ArrayTextObserverExecutorContract> {
         self.executor_contract.as_ref()
     }
@@ -321,6 +345,17 @@ fn match_array_text_indexof_route(
     } else {
         ArrayTextObserverConsumerShape::DirectScalar
     };
+    let (selected_route, selected_bridge_symbol) = if observer_arg0_repr.is_const_utf8() {
+        (
+            "hako.array_text.session_indexof_const_utf8",
+            "hako.array_text.session_indexof_const_utf8",
+        )
+    } else {
+        (
+            "hako.array_text.session_indexof_handle_needle",
+            "hako.array_text.session_indexof_handle_needle",
+        )
+    };
     let no_covered_source_values = BTreeSet::new();
 
     let mut route = ArrayTextObserverRoute {
@@ -358,10 +393,42 @@ fn match_array_text_indexof_route(
             block,
             observer_instruction_index,
         ),
+        selected_route,
+        selected_bridge_symbol,
+        fallback_route: "nyash.array.string_indexof_hisi",
+        fallback_policy: "fail_fast",
         executor_contract: None,
     };
     route.executor_contract = derive_observer_store_region_contract(function, def_map, &route)
         .map(ArrayTextObserverExecutorContract::conditional_suffix_store_single_region);
+    assert!(
+        route.selected_route.starts_with("hako.array_text."),
+        "selected observer route must stay in the hako.array_text namespace"
+    );
+    assert!(
+        route.selected_bridge_symbol.starts_with("hako.array_text."),
+        "observer bridge symbol must stay in the hako.array_text namespace"
+    );
+    assert_eq!(
+        route.fallback_route, "nyash.array.string_indexof_hisi",
+        "compat fallback route must stay legacy-only"
+    );
+    assert_eq!(
+        route.fallback_policy, "fail_fast",
+        "selected observer route must not silently fallback"
+    );
+    assert_eq!(
+        route.publication_boundary.as_str(),
+        "none",
+        "selected observer route must not publish inside the selected region"
+    );
+    if let Some(contract) = route.executor_contract.as_ref() {
+        assert_eq!(
+            contract.publication_boundary(),
+            "none",
+            "observer executor contract must not publish inside the selected region"
+        );
+    }
     Some(route)
 }
 

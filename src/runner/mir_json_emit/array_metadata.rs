@@ -289,6 +289,10 @@ fn build_array_text_observer_routes_json(metadata: &FunctionMetadata) -> serde_j
                 "publication_boundary": route.publication_boundary(),
                 "result_repr": route.result_repr(),
                 "keep_get_live": route.keep_get_live(),
+                "selected_route": route.selected_route(),
+                "selected_bridge_symbol": route.selected_bridge_symbol(),
+                "fallback_route": route.fallback_route(),
+                "fallback_policy": route.fallback_policy(),
             });
             if let Some(text) = route.observer_arg0_text() {
                 obj["observer_arg0_text"] = json!(text);

@@ -569,6 +569,10 @@ pub(super) fn build_array_text_state_residence_indexof_seed_payload_json(
         "proof": payload.proof(),
         "result_use": payload.result_use(),
         "backend_action": payload.backend_action(),
+        "selected_route": payload.selected_route(),
+        "selected_bridge_symbol": payload.selected_bridge_symbol(),
+        "fallback_route": payload.fallback_route(),
+        "fallback_policy": payload.fallback_policy(),
         "candidate_outcomes": [
             {
                 "literal": payload.line_seed(),

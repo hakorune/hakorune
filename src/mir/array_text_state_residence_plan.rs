@@ -168,6 +168,10 @@ pub struct ArrayTextStateResidenceIndexOfSeedPayload {
     proof: IndexOfSearchMicroSeedProof,
     result_use: IndexOfSearchResultUse,
     backend_action: IndexOfSearchBackendAction,
+    selected_route: &'static str,
+    selected_bridge_symbol: &'static str,
+    fallback_route: &'static str,
+    fallback_policy: &'static str,
     line_seed_outcome: IndexOfSearchCandidateOutcome,
     none_seed_outcome: IndexOfSearchCandidateOutcome,
 }
@@ -241,6 +245,22 @@ impl ArrayTextStateResidenceIndexOfSeedPayload {
         }
     }
 
+    pub fn selected_route(&self) -> &'static str {
+        self.selected_route
+    }
+
+    pub fn selected_bridge_symbol(&self) -> &'static str {
+        self.selected_bridge_symbol
+    }
+
+    pub fn fallback_route(&self) -> &'static str {
+        self.fallback_route
+    }
+
+    pub fn fallback_policy(&self) -> &'static str {
+        self.fallback_policy
+    }
+
     pub fn line_seed_outcome(&self) -> &'static str {
         match self.line_seed_outcome {
             IndexOfSearchCandidateOutcome::Found => "found",
@@ -290,6 +310,10 @@ impl ArrayTextStateResidenceRoute {
                 proof: route.proof(),
                 result_use: route.result_use(),
                 backend_action: route.backend_action(),
+                selected_route: "hako.array_text.session_indexof_const_utf8",
+                selected_bridge_symbol: "hako.array_text.session_indexof_const_utf8",
+                fallback_route: "nyash.array.string_indexof_hisi",
+                fallback_policy: "fail_fast",
                 line_seed_outcome: route.line_seed_outcome(),
                 none_seed_outcome: route.none_seed_outcome(),
             }),
@@ -334,5 +358,15 @@ mod tests {
         );
         assert_eq!(contract.publication_boundary(), "none");
         assert_eq!(payload.proof(), "kilo_micro_indexof_line_15block");
+        assert_eq!(
+            payload.selected_route(),
+            "hako.array_text.session_indexof_const_utf8"
+        );
+        assert_eq!(
+            payload.selected_bridge_symbol(),
+            "hako.array_text.session_indexof_const_utf8"
+        );
+        assert_eq!(payload.fallback_route(), "nyash.array.string_indexof_hisi");
+        assert_eq!(payload.fallback_policy(), "fail_fast");
     }
 }

@@ -1,11 +1,12 @@
 use super::array_direct_i64_buffer::direct_array_i64_push_i64;
-use super::array_handle_cache::{with_array_box, with_array_box_ready};
+use super::array_handle_cache::with_array_box;
 use super::handle_cache::valid_handle;
 use super::value_codec::{
-    any_arg_to_box_with_profile, with_array_store_str_source, ArrayStoreStrSource, CodecProfile,
-    StringHandleSourceKind,
+    any_arg_to_box_with_profile, maybe_borrow_string_keep_with_epoch, with_array_store_str_source,
+    ArrayStoreStrSource, CodecProfile, StringHandleSourceKind,
 };
 use super::value_demand::ARRAY_GENERIC_APPEND_ANY;
+use nyash_rust::runtime::host_handles as handles;
 
 #[inline(always)]
 pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
@@ -23,21 +24,27 @@ pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
         }
         let Some(value) = (match source {
             ArrayStoreStrSource::StringLike(source_text) => {
-                source_text.with_text(|text| text.as_str().to_owned())
+                Some(maybe_borrow_string_keep_with_epoch(
+                    source_text.into_keep(),
+                    val_any,
+                    handles::drop_epoch(),
+                ))
             }
             ArrayStoreStrSource::OtherObject | ArrayStoreStrSource::Missing => None,
         }) else {
             return;
         };
-        string_lane_result = Some(with_array_box_ready(handle, |arr| {
-            let idx = arr.len() as i64;
-            if arr.slot_store_text_raw(idx, value) {
-                idx + 1
-            } else {
-                0
-            }
-        })
-        .unwrap_or(0));
+        string_lane_result = Some(
+            with_array_box(handle, |arr| {
+                let idx = arr.len() as i64;
+                if arr.slot_append_box_raw(value) >= 0 {
+                    idx + 1
+                } else {
+                    0
+                }
+            })
+            .unwrap_or(0),
+        );
     });
     if let Some(result) = string_lane_result {
         return result;
@@ -66,7 +73,7 @@ pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {
                 0
             }
         } else {
-            arr.slot_append_box_raw(value)
+            arr.slot_append_box_raw(value).max(0)
         }
     })
     .unwrap_or(0)

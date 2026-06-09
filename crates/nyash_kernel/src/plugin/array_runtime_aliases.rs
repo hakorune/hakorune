@@ -9,14 +9,14 @@ use super::array_slot_store::{
 use super::array_string_slot::{
     array_kernel_slot_concat_his, array_kernel_slot_insert_hisi,
     array_string_concat_const_suffix_by_index_store_same_slot_len,
-    array_string_concat_const_suffix_by_index_store_same_slot_text, array_string_indexof_by_index,
-    array_string_indexof_by_index_const_utf8,
-    array_string_insert_const_mid_by_index_store_same_slot_len,
+    array_string_concat_const_suffix_by_index_store_same_slot_text,
+    array_string_indexof_by_index_const_utf8, array_string_insert_const_mid_by_index_store_same_slot_len,
     array_string_insert_const_mid_by_index_store_same_slot_text,
     array_string_insert_const_mid_subrange_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_by_index_store_same_slot_text,
     array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_len_region_store_len, array_string_len_by_index,
+    array_string_session_indexof_by_index, array_string_session_indexof_by_index_const_utf8,
     with_cstr_utf8_ptr, with_cstr_utf8_ptr2, with_cstr_utf8_ptr3,
 };
 use super::handle_cache::valid_handle_idx;
@@ -235,12 +235,40 @@ crate::nyash_export_i64_alias!(nyash_array_string_len_hi_alias, "nyash.array.str
     array_string_len_by_index(handle, idx)
 });
 
+crate::nyash_export_i64_alias!(hako_array_text_slot_len_hi_alias, "hako.array_text.slot_len", (handle: i64, idx: i64), {
+    array_string_len_by_index(handle, idx)
+});
+
 crate::nyash_export_i64_alias!(nyash_array_string_indexof_hih_alias, "nyash.array.string_indexof_hih", (handle: i64, idx: i64, needle_h: i64), {
-    array_string_indexof_by_index(handle, idx, needle_h)
+    array_string_session_indexof_by_index(handle, idx, needle_h)
 });
 
 crate::nyash_export_i64_alias!(nyash_array_string_indexof_hisi_alias, "nyash.array.string_indexof_hisi", (handle: i64, idx: i64, needle_ptr: *const i8, needle_len: i64), {
+    array_string_session_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_slot_indexof_handle_needle_alias, "hako.array_text.slot_indexof_handle_needle", (handle: i64, idx: i64, needle_h: i64), {
+    array_string_session_indexof_by_index(handle, idx, needle_h)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_session_indexof_handle_needle_alias, "hako.array_text.session_indexof_handle_needle", (handle: i64, idx: i64, needle_h: i64), {
+    array_string_session_indexof_by_index(handle, idx, needle_h)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_slot_indexof_const_utf8_alias, "hako.array_text.slot_indexof_const_utf8", (handle: i64, idx: i64, needle_ptr: *const i8, needle_len: i64), {
     array_string_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_session_indexof_const_utf8_alias, "hako.array_text.session_indexof_const_utf8", (handle: i64, idx: i64, needle_ptr: *const i8, needle_len: i64), {
+    array_string_session_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_slot_indexof_handle_hih_alias, "hako.array_text.slot_indexof_handle_hih", (handle: i64, idx: i64, needle_h: i64), {
+    array_string_session_indexof_by_index(handle, idx, needle_h)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_slot_indexof_const_utf8_hisi_alias, "hako.array_text.slot_indexof_const_utf8_hisi", (handle: i64, idx: i64, needle_ptr: *const i8, needle_len: i64), {
+    array_string_session_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
 });
 
 crate::nyash_export_i64_alias!(nyash_array_slot_append_hh_alias, "nyash.array.slot_append_hh", (handle: i64, val_any: i64), {

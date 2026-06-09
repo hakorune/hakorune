@@ -13,7 +13,7 @@ use super::array_string_slot_helpers::{
     StoreArrayStrPlanSlotKind, StoreArrayStrPlanSourceKind,
 };
 use crate::observe::{self, CacheProbeKind as ObserveCacheProbeKind};
-use nyash_rust::{boxes::array::ArrayBox, runtime::host_handles as handles};
+use nyash_rust::runtime::host_handles as handles;
 
 #[inline(always)]
 fn store_array_str_plan_source_kind(
@@ -99,8 +99,8 @@ fn record_store_array_str_contract(
 
 #[cfg_attr(feature = "perf-observe", inline(never))]
 #[cfg_attr(not(feature = "perf-observe"), inline(always))]
-fn execute_store_array_str_contract_on_array(
-    arr: &ArrayBox,
+fn execute_store_array_str_contract_on_session(
+    session: super::super::array_handle_cache::ArrayTextSession<'_>,
     idx: i64,
     value_h: i64,
     source_kind: StringHandleSourceKind,
@@ -108,7 +108,7 @@ fn execute_store_array_str_contract_on_array(
     source: ArrayStoreStrSource,
 ) -> i64 {
     let idx_usize = idx as usize;
-    let len = arr.len();
+    let len = session.len();
     if idx_usize > len {
         return 0;
     }
@@ -125,7 +125,7 @@ fn execute_store_array_str_contract_on_array(
             }) else {
                 return 0;
             };
-            if arr.slot_store_text_raw(idx, value) {
+            if session.slot_store_text_raw(idx, value) {
                 1
             } else {
                 0
@@ -133,7 +133,7 @@ fn execute_store_array_str_contract_on_array(
         }
         ValueLaneAction::GenericBoxResidence => {
             let value = int_arg_to_box(value_h);
-            if arr.slot_store_box_raw(idx, value) {
+            if session.slot_store_box_raw(idx, value) {
                 1
             } else {
                 0
@@ -160,9 +160,9 @@ fn execute_store_array_str_contract(handle: i64, idx: i64, value_h: i64) -> i64 
     }
     with_array_store_str_source(value_h, |source_kind, source| {
         let lane_plan = select_store_array_str_lane_plan(source_kind);
-        super::super::array_handle_cache::with_array_box_ready(handle, |arr| {
-            execute_store_array_str_contract_on_array(
-                arr,
+        super::super::array_handle_cache::with_array_text_session_cached(handle, |session| {
+            execute_store_array_str_contract_on_session(
+                session,
                 idx,
                 value_h,
                 source_kind,
@@ -181,18 +181,21 @@ pub(in super::super) fn array_string_store_handle_at(handle: i64, idx: i64, valu
     // mixed/generic arrays back to Boxed.
     if !observe::enabled() {
         if let Some(value) = handles::with_str_handle_ready(value_h as u64, str::to_owned) {
-            return super::super::array_handle_cache::with_array_box_ready(handle, |arr| {
-                let idx_usize = idx as usize;
-                let len = arr.len();
-                if idx_usize > len {
-                    return 0;
-                }
-                if arr.slot_store_text_raw(idx, value) {
-                    1
-                } else {
-                    0
-                }
-            })
+            return super::super::array_handle_cache::with_array_text_session_cached(
+                handle,
+                |session| {
+                    let idx_usize = idx as usize;
+                    let len = session.len();
+                    if idx_usize > len {
+                        return 0;
+                    }
+                    if session.slot_store_text_raw(idx, value) {
+                        1
+                    } else {
+                        0
+                    }
+                },
+            )
             .unwrap_or(0);
         }
     }
@@ -210,9 +213,9 @@ pub(in super::super) fn array_string_store_kernel_text_slot_at(
         return 0;
     }
     observe::record_store_array_str_enter();
-    super::super::array_handle_cache::with_array_box_ready(handle, |arr| {
+    super::super::array_handle_cache::with_array_text_session_cached(handle, |session| {
         let idx_usize = idx as usize;
-        let len = arr.len();
+        let len = session.len();
         if idx_usize > len {
             return 0;
         }
@@ -232,7 +235,7 @@ pub(in super::super) fn array_string_store_kernel_text_slot_at(
             }
             observe::record_store_array_str_source_store();
         }
-        if arr.slot_store_text_raw(idx, value) {
+        if session.slot_store_text_raw(idx, value) {
             1
         } else {
             0
