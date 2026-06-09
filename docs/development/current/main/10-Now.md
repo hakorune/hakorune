@@ -37,6 +37,7 @@ Related:
   and continue through the selected-route cache-backed session boundary slice
 - if MIR / LLVM IR / assembly slices are needed, use the inspect scope dump
   SSOT: source anchors are selectors, while dumps are `hako_check` artifacts
+  with explicit mapping quality
 - use the inventory note first when pointer hunting is noisy
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - further user-box counter-heavy optimization must use selected exact slot routes, not compat `field_get_hii`

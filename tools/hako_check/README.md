@@ -127,12 +127,13 @@ Inspect Scope Dump
 ```bash
 bash tools/hako_check.sh inspect scope \
   --span src/hako_alloc.hako:120:145 \
-  --emit mir,mir-json,report \
+  --emit mir,mir-json,llvm,asm,report \
   --out target/hako-inspect/alloc_fastpath
 ```
 
-- `llvm` / `asm` artifacts are reserved for the next backend extension slice
-  and remain fail-fast unless a future implementation explicitly opens them.
+- `llvm` / `asm` artifacts are emitted through the existing trace bundle path
+  and carry explicit mapping quality. The inspect surface remains read-only;
+  it only packages compiler evidence into a stable bundle.
 
 Performance Surface Inventory
 - `hako_check perf-surface` is an observation-only surface for allocator hot-path

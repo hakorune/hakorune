@@ -22,6 +22,7 @@ from typing import Any, Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 EMIT_ROUTE = ROOT / "tools" / "smokes" / "v2" / "lib" / "emit_mir_route.sh"
+TRACE_BUNDLE = ROOT / "tools" / "perf" / "trace_optimization_bundle.sh"
 NYASH_BIN = Path(os.environ.get("HAKORUNE_BIN") or os.environ.get("NYASH_BIN") or ROOT / "target" / "release" / "hakorune")
 
 
@@ -193,6 +194,74 @@ def emit_mir_json(source_file: Path, timeout_secs: int) -> tuple[Path, str]:
     return mir_json, result.stdout + result.stderr
 
 
+def emit_llvm_asm_bundle(
+    mir_json_path: Path,
+    function_name: str,
+    timeout_secs: int,
+) -> tuple[Path, str]:
+    if not mir_json_path.is_file():
+        raise SystemExit(f"missing MIR JSON artifact for backend emit: {mir_json_path}")
+    tmp_dir = Path(tempfile.mkdtemp(prefix="hako_inspect.trace.", dir=os.environ.get("TMPDIR", "/tmp")))
+    cmd = [
+        "bash",
+        str(TRACE_BUNDLE),
+        "--mir-json",
+        str(mir_json_path),
+        "--microasm-runs",
+        "0",
+        "--out-dir",
+        str(tmp_dir),
+    ]
+    if function_name:
+        cmd.extend(["--function", function_name])
+    env = os.environ.copy()
+    env.setdefault("NYASH_LLVM_ROUTE_TRACE", "1")
+    env.setdefault("NYASH_LLVM_SKIP_BUILD", "1")
+    result = subprocess.run(
+        cmd,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=max(180, timeout_secs * 8 if timeout_secs > 0 else 180),
+    )
+    if result.returncode != 0:
+        raise SystemExit(
+            "trace_optimization_bundle failed (rc=%s)\n%s%s"
+            % (
+                result.returncode,
+                result.stdout,
+                result.stderr,
+            )
+        )
+    ll_dump = tmp_dir / "lowered.ll"
+    objdump = tmp_dir / "objdump.txt"
+    if not ll_dump.is_file():
+        raise SystemExit(f"trace bundle did not produce LLVM IR: {ll_dump}")
+    if not objdump.is_file():
+        exe_path = tmp_dir / "bundle.exe"
+        if not exe_path.is_file():
+            raise SystemExit(f"trace bundle did not produce executable for assembly dump: {exe_path}")
+        objdump_cmd = ["objdump", "-d", "--demangle", str(exe_path)]
+        objdump_result = subprocess.run(
+            objdump_cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if objdump_result.returncode != 0:
+            raise SystemExit(
+                "objdump failed (rc=%s)\n%s%s"
+                % (
+                    objdump_result.returncode,
+                    objdump_result.stdout,
+                    objdump_result.stderr,
+                )
+            )
+        objdump.write_text(objdump_result.stdout, encoding="utf-8")
+    return tmp_dir, result.stdout + result.stderr
+
+
 def read_bundle_report(path: Path) -> dict[str, str]:
     if path.is_dir():
         path = path / "report.kv"
@@ -280,6 +349,31 @@ def selected_route_rows(mir: dict[str, Any]) -> list[dict[str, Any]]:
     rows.extend(function_metadata_rows(mir, "array_text_residence_sessions"))
     rows.extend(function_metadata_rows(mir, "array_text_observer_routes"))
     return rows
+
+
+def resolve_objdump_symbol(objdump_text: str, function_name: str) -> tuple[str, int | None]:
+    import re
+
+    preferred = [
+        function_name,
+        function_name.replace("/", "_"),
+        "ny_main",
+        "main",
+    ]
+    lines = objdump_text.splitlines()
+    label_pattern = re.compile(r"^\s*[0-9a-fA-F]+\s+<([^>]+)>:\s*$")
+    indexed_labels: list[tuple[str, int]] = []
+    for idx, line in enumerate(lines, start=1):
+        m = label_pattern.match(line)
+        if m:
+            indexed_labels.append((m.group(1), idx))
+    if not indexed_labels:
+        return ("unknown", None)
+    label_map = {label: line_no for label, line_no in indexed_labels}
+    for candidate in preferred:
+        if candidate and candidate in label_map:
+            return candidate, label_map[candidate]
+    return indexed_labels[0]
 
 
 def manifest_contract(
@@ -440,13 +534,54 @@ def bundle_scope(args: argparse.Namespace) -> int:
     mir_json_text = json.dumps(mir, indent=2, sort_keys=True) + "\n"
 
     route_rows = route_counts(mir)
-    emit_mir, emit_mir_json, emit_llvm, emit_asm = determine_artifacts(args.emit)
-    if emit_llvm or emit_asm:
-        if not args.allow_unavailable_artifacts:
-            raise SystemExit(
-                "requested llvm/asm artifacts are not implemented yet; "
-                "rerun with --allow-unavailable-artifacts or omit them"
+    _emit_mir_requested, _emit_mir_json_requested, emit_llvm_requested, emit_asm_requested = determine_artifacts(args.emit)
+    emit_mir_actual = True
+    emit_mir_json_actual = True
+    emit_llvm_actual = emit_llvm_requested
+    emit_asm_actual = emit_asm_requested
+    backend_trace_log = ""
+    backend_trace_dir: Path | None = None
+    llvm_ir_text = ""
+    asm_text = ""
+    asm_map: dict[str, Any] = {}
+    if emit_llvm_requested or emit_asm_requested:
+        try:
+            backend_trace_dir, backend_trace_log = emit_llvm_asm_bundle(
+                mir_json_path,
+                args.function or "",
+                args.emit_timeout_secs,
             )
+            llvm_ir_path = backend_trace_dir / "lowered.ll"
+            asm_path = backend_trace_dir / "objdump.txt"
+            llvm_ir_text = llvm_ir_path.read_text(encoding="utf-8", errors="replace")
+            asm_text = asm_path.read_text(encoding="utf-8", errors="replace")
+            emit_llvm_actual = True
+            emit_asm_actual = True
+            symbol_name, symbol_line = resolve_objdump_symbol(asm_text, args.function or "")
+            asm_map = {
+                "output_contract": "hako-inspect-asm-map-v0",
+                "tool_surface": "hako_check_inspect_scope",
+                "source_file": str(selector.source_file),
+                "region_id": selector.region_id,
+                "function": args.function or "",
+                "function_symbol": symbol_name,
+                "mapping_quality": "symbol",
+                "asm_file": "asm.s",
+                "symbol_line": symbol_line,
+                "notes": [
+                    "assembly mapping is symbol-level evidence from trace bundle output",
+                ],
+            }
+        except SystemExit:
+            if not args.allow_unavailable_artifacts:
+                raise
+            emit_llvm_actual = False
+            emit_asm_actual = False
+            backend_trace_log = ""
+            backend_trace_dir = None
+            llvm_ir_text = ""
+            asm_text = ""
+            asm_map = {}
 
     manifest = manifest_contract(
         selector.kind,
@@ -455,13 +590,13 @@ def bundle_scope(args: argparse.Namespace) -> int:
         selector.region_id,
         args.function or "",
         args.backend,
-        emit_mir,
-        emit_mir_json,
-        emit_llvm,
-        emit_asm,
+        emit_mir_actual,
+        emit_mir_json_actual,
+        emit_llvm_actual,
+        emit_asm_actual,
         "exact" if mir_json_path is not None else "missing",
-        "missing",
-        "missing",
+        "block" if emit_llvm_actual else "missing",
+        "symbol" if emit_asm_actual else "missing",
         "ok",
     )
     manifest["selector"] = {
@@ -471,6 +606,10 @@ def bundle_scope(args: argparse.Namespace) -> int:
     }
     if emit_log:
         manifest["emit_log"] = emit_log
+    if backend_trace_log:
+        manifest["backend_trace_log"] = backend_trace_log
+    if backend_trace_dir is not None:
+        manifest["backend_trace_dir"] = str(backend_trace_dir)
 
     report_rows = bundle_report_rows(
         selector.kind,
@@ -479,13 +618,13 @@ def bundle_scope(args: argparse.Namespace) -> int:
         selector.region_id,
         args.function or "",
         args.backend,
-        emit_mir,
-        emit_mir_json,
-        emit_llvm,
-        emit_asm,
+        emit_mir_actual,
+        emit_mir_json_actual,
+        emit_llvm_actual,
+        emit_asm_actual,
         "exact" if mir_json_path is not None else "missing",
-        "missing",
-        "missing",
+        "block" if emit_llvm_actual else "missing",
+        "symbol" if emit_asm_actual else "missing",
         route_rows,
         "ok",
     )
@@ -498,7 +637,7 @@ def bundle_scope(args: argparse.Namespace) -> int:
         f"- MIR JSON: {mir_json_path}",
         f"- selected routes: {route_rows['array_text_selected_route_count']}",
         f"- compat helper calls: {route_rows['array_text_compat_string_indexof_hisi_count']}",
-        f"- mapping: source->MIR exact, MIR->LLVM missing, LLVM->ASM missing",
+        f"- mapping: source->MIR exact, MIR->LLVM {'block' if emit_llvm_actual else 'missing'}, LLVM->ASM {'symbol' if emit_asm_actual else 'missing'}",
     ]
 
     source_slice_path = out_dir / "source.slice.hako"
@@ -512,6 +651,9 @@ def bundle_scope(args: argparse.Namespace) -> int:
     report_path = out_dir / "report.kv"
     summary_path = out_dir / "summary.md"
     manifest_path = out_dir / "manifest.json"
+    llvm_ir_path = out_dir / "llvm.ir"
+    asm_path = out_dir / "asm.s"
+    asm_map_path = out_dir / "asm.map.json"
 
     write_text(source_slice_path, selected_source)
     write_json(
@@ -537,6 +679,11 @@ def bundle_scope(args: argparse.Namespace) -> int:
             "source_hash": f"sha256:{source_hash}",
         },
     )
+    if emit_llvm_actual:
+        write_text(llvm_ir_path, llvm_ir_text)
+    if emit_asm_actual:
+        write_text(asm_path, asm_text)
+        write_json(asm_map_path, asm_map)
     write_text(report_path, report_text)
     write_json(manifest_path, manifest)
     write_text(summary_path, "\n".join(summary_lines) + "\n")

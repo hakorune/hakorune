@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 TOOLS = ROOT / "tools" / "hako_check"
@@ -110,6 +111,75 @@ class InspectScopeDumpTest(unittest.TestCase):
             self.assertIn("array_text_selected_route_count=1", report)
             self.assertIn("typed_object_exact_route_decision_count=1", report)
             self.assertIn("summary=ok", report)
+
+    def test_scope_bundle_writes_backend_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            source = tmp_path / "scope.hako"
+            source.write_text(
+                "\n".join(
+                    [
+                        "box Example {",
+                        "// hako:inspect begin region_a",
+                        "__mir__.mark(\"region_a\")",
+                        "local a",
+                        "a = a + 1",
+                        "// hako:inspect end region_a",
+                        "}",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            mir_json = tmp_path / "mir.json"
+            mir_json.write_text(json.dumps(self._mir()), encoding="utf-8")
+            out_dir = tmp_path / "bundle"
+
+            def fake_emit_backend_bundle(mir_json_path: Path, function_name: str, timeout_secs: int):
+                backend_dir = tmp_path / "backend"
+                backend_dir.mkdir(exist_ok=True)
+                (backend_dir / "lowered.ll").write_text("; ModuleID = 'test'\n", encoding="utf-8")
+                (backend_dir / "objdump.txt").write_text(
+                    "\n".join(
+                        [
+                            "0000000000001000 <ny_main>:",
+                            "   1000:  c3                    ret",
+                        ]
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+                return backend_dir, "[bundle] llvm_ir=/tmp/test.ll\n"
+
+            with mock.patch.object(inspect_scope_dump, "emit_llvm_asm_bundle", side_effect=fake_emit_backend_bundle):
+                rc = inspect_scope_dump.main(
+                    [
+                        "scope",
+                        "--source-file",
+                        str(source),
+                        "--span",
+                        f"{source}:2:5",
+                        "--mir-json",
+                        str(mir_json),
+                        "--emit",
+                        "mir,mir-json,llvm,asm,report",
+                        "--out",
+                        str(out_dir),
+                    ]
+                )
+
+            self.assertEqual(rc, 0)
+            self.assertTrue((out_dir / "llvm.ir").is_file())
+            self.assertTrue((out_dir / "asm.s").is_file())
+            self.assertTrue((out_dir / "asm.map.json").is_file())
+            report = (out_dir / "report.kv").read_text(encoding="utf-8")
+            self.assertIn("emit_llvm=1", report)
+            self.assertIn("emit_asm=1", report)
+            self.assertIn("mir_to_llvm_mapping=block", report)
+            self.assertIn("llvm_to_asm_mapping=symbol", report)
+            asm_map = json.loads((out_dir / "asm.map.json").read_text(encoding="utf-8"))
+            self.assertEqual(asm_map["output_contract"], "hako-inspect-asm-map-v0")
+            self.assertEqual(asm_map["mapping_quality"], "symbol")
 
     def test_route_bundle_filters_selected_route(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
