@@ -163,4 +163,13 @@ PERF-USERBOX-002:
 
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_loader_owner_split_guard.sh
+
+PERF-USERBOX-003:
+  keep the first link/startup optimization as a probe: fix hyphen-prefixed
+  `HAKO_AOT_LDFLAGS` forwarding, prove `-static-libgcc` removes dynamic
+  `libgcc_s`, and do not change the default link mode or select full static
+  linking.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh
 ```

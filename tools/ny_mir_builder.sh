@@ -225,7 +225,7 @@ case "$EMIT" in
         # Produce exe directly via ny-llvmc (lets ny-llvmc link)
         LIBS="${HAKO_AOT_LDFLAGS:-}"
         # Run and surface linker diagnostics on failure
-        if ! "$BIN_NYLLVMC" --in "$INPUT_FOR_CRATE" --emit exe --nyrt target/release --libs "$LIBS" --out "$OUT"; then
+        if ! "$BIN_NYLLVMC" --in "$INPUT_FOR_CRATE" --emit exe --nyrt target/release --libs="$LIBS" --out "$OUT"; then
           echo "error: ny-llvmc failed to link exe" >&2; exit 4
         fi
         ;;

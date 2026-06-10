@@ -159,6 +159,31 @@ attribution_startup_loader_attribution_report=1
 summary=ok
 ```
 
+## Static-libgcc Link Probe
+
+`PERF-USERBOX-003` keeps the first link/startup optimization as a probe rather
+than changing the default link mode. The immediate fix is to preserve
+hyphen-prefixed linker flags passed through `HAKO_AOT_LDFLAGS`, then prove that
+`-static-libgcc` removes the dynamic `libgcc_s` dependency from a ret0 exact-AOT
+executable.
+
+```text
+task=PERF-USERBOX-003
+scope=exact-AOT static-libgcc link probe
+guard=tools/checks/k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh
+
+linker_flag_forwarding_fix=tools/ny_mir_builder.sh passes --libs="$HAKO_AOT_LDFLAGS"
+candidate_ldflags=-static-libgcc
+dynamic_needed_libgcc_s=0
+default_link_mode_changed=0
+full_static_link_default=0
+```
+
+`-static` is intentionally not selected here. It removes the dynamic executable
+surface, but it also shifts the ret0 owner to statically linked Rust/glibc init
+work. That is a wider runtime/package decision and must stay separate from this
+small `libgcc_s` dependency probe.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

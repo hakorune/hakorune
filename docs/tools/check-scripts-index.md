@@ -386,6 +386,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh` | PERF-USERBOX-001 の userbox direct-helper floor attribution guard。floor_run_status=ok、invalid ArrayBox handle=0、startup_loader_attribution_report=1 を固定する。 |
 | `tools/allocator/userbox_startup_loader_owner_split.sh` | PERF-USERBOX-002 の userbox startup/loader owner split tool。ret0 exact-AOT startup perf-top と userbox floor/helper attribution を結合する。 |
 | `tools/checks/k2_wide_phase296x_perf_userbox_startup_loader_owner_split_guard.sh` | PERF-USERBOX-002 の userbox startup/loader owner split guard。ret0 perf top、primary owner family、attribution join を固定する。 |
+| `tools/checks/k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh` | PERF-USERBOX-003 の exact-AOT static-libgcc probe guard。`HAKO_AOT_LDFLAGS=-static-libgcc` が ret0 exact-AOT build に届き、dynamic `libgcc_s` dependency を外すことを固定する。 |
 | `tools/allocator/typed_object_exact_slot_owner_refresh.py` | 296x-217 の post exact-slot helper owner refresh tool。perf top から exact-slot helper / Array backend / Hako method owner を分類する。 |
 | `tools/checks/k2_wide_phase296x_post_exact_slot_direct_helper_owner_refresh_guard.sh` | 296x-217 の post exact-slot helper owner refresh guard。exact-slot helper call boundary を次 diagnostic に固定する。 |
 | `tools/allocator/mir_typed_field_direct_op_net_inventory.py` | 296x-218 の MIR typed-field direct-op net inventory。typed-object slot plan から exact helper を direct-op で消せる projected net helper-call delta を数える。 |
