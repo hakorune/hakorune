@@ -113,6 +113,55 @@ pub fn aot_ldflags() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+/// Whether ny-llvmc links libnyash_kernel.a with `--whole-archive`.
+///
+/// Env:
+/// - `NYASH_LLVM_LINK_WHOLE_ARCHIVE=1` keeps the current link shape.
+/// - `NYASH_LLVM_LINK_WHOLE_ARCHIVE=0` links the runtime archive normally,
+///   which is useful for perf/startup probes that want smaller executables.
+pub fn aot_link_whole_archive() -> bool {
+    match std::env::var("NYASH_LLVM_LINK_WHOLE_ARCHIVE")
+        .ok()
+        .as_deref()
+        .map(|v| v.trim().to_ascii_lowercase())
+    {
+        None => true,
+        Some(ref v) if v == "1" || v == "true" || v == "on" => true,
+        Some(ref v) if v == "0" || v == "false" || v == "off" => false,
+        Some(invalid) => {
+            eprintln!(
+                "[freeze:contract][ny-llvmc/link/whole-archive] NYASH_LLVM_LINK_WHOLE_ARCHIVE='{}' (allowed: 1|0|true|false|on|off)",
+                invalid
+            );
+            std::process::exit(1);
+        }
+    }
+}
+
+/// Whether ny-llvmc passes `--gc-sections` when linking AOT exe.
+///
+/// Env:
+/// - `NYASH_LLVM_LINK_GC_SECTIONS=1` enables linker garbage collection.
+/// - `NYASH_LLVM_LINK_GC_SECTIONS=0` keeps the default link shape.
+pub fn aot_link_gc_sections() -> bool {
+    match std::env::var("NYASH_LLVM_LINK_GC_SECTIONS")
+        .ok()
+        .as_deref()
+        .map(|v| v.trim().to_ascii_lowercase())
+    {
+        None => false,
+        Some(ref v) if v == "1" || v == "true" || v == "on" => true,
+        Some(ref v) if v == "0" || v == "false" || v == "off" => false,
+        Some(invalid) => {
+            eprintln!(
+                "[freeze:contract][ny-llvmc/link/gc-sections] NYASH_LLVM_LINK_GC_SECTIONS='{}' (allowed: 1|0|true|false|on|off)",
+                invalid
+            );
+            std::process::exit(1);
+        }
+    }
+}
+
 /// C-ABI trace (HAKO_CABI_TRACE=1).
 pub fn cabi_trace() -> bool {
     env_bool("HAKO_CABI_TRACE")
@@ -138,6 +187,8 @@ mod tests {
         transport_owner: Option<OsString>,
         legacy_daily_allowed: Option<OsString>,
         legacy_capi_pure: Option<OsString>,
+        link_whole_archive: Option<OsString>,
+        link_gc_sections: Option<OsString>,
     }
 
     impl Drop for EnvRestore {
@@ -166,6 +217,14 @@ mod tests {
                 Some(v) => std::env::set_var("HAKO_CAPI_PURE", v),
                 None => std::env::remove_var("HAKO_CAPI_PURE"),
             }
+            match self.link_whole_archive.take() {
+                Some(v) => std::env::set_var("NYASH_LLVM_LINK_WHOLE_ARCHIVE", v),
+                None => std::env::remove_var("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            }
+            match self.link_gc_sections.take() {
+                Some(v) => std::env::set_var("NYASH_LLVM_LINK_GC_SECTIONS", v),
+                None => std::env::remove_var("NYASH_LLVM_LINK_GC_SECTIONS"),
+            }
         }
     }
 
@@ -190,6 +249,8 @@ mod tests {
             transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
             legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
             legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
         };
         std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", "pure-first");
         std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", "harness");
@@ -209,6 +270,8 @@ mod tests {
             transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
             legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
             legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
         };
 
         std::env::set_var(
@@ -245,10 +308,80 @@ mod tests {
             transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
             legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
             legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
         };
         std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
         std::env::set_var("HAKO_CAPI_PURE", "1");
 
         assert!(!super::backend_recipe_requests_pure_first());
+    }
+
+    #[test]
+    fn aot_link_whole_archive_defaults_to_enabled() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
+        };
+        std::env::remove_var("NYASH_LLVM_LINK_WHOLE_ARCHIVE");
+        assert!(super::aot_link_whole_archive());
+    }
+
+    #[test]
+    fn aot_link_whole_archive_accepts_disable_aliases() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
+        };
+        std::env::set_var("NYASH_LLVM_LINK_WHOLE_ARCHIVE", "0");
+        assert!(!super::aot_link_whole_archive());
+    }
+
+    #[test]
+    fn aot_link_gc_sections_defaults_to_disabled() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
+        };
+        std::env::remove_var("NYASH_LLVM_LINK_GC_SECTIONS");
+        assert!(!super::aot_link_gc_sections());
+    }
+
+    #[test]
+    fn aot_link_gc_sections_accepts_enable_aliases() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+            legacy_capi_pure: std::env::var_os("HAKO_CAPI_PURE"),
+            link_whole_archive: std::env::var_os("NYASH_LLVM_LINK_WHOLE_ARCHIVE"),
+            link_gc_sections: std::env::var_os("NYASH_LLVM_LINK_GC_SECTIONS"),
+        };
+        std::env::set_var("NYASH_LLVM_LINK_GC_SECTIONS", "1");
+        assert!(super::aot_link_gc_sections());
     }
 }

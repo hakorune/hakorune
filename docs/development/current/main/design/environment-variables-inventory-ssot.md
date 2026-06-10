@@ -196,7 +196,7 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_GC_TRACE` | bool | false | GC trace | 低 |
 | `NYASH_GC_STRESS` | bool | false | GC stress test | 低 |
 
-### I. LLVM系 (5個)
+### I. LLVM系 (7個)
 
 | 変数名 | 型 | デフォルト | 目的 | 使用頻度 |
 |--------|------|----------|------|----------|
@@ -205,6 +205,8 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_LLVM_DUMP_IR` | string | - | Dump LLVM IR path | 低 |
 | `NYASH_LLVM_VERIFY` | bool | true | Verify LLVM IR | 低 |
 | `NYASH_LLVM_OPT_LEVEL` | string | ? | LLVM optimization level | 低 |
+| `NYASH_LLVM_LINK_WHOLE_ARCHIVE` | bool | true | Keep libnyash_kernel.a under whole-archive when linking AOT exe | 中 |
+| `NYASH_LLVM_LINK_GC_SECTIONS` | bool | false | Enable --gc-sections when linking AOT exe | 中 |
 
 ### J. VM系 (3個)
 
@@ -232,6 +234,7 @@ tools/checks/env_dead_accessors_report.sh
 | モジュール | 主な環境変数 |
 |-----------|-------------|
 | `src/runner/` | `NYASH_CLI_VERBOSE`, `NYASH_ENABLE_USING`, `NYASH_LLVM_USE_HARNESS` |
+| `crates/nyash-llvm-compiler/src/` | `NYASH_LLVM_LINK_WHOLE_ARCHIVE`, `NYASH_LLVM_LINK_GC_SECTIONS` |
 | `src/mir/builder/control_flow/joinir/` | `HAKO_JOINIR_*`, `NYASH_JOINIR_*` |
 | `src/mir/builder/control_flow/plan/` | `NYASH_VERIFIER_DEBUG`, `NYASH_RECIPE_TRACE` |
 | `src/mir/policies/` | `NYASH_FAIL_FAST`, `NYASH_VERIFY_*` |

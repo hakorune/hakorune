@@ -65,6 +65,10 @@ trap cleanup EXIT
 
 source "${ROOT_DIR}/tools/perf/lib/aot_helpers.sh"
 
+# Keep the benchmark-specific AOT executable compact so startup/loader cost stays measurable.
+export NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"
+export NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"
+
 if ! perf_emit_and_build_aot_exe "${ROOT_DIR}" "${HAKORUNE_BIN}" "${HAKO_PROG}" "${AOT_EXE}"; then
   echo "[error] AOT emit/build failed: status=${PERF_AOT_LAST_STATUS} reason=${PERF_AOT_LAST_REASON} stage=${PERF_AOT_LAST_STAGE}" >&2
   exit 1

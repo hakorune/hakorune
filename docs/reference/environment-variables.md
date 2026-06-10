@@ -159,6 +159,8 @@ Throw surface policy:
 | `HAKO_BACKEND_COMPILE_RECIPE=pure-first` | OFF | LLVM / backend-zero | backend-zero の transport hint。`.hako` daily compile は explicit recipe payload を渡し、Rust/C transport が boundary handoff でこの値を mirror する。recipe-aware caller は explicit `pure-first` FFI export を選び、generic C export には route 意味論を増やさない。 |
 | `HAKO_BACKEND_COMPAT_REPLAY={none\|harness}` | OFF | LLVM / backend-zero | pure-first route で unsupported shape をどの compat keep へ流すかを示す transport hint。mainline/perf judge は `none` を正本にし、`harness` は explicit Stage0 keep lane だけで使う。 |
 | `HAKO_AOT_LDFLAGS` | OFF | LLVM / backend-zero | AOT link の compat append ldflags。daily caller の main route は `LlvmBackendBox.link_exe(..., libs)` の 3rd arg。 |
+| `NYASH_LLVM_LINK_WHOLE_ARCHIVE=1` | `1` | LLVM / backend-zero | AOT executable link 時に `libnyash_kernel.a` を `--whole-archive` で固定する。`0` にすると archive を通常リンクして、perf/startup probe で小さい実行体を測りやすくする。 |
+| `NYASH_LLVM_LINK_GC_SECTIONS=1` | `0` | LLVM / backend-zero | AOT executable link 時に `--gc-sections` を有効化する。`1` にすると未使用 section を落として、perf/startup probe でさらに小さい実行体を測りやすくする。 |
 | `HAKO_CAPI_PURE=1` | OFF | LLVM / compat-only pure-lowering | retired legacy alias。historical pure C-API/FFI lowering route の旧 spelling。daily backend-zero route と active pure-keep helper は `HAKO_BACKEND_COMPILE_RECIPE=pure-first` を正本にする。P99 以降は使用時に warn-once `[deprecate/env]` を出す。P100 以降、C generic FFI / `ny-llvmc` boundary driver では `[freeze:contract][env/hako_capi_pure_retired]` で fail-fast し、Rust env helper では pure-first 判定に使わない。 |
 
 PyVM position:

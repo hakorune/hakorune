@@ -68,6 +68,10 @@ source "${ROOT_DIR}/tools/perf/lib/bench_key_alias.sh"
 source "${ROOT_DIR}/tools/perf/lib/bench_env.sh"
 source "${ROOT_DIR}/tools/perf/lib/aot_helpers.sh"
 
+# Compact the AOT executable so asm/probe bundles stay closer to the kernel-only cost.
+export NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"
+export NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"
+
 if ! perf_is_supported_bench4_key "${BENCH_KEY}"; then
   echo "[error] unsupported bench key for string trace bundle: ${BENCH_KEY}" >&2
   exit 2

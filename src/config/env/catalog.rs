@@ -452,6 +452,18 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "NYASH_LLVM_LINK_WHOLE_ARCHIVE",
+            description: "Keep libnyash_kernel.a under --whole-archive when linking AOT exe (0 disables for smaller perf/startup probes)",
+            applies_to: AppliesTo::Compiler,
+            default: Some("1"),
+        },
+        EnvVarMeta {
+            name: "NYASH_LLVM_LINK_GC_SECTIONS",
+            description: "Pass --gc-sections when linking AOT exe (1 enables linker garbage collection for smaller perf/startup probes)",
+            applies_to: AppliesTo::Compiler,
+            default: Some("0"),
+        },
+        EnvVarMeta {
             name: "HAKO_V1_EXTERN_PROVIDER_C_ABI",
             description: "Enable extern provider C-ABI bridge (1=true)",
             applies_to: AppliesTo::Compiler,

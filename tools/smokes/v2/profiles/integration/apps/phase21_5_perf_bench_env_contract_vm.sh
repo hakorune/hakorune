@@ -117,6 +117,30 @@ if ! grep -q 'NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}
   test_fail "$SMOKE_NAME: aot_helpers does not pin AOT safepoint poll default"
   exit 1
 fi
+if ! grep -q 'NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"' "$MICRO_STAT"; then
+  test_fail "$SMOKE_NAME: micro_stat does not pin NYASH_LLVM_LINK_WHOLE_ARCHIVE"
+  exit 1
+fi
+if ! grep -q 'NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"' "$MICRO_STAT"; then
+  test_fail "$SMOKE_NAME: micro_stat does not pin NYASH_LLVM_LINK_GC_SECTIONS"
+  exit 1
+fi
+if ! grep -q 'NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"' "$MICRO_ASM"; then
+  test_fail "$SMOKE_NAME: micro_asm does not pin NYASH_LLVM_LINK_WHOLE_ARCHIVE"
+  exit 1
+fi
+if ! grep -q 'NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"' "$MICRO_ASM"; then
+  test_fail "$SMOKE_NAME: micro_asm does not pin NYASH_LLVM_LINK_GC_SECTIONS"
+  exit 1
+fi
+if ! grep -q 'NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"' "$MICRO_LADDER"; then
+  test_fail "$SMOKE_NAME: micro_ladder does not pin NYASH_LLVM_LINK_WHOLE_ARCHIVE"
+  exit 1
+fi
+if ! grep -q 'NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"' "$MICRO_LADDER"; then
+  test_fail "$SMOKE_NAME: micro_ladder does not pin NYASH_LLVM_LINK_GC_SECTIONS"
+  exit 1
+fi
 if ! grep -q 'NYASH_SCHED_POLL_IN_SAFEPOINT=\${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}' "$BENCH_ENV"; then
   test_fail "$SMOKE_NAME: bench_env does not pin safepoint poll policy default"
   exit 1

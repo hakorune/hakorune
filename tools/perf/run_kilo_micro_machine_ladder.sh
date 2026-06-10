@@ -15,6 +15,10 @@ REPEAT="${2:-15}"
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 STAT="${ROOT_DIR}/tools/perf/bench_micro_c_vs_aot_stat.sh"
 
+# Compact the AOT executables for the startup/loader-sensitive micro lanes.
+export NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"
+export NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"
+
 if [[ ! -x "${STAT}" ]]; then
   echo "[error] missing executable: ${STAT}" >&2
   exit 2

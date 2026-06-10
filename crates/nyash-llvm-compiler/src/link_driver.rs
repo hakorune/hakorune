@@ -70,6 +70,8 @@ pub(super) fn link_executable(
             nyrt_dir.display(),
         );
     }
+    let whole_archive_enabled = link_whole_archive_enabled()?;
+    let gc_sections_enabled = link_gc_sections_enabled()?;
 
     let linker = ["cc", "clang", "gcc"]
         .into_iter()
@@ -90,9 +92,16 @@ pub(super) fn link_executable(
     if use_no_pie {
         cmd.arg("-no-pie");
     }
-    cmd.arg("-Wl,--whole-archive")
-        .arg(&libnyrt)
-        .arg("-Wl,--no-whole-archive");
+    if whole_archive_enabled {
+        cmd.arg("-Wl,--whole-archive")
+            .arg(&libnyrt)
+            .arg("-Wl,--no-whole-archive");
+    } else {
+        cmd.arg(&libnyrt);
+    }
+    if gc_sections_enabled {
+        cmd.arg("-Wl,--gc-sections");
+    }
     cmd.arg("-ldl").arg("-lpthread").arg("-lm");
     if let Some(extras) = extra_libs {
         for tok in extras.split_whitespace() {
@@ -104,12 +113,17 @@ pub(super) fn link_executable(
         .with_context(|| format!("failed to invoke system linker: {}", linker))?;
     if !output.status.success() {
         eprintln!("[ny-llvmc/link] command: {}", linker);
+        let archive_mode = if whole_archive_enabled {
+            format!("-Wl,--whole-archive {} -Wl,--no-whole-archive", libnyrt.display())
+        } else {
+            libnyrt.display().to_string()
+        };
         eprintln!(
-            "[ny-llvmc/link] args: -o {} {} {} -Wl,--whole-archive {} -Wl,--no-whole-archive -ldl -lpthread -lm {}",
+            "[ny-llvmc/link] args: -o {} {} {} {} -ldl -lpthread -lm {}",
             out_exe.display(),
             obj.display(),
             if use_no_pie { "-no-pie" } else { "" },
-            libnyrt.display(),
+            archive_mode,
             extra_libs.unwrap_or("")
         );
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -119,6 +133,42 @@ pub(super) fn link_executable(
         bail!("linker exited with status: {:?}", output.status.code());
     }
     Ok(())
+}
+
+fn parse_link_whole_archive_enabled(raw: Option<&str>) -> Result<bool> {
+    let Some(value) = raw.map(str::trim).filter(|s| !s.is_empty()) else {
+        return Ok(true);
+    };
+    match value.to_ascii_lowercase().as_str() {
+        "1" | "true" | "on" => Ok(true),
+        "0" | "false" | "off" => Ok(false),
+        other => bail!(
+            "[freeze:contract][ny-llvmc/link/whole-archive] expected=1|0|true|false|on|off got={}",
+            other
+        ),
+    }
+}
+
+fn link_whole_archive_enabled() -> Result<bool> {
+    parse_link_whole_archive_enabled(env::var("NYASH_LLVM_LINK_WHOLE_ARCHIVE").ok().as_deref())
+}
+
+fn parse_link_gc_sections_enabled(raw: Option<&str>) -> Result<bool> {
+    let Some(value) = raw.map(str::trim).filter(|s| !s.is_empty()) else {
+        return Ok(false);
+    };
+    match value.to_ascii_lowercase().as_str() {
+        "1" | "true" | "on" => Ok(true),
+        "0" | "false" | "off" => Ok(false),
+        other => bail!(
+            "[freeze:contract][ny-llvmc/link/gc-sections] expected=1|0|true|false|on|off got={}",
+            other
+        ),
+    }
+}
+
+fn link_gc_sections_enabled() -> Result<bool> {
+    parse_link_gc_sections_enabled(env::var("NYASH_LLVM_LINK_GC_SECTIONS").ok().as_deref())
 }
 
 #[cfg(test)]
@@ -138,6 +188,64 @@ mod tests {
         let message = err.to_string();
         assert!(
             message.contains("explicit --nyrt <DIR> is required for Harness/Native exe linking")
+        );
+    }
+
+    #[test]
+    fn link_whole_archive_defaults_to_enabled() {
+        assert!(parse_link_whole_archive_enabled(None).unwrap());
+        assert!(parse_link_whole_archive_enabled(Some("")).unwrap());
+    }
+
+    #[test]
+    fn link_whole_archive_accepts_disable_aliases() {
+        assert!(!parse_link_whole_archive_enabled(Some("0")).unwrap());
+        assert!(!parse_link_whole_archive_enabled(Some("false")).unwrap());
+        assert!(!parse_link_whole_archive_enabled(Some("off")).unwrap());
+    }
+
+    #[test]
+    fn link_whole_archive_accepts_enable_aliases() {
+        assert!(parse_link_whole_archive_enabled(Some("1")).unwrap());
+        assert!(parse_link_whole_archive_enabled(Some("true")).unwrap());
+        assert!(parse_link_whole_archive_enabled(Some("on")).unwrap());
+    }
+
+    #[test]
+    fn link_whole_archive_rejects_invalid_values() {
+        let err = parse_link_whole_archive_enabled(Some("maybe")).unwrap_err();
+        assert!(
+            err.to_string()
+                .contains("[freeze:contract][ny-llvmc/link/whole-archive]")
+        );
+    }
+
+    #[test]
+    fn link_gc_sections_defaults_to_disabled() {
+        assert!(!parse_link_gc_sections_enabled(None).unwrap());
+        assert!(!parse_link_gc_sections_enabled(Some("")).unwrap());
+    }
+
+    #[test]
+    fn link_gc_sections_accepts_disable_aliases() {
+        assert!(!parse_link_gc_sections_enabled(Some("0")).unwrap());
+        assert!(!parse_link_gc_sections_enabled(Some("false")).unwrap());
+        assert!(!parse_link_gc_sections_enabled(Some("off")).unwrap());
+    }
+
+    #[test]
+    fn link_gc_sections_accepts_enable_aliases() {
+        assert!(parse_link_gc_sections_enabled(Some("1")).unwrap());
+        assert!(parse_link_gc_sections_enabled(Some("true")).unwrap());
+        assert!(parse_link_gc_sections_enabled(Some("on")).unwrap());
+    }
+
+    #[test]
+    fn link_gc_sections_rejects_invalid_values() {
+        let err = parse_link_gc_sections_enabled(Some("maybe")).unwrap_err();
+        assert!(
+            err.to_string()
+                .contains("[freeze:contract][ny-llvmc/link/gc-sections]")
         );
     }
 }
