@@ -156,6 +156,31 @@ Every new optimization row that adds a durable tool should add:
 4. active card evidence
 ```
 
+### Link / Startup Attribution Surface
+
+Owner:
+
+```text
+tools/perf/lib/aot_helpers.sh
+tools/allocator/userbox_startup_loader_owner_split.sh
+tools/checks/k2_wide_phase296x_perf_*.sh
+docs/development/current/main/design/perf-userbox-link-startup-attribution-ssot.md
+```
+
+Use when the question is:
+
+```text
+What is the exact-AOT link/startup floor owner right now?
+Did `-static-libgcc`, minimal system libs, or plugin-host-off change the floor?
+```
+
+Stop line:
+
+```text
+This lane is not hako_check-owned.
+Use hako_check for source/MIR/inspect artifacts, not for link/startup ownership.
+```
+
 ## Phaselet Pattern
 
 For optimization tool usability, prefer small phaselets:

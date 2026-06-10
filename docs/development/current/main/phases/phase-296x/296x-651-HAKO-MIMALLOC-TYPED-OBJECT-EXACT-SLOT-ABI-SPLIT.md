@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-06-09
+Date: 2026-06-10
 Scope: split typed-object exact slot ABI from compat field access before the next C-speed user-box optimization.
 Blocker: HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001
 Related:
@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
   - docs/development/current/main/design/representation-direct-lowering-ssot.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
+  - docs/development/current/main/design/perf-userbox-link-startup-attribution-ssot.md
   - crates/nyash_kernel/src/exports/typed_object.rs
   - crates/nyash_kernel/src/exports/typed_object_pinned_arena.rs
   - tools/perf/bench_micro_aot_asm.sh
@@ -190,4 +191,7 @@ PERF-USERBOX-005:
 
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh
+
+Next:
+  NyRT runtime hooks / env / stdio startup floor.
 ```

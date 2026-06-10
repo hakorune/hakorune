@@ -1,0 +1,78 @@
+---
+Status: SSOT
+Decision: current
+Date: 2026-06-10
+Scope: exact-AOT link option contract and startup attribution ladder for PERF-USERBOX rows.
+Related:
+  - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md
+  - docs/development/current/main/design/optimization-tag-flow-ssot.md
+  - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
+  - docs/reference/environment-variables.md
+  - docs/tools/check-scripts-index.md
+  - tools/perf/lib/aot_helpers.sh
+  - tools/ny_mir_builder.sh
+  - lang/c-abi/shims/hako_aot_shared_impl.inc
+  - crates/nyash_kernel/src/entry.rs
+  - tools/hako_check/README.md
+---
+
+# PERF-USERBOX Link / Startup Attribution SSOT
+
+## Goal
+
+Keep the exact-AOT link / startup probe lane readable in one page.
+
+This lane is not a `hako_check` optimization surface. `hako_check` stays
+read-only and source/MIR oriented; link / startup attribution lives in
+`tools/perf`, `tools/allocator`, and `tools/checks`.
+
+## Contract Surface
+
+These are the only knobs this lane treats as first-class:
+
+| Knob | Default | Reading |
+| --- | --- | --- |
+| `HAKO_AOT_LDFLAGS` | unset | Compat append ldflags. Use for explicit `-static-libgcc` or other caller-owned additions. |
+| `NYASH_LLVM_LINK_SYSTEM_LIBS` | `full` | `full` keeps the historical `-ldl -lpthread -lm` surface; `minimal` drops `-lm` for diagnostic probes only. |
+| `HAKO_NYRT_PLUGIN_HOST` | `auto` | `auto` keeps normal NyRT plugin-host init; `off` skips plugin-host init for no-plugin floor probes. |
+| `NYASH_NYRT_SILENT_RESULT` | off | Suppresses the standard `Result: <code>` line so startup probes can keep stdout clean. |
+
+Rules:
+
+- default link mode stays compatibility-first
+- `minimal` is a probe mode, not a new public ABI
+- `off` is a diagnostic plugin-host mode, not a runtime policy change
+- if a program needs math symbols, it must opt back in explicitly
+- do not move this lane into `hako_check`; the surface is evidence packaging, not route ownership
+
+## One-Page Ladder
+
+| Row | Focus | Guard | What changed | What stayed closed |
+| --- | --- | --- | --- | --- |
+| `PERF-USERBOX-001` | direct-helper floor attribution | `k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh` | floor run becomes measurable and valid | `.hako`, MIRBuilder, route planning, exact helper lowering, runtime object representation |
+| `PERF-USERBOX-002` | startup / loader owner split | `k2_wide_phase296x_perf_userbox_startup_loader_owner_split_guard.sh` | ret0 startup top symbols are classified | source, MIRBuilder, route planner, exact helper lowering, runtime object representation |
+| `PERF-USERBOX-003` | `-static-libgcc` probe | `k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh` | dynamic `libgcc_s` drops on ret0 | default link mode, full static linking |
+| `PERF-USERBOX-004` | minimal system libs probe | `k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh` | dynamic `libm` also drops on ret0 | default link mode, full static linking |
+| `PERF-USERBOX-005` | NyRT plugin-host-off probe | `k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh` | plugin-host init is skipped for the floor seed | normal NyRT plugin support, default runtime behavior |
+
+## Reading Order
+
+1. `docs/development/current/main/CURRENT_STATE.toml`
+2. this SSOT
+3. `docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md`
+4. `docs/reference/environment-variables.md`
+5. `tools/checks/current_state_pointer_guard.sh`
+
+## Stop Line
+
+- do not change the default link mode while evaluating the probe rows
+- do not introduce a new public ABI for this lane
+- do not turn `hako_check` into the owner of link/startup attribution
+- do not silently fallback from `minimal` to `full`
+- do not silently ignore invalid knob values
+
+## Next Seam
+
+The current floor is now below loader, libgcc, libm, and plugin-host init.
+The next owner is the NyRT runtime hooks / env / stdio startup floor.
