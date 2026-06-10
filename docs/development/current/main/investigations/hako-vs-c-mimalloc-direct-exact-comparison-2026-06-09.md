@@ -65,6 +65,26 @@ summary=ok
 0.21  box_create_destroy_small
 ```
 
+## Current Observation
+
+The current userbox counter-heavy leader is no longer the same shape as the
+original sweep. `kilo_micro_userbox_counter_step_chain` now lowers through the
+selected exact-slot bridge and the C-ABI exact-seed emitter returns a closed
+form result, so it is no longer the clearest residual owner for codegen work.
+
+The first exact front with a still-measurable kernel-only body is now
+`kilo_micro_userbox_point_add`:
+
+```text
+point_add kernel-only:
+  ratio_kernel_cycles=1.00
+  ratio_kernel_ms=1.00
+```
+
+The remaining gap on `counter_step_chain` is dominated by startup / loader
+noise, so the next design choice is whether to invest in startup/loader
+reduction or move the userbox optimization lane to `point_add`.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter
