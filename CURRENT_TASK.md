@@ -17,12 +17,13 @@ Scope: current lane / next lane / restart order only.
 3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 4. `docs/development/current/main/design/array-text-session-route-ssot.md`
 5. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-6. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
-7. `docs/development/current/main/05-Restart-Quick-Resume.md`
-8. `docs/development/current/main/10-Now.md`
-9. `git status -sb`
-10. `bash tools/checks/current_state_pointer_guard.sh`
-11. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+6. `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
+7. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
+8. `docs/development/current/main/05-Restart-Quick-Resume.md`
+9. `docs/development/current/main/10-Now.md`
+10. `git status -sb`
+11. `bash tools/checks/current_state_pointer_guard.sh`
+12. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -40,6 +41,10 @@ Scope: current lane / next lane / restart order only.
 - typed-object exact slot report/check vocabulary is landing in the current slice
 - adjacent array-text session route design is documented, and the selected-route session boundary is now landing
 - inspect scope dump design is documented: dump is a `hako_check` query, not `.hako` source syntax
+- substring-concat length residual is documented as lowering/codegen work:
+  `SUBCONCAT-LEN-CLOSED-FORM-001` should emit scalar closed-form IR from the
+  existing StableLengthScalar route; do not return to `.hako` or MIRBuilder for
+  this slice
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules
@@ -55,4 +60,5 @@ Scope: current lane / next lane / restart order only.
 2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
 3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 4. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+5. `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
+6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

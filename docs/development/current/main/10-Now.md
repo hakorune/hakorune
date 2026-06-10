@@ -17,6 +17,7 @@ Related:
 - typed-object exact slot ABI SSOT: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 - adjacent array-text session route SSOT: `docs/development/current/main/design/array-text-session-route-ssot.md`
 - inspect scope dump SSOT: `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
+- substring-concat closed-form lowering SSOT: `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
 - comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
@@ -38,6 +39,9 @@ Related:
 - if MIR / LLVM IR / assembly slices are needed, use the inspect scope dump
   SSOT: source anchors are selectors, while dumps are `hako_check` artifacts
   with explicit mapping quality
+- if `kilo_micro_substring_concat` resumes, continue as lowering/codegen
+  residual work: consume the existing StableLengthScalar route and emit
+  closed-form scalar IR instead of adding source or MIRBuilder witnesses
 - use the inventory note first when pointer hunting is noisy
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - further user-box counter-heavy optimization must use selected exact slot routes, not compat `field_get_hii`
@@ -55,7 +59,8 @@ Related:
 3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
 4. `docs/development/current/main/design/array-text-session-route-ssot.md`
 5. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+6. `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
+7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 

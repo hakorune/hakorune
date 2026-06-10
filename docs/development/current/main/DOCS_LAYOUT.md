@@ -42,6 +42,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - optimization toolbox entry for `hako_check`, MIR shape adapters, exact-EXE measurement, and row guard surfaces
 - `design/hako-inspect-scope-dump-ssot.md`
   - source anchors vs `hako_check inspect` artifact dumps; keeps MIR / LLVM IR / assembly dump as tool queries, not `.hako` source commands
+- `design/substring-concat-len-closed-form-lowering-ssot.md`
+  - `kilo_micro_substring_concat` stable-length exact route residual owner; keeps the next slice in LLVM lowering/codegen, not `.hako` or MIRBuilder witness work
 - `design/hotline-core-method-contract-ssot.md`
   - zero-cost hot-line keeper gate and CoreMethodContract migration owner
 - `design/typed-object-exact-slot-abi-ssot.md`
@@ -130,6 +132,7 @@ Rule:
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
   - Hako Inspect Scope Dump（source anchors / MIR / LLVM IR / assembly inspect artifact boundary）: `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
+  - Substring Concat Closed-Form Lowering（StableLengthScalar exact route lowering residual）: `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
   - Mimalloc Replacement-Front Fidelity（mimalloc-shaped execution keeper guard）: `docs/development/current/main/design/mimalloc-replacement-front-fidelity-ssot.md`
   - MIR FastMem MemOp Dialect（FastMemory MIR representation boundary）: `docs/development/current/main/design/mir-fastmem-memop-dialect-ssot.md`
   - Typed Object Exact Slot ABI（compat field route vs exact slot route boundary）: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
