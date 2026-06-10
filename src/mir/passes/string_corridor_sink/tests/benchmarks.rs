@@ -134,7 +134,6 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         .compile_with_source(ast, Some(path))
         .expect("compile benchmark");
 
-    let mut saw_helper = false;
     let mut substring_call_count = 0usize;
     let mut leftover_concat_consumers = Vec::new();
     let mut leftover_concat_lengths = Vec::new();
@@ -156,10 +155,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                         ..
                     } if callee == SUBSTRING_CONCAT3_EXTERN
                         || callee == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
-                        || callee == SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN =>
-                    {
-                        saw_helper = true;
-                    }
+                        || callee == SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN => {}
                     MirInstruction::Call {
                         callee:
                             Some(Callee::Method {
@@ -222,19 +218,16 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
 
     let main = result.module.functions.get("main").expect("main");
     assert!(
-        main.metadata
-            .optimization_hints
-            .iter()
-            .any(|hint| hint.starts_with("string_corridor_sink:concat_slice_insert_mid_substring:")
-                || hint.starts_with("string_corridor_sink:concat_slice_substring:")),
+        main.metadata.optimization_hints.iter().any(|hint| hint
+            .starts_with("string_corridor_sink:concat_slice_insert_mid_substring:")
+            || hint.starts_with("string_corridor_sink:concat_slice_substring:")),
         "benchmark should emit an insert-mid substring corridor hint; hints={:?}",
         main.metadata.optimization_hints
     );
     assert!(
-        main.metadata
-            .optimization_hints
-            .iter()
-            .any(|hint| hint.starts_with("string_corridor_sink:complementary_substring_len_fusion:")),
+        main.metadata.optimization_hints.iter().any(
+            |hint| hint.starts_with("string_corridor_sink:complementary_substring_len_fusion:")
+        ),
         "benchmark should emit a complementary substring-length fusion hint; hints={:?}",
         main.metadata.optimization_hints
     );
@@ -451,7 +444,6 @@ fn benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route() {
 }
 
 #[test]
-#[ignore = "TODO: 1-arg length call shift breaks array_text_residence_session_plan executor_contract derivation for kilo benchmark; needs residence plan arity update"]
 fn benchmark_kilo_kernel_small_has_combined_edit_observer_region() {
     ensure_ring0_initialized();
     let path = concat!(

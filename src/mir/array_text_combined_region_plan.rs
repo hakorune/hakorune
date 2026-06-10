@@ -88,12 +88,15 @@ fn derive_combined_region(
         return None;
     }
 
-    let observer_exit = function.blocks.get(&observer_mapping.exit_block())?;
-    if !matches!(
-        observer_exit.terminator.as_ref()?,
-        MirInstruction::Jump { target, .. } if *target == latch_block
-    ) {
-        return None;
+    let observer_exit_block = observer_mapping.exit_block();
+    if observer_exit_block != latch_block {
+        let observer_exit = function.blocks.get(&observer_exit_block)?;
+        if !matches!(
+            observer_exit.terminator.as_ref()?,
+            MirInstruction::Jump { target, .. } if *target == latch_block
+        ) {
+            return None;
+        }
     }
 
     let (outer_index_initial_value, outer_index_next_value) =

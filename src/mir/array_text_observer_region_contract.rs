@@ -10,7 +10,8 @@ use super::value_origin::{resolve_value_origin, ValueDefMap};
 use super::{
     array_text_observer_plan::{ArrayTextObserverPublicationBoundary, ArrayTextObserverRoute},
     definitions::Callee,
-    BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction,
+    ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -354,13 +355,7 @@ pub(crate) fn derive_observer_store_region_contract(
         } else {
             return None;
         };
-    let then = function.blocks.get(&then_block)?;
-    if !matches!(
-        then.terminator.as_ref()?,
-        MirInstruction::Jump { target, .. } if *target == latch_block
-    ) {
-        return None;
-    }
+    let latch_pred_block = then_block_reaches_latch(function, then_block, latch_block)?;
     let latch = function.blocks.get(&latch_block)?;
     let header_block = match latch.terminator.as_ref()? {
         MirInstruction::Jump { target, .. } => *target,
@@ -389,7 +384,7 @@ pub(crate) fn derive_observer_store_region_contract(
     }
     if !observer_block.predecessors.contains(&header_block)
         || !latch.predecessors.contains(&route.block())
-        || !latch.predecessors.contains(&then_block)
+        || !latch.predecessors.contains(&latch_pred_block)
     {
         return None;
     }
@@ -454,6 +449,53 @@ fn const_i64(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> O
         } => Some(*actual),
         _ => None,
     }
+}
+
+fn then_block_reaches_latch(
+    function: &MirFunction,
+    then_block: BasicBlockId,
+    latch_block: BasicBlockId,
+) -> Option<BasicBlockId> {
+    let then = function.blocks.get(&then_block)?;
+    let first_jump_target = match then.terminator.as_ref()? {
+        MirInstruction::Jump { target, .. } => *target,
+        _ => return None,
+    };
+    if first_jump_target == latch_block {
+        return Some(then_block);
+    }
+
+    let bridge = function.blocks.get(&first_jump_target)?;
+    if bridge.predecessors.len() != 1 || !bridge.predecessors.contains(&then_block) {
+        return None;
+    }
+    if !block_has_only_session_safe_lifetime_bookkeeping(bridge) {
+        return None;
+    }
+    match bridge.terminator.as_ref()? {
+        MirInstruction::Jump { target, .. } if *target == latch_block => Some(first_jump_target),
+        _ => None,
+    }
+}
+
+fn block_has_only_session_safe_lifetime_bookkeeping(block: &BasicBlock) -> bool {
+    block
+        .instructions
+        .iter()
+        .all(is_session_safe_lifetime_bookkeeping)
+}
+
+fn is_session_safe_lifetime_bookkeeping(inst: &MirInstruction) -> bool {
+    matches!(
+        inst,
+        MirInstruction::Const { .. }
+            | MirInstruction::Copy { .. }
+            | MirInstruction::BinOp { .. }
+            | MirInstruction::Compare { .. }
+            | MirInstruction::Phi { .. }
+            | MirInstruction::Select { .. }
+            | MirInstruction::KeepAlive { .. }
+    )
 }
 
 fn const_utf8(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<String> {
