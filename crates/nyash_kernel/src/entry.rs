@@ -1,5 +1,36 @@
 // Process entry point for NyRT.
 
+enum PluginHostMode {
+    Auto,
+    Off,
+}
+
+fn plugin_host_mode_from_env() -> Result<PluginHostMode, String> {
+    let Ok(raw) = std::env::var("HAKO_NYRT_PLUGIN_HOST") else {
+        return Ok(PluginHostMode::Auto);
+    };
+    let value = raw.trim();
+    if value.is_empty()
+        || value.eq_ignore_ascii_case("auto")
+        || value.eq_ignore_ascii_case("on")
+        || value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+    {
+        return Ok(PluginHostMode::Auto);
+    }
+    if value.eq_ignore_ascii_case("off")
+        || value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("none")
+    {
+        return Ok(PluginHostMode::Off);
+    }
+    Err(format!(
+        "[freeze:contract][nyrt/plugin-host-mode] expected=auto|on|1|true|off|0|false|none got={}",
+        value
+    ))
+}
+
 // ---- Process entry (driver) ----
 #[cfg(not(test))]
 #[no_mangle]
@@ -69,31 +100,46 @@ pub extern "C" fn main() -> i32 {
     nyash_rust::runtime::global_hooks::set_from_runtime(&rt_hooks);
     crate::rss_observe::checkpoint("after_runtime_hooks");
 
-    let mut inited = false;
-    if let Some(dir) = &exe_dir {
-        let candidate = dir.join("nyash.toml");
-        if candidate.exists() {
-            let _ =
-                nyash_rust::runtime::init_global_plugin_host(candidate.to_string_lossy().as_ref());
-            inited = true;
+    let plugin_host_mode = match plugin_host_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
         }
-    }
-    if !inited {
-        let _ = nyash_rust::runtime::init_global_plugin_host("nyash.toml");
-    }
+    };
+    let plugin_host_enabled = matches!(plugin_host_mode, PluginHostMode::Auto);
+    if plugin_host_enabled {
+        let mut inited = false;
+        if let Some(dir) = &exe_dir {
+            let candidate = dir.join("nyash.toml");
+            if candidate.exists() {
+                let _ = nyash_rust::runtime::init_global_plugin_host(
+                    candidate.to_string_lossy().as_ref(),
+                );
+                inited = true;
+            }
+        }
+        if !inited {
+            let _ = nyash_rust::runtime::init_global_plugin_host("nyash.toml");
+        }
+    };
     crate::rss_observe::checkpoint("after_plugin_host");
     // Optional verbosity
     if crate::env_flags::cli_verbose_enabled() {
-        println!(
-            "🔌 nyrt: plugin host init attempted (exe_dir={}, cwd={})",
-            exe_dir
-                .as_ref()
-                .map(|p| p.display().to_string())
-                .unwrap_or_else(|| "?".into()),
-            std::env::current_dir()
-                .map(|p| p.display().to_string())
-                .unwrap_or_else(|_| "?".into())
-        );
+        if plugin_host_enabled {
+            println!(
+                "🔌 nyrt: plugin host init attempted (exe_dir={}, cwd={})",
+                exe_dir
+                    .as_ref()
+                    .map(|p| p.display().to_string())
+                    .unwrap_or_else(|| "?".into()),
+                std::env::current_dir()
+                    .map(|p| p.display().to_string())
+                    .unwrap_or_else(|_| "?".into())
+            );
+        } else {
+            println!("🔌 nyrt: plugin host init skipped (HAKO_NYRT_PLUGIN_HOST=off)");
+        }
     }
     // Call exported Nyash entry if linked: `ny_main` (i64 -> return code normalized)
     unsafe {

@@ -181,4 +181,13 @@ PERF-USERBOX-004:
 
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh
+
+PERF-USERBOX-005:
+  add an explicit NyRT exact-EXE plugin-host-off probe mode for startup
+  attribution. The default stays `auto`; the probe uses
+  `HAKO_NYRT_PLUGIN_HOST=off` to skip plugin host initialization for ret0 /
+  no-plugin seeds.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh
 ```

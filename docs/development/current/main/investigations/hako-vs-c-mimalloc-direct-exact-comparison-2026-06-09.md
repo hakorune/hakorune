@@ -207,6 +207,40 @@ This is not a language/runtime decision. Math-using programs can still pass
 `-lm` explicitly through `HAKO_AOT_LDFLAGS`, and the default `full` mode keeps
 the historical `-ldl -lpthread -lm` link surface.
 
+## NyRT Plugin Host Off Probe
+
+`PERF-USERBOX-005` isolates NyRT entry startup from plugin host initialization.
+The default remains `HAKO_NYRT_PLUGIN_HOST=auto`; the opt-out mode is a
+diagnostic exact-EXE probe for startup attribution.
+
+```text
+task=PERF-USERBOX-005
+scope=exact-AOT NyRT plugin-host-off startup probe
+guard=tools/checks/k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh
+
+nyrt_plugin_host_mode=off
+plugin_host_init_skipped=1
+default_plugin_host_mode_changed=0
+```
+
+This does not remove plugin support from normal NyRT executables. It only gives
+the perf lane a clean floor when the active seed does not use plugin-provided
+objects.
+
+Observed ret0 owner split with the current diagnostic floor
+(`-static-libgcc`, `NYASH_LLVM_LINK_SYSTEM_LIBS=minimal`,
+`HAKO_NYRT_PLUGIN_HOST=off`, `NYASH_NYRT_SILENT_RESULT=1`):
+
+```text
+startup_loader_primary_owner_family=libc_process
+startup_loader_dynamic_loader_pct=20.56
+startup_loader_libc_process_pct=30.58
+startup_loader_nyash_kernel_runtime_pct=17.92
+startup_loader_minimal_main_pct=22.36
+top_runtime_symbol=nyash_rust::runtime::global_hooks::set_from_runtime
+next_owner=NyRT runtime hooks/env/stdio startup floor
+```
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

@@ -118,7 +118,10 @@ pub(super) fn link_executable(
     if !output.status.success() {
         eprintln!("[ny-llvmc/link] command: {}", linker);
         let archive_mode = if whole_archive_enabled {
-            format!("-Wl,--whole-archive {} -Wl,--no-whole-archive", libnyrt.display())
+            format!(
+                "-Wl,--whole-archive {} -Wl,--no-whole-archive",
+                libnyrt.display()
+            )
         } else {
             libnyrt.display().to_string()
         };
@@ -245,10 +248,9 @@ mod tests {
     #[test]
     fn link_whole_archive_rejects_invalid_values() {
         let err = parse_link_whole_archive_enabled(Some("maybe")).unwrap_err();
-        assert!(
-            err.to_string()
-                .contains("[freeze:contract][ny-llvmc/link/whole-archive]")
-        );
+        assert!(err
+            .to_string()
+            .contains("[freeze:contract][ny-llvmc/link/whole-archive]"));
     }
 
     #[test]
@@ -274,10 +276,9 @@ mod tests {
     #[test]
     fn link_gc_sections_rejects_invalid_values() {
         let err = parse_link_gc_sections_enabled(Some("maybe")).unwrap_err();
-        assert!(
-            err.to_string()
-                .contains("[freeze:contract][ny-llvmc/link/gc-sections]")
-        );
+        assert!(err
+            .to_string()
+            .contains("[freeze:contract][ny-llvmc/link/gc-sections]"));
     }
 
     #[test]
@@ -289,23 +290,34 @@ mod tests {
     #[test]
     fn link_system_libs_accepts_full_aliases() {
         assert!(parse_link_system_libs(Some("full")).unwrap().include_math);
-        assert!(parse_link_system_libs(Some("default")).unwrap().include_math);
+        assert!(
+            parse_link_system_libs(Some("default"))
+                .unwrap()
+                .include_math
+        );
         assert!(parse_link_system_libs(Some("legacy")).unwrap().include_math);
     }
 
     #[test]
     fn link_system_libs_accepts_minimal_aliases() {
-        assert!(!parse_link_system_libs(Some("minimal")).unwrap().include_math);
-        assert!(!parse_link_system_libs(Some("no-math")).unwrap().include_math);
+        assert!(
+            !parse_link_system_libs(Some("minimal"))
+                .unwrap()
+                .include_math
+        );
+        assert!(
+            !parse_link_system_libs(Some("no-math"))
+                .unwrap()
+                .include_math
+        );
         assert!(!parse_link_system_libs(Some("no_lm")).unwrap().include_math);
     }
 
     #[test]
     fn link_system_libs_rejects_invalid_values() {
         let err = parse_link_system_libs(Some("maybe")).unwrap_err();
-        assert!(
-            err.to_string()
-                .contains("[freeze:contract][ny-llvmc/link/system-libs]")
-        );
+        assert!(err
+            .to_string()
+            .contains("[freeze:contract][ny-llvmc/link/system-libs]"));
     }
 }
