@@ -317,14 +317,14 @@ pub(crate) mod test_support {
     pub(crate) fn kilo_getset_inner_route() -> ArrayRmwWindowRoute {
         ArrayRmwWindowRoute {
             block: BasicBlockId::new(23),
-            instruction_index: 8,
+            instruction_index: 7,
             array_value: ValueId::new(55),
             index_value: ValueId::new(51),
             input_value: ValueId::new(36),
             const_value: ValueId::new(61),
             result_value: ValueId::new(59),
-            set_instruction_index: 13,
-            skip_instruction_indices: vec![9, 10, 11, 12, 13],
+            set_instruction_index: 12,
+            skip_instruction_indices: vec![8, 9, 10, 11, 12],
             proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
         }
     }

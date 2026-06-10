@@ -60,15 +60,15 @@ static int hako_llvmc_emit_array_getset_micro_ir(
   fprintf(f, "  %%v = load i64, ptr %%slot, align 8\n");
   fprintf(f, "  %%next = add i64 %%v, 1\n");
   fprintf(f, "  store i64 %%next, ptr %%slot, align 8\n");
-  fprintf(f, "  %%sum.cur = load volatile i64, ptr %%sum, align 8\n");
+  fprintf(f, "  %%sum.cur = load i64, ptr %%sum, align 8\n");
   fprintf(f, "  %%sum.next = add i64 %%sum.cur, %%next\n");
-  fprintf(f, "  store volatile i64 %%sum.next, ptr %%sum, align 8\n");
+  fprintf(f, "  store i64 %%sum.next, ptr %%sum, align 8\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
   fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");
 
   fprintf(f, "exit:\n");
-  fprintf(f, "  %%sum.fin = load volatile i64, ptr %%sum, align 8\n");
+  fprintf(f, "  %%sum.fin = load i64, ptr %%sum, align 8\n");
   fprintf(f, "  %%ret = and i64 %%sum.fin, 255\n");
   fprintf(f, "  ret i64 %%ret\n");
   fprintf(f, "}\n");
@@ -169,8 +169,8 @@ static int hako_llvmc_consume_array_getset_micro_route(
         loop_set_count == 1 &&
         final_get_count == 0 &&
         selected_rmw_block == 23 &&
-        selected_rmw_instruction_index == 8 &&
-        selected_rmw_set_instruction_index == 13 &&
+        selected_rmw_instruction_index == 7 &&
+        selected_rmw_set_instruction_index == 12 &&
         loop_index_phi_value > 0 &&
         accumulator_phi_value > 0 &&
         accumulator_next_value > 0 &&

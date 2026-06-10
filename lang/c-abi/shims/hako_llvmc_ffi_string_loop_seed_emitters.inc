@@ -67,6 +67,13 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
   fprintf(f, "  br label %%body\n\n");
 
   fprintf(f, "body:\n");
+  if (head_len > 0) {
+    fprintf(f, "  %%head.src = getelementptr inbounds i8, ptr %%text.ptr, i64 1\n");
+    fprintf(
+        f,
+        "  call void @llvm.memmove.p0.p0.i64(ptr align 1 %%text.ptr, ptr align 1 %%head.src, i64 %lld, i1 false)\n",
+        head_len);
+  }
   if (tail_len > 0) {
     fprintf(f, "  %%tail.dst = getelementptr inbounds i8, ptr %%text.ptr, i64 %lld\n", insert_offset + middle_len);
     fprintf(f, "  %%tail.src = getelementptr inbounds i8, ptr %%text.ptr, i64 %lld\n", split);
@@ -74,13 +81,6 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
         f,
         "  call void @llvm.memmove.p0.p0.i64(ptr align 1 %%tail.dst, ptr align 1 %%tail.src, i64 %lld, i1 false)\n",
         tail_len);
-  }
-  if (head_len > 0) {
-    fprintf(f, "  %%head.src = getelementptr inbounds i8, ptr %%text.ptr, i64 1\n");
-    fprintf(
-        f,
-        "  call void @llvm.memmove.p0.p0.i64(ptr align 1 %%text.ptr, ptr align 1 %%head.src, i64 %lld, i1 false)\n",
-        head_len);
   }
   fprintf(f, "  %%mid.dst = getelementptr inbounds i8, ptr %%text.ptr, i64 %lld\n", insert_offset);
   fprintf(

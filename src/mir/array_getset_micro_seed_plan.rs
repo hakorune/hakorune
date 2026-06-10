@@ -125,12 +125,12 @@ pub(crate) mod test_support {
             loop_set_count: 1,
             final_get_count: 0,
             selected_rmw_block: BasicBlockId::new(23),
-            selected_rmw_instruction_index: 8,
-            selected_rmw_set_instruction_index: 13,
-            loop_index_phi_value: ValueId::new(29),
-            accumulator_phi_value: ValueId::new(33),
-            accumulator_next_value: ValueId::new(40),
-            return_value: ValueId::new(33),
+            selected_rmw_instruction_index: 7,
+            selected_rmw_set_instruction_index: 12,
+            loop_index_phi_value: ValueId::new(28),
+            accumulator_phi_value: ValueId::new(32),
+            accumulator_next_value: ValueId::new(39),
+            return_value: ValueId::new(32),
             proof: ArrayGetSetMicroSeedProof::KiloMicroArrayGetSetSevenBlock,
             rmw_proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
         }
@@ -389,12 +389,12 @@ mod tests {
         assert_eq!(route.loop_set_count(), 1);
         assert_eq!(route.final_get_count(), 0);
         assert_eq!(route.selected_rmw_block(), BasicBlockId::new(23));
-        assert_eq!(route.selected_rmw_instruction_index(), 8);
-        assert_eq!(route.selected_rmw_set_instruction_index(), 13);
-        assert_eq!(route.loop_index_phi_value(), ValueId::new(29));
-        assert_eq!(route.accumulator_phi_value(), ValueId::new(33));
-        assert_eq!(route.accumulator_next_value(), ValueId::new(40));
-        assert_eq!(route.return_value(), ValueId::new(33));
+        assert_eq!(route.selected_rmw_instruction_index(), 7);
+        assert_eq!(route.selected_rmw_set_instruction_index(), 12);
+        assert_eq!(route.loop_index_phi_value(), ValueId::new(28));
+        assert_eq!(route.accumulator_phi_value(), ValueId::new(32));
+        assert_eq!(route.accumulator_next_value(), ValueId::new(39));
+        assert_eq!(route.return_value(), ValueId::new(32));
         assert_eq!(route.proof(), "kilo_micro_array_getset_7block");
         assert_eq!(
             route.rmw_proof(),
@@ -419,7 +419,7 @@ mod tests {
             .get_block_mut(BasicBlockId::new(25))
             .expect("exit block");
         exit.set_terminator(MirInstruction::Return {
-            value: Some(ValueId::new(40)),
+            value: Some(ValueId::new(39)),
         });
 
         refresh_function_array_getset_micro_seed_route(&mut function);
@@ -481,11 +481,11 @@ mod tests {
             &mut function,
             22,
             vec![
-                phi(29),
-                phi(33),
-                const_i(45, 2_000_000),
-                compare(41, CompareOp::Lt),
-            ],
+            phi(28),
+            phi(32),
+            const_i(45, 2_000_000),
+            compare(41, CompareOp::Lt),
+        ],
             branch(41, 23, 25),
         );
         replace_block(
@@ -510,7 +510,7 @@ mod tests {
                     55,
                     vec![ValueId::new(51), ValueId::new(59)],
                 ),
-                binop(40, BinaryOp::Add),
+                binop(39, BinaryOp::Add),
                 const_i(68, 1),
                 binop(30, BinaryOp::Add),
             ],
@@ -521,7 +521,7 @@ mod tests {
             25,
             vec![],
             MirInstruction::Return {
-                value: Some(ValueId::new(33)),
+                value: Some(ValueId::new(32)),
             },
         );
 
