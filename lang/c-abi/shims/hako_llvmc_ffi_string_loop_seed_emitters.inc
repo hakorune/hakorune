@@ -180,6 +180,55 @@ static int hako_llvmc_emit_substring_concat_len_ir(
   return rc == 0 ? 0 : -1;
 }
 
+static int hako_llvmc_emit_substring_concat_len_closed_form_ir(
+    const char* obj_out,
+    const hako_llvmc_entry_rune_selection* selection,
+    long long loop_bound,
+    long long seed_len,
+    long long middle_len) {
+  char llpath[1024];
+  FILE* f;
+  int rc;
+  long long acc_step;
+
+  if (!obj_out || !selection || loop_bound <= 0 || seed_len <= 0 || middle_len <= 0) {
+    return -1;
+  }
+
+  acc_step = seed_len + middle_len;
+  if (acc_step <= 0) {
+    return -1;
+  }
+
+  snprintf(
+      llpath,
+      sizeof(llpath),
+      "%s/hako_pure_subconcat_len_closed_form_%d.ll",
+      hako_llvmc_tmp_dir_fallback(),
+      (int)getpid());
+  f = fopen(llpath, "wb");
+  if (!f) return -1;
+
+  fprintf(f, "; nyash minimal pure IR (substring+concat len closed form ascii)\n");
+  fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+
+  hako_llvmc_emit_entry_header(f, selection);
+  fprintf(f, "entry:\n");
+  fprintf(f, "  %%step = add i64 %lld, %lld\n", seed_len, middle_len);
+  fprintf(f, "  %%loops = mul i64 %lld, %%step\n", loop_bound);
+  fprintf(f, "  %%ret = add i64 %lld, %%loops\n", seed_len);
+  fprintf(f, "  ret i64 %%ret\n");
+  fprintf(f, "}\n");
+  hako_llvmc_emit_entry_alias_if_needed(f, selection);
+
+  fclose(f);
+  {
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  }
+  remove(llpath);
+  return rc == 0 ? 0 : -1;
+}
+
 static int hako_llvmc_emit_substring_views_only_exit_len_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,

@@ -74,7 +74,7 @@ static int hako_llvmc_consume_substring_concat_loop_ascii_route(
           "exact_match",
           "stable_length_scalar string_kernel_plan_loop_payload");
     }
-    int rc = hako_llvmc_emit_substring_concat_len_ir(
+    int rc = hako_llvmc_emit_substring_concat_len_closed_form_ir(
         obj_out,
         &selection,
         loop_bound,
