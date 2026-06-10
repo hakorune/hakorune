@@ -172,4 +172,13 @@ PERF-USERBOX-003:
 
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh
+
+PERF-USERBOX-004:
+  add an explicit minimal system-libs probe mode for exact-AOT startup/link
+  attribution. The default link mode stays `full`; the probe uses
+  `NYASH_LLVM_LINK_SYSTEM_LIBS=minimal` plus `-static-libgcc` to prove ret0 can
+  drop dynamic `libm` and `libgcc_s` without selecting full static linking.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh
 ```

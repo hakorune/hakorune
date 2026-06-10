@@ -184,6 +184,29 @@ surface, but it also shifts the ret0 owner to statically linked Rust/glibc init
 work. That is a wider runtime/package decision and must stay separate from this
 small `libgcc_s` dependency probe.
 
+## Minimal System Libs Link Probe
+
+`PERF-USERBOX-004` keeps the next link/startup step as an explicit diagnostic
+mode. The default linker recipe remains compatibility-first, but
+`NYASH_LLVM_LINK_SYSTEM_LIBS=minimal` lets exact-AOT startup probes omit `-lm`
+when the active benchmark does not need math symbols.
+
+```text
+task=PERF-USERBOX-004
+scope=exact-AOT minimal system libs link probe
+guard=tools/checks/k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh
+
+link_system_libs=minimal
+candidate_ldflags=-static-libgcc
+dynamic_needed_libgcc_s=0
+dynamic_needed_libm=0
+default_link_mode_changed=0
+```
+
+This is not a language/runtime decision. Math-using programs can still pass
+`-lm` explicitly through `HAKO_AOT_LDFLAGS`, and the default `full` mode keeps
+the historical `-ldl -lpthread -lm` link surface.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

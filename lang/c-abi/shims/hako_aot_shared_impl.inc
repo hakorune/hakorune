@@ -293,14 +293,30 @@ static const char* hako_aot_resolve_runtime_archive(char* buf, size_t buflen, co
   return NULL;
 }
 
-static const char* hako_aot_link_os_libs(void) {
+static int hako_aot_streq(const char* lhs, const char* rhs) {
+  return lhs && rhs && strcmp(lhs, rhs) == 0;
+}
+
+static const char* hako_aot_link_os_libs(char** err_out) {
 #if defined(__linux__)
-  return "-ldl -lpthread -lm";
+  const char* mode = getenv("NYASH_LLVM_LINK_SYSTEM_LIBS");
+  if (!mode || !*mode || hako_aot_streq(mode, "full") || hako_aot_streq(mode, "default") || hako_aot_streq(mode, "legacy")) {
+    return "-ldl -lpthread -lm";
+  }
+  if (hako_aot_streq(mode, "minimal") || hako_aot_streq(mode, "no-math") || hako_aot_streq(mode, "no_lm")) {
+    return "-ldl -lpthread";
+  }
+  hako_set_last_error("VALIDATION");
+  hako_aot_set_err(err_out, "[freeze:contract][ny-llvmc/link/system-libs] expected=full|default|legacy|minimal|no-math|no_lm");
+  return NULL;
 #elif defined(__APPLE__)
+  (void)err_out;
   return "";
 #elif defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
+  (void)err_out;
   return "-lws2_32 -lbcrypt";
 #else
+  (void)err_out;
   return "";
 #endif
 }
@@ -493,6 +509,10 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
     return hako_aot_set_err(err_out, "command too long");
   }
   char shim_flag[1024] = "";
+  const char* os_libs = hako_aot_link_os_libs(err_out);
+  if (!os_libs) {
+    return -1;
+  }
   char cmd[8192];
   if (hako_aot_build_link_command(
           cmd,
@@ -504,7 +524,7 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
           obj_path,
           lib,
           hako_aot_resolve_shim_flag(shim_flag, sizeof(shim_flag), dir),
-          hako_aot_link_os_libs(),
+          os_libs,
           logpath) != 0) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "command too long");

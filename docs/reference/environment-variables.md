@@ -161,6 +161,7 @@ Throw surface policy:
 | `HAKO_AOT_LDFLAGS` | OFF | LLVM / backend-zero | AOT link の compat append ldflags。daily caller の main route は `LlvmBackendBox.link_exe(..., libs)` の 3rd arg。 |
 | `NYASH_LLVM_LINK_WHOLE_ARCHIVE=1` | `1` | LLVM / backend-zero | AOT executable link 時に `libnyash_kernel.a` を `--whole-archive` で固定する。`0` にすると archive を通常リンクして、perf/startup probe で小さい実行体を測りやすくする。 |
 | `NYASH_LLVM_LINK_GC_SECTIONS=1` | `0` | LLVM / backend-zero | AOT executable link 時に `--gc-sections` を有効化する。`1` にすると未使用 section を落として、perf/startup probe でさらに小さい実行体を測りやすくする。 |
+| `NYASH_LLVM_LINK_SYSTEM_LIBS={full\|minimal}` | `full` | LLVM / backend-zero | AOT executable link 時の system libs probe mode。`full` は既存互換で `-ldl -lpthread -lm` を渡す。`minimal` は perf/startup 診断専用で `-lm` を外し、必要なら caller が `HAKO_AOT_LDFLAGS=-lm` 等で明示する。通常 default は変更しない。 |
 | `HAKO_CAPI_PURE=1` | OFF | LLVM / compat-only pure-lowering | retired legacy alias。historical pure C-API/FFI lowering route の旧 spelling。daily backend-zero route と active pure-keep helper は `HAKO_BACKEND_COMPILE_RECIPE=pure-first` を正本にする。P99 以降は使用時に warn-once `[deprecate/env]` を出す。P100 以降、C generic FFI / `ny-llvmc` boundary driver では `[freeze:contract][env/hako_capi_pure_retired]` で fail-fast し、Rust env helper では pure-first 判定に使わない。 |
 
 PyVM position:
