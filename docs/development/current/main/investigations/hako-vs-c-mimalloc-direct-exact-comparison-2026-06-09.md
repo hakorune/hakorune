@@ -85,6 +85,43 @@ The remaining gap on `counter_step_chain` is dominated by startup / loader
 noise, so the next design choice is whether to invest in startup/loader
 reduction or move the userbox optimization lane to `point_add`.
 
+## Measurement Floor Repair Decision
+
+The next implementation target is the measurement floor, not another optimizer
+rewrite. `counter_step_chain` has already reached the closed-form exact kernel,
+and `point_add` is kernel-only equivalent to C. That makes the current blocker
+an attribution problem: the direct-helper harness floor run must be trustworthy
+before startup / loader work can be selected.
+
+```text
+task=PERF-USERBOX-001
+scope=direct-helper measurement harness floor run repair
+startup_loader_attribution_report=required
+
+counter_step_chain_role=startup_loader_sentinel
+counter_step_chain_exact_kernel_target=0
+point_add_role=kernel_equivalence_guard
+point_add_next_optimizer_target=0
+
+touch_perf_harness_measurement_tooling=1
+touch_hako_source=0
+touch_mirbuilder=0
+touch_route_planner=0
+touch_exact_helper_lowering=0
+touch_runtime_object_representation=0
+```
+
+Acceptance:
+
+```text
+direct_helper_floor_run_status=ok
+direct_helper_floor_invalid_arraybox_handle_count=0
+counter_step_chain_helper_vs_floor_measured=1
+point_add_helper_vs_floor_measured=1
+startup_loader_attribution_report=1
+measurement_harness_failure_count=0
+```
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

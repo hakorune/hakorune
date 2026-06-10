@@ -142,8 +142,13 @@ HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001:
   landed report/check vocabulary for exact slot versus compat field routes
 
 Next:
-  route the i64 user-box benchmark through selected
-  hako.typed_object.slot_load_i64 and hako.object.exact_slot_get_i64_hii
-  evidence with lowering_form=exact_helper_bridge, then measure whether helper
-  call or NativeDirect inline lowering is the next owner.
+  repair the direct-helper measurement harness floor run before opening the
+  next optimizer target. counter_step_chain is now a startup/loader sentinel,
+  and point_add is a kernel equivalence guard.
+
+PERF-USERBOX-001:
+  direct-helper floor run must report ok, invalid ArrayBox handle count must be
+  zero, and startup/loader attribution must be available for counter_step_chain
+  and point_add. Do not change .hako, MIRBuilder, route planning, exact helper
+  lowering, or runtime object representation in this measurement-floor slice.
 ```
