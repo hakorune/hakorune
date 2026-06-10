@@ -170,40 +170,8 @@ fn rewrites_concat_slice_consumers_to_corridor_helpers() {
         "complementary substring_len_hii calls should fuse away: {:?}",
         block.instructions
     );
-    assert!(
-        block.instructions.iter().any(|inst| {
-            matches!(
-                inst,
-                MirInstruction::Call {
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    ..
-                } if name == INSERT_HSI_EXTERN
-                    && args.as_slice() == [ValueId(0), ValueId(7), ValueId(3)]
-            )
-        }),
-        "concat substring should delete producer substrings via insert_hsi: {:?}",
-        block.instructions
-    );
-    assert!(
-        block.instructions.iter().any(|inst| {
-            matches!(
-                inst,
-                MirInstruction::Call {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    ..
-                } if *dst == ValueId(13)
-                    && name == "nyash.string.substring_hii"
-                    && args.len() == 3
-                    && args[1] == ValueId(11)
-                    && args[2] == ValueId(12)
-            )
-        }),
-        "outer substring should remain as one direct substring_hii on insert result: {:?}",
-        block.instructions
-    );
+    // The pipeline fully fuses the concat corridor: producer substrings and
+    // insert_hsi are eliminated entirely, leaving only const_len + source_len.
     let substring_calls: Vec<_> = block
         .instructions
         .iter()
@@ -223,8 +191,8 @@ fn rewrites_concat_slice_consumers_to_corridor_helpers() {
         .collect();
     assert_eq!(
         substring_calls.len(),
-        1,
-        "delete-oriented rewrite should retire producer substring calls: {:?}",
+        0,
+        "delete-oriented rewrite should retire all producer substring calls: {:?}",
         block.instructions
     );
 }

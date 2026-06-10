@@ -32,6 +32,11 @@ pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
     eliminated_total
 }
 
+/// Eliminate dead code in a single function.
+pub(crate) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
+    elimination::eliminate_dead_code_in_function(function)
+}
+
 fn propagate_used_values(
     function: &MirFunction,
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,

@@ -71,6 +71,19 @@ pub(crate) fn apply_string_corridor_post_dce_transforms(function: &mut MirFuncti
     apply_string_corridor_transforms(function)
 }
 
+/// Rebuild def_map and use_counts after the function was mutated.
+fn refresh_analysis(
+    function: &MirFunction,
+    def_map: &mut HashMap<ValueId, (BasicBlockId, usize)>,
+    use_counts: &mut HashMap<ValueId, usize>,
+    n: usize,
+) {
+    if n > 0 {
+        *def_map = build_value_def_map(function);
+        *use_counts = build_use_counts(function);
+    }
+}
+
 fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     if !has_string_corridor_transform_sites(function) {
         return 0;
@@ -80,27 +93,27 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
 
     let mut def_map = build_value_def_map(function);
     let mut use_counts = build_use_counts(function);
+
+    // --- Phase 1: collect direct stable-length hints ---
     let stable_length_hints = collect_direct_stable_length_hints(function, &def_map);
     for hint in stable_length_hints {
         if !function.metadata.optimization_hints.contains(&hint) {
             function.metadata.optimization_hints.push(hint);
         }
     }
+
+    // --- Phase 2: substring-length direct rewrite ---
     let plans_by_block = collect_plans(function, &def_map, &use_counts);
     let mut rewritten = apply_plans(function, plans_by_block);
-    if rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    refresh_analysis(function, &mut def_map, &mut use_counts, rewritten);
 
+    // --- Phase 3: retained-length rewrite ---
     let retained_len_plans = collect_retained_len_plans(function, &def_map, &use_counts);
-    let retained_len_rewritten = apply_retained_len_plans(function, retained_len_plans);
-    rewritten += retained_len_rewritten;
-    if retained_len_rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    let n = apply_retained_len_plans(function, retained_len_plans);
+    rewritten += n;
+    refresh_analysis(function, &mut def_map, &mut use_counts, n);
 
+    // --- Phase 4: first concat-corridor pass (immediate plans only) ---
     let concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
     let mut immediate_concat_plans_by_block = BTreeMap::new();
     for (bbid, plans) in concat_corridor_plans {
@@ -112,80 +125,62 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
             immediate_concat_plans_by_block.insert(bbid, immediate_plans);
         }
     }
-    let concat_corridor_rewritten =
-        apply_concat_corridor_plans(function, immediate_concat_plans_by_block);
-    rewritten += concat_corridor_rewritten;
-    if concat_corridor_rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    let n = apply_concat_corridor_plans(function, immediate_concat_plans_by_block);
+    rewritten += n;
+    refresh_analysis(function, &mut def_map, &mut use_counts, n);
 
+    // --- Phase 5: publication — return boundary ---
     let publication_return_plans =
         collect_publication_return_plans(function, &def_map, &use_counts);
-    let publication_return_rewritten =
-        apply_publication_return_plans(function, publication_return_plans);
-    rewritten += publication_return_rewritten;
-    if publication_return_rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    let n = apply_publication_return_plans(function, publication_return_plans);
+    rewritten += n;
+    refresh_analysis(function, &mut def_map, &mut use_counts, n);
 
+    // --- Phase 6: publication — write boundary ---
     let publication_write_boundary_plans =
         collect_publication_write_boundary_plans(function, &def_map, &use_counts);
-    let publication_write_boundary_rewritten =
-        apply_publication_write_boundary_plans(function, publication_write_boundary_plans);
-    rewritten += publication_write_boundary_rewritten;
-    if publication_write_boundary_rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    let n = apply_publication_write_boundary_plans(function, publication_write_boundary_plans);
+    rewritten += n;
+    refresh_analysis(function, &mut def_map, &mut use_counts, n);
 
+    // --- Phase 7: publication — host boundary ---
     let publication_host_boundary_plans =
         collect_publication_host_boundary_plans(function, &def_map, &use_counts);
-    let publication_host_boundary_rewritten =
-        apply_publication_host_boundary_plans(function, publication_host_boundary_plans);
-    rewritten += publication_host_boundary_rewritten;
-    if publication_host_boundary_rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    let n = apply_publication_host_boundary_plans(function, publication_host_boundary_plans);
+    rewritten += n;
+    refresh_analysis(function, &mut def_map, &mut use_counts, n);
 
+    // --- Phase 8: corridor-local DCE sweep ---
     // The complementary substring-len fusion owner needs dead intermediate
     // adds/copies to be removed before it can see the final single-use tree.
-    // Run a local DCE sweep here so corridor-local rewrite chains can collapse
-    // inside the same optimization wave instead of waiting for the next pass
-    // round.
     let corridor_dce_rewritten =
         crate::mir::passes::dce::eliminate_dead_code_in_function(function);
     rewritten += corridor_dce_rewritten;
-    if corridor_dce_rewritten > 0 {
-        def_map = build_value_def_map(function);
-        use_counts = build_use_counts(function);
-    }
+    refresh_analysis(function, &mut def_map, &mut use_counts, corridor_dce_rewritten);
 
+    // --- Phase 9: complementary substring-length fusion + DCE ---
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     let fusion_rewritten = apply_complementary_len_fusion_plans(function, fusion_plans);
     rewritten += fusion_rewritten;
     if fusion_rewritten > 0 {
-        let post_fusion_dce_rewritten =
+        rewritten +=
             crate::mir::passes::dce::eliminate_dead_code_in_function(function);
-        rewritten += post_fusion_dce_rewritten;
     }
 
+    // --- Phase 10: second concat-corridor pass + DCE ---
     def_map = build_value_def_map(function);
     use_counts = build_use_counts(function);
-
     let second_concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
     let second_concat_corridor_rewritten =
         apply_concat_corridor_plans(function, second_concat_corridor_plans);
     rewritten += second_concat_corridor_rewritten;
     if second_concat_corridor_rewritten > 0 {
-        let second_post_concat_dce_rewritten =
+        rewritten +=
             crate::mir::passes::dce::eliminate_dead_code_in_function(function);
-        rewritten += second_post_concat_dce_rewritten;
         use_counts = build_use_counts(function);
     }
 
+    // --- Phase 11: remove unused substring-view producers ---
     rewritten += remove_unused_substring_view_producers(function, &use_counts);
 
     rewritten

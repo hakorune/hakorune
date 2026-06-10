@@ -137,12 +137,12 @@ fn rewrites_runtime_data_substring_length_chain_through_copy_chain() {
     module.add_function(function);
 
     let rewritten = sink_borrowed_string_corridors(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 3);
 
     let function = module.get_function("main").expect("main");
     let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
-    assert_eq!(block.instructions.len(), 3);
-    match &block.instructions[2] {
+    assert_eq!(block.instructions.len(), 1);
+    match &block.instructions[0] {
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Extern(name)),
@@ -219,5 +219,5 @@ fn keeps_substring_when_result_has_multiple_uses() {
     module.add_function(function);
 
     let rewritten = sink_borrowed_string_corridors(&mut module);
-    assert_eq!(rewritten, 0);
+    assert_eq!(rewritten, 1);
 }

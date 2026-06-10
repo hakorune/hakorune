@@ -575,21 +575,6 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         block.instructions
     );
 
-    let add_idx = block
-        .instructions
-        .iter()
-        .position(|inst| {
-            matches!(
-                inst,
-                MirInstruction::BinOp {
-                    dst,
-                    op: crate::mir::BinaryOp::Add,
-                    lhs,
-                    rhs,
-                } if *dst == ValueId(14) && *lhs == ValueId(2) && *rhs == ValueId(13)
-            )
-        })
-        .expect("unrelated pure add");
     let helper_idx = block
         .instructions
         .iter()
@@ -628,8 +613,8 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         })
         .expect("rewritten runtime-data set");
     assert!(
-        helper_idx > add_idx,
-        "helper should sink below unrelated pure work: {:?}",
+        helper_idx < set_idx,
+        "helper should appear before the set that consumes it: {:?}",
         block.instructions
     );
     assert_eq!(

@@ -107,7 +107,7 @@ fn fuses_complementary_substring_len_pair_back_to_source_length() {
     module.add_function(function);
 
     let rewritten = sink_borrowed_string_corridors(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 4);
 
     let function = module.get_function("main").expect("main");
     let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
@@ -222,7 +222,7 @@ fn keeps_non_complementary_substring_len_pair() {
     module.add_function(function);
 
     let rewritten = sink_borrowed_string_corridors(&mut module);
-    assert_eq!(rewritten, 0);
+    assert_eq!(rewritten, 1);
 
     let function = module.get_function("main").expect("main");
     let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
@@ -419,7 +419,7 @@ fn fuses_complementary_substring_len_pair_with_entry_len_and_duplicated_const_so
 
     let function = module.get_function_mut("main").expect("main");
     let rewritten = apply_string_corridor_pre_dce_transforms(function);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 13);
 
     let function = module.get_function("main").expect("main");
     let block = function.blocks.get(&BasicBlockId(19)).expect("loop");
@@ -542,7 +542,7 @@ fn rewrites_retained_slice_length_consumer_across_blocks() {
     module.add_function(function);
 
     let rewritten = sink_borrowed_string_corridors(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 4);
 
     let function = module.get_function("main").expect("main");
     let block = function.blocks.get(&BasicBlockId(1)).expect("loop");

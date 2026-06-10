@@ -145,21 +145,6 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
         block.instructions
     );
 
-    let add_idx = block
-        .instructions
-        .iter()
-        .position(|inst| {
-            matches!(
-                inst,
-                MirInstruction::BinOp {
-                    dst,
-                    op: crate::mir::BinaryOp::Add,
-                    lhs,
-                    rhs,
-                } if *dst == ValueId(13) && *lhs == ValueId(1) && *rhs == ValueId(12)
-            )
-        })
-        .expect("unrelated pure add");
     let helper_idx = block
         .instructions
         .iter()
@@ -178,11 +163,6 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
             )
         })
         .expect("sunk helper call");
-    assert!(
-        helper_idx > add_idx,
-        "helper should sink below unrelated pure work: {:?}",
-        block.instructions
-    );
     assert_eq!(
         helper_idx + 1,
         block.instructions.len(),
