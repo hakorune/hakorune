@@ -52,10 +52,10 @@ pub(crate) fn infer_compat_from_method(
     let is_stringish = is_stringish_box_name(box_name);
 
     match arity {
-        0 if is_len_method_name(method) && (is_stringish || is_runtime_data_string_facade) => Some(
+        0 | 1 if is_len_method_name(method) && (is_stringish || is_runtime_data_string_facade) => Some(
             StringCorridorFact::str_len(StringCorridorCarrier::MethodCall),
         ),
-        2 if is_slice_method_name(method) && (is_stringish || is_runtime_data_string_facade) => {
+        2 | 3 if is_slice_method_name(method) && (is_stringish || is_runtime_data_string_facade) => {
             Some(StringCorridorFact::str_slice(
                 StringCorridorCarrier::MethodCall,
             ))

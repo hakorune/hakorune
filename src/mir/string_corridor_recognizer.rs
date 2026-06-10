@@ -108,7 +108,12 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
             args,
             effects,
             ..
-        } if args.is_empty() && is_len_method_name(method) => Some((*dst, *receiver, *effects)),
+        } if is_len_method_name(method)
+            && (args.is_empty()
+                || (args.len() == 1 && args.first().is_some_and(|arg| arg == receiver))) =>
+        {
+            Some((*dst, *receiver, *effects))
+        }
         MirInstruction::Call {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
@@ -160,8 +165,16 @@ pub(crate) fn match_substring_call(
             args,
             effects,
             ..
-        } if args.len() == 2 && is_slice_method_name(method) => {
-            Some((*dst, *receiver, args[0], args[1], *effects))
+        } if is_slice_method_name(method)
+            && ((args.len() == 2)
+                || (args.len() == 3 && args.first().is_some_and(|arg| arg == receiver))) =>
+        {
+            let (start, end) = if args.len() == 3 {
+                (args[1], args[2])
+            } else {
+                (args[0], args[1])
+            };
+            Some((*dst, *receiver, start, end, *effects))
         }
         MirInstruction::Call {
             dst: Some(dst),
@@ -234,7 +247,17 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
                 }),
             args,
             ..
-        } if args.len() == 2 && is_slice_method_name(method) => Some((*source, args[0], args[1])),
+        } if is_slice_method_name(method)
+            && ((args.len() == 2)
+                || (args.len() == 3 && args.first().is_some_and(|arg| arg == source))) =>
+        {
+            let (start, end) = if args.len() == 3 {
+                (args[1], args[2])
+            } else {
+                (args[0], args[1])
+            };
+            Some((*source, start, end))
+        }
         MirInstruction::Call {
             callee: Some(Callee::Extern(name)),
             args,

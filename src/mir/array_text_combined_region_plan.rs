@@ -32,7 +32,7 @@ pub fn refresh_module_array_text_combined_region_routes(module: &mut MirModule) 
 
 pub fn refresh_function_array_text_combined_region_routes(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
-    let routes = function
+    let routes: Vec<_> = function
         .metadata
         .array_text_edit_routes
         .iter()

@@ -378,7 +378,18 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
         .collect::<BTreeSet<_>>();
     let def_map = build_value_def_map(function);
 
-    for relation in collect_phi_carry_relations(function, &anchors) {
+    collect_phi_carry_relations_into(function, &def_map, &anchors);
+    collect_direct_length_relations_into(function, &def_map);
+    collect_hint_relations_into(function);
+}
+
+/// Phase 1: phi-carry base relations and stable-length witnesses for merged phis.
+fn collect_phi_carry_relations_into(
+    function: &mut MirFunction,
+    def_map: &ValueDefMap,
+    anchors: &BTreeSet<ValueId>,
+) {
+    for relation in collect_phi_carry_relations(function, anchors) {
         let PhiBaseRelation::SameBase(base_value) = relation.relation else {
             continue;
         };
@@ -408,7 +419,7 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
 
         if !relation.window_safe {
             if let Some(stable_length) =
-                stable_length_relation_for_phi(function, &def_map, relation.phi_value, base_value)
+                stable_length_relation_for_phi(function, def_map, relation.phi_value, base_value)
             {
                 function
                     .metadata
@@ -419,14 +430,20 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
             }
         }
     }
+}
 
+/// Phase 2: stable-length relations from direct `length()` calls on corridor sources.
+fn collect_direct_length_relations_into(
+    function: &mut MirFunction,
+    def_map: &ValueDefMap,
+) {
     for block in function.blocks.values() {
         for inst in &block.instructions {
             let Some((dst, receiver, _effects)) = match_len_call(inst) else {
                 continue;
             };
             if let Some(relation) =
-                stable_length_relation_for_direct_length_call(function, &def_map, dst, receiver)
+                stable_length_relation_for_direct_length_call(function, def_map, dst, receiver)
             {
                 function
                     .metadata
@@ -437,7 +454,10 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
             }
         }
     }
+}
 
+/// Phase 3: stable-length relations recovered from optimization hints.
+fn collect_hint_relations_into(function: &mut MirFunction) {
     for hint in &function.metadata.optimization_hints {
         let Some(relation) = stable_length_relation_from_hint(hint) else {
             continue;
