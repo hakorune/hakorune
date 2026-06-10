@@ -27,7 +27,9 @@ workload_id=representative-object-lifecycle-small-block-v0
 measurement_scope=object_lifecycle_exact_exe_exact_slot_helper_pair
 sample_count=3
 typed_object_backend=single_thread_exact
-array_slot_backend=single_thread_exact
+array_slot_backend=unset
+direct_helper_floor_run_status=ok
+direct_helper_floor_invalid_arraybox_handle_count=0
 single_thread_exact_floor_body_elapsed_ns=120000000
 exact_slot_helper_body_elapsed_ns=120000000
 body_elapsed_delta_ns=0
@@ -43,6 +45,11 @@ hook_installed=0
 global_allocator=0
 summary=ok
 ```
+
+`array_slot_backend=unset` is intentional for this typed-object helper
+measurement. The object-lifecycle app uses public ArrayBox handles; forcing the
+numeric-only `single_thread_exact` array-slot floor here can fail before the
+typed-object helper/floor comparison is measured.
 
 ## Decision
 

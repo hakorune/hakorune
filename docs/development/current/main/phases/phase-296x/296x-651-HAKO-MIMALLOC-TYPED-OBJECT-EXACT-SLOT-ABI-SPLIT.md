@@ -151,4 +151,7 @@ PERF-USERBOX-001:
   zero, and startup/loader attribution must be available for counter_step_chain
   and point_add. Do not change .hako, MIRBuilder, route planning, exact helper
   lowering, or runtime object representation in this measurement-floor slice.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh
 ```

@@ -97,6 +97,8 @@ before startup / loader work can be selected.
 task=PERF-USERBOX-001
 scope=direct-helper measurement harness floor run repair
 startup_loader_attribution_report=required
+tool=tools/allocator/userbox_direct_helper_floor_attribution.py
+guard=tools/checks/k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh
 
 counter_step_chain_role=startup_loader_sentinel
 counter_step_chain_exact_kernel_target=0

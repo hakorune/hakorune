@@ -382,6 +382,8 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_direct_helper_implementation_guard.sh` | 296x-215 の typed-object exact slot direct helper implementation guard。runtime exports、gate ON/OFF emission、semantic smoke を固定する。 |
 | `tools/allocator/typed_object_exact_slot_direct_helper_measurement.py` | 296x-216 の typed-object exact slot direct helper measurement tool。SingleThreadExact floor と exact-slot helper gate ON を比較する。 |
 | `tools/checks/k2_wide_phase296x_typed_object_exact_slot_direct_helper_measurement_guard.sh` | 296x-216 の typed-object exact slot direct helper measurement guard。no-effect closeout と測定 adapter を固定する。 |
+| `tools/allocator/userbox_direct_helper_floor_attribution.py` | PERF-USERBOX-001 の userbox direct-helper floor attribution tool。counter_step_chain / point_add の floor/helper lanes と startup/loader attribution を測定する。 |
+| `tools/checks/k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh` | PERF-USERBOX-001 の userbox direct-helper floor attribution guard。floor_run_status=ok、invalid ArrayBox handle=0、startup_loader_attribution_report=1 を固定する。 |
 | `tools/allocator/typed_object_exact_slot_owner_refresh.py` | 296x-217 の post exact-slot helper owner refresh tool。perf top から exact-slot helper / Array backend / Hako method owner を分類する。 |
 | `tools/checks/k2_wide_phase296x_post_exact_slot_direct_helper_owner_refresh_guard.sh` | 296x-217 の post exact-slot helper owner refresh guard。exact-slot helper call boundary を次 diagnostic に固定する。 |
 | `tools/allocator/mir_typed_field_direct_op_net_inventory.py` | 296x-218 の MIR typed-field direct-op net inventory。typed-object slot plan から exact helper を direct-op で消せる projected net helper-call delta を数える。 |
