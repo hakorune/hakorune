@@ -241,6 +241,127 @@ fn stable_length_relation_for_phi(
     })
 }
 
+fn is_raw_substring_view_call(inst: &MirInstruction) -> bool {
+    matches!(
+        inst,
+        MirInstruction::Call {
+            callee:
+                Some(super::Callee::Method {
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            args,
+            ..
+        } if args.len() == 3
+            && matches!(method.as_str(), "substring" | "slice")
+            && args.first().is_some_and(|arg| arg == receiver)
+    ) || matches!(
+        inst,
+        MirInstruction::Call {
+            callee: Some(super::Callee::Extern(name)),
+            args,
+            ..
+        } if args.len() == 3 && name == "nyash.string.substring_hii"
+    )
+}
+
+fn stable_length_relation_for_direct_length_call(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    length_value: ValueId,
+    receiver_value: ValueId,
+) -> Option<StringCorridorRelation> {
+    let receiver_root = resolve_value_origin(function, def_map, receiver_value);
+    if function
+        .metadata
+        .string_corridor_relations
+        .get(&receiver_root)
+        .is_some_and(|relations| {
+            relations
+                .iter()
+                .any(|relation| relation.kind == StringCorridorRelationKind::StableLengthScalar)
+        })
+    {
+        return None;
+    }
+
+    let Some((bbid, idx)) = def_map.get(&receiver_root).copied() else {
+        return Some(StringCorridorRelation {
+            kind: StringCorridorRelationKind::StableLengthScalar,
+            base_value: receiver_root,
+            witness_value: Some(resolve_value_origin(function, def_map, length_value)),
+            window_contract: StringCorridorWindowContract::PreservePlanWindow,
+            reason:
+                "direct source length call keeps the source scalar length stable without a merge",
+        });
+    };
+    let Some(block) = function.blocks.get(&bbid) else {
+        return None;
+    };
+    let Some(inst) = block.instructions.get(idx) else {
+        return None;
+    };
+
+    let is_retained_substring_view =
+        is_raw_substring_view_call(inst) || match_substring_concat3_helper_call(inst).is_some();
+    let is_direct_source = matches!(
+        inst,
+        MirInstruction::Const {
+            value: super::ConstValue::String(_),
+            ..
+        } | MirInstruction::Copy { .. }
+            | MirInstruction::Phi { .. }
+    );
+    if !is_retained_substring_view && !is_direct_source {
+        return None;
+    }
+
+    Some(StringCorridorRelation {
+        kind: StringCorridorRelationKind::StableLengthScalar,
+        base_value: receiver_root,
+        witness_value: Some(resolve_value_origin(function, def_map, length_value)),
+        window_contract: StringCorridorWindowContract::PreservePlanWindow,
+        reason: if is_retained_substring_view {
+            "retained substring view length stays stable without a merge"
+        } else {
+            "direct source length call keeps the source scalar length stable without a merge"
+        },
+    })
+}
+
+fn stable_length_relation_from_hint(hint: &str) -> Option<StringCorridorRelation> {
+    let payload = hint.strip_prefix("string_corridor_sink:stable_length_scalar:")?;
+    let (base_part, witness_part) = payload.split_once(':')?;
+    let base_value = ValueId(base_part.strip_prefix('%')?.parse().ok()?);
+    let witness_value = ValueId(witness_part.strip_prefix('%')?.parse().ok()?);
+
+    Some(StringCorridorRelation {
+        kind: StringCorridorRelationKind::StableLengthScalar,
+        base_value,
+        witness_value: Some(witness_value),
+        window_contract: StringCorridorWindowContract::PreservePlanWindow,
+        reason:
+            "string corridor sink preserved a direct source length witness in optimization hints",
+    })
+}
+
+fn push_relation_if_absent(
+    relations: &mut Vec<StringCorridorRelation>,
+    relation: StringCorridorRelation,
+) {
+    if relations.iter().any(|existing| {
+        existing.kind == relation.kind
+            && existing.base_value == relation.base_value
+            && existing.witness_value == relation.witness_value
+            && existing.window_contract == relation.window_contract
+            && existing.reason == relation.reason
+    }) {
+        return;
+    }
+    relations.push(relation);
+}
+
 pub fn refresh_module_string_corridor_relations(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_string_corridor_relations(function);
@@ -255,9 +376,6 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
         .keys()
         .copied()
         .collect::<BTreeSet<_>>();
-    if anchors.is_empty() {
-        return;
-    }
     let def_map = build_value_def_map(function);
 
     for relation in collect_phi_carry_relations(function, &anchors) {
@@ -300,6 +418,36 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
                     .push(stable_length);
             }
         }
+    }
+
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            let Some((dst, receiver, _effects)) = match_len_call(inst) else {
+                continue;
+            };
+            if let Some(relation) =
+                stable_length_relation_for_direct_length_call(function, &def_map, dst, receiver)
+            {
+                function
+                    .metadata
+                    .string_corridor_relations
+                    .entry(relation.base_value)
+                    .or_default()
+                    .push(relation);
+            }
+        }
+    }
+
+    for hint in &function.metadata.optimization_hints {
+        let Some(relation) = stable_length_relation_from_hint(hint) else {
+            continue;
+        };
+        let relations = function
+            .metadata
+            .string_corridor_relations
+            .entry(relation.base_value)
+            .or_default();
+        push_relation_if_absent(relations, relation);
     }
 }
 
@@ -528,17 +676,145 @@ mod tests {
             .compile_with_source(ast, Some(path))
             .expect("compile benchmark");
         let main = result.module.functions.get("main").expect("main");
-        let header_relations = main
+        let source_relations = main
             .metadata
             .string_corridor_relations
-            .get(&ValueId(21))
-            .expect("phi %21 relations");
+            .get(&ValueId(19))
+            .expect("source %19 relations");
 
-        assert!(header_relations.iter().any(|relation| {
+        assert!(source_relations.iter().any(|relation| {
             relation.kind == StringCorridorRelationKind::StableLengthScalar
-                && relation.base_value == ValueId(36)
+                && relation.base_value == ValueId(19)
                 && relation.witness_value == Some(ValueId(5))
-                && relation.window_contract == StringCorridorWindowContract::StopAtMerge
+                && relation.window_contract == StringCorridorWindowContract::PreservePlanWindow
         }));
+    }
+
+    #[test]
+    fn refresh_function_records_stable_length_scalar_on_substring_only_benchmark() {
+        ensure_ring0_initialized();
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/benchmarks/bench_kilo_micro_substring_only.hako"
+        );
+        let source = std::fs::read_to_string(path).expect("benchmark source");
+        let prepared = prepare_source_minimal(&source, path).expect("prepare benchmark source");
+        let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+        let mut compiler = MirCompiler::with_options(true);
+        let result = compiler
+            .compile_with_source(ast, Some(path))
+            .expect("compile benchmark");
+        let main = result.module.functions.get("main").expect("main");
+        let def_map = build_value_def_map(main);
+        let mut length_diagnostics = Vec::new();
+        for (bbid, block) in &main.blocks {
+            for inst in &block.instructions {
+                if let Some((dst, receiver, _effects)) = match_len_call(inst) {
+                    let receiver_root = resolve_value_origin(main, &def_map, receiver);
+                    let root_inst = def_map
+                        .get(&receiver_root)
+                        .and_then(|(root_bbid, root_idx)| {
+                            main.blocks
+                                .get(root_bbid)
+                                .and_then(|root_block| root_block.instructions.get(*root_idx))
+                        })
+                        .cloned();
+                    length_diagnostics.push(format!(
+                        "bb{} dst=%{} recv=%{} root=%{} root_inst={root_inst:?}",
+                        bbid.0, dst.0, receiver.0, receiver_root.0
+                    ));
+                }
+            }
+        }
+        let relation_summary = main
+            .metadata
+            .string_corridor_relations
+            .iter()
+            .map(|(base, relations)| {
+                format!(
+                    "base=%{}:[{}]",
+                    base.0,
+                    relations
+                        .iter()
+                        .map(StringCorridorRelation::summary)
+                        .collect::<Vec<_>>()
+                        .join(" | ")
+                )
+            })
+            .collect::<Vec<_>>();
+
+        assert!(
+            main.metadata
+                .string_corridor_relations
+                .values()
+                .flatten()
+                .any(|relation| relation.kind == StringCorridorRelationKind::StableLengthScalar),
+            "substring_only benchmark should expose at least one stable length relation; length_calls={length_diagnostics:?}; hints={:?}; relations={relation_summary:?}",
+            main.metadata.optimization_hints
+        );
+    }
+
+    #[test]
+    fn refresh_function_records_stable_length_scalar_on_len_substring_views_benchmark() {
+        ensure_ring0_initialized();
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/benchmarks/bench_kilo_micro_len_substring_views.hako"
+        );
+        let source = std::fs::read_to_string(path).expect("benchmark source");
+        let prepared = prepare_source_minimal(&source, path).expect("prepare benchmark source");
+        let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
+        let mut compiler = MirCompiler::with_options(true);
+        let result = compiler
+            .compile_with_source(ast, Some(path))
+            .expect("compile benchmark");
+        let main = result.module.functions.get("main").expect("main");
+        let def_map = build_value_def_map(main);
+        let mut length_diagnostics = Vec::new();
+        for (bbid, block) in &main.blocks {
+            for inst in &block.instructions {
+                if let Some((dst, receiver, _effects)) = match_len_call(inst) {
+                    let receiver_root = resolve_value_origin(main, &def_map, receiver);
+                    let root_inst = def_map
+                        .get(&receiver_root)
+                        .and_then(|(root_bbid, root_idx)| {
+                            main.blocks
+                                .get(root_bbid)
+                                .and_then(|root_block| root_block.instructions.get(*root_idx))
+                        })
+                        .cloned();
+                    length_diagnostics.push(format!(
+                        "bb{} dst=%{} recv=%{} root=%{} root_inst={root_inst:?}",
+                        bbid.0, dst.0, receiver.0, receiver_root.0
+                    ));
+                }
+            }
+        }
+        let relation_summary = main
+            .metadata
+            .string_corridor_relations
+            .iter()
+            .map(|(base, relations)| {
+                format!(
+                    "base=%{}:[{}]",
+                    base.0,
+                    relations
+                        .iter()
+                        .map(StringCorridorRelation::summary)
+                        .collect::<Vec<_>>()
+                        .join(" | ")
+                )
+            })
+            .collect::<Vec<_>>();
+
+        assert!(
+            main.metadata
+                .string_corridor_relations
+                .values()
+                .flatten()
+                .any(|relation| relation.kind == StringCorridorRelationKind::StableLengthScalar),
+            "len_substring_views benchmark should expose at least one stable length relation; length_calls={length_diagnostics:?}; hints={:?}; relations={relation_summary:?}",
+            main.metadata.optimization_hints
+        );
     }
 }

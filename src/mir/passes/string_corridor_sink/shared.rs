@@ -498,13 +498,31 @@ pub(super) fn stable_length_value_for_source(
     function
         .metadata
         .string_corridor_relations
-        .get(&source)?
-        .iter()
+        .values()
+        .flatten()
         .find_map(|relation| {
-            (relation.kind == StringCorridorRelationKind::StableLengthScalar)
+            (relation.kind == StringCorridorRelationKind::StableLengthScalar
+                && relation.base_value == source)
                 .then_some(relation.witness_value)
                 .flatten()
         })
+        .or_else(|| stable_length_value_for_source_from_hints(function, source))
+}
+
+fn stable_length_value_for_source_from_hints(
+    function: &MirFunction,
+    source: ValueId,
+) -> Option<ValueId> {
+    function.metadata.optimization_hints.iter().find_map(|hint| {
+        let payload = hint.strip_prefix("string_corridor_sink:stable_length_scalar:")?;
+        let (base_part, witness_part) = payload.split_once(':')?;
+        let base_value = ValueId(base_part.strip_prefix('%')?.parse().ok()?);
+        if base_value != source {
+            return None;
+        }
+        let witness_value = ValueId(witness_part.strip_prefix('%')?.parse().ok()?);
+        Some(witness_value)
+    })
 }
 
 pub(super) fn apply_plans(
@@ -539,8 +557,8 @@ pub(super) fn apply_plans(
                 },
             );
             function.metadata.optimization_hints.push(format!(
-                "string_corridor_sink:substring_len_hii:%{}",
-                plan.outer_dst.0
+                "string_corridor_sink:substring_len_hii:%{}:%{}",
+                plan.source.0, plan.outer_dst.0
             ));
             rewritten += 1;
         }
@@ -560,8 +578,8 @@ pub(super) fn apply_plans(
             } else {
                 new_insts.push(inst);
                 new_spans.push(span);
-            }
-        }
+    }
+}
 
         block.instructions = new_insts;
         block.instruction_spans = new_spans;

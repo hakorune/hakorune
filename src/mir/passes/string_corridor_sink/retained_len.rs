@@ -38,18 +38,24 @@ pub(super) fn collect_retained_len_plans(
             let start_root = resolve_value_origin(function, def_map, start);
             let end_root = resolve_value_origin(function, def_map, end);
 
-            match placement_effect_string_window_for_value(function, receiver_root) {
-                Some((window_start, window_end))
-                    if window_start == start_root && window_end == end_root => {}
-                Some(_) => continue,
-                None => {
-                    let Some(inner_fact) =
-                        function.metadata.string_corridor_facts.get(&receiver_root)
-                    else {
+            let has_stable_length_relation =
+                stable_length_value_for_source(function, receiver_root).is_some();
+            if !has_stable_length_relation {
+                match placement_effect_string_window_for_value(function, receiver_root) {
+                    Some((window_start, window_end))
+                        if window_start == start_root && window_end == end_root => {}
+                    Some(_) => {
                         continue;
-                    };
-                    if inner_fact.op != StringCorridorOp::StrSlice {
-                        continue;
+                    }
+                    None => {
+                        let Some(inner_fact) =
+                            function.metadata.string_corridor_facts.get(&receiver_root)
+                        else {
+                            continue;
+                        };
+                        if inner_fact.op != StringCorridorOp::StrSlice {
+                            continue;
+                        }
                     }
                 }
             }
@@ -100,8 +106,8 @@ pub(super) fn apply_retained_len_plans(
                 },
             );
             function.metadata.optimization_hints.push(format!(
-                "string_corridor_sink:borrowed_slice_len:%{}",
-                plan.outer_dst.0
+                "string_corridor_sink:borrowed_slice_len:%{}:%{}",
+                plan.source.0, plan.outer_dst.0
             ));
             rewritten += 1;
         }

@@ -80,6 +80,12 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
 
     let mut def_map = build_value_def_map(function);
     let mut use_counts = build_use_counts(function);
+    let stable_length_hints = collect_direct_stable_length_hints(function, &def_map);
+    for hint in stable_length_hints {
+        if !function.metadata.optimization_hints.contains(&hint) {
+            function.metadata.optimization_hints.push(hint);
+        }
+    }
     let plans_by_block = collect_plans(function, &def_map, &use_counts);
     let mut rewritten = apply_plans(function, plans_by_block);
     if rewritten > 0 {
@@ -96,7 +102,18 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     }
 
     let concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
-    let concat_corridor_rewritten = apply_concat_corridor_plans(function, concat_corridor_plans);
+    let mut immediate_concat_plans_by_block = BTreeMap::new();
+    for (bbid, plans) in concat_corridor_plans {
+        let immediate_plans: Vec<_> = plans
+            .into_iter()
+            .filter(|plan| !matches!(plan, ConcatCorridorPlan::Substring(_)))
+            .collect();
+        if !immediate_plans.is_empty() {
+            immediate_concat_plans_by_block.insert(bbid, immediate_plans);
+        }
+    }
+    let concat_corridor_rewritten =
+        apply_concat_corridor_plans(function, immediate_concat_plans_by_block);
     rewritten += concat_corridor_rewritten;
     if concat_corridor_rewritten > 0 {
         def_map = build_value_def_map(function);
@@ -133,16 +150,93 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
         use_counts = build_use_counts(function);
     }
 
+    // The complementary substring-len fusion owner needs dead intermediate
+    // adds/copies to be removed before it can see the final single-use tree.
+    // Run a local DCE sweep here so corridor-local rewrite chains can collapse
+    // inside the same optimization wave instead of waiting for the next pass
+    // round.
+    let corridor_dce_rewritten =
+        crate::mir::passes::dce::eliminate_dead_code_in_function(function);
+    rewritten += corridor_dce_rewritten;
+    if corridor_dce_rewritten > 0 {
+        def_map = build_value_def_map(function);
+        use_counts = build_use_counts(function);
+    }
+
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     let fusion_rewritten = apply_complementary_len_fusion_plans(function, fusion_plans);
     rewritten += fusion_rewritten;
     if fusion_rewritten > 0 {
+        let post_fusion_dce_rewritten =
+            crate::mir::passes::dce::eliminate_dead_code_in_function(function);
+        rewritten += post_fusion_dce_rewritten;
+    }
+
+    def_map = build_value_def_map(function);
+    use_counts = build_use_counts(function);
+
+    let second_concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
+    let second_concat_corridor_rewritten =
+        apply_concat_corridor_plans(function, second_concat_corridor_plans);
+    rewritten += second_concat_corridor_rewritten;
+    if second_concat_corridor_rewritten > 0 {
+        let second_post_concat_dce_rewritten =
+            crate::mir::passes::dce::eliminate_dead_code_in_function(function);
+        rewritten += second_post_concat_dce_rewritten;
         use_counts = build_use_counts(function);
     }
 
     rewritten += remove_unused_substring_view_producers(function, &use_counts);
 
     rewritten
+}
+
+fn collect_direct_stable_length_hints(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+) -> Vec<String> {
+    let mut hints = Vec::new();
+
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            let Some((dst, receiver, _effects)) = match_len_call(inst) else {
+                continue;
+            };
+            let receiver_root = resolve_value_origin(function, def_map, receiver);
+            let Some((bbid, idx)) = def_map.get(&receiver_root).copied() else {
+                continue;
+            };
+            let Some(root_block) = function.blocks.get(&bbid) else {
+                continue;
+            };
+            let Some(root_inst) = root_block.instructions.get(idx) else {
+                continue;
+            };
+            if match_substring_call(root_inst).is_some()
+                || match_substring_concat3_helper_call(root_inst).is_some()
+                || match_substring_len_call(root_inst).is_some()
+            {
+                continue;
+            }
+            if !matches!(
+                root_inst,
+                MirInstruction::Const {
+                    value: ConstValue::String(_),
+                    ..
+                } | MirInstruction::Copy { .. }
+                    | MirInstruction::Phi { .. }
+            ) {
+                continue;
+            }
+            hints.push(format!(
+                "string_corridor_sink:stable_length_scalar:%{}:%{}",
+                receiver_root.0,
+                resolve_value_origin(function, def_map, dst).0
+            ));
+        }
+    }
+
+    hints
 }
 
 fn remove_unused_substring_view_producers(
@@ -377,6 +471,7 @@ struct ComplementarySubstringLenFusionPlan {
     outer_idx: usize,
     outer_dst: ValueId,
     acc: ValueId,
+    source_root: ValueId,
     source_len: ValueId,
 }
 

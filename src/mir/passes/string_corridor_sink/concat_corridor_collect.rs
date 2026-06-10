@@ -152,14 +152,14 @@ pub(crate) fn collect_concat_corridor_plans(
                         &left_shape,
                         &right_shape,
                     ) {
-                        let Some(left_chain) = resolve_single_use_copy_chain_in_block(
-                            function, *bbid, def_map, use_counts, left,
-                        ) else {
+                        let Some(left_chain) =
+                            resolve_copy_chain_in_block(function, *bbid, def_map, use_counts, left)
+                        else {
                             continue;
                         };
-                        let Some(right_chain) = resolve_single_use_copy_chain_in_block(
-                            function, *bbid, def_map, use_counts, right,
-                        ) else {
+                        let Some(right_chain) =
+                            resolve_copy_chain_in_block(function, *bbid, def_map, use_counts, right)
+                        else {
                             continue;
                         };
                         let Some((left_root_bbid, left_root_idx)) =

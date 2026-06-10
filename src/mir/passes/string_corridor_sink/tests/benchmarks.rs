@@ -77,7 +77,6 @@ fn benchmark_len_substring_views_compiles_without_loop_string_consumers() {
     let result = compiler
         .compile_with_source(ast, Some(path))
         .expect("compile benchmark");
-
     let mut leftover_string_consumers = Vec::new();
     for (name, function) in &result.module.functions {
         for (bbid, block) in &function.blocks {
@@ -135,7 +134,6 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         .compile_with_source(ast, Some(path))
         .expect("compile benchmark");
 
-    let mut saw_insert_mid = false;
     let mut saw_helper = false;
     let mut substring_call_count = 0usize;
     let mut leftover_concat_consumers = Vec::new();
@@ -146,12 +144,6 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         for (bbid, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
-                    MirInstruction::Call {
-                        callee: Some(Callee::Extern(callee)),
-                        ..
-                    } if callee == INSERT_HSI_EXTERN => {
-                        saw_insert_mid = true;
-                    }
                     MirInstruction::Call {
                         callee: Some(Callee::Extern(callee)),
                         args,
@@ -226,9 +218,30 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         }
     }
 
+    let main = result.module.functions.get("main").expect("main");
     assert!(
-        saw_insert_mid,
-        "benchmark should emit delete-oriented insert_hsi rewrite"
+        main.metadata
+            .optimization_hints
+            .iter()
+            .any(|hint| hint.starts_with("string_corridor_sink:concat_slice_insert_mid_substring:")),
+        "benchmark should emit an insert-mid substring corridor hint; hints={:?}",
+        main.metadata.optimization_hints
+    );
+    assert!(
+        main.metadata
+            .optimization_hints
+            .iter()
+            .any(|hint| hint.starts_with("string_corridor_sink:complementary_substring_len_fusion:")),
+        "benchmark should emit a complementary substring-length fusion hint; hints={:?}",
+        main.metadata.optimization_hints
+    );
+    assert!(
+        main.metadata
+            .optimization_hints
+            .iter()
+            .any(|hint| hint.starts_with("string_corridor_sink:stable_length_scalar:")),
+        "benchmark should preserve a stable length scalar witness; hints={:?}",
+        main.metadata.optimization_hints
     );
     assert!(
         !saw_helper,
@@ -251,7 +264,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
     );
     assert_eq!(
         substring_call_count, 1,
-        "delete-oriented rewrite should leave only the final outer substring call"
+        "substring_concat rewrite should leave only the final outer substring call"
     );
 }
 

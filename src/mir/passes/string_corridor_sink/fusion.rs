@@ -27,12 +27,13 @@ pub(super) fn complementary_pair_source_len(
         {
             return Some(source_len);
         }
-        let stable_len = stable_length_value_for_source(function, shared_source_root)?;
-        let rhs_end = resolve_value_origin(function, def_map, rhs.end);
-        if rhs_end == stable_len {
-            return Some(stable_len);
+        if let Some(stable_len) = stable_length_value_for_source(function, shared_source_root) {
+            let rhs_end = resolve_value_origin(function, def_map, rhs.end);
+            if rhs_end == stable_len {
+                return Some(stable_len);
+            }
         }
-        return None;
+        return Some(resolve_value_origin(function, def_map, rhs.end));
     }
 
     if value_is_const_i64(function, def_map, rhs.start, 0) {
@@ -49,12 +50,13 @@ pub(super) fn complementary_pair_source_len(
         {
             return Some(source_len);
         }
-        let stable_len = stable_length_value_for_source(function, shared_source_root)?;
-        let lhs_end = resolve_value_origin(function, def_map, lhs.end);
-        if lhs_end == stable_len {
-            return Some(stable_len);
+        if let Some(stable_len) = stable_length_value_for_source(function, shared_source_root) {
+            let lhs_end = resolve_value_origin(function, def_map, lhs.end);
+            if lhs_end == stable_len {
+                return Some(stable_len);
+            }
         }
-        return None;
+        return Some(resolve_value_origin(function, def_map, lhs.end));
     }
 
     None
@@ -97,7 +99,8 @@ pub(super) fn ordered_complementary_substring_pair_source_split(
         return None;
     }
 
-    if match_source_length_value(function, def_map, &lhs_source, rhs.end).is_some() {
+    let matched_source_len = match_source_length_value(function, def_map, &lhs_source, rhs.end);
+    if matched_source_len.is_some() {
         return Some((shared_source_root, split));
     }
 
@@ -132,10 +135,8 @@ pub(super) fn try_match_complementary_len_fusion_plan(
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     use_counts: &HashMap<ValueId, usize>,
 ) -> Option<ComplementarySubstringLenFusionPlan> {
-    let inner_chain =
-        resolve_single_use_copy_chain_in_block(function, bbid, def_map, use_counts, inner_leaf)?;
-    let other_chain =
-        resolve_single_use_copy_chain_in_block(function, bbid, def_map, use_counts, other_leaf)?;
+    let inner_chain = resolve_copy_chain_in_block(function, bbid, def_map, use_counts, inner_leaf)?;
+    let other_chain = resolve_copy_chain_in_block(function, bbid, def_map, use_counts, other_leaf)?;
     let inner_add = match_add_in_block(function, bbid, def_map, inner_chain.root)?;
     if inner_add.idx >= outer_idx || inner_add.dst != inner_chain.root {
         return None;
@@ -145,12 +146,11 @@ pub(super) fn try_match_complementary_len_fusion_plan(
         (inner_add.lhs, inner_add.rhs),
         (inner_add.rhs, inner_add.lhs),
     ] {
-        let first_chain = match resolve_single_use_copy_chain_in_block(
-            function, bbid, def_map, use_counts, first_leaf,
-        ) {
-            Some(chain) => chain,
-            None => continue,
-        };
+        let first_chain =
+            match resolve_copy_chain_in_block(function, bbid, def_map, use_counts, first_leaf) {
+                Some(chain) => chain,
+                None => continue,
+            };
         let first_call =
             match match_substring_len_call_in_block(function, bbid, def_map, first_chain.root) {
                 Some(call) => call,
@@ -166,6 +166,7 @@ pub(super) fn try_match_complementary_len_fusion_plan(
         else {
             continue;
         };
+        let source_root = resolve_value_origin(function, def_map, first_call.source);
 
         let acc = resolve_value_origin(function, def_map, acc_leaf);
         let mut remove_indices: BTreeSet<usize> = BTreeSet::new();
@@ -181,6 +182,7 @@ pub(super) fn try_match_complementary_len_fusion_plan(
             outer_idx,
             outer_dst,
             acc,
+            source_root,
             source_len,
         });
     }
@@ -274,6 +276,10 @@ pub(super) fn apply_complementary_len_fusion_plans(
             function.metadata.optimization_hints.push(format!(
                 "string_corridor_sink:complementary_substring_len_fusion:%{}",
                 plan.outer_dst.0
+            ));
+            function.metadata.optimization_hints.push(format!(
+                "string_corridor_sink:stable_length_scalar:%{}:%{}",
+                plan.source_root.0, plan.source_len.0
             ));
             rewritten += 1;
         }
