@@ -36,6 +36,7 @@ These are the only knobs this lane treats as first-class:
 | `HAKO_AOT_LDFLAGS` | unset | Compat append ldflags. Use for explicit `-static-libgcc` or other caller-owned additions. |
 | `NYASH_LLVM_LINK_SYSTEM_LIBS` | `full` | `full` keeps the historical `-ldl -lpthread -lm` surface; `minimal` drops `-lm` for diagnostic probes only. |
 | `HAKO_NYRT_PLUGIN_HOST` | `auto` | `auto` keeps normal NyRT plugin-host init; `off` skips plugin-host init for no-plugin floor probes. |
+| `NYASH_NYRT_RUNTIME_HOOKS` | `auto` | `auto` publishes runtime hooks into the global safepoint bridge; `off` skips the runtime-hooks publication step for diagnostic startup-floor probes. |
 | `NYASH_NYRT_SILENT_RESULT` | off | Suppresses the standard `Result: <code>` line so startup probes can keep stdout clean. |
 
 Rules:
@@ -55,6 +56,7 @@ Rules:
 | `PERF-USERBOX-003` | `-static-libgcc` probe | `k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh` | dynamic `libgcc_s` drops on ret0 | default link mode, full static linking |
 | `PERF-USERBOX-004` | minimal system libs probe | `k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh` | dynamic `libm` also drops on ret0 | default link mode, full static linking |
 | `PERF-USERBOX-005` | NyRT plugin-host-off probe | `k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh` | plugin-host init is skipped for the floor seed | normal NyRT plugin support, default runtime behavior |
+| `PERF-USERBOX-006` | NyRT runtime-hooks-off probe | `k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh` | runtime-hooks publication is skipped for the floor seed | normal runtime hooks, default runtime behavior |
 
 ## Reading Order
 
@@ -74,5 +76,5 @@ Rules:
 
 ## Next Seam
 
-The current floor is now below loader, libgcc, libm, and plugin-host init.
-The next owner is the NyRT runtime hooks / env / stdio startup floor.
+The current floor is now below loader, libgcc, libm, plugin-host init, and runtime-hooks publication.
+The next owner is the NyRT env / stdio startup floor.

@@ -192,6 +192,14 @@ PERF-USERBOX-005:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh
 
+PERF-USERBOX-006:
+  add an explicit NyRT runtime-hooks-off probe mode for startup attribution.
+  The default stays `auto`; the probe uses `NYASH_NYRT_RUNTIME_HOOKS=off` to
+  skip the runtime-hooks publication step for ret0 / no-plugin seeds.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh
+
 Next:
-  NyRT runtime hooks / env / stdio startup floor.
+  NyRT env / stdio startup floor.
 ```

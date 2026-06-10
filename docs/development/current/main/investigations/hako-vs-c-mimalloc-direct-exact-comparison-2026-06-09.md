@@ -241,6 +241,11 @@ top_runtime_symbol=nyash_rust::runtime::global_hooks::set_from_runtime
 next_owner=NyRT runtime hooks/env/stdio startup floor
 ```
 
+The follow-up probe for that floor is `PERF-USERBOX-006`, which keeps the
+plugin-host-off floor and adds `NYASH_NYRT_RUNTIME_HOOKS=off` so the startup
+sample can separate runtime-hooks publication from the remaining env / stdio
+costs without changing the default runtime behavior.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

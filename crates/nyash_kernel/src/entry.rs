@@ -5,6 +5,11 @@ enum PluginHostMode {
     Off,
 }
 
+enum RuntimeHooksMode {
+    Auto,
+    Off,
+}
+
 fn plugin_host_mode_from_env() -> Result<PluginHostMode, String> {
     let Ok(raw) = std::env::var("HAKO_NYRT_PLUGIN_HOST") else {
         return Ok(PluginHostMode::Auto);
@@ -27,6 +32,32 @@ fn plugin_host_mode_from_env() -> Result<PluginHostMode, String> {
     }
     Err(format!(
         "[freeze:contract][nyrt/plugin-host-mode] expected=auto|on|1|true|off|0|false|none got={}",
+        value
+    ))
+}
+
+fn runtime_hooks_mode_from_env() -> Result<RuntimeHooksMode, String> {
+    let Ok(raw) = std::env::var("NYASH_NYRT_RUNTIME_HOOKS") else {
+        return Ok(RuntimeHooksMode::Auto);
+    };
+    let value = raw.trim();
+    if value.is_empty()
+        || value.eq_ignore_ascii_case("auto")
+        || value.eq_ignore_ascii_case("on")
+        || value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+    {
+        return Ok(RuntimeHooksMode::Auto);
+    }
+    if value.eq_ignore_ascii_case("off")
+        || value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("none")
+    {
+        return Ok(RuntimeHooksMode::Off);
+    }
+    Err(format!(
+        "[freeze:contract][nyrt/runtime-hooks-mode] expected=auto|on|1|true|off|0|false|none got={}",
         value
     ))
 }
@@ -88,8 +119,8 @@ pub extern "C" fn main() -> i32 {
             }
         }
     }
-    // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints
-    // Choose GC hooks based on env (default dev: Counting for observability unless explicitly off)
+    // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints.
+    // This is still built for ret0 diagnostic runs unless explicitly disabled.
     let mut rt_builder = nyash_rust::runtime::NyashRuntimeBuilder::new();
     let gc_mode = nyash_rust::runtime::gc_mode::GcMode::from_env();
     let controller = std::sync::Arc::new(nyash_rust::runtime::gc_controller::GcController::new(
@@ -97,7 +128,18 @@ pub extern "C" fn main() -> i32 {
     ));
     rt_builder = rt_builder.with_gc_hooks(controller);
     let rt_hooks = rt_builder.build();
-    nyash_rust::runtime::global_hooks::set_from_runtime(&rt_hooks);
+    let runtime_hooks_mode = match runtime_hooks_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
+    };
+    if matches!(runtime_hooks_mode, RuntimeHooksMode::Auto) {
+        nyash_rust::runtime::global_hooks::set_from_runtime(&rt_hooks);
+    } else if crate::env_flags::cli_verbose_enabled() {
+        println!("🔌 nyrt: runtime hooks init skipped (NYASH_NYRT_RUNTIME_HOOKS=off)");
+    }
     crate::rss_observe::checkpoint("after_runtime_hooks");
 
     let plugin_host_mode = match plugin_host_mode_from_env() {

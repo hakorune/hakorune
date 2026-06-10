@@ -31,6 +31,7 @@ Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`
 | `NYASH_LEAK_LOG=2` | OFF | VM (full), LLVM (parent process roots only) | プログラム終了時に残存する強参照を報告（詳細、最初の10件まで） |
 | `HAKO_NYRT_RSS_CHECKPOINTS=1` | OFF | NyRT exact-EXE | NyRT entry / runtime plugin-host 内の RSS checkpoint を stderr に出す（Linux は `/proc/self/status` の `VmRSS`、タグは `[nyrt/rss]` / `[runtime/rss]`）。診断専用。 |
 | `HAKO_NYRT_PLUGIN_HOST={auto\|off}` | `auto` | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の plugin host 初期化 mode。`auto` は既存互換で `nyash.toml` を探して初期化する。`off` は perf/startup 診断専用で plugin host 初期化をスキップする。invalid 値は fail-fast。 |
+| `NYASH_NYRT_RUNTIME_HOOKS={auto\|off}` | `auto` | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の runtime-hooks publication mode。`auto` は global safepoint bridge へ runtime hooks を publish する。`off` は perf/startup 診断専用で publication をスキップする。invalid 値は fail-fast。 |
 | `NYASH_NYRT_SILENT_RESULT=1` | OFF | NyRT exact-EXE / tests | NyRT exact-EXE の標準 `Result: <code>` 行を抑止する。stdout を JSON 等に固定したい selfhost/test/perf runner 用。 |
 
 ### ダンプの使い分け

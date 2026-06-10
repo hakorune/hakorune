@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
-latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..005: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, and plugin-host-off probes, while defaults stay unchanged."
+latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..006: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, plugin-host-off, and runtime-hooks-off probes, while defaults stay unchanged."
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -29,6 +29,7 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
   "2026-06-10: the PERF-USERBOX link/startup attribution ladder was consolidated into a dedicated SSOT, keeping full/default link and NyRT startup behavior unchanged while making the floor probes easy to rerun.",
+  "2026-06-10: the NyRT runtime-hooks-off probe was added on top of the link/startup ladder so the next floor can isolate env and stdio costs without changing default runtime behavior.",
   "2026-06-09: 296x-651 opened the typed-object exact slot ABI split lane after user-box counter-heavy perf moved the owner to field_get_hii_direct; exact slot routes are now separate from compat field_get_hii.",
   "2026-06-09: 296x-650 opened the MapBox proof-bearing route cleanup lane so metadata-only same-key fusion candidates cannot affect backend lowering without selected RouteDecision evidence.",
   "2026-06-09: 296x-648 selected the next exact front from the direct-exact Hako vs C mimalloc sweep; the workstream now points to the userbox/counter-heavy optimization lane instead of the docs/status cleanup row.",

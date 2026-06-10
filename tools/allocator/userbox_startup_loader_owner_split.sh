@@ -104,7 +104,8 @@ export NYASH_LLVM_USE_HARNESS=0
 export NYASH_LLVM_LINK_WHOLE_ARCHIVE="${NYASH_LLVM_LINK_WHOLE_ARCHIVE:-0}"
 export NYASH_LLVM_LINK_GC_SECTIONS="${NYASH_LLVM_LINK_GC_SECTIONS:-1}"
 
-"$ROOT_DIR/tools/allocator/userbox_direct_helper_floor_attribution.py" \
+NYASH_NYRT_RUNTIME_HOOKS=auto \
+  "$ROOT_DIR/tools/allocator/userbox_direct_helper_floor_attribution.py" \
   --out "$lanes_report" \
   --warmup "$LANE_WARMUP" \
   --repeat "$LANE_REPEAT" \
@@ -163,6 +164,7 @@ EOF
 env \
   NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
   NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
+  NYASH_NYRT_RUNTIME_HOOKS="${NYASH_NYRT_RUNTIME_HOOKS:-auto}" \
   NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   NYASH_SKIP_TOML_ENV="${NYASH_SKIP_TOML_ENV:-1}" \
   perf record -o "$perf_data" -F 999 -- "$runner_bin" "$STARTUP_RUNS" "$ret0_exe" >/dev/null 2>&1 || true
@@ -173,6 +175,7 @@ python3 - "$lanes_report" "$perf_report" "$OUT_FILE" "$STARTUP_RUNS" <<'PY'
 from __future__ import annotations
 
 import re
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -231,12 +234,16 @@ if category_pct:
     primary = max(category_pct.items(), key=lambda item: item[1])[0]
 
 lanes = read_kv(lanes_path)
+runtime_hooks_mode = os.environ.get("NYASH_NYRT_RUNTIME_HOOKS", "auto").strip().lower() or "auto"
+runtime_hooks_init_skipped = "1" if runtime_hooks_mode == "off" else "0"
 lines = [
     "output_contract=perf-userbox-startup-loader-owner-split-v0",
     "input_contract=perf-userbox-direct-helper-floor-attribution-v0",
     "measurement_scope=userbox_exact_aot_startup_loader_owner_split",
     f"startup_probe=ret0_exact_aot_spawn_runner",
     f"startup_runs={startup_runs}",
+    f"runtime_hooks_mode={runtime_hooks_mode}",
+    f"runtime_hooks_init_skipped={runtime_hooks_init_skipped}",
     f"ret0_perf_top_available={1 if rows else 0}",
     f"ret0_perf_top_row_count={len(rows)}",
     f"startup_loader_primary_owner_family={primary}",
