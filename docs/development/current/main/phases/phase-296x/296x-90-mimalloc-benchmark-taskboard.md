@@ -30,7 +30,7 @@ Long queue history lives in the archive note.
 ## Current Lane
 
 ```text
-| 650 | `HAKO-MIMALLOC-MAPBOX-PROOF-BEARING-ROUTE-CLEANUP-296X-001` | Current |
+| 651 | `HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001` | Current |
 ```
 
 ## Archive Pointers
