@@ -154,4 +154,13 @@ PERF-USERBOX-001:
 
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh
+
+PERF-USERBOX-002:
+  split the exact-AOT startup/loader owner with a ret0 startup perf-top probe
+  before changing optimizer/runtime code. The report must keep source,
+  MIRBuilder, route planner, exact helper lowering, and runtime object
+  representation closed.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_loader_owner_split_guard.sh
 ```

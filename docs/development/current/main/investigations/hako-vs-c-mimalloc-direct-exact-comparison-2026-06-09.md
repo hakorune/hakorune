@@ -124,6 +124,41 @@ startup_loader_attribution_report=1
 measurement_harness_failure_count=0
 ```
 
+## Startup / Loader Owner Split
+
+`PERF-USERBOX-002` splits the exact-AOT startup / loader owner before changing
+optimizer code. It joins the userbox floor/helper attribution report with a
+`ret0` exact-AOT startup perf-top run.
+
+```text
+task=PERF-USERBOX-002
+scope=exact-AOT startup/loader owner split
+tool=tools/allocator/userbox_startup_loader_owner_split.sh
+guard=tools/checks/k2_wide_phase296x_perf_userbox_startup_loader_owner_split_guard.sh
+
+startup_probe=ret0_exact_aot_spawn_runner
+source_truth_change=0
+mirbuilder_change=0
+route_planner_change=0
+exact_helper_lowering_change=0
+runtime_object_representation_change=0
+```
+
+Required report:
+
+```text
+output_contract=perf-userbox-startup-loader-owner-split-v0
+ret0_perf_top_available=1
+startup_loader_primary_owner_family
+startup_loader_dynamic_loader_pct
+startup_loader_libc_process_pct
+startup_loader_nyash_kernel_runtime_pct
+startup_loader_top_0_symbol
+attribution_floor_run_status=ok
+attribution_startup_loader_attribution_report=1
+summary=ok
+```
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter
