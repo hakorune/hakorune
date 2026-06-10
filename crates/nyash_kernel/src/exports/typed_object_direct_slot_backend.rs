@@ -14,6 +14,7 @@ thread_local! {
     static DIRECT_SLOT_MATERIALIZED_VIEWS: RefCell<Vec<TypedSlotObject>> = const { RefCell::new(Vec::new()) };
 }
 
+#[allow(dead_code)]
 fn with_direct_slot_objects<R>(f: impl FnOnce(&[DirectSlotObjectV0Box]) -> Option<R>) -> Option<R> {
     DIRECT_SLOT_OBJECTS.with(|objects| {
         let objects = objects.try_borrow().ok()?;

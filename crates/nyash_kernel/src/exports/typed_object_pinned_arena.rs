@@ -339,6 +339,7 @@ impl DirectSlotCellV0 {
         }
     }
 
+    #[allow(dead_code)]
     fn to_typed_slot(self) -> Option<TypedSlot> {
         match self.storage_tag {
             DIRECT_SLOT_TAG_I64 => Some(TypedSlot {
@@ -523,6 +524,17 @@ pub(crate) fn read_direct_slot_compat_i64(handle: i64, slot: usize) -> Option<i6
     cell.read_compat_i64()
 }
 
+pub(crate) fn read_direct_slot_i64(handle: i64, slot: usize) -> Option<i64> {
+    let ptr = decode_direct_slot_object_handle(handle)?;
+    let header = unsafe { ptr.as_ref() };
+    if slot >= header.field_count as usize {
+        return None;
+    }
+    let cells = unsafe { direct_slot_object_cells_ptr(ptr.as_ptr()) };
+    let cell = unsafe { &*cells.add(slot) };
+    cell.read_i64()
+}
+
 pub(crate) fn write_direct_slot_compat_i64(handle: i64, slot: usize, value: i64) -> Option<bool> {
     let ptr = decode_direct_slot_object_handle(handle)?;
     let header = unsafe { ptr.as_ref() };
@@ -532,6 +544,17 @@ pub(crate) fn write_direct_slot_compat_i64(handle: i64, slot: usize, value: i64)
     let cells = unsafe { direct_slot_object_cells_mut_ptr(ptr.as_ptr()) };
     let cell = unsafe { &mut *cells.add(slot) };
     Some(cell.write_compat_i64(value))
+}
+
+pub(crate) fn write_direct_slot_i64(handle: i64, slot: usize, value: i64) -> Option<bool> {
+    let ptr = decode_direct_slot_object_handle(handle)?;
+    let header = unsafe { ptr.as_ref() };
+    if slot >= header.field_count as usize {
+        return None;
+    }
+    let cells = unsafe { direct_slot_object_cells_mut_ptr(ptr.as_ptr()) };
+    let cell = unsafe { &mut *cells.add(slot) };
+    Some(cell.write_i64(value))
 }
 
 fn encode_handle(object_ref: PinnedTypedObjectRef) -> Option<i64> {

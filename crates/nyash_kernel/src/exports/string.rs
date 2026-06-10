@@ -7,7 +7,10 @@ use self::string_helpers::concat::substring::{
 use self::string_helpers::concat::{concat3_fallback, concat_pair_fallback};
 use self::string_helpers::materialize::{concat_two_str, string_handle_from_owned_with_site};
 use self::string_helpers::*;
-use self::string_helpers::{concat3_fast_cache_lookup, concat3_fast_cache_store};
+use self::string_helpers::{
+    concat3_fast_cache_lookup, concat3_fast_cache_store, substring_len_fast_cache_lookup,
+    substring_len_fast_cache_store,
+};
 use self::string_helpers::{concat_const_suffix_fallback, insert_const_mid_fallback};
 pub(crate) use self::string_helpers::{
     string_is_empty_from_handle, string_len_from_handle, to_owned_string_handle_arg,
@@ -20,8 +23,8 @@ use crate::exports::string_search::{
 };
 use crate::exports::string_view::clamp_i64_range;
 use crate::exports::string_view::{
-    borrowed_substring_plan_from_handle, resolve_string_span_pair_from_handles,
-    BorrowedSubstringPlan,
+    borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
+    resolve_string_span_pair_from_handles, BorrowedSubstringPlan,
 };
 use crate::hako_forward_bridge;
 use crate::observe;
@@ -577,15 +580,23 @@ pub extern "C" fn nyash_string_substring_len_hii_export(h: i64, start: i64, end:
     if h <= 0 {
         return 0;
     }
-    handles::with_text_read_session_ready(|session| {
-        session
-            .str_handle(h as u64, |text| {
-                let (start, end) = clamp_i64_range(text.len(), start, end);
-                end.saturating_sub(start) as i64
-            })
-            .unwrap_or(0)
-    })
-    .unwrap_or(0)
+    if let Some(cached) = substring_len_fast_cache_lookup(h, start, end) {
+        return cached;
+    }
+    if let Some(source_len) = string_len_fast_cache_lookup(h) {
+        let (start, end) = clamp_i64_range(source_len as usize, start, end);
+        let len = end.saturating_sub(start) as i64;
+        substring_len_fast_cache_store(h, start as i64, end as i64, len);
+        return len;
+    }
+    let Some(span) = resolve_string_span_from_handle(h) else {
+        return 0;
+    };
+    string_len_fast_cache_store(h, span.len() as i64);
+    let (start, end) = clamp_i64_range(span.len(), start, end);
+    let len = end.saturating_sub(start) as i64;
+    substring_len_fast_cache_store(h, start as i64, end as i64, len);
+    len
 }
 
 // String.indexOf_hh(haystack_h, needle_h) -> i64

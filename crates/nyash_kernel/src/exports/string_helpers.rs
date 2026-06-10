@@ -25,7 +25,8 @@ use std::sync::Arc;
 
 pub(crate) use self::cache::{
     string_len_fast_cache_lookup, string_len_fast_cache_store, substring_fast_cache_lookup,
-    substring_fast_cache_store, substring_view_arc_cache_lookup,
+    substring_fast_cache_store, substring_len_fast_cache_lookup,
+    substring_len_fast_cache_store, substring_view_arc_cache_lookup,
     substring_view_arc_cache_refresh_handle, substring_view_arc_cache_store, SubstringViewCacheHit,
 };
 pub(crate) use self::concat::const_adapter::concat_const_suffix_into_slot;

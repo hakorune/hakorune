@@ -6,6 +6,7 @@ use super::cache::{
 use super::concat::piecewise;
 use super::materialize::string_handle_from_owned_with_site;
 use super::{string_len_from_handle, substring_fast_route};
+use super::{substring_len_fast_cache_lookup, substring_len_fast_cache_store};
 use crate::c_string::cstring;
 use crate::exports::string::nyash_string_substring_publish_explicit_api_view_hii_export;
 use crate::exports::string_view::clamp_i64_range;
@@ -66,6 +67,18 @@ fn substring_fast_cache_invalidates_on_drop_epoch() {
 
     handles::drop_handle(source_h as u64);
     assert_eq!(substring_fast_cache_lookup(source_h, 2, 6, false), None);
+}
+
+#[test]
+fn substring_len_fast_cache_keeps_two_recent_ranges_hot() {
+    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("substring-cache".to_string()));
+    let source_h = handles::to_handle_arc(source) as i64;
+
+    substring_len_fast_cache_store(source_h, 0, 4, 4);
+    substring_len_fast_cache_store(source_h, 4, 8, 4);
+
+    assert_eq!(substring_len_fast_cache_lookup(source_h, 0, 4), Some(4));
+    assert_eq!(substring_len_fast_cache_lookup(source_h, 4, 8), Some(4));
 }
 
 #[test]

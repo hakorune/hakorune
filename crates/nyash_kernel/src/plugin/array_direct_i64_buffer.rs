@@ -44,6 +44,7 @@ pub(crate) struct DirectArrayI64BufferV0Box {
     layout: Layout,
 }
 
+#[allow(dead_code)]
 impl DirectArrayI64BufferV0Box {
     pub(crate) fn new(generation: u32, capacity: usize) -> Option<Self> {
         if generation == 0 {
@@ -215,49 +216,73 @@ fn decode_direct_array_i64_handle(handle: i64) -> Option<NonNull<DirectArrayI64B
     NonNull::new((raw & !DIRECT_ARRAY_I64_HANDLE_TAG) as *mut DirectArrayI64BufferV0)
 }
 
-fn with_registered_direct_array_i64<R>(
-    handle: i64,
-    f: impl FnOnce(&mut DirectArrayI64BufferV0Box) -> R,
-) -> Option<R> {
-    if handle <= 0 {
+fn direct_array_i64_buffer_from_handle(handle: i64) -> Option<NonNull<DirectArrayI64BufferV0>> {
+    let ptr = DirectArrayI64BufferV0Box::from_handle(handle)?;
+    let header = unsafe { ptr.as_ref() };
+    if header.kind != DIRECT_ARRAY_I64_KIND_V0
+        || header.generation == 0
+        || header.element_tag != DIRECT_ARRAY_ELEMENT_TAG_I64
+    {
         return None;
     }
-    DIRECT_ARRAY_I64_OBJECTS.with(|objects| {
-        let mut objects = objects.borrow_mut();
-        let object = objects
-            .iter_mut()
-            .find(|object| object.matches_handle(handle))?;
-        if !object.header_is_supported() || object.len() > object.capacity() {
-            return None;
-        }
-        Some(f(object))
-    })
+    if header.len > header.capacity {
+        return None;
+    }
+    Some(ptr)
 }
 
+#[inline(always)]
 pub(crate) fn direct_array_i64_store_i64(handle: i64, index: i64, value: i64) -> bool {
     if index < 0 {
         return false;
     }
-    with_registered_direct_array_i64(handle, |object| object.store(index as usize, value))
-        .unwrap_or(false)
+    let Some(ptr) = direct_array_i64_buffer_from_handle(handle) else {
+        return false;
+    };
+    let index = index as usize;
+    let header = unsafe { &mut *ptr.as_ptr() };
+    let len = header.len as usize;
+    let capacity = header.capacity as usize;
+    if index > len || index >= capacity {
+        return false;
+    }
+    unsafe {
+        *direct_array_i64_buffer_data_mut_ptr(ptr.as_ptr()).add(index) = value;
+        if index == len {
+            header.len = (len + 1) as u64;
+        }
+    }
+    true
 }
 
+#[inline(always)]
 pub(crate) fn direct_array_i64_load_i64(handle: i64, index: i64) -> Option<i64> {
     if index < 0 {
         return None;
     }
-    with_registered_direct_array_i64(handle, |object| object.load(index as usize)).flatten()
+    let ptr = direct_array_i64_buffer_from_handle(handle)?;
+    let header = unsafe { &*ptr.as_ptr() };
+    let index = index as usize;
+    if index >= header.len as usize {
+        return None;
+    }
+    Some(unsafe { *direct_array_i64_buffer_data_ptr(ptr.as_ptr()).add(index) })
 }
 
+#[inline(always)]
 pub(crate) fn direct_array_i64_push_i64(handle: i64, value: i64) -> Option<i64> {
-    with_registered_direct_array_i64(handle, |object| {
-        let len = object.len();
-        if !object.store(len, value) {
-            return None;
-        }
-        i64::try_from(len + 1).ok()
-    })
-    .flatten()
+    let ptr = direct_array_i64_buffer_from_handle(handle)?;
+    let header = unsafe { &mut *ptr.as_ptr() };
+    let len = header.len as usize;
+    let capacity = header.capacity as usize;
+    if len >= capacity {
+        return None;
+    }
+    unsafe {
+        *direct_array_i64_buffer_data_mut_ptr(ptr.as_ptr()).add(len) = value;
+        header.len = (len + 1) as u64;
+    }
+    i64::try_from(len + 1).ok()
 }
 
 pub(crate) fn direct_array_i64_birth_handle_with_capacity(capacity: usize) -> Option<i64> {

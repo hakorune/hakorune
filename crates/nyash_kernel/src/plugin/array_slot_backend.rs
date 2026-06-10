@@ -131,10 +131,8 @@ fn single_thread_load_encoded_i64(handle: i64, idx: i64) -> i64 {
     })
 }
 
+#[inline(always)]
 fn direct_array_i64_exact_store_i64(handle: i64, idx: i64, value_i64: i64) -> i64 {
-    if !valid_handle_idx(handle, idx) {
-        return 0;
-    }
     if direct_array_i64_store_i64(handle, idx, value_i64) {
         1
     } else {
@@ -142,10 +140,8 @@ fn direct_array_i64_exact_store_i64(handle: i64, idx: i64, value_i64: i64) -> i6
     }
 }
 
+#[inline(always)]
 fn direct_array_i64_exact_load_encoded_i64(handle: i64, idx: i64) -> i64 {
-    if !valid_handle_idx(handle, idx) {
-        return 0;
-    }
     direct_array_i64_load_i64(handle, idx).unwrap_or(0)
 }
 

@@ -2,8 +2,8 @@
 use super::handle_cache::with_instance_box;
 use crate::c_string::c_string_text;
 
-fn instance_field_name(name: *const i8) -> Option<String> {
-    c_string_text(name).map(str::to_string)
+fn instance_field_name<'a>(name: *const i8) -> Option<&'a str> {
+    c_string_text(name)
 }
 
 fn instance_integer_field_value(
@@ -103,7 +103,7 @@ pub extern "C" fn nyash_instance_get_field_h(handle: i64, name: *const i8) -> i6
         if inst.is_finalized() {
             return 0;
         }
-        if let Some(shared) = inst.get_field(&field) {
+        if let Some(shared) = inst.get_field(field) {
             let arc: std::sync::Arc<dyn nyash_rust::box_trait::NyashBox> =
                 std::sync::Arc::from(shared);
             let h = nyash_rust::runtime::host_handles::to_handle_arc(arc) as u64;
@@ -127,7 +127,7 @@ pub extern "C" fn nyash_instance_get_i64_field_h(handle: i64, name: *const i8) -
         if inst.is_finalized() {
             return 0;
         }
-        instance_integer_field_value(inst, field.as_str()).unwrap_or(0)
+        instance_integer_field_value(inst, field).unwrap_or(0)
     })
     .unwrap_or(0)
 }
@@ -145,7 +145,7 @@ pub extern "C" fn nyash_instance_get_bool_field_h(handle: i64, name: *const i8) 
         if inst.is_finalized() {
             return 0;
         }
-        if instance_bool_field_value(inst, field.as_str()).unwrap_or(false) {
+        if instance_bool_field_value(inst, field).unwrap_or(false) {
             1
         } else {
             0
@@ -167,7 +167,7 @@ pub extern "C" fn nyash_instance_get_float_field_h(handle: i64, name: *const i8)
         if inst.is_finalized() {
             return 0.0;
         }
-        instance_float_field_value(inst, field.as_str()).unwrap_or(0.0)
+        instance_float_field_value(inst, field).unwrap_or(0.0)
     })
     .unwrap_or(0.0)
 }
@@ -188,7 +188,7 @@ pub extern "C" fn nyash_instance_set_field_h(handle: i64, name: *const i8, val_h
         if val_h > 0 {
             if let Some(val) = nyash_rust::runtime::host_handles::get(val_h as u64) {
                 let shared: nyash_rust::box_trait::SharedNyashBox = std::sync::Arc::clone(&val);
-                let _ = inst.set_field(&field, shared);
+                let _ = inst.set_field(field, shared);
             }
         }
         0
@@ -209,7 +209,10 @@ pub extern "C" fn nyash_instance_set_i64_field_h(handle: i64, name: *const i8, v
         if inst.is_finalized() {
             return 0;
         }
-        let _ = inst.set_field_ng(field.clone(), nyash_rust::value::NyashValue::Integer(value));
+        let _ = inst.set_field_ng(
+            field.to_owned(),
+            nyash_rust::value::NyashValue::Integer(value),
+        );
         0
     })
     .unwrap_or(0)
@@ -229,7 +232,7 @@ pub extern "C" fn nyash_instance_set_bool_field_h(handle: i64, name: *const i8, 
             return 0;
         }
         let _ = inst.set_field_ng(
-            field.clone(),
+            field.to_owned(),
             nyash_rust::value::NyashValue::Bool(value != 0),
         );
         0
@@ -254,7 +257,10 @@ pub extern "C" fn nyash_instance_set_float_field_h(
         if inst.is_finalized() {
             return 0;
         }
-        let _ = inst.set_field_ng(field.clone(), nyash_rust::value::NyashValue::Float(value));
+        let _ = inst.set_field_ng(
+            field.to_owned(),
+            nyash_rust::value::NyashValue::Float(value),
+        );
         0
     })
     .unwrap_or(0)

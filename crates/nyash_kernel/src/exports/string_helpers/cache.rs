@@ -71,6 +71,19 @@ struct StringLenFastCache {
 }
 
 #[derive(Default)]
+struct SubstringLenFastCache {
+    drop_epoch: Cell<u64>,
+    source_handle: Cell<i64>,
+    start: Cell<i64>,
+    end: Cell<i64>,
+    len: Cell<i64>,
+    source_handle2: Cell<i64>,
+    start2: Cell<i64>,
+    end2: Cell<i64>,
+    len2: Cell<i64>,
+}
+
+#[derive(Default)]
 struct SubstringViewArcCache {
     source_handle: Cell<i64>,
     source_box_id: Cell<u64>,
@@ -330,6 +343,18 @@ thread_local! {
             handle2: Cell::new(0),
             len2: Cell::new(0),
         } };
+    static SUBSTRING_LEN_FAST_CACHE: SubstringLenFastCache =
+        const { SubstringLenFastCache {
+            drop_epoch: Cell::new(0),
+            source_handle: Cell::new(0),
+            start: Cell::new(0),
+            end: Cell::new(0),
+            len: Cell::new(0),
+            source_handle2: Cell::new(0),
+            start2: Cell::new(0),
+            end2: Cell::new(0),
+            len2: Cell::new(0),
+        } };
 }
 
 #[inline(always)]
@@ -558,6 +583,66 @@ pub(crate) fn string_len_fast_cache_lookup(handle: i64) -> Option<i64> {
         }
         None
     })
+}
+
+#[inline(always)]
+pub(crate) fn substring_len_fast_cache_lookup(
+    source_handle: i64,
+    start: i64,
+    end: i64,
+) -> Option<i64> {
+    SUBSTRING_LEN_FAST_CACHE.with(|cache| {
+        let current_drop_epoch = handles::drop_epoch();
+        if cache.drop_epoch.get() != current_drop_epoch {
+            return None;
+        }
+        if cache.source_handle.get() == source_handle
+            && cache.start.get() == start
+            && cache.end.get() == end
+            && cache.len.get() >= 0
+        {
+            return Some(cache.len.get());
+        }
+        if cache.source_handle2.get() == source_handle
+            && cache.start2.get() == start
+            && cache.end2.get() == end
+            && cache.len2.get() >= 0
+        {
+            return Some(cache.len2.get());
+        }
+        None
+    })
+}
+
+#[inline(always)]
+pub(crate) fn substring_len_fast_cache_store(
+    source_handle: i64,
+    start: i64,
+    end: i64,
+    len: i64,
+) {
+    SUBSTRING_LEN_FAST_CACHE.with(|cache| {
+        let state_drop_epoch = handles::drop_epoch();
+        let prev = (
+            cache.source_handle.get(),
+            cache.start.get(),
+            cache.end.get(),
+            cache.len.get(),
+            cache.source_handle2.get(),
+            cache.start2.get(),
+            cache.end2.get(),
+            cache.len2.get(),
+        );
+        cache.drop_epoch.set(state_drop_epoch);
+        cache.source_handle.set(source_handle);
+        cache.start.set(start);
+        cache.end.set(end);
+        cache.len.set(len);
+        cache.source_handle2.set(prev.0);
+        cache.start2.set(prev.1);
+        cache.end2.set(prev.2);
+        cache.len2.set(prev.3);
+    });
 }
 
 #[inline(always)]

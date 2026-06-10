@@ -133,10 +133,13 @@ pub(crate) const ARRAY_TEXT_DEGRADE_GENERIC: DemandSet = DemandSet::new(
     &[MutationDemand::InvalidateAliases],
 );
 
+#[allow(dead_code)]
 pub(crate) const KERNEL_TEXT_SLOT_EMPTY: DemandSet = DemandSet::new(&[], &[], &[], &[]);
 
+#[allow(dead_code)]
 pub(crate) const KERNEL_TEXT_SLOT_PUBLISHED: DemandSet = DemandSet::new(&[], &[], &[], &[]);
 
+#[allow(dead_code)]
 pub(crate) const KERNEL_TEXT_SLOT_OWNED_BYTES: DemandSet = DemandSet::new(
     &[ValueDemand::OwnedPayload],
     &[StorageDemand::CellResidence],
@@ -144,6 +147,7 @@ pub(crate) const KERNEL_TEXT_SLOT_OWNED_BYTES: DemandSet = DemandSet::new(
     &[],
 );
 
+#[allow(dead_code)]
 pub(crate) const KERNEL_TEXT_SLOT_DEFERRED_CONST_SUFFIX: DemandSet = DemandSet::new(
     &[ValueDemand::ReadRef, ValueDemand::OwnedPayload],
     &[StorageDemand::CellResidence],

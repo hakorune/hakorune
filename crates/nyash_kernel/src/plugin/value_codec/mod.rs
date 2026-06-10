@@ -6,9 +6,9 @@ mod string_materialize;
 mod string_store;
 mod text_carrier;
 
-pub(crate) use borrowed_handle::test_support::{
-    maybe_borrow_string_keep_with_epoch, try_retarget_borrowed_string_slot_take_keep,
-};
+pub(crate) use borrowed_handle::maybe_borrow_string_keep_with_epoch;
+#[cfg(test)]
+pub(crate) use borrowed_handle::try_retarget_borrowed_string_slot_take_keep;
 #[cfg(test)]
 pub(crate) use borrowed_handle::BorrowedHandleBox;
 #[cfg(test)]

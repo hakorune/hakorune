@@ -7,6 +7,7 @@ use std::collections::BTreeMap;
 use std::sync::{Mutex, OnceLock};
 
 use super::typed_object_pinned_arena::{read_direct_slot_compat_i64, write_direct_slot_compat_i64};
+use super::typed_object_pinned_arena::{read_direct_slot_i64, write_direct_slot_i64};
 use super::typed_object_store_backend::{
     exact_slot_record_alloc_success, exact_slot_record_release_success, exact_slot_rmw_add_u64,
     exact_slot_set4_i64, new_typed_object as backend_new_typed_object, with_field, with_field_mut,
@@ -535,11 +536,27 @@ pub(crate) fn set_exact_unsigned_u64(handle: i64, slot: usize, value: u64) -> bo
 
 #[inline(always)]
 pub(crate) fn get_exact_signed_i64(handle: i64, slot: usize) -> Option<i64> {
+    if matches!(
+        super::typed_object_store_backend::selected_backend(),
+        super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
+    ) {
+        if let Some(value) = read_direct_slot_i64(handle, slot) {
+            return Some(value);
+        }
+    }
     with_field(handle, slot, |field| field.as_exact_signed_i64())?
 }
 
 #[inline(always)]
 pub(crate) fn set_exact_signed_i64(handle: i64, slot: usize, value: i64) -> bool {
+    if matches!(
+        super::typed_object_store_backend::selected_backend(),
+        super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
+    ) {
+        if let Some(ok) = write_direct_slot_i64(handle, slot, value) {
+            return ok;
+        }
+    }
     with_field_mut(handle, slot, |field| field.set_exact_signed_i64(value)).unwrap_or(false)
 }
 

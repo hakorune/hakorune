@@ -210,7 +210,7 @@ impl BorrowedHandleBox {
     }
 
     #[inline(always)]
-    #[cfg(test)]
+    #[allow(dead_code)]
     pub(super) fn invalidate_cached_runtime_handle(&self) {
         self.cached_runtime_handle
             .handle

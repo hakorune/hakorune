@@ -39,6 +39,11 @@ pub struct InstanceBox {
 
     /// Shared box-valued fields kept outside `fields_ng` so object identity stays stable.
     pub box_fields: Arc<Mutex<HashMap<String, SharedNyashBox>>>,
+    /// Fast-path storage for declared fields, indexed by declaration order.
+    declared_field_index: Arc<HashMap<String, usize>>,
+    declared_field_values: Arc<Mutex<Vec<NyashValue>>>,
+    /// Last-hit cache for NyashValue-backed field lookup.
+    field_lookup_cache: Arc<Mutex<Option<(String, NyashValue)>>>,
     init_field_order: Vec<String>,
     weak_fields_union: std::collections::HashSet<String>,
     in_finalization: Arc<Mutex<bool>>,
@@ -54,6 +59,9 @@ impl Clone for InstanceBox {
             base: BoxBase::new(), // Fresh base for clone
             finalized: Arc::clone(&self.finalized),
             box_fields: Arc::clone(&self.box_fields),
+            declared_field_index: Arc::clone(&self.declared_field_index),
+            declared_field_values: Arc::clone(&self.declared_field_values),
+            field_lookup_cache: Arc::clone(&self.field_lookup_cache),
             init_field_order: self.init_field_order.clone(),
             weak_fields_union: self.weak_fields_union.clone(),
             in_finalization: Arc::clone(&self.in_finalization),
@@ -72,6 +80,9 @@ impl InstanceBox {
             base: BoxBase::new(),
             finalized: Arc::new(Mutex::new(false)),
             box_fields: Arc::new(Mutex::new(HashMap::new())),
+            declared_field_index: Arc::new(HashMap::new()),
+            declared_field_values: Arc::new(Mutex::new(Vec::new())),
+            field_lookup_cache: Arc::new(Mutex::new(None)),
             init_field_order: Vec::new(),
             weak_fields_union: std::collections::HashSet::new(),
             in_finalization: Arc::new(Mutex::new(false)),
@@ -92,6 +103,13 @@ impl InstanceBox {
         for field in &fields {
             field_map.insert(field.clone(), NyashValue::Null);
         }
+        let declared_field_index = Arc::new(
+            fields
+                .iter()
+                .enumerate()
+                .map(|(idx, field)| (field.clone(), idx))
+                .collect(),
+        );
 
         Self {
             class_name,
@@ -101,6 +119,9 @@ impl InstanceBox {
             base: BoxBase::new(),
             finalized: Arc::new(Mutex::new(false)),
             box_fields: Arc::new(Mutex::new(HashMap::new())),
+            declared_field_index,
+            declared_field_values: Arc::new(Mutex::new(vec![NyashValue::Null; fields.len()])),
+            field_lookup_cache: Arc::new(Mutex::new(None)),
             init_field_order: fields,
             weak_fields_union: std::collections::HashSet::new(),
             in_finalization: Arc::new(Mutex::new(false)),
@@ -129,20 +150,55 @@ impl InstanceBox {
 
     /// 🎯 統一フィールドアクセス（NyashValue版）
     pub fn get_field_ng(&self, field_name: &str) -> Option<NyashValue> {
-        self.fields_ng.lock().unwrap().get(field_name).cloned()
+        if let Some(&idx) = self.declared_field_index.get(field_name) {
+            if let Some(value) = self.declared_field_values.lock().unwrap().get(idx).cloned() {
+                *self.field_lookup_cache.lock().unwrap() =
+                    Some((field_name.to_owned(), value.clone()));
+                return Some(value);
+            }
+        }
+
+        if let Some((cached_field, cached_value)) = self.field_lookup_cache.lock().unwrap().as_ref()
+        {
+            if cached_field == field_name {
+                return Some(cached_value.clone());
+            }
+        }
+
+        let value = self.fields_ng.lock().unwrap().get(field_name).cloned();
+        if let Some(value) = value.clone() {
+            *self.field_lookup_cache.lock().unwrap() = Some((field_name.to_owned(), value));
+        }
+        value
+    }
+
+    fn invalidate_field_lookup_cache(&self) {
+        self.field_lookup_cache.lock().unwrap().take();
     }
 
     /// 🎯 統一フィールド設定（NyashValue版）
     pub fn set_field_ng(&self, field_name: String, value: NyashValue) -> Result<(), String> {
+        if let Some(&idx) = self.declared_field_index.get(field_name.as_str()) {
+            if let Some(slot) = self.declared_field_values.lock().unwrap().get_mut(idx) {
+                *slot = value.clone();
+            }
+        }
         self.box_fields.lock().unwrap().remove(&field_name);
         self.fields_ng.lock().unwrap().insert(field_name, value);
+        self.invalidate_field_lookup_cache();
         Ok(())
     }
 
     /// 動的フィールド追加（GlobalBox用）
     pub fn set_field_dynamic(&self, field_name: String, value: NyashValue) {
+        if let Some(&idx) = self.declared_field_index.get(field_name.as_str()) {
+            if let Some(slot) = self.declared_field_values.lock().unwrap().get_mut(idx) {
+                *slot = value.clone();
+            }
+        }
         self.box_fields.lock().unwrap().remove(&field_name);
         self.fields_ng.lock().unwrap().insert(field_name, value);
+        self.invalidate_field_lookup_cache();
     }
 
     /// メソッド定義を取得
@@ -184,6 +240,9 @@ impl InstanceBox {
 
         // フィールドクリア
         self.fields_ng.lock().unwrap().clear();
+        self.box_fields.lock().unwrap().clear();
+        self.declared_field_values.lock().unwrap().clear();
+        self.invalidate_field_lookup_cache();
 
         *finalized = true;
         if crate::config::env::cli_verbose_enabled() {
@@ -233,6 +292,7 @@ impl InstanceBox {
             .lock()
             .unwrap()
             .insert(field_name.to_string(), value);
+        self.invalidate_field_lookup_cache();
         Ok(())
     }
 }
@@ -272,6 +332,9 @@ impl NyashBox for InstanceBox {
             base: self.base.clone(),
             finalized: Arc::clone(&self.finalized),
             box_fields: Arc::clone(&self.box_fields),
+            declared_field_index: Arc::clone(&self.declared_field_index),
+            declared_field_values: Arc::clone(&self.declared_field_values),
+            field_lookup_cache: Arc::clone(&self.field_lookup_cache),
             init_field_order: self.init_field_order.clone(),
             weak_fields_union: self.weak_fields_union.clone(),
             in_finalization: Arc::clone(&self.in_finalization),
@@ -343,6 +406,37 @@ mod tests {
                                                    // フィールドが初期化されているかチェック
         assert!(instance.get_field("x").is_some());
         assert!(instance.get_field("y").is_some());
+    }
+
+    #[test]
+    fn test_field_lookup_cache_does_not_return_stale_value_after_set_field_ng() {
+        let instance = InstanceBox::from_declaration(
+            "TestBox".to_string(),
+            vec!["value".to_string()],
+            HashMap::new(),
+        );
+
+        assert!(matches!(
+            instance.get_field_ng("value"),
+            Some(NyashValue::Null)
+        ));
+        assert!(matches!(
+            instance.get_field_ng("value"),
+            Some(NyashValue::Null)
+        ));
+
+        instance
+            .set_field_ng("value".to_string(), NyashValue::Integer(42))
+            .unwrap();
+
+        assert!(matches!(
+            instance.get_field_ng("value"),
+            Some(NyashValue::Integer(42))
+        ));
+        assert!(matches!(
+            instance.get_field_ng("value"),
+            Some(NyashValue::Integer(42))
+        ));
     }
 
     // Box-valued field test（identity-preserving path）.
