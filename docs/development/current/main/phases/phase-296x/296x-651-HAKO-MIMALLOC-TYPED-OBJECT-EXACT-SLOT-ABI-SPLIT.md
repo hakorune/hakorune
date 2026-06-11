@@ -551,6 +551,16 @@ PERF-USERBOX-042:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_box_factory_exact_top_symbol_variability_guard.sh
 
+PERF-USERBOX-043:
+  add a startup executable ret0 nyash_kernel_runtime box_factory plugin/
+  factory_type presence probe for exact-AOT startup attribution. The box_
+  factory exact probe is now closed, so the probe repeats the ret0 bucket
+  split and records whether a stable box_factory plugin/factory_type focus is
+  actually present before choosing the next owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_box_factory_plugin_factory_type_exact_top_symbol_variability_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -621,9 +631,10 @@ Next:
   top symbols inside nyash_kernel_runtime. The raw ret0 report now shows
   `PluginBoxFactory::box_types` / `BoxFactory::factory_type` ahead of registry
   lookup inside `nyash_kernel_runtime`, so `PERF-USERBOX-042` splits the
-  box_factory exact top symbols next. Keep env / stdio / path closed; when the
-  raw report shifts to box_factory, pivot the next owner there instead of
-  forcing registry-only reads.
+  box_factory exact top symbols next and `PERF-USERBOX-043` records whether a
+  stable box_factory plugin/factory_type focus is actually present. Keep env /
+  stdio / path closed; when the raw report shifts to box_factory, pivot the
+  next owner there instead of forcing registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
