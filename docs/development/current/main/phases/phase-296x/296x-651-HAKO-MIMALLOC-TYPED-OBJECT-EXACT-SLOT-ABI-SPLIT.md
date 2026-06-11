@@ -85,6 +85,18 @@ TYPEDOBJ-ABI-004:
   evidence proves the helper boundary is the remaining owner.
 ```
 
+## TYPEDOBJ-ABI-004 Readiness Inventory
+
+The next diagnostic seam is row 652:
+
+```text
+typed-object exact-slot NativeDirect readiness inventory
+```
+
+It inventories the NativeDirect preconditions from the current exact-helper
+bridge state, but it keeps the pilot closed. The helper-backed route stays the
+SSOT until pinned-arena / lease facts are proven.
+
 ## First Implementation Slice
 
 ```text

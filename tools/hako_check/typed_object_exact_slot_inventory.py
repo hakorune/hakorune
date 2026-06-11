@@ -205,3 +205,46 @@ def typed_object_exact_slot_inventory(mir: dict[str, Any]) -> dict[str, int | st
         "typed_object_exact_lowering_forms": exact_lowering_forms,
         "typed_object_exact_bridge_symbols": exact_bridge_symbols,
     }
+
+
+def typed_object_exact_slot_nativedirect_readiness_inventory(
+    mir: dict[str, Any],
+) -> dict[str, int | str]:
+    exact_inventory = typed_object_exact_slot_inventory(mir)
+    direct_state_plans = root_list(mir, "direct_state_plans")
+    selected_direct_state_plans = [
+        plan
+        for plan in direct_state_plans
+        if bool(plan.get("field_decl_authority"))
+        and bool(plan.get("materialization_boundary_known"))
+        and bool(plan.get("positive_net_expected"))
+    ]
+
+    selected_direct_state_field_count = 0
+    for plan in selected_direct_state_plans:
+        fields = plan.get("fields", [])
+        if isinstance(fields, list):
+            selected_direct_state_field_count += sum(
+                1 for field in fields if isinstance(field, dict)
+            )
+
+    direct_state_field_count = 0
+    for plan in direct_state_plans:
+        fields = plan.get("fields", [])
+        if isinstance(fields, list):
+            direct_state_field_count += sum(1 for field in fields if isinstance(field, dict))
+
+    return {
+        **exact_inventory,
+        "typed_object_direct_state_plan_count": len(direct_state_plans),
+        "typed_object_direct_state_field_count": direct_state_field_count,
+        "typed_object_direct_state_selected_count": len(selected_direct_state_plans),
+        "typed_object_direct_state_selected_field_count": selected_direct_state_field_count,
+        "typed_object_native_direct_candidate_count": len(selected_direct_state_plans),
+        "typed_object_native_direct_ready": 0,
+        "typed_object_native_direct_open": 0,
+        "typed_object_direct_load_store_open": 0,
+        "typed_object_native_direct_storage_substrate": "PinnedTypedObjectArena",
+        "typed_object_native_direct_fallback_boundary": "explicit_materialized_view_handle",
+        "typed_object_native_direct_selected_next": "typed_object_exact_slot_nativedirect_guard_surface",
+    }

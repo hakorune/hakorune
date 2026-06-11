@@ -19,6 +19,7 @@ from typed_object_exact_slot_inventory import (
     typed_object_exact_bridge_symbol,
     typed_object_exact_slot_route_decisions,
     typed_object_exact_slot_inventory,
+    typed_object_exact_slot_nativedirect_readiness_inventory,
 )
 from report_kv import row_key_surface, shared_key_surface
 
@@ -330,6 +331,79 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
         self.assertEqual(
             typed_object_exact_bridge_symbol("FieldSet", "u64"),
             "hako.object.exact_slot_set_u64_hiu",
+        )
+
+    def test_typed_object_exact_slot_nativedirect_readiness_inventory_reports_direct_state(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "metadata": {
+                        "route_decisions": [
+                            {
+                                "source_plan_kind": "TypedObjectExactSlotRoute",
+                                "semantic_op": "FieldGet",
+                                "selected_lowering_form": "exact_helper_bridge",
+                                "selected_storage": "i64",
+                                "selected_route": "hako.typed_object.slot_load_i64",
+                            }
+                        ]
+                    },
+                }
+            ],
+            "direct_state_plans": [
+                {
+                    "box_name": "Counter",
+                    "state_repr": "direct_v0",
+                    "field_decl_authority": True,
+                    "selected_field_count": 1,
+                    "unsupported_field_count": 0,
+                    "materialization_boundary_known": True,
+                    "positive_net_expected": True,
+                    "fields": [
+                        {
+                            "name": "count",
+                            "slot": 0,
+                            "declared_type": "i64",
+                            "storage": "i64",
+                        }
+                    ],
+                }
+            ],
+            "typed_object_plans": [
+                {
+                    "box_name": "Counter",
+                    "fields": [
+                        {"name": "count", "storage": "i64"},
+                    ],
+                }
+            ],
+            "user_box_decls": [
+                {
+                    "name": "Counter",
+                    "field_decls": [
+                        {"name": "count", "declared_type": "i64", "is_weak": False},
+                    ],
+                }
+            ],
+        }
+
+        inventory = typed_object_exact_slot_nativedirect_readiness_inventory(mir)
+        self.assertEqual(inventory["typed_object_direct_state_plan_count"], 1)
+        self.assertEqual(inventory["typed_object_direct_state_field_count"], 1)
+        self.assertEqual(inventory["typed_object_direct_state_selected_count"], 1)
+        self.assertEqual(inventory["typed_object_direct_state_selected_field_count"], 1)
+        self.assertEqual(inventory["typed_object_native_direct_candidate_count"], 1)
+        self.assertEqual(inventory["typed_object_native_direct_ready"], 0)
+        self.assertEqual(inventory["typed_object_native_direct_open"], 0)
+        self.assertEqual(inventory["typed_object_direct_load_store_open"], 0)
+        self.assertEqual(
+            inventory["typed_object_native_direct_storage_substrate"],
+            "PinnedTypedObjectArena",
+        )
+        self.assertEqual(
+            inventory["typed_object_native_direct_selected_next"],
+            "typed_object_exact_slot_nativedirect_guard_surface",
         )
 
     def test_build_report_rows_uses_route_decision_typed_object_exact_slot_counts(self) -> None:
