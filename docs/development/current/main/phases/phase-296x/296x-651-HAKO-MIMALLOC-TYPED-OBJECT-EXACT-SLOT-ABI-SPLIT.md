@@ -154,7 +154,7 @@ PERF-USERBOX-001:
   lowering, or runtime object representation in this measurement-floor slice.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_floor_attribution_guard.sh
+  Guard: PERF-USERBOX-001
 
 PERF-USERBOX-002:
   split the exact-AOT startup/loader owner with a ret0 startup perf-top probe
@@ -163,7 +163,7 @@ PERF-USERBOX-002:
   representation closed.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_loader_owner_split_guard.sh
+  Guard: PERF-USERBOX-002
 
 PERF-USERBOX-003:
   keep the first link/startup optimization as a probe: fix hyphen-prefixed
@@ -172,7 +172,7 @@ PERF-USERBOX-003:
   linking.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_aot_static_libgcc_probe_guard.sh
+  Guard: PERF-USERBOX-003
 
 PERF-USERBOX-004:
   add an explicit minimal system-libs probe mode for exact-AOT startup/link
@@ -181,7 +181,7 @@ PERF-USERBOX-004:
   drop dynamic `libm` and `libgcc_s` without selecting full static linking.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh
+  Guard: PERF-USERBOX-004
 
 PERF-USERBOX-005:
   add an explicit NyRT exact-EXE plugin-host-off probe mode for startup
@@ -190,7 +190,7 @@ PERF-USERBOX-005:
   no-plugin seeds.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh
+  Guard: PERF-USERBOX-005
 
 PERF-USERBOX-006:
   add an explicit NyRT runtime-hooks-off probe mode for startup attribution.
@@ -198,7 +198,7 @@ PERF-USERBOX-006:
   skip the runtime-hooks publication step for ret0 / no-plugin seeds.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh
+  Guard: PERF-USERBOX-006
 
 PERF-USERBOX-007:
   add an explicit NyRT minimal-startup probe mode for startup attribution.
@@ -206,7 +206,7 @@ PERF-USERBOX-007:
   bypass default registry startup for ret0 / no-plugin seeds.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh
+  Guard: PERF-USERBOX-007
 
 PERF-USERBOX-008:
   add a loader / libc floor summary probe for exact-AOT startup attribution.
@@ -216,7 +216,7 @@ PERF-USERBOX-008:
   linking.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_libc_floor_guard.sh
+  Guard: PERF-USERBOX-008
 
 PERF-USERBOX-009:
   add a loader owner split summary probe for exact-AOT startup attribution.
@@ -225,7 +225,7 @@ PERF-USERBOX-009:
   floor remains `libc` / `ld-linux`, without changing the default link mode.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_owner_split_guard.sh
+  Guard: PERF-USERBOX-009
 
 PERF-USERBOX-010:
   add an ld-linux / libc loader split probe for exact-AOT startup attribution.
@@ -234,7 +234,7 @@ PERF-USERBOX-010:
   without changing the default link mode.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_dso_split_guard.sh
+  Guard: PERF-USERBOX-010
 
 PERF-USERBOX-011:
   add an ld-linux / libc loader percent split probe for exact-AOT startup
@@ -243,7 +243,7 @@ PERF-USERBOX-011:
   the closed loader/libc floor summary stays in place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_dso_percent_guard.sh
+  Guard: PERF-USERBOX-011
 
 PERF-USERBOX-012:
   add an ld-linux / libc loader symbol split probe for exact-AOT startup
@@ -252,7 +252,7 @@ PERF-USERBOX-012:
   while the closed loader/libc floor summary stays in place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_symbol_split_guard.sh
+  Guard: PERF-USERBOX-012
 
 PERF-USERBOX-013:
   add a startup executable split probe for exact-AOT startup attribution. The
@@ -261,7 +261,7 @@ PERF-USERBOX-013:
   closed loader/libc summary stays in place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_split_guard.sh
+  Guard: PERF-USERBOX-013
 
 PERF-USERBOX-014:
   add a startup executable symbol split probe for exact-AOT startup
@@ -270,7 +270,7 @@ PERF-USERBOX-014:
   granularity while the closed loader/libc summary stays in place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_symbol_split_guard.sh
+  Guard: PERF-USERBOX-014
 
 PERF-USERBOX-015:
   add a startup executable ret0 stack split probe for exact-AOT startup
@@ -279,7 +279,7 @@ PERF-USERBOX-015:
   ret0 stack while the closed loader/libc summary stays in place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_stack_split_guard.sh
+  Guard: PERF-USERBOX-015
 
 PERF-USERBOX-016:
   add a startup executable ret0 family split probe for exact-AOT startup
@@ -288,7 +288,7 @@ PERF-USERBOX-016:
   the closed loader/libc summary stays in place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_family_split_guard.sh
+  Guard: PERF-USERBOX-016
 
 PERF-USERBOX-017:
   add a startup executable ret0 bucket split probe for exact-AOT startup
@@ -298,7 +298,7 @@ PERF-USERBOX-017:
   place.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_split_guard.sh
+  Guard: PERF-USERBOX-017
 
 PERF-USERBOX-018:
   add a startup executable ret0 bucket variability probe for exact-AOT startup
@@ -307,7 +307,7 @@ PERF-USERBOX-018:
   next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_variability_guard.sh
+  Guard: PERF-USERBOX-018
 
 PERF-USERBOX-019:
   add a startup executable ret0 bucket symbol variability probe for exact-AOT
@@ -317,7 +317,7 @@ PERF-USERBOX-019:
   next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-019
 
 PERF-USERBOX-020:
   add a startup executable ret0 bucket subkind variability probe for exact-AOT
@@ -327,7 +327,7 @@ PERF-USERBOX-020:
   components / registry signals before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_subkind_variability_guard.sh
+  Guard: PERF-USERBOX-020
 
 PERF-USERBOX-021:
   add a startup executable ret0 bucket top-symbol variability probe for
@@ -337,7 +337,7 @@ PERF-USERBOX-021:
   choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-021
 
 PERF-USERBOX-022:
   add a startup executable ret0 env top-symbol family variability probe for
@@ -347,7 +347,7 @@ PERF-USERBOX-022:
   next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_env_top_symbol_family_variability_guard.sh
+  Guard: PERF-USERBOX-022
 
 PERF-USERBOX-023:
   add a startup executable ret0 env exact top-symbol variability probe for
@@ -357,7 +357,7 @@ PERF-USERBOX-023:
   choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_env_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-023
 
 PERF-USERBOX-024:
   add a startup executable ret0 path exact top-symbol
@@ -367,7 +367,7 @@ PERF-USERBOX-024:
   before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_path_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-024
 
 PERF-USERBOX-025:
   add a startup executable ret0 nyash_kernel_runtime exact top-symbol
@@ -377,7 +377,7 @@ PERF-USERBOX-025:
   other exact symbols can be split before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-025
 
 PERF-USERBOX-026:
   add a startup executable ret0 nyash_kernel_runtime registry exact top-symbol
@@ -387,7 +387,7 @@ PERF-USERBOX-026:
   before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-026
 
 PERF-USERBOX-027:
   add a startup executable ret0 nyash_kernel_runtime runtime exact-top-symbol
@@ -396,7 +396,7 @@ PERF-USERBOX-027:
   aggregates the runtime exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_runtime_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-027
 
 PERF-USERBOX-028:
   add a startup executable ret0 nyash_kernel_runtime build exact-top-symbol
@@ -405,7 +405,7 @@ PERF-USERBOX-028:
   aggregates the build exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-028
 
 PERF-USERBOX-029:
   add a startup executable ret0 nyash_kernel_runtime build-registry
@@ -415,7 +415,7 @@ PERF-USERBOX-029:
   next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_registry_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-029
 
 PERF-USERBOX-030:
   add a startup executable ret0 nyash_kernel_runtime registry exact
@@ -425,7 +425,7 @@ PERF-USERBOX-030:
   the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-030
 
 PERF-USERBOX-031:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -435,7 +435,7 @@ PERF-USERBOX-031:
   choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-031
 
 PERF-USERBOX-032:
   add a startup executable ret0 nyash_kernel_runtime registry register-many
@@ -445,7 +445,7 @@ PERF-USERBOX-032:
   before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_register_many_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-032
 
 PERF-USERBOX-033:
   add a startup executable ret0 nyash_kernel_runtime registry
@@ -455,7 +455,7 @@ PERF-USERBOX-033:
   create-default-registry exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-033
 
 PERF-USERBOX-034:
   add a startup executable ret0 nyash_kernel_runtime registry
@@ -466,7 +466,7 @@ PERF-USERBOX-034:
   symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-034
 
 PERF-USERBOX-035:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -476,7 +476,7 @@ PERF-USERBOX-035:
   subkind counts before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_subkind_variability_guard.sh
+  Guard: PERF-USERBOX-035
 
 PERF-USERBOX-036:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -486,7 +486,7 @@ PERF-USERBOX-036:
   build exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_build_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-036
 
 PERF-USERBOX-037:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -496,7 +496,7 @@ PERF-USERBOX-037:
   rebuild-cache gc_mode exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_gc_mode_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-037
 
 PERF-USERBOX-038:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -506,7 +506,7 @@ PERF-USERBOX-038:
   rebuild-cache gc_mode_parse exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_gc_mode_parse_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-038
 
 PERF-USERBOX-039:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -517,7 +517,7 @@ PERF-USERBOX-039:
   owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_tagged_checkpoint_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-039
 
 PERF-USERBOX-040:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -528,7 +528,7 @@ PERF-USERBOX-040:
   owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_scheduler_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-040
 
 PERF-USERBOX-041:
   add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
@@ -539,7 +539,7 @@ PERF-USERBOX-041:
   owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-041
 
 PERF-USERBOX-042:
   add a startup executable ret0 nyash_kernel_runtime box_factory exact-top-
@@ -549,7 +549,7 @@ PERF-USERBOX-042:
   aggregates the box_factory exact top symbols before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_box_factory_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-042
 
 PERF-USERBOX-043:
   add a startup executable ret0 nyash_kernel_runtime box_factory plugin/
@@ -559,7 +559,7 @@ PERF-USERBOX-043:
   actually present before choosing the next owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_box_factory_plugin_factory_type_exact_top_symbol_variability_guard.sh
+  Guard: PERF-USERBOX-043
 
 PERF-USERBOX-044:
   registry-focus presence probe for the ret0 startup report.
@@ -661,7 +661,7 @@ NYRT-STARTUP-FLOOR-001:
   lowering, or runtime object representation.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh
+  Guard: NYRT-STARTUP-FLOOR-001
 
 NYRT-STARTUP-FLOOR-002:
   add a runtime-build-off diagnostic probe. The default stays `auto`; the probe
@@ -671,7 +671,7 @@ NYRT-STARTUP-FLOOR-002:
   runtime build and fail-fast if requested with this mode.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh
+  Guard: NYRT-STARTUP-FLOOR-002
 
 NYRT-STARTUP-FLOOR-003:
   add an entry-path-prep-off diagnostic probe. The default stays `auto`; the
@@ -680,7 +680,7 @@ NYRT-STARTUP-FLOOR-003:
   preparation inside the current minimal NyRT entry.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh
+  Guard: NYRT-STARTUP-FLOOR-003
 
 NYRT-STARTUP-FLOOR-004:
   add a ring0-init-off diagnostic probe. The default stays `auto`; the probe
@@ -690,7 +690,7 @@ NYRT-STARTUP-FLOOR-004:
   skip Ring0Context initialization inside the current minimal NyRT entry.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh
+  Guard: NYRT-STARTUP-FLOOR-004
 
 Next:
   Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
