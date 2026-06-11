@@ -673,16 +673,15 @@ PERF-USERBOX-054:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_get_factory_order_by_policy_exact_top_symbol_presence_guard.sh
 
-PERF-USERBOX-055:
-  add a startup executable ret0 nyash_kernel_runtime registry
-  rebuild-cache/ring0 exact-top-symbol
-  dominance probe for exact-AOT startup attribution. The rebuild-cache
-  dominance probe is now closed, so the probe repeats the ret0 bucket split
-  and records the current runner-up candidate while rebuild-cache stays
-  dominant.
+PERF-USERBOX-056:
+  add a startup executable ret0 libc_process exact-top-symbol variability
+  probe for exact-AOT startup attribution. The loader owner split is now
+  reading libc_process as the primary family, so the probe repeats the ret0
+  bucket split several times and records the libc_process exact top symbols as
+  a variability distribution.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_ring0_exact_top_symbol_dominance_guard.sh
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_exact_top_symbol_variability_guard.sh
 
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
@@ -775,12 +774,12 @@ Next:
   present as its own exact top-symbol signal under the rebuild-cache-dominant
   report, and `PERF-USERBOX-054` records whether
   `get_factory_order_by_policy` stays absent as its own exact top-symbol
-  signal under the rebuild-cache-dominant report, and `PERF-USERBOX-055`
-  records the current runner-up candidate under the rebuild-cache-dominant
-  report. Keep env / stdio / path closed; keep the registry runner-up split
-  as a snapshot instead of forcing a registry-only read. When the raw report
-  shifts to box_factory, pivot the next owner there instead of forcing
-  registry-only reads.
+  signal under the rebuild-cache-dominant report, and `PERF-USERBOX-056`
+  records the libc_process exact-top-symbol variability distribution under the
+  exact-AOT startup report. Keep env / stdio / path closed; keep the
+  libc_process owner family as a variability distribution instead of forcing a
+  single-symbol read. When the raw report shifts to box_factory, pivot the
+  next owner there instead of forcing registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
