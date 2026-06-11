@@ -615,12 +615,7 @@ pub(crate) fn substring_len_fast_cache_lookup(
 }
 
 #[inline(always)]
-pub(crate) fn substring_len_fast_cache_store(
-    source_handle: i64,
-    start: i64,
-    end: i64,
-    len: i64,
-) {
+pub(crate) fn substring_len_fast_cache_store(source_handle: i64, start: i64, end: i64, len: i64) {
     SUBSTRING_LEN_FAST_CACHE.with(|cache| {
         let state_drop_epoch = handles::drop_epoch();
         let prev = (

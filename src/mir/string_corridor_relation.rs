@@ -433,10 +433,7 @@ fn collect_phi_carry_relations_into(
 }
 
 /// Phase 2: stable-length relations from direct `length()` calls on corridor sources.
-fn collect_direct_length_relations_into(
-    function: &mut MirFunction,
-    def_map: &ValueDefMap,
-) {
+fn collect_direct_length_relations_into(function: &mut MirFunction, def_map: &ValueDefMap) {
     for block in function.blocks.values() {
         for inst in &block.instructions {
             let Some((dst, receiver, _effects)) = match_len_call(inst) else {

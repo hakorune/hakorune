@@ -481,11 +481,11 @@ mod tests {
             &mut function,
             22,
             vec![
-            phi(28),
-            phi(32),
-            const_i(45, 2_000_000),
-            compare(41, CompareOp::Lt),
-        ],
+                phi(28),
+                phi(32),
+                const_i(45, 2_000_000),
+                compare(41, CompareOp::Lt),
+            ],
             branch(41, 23, 25),
         );
         replace_block(

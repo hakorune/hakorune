@@ -513,16 +513,20 @@ fn stable_length_value_for_source_from_hints(
     function: &MirFunction,
     source: ValueId,
 ) -> Option<ValueId> {
-    function.metadata.optimization_hints.iter().find_map(|hint| {
-        let payload = hint.strip_prefix("string_corridor_sink:stable_length_scalar:")?;
-        let (base_part, witness_part) = payload.split_once(':')?;
-        let base_value = ValueId(base_part.strip_prefix('%')?.parse().ok()?);
-        if base_value != source {
-            return None;
-        }
-        let witness_value = ValueId(witness_part.strip_prefix('%')?.parse().ok()?);
-        Some(witness_value)
-    })
+    function
+        .metadata
+        .optimization_hints
+        .iter()
+        .find_map(|hint| {
+            let payload = hint.strip_prefix("string_corridor_sink:stable_length_scalar:")?;
+            let (base_part, witness_part) = payload.split_once(':')?;
+            let base_value = ValueId(base_part.strip_prefix('%')?.parse().ok()?);
+            if base_value != source {
+                return None;
+            }
+            let witness_value = ValueId(witness_part.strip_prefix('%')?.parse().ok()?);
+            Some(witness_value)
+        })
 }
 
 pub(super) fn apply_plans(
@@ -578,8 +582,8 @@ pub(super) fn apply_plans(
             } else {
                 new_insts.push(inst);
                 new_spans.push(span);
-    }
-}
+            }
+        }
 
         block.instructions = new_insts;
         block.instruction_spans = new_spans;

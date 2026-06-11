@@ -157,9 +157,9 @@ pub(crate) fn collect_concat_corridor_plans(
                         else {
                             continue;
                         };
-                        let Some(right_chain) =
-                            resolve_copy_chain_in_block(function, *bbid, def_map, use_counts, right)
-                        else {
+                        let Some(right_chain) = resolve_copy_chain_in_block(
+                            function, *bbid, def_map, use_counts, right,
+                        ) else {
                             continue;
                         };
                         let Some((left_root_bbid, left_root_idx)) =

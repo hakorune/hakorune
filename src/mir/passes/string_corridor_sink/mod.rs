@@ -153,30 +153,33 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     // --- Phase 8: corridor-local DCE sweep ---
     // The complementary substring-len fusion owner needs dead intermediate
     // adds/copies to be removed before it can see the final single-use tree.
-    let corridor_dce_rewritten =
-        crate::mir::passes::dce::eliminate_dead_code_in_function(function);
+    let corridor_dce_rewritten = crate::mir::passes::dce::eliminate_dead_code_in_function(function);
     rewritten += corridor_dce_rewritten;
-    refresh_analysis(function, &mut def_map, &mut use_counts, corridor_dce_rewritten);
+    refresh_analysis(
+        function,
+        &mut def_map,
+        &mut use_counts,
+        corridor_dce_rewritten,
+    );
 
     // --- Phase 9: complementary substring-length fusion + DCE ---
     let fusion_plans = collect_complementary_len_fusion_plans(function, &def_map, &use_counts);
     let fusion_rewritten = apply_complementary_len_fusion_plans(function, fusion_plans);
     rewritten += fusion_rewritten;
     if fusion_rewritten > 0 {
-        rewritten +=
-            crate::mir::passes::dce::eliminate_dead_code_in_function(function);
+        rewritten += crate::mir::passes::dce::eliminate_dead_code_in_function(function);
     }
 
     // --- Phase 10: second concat-corridor pass + DCE ---
     def_map = build_value_def_map(function);
     use_counts = build_use_counts(function);
-    let second_concat_corridor_plans = collect_concat_corridor_plans(function, &def_map, &use_counts);
+    let second_concat_corridor_plans =
+        collect_concat_corridor_plans(function, &def_map, &use_counts);
     let second_concat_corridor_rewritten =
         apply_concat_corridor_plans(function, second_concat_corridor_plans);
     rewritten += second_concat_corridor_rewritten;
     if second_concat_corridor_rewritten > 0 {
-        rewritten +=
-            crate::mir::passes::dce::eliminate_dead_code_in_function(function);
+        rewritten += crate::mir::passes::dce::eliminate_dead_code_in_function(function);
         use_counts = build_use_counts(function);
     }
 
