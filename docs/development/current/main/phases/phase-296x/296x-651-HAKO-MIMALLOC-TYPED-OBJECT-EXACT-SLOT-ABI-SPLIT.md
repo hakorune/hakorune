@@ -682,6 +682,14 @@ PERF-USERBOX-061:
 Guard:
   PERF-USERBOX-061
 
+PERF-USERBOX-062:
+  env-string scan distribution probe for libc_process.
+  Records that `getenv`, `strlen` / `strncmp`, and allocator symbols can all
+  appear in the same startup owner family.
+
+Guard:
+  PERF-USERBOX-062
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -749,8 +757,8 @@ Next:
   registry rebuild-cache tagged_checkpoint exact top symbols inside
   nyash_kernel_runtime, PERF-USERBOX-040 now isolates the registry
   PERF-USERBOX-041..054 keep the registry branch split readable.
-  PERF-USERBOX-056..061 move the libc_process ladder from variability to
-  allocator/getenv/string distribution.
+  PERF-USERBOX-056..062 move the libc_process ladder from variability to
+  allocator/getenv/env-string scan distribution.
   Keep env / stdio / path closed.
   Keep the entry-floor probes closed unless the executable owner flatlines.
 ```

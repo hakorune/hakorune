@@ -19,11 +19,11 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
 latest_card_summary = """296x-651 accepts the typed-object exact slot ABI split and now anchors
-PERF-USERBOX-001..061 plus NYRT-STARTUP-FLOOR-001..004.
+PERF-USERBOX-001..062 plus NYRT-STARTUP-FLOOR-001..004.
 Coverage includes floor attribution, loader/startup owner split, ld-linux /
 libc split, ret0 executable bucket/family/symbol probes, nyash_kernel_runtime
 registry/box_factory/runtime branches, libc_process malloc/getenv
-allocator/getenv/string distribution, and the NyRT floor probes.
+allocator/getenv/env-string scan distribution, and the NyRT floor probes.
 Defaults stay unchanged."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -34,7 +34,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-06-11: PERF-USERBOX-056..061 tighten the libc_process ladder from variability to allocator/getenv/string distribution.",
+  "2026-06-11: PERF-USERBOX-056..062 tighten the libc_process ladder from variability to allocator/getenv/env-string scan distribution.",
   "2026-06-11: PERF-USERBOX-047..054 keep the rebuild-cache registry branch split into scheduler / register-many / create-default-registry / ring0 / global_hooks / get_factory_order_by_policy signals.",
   "2026-06-11: PERF-USERBOX-042..046 keep the box_factory / registry focus boundary explicit while preserving runner-up signals.",
   "2026-06-11: PERF-USERBOX-018..035 keep the ret0 bucket and nyash_kernel_runtime family split readable without reopening the loader floor.",
