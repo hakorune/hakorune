@@ -254,6 +254,15 @@ PERF-USERBOX-012:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_loader_symbol_split_guard.sh
 
+PERF-USERBOX-013:
+  add a startup executable split probe for exact-AOT startup attribution. The
+  probe exposes the ret0.exe executable contribution on the startup loader
+  report so the startup executable can be split from the loader floor while the
+  closed loader/libc summary stays in place.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_split_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
