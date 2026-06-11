@@ -97,6 +97,18 @@ It inventories the NativeDirect preconditions from the current exact-helper
 bridge state, but it keeps the pilot closed. The helper-backed route stays the
 SSOT until pinned-arena / lease facts are proven.
 
+## Next Guard Surface
+
+The next row is 653:
+
+```text
+typed-object exact-slot NativeDirect guard surface
+```
+
+That row freezes the pinned arena and lease prerequisites without opening the
+pilot. It is the next seam before `TYPEDOBJ-ABI-004` can become a real inline
+direct-load/store attempt.
+
 ## First Implementation Slice
 
 ```text

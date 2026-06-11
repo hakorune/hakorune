@@ -248,3 +248,46 @@ def typed_object_exact_slot_nativedirect_readiness_inventory(
         "typed_object_native_direct_fallback_boundary": "explicit_materialized_view_handle",
         "typed_object_native_direct_selected_next": "typed_object_exact_slot_nativedirect_guard_surface",
     }
+
+
+def typed_object_exact_slot_nativedirect_guard_surface_inventory(
+    readiness: dict[str, int | str]
+) -> dict[str, int | str]:
+    return {
+        "output_contract": "typed-object-exact-slot-nativedirect-guard-surface-v0",
+        "input_contract": "typed-object-exact-slot-nativedirect-readiness-inventory-v0",
+        "workload_id": str(
+            readiness.get("workload_id", "representative-object-lifecycle-small-block-v0")
+        ),
+        "candidate_representation": "NativeDirect",
+        "selected_route": "hako.typed_object.slot_load_i64",
+        "selected_lowering_form": "exact_helper_bridge",
+        "storage_substrate": "PinnedTypedObjectArena",
+        "fallback_boundary": "explicit_materialized_view_handle",
+        "typed_object_native_direct_ready": int(
+            readiness.get("typed_object_native_direct_ready", 0)
+        ),
+        "typed_object_native_direct_open": int(
+            readiness.get("typed_object_native_direct_open", 0)
+        ),
+        "typed_object_direct_load_store_open": int(
+            readiness.get("typed_object_direct_load_store_open", 0)
+        ),
+        "object_storage_pinned_required": 1,
+        "field_address_stable_required": 1,
+        "object_generation_required": 1,
+        "slot_layout_stable_required": 1,
+        "handle_generation_validation_required": 1,
+        "lease_region_required": 1,
+        "lease_barrier_policy_required": 1,
+        "silent_fallback_allowed": 0,
+        "helper_load_writeback_substitution_allowed": 0,
+        "raw_runtime_vec_pointer_exposure_allowed": 0,
+        "by_name_hako_alloc_special_case_allowed": 0,
+        "selected_next": "typed_object_exact_slot_nativedirect_pilot_selection",
+        "winner_claim": 0,
+        "replacement_active": 0,
+        "hook_installed": 0,
+        "global_allocator": 0,
+        "summary": "ok",
+    }

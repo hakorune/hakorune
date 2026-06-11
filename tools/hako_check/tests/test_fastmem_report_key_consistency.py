@@ -19,6 +19,7 @@ from typed_object_exact_slot_inventory import (
     typed_object_exact_bridge_symbol,
     typed_object_exact_slot_route_decisions,
     typed_object_exact_slot_inventory,
+    typed_object_exact_slot_nativedirect_guard_surface_inventory,
     typed_object_exact_slot_nativedirect_readiness_inventory,
 )
 from report_kv import row_key_surface, shared_key_surface
@@ -405,6 +406,28 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
             inventory["typed_object_native_direct_selected_next"],
             "typed_object_exact_slot_nativedirect_guard_surface",
         )
+
+    def test_typed_object_exact_slot_nativedirect_guard_surface_inventory_uses_readiness(self) -> None:
+        readiness = {
+            "workload_id": "representative-object-lifecycle-small-block-v0",
+            "typed_object_native_direct_ready": 0,
+            "typed_object_native_direct_open": 0,
+            "typed_object_direct_load_store_open": 0,
+        }
+
+        report = typed_object_exact_slot_nativedirect_guard_surface_inventory(readiness)
+        self.assertEqual(report["output_contract"], "typed-object-exact-slot-nativedirect-guard-surface-v0")
+        self.assertEqual(report["input_contract"], "typed-object-exact-slot-nativedirect-readiness-inventory-v0")
+        self.assertEqual(report["candidate_representation"], "NativeDirect")
+        self.assertEqual(report["selected_route"], "hako.typed_object.slot_load_i64")
+        self.assertEqual(report["selected_lowering_form"], "exact_helper_bridge")
+        self.assertEqual(report["storage_substrate"], "PinnedTypedObjectArena")
+        self.assertEqual(report["fallback_boundary"], "explicit_materialized_view_handle")
+        self.assertEqual(report["typed_object_native_direct_ready"], 0)
+        self.assertEqual(report["typed_object_native_direct_open"], 0)
+        self.assertEqual(report["typed_object_direct_load_store_open"], 0)
+        self.assertEqual(report["selected_next"], "typed_object_exact_slot_nativedirect_pilot_selection")
+        self.assertEqual(report["summary"], "ok")
 
     def test_build_report_rows_uses_route_decision_typed_object_exact_slot_counts(self) -> None:
         mir = {
