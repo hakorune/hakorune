@@ -236,6 +236,15 @@ PERF-USERBOX-010:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_loader_dso_split_guard.sh
 
+PERF-USERBOX-011:
+  add an ld-linux / libc loader percent split probe for exact-AOT startup
+  attribution. The probe exposes ld-linux versus libc percent sums on the
+  startup loader report so the loader floor can be split more precisely while
+  the closed loader/libc floor summary stays in place.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_dso_percent_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
