@@ -38,6 +38,11 @@ Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`
 | `NYASH_NYRT_MINIMAL_STARTUP=1` | OFF | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の minimal startup mode。`1` は perf/startup 診断専用で default registry startup を bypass して startup floor を押し下げる。 |
 | `NYASH_NYRT_SILENT_RESULT=1` | OFF | NyRT exact-EXE / tests | NyRT exact-EXE の標準 `Result: <code>` 行を抑止する。stdout を JSON 等に固定したい selfhost/test/perf runner 用。 |
 
+NyRT exact-EXE startup の direct env read / path probe inventory owner は
+`docs/development/current/main/design/nyrt-startup-env-read-inventory-ssot.md`
+に置く。この参照は user-facing knob list の補足で、Knob 追加の正本
+ではない。
+
 ### ダンプの使い分け
 - 実行経路SSOT（推奨）: `NYASH_VM_DUMP_MIR=1 ./target/release/hakorune --backend vm apps/tests/minimal.hako`
 - Rust AST 直通（compile-only）: `./target/release/hakorune --dump-mir apps/tests/minimal.hako`（env は不要、stdout のみ）

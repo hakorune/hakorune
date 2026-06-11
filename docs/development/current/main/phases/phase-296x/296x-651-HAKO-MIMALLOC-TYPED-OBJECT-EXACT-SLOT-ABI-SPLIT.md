@@ -746,6 +746,15 @@ NYRT-STARTUP-FLOOR-004:
 Guard:
   Guard: NYRT-STARTUP-FLOOR-004
 
+NYRT-ENV-001:
+  inventory the NyRT startup env reads and path probes into a stable
+  doc/probe pair. The report splits the primary NyRT entry reads from the
+  adjacent runtime helpers and the startup wrapper, and it keeps
+  `src/config/env` as the comparison baseline instead of the new owner.
+
+Guard:
+  Guard: NYRT-ENV-001
+
 Next:
   Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
   create-default-registry exact top-symbol distribution to choose the next

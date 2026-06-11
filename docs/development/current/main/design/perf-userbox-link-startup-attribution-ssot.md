@@ -210,4 +210,6 @@ malloc-family dominance, `PERF-USERBOX-060` records the malloc/getenv internal
 split, `PERF-USERBOX-061` records the allocator/getenv/string distribution, and
 `PERF-USERBOX-062` records the env-string scan distribution, `PERF-USERBOX-063`
 records the env ladder sensitivity, and `PERF-USERBOX-064` records callgraph
-attribution before choosing the next owner.
+attribution before choosing the next owner. The next owner after 064 is
+`NYRT-ENV-001`, which inventories the NyRT startup env reads and path probes
+before any env cache or snapshot design is considered.
