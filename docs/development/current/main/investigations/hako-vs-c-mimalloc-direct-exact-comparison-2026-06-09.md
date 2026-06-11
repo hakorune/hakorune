@@ -251,6 +251,12 @@ same floor. That probe bypasses default registry startup, which removes
 `box_factory_policy_mode` from the startup top and keeps the next evidence on
 the env / stdio surface instead of the registry policy path.
 
+`NYRT-STARTUP-FLOOR-001` follows by treating env / stdio / registry as one
+NyRT entry startup-floor owner first. It builds one ret0 `ny_main` object and
+links it through both current minimal NyRT entry and bare libc `main` so the
+next decision can separate NyRT entry delta from the remaining loader / libc
+floor before any individual startup subsystem is optimized.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

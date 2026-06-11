@@ -208,6 +208,19 @@ PERF-USERBOX-007:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh
 
+NYRT-STARTUP-FLOOR-001:
+  add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
+  and links it both through the current minimal NyRT entry and through a tiny
+  bare libc `main`, then reports the entry delta and top-symbol attribution.
+  This is diagnostic-only evidence; it does not change the default NyRT entry
+  or move ownership back to `.hako`, MIRBuilder, route planning, exact helper
+  lowering, or runtime object representation.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh
+
 Next:
-  NyRT env / stdio startup floor.
+  Use the bare-entry A/B delta to choose the next owner. Large delta opens
+  NyRT entry decomposition (env / stdio / registry); small delta moves to link
+  mode / loader / libc floor.
 ```

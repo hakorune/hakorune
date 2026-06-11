@@ -567,6 +567,25 @@ HAKO
   return 1
 }
 
+perf_build_ret0_aot_obj() {
+  local root_dir=$1
+  local hako_bin=$2
+  local out_obj=$3
+  local tmp_ret0_hako tmp_ret0_json
+  tmp_ret0_hako=$(mktemp --suffix .hako)
+  cat >"${tmp_ret0_hako}" <<'HAKO'
+static box Main { main() { return 0 } }
+HAKO
+  tmp_ret0_json=$(mktemp --suffix .json)
+  if perf_emit_mir_json "${root_dir}" "${hako_bin}" "${tmp_ret0_hako}" "${tmp_ret0_json}" \
+    && perf_build_aot_obj "${root_dir}" "${tmp_ret0_json}" "${out_obj}"; then
+    rm -f "${tmp_ret0_hako}" "${tmp_ret0_json}" || true
+    return 0
+  fi
+  rm -f "${tmp_ret0_hako}" "${tmp_ret0_json}" || true
+  return 1
+}
+
 perf_probe_aot_exe() {
   local exe_path=$1
   local timeout_sec=${2:-20}

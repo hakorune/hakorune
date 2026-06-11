@@ -58,6 +58,7 @@ Rules:
 | `PERF-USERBOX-005` | NyRT plugin-host-off probe | `k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh` | plugin-host init is skipped for the floor seed | normal NyRT plugin support, default runtime behavior |
 | `PERF-USERBOX-006` | NyRT runtime-hooks-off probe | `k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh` | runtime-hooks publication is skipped for the floor seed | normal runtime hooks, default runtime behavior |
 | `PERF-USERBOX-007` | NyRT minimal-startup probe | `k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh` | default registry startup is bypassed for the floor seed | normal runtime registry behavior |
+| `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 
 ## Reading Order
 
@@ -72,10 +73,27 @@ Rules:
 - do not change the default link mode while evaluating the probe rows
 - do not introduce a new public ABI for this lane
 - do not turn `hako_check` into the owner of link/startup attribution
+- do not split env / stdio / registry into separate optimization owners until the bare-entry A/B delta is available
 - do not silently fallback from `minimal` to `full`
 - do not silently ignore invalid knob values
 
 ## Next Seam
 
 The current floor is now below loader, libgcc, libm, plugin-host init, runtime-hooks publication, and default registry startup.
-The next owner is the NyRT env / stdio startup floor.
+The next owner is the NyRT entry startup floor as one owner, not separate env / stdio / registry work.
+
+`NYRT-STARTUP-FLOOR-001` is the required next probe:
+
+```text
+same_ny_main_object=1
+entry_a=current_minimal_nyrt
+entry_b=bare_libc_main
+current_minimal_cycles
+bare_entry_cycles
+entry_delta_cycles
+perf_top_symbols_reported=1
+```
+
+If `entry_delta_cycles` is large, split the NyRT entry owner into env / stdio /
+registry sub-probes. If the delta is small and both entries are close, move the
+next owner to link mode / loader / libc floor instead.
