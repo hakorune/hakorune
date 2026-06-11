@@ -7,8 +7,8 @@ FLOOR_GUARD="$ROOT_DIR/tools/checks/k2_wide_phase296x_perf_userbox_loader_libc_f
 TMP_DIR="$(mktemp -d /tmp/hakorune_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability.XXXXXX)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-STARTUP_RUNS=100
-TRIALS=5
+STARTUP_RUNS=200
+TRIALS=7
 
 require_line() {
   local file="$1"
@@ -92,7 +92,7 @@ done
 
 total_trials="$TRIALS"
 
-read -r primary_bucket_env_count primary_bucket_once_count primary_bucket_path_count primary_bucket_minimal_main_count primary_bucket_nyash_kernel_runtime_count primary_bucket_kernel_count primary_bucket_other_count primary_bucket_missing_count primary_bucket_alloc_count primary_bucket_ffi_count primary_bucket_string_count ret0_count_min ret0_count_max trial_summaries registry_top_0_mode registry_top_0_mode_count registry_top_1_mode registry_top_1_mode_count registry_top_2_mode registry_top_2_mode_count registry_exact_registry_mode registry_exact_registry_mode_count registry_exact_runtime_mode registry_exact_runtime_mode_count registry_exact_once_mode registry_exact_once_mode_count registry_exact_other_mode registry_exact_other_mode_count < <(
+read -r primary_bucket_env_count primary_bucket_once_count primary_bucket_path_count primary_bucket_minimal_main_count primary_bucket_nyash_kernel_runtime_count primary_bucket_kernel_count primary_bucket_other_count primary_bucket_missing_count primary_bucket_alloc_count primary_bucket_ffi_count primary_bucket_string_count ret0_count_min ret0_count_max trial_summaries registry_top_0_mode registry_top_0_mode_count registry_top_1_mode registry_top_1_mode_count registry_top_2_mode registry_top_2_mode_count registry_exact_build_mode registry_exact_build_mode_count registry_exact_registry_mode registry_exact_registry_mode_count registry_exact_runtime_mode registry_exact_runtime_mode_count registry_exact_once_mode registry_exact_once_mode_count registry_exact_other_mode registry_exact_other_mode_count < <(
   python3 - "$trial_results" <<'PY'
 from __future__ import annotations
 
@@ -123,7 +123,9 @@ summaries = []
 
 def classify_exact(symbol: str) -> str:
     text = symbol.lower()
-    if "registry" in text or "rebuild_cache" in text or "box_factory" in text:
+    if "nyashruntimebuilder::build" in text or "build_with_fs" in text:
+        return "build"
+    if "registry" in text or "rebuild_cache" in text or "box_factory" in text or "create_default_registry" in text:
         return "registry"
     if "once" in text or "futex" in text:
         return "once"
@@ -166,6 +168,8 @@ for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
 registry_top_0_mode, registry_top_0_mode_count = mode(top_symbol_counts[0])
 registry_top_1_mode, registry_top_1_mode_count = mode(top_symbol_counts[1])
 registry_top_2_mode, registry_top_2_mode_count = mode(top_symbol_counts[2])
+registry_exact_build_mode = "build" if exact_family_counts["build"] > 0 else "missing"
+registry_exact_build_mode_count = exact_family_counts["build"]
 registry_exact_registry_mode = "registry" if exact_family_counts["registry"] > 0 else "missing"
 registry_exact_registry_mode_count = exact_family_counts["registry"]
 registry_exact_runtime_mode = "runtime" if exact_family_counts["runtime"] > 0 else "missing"
@@ -196,6 +200,8 @@ print(
     registry_top_1_mode_count,
     registry_top_2_mode,
     registry_top_2_mode_count,
+    registry_exact_build_mode,
+    registry_exact_build_mode_count,
     registry_exact_registry_mode,
     registry_exact_registry_mode_count,
     registry_exact_runtime_mode,
@@ -234,6 +240,8 @@ registry_top_1_mode=$registry_top_1_mode
 registry_top_1_mode_count=$registry_top_1_mode_count
 registry_top_2_mode=$registry_top_2_mode
 registry_top_2_mode_count=$registry_top_2_mode_count
+registry_exact_build_mode=$registry_exact_build_mode
+registry_exact_build_mode_count=$registry_exact_build_mode_count
 registry_exact_registry_mode=$registry_exact_registry_mode
 registry_exact_registry_mode_count=$registry_exact_registry_mode_count
 registry_exact_runtime_mode=$registry_exact_runtime_mode
@@ -252,3 +260,8 @@ touch_exact_helper_lowering=0
 touch_runtime_object_representation=0
 summary=ok
 EOF
+
+if [ "${registry_exact_registry_mode_count:-0}" -le 0 ]; then
+  echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-exact-top-symbol-variability] expected aggregate registry_exact_registry_mode_count > 0" >&2
+  exit 1
+fi
