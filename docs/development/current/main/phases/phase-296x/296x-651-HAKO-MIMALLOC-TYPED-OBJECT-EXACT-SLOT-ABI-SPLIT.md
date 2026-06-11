@@ -229,9 +229,19 @@ NYRT-STARTUP-FLOOR-002:
 Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh
 
+NYRT-STARTUP-FLOOR-003:
+  add an entry-path-prep-off diagnostic probe. The default stays `auto`; the
+  probe uses `NYASH_NYRT_ENTRY_PATH_PREP=off` together with
+  `HAKO_NYRT_PLUGIN_HOST=off` to skip `current_exe` / PATH / PYTHONHOME
+  preparation inside the current minimal NyRT entry.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh
+
 Next:
   Use the bare-entry A/B delta to choose the next owner. Large delta opens
   NyRT entry decomposition (env / stdio / registry); runtime-build-off evidence
   separates `NyashRuntimeBuilder` / GC controller cost from the remaining
-  loader / libc floor.
+  loader / libc floor, and entry-path-prep-off isolates `current_exe` / path
+  shaping from the rest of the entry cost.
 ```

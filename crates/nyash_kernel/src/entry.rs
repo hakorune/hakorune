@@ -15,6 +15,11 @@ enum RuntimeBuildMode {
     Off,
 }
 
+enum EntryPathPrepMode {
+    Auto,
+    Off,
+}
+
 fn minimal_startup_enabled_from_env() -> bool {
     crate::env_flags::flag_on("NYASH_NYRT_MINIMAL_STARTUP")
 }
@@ -97,6 +102,32 @@ fn runtime_build_mode_from_env() -> Result<RuntimeBuildMode, String> {
     ))
 }
 
+fn entry_path_prep_mode_from_env() -> Result<EntryPathPrepMode, String> {
+    let Ok(raw) = std::env::var("NYASH_NYRT_ENTRY_PATH_PREP") else {
+        return Ok(EntryPathPrepMode::Auto);
+    };
+    let value = raw.trim();
+    if value.is_empty()
+        || value.eq_ignore_ascii_case("auto")
+        || value.eq_ignore_ascii_case("on")
+        || value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+    {
+        return Ok(EntryPathPrepMode::Auto);
+    }
+    if value.eq_ignore_ascii_case("off")
+        || value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("none")
+    {
+        return Ok(EntryPathPrepMode::Off);
+    }
+    Err(format!(
+        "[freeze:contract][nyrt/entry-path-prep-mode] expected=auto|on|1|true|off|0|false|none got={}",
+        value
+    ))
+}
+
 // ---- Process entry (driver) ----
 #[cfg(not(test))]
 #[no_mangle]
@@ -109,10 +140,22 @@ pub extern "C" fn main() -> i32 {
     }
     crate::rss_observe::checkpoint("after_ring0");
 
+    let entry_path_prep_mode = match entry_path_prep_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
+    };
+
     // Initialize plugin host: prefer nyash.toml next to the executable; fallback to CWD
-    let exe_dir = std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|d| d.to_path_buf()));
+    let exe_dir = if matches!(entry_path_prep_mode, EntryPathPrepMode::Auto) {
+        std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|d| d.to_path_buf()))
+    } else {
+        None
+    };
 
     // Windows: assist DLL/plugin discovery by extending PATH and normalizing PYTHONHOME
     #[cfg(target_os = "windows")]
@@ -215,6 +258,14 @@ pub extern "C" fn main() -> i32 {
             return 70;
         }
     };
+    if matches!(entry_path_prep_mode, EntryPathPrepMode::Off)
+        && !matches!(plugin_host_mode, PluginHostMode::Off)
+    {
+        eprintln!(
+            "[freeze:contract][nyrt/entry-path-prep-off] NYASH_NYRT_ENTRY_PATH_PREP=off requires HAKO_NYRT_PLUGIN_HOST=off"
+        );
+        return 70;
+    }
     let plugin_host_enabled = matches!(plugin_host_mode, PluginHostMode::Auto);
     if plugin_host_enabled {
         let mut inited = false;

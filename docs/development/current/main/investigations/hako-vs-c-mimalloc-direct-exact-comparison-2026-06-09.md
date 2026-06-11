@@ -263,6 +263,12 @@ construction when runtime hooks are already off. This keeps the next evidence
 on entry startup structure and does not move optimization ownership back to
 `.hako`, MIRBuilder, route planning, or exact helper lowering.
 
+`NYRT-STARTUP-FLOOR-003` then isolates the path-prep seam itself:
+`NYASH_NYRT_ENTRY_PATH_PREP=off` skips `current_exe` / PATH / PYTHONHOME
+preparation once plugin host is already off. That lets the next comparison
+separate path-shaping cost from the remaining loader floor without changing
+default runtime behavior.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter
