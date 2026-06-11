@@ -774,6 +774,15 @@ NYRT-ENV-003:
 Guard:
   Guard: NYRT-ENV-003
 
+NYRT-ENV-004:
+  land the P1 metrics cluster by moving the post-`ny_main` GC metrics and
+  threshold reads into the shared `src/config/env/stage1.rs` helper path.
+  The NyRT entry tail should use the shared JSON/text metrics helpers instead
+  of local `flag_on` / `u64_or` / `flag_default_on` calls.
+
+Guard:
+  Guard: NYRT-ENV-004
+
 Next:
   Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
   create-default-registry exact top-symbol distribution to choose the next

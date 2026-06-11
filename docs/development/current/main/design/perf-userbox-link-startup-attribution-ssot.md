@@ -217,4 +217,7 @@ orders that inventory into a centralization priority table, with the
 output-only `NYASH_NYRT_SILENT_RESULT` seam first and the path-shaping knobs
 last. `NYRT-ENV-003` lands the first implementation slice by centralizing that
 P0 seam through `src/config/env/stage1.rs`, so the NyRT entry tail and the
-Stage-1 bridge runtime defaults share the same helper.
+Stage-1 bridge runtime defaults share the same helper. `NYRT-ENV-004` then
+lands the shared metrics-cluster helper slice, so the post-`ny_main` JSON/text
+metrics and GC threshold reads are centralized before the next startup-floor
+seam.

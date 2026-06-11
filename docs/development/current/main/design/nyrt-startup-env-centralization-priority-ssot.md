@@ -57,6 +57,9 @@ path_shape_knob_last=1
 - `NYRT-ENV-003` lands that P0 seam in `src/config/env/stage1.rs`, so the
   NyRT entry tail and the Stage-1 bridge runtime defaults share the same
   helper.
+- `NYRT-ENV-004` lands the P1 metrics cluster in the same helper module, so
+  the NyRT entry tail no longer owns the post-`ny_main` JSON/text toggle reads
+  directly.
 - `P4` and `P5` stay explicit until a later probe proves that a move will not
   blur the startup floor boundary.
 
@@ -79,5 +82,5 @@ path_shape_knob_last=1
 ## Next Seam
 
 This priority table is meant to feed the next implementation slice, which can
-centralize `P0` first and then decide whether `P1`/`P2` should follow as a
-single post-`ny_main` cluster.
+centralize `P2` next as the remaining post-`ny_main` GC telemetry / warning
+cluster after `P0` and `P1` have landed as shared helpers.

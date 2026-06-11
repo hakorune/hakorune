@@ -385,8 +385,8 @@ pub extern "C" fn main() -> i32 {
             println!("Result: {}", exit_code);
         }
         // Optional GC metrics after program completes
-        let want_json = crate::env_flags::flag_on("NYASH_GC_METRICS_JSON");
-        let want_text = crate::env_flags::flag_on("NYASH_GC_METRICS");
+        let want_json = nyash_rust::config::env::stage1::nyrt_gc_metrics_json_enabled();
+        let want_text = nyash_rust::config::env::stage1::nyrt_gc_metrics_text_enabled();
         if want_json || want_text {
             let Some((rt_hooks, gc_mode)) = &rt_hooks else {
                 eprintln!(
@@ -422,9 +422,11 @@ pub extern "C" fn main() -> i32 {
                 (0, 0, 0, 0, 0, 0, 0, 0, 0)
             };
             // Settings snapshot (env)
-            let sp_interval = crate::env_flags::u64_or("NYASH_GC_COLLECT_SP", 0);
-            let alloc_thresh = crate::env_flags::u64_or("NYASH_GC_COLLECT_ALLOC", 0);
-            let auto_sp = crate::env_flags::flag_default_on("NYASH_LLVM_AUTO_SAFEPOINT");
+            let sp_interval =
+                nyash_rust::config::env::stage1::nyrt_gc_collect_sp_interval().unwrap_or(0);
+            let alloc_thresh =
+                nyash_rust::config::env::stage1::nyrt_gc_collect_alloc_bytes().unwrap_or(0);
+            let auto_sp = nyash_rust::config::env::stage1::nyrt_llvm_auto_safepoint_enabled();
             if want_json {
                 // Minimal JSON assembly to avoid extra deps in nyrt
                 println!(
@@ -438,7 +440,8 @@ pub extern "C" fn main() -> i32 {
                 );
             }
             // Threshold warning
-            let alloc_warn_threshold = crate::env_flags::u64_or("NYASH_GC_ALLOC_THRESHOLD", 0);
+            let alloc_warn_threshold =
+                nyash_rust::config::env::stage1::nyrt_gc_alloc_threshold_bytes().unwrap_or(0);
             if alloc_warn_threshold > 0 && alloc_bytes > alloc_warn_threshold {
                 eprintln!(
                     "[GC][warn] allocation bytes {} exceeded threshold {}",

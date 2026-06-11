@@ -1,5 +1,6 @@
 //! Stage-1 / selfhost CLI environment helpers (SSOT).
 
+use super::mir_flags;
 use crate::config::env::env_bool;
 
 /// Primary toggle: enable Stage-1 stub routing.
@@ -27,6 +28,36 @@ pub fn nyrt_silent_result_enabled() -> bool {
 /// process environment.
 pub fn nyrt_silent_result_present() -> bool {
     std::env::var("NYASH_NYRT_SILENT_RESULT").is_ok()
+}
+
+/// NyRT exact-EXE shared GC metrics JSON toggle.
+pub fn nyrt_gc_metrics_json_enabled() -> bool {
+    env_bool("NYASH_GC_METRICS_JSON")
+}
+
+/// NyRT exact-EXE shared GC metrics text toggle.
+pub fn nyrt_gc_metrics_text_enabled() -> bool {
+    mir_flags::gc_metrics()
+}
+
+/// NyRT exact-EXE shared safepoint collection interval.
+pub fn nyrt_gc_collect_sp_interval() -> Option<u64> {
+    mir_flags::gc_collect_sp_interval()
+}
+
+/// NyRT exact-EXE shared allocation-based collection threshold.
+pub fn nyrt_gc_collect_alloc_bytes() -> Option<u64> {
+    mir_flags::gc_collect_alloc_bytes()
+}
+
+/// NyRT exact-EXE shared auto-safepoint toggle.
+pub fn nyrt_llvm_auto_safepoint_enabled() -> bool {
+    env_bool("NYASH_LLVM_AUTO_SAFEPOINT")
+}
+
+/// NyRT exact-EXE shared GC allocation warning threshold.
+pub fn nyrt_gc_alloc_threshold_bytes() -> Option<u64> {
+    std::env::var("NYASH_GC_ALLOC_THRESHOLD").ok()?.parse().ok()
 }
 
 /// Stage-1 mode hint (emit-program / emit-mir / run).
@@ -205,5 +236,37 @@ mod tests {
         let _set = EnvRestore::set("NYASH_NYRT_SILENT_RESULT", "1");
         assert!(nyrt_silent_result_present());
         assert!(nyrt_silent_result_enabled());
+    }
+
+    #[test]
+    fn nyrt_gc_metrics_helpers_track_shared_cluster_values() {
+        let _lock = ENV_LOCK.lock().unwrap();
+        let _clear_json = EnvRestore::clear("NYASH_GC_METRICS_JSON");
+        let _clear_text = EnvRestore::clear("NYASH_GC_METRICS");
+        let _clear_sp = EnvRestore::clear("NYASH_GC_COLLECT_SP");
+        let _clear_alloc = EnvRestore::clear("NYASH_GC_COLLECT_ALLOC");
+        let _clear_auto = EnvRestore::clear("NYASH_LLVM_AUTO_SAFEPOINT");
+        let _clear_threshold = EnvRestore::clear("NYASH_GC_ALLOC_THRESHOLD");
+
+        assert!(!nyrt_gc_metrics_json_enabled());
+        assert!(!nyrt_gc_metrics_text_enabled());
+        assert_eq!(nyrt_gc_collect_sp_interval(), None);
+        assert_eq!(nyrt_gc_collect_alloc_bytes(), None);
+        assert!(!nyrt_llvm_auto_safepoint_enabled());
+        assert_eq!(nyrt_gc_alloc_threshold_bytes(), None);
+
+        let _set_json = EnvRestore::set("NYASH_GC_METRICS_JSON", "1");
+        let _set_text = EnvRestore::set("NYASH_GC_METRICS", "1");
+        let _set_sp = EnvRestore::set("NYASH_GC_COLLECT_SP", "11");
+        let _set_alloc = EnvRestore::set("NYASH_GC_COLLECT_ALLOC", "22");
+        let _set_auto = EnvRestore::set("NYASH_LLVM_AUTO_SAFEPOINT", "1");
+        let _set_threshold = EnvRestore::set("NYASH_GC_ALLOC_THRESHOLD", "33");
+
+        assert!(nyrt_gc_metrics_json_enabled());
+        assert!(nyrt_gc_metrics_text_enabled());
+        assert_eq!(nyrt_gc_collect_sp_interval(), Some(11));
+        assert_eq!(nyrt_gc_collect_alloc_bytes(), Some(22));
+        assert!(nyrt_llvm_auto_safepoint_enabled());
+        assert_eq!(nyrt_gc_alloc_threshold_bytes(), Some(33));
     }
 }
