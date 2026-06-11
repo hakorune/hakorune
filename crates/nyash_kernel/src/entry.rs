@@ -10,6 +10,11 @@ enum RuntimeHooksMode {
     Off,
 }
 
+enum RuntimeBuildMode {
+    Auto,
+    Off,
+}
+
 fn minimal_startup_enabled_from_env() -> bool {
     crate::env_flags::flag_on("NYASH_NYRT_MINIMAL_STARTUP")
 }
@@ -62,6 +67,32 @@ fn runtime_hooks_mode_from_env() -> Result<RuntimeHooksMode, String> {
     }
     Err(format!(
         "[freeze:contract][nyrt/runtime-hooks-mode] expected=auto|on|1|true|off|0|false|none got={}",
+        value
+    ))
+}
+
+fn runtime_build_mode_from_env() -> Result<RuntimeBuildMode, String> {
+    let Ok(raw) = std::env::var("NYASH_NYRT_RUNTIME_BUILD") else {
+        return Ok(RuntimeBuildMode::Auto);
+    };
+    let value = raw.trim();
+    if value.is_empty()
+        || value.eq_ignore_ascii_case("auto")
+        || value.eq_ignore_ascii_case("on")
+        || value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+    {
+        return Ok(RuntimeBuildMode::Auto);
+    }
+    if value.eq_ignore_ascii_case("off")
+        || value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("none")
+    {
+        return Ok(RuntimeBuildMode::Off);
+    }
+    Err(format!(
+        "[freeze:contract][nyrt/runtime-build-mode] expected=auto|on|1|true|off|0|false|none got={}",
         value
     ))
 }
@@ -123,24 +154,13 @@ pub extern "C" fn main() -> i32 {
             }
         }
     }
-    // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints.
-    // This is still built for ret0 diagnostic runs unless explicitly disabled.
-    let mut rt_builder = if minimal_startup_enabled_from_env() {
-        let registry = std::sync::Arc::new(std::sync::Mutex::new(
-            nyash_rust::box_factory::UnifiedBoxRegistry::with_policy(
-                nyash_rust::box_factory::FactoryPolicy::StrictPluginFirst,
-            ),
-        ));
-        nyash_rust::runtime::NyashRuntimeBuilder::new().with_box_registry(registry)
-    } else {
-        nyash_rust::runtime::NyashRuntimeBuilder::new()
+    let runtime_build_mode = match runtime_build_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
     };
-    let gc_mode = nyash_rust::runtime::gc_mode::GcMode::from_env();
-    let controller = std::sync::Arc::new(nyash_rust::runtime::gc_controller::GcController::new(
-        gc_mode,
-    ));
-    rt_builder = rt_builder.with_gc_hooks(controller);
-    let rt_hooks = rt_builder.build();
     let runtime_hooks_mode = match runtime_hooks_mode_from_env() {
         Ok(mode) => mode,
         Err(message) => {
@@ -148,8 +168,41 @@ pub extern "C" fn main() -> i32 {
             return 70;
         }
     };
+    if matches!(runtime_build_mode, RuntimeBuildMode::Off)
+        && matches!(runtime_hooks_mode, RuntimeHooksMode::Auto)
+    {
+        eprintln!(
+            "[freeze:contract][nyrt/runtime-build-off] NYASH_NYRT_RUNTIME_BUILD=off requires NYASH_NYRT_RUNTIME_HOOKS=off"
+        );
+        return 70;
+    }
+
+    // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints.
+    // Diagnostic floor probes can skip this when runtime hooks and metrics are off.
+    let rt_hooks = if matches!(runtime_build_mode, RuntimeBuildMode::Auto) {
+        let mut rt_builder = if minimal_startup_enabled_from_env() {
+            let registry = std::sync::Arc::new(std::sync::Mutex::new(
+                nyash_rust::box_factory::UnifiedBoxRegistry::with_policy(
+                    nyash_rust::box_factory::FactoryPolicy::StrictPluginFirst,
+                ),
+            ));
+            nyash_rust::runtime::NyashRuntimeBuilder::new().with_box_registry(registry)
+        } else {
+            nyash_rust::runtime::NyashRuntimeBuilder::new()
+        };
+        let gc_mode = nyash_rust::runtime::gc_mode::GcMode::from_env();
+        let controller = std::sync::Arc::new(
+            nyash_rust::runtime::gc_controller::GcController::new(gc_mode),
+        );
+        rt_builder = rt_builder.with_gc_hooks(controller);
+        Some((rt_builder.build(), gc_mode))
+    } else {
+        None
+    };
     if matches!(runtime_hooks_mode, RuntimeHooksMode::Auto) {
-        nyash_rust::runtime::global_hooks::set_from_runtime(&rt_hooks);
+        if let Some((rt, _gc_mode)) = &rt_hooks {
+            nyash_rust::runtime::global_hooks::set_from_runtime(rt);
+        }
     } else if crate::env_flags::cli_verbose_enabled() {
         println!("🔌 nyrt: runtime hooks init skipped (NYASH_NYRT_RUNTIME_HOOKS=off)");
     }
@@ -232,6 +285,12 @@ pub extern "C" fn main() -> i32 {
         let want_json = crate::env_flags::flag_on("NYASH_GC_METRICS_JSON");
         let want_text = crate::env_flags::flag_on("NYASH_GC_METRICS");
         if want_json || want_text {
+            let Some((rt_hooks, gc_mode)) = &rt_hooks else {
+                eprintln!(
+                    "[freeze:contract][nyrt/runtime-build-off] GC metrics require NYASH_NYRT_RUNTIME_BUILD=auto"
+                );
+                return 70;
+            };
             let (sp, br, bw) = rt_hooks.gc.snapshot_counters().unwrap_or((0, 0, 0));
             let handles = 0u64; // Handles tracking is not available in this kernel entry path.
             let gc_mode_s = gc_mode.as_str();

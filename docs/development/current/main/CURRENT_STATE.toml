@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
-latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..007 plus NYRT-STARTUP-FLOOR-001: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, plugin-host-off, runtime-hooks-off, minimal-startup, and bare-entry A/B probes, while defaults stay unchanged."
+latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..007 plus NYRT-STARTUP-FLOOR-001..002: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, plugin-host-off, runtime-hooks-off, minimal-startup, bare-entry A/B, and runtime-build-off probes, while defaults stay unchanged."
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-11: NYRT-STARTUP-FLOOR-002 added the runtime-build-off probe so the current minimal NyRT entry can skip NyashRuntimeBuilder / GC controller construction in diagnostic mode before env/stdio/registry are split further.",
   "2026-06-11: NYRT-STARTUP-FLOOR-001 added the bare-entry A/B probe so one ret0 ny_main object can be compared through current minimal NyRT entry and bare libc main before splitting env/stdio/registry owners.",
   "2026-06-10: the PERF-USERBOX link/startup attribution ladder was consolidated into a dedicated SSOT, keeping full/default link and NyRT startup behavior unchanged while making the floor probes easy to rerun.",
   "2026-06-10: the NyRT runtime-hooks-off probe was added on top of the link/startup ladder so the next floor can isolate env and stdio costs without changing default runtime behavior.",

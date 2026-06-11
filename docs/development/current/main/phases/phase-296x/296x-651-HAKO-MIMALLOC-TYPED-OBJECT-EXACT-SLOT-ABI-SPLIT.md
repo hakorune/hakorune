@@ -219,8 +219,19 @@ NYRT-STARTUP-FLOOR-001:
 Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh
 
+NYRT-STARTUP-FLOOR-002:
+  add a runtime-build-off diagnostic probe. The default stays `auto`; the probe
+  uses `NYASH_NYRT_RUNTIME_BUILD=off` together with
+  `NYASH_NYRT_RUNTIME_HOOKS=off` to skip `NyashRuntimeBuilder` / GC controller
+  construction inside the current minimal NyRT entry. GC metrics still require
+  runtime build and fail-fast if requested with this mode.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh
+
 Next:
   Use the bare-entry A/B delta to choose the next owner. Large delta opens
-  NyRT entry decomposition (env / stdio / registry); small delta moves to link
-  mode / loader / libc floor.
+  NyRT entry decomposition (env / stdio / registry); runtime-build-off evidence
+  separates `NyashRuntimeBuilder` / GC controller cost from the remaining
+  loader / libc floor.
 ```

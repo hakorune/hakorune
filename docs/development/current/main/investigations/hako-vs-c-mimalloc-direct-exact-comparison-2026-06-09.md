@@ -257,6 +257,12 @@ links it through both current minimal NyRT entry and bare libc `main` so the
 next decision can separate NyRT entry delta from the remaining loader / libc
 floor before any individual startup subsystem is optimized.
 
+`NYRT-STARTUP-FLOOR-002` then cuts one internal seam inside that owner:
+`NYASH_NYRT_RUNTIME_BUILD=off` skips `NyashRuntimeBuilder` / GC controller
+construction when runtime hooks are already off. This keeps the next evidence
+on entry startup structure and does not move optimization ownership back to
+`.hako`, MIRBuilder, route planning, or exact helper lowering.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

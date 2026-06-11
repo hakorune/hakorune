@@ -175,6 +175,7 @@ run_entry_probe() {
     NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
     HAKO_NYRT_PLUGIN_HOST="${HAKO_NYRT_PLUGIN_HOST:-off}" \
     NYASH_NYRT_RUNTIME_HOOKS="${NYASH_NYRT_RUNTIME_HOOKS:-off}" \
+    NYASH_NYRT_RUNTIME_BUILD="${NYASH_NYRT_RUNTIME_BUILD:-auto}" \
     NYASH_NYRT_MINIMAL_STARTUP="${NYASH_NYRT_MINIMAL_STARTUP:-1}" \
     NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
     NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
@@ -186,6 +187,7 @@ run_entry_probe() {
     NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
     HAKO_NYRT_PLUGIN_HOST="${HAKO_NYRT_PLUGIN_HOST:-off}" \
     NYASH_NYRT_RUNTIME_HOOKS="${NYASH_NYRT_RUNTIME_HOOKS:-off}" \
+    NYASH_NYRT_RUNTIME_BUILD="${NYASH_NYRT_RUNTIME_BUILD:-auto}" \
     NYASH_NYRT_MINIMAL_STARTUP="${NYASH_NYRT_MINIMAL_STARTUP:-1}" \
     NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}" \
     NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
@@ -201,6 +203,7 @@ run_entry_probe "$bare_exe" "$bare_stat" "$bare_data" "$bare_report"
 python3 - "$OUT_FILE" "$STARTUP_RUNS" "$ny_main_obj" "$nyrt_stat" "$bare_stat" "$nyrt_report" "$bare_report" <<'PY'
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
@@ -314,6 +317,7 @@ lines = [
     "entry_a=current_minimal_nyrt",
     "entry_b=bare_libc_main",
     f"startup_runs={startup_runs}",
+    f"runtime_build_mode={os.environ.get('NYASH_NYRT_RUNTIME_BUILD', 'auto').strip().lower() or 'auto'}",
     "current_minimal_run_status=ok",
     "bare_entry_run_status=ok",
     f"current_minimal_cycles={nyrt_cycles if nyrt_cycles is not None else 'missing'}",

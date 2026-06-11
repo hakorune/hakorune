@@ -32,6 +32,7 @@ Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`
 | `HAKO_NYRT_RSS_CHECKPOINTS=1` | OFF | NyRT exact-EXE | NyRT entry / runtime plugin-host 内の RSS checkpoint を stderr に出す（Linux は `/proc/self/status` の `VmRSS`、タグは `[nyrt/rss]` / `[runtime/rss]`）。診断専用。 |
 | `HAKO_NYRT_PLUGIN_HOST={auto\|off}` | `auto` | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の plugin host 初期化 mode。`auto` は既存互換で `nyash.toml` を探して初期化する。`off` は perf/startup 診断専用で plugin host 初期化をスキップする。invalid 値は fail-fast。 |
 | `NYASH_NYRT_RUNTIME_HOOKS={auto\|off}` | `auto` | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の runtime-hooks publication mode。`auto` は global safepoint bridge へ runtime hooks を publish する。`off` は perf/startup 診断専用で publication をスキップする。invalid 値は fail-fast。 |
+| `NYASH_NYRT_RUNTIME_BUILD={auto\|off}` | `auto` | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の runtime builder mode。`off` は perf/startup 診断専用で `NyashRuntimeBuilder` / GC controller 構築をスキップする。`off` は `NYASH_NYRT_RUNTIME_HOOKS=off` が必須で、GC metrics 要求時は fail-fast。 |
 | `NYASH_NYRT_MINIMAL_STARTUP=1` | OFF | NyRT exact-EXE / diagnostic | NyRT exact-EXE entry の minimal startup mode。`1` は perf/startup 診断専用で default registry startup を bypass して startup floor を押し下げる。 |
 | `NYASH_NYRT_SILENT_RESULT=1` | OFF | NyRT exact-EXE / tests | NyRT exact-EXE の標準 `Result: <code>` 行を抑止する。stdout を JSON 等に固定したい selfhost/test/perf runner 用。 |
 
