@@ -61,6 +61,7 @@ Rules:
 | `PERF-USERBOX-005` | NyRT plugin-host-off probe | `k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh` | plugin-host init is skipped for the floor seed | normal NyRT plugin support, default runtime behavior |
 | `PERF-USERBOX-006` | NyRT runtime-hooks-off probe | `k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh` | runtime-hooks publication is skipped for the floor seed | normal runtime hooks, default runtime behavior |
 | `PERF-USERBOX-007` | NyRT minimal-startup probe | `k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh` | default registry startup is bypassed for the floor seed | normal runtime registry behavior |
+| `PERF-USERBOX-008` | loader / libc floor summary probe | `k2_wide_phase296x_perf_userbox_loader_libc_floor_guard.sh` | `-static-libgcc` plus `NYASH_LLVM_LINK_SYSTEM_LIBS=minimal` package the loader/libc floor without changing default link mode | default link mode, full static linking |
 | `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-002` | runtime-build-off probe | `k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh` | `NyashRuntimeBuilder` / GC controller construction is skipped inside the current minimal NyRT entry | default runtime build, runtime hooks, GC metrics semantics |
 | `NYRT-STARTUP-FLOOR-003` | entry-path-prep-off probe | `k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh` | `current_exe` / PATH / PYTHONHOME preparation is skipped inside the current minimal NyRT entry | default plugin-host path prep, default entry path discovery |
@@ -86,7 +87,7 @@ Rules:
 ## Next Seam
 
 The current floor is now below loader, libgcc, libm, plugin-host init, runtime-hooks publication, and default registry startup.
-The next owner is the NyRT entry startup floor as one owner, not separate env / stdio / registry work.
+The next owner is the loader / libc floor as one owner, not separate env / stdio / registry work.
 
 `NYRT-STARTUP-FLOOR-001` is the required next probe:
 

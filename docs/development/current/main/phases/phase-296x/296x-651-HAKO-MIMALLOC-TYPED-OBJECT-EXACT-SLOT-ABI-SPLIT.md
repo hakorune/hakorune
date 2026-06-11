@@ -208,6 +208,16 @@ PERF-USERBOX-007:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh
 
+PERF-USERBOX-008:
+  add a loader / libc floor summary probe for exact-AOT startup attribution.
+  The default link mode stays `full`; the probe packages
+  `-static-libgcc` plus `NYASH_LLVM_LINK_SYSTEM_LIBS=minimal` to show that the
+  remaining floor is still `libc` / `ld-linux` without selecting full static
+  linking.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_loader_libc_floor_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
