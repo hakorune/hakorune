@@ -290,6 +290,16 @@ PERF-USERBOX-016:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_family_split_guard.sh
 
+PERF-USERBOX-017:
+  add a startup executable ret0 bucket split probe for exact-AOT startup
+  attribution. The probe exposes the ret0.exe bucket counts on the startup
+  loader report so the executable contribution can be split by env/path/ffi/
+  alloc/once/string buckets while the closed loader/libc summary stays in
+  place.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_split_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -331,7 +341,7 @@ Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh
 
 Next:
-  Use the ret0.exe family split to choose the next owner. The family
+  Use the ret0.exe bucket split to choose the next owner. The bucket
   contribution is now the next row; keep the startup executable owner split
   moving inward before reopening any broader loader / libc / NyRT entry work.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical

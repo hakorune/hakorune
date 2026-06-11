@@ -214,6 +214,25 @@ def classify(dso: str, symbol: str) -> str:
     return "other"
 
 
+def classify_ret0_bucket(symbol: str) -> str:
+    text = symbol.lower()
+    if "env" in text or "getenv" in text or "var_os" in text:
+        return "env"
+    if "path" in text or "components" in text or "osstr" in text or "osstring" in text or "readlink" in text:
+        return "path"
+    if "cstr" in text or "ffi" in text:
+        return "ffi"
+    if "alloc" in text or "realloc" in text or "dealloc" in text:
+        return "alloc"
+    if "once" in text:
+        return "once"
+    if "str::" in text or "string" in text:
+        return "string"
+    if "nyash_rust" in text or "nyrt" in text or "hako_" in text:
+        return "nyash_kernel_runtime"
+    return "minimal_main"
+
+
 row_re = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?)%\s+\S+\s+(\S+)\s+\[[^]]+\]\s+(.+?)\s*$")
 rows: list[tuple[float, str, str, str]] = []
 for line in perf_path.read_text(encoding="utf-8", errors="replace").splitlines():
@@ -273,9 +292,16 @@ ret0_rows = [(pct, dso, symbol, category) for pct, dso, symbol, category in rows
 if ret0_rows:
     ret0_pct, _ret0_dso, ret0_symbol, ret0_family = ret0_rows[0]
     ret0_family_counts: dict[str, int] = defaultdict(int)
+    ret0_bucket_counts: dict[str, int] = defaultdict(int)
+    ret0_bucket_first_symbol: dict[str, str] = {}
     for _pct, _dso, _symbol, family in ret0_rows:
         ret0_family_counts[family] += 1
+    for _pct, _dso, symbol, _family in ret0_rows:
+        bucket = classify_ret0_bucket(symbol)
+        ret0_bucket_counts[bucket] += 1
+        ret0_bucket_first_symbol.setdefault(bucket, symbol)
     ret0_primary_family = max(ret0_family_counts.items(), key=lambda item: item[1])[0]
+    ret0_primary_bucket = max(ret0_bucket_counts.items(), key=lambda item: item[1])[0]
     lines.extend(
         [
             f"startup_loader_ret0_exe_top_count={len(ret0_rows)}",
@@ -283,6 +309,7 @@ if ret0_rows:
             f"startup_loader_ret0_exe_first_symbol={ret0_symbol.replace(' ', '_')}",
             f"startup_loader_ret0_exe_first_family={ret0_family}",
             f"startup_loader_ret0_exe_primary_family={ret0_primary_family}",
+            f"startup_loader_ret0_exe_primary_bucket={ret0_primary_bucket}",
         ]
     )
     for idx, (pct, _dso, symbol, family) in enumerate(ret0_rows[:3]):
@@ -303,6 +330,21 @@ if ret0_rows:
         "other",
     ):
         lines.append(f"startup_loader_ret0_exe_family_{category}_count={ret0_family_counts.get(category, 0)}")
+    for bucket in (
+        "env",
+        "path",
+        "ffi",
+        "alloc",
+        "once",
+        "string",
+        "nyash_kernel_runtime",
+        "minimal_main",
+    ):
+        lines.append(f"startup_loader_ret0_exe_bucket_{bucket}_count={ret0_bucket_counts.get(bucket, 0)}")
+        lines.append(
+            f"startup_loader_ret0_exe_bucket_{bucket}_first_symbol="
+            f"{ret0_bucket_first_symbol.get(bucket, 'missing').replace(' ', '_') if ret0_bucket_first_symbol.get(bucket) else 'missing'}"
+        )
 else:
     lines.extend(
         [
@@ -311,6 +353,7 @@ else:
             "startup_loader_ret0_exe_first_symbol=missing",
             "startup_loader_ret0_exe_first_family=missing",
             "startup_loader_ret0_exe_primary_family=missing",
+            "startup_loader_ret0_exe_primary_bucket=missing",
             "startup_loader_ret0_exe_top_0_pct=missing",
             "startup_loader_ret0_exe_top_0_symbol=missing",
             "startup_loader_ret0_exe_top_0_family=missing",
@@ -327,6 +370,22 @@ else:
             "startup_loader_ret0_exe_family_minimal_main_count=0",
             "startup_loader_ret0_exe_family_kernel_count=0",
             "startup_loader_ret0_exe_family_other_count=0",
+            "startup_loader_ret0_exe_bucket_env_count=0",
+            "startup_loader_ret0_exe_bucket_env_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_path_count=0",
+            "startup_loader_ret0_exe_bucket_path_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_ffi_count=0",
+            "startup_loader_ret0_exe_bucket_ffi_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_alloc_count=0",
+            "startup_loader_ret0_exe_bucket_alloc_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_once_count=0",
+            "startup_loader_ret0_exe_bucket_once_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_string_count=0",
+            "startup_loader_ret0_exe_bucket_string_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_nyash_kernel_runtime_count=0",
+            "startup_loader_ret0_exe_bucket_nyash_kernel_runtime_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_minimal_main_count=0",
+            "startup_loader_ret0_exe_bucket_minimal_main_first_symbol=missing",
         ]
     )
 
