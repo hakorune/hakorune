@@ -570,6 +570,16 @@ PERF-USERBOX-044:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_focus_presence_guard.sh
 
+PERF-USERBOX-045:
+  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
+  register-many exact-top-symbol dominance probe for exact-AOT startup
+  attribution. The registry focus probe is now closed, so the probe repeats the
+  ret0 bucket split and decides whether rebuild-cache or register-many is the
+  next registry owner; current runs favor rebuild-cache.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_exact_top_symbol_dominance_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -641,11 +651,12 @@ Next:
   `PluginBoxFactory::box_types` / `BoxFactory::factory_type` ahead of registry
   lookup inside `nyash_kernel_runtime`, so `PERF-USERBOX-042` splits the
   box_factory exact top symbols next, `PERF-USERBOX-043` records whether a
-  stable box_factory plugin/factory_type focus is actually present, and
+  stable box_factory plugin/factory_type focus is actually present,
   `PERF-USERBOX-044` records whether registry focus is still present after
-  box_factory stays absent. Keep env / stdio / path closed; when the raw report
-  shifts to box_factory, pivot the next owner there instead of forcing
-  registry-only reads.
+  box_factory stays absent, and `PERF-USERBOX-045` chooses whether rebuild-cache
+  or register-many is the next registry owner. Keep env / stdio / path closed;
+  when the raw report shifts to box_factory, pivot the next owner there instead
+  of forcing registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
