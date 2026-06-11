@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-11: PERF-USERBOX-002 now reports dynamic_loader as the primary startup-loader owner family once release artifacts are synced, so the next floor can be treated as loader/libc rather than env/stdio/registry.",
   "2026-06-11: NYRT-STARTUP-FLOOR-004 added the ring0-init-off probe so the current minimal NyRT entry can skip Ring0Context initialization once plugin host, runtime hooks, and runtime build are already off, isolating the final remaining entry bootstrap cost.",
   "2026-06-11: PERF-USERBOX-008 added a loader/libc floor summary probe so the exact-AOT link ladder can package the static-libgcc and minimal-system-libs evidence without changing the default link mode.",
   "2026-06-11: NYRT-STARTUP-FLOOR-003 added the entry-path-prep-off probe so the current minimal NyRT entry can skip current_exe / path shaping once plugin host is already off, isolating the remaining loader floor from path-prep cost.",
