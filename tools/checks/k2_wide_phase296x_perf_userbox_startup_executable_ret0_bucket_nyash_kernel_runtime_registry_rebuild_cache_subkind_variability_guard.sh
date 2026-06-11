@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TOOL="$ROOT_DIR/tools/allocator/userbox_startup_loader_owner_split.sh"
 FLOOR_GUARD="$ROOT_DIR/tools/checks/k2_wide_phase296x_perf_userbox_loader_libc_floor_guard.sh"
-TMP_DIR="$(mktemp -d /tmp/hakorune_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability.XXXXXX)"
+TMP_DIR="$(mktemp -d /tmp/hakorune_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_subkind_variability.XXXXXX)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 STARTUP_RUNS=200
@@ -14,7 +14,7 @@ require_line() {
   local file="$1"
   local expected="$2"
   if ! grep -q "^${expected}$" "$file"; then
-    echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-create-default-registry-rebuild-cache-exact-top-symbol-variability] missing line in ${file#$ROOT_DIR/}: $expected" >&2
+    echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-rebuild-cache-subkind-variability] missing line in ${file#$ROOT_DIR/}: $expected" >&2
     exit 1
   fi
 }
@@ -23,7 +23,7 @@ require_positive_key() {
   local file="$1"
   local key="$2"
   if ! awk -F= -v key="$key" '$1 == key { found=1; exit !($2 + 0 > 0) } END { if (!found) exit 1 }' "$file"; then
-    echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-create-default-registry-rebuild-cache-exact-top-symbol-variability] expected positive ${key} in ${file#$ROOT_DIR/}" >&2
+    echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-rebuild-cache-subkind-variability] expected positive ${key} in ${file#$ROOT_DIR/}" >&2
     exit 1
   fi
 }
@@ -70,7 +70,7 @@ for trial in $(seq 1 "$TRIALS"); do
       :
       ;;
     *)
-      echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-create-default-registry-rebuild-cache-exact-top-symbol-variability] unexpected primary bucket '$primary_bucket' in ${trial_out#$ROOT_DIR/}" >&2
+      echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-rebuild-cache-subkind-variability] unexpected primary bucket '$primary_bucket' in ${trial_out#$ROOT_DIR/}" >&2
       exit 1
       ;;
   esac
@@ -251,9 +251,9 @@ PY
 )
 
 cat <<EOF
-output_contract=perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-create-default-registry-rebuild-cache-exact-top-symbol-variability-v0
+output_contract=perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-rebuild-cache-subkind-variability-v0
 input_contract=perf-userbox-startup-loader-owner-split-v0
-measurement_scope=exact_aot_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability
+measurement_scope=exact_aot_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_subkind_variability
 trial_count=$total_trials
 startup_runs_per_trial=$STARTUP_RUNS
 primary_bucket_env_count=$primary_bucket_env_count
@@ -310,6 +310,6 @@ summary=ok
 EOF
 
 if [ "${registry_exact_rebuild_cache_mode_count:-0}" -le 0 ]; then
-  echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-create-default-registry-rebuild-cache-exact-top-symbol-variability] expected aggregate registry_exact_rebuild_cache_mode_count > 0" >&2
+  echo "[perf-userbox-startup-executable-ret0-bucket-nyash-kernel-runtime-registry-rebuild-cache-subkind-variability] expected aggregate registry_exact_rebuild_cache_mode_count > 0" >&2
   exit 1
 fi
