@@ -55,6 +55,18 @@ P0 の landed slice は
 P1 の metrics cluster landed slice は
 `docs/development/current/main/design/nyrt-startup-env-p1-centralization-ssot.md`
 に置く。
+P2 の GC telemetry / warning threshold cluster landed slice は
+`docs/development/current/main/design/nyrt-startup-env-p2-centralization-ssot.md`
+に置く。
+P3 の minimal-startup knob landed slice は
+`docs/development/current/main/design/nyrt-startup-env-p3-centralization-ssot.md`
+に置く。
+P4 の startup gates landed slice は
+`docs/development/current/main/design/nyrt-startup-env-p4-centralization-ssot.md`
+に置く。
+P5 の path-shaping landed slice は
+`docs/development/current/main/design/nyrt-startup-env-p5-centralization-ssot.md`
+に置く。
 
 ### ダンプの使い分け
 - 実行経路SSOT（推奨）: `NYASH_VM_DUMP_MIR=1 ./target/release/hakorune --backend vm apps/tests/minimal.hako`

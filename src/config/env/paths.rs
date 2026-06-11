@@ -1,6 +1,7 @@
 //! Path resolution helpers (SSOT for env-derived paths).
 
 use super::warn_alias_once;
+use std::path::{Path, PathBuf};
 
 fn env_string_trimmed(key: &str) -> Option<String> {
     std::env::var(key)
@@ -8,6 +9,67 @@ fn env_string_trimmed(key: &str) -> Option<String> {
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty())
 }
+
+/// Best-effort directory of the current executable.
+pub fn nyrt_entry_exe_dir() -> Option<PathBuf> {
+    std::env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(|d| d.to_path_buf()))
+}
+
+/// Display-form current working directory for NyRT startup diagnostics.
+pub fn nyrt_entry_current_dir_display() -> Option<String> {
+    std::env::current_dir()
+        .ok()
+        .map(|p| p.display().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+#[cfg(target_os = "windows")]
+fn append_unique_path_segment(path_value: &mut String, segment: &Path) {
+    let segment_s = segment.display().to_string();
+    if !path_value
+        .split(';')
+        .any(|existing| existing.eq_ignore_ascii_case(&segment_s))
+    {
+        if !path_value.is_empty() {
+            path_value.push(';');
+        }
+        path_value.push_str(&segment_s);
+    }
+}
+
+/// Apply Windows-specific NyRT entry path shaping for DLL / plugin discovery.
+#[cfg(target_os = "windows")]
+pub fn nyrt_entry_apply_windows_path_shaping(exe_dir: &Path) {
+    let mut path_val = std::env::var("PATH").unwrap_or_default();
+    append_unique_path_segment(&mut path_val, exe_dir);
+    let plug = exe_dir.join("plugins");
+    if plug.is_dir() {
+        append_unique_path_segment(&mut path_val, &plug);
+    }
+    std::env::set_var("PATH", &path_val);
+
+    match std::env::var("PYTHONHOME") {
+        Ok(v) => {
+            let pb = PathBuf::from(&v);
+            if pb.is_relative() {
+                let abs = exe_dir.join(pb);
+                std::env::set_var("PYTHONHOME", abs.display().to_string());
+            }
+        }
+        Err(_) => {
+            let cand = exe_dir.join("python");
+            if cand.is_dir() {
+                std::env::set_var("PYTHONHOME", cand.display().to_string());
+            }
+        }
+    }
+}
+
+/// No-op on non-Windows targets.
+#[cfg(not(target_os = "windows"))]
+pub fn nyrt_entry_apply_windows_path_shaping(_exe_dir: &Path) {}
 
 /// Repo root hint.
 ///
@@ -71,4 +133,15 @@ pub fn hako_bin() -> Option<String> {
 /// Compatibility wrapper for existing callers.
 pub fn nyash_bin() -> Option<String> {
     hako_bin()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn entry_path_helpers_have_current_process_context() {
+        assert!(nyrt_entry_exe_dir().is_some());
+        assert!(nyrt_entry_current_dir_display().is_some());
+    }
 }

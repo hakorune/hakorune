@@ -783,6 +783,42 @@ NYRT-ENV-004:
 Guard:
   Guard: NYRT-ENV-004
 
+NYRT-ENV-005:
+  land the P2 GC telemetry / warning threshold cluster by keeping the
+  safepoint, allocation, LLVM auto-safepoint, and GC threshold reads in the
+  shared `src/config/env/stage1.rs` helper path. The NyRT entry tail should no
+  longer own those post-`ny_main` reads directly.
+
+Guard:
+  Guard: NYRT-ENV-005
+
+NYRT-ENV-006:
+  land the P3 minimal-startup knob by moving `NYASH_NYRT_MINIMAL_STARTUP` into
+  the shared `src/config/env/stage1.rs` helper path. The NyRT entry head
+  should read the knob through the shared helper instead of a local `flag_on`
+  call.
+
+Guard:
+  Guard: NYRT-ENV-006
+
+NYRT-ENV-007:
+  land the P4 startup gates by moving the plugin-host, runtime-hooks,
+  runtime-build, entry-path-prep, and ring0-init mode parsers into the shared
+  `src/config/env/stage1.rs` helper path. The NyRT entry head should no longer
+  own the `auto|off` parsing logic directly.
+
+Guard:
+  Guard: NYRT-ENV-007
+
+NYRT-ENV-008:
+  land the P5 path-shaping helpers by moving `current_exe`, `current_dir`,
+  `PATH`, and `PYTHONHOME` handling into the shared `src/config/env/paths.rs`
+  helper path. The NyRT entry body should use the helper surface instead of
+  owning the path shaping directly.
+
+Guard:
+  Guard: NYRT-ENV-008
+
 Next:
   Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
   create-default-registry exact top-symbol distribution to choose the next

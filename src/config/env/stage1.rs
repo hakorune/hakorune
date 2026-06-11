@@ -3,6 +3,13 @@
 use super::mir_flags;
 use crate::config::env::env_bool;
 
+/// Shared auto/off mode for NyRT startup gates.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum NyrtAutoOffMode {
+    Auto,
+    Off,
+}
+
 /// Primary toggle: enable Stage-1 stub routing.
 pub fn enabled() -> bool {
     env_bool("NYASH_USE_STAGE1_CLI")
@@ -58,6 +65,77 @@ pub fn nyrt_llvm_auto_safepoint_enabled() -> bool {
 /// NyRT exact-EXE shared GC allocation warning threshold.
 pub fn nyrt_gc_alloc_threshold_bytes() -> Option<u64> {
     std::env::var("NYASH_GC_ALLOC_THRESHOLD").ok()?.parse().ok()
+}
+
+fn parse_nyrt_auto_off_mode(key: &str, contract_tag: &str) -> Result<NyrtAutoOffMode, String> {
+    let Ok(raw) = std::env::var(key) else {
+        return Ok(NyrtAutoOffMode::Auto);
+    };
+    let value = raw.trim();
+    if value.is_empty()
+        || value.eq_ignore_ascii_case("auto")
+        || value.eq_ignore_ascii_case("on")
+        || value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+    {
+        return Ok(NyrtAutoOffMode::Auto);
+    }
+    if value.eq_ignore_ascii_case("off")
+        || value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("none")
+    {
+        return Ok(NyrtAutoOffMode::Off);
+    }
+    Err(format!(
+        "{} expected=auto|on|1|true|off|0|false|none got={}",
+        contract_tag, value
+    ))
+}
+
+/// NyRT exact-EXE minimal-startup toggle.
+pub fn nyrt_minimal_startup_enabled() -> bool {
+    env_bool("NYASH_NYRT_MINIMAL_STARTUP")
+}
+
+/// NyRT exact-EXE plugin-host mode.
+pub fn nyrt_plugin_host_mode() -> Result<NyrtAutoOffMode, String> {
+    parse_nyrt_auto_off_mode(
+        "HAKO_NYRT_PLUGIN_HOST",
+        "[freeze:contract][nyrt/plugin-host-mode]",
+    )
+}
+
+/// NyRT exact-EXE runtime-hooks publication mode.
+pub fn nyrt_runtime_hooks_mode() -> Result<NyrtAutoOffMode, String> {
+    parse_nyrt_auto_off_mode(
+        "NYASH_NYRT_RUNTIME_HOOKS",
+        "[freeze:contract][nyrt/runtime-hooks-mode]",
+    )
+}
+
+/// NyRT exact-EXE runtime builder mode.
+pub fn nyrt_runtime_build_mode() -> Result<NyrtAutoOffMode, String> {
+    parse_nyrt_auto_off_mode(
+        "NYASH_NYRT_RUNTIME_BUILD",
+        "[freeze:contract][nyrt/runtime-build-mode]",
+    )
+}
+
+/// NyRT exact-EXE executable-path preparation mode.
+pub fn nyrt_entry_path_prep_mode() -> Result<NyrtAutoOffMode, String> {
+    parse_nyrt_auto_off_mode(
+        "NYASH_NYRT_ENTRY_PATH_PREP",
+        "[freeze:contract][nyrt/entry-path-prep-mode]",
+    )
+}
+
+/// NyRT exact-EXE ring0 bootstrap mode.
+pub fn nyrt_ring0_init_mode() -> Result<NyrtAutoOffMode, String> {
+    parse_nyrt_auto_off_mode(
+        "NYASH_NYRT_RING0_INIT",
+        "[freeze:contract][nyrt/ring0-init-mode]",
+    )
 }
 
 /// Stage-1 mode hint (emit-program / emit-mir / run).
@@ -268,5 +346,67 @@ mod tests {
         assert_eq!(nyrt_gc_collect_alloc_bytes(), Some(22));
         assert!(nyrt_llvm_auto_safepoint_enabled());
         assert_eq!(nyrt_gc_alloc_threshold_bytes(), Some(33));
+    }
+
+    #[test]
+    fn nyrt_startup_mode_helpers_parse_auto_and_off_contracts() {
+        let _lock = ENV_LOCK.lock().unwrap();
+        let _clear_plugin = EnvRestore::clear("HAKO_NYRT_PLUGIN_HOST");
+        let _clear_hooks = EnvRestore::clear("NYASH_NYRT_RUNTIME_HOOKS");
+        let _clear_build = EnvRestore::clear("NYASH_NYRT_RUNTIME_BUILD");
+        let _clear_path_prep = EnvRestore::clear("NYASH_NYRT_ENTRY_PATH_PREP");
+        let _clear_ring0 = EnvRestore::clear("NYASH_NYRT_RING0_INIT");
+        let _clear_minimal = EnvRestore::clear("NYASH_NYRT_MINIMAL_STARTUP");
+
+        assert!(matches!(
+            nyrt_plugin_host_mode().expect("default plugin host mode"),
+            NyrtAutoOffMode::Auto
+        ));
+        assert!(matches!(
+            nyrt_runtime_hooks_mode().expect("default runtime hooks mode"),
+            NyrtAutoOffMode::Auto
+        ));
+        assert!(matches!(
+            nyrt_runtime_build_mode().expect("default runtime build mode"),
+            NyrtAutoOffMode::Auto
+        ));
+        assert!(matches!(
+            nyrt_entry_path_prep_mode().expect("default path prep mode"),
+            NyrtAutoOffMode::Auto
+        ));
+        assert!(matches!(
+            nyrt_ring0_init_mode().expect("default ring0 mode"),
+            NyrtAutoOffMode::Auto
+        ));
+        assert!(!nyrt_minimal_startup_enabled());
+
+        let _set_plugin = EnvRestore::set("HAKO_NYRT_PLUGIN_HOST", "off");
+        let _set_hooks = EnvRestore::set("NYASH_NYRT_RUNTIME_HOOKS", "off");
+        let _set_build = EnvRestore::set("NYASH_NYRT_RUNTIME_BUILD", "off");
+        let _set_path_prep = EnvRestore::set("NYASH_NYRT_ENTRY_PATH_PREP", "off");
+        let _set_ring0 = EnvRestore::set("NYASH_NYRT_RING0_INIT", "off");
+        let _set_minimal = EnvRestore::set("NYASH_NYRT_MINIMAL_STARTUP", "1");
+
+        assert!(matches!(
+            nyrt_plugin_host_mode().expect("off plugin host mode"),
+            NyrtAutoOffMode::Off
+        ));
+        assert!(matches!(
+            nyrt_runtime_hooks_mode().expect("off runtime hooks mode"),
+            NyrtAutoOffMode::Off
+        ));
+        assert!(matches!(
+            nyrt_runtime_build_mode().expect("off runtime build mode"),
+            NyrtAutoOffMode::Off
+        ));
+        assert!(matches!(
+            nyrt_entry_path_prep_mode().expect("off path prep mode"),
+            NyrtAutoOffMode::Off
+        ));
+        assert!(matches!(
+            nyrt_ring0_init_mode().expect("off ring0 mode"),
+            NyrtAutoOffMode::Off
+        ));
+        assert!(nyrt_minimal_startup_enabled());
     }
 }

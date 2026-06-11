@@ -20,13 +20,14 @@ latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
 latest_card_summary = """296x-651 accepts the typed-object exact slot ABI split and now anchors
 PERF-USERBOX-001..064, NYRT-STARTUP-FLOOR-001..004, NYRT-ENV-001,
-NYRT-ENV-002, NYRT-ENV-003, and NYRT-ENV-004. Coverage includes floor
-attribution, loader/startup owner split, ld-linux / libc split, ret0
-executable bucket/family/symbol probes, nyash_kernel_runtime
-registry/box_factory/runtime branches, libc_process malloc/getenv env ladder
-and callgraph attribution, and the NyRT floor / env inventory /
-centralization-priority / P0 helper / P1 metrics helper probes. Defaults stay
-unchanged."""
+NYRT-ENV-002, NYRT-ENV-003, NYRT-ENV-004, NYRT-ENV-005, NYRT-ENV-006,
+NYRT-ENV-007, and NYRT-ENV-008. Coverage includes floor attribution,
+loader/startup owner split, ld-linux / libc split, ret0 executable
+bucket/family/symbol probes, nyash_kernel_runtime registry/box_factory/runtime
+branches, libc_process malloc/getenv env ladder and callgraph attribution, and
+the NyRT floor / env inventory / centralization-priority / P0 helper / P1
+metrics helper / P2 telemetry / P3 minimal startup / P4 startup gates / P5
+path-shaping probes. Defaults stay unchanged."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -36,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-12: NYRT-ENV-005..008 centralize the GC telemetry cluster, minimal startup knob, startup gates, and path shaping into shared helpers.",
   "2026-06-12: NYRT-ENV-004 centralizes the post-ny_main GC metrics cluster through src/config/env/stage1.rs.",
   "2026-06-12: NYRT-ENV-003 centralizes the output-only P0 helper for NYASH_NYRT_SILENT_RESULT through src/config/env/stage1.rs.",
   "2026-06-11: NYRT-ENV-002 ranks the NyRT startup env reads into a centralization priority table after the 001 inventory.",

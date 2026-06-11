@@ -1,217 +1,70 @@
 // Process entry point for NyRT.
 
-enum PluginHostMode {
-    Auto,
-    Off,
-}
-
-enum RuntimeHooksMode {
-    Auto,
-    Off,
-}
-
-enum RuntimeBuildMode {
-    Auto,
-    Off,
-}
-
-enum EntryPathPrepMode {
-    Auto,
-    Off,
-}
-
-enum Ring0InitMode {
-    Auto,
-    Off,
-}
-
-fn minimal_startup_enabled_from_env() -> bool {
-    crate::env_flags::flag_on("NYASH_NYRT_MINIMAL_STARTUP")
-}
-
-fn plugin_host_mode_from_env() -> Result<PluginHostMode, String> {
-    let Ok(raw) = std::env::var("HAKO_NYRT_PLUGIN_HOST") else {
-        return Ok(PluginHostMode::Auto);
-    };
-    let value = raw.trim();
-    if value.is_empty()
-        || value.eq_ignore_ascii_case("auto")
-        || value.eq_ignore_ascii_case("on")
-        || value.eq_ignore_ascii_case("1")
-        || value.eq_ignore_ascii_case("true")
-    {
-        return Ok(PluginHostMode::Auto);
-    }
-    if value.eq_ignore_ascii_case("off")
-        || value.eq_ignore_ascii_case("0")
-        || value.eq_ignore_ascii_case("false")
-        || value.eq_ignore_ascii_case("none")
-    {
-        return Ok(PluginHostMode::Off);
-    }
-    Err(format!(
-        "[freeze:contract][nyrt/plugin-host-mode] expected=auto|on|1|true|off|0|false|none got={}",
-        value
-    ))
-}
-
-fn runtime_hooks_mode_from_env() -> Result<RuntimeHooksMode, String> {
-    let Ok(raw) = std::env::var("NYASH_NYRT_RUNTIME_HOOKS") else {
-        return Ok(RuntimeHooksMode::Auto);
-    };
-    let value = raw.trim();
-    if value.is_empty()
-        || value.eq_ignore_ascii_case("auto")
-        || value.eq_ignore_ascii_case("on")
-        || value.eq_ignore_ascii_case("1")
-        || value.eq_ignore_ascii_case("true")
-    {
-        return Ok(RuntimeHooksMode::Auto);
-    }
-    if value.eq_ignore_ascii_case("off")
-        || value.eq_ignore_ascii_case("0")
-        || value.eq_ignore_ascii_case("false")
-        || value.eq_ignore_ascii_case("none")
-    {
-        return Ok(RuntimeHooksMode::Off);
-    }
-    Err(format!(
-        "[freeze:contract][nyrt/runtime-hooks-mode] expected=auto|on|1|true|off|0|false|none got={}",
-        value
-    ))
-}
-
-fn runtime_build_mode_from_env() -> Result<RuntimeBuildMode, String> {
-    let Ok(raw) = std::env::var("NYASH_NYRT_RUNTIME_BUILD") else {
-        return Ok(RuntimeBuildMode::Auto);
-    };
-    let value = raw.trim();
-    if value.is_empty()
-        || value.eq_ignore_ascii_case("auto")
-        || value.eq_ignore_ascii_case("on")
-        || value.eq_ignore_ascii_case("1")
-        || value.eq_ignore_ascii_case("true")
-    {
-        return Ok(RuntimeBuildMode::Auto);
-    }
-    if value.eq_ignore_ascii_case("off")
-        || value.eq_ignore_ascii_case("0")
-        || value.eq_ignore_ascii_case("false")
-        || value.eq_ignore_ascii_case("none")
-    {
-        return Ok(RuntimeBuildMode::Off);
-    }
-    Err(format!(
-        "[freeze:contract][nyrt/runtime-build-mode] expected=auto|on|1|true|off|0|false|none got={}",
-        value
-    ))
-}
-
-fn entry_path_prep_mode_from_env() -> Result<EntryPathPrepMode, String> {
-    let Ok(raw) = std::env::var("NYASH_NYRT_ENTRY_PATH_PREP") else {
-        return Ok(EntryPathPrepMode::Auto);
-    };
-    let value = raw.trim();
-    if value.is_empty()
-        || value.eq_ignore_ascii_case("auto")
-        || value.eq_ignore_ascii_case("on")
-        || value.eq_ignore_ascii_case("1")
-        || value.eq_ignore_ascii_case("true")
-    {
-        return Ok(EntryPathPrepMode::Auto);
-    }
-    if value.eq_ignore_ascii_case("off")
-        || value.eq_ignore_ascii_case("0")
-        || value.eq_ignore_ascii_case("false")
-        || value.eq_ignore_ascii_case("none")
-    {
-        return Ok(EntryPathPrepMode::Off);
-    }
-    Err(format!(
-        "[freeze:contract][nyrt/entry-path-prep-mode] expected=auto|on|1|true|off|0|false|none got={}",
-        value
-    ))
-}
-
-fn ring0_init_mode_from_env() -> Result<Ring0InitMode, String> {
-    let Ok(raw) = std::env::var("NYASH_NYRT_RING0_INIT") else {
-        return Ok(Ring0InitMode::Auto);
-    };
-    let value = raw.trim();
-    if value.is_empty()
-        || value.eq_ignore_ascii_case("auto")
-        || value.eq_ignore_ascii_case("on")
-        || value.eq_ignore_ascii_case("1")
-        || value.eq_ignore_ascii_case("true")
-    {
-        return Ok(Ring0InitMode::Auto);
-    }
-    if value.eq_ignore_ascii_case("off")
-        || value.eq_ignore_ascii_case("0")
-        || value.eq_ignore_ascii_case("false")
-        || value.eq_ignore_ascii_case("none")
-    {
-        return Ok(Ring0InitMode::Off);
-    }
-    Err(format!(
-        "[freeze:contract][nyrt/ring0-init-mode] expected=auto|on|1|true|off|0|false|none got={}",
-        value
-    ))
-}
-
 // ---- Process entry (driver) ----
 #[cfg(not(test))]
 #[no_mangle]
 pub extern "C" fn main() -> i32 {
     crate::rss_observe::checkpoint("entry_start");
-    let ring0_init_mode = match ring0_init_mode_from_env() {
+    let ring0_init_mode = match nyash_rust::config::env::stage1::nyrt_ring0_init_mode() {
         Ok(mode) => mode,
         Err(message) => {
             eprintln!("{}", message);
             return 70;
         }
     };
-    let entry_path_prep_mode = match entry_path_prep_mode_from_env() {
+    let entry_path_prep_mode = match nyash_rust::config::env::stage1::nyrt_entry_path_prep_mode() {
         Ok(mode) => mode,
         Err(message) => {
             eprintln!("{}", message);
             return 70;
         }
     };
-    let runtime_build_mode = match runtime_build_mode_from_env() {
+    let runtime_build_mode = match nyash_rust::config::env::stage1::nyrt_runtime_build_mode() {
         Ok(mode) => mode,
         Err(message) => {
             eprintln!("{}", message);
             return 70;
         }
     };
-    let runtime_hooks_mode = match runtime_hooks_mode_from_env() {
+    let runtime_hooks_mode = match nyash_rust::config::env::stage1::nyrt_runtime_hooks_mode() {
         Ok(mode) => mode,
         Err(message) => {
             eprintln!("{}", message);
             return 70;
         }
     };
-    let plugin_host_mode = match plugin_host_mode_from_env() {
+    let plugin_host_mode = match nyash_rust::config::env::stage1::nyrt_plugin_host_mode() {
         Ok(mode) => mode,
         Err(message) => {
             eprintln!("{}", message);
             return 70;
         }
     };
-    if matches!(runtime_build_mode, RuntimeBuildMode::Off)
-        && matches!(runtime_hooks_mode, RuntimeHooksMode::Auto)
-    {
+    if matches!(
+        runtime_build_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    ) && matches!(
+        runtime_hooks_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
+    ) {
         eprintln!(
             "[freeze:contract][nyrt/runtime-build-off] NYASH_NYRT_RUNTIME_BUILD=off requires NYASH_NYRT_RUNTIME_HOOKS=off"
         );
         return 70;
     }
-    if matches!(ring0_init_mode, Ring0InitMode::Off)
-        && (!matches!(runtime_hooks_mode, RuntimeHooksMode::Off)
-            || !matches!(runtime_build_mode, RuntimeBuildMode::Off)
-            || !matches!(plugin_host_mode, PluginHostMode::Off))
-    {
+    if matches!(
+        ring0_init_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    ) && (!matches!(
+        runtime_hooks_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    ) || !matches!(
+        runtime_build_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    ) || !matches!(
+        plugin_host_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    )) {
         eprintln!(
             "[freeze:contract][nyrt/ring0-init-off] NYASH_NYRT_RING0_INIT=off requires HAKO_NYRT_PLUGIN_HOST=off, NYASH_NYRT_RUNTIME_HOOKS=off, and NYASH_NYRT_RUNTIME_BUILD=off"
         );
@@ -220,7 +73,10 @@ pub extern "C" fn main() -> i32 {
 
     // AOT 実行器でも Ring0Context は必須（PluginHost/ログなどが依存する）。
     // EXE 直起動では host 側の init が存在しないため、ここで先に初期化する。
-    if matches!(ring0_init_mode, Ring0InitMode::Auto) {
+    if matches!(
+        ring0_init_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
+    ) {
         if nyash_rust::runtime::ring0::GLOBAL_RING0.get().is_none() {
             nyash_rust::runtime::ring0::init_global_ring0(
                 nyash_rust::runtime::ring0::default_ring0(),
@@ -230,10 +86,11 @@ pub extern "C" fn main() -> i32 {
     crate::rss_observe::checkpoint("after_ring0");
 
     // Initialize plugin host: prefer nyash.toml next to the executable; fallback to CWD
-    let exe_dir = if matches!(entry_path_prep_mode, EntryPathPrepMode::Auto) {
-        std::env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(|d| d.to_path_buf()))
+    let exe_dir = if matches!(
+        entry_path_prep_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
+    ) {
+        nyash_rust::config::env::paths::nyrt_entry_exe_dir()
     } else {
         None
     };
@@ -241,48 +98,16 @@ pub extern "C" fn main() -> i32 {
     // Windows: assist DLL/plugin discovery by extending PATH and normalizing PYTHONHOME
     #[cfg(target_os = "windows")]
     if let Some(dir) = &exe_dir {
-        use std::path::PathBuf;
-        // Extend PATH with exe_dir and exe_dir\plugins if not already present
-        let mut path_val = std::env::var("PATH").unwrap_or_default();
-        let add_path = |pv: &mut String, p: &PathBuf| {
-            let ps = p.display().to_string();
-            if !pv.split(';').any(|seg| seg.eq_ignore_ascii_case(&ps)) {
-                if !pv.is_empty() {
-                    pv.push(';');
-                }
-                pv.push_str(&ps);
-            }
-        };
-        add_path(&mut path_val, dir);
-        let plug = dir.join("plugins");
-        if plug.is_dir() {
-            add_path(&mut path_val, &plug);
-        }
-        std::env::set_var("PATH", &path_val);
-
-        // Normalize PYTHONHOME: if unset, point to exe_dir\python when present.
-        match std::env::var("PYTHONHOME") {
-            Ok(v) => {
-                // If relative, make absolute under exe_dir
-                let pb = PathBuf::from(&v);
-                if pb.is_relative() {
-                    let abs = dir.join(pb);
-                    std::env::set_var("PYTHONHOME", abs.display().to_string());
-                }
-            }
-            Err(_) => {
-                let cand = dir.join("python");
-                if cand.is_dir() {
-                    std::env::set_var("PYTHONHOME", cand.display().to_string());
-                }
-            }
-        }
+        nyash_rust::config::env::paths::nyrt_entry_apply_windows_path_shaping(dir);
     }
 
     // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints.
     // Diagnostic floor probes can skip this when runtime hooks and metrics are off.
-    let rt_hooks = if matches!(runtime_build_mode, RuntimeBuildMode::Auto) {
-        let mut rt_builder = if minimal_startup_enabled_from_env() {
+    let rt_hooks = if matches!(
+        runtime_build_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
+    ) {
+        let mut rt_builder = if nyash_rust::config::env::stage1::nyrt_minimal_startup_enabled() {
             let registry = std::sync::Arc::new(std::sync::Mutex::new(
                 nyash_rust::box_factory::UnifiedBoxRegistry::with_policy(
                     nyash_rust::box_factory::FactoryPolicy::StrictPluginFirst,
@@ -301,7 +126,10 @@ pub extern "C" fn main() -> i32 {
     } else {
         None
     };
-    if matches!(runtime_hooks_mode, RuntimeHooksMode::Auto) {
+    if matches!(
+        runtime_hooks_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
+    ) {
         if let Some((rt, _gc_mode)) = &rt_hooks {
             nyash_rust::runtime::global_hooks::set_from_runtime(rt);
         }
@@ -310,15 +138,22 @@ pub extern "C" fn main() -> i32 {
     }
     crate::rss_observe::checkpoint("after_runtime_hooks");
 
-    if matches!(entry_path_prep_mode, EntryPathPrepMode::Off)
-        && !matches!(plugin_host_mode, PluginHostMode::Off)
-    {
+    if matches!(
+        entry_path_prep_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    ) && !matches!(
+        plugin_host_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Off
+    ) {
         eprintln!(
             "[freeze:contract][nyrt/entry-path-prep-off] NYASH_NYRT_ENTRY_PATH_PREP=off requires HAKO_NYRT_PLUGIN_HOST=off"
         );
         return 70;
     }
-    let plugin_host_enabled = matches!(plugin_host_mode, PluginHostMode::Auto);
+    let plugin_host_enabled = matches!(
+        plugin_host_mode,
+        nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
+    );
     if plugin_host_enabled {
         let mut inited = false;
         if let Some(dir) = &exe_dir {
@@ -344,9 +179,8 @@ pub extern "C" fn main() -> i32 {
                     .as_ref()
                     .map(|p| p.display().to_string())
                     .unwrap_or_else(|| "?".into()),
-                std::env::current_dir()
-                    .map(|p| p.display().to_string())
-                    .unwrap_or_else(|_| "?".into())
+                nyash_rust::config::env::paths::nyrt_entry_current_dir_display()
+                    .unwrap_or_else(|| "?".into())
             );
         } else {
             println!("🔌 nyrt: plugin host init skipped (HAKO_NYRT_PLUGIN_HOST=off)");

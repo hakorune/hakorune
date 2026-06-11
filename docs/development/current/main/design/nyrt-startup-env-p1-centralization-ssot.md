@@ -25,6 +25,9 @@ Related:
 next centralization slice: the post-`ny_main` metrics cluster and its shared
 helpers, so the NyRT entry tail no longer owns the JSON/text toggles and the
 GC threshold reads directly.
+`NYRT-ENV-005` lands the follow-on P2 GC telemetry / warning threshold
+cluster in the same helper module, so the NyRT entry tail no longer owns the
+post-`ny_main` safepoint / allocation / warning-threshold reads directly.
 
 This is still a narrow implementation slice. It centralizes the metrics
 cluster and keeps startup-floor/path-shaping behavior out of scope.
@@ -60,5 +63,5 @@ direct_nyrt_metrics_reads_in_runtime_defaults=0
 
 ## Next Seam
 
-The next seam after this slice is the P2 GC telemetry / warning threshold
-cluster from `nyrt-startup-env-centralization-priority-ssot.md`.
+The next seam after this slice is the P3 minimal-startup knob from
+`nyrt-startup-env-centralization-priority-ssot.md`.

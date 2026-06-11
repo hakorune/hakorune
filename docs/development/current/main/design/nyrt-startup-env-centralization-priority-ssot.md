@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: current
-Date: 2026-06-11
+Date: 2026-06-12
 Scope: NyRT startup env centralization priority table.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -35,6 +35,7 @@ first_centralization_surface=NYASH_NYRT_SILENT_RESULT
 baseline_surface=src/config/env.rs
 top_priority_is_output_only=1
 path_shape_knob_last=1
+next_centralization_surface=NYASH_NYRT_MINIMAL_STARTUP
 ```
 
 ## Priority Table
@@ -60,8 +61,18 @@ path_shape_knob_last=1
 - `NYRT-ENV-004` lands the P1 metrics cluster in the same helper module, so
   the NyRT entry tail no longer owns the post-`ny_main` JSON/text toggle reads
   directly.
-- `P4` and `P5` stay explicit until a later probe proves that a move will not
-  blur the startup floor boundary.
+- `NYRT-ENV-005` lands the P2 GC telemetry / warning threshold cluster in the
+  same helper module, so the NyRT entry tail no longer owns the post-`ny_main`
+  safepoint / allocation / threshold reads directly.
+- `NYRT-ENV-006` lands the P3 minimal-startup knob in the same helper module,
+  keeping the startup floor toggle centralized without widening the startup
+  gates.
+- `NYRT-ENV-007` lands the P4 startup gates in the same helper module, so the
+  entry head no longer owns the plugin-host / runtime / ring0 mode parsers
+  directly.
+- `NYRT-ENV-008` lands the P5 path-shaping helpers in `src/config/env/paths.rs`
+  so `current_exe` / `current_dir` / `PATH` / `PYTHONHOME` shaping no longer
+  lives inside the NyRT entry body.
 
 ## Reading Order
 
@@ -82,5 +93,5 @@ path_shape_knob_last=1
 ## Next Seam
 
 This priority table is meant to feed the next implementation slice, which can
-centralize `P2` next as the remaining post-`ny_main` GC telemetry / warning
-cluster after `P0` and `P1` have landed as shared helpers.
+centralize `P3` next as the remaining startup-floor knob after `P0`, `P1`,
+and `P2` have landed as shared helpers.
