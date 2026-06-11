@@ -272,12 +272,17 @@ for idx, (pct, dso, symbol, category) in enumerate(rows[:10]):
 ret0_rows = [(pct, dso, symbol, category) for pct, dso, symbol, category in rows if dso == "ret0.exe"]
 if ret0_rows:
     ret0_pct, _ret0_dso, ret0_symbol, ret0_family = ret0_rows[0]
+    ret0_family_counts: dict[str, int] = defaultdict(int)
+    for _pct, _dso, _symbol, family in ret0_rows:
+        ret0_family_counts[family] += 1
+    ret0_primary_family = max(ret0_family_counts.items(), key=lambda item: item[1])[0]
     lines.extend(
         [
             f"startup_loader_ret0_exe_top_count={len(ret0_rows)}",
             f"startup_loader_ret0_exe_first_pct={ret0_pct:.2f}",
             f"startup_loader_ret0_exe_first_symbol={ret0_symbol.replace(' ', '_')}",
             f"startup_loader_ret0_exe_first_family={ret0_family}",
+            f"startup_loader_ret0_exe_primary_family={ret0_primary_family}",
         ]
     )
     for idx, (pct, _dso, symbol, family) in enumerate(ret0_rows[:3]):
@@ -288,6 +293,16 @@ if ret0_rows:
                 f"startup_loader_ret0_exe_top_{idx}_family={family}",
             ]
         )
+    for category in (
+        "dynamic_loader",
+        "process_spawn_wait",
+        "libc_process",
+        "nyash_kernel_runtime",
+        "minimal_main",
+        "kernel",
+        "other",
+    ):
+        lines.append(f"startup_loader_ret0_exe_family_{category}_count={ret0_family_counts.get(category, 0)}")
 else:
     lines.extend(
         [
@@ -295,6 +310,7 @@ else:
             "startup_loader_ret0_exe_first_pct=missing",
             "startup_loader_ret0_exe_first_symbol=missing",
             "startup_loader_ret0_exe_first_family=missing",
+            "startup_loader_ret0_exe_primary_family=missing",
             "startup_loader_ret0_exe_top_0_pct=missing",
             "startup_loader_ret0_exe_top_0_symbol=missing",
             "startup_loader_ret0_exe_top_0_family=missing",
@@ -304,6 +320,13 @@ else:
             "startup_loader_ret0_exe_top_2_pct=missing",
             "startup_loader_ret0_exe_top_2_symbol=missing",
             "startup_loader_ret0_exe_top_2_family=missing",
+            "startup_loader_ret0_exe_family_dynamic_loader_count=0",
+            "startup_loader_ret0_exe_family_process_spawn_wait_count=0",
+            "startup_loader_ret0_exe_family_libc_process_count=0",
+            "startup_loader_ret0_exe_family_nyash_kernel_runtime_count=0",
+            "startup_loader_ret0_exe_family_minimal_main_count=0",
+            "startup_loader_ret0_exe_family_kernel_count=0",
+            "startup_loader_ret0_exe_family_other_count=0",
         ]
     )
 
