@@ -478,6 +478,16 @@ PERF-USERBOX-035:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_subkind_variability_guard.sh
 
+PERF-USERBOX-036:
+  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
+  build exact-top-symbol variability probe for exact-AOT startup attribution.
+  The registry rebuild-cache subkind probe is now closed, so the probe
+  repeats the ret0 bucket split and aggregates the registry rebuild-cache
+  build exact top symbols before choosing the next owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_build_exact_top_symbol_variability_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -532,10 +542,14 @@ Next:
   nyash_kernel_runtime, PERF-USERBOX-032 now isolates the registry
   register-many exact top symbols inside nyash_kernel_runtime, PERF-USERBOX-033
   now isolates the registry create-default-registry exact top symbols inside
-  nyash_kernel_runtime, and PERF-USERBOX-034 now isolates the registry
+  nyash_kernel_runtime, PERF-USERBOX-034 now isolates the registry
   create-default-registry rebuild-cache exact top symbols inside
-  nyash_kernel_runtime. Keep env / stdio / path closed; only split within the
-  exact registry subfamily when further granularity is worth landing.
+  nyash_kernel_runtime, PERF-USERBOX-035 now isolates the registry
+  rebuild-cache subkind counts inside nyash_kernel_runtime, and
+  PERF-USERBOX-036 now isolates the registry rebuild-cache build exact top
+  symbols inside nyash_kernel_runtime. Keep env / stdio / path closed; only
+  split within the exact registry subfamily when further granularity is worth
+  landing.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
