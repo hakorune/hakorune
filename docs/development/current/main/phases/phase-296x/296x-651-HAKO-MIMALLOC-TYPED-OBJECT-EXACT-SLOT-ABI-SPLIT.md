@@ -562,136 +562,95 @@ Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_box_factory_plugin_factory_type_exact_top_symbol_variability_guard.sh
 
 PERF-USERBOX-044:
-  add a startup executable ret0 nyash_kernel_runtime registry focus presence
-  probe for exact-AOT startup attribution. The box_factory probes are now
-  closed, so the probe repeats the ret0 bucket split and records whether
-  registry focus is still present after box_factory stays absent.
+  registry-focus presence probe for the ret0 startup report.
+  Confirms registry focus stays visible after box_factory is absent.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_focus_presence_guard.sh
+  PERF-USERBOX-044
 
 PERF-USERBOX-045:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  register-many exact-top-symbol dominance probe for exact-AOT startup
-  attribution. The registry focus probe is now closed, so the probe repeats the
-  ret0 bucket split and decides whether rebuild-cache or register-many is the
-  next registry owner; current runs favor rebuild-cache.
+  rebuild-cache/register-many dominance probe for the ret0 startup report.
+  Current runs favor rebuild-cache as the next registry owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_exact_top_symbol_dominance_guard.sh
+  PERF-USERBOX-045
 
 PERF-USERBOX-046:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  register-many/box_factory exact-top-symbol dominance probe for exact-AOT
-  startup attribution. The rebuild-cache dominance probe is now closed, so the
-  probe repeats the ret0 bucket split and keeps rebuild-cache as the dominant
-  registry owner while preserving the runner-up signals.
+  rebuild-cache dominance probe with runner-up preservation.
+  Keeps rebuild-cache dominant while preserving runner-up signals.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_box_factory_exact_top_symbol_dominance_guard.sh
+  PERF-USERBOX-046
 
 PERF-USERBOX-047:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  scheduler presence probe for exact-AOT startup attribution. The rebuild-cache
-  dominance probe is now closed, so the probe repeats the ret0 bucket split and
-  records whether scheduler remains present under the rebuild-cache-dominant
-  report.
+  scheduler presence probe under the rebuild-cache-dominant report.
+  Keeps scheduler visible as a presence signal.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_scheduler_presence_guard.sh
+  PERF-USERBOX-047
 
 PERF-USERBOX-048:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  register-many presence probe for exact-AOT startup attribution. The rebuild-
-  cache dominance probe is now closed, so the probe repeats the ret0 bucket
-  split and records whether register-many remains present under the rebuild-
-  cache-dominant report.
+  register-many presence probe under the rebuild-cache-dominant report.
+  Keeps register-many visible as a presence signal.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_presence_guard.sh
+  PERF-USERBOX-048
 
 PERF-USERBOX-049:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  create-default-registry presence probe for exact-AOT startup attribution.
-  The rebuild-cache dominance probe is now closed, so the probe repeats the
-  ret0 bucket split and records whether create-default-registry remains present
-  under the rebuild-cache-dominant report.
+  create-default-registry presence probe under the rebuild-cache-dominant report.
+  Keeps create-default-registry visible as a presence signal.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_create_default_registry_presence_guard.sh
+  PERF-USERBOX-049
 
 PERF-USERBOX-050:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  ring0 presence probe for exact-AOT startup attribution. The rebuild-cache
-  dominance probe is now closed, so the probe repeats the ret0 bucket split and
-  records whether ring0 remains present under the rebuild-cache-dominant
-  report.
+  ring0 presence probe under the rebuild-cache-dominant report.
+  Keeps ring0 visible as a presence signal.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_ring0_presence_guard.sh
+  PERF-USERBOX-050
 
 PERF-USERBOX-051:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  global_hooks presence probe for exact-AOT startup attribution. The rebuild-
-  cache dominance probe is now closed, so the probe repeats the ret0 bucket
-  split and records whether `global_hooks::set_from_runtime` remains present
-  under the rebuild-cache-dominant report.
+  global_hooks presence probe under the rebuild-cache-dominant report.
+  Keeps `global_hooks::set_from_runtime` visible as a presence signal.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_global_hooks_presence_guard.sh
+  PERF-USERBOX-051
 
 PERF-USERBOX-052:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  global_hooks set_from_runtime exact-top-symbol presence probe for exact-AOT
-  startup attribution. The rebuild-cache dominance probe is now closed, so the
-  probe repeats the ret0 bucket split and records whether
-  `global_hooks::set_from_runtime` remains present as its own exact top-symbol
-  signal under the rebuild-cache-dominant report.
+  exact-top-symbol probe for `global_hooks::set_from_runtime`.
+  Keeps the exact signal visible under the rebuild-cache-dominant report.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_global_hooks_set_from_runtime_exact_top_symbol_presence_guard.sh
+  PERF-USERBOX-052
 
 PERF-USERBOX-053:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  ring0 build_with_fs exact-top-symbol presence probe for exact-AOT startup
-  attribution. The rebuild-cache dominance probe is now closed, so the probe
-  repeats the ret0 bucket split and records whether
-  `Ring0Registry::build_with_fs` remains present as its own exact top-symbol
-  signal under the rebuild-cache-dominant report.
+  exact-top-symbol probe for `Ring0Registry::build_with_fs`.
+  Keeps the exact signal visible under the rebuild-cache-dominant report.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_ring0_build_with_fs_exact_top_symbol_presence_guard.sh
+  PERF-USERBOX-053
 
 PERF-USERBOX-054:
-  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
-  get_factory_order_by_policy exact-top-symbol absence probe for exact-AOT
-  startup attribution. The rebuild-cache dominance probe is now closed, so the
-  probe repeats the ret0 bucket split and records whether
-  `get_factory_order_by_policy` stays absent as its own exact top-symbol
-  signal under the rebuild-cache-dominant report.
+  absence probe for `get_factory_order_by_policy`.
+  Confirms the exact symbol stays absent under the rebuild-cache report.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_get_factory_order_by_policy_exact_top_symbol_presence_guard.sh
+  PERF-USERBOX-054
 
 PERF-USERBOX-056:
-  add a startup executable ret0 libc_process exact-top-symbol variability
-  probe for exact-AOT startup attribution. The loader owner split is now
-  reading libc_process as the primary family, so the probe repeats the ret0
-  bucket split several times and records the libc_process exact top symbols as
-  a variability distribution.
+  exact-top-symbol variability probe for libc_process.
+  Repeats the ret0 bucket split and keeps the family distribution visible.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_exact_top_symbol_variability_guard.sh
+  PERF-USERBOX-056
 
 PERF-USERBOX-057:
-  add a startup executable ret0 libc_process malloc/getenv exact-top-symbol
-  split probe for exact-AOT startup attribution. The loader owner split is now
-  reading libc_process as the primary family, so the probe repeats the ret0
-  bucket split several times and records the malloc versus getenv evidence
-  inside libc_process before choosing the next owner.
+  exact-top-symbol split probe for libc_process malloc/getenv.
+  Keeps the malloc versus getenv evidence visible before choosing the owner.
 
 Guard:
-  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_malloc_getenv_exact_top_symbol_dominance_guard.sh
+  PERF-USERBOX-057
 
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
@@ -759,43 +718,9 @@ Next:
   top symbols inside nyash_kernel_runtime, PERF-USERBOX-039 now isolates the
   registry rebuild-cache tagged_checkpoint exact top symbols inside
   nyash_kernel_runtime, PERF-USERBOX-040 now isolates the registry
-  rebuild-cache scheduler exact top symbols inside nyash_kernel_runtime, and
-  PERF-USERBOX-041 now isolates the registry rebuild-cache register-many exact
-  top symbols inside nyash_kernel_runtime. The raw ret0 report now shows
-  `PluginBoxFactory::box_types` / `BoxFactory::factory_type` ahead of registry
-  lookup inside `nyash_kernel_runtime`, so `PERF-USERBOX-042` splits the
-  box_factory exact top symbols next, `PERF-USERBOX-043` records whether a
-  stable box_factory plugin/factory_type focus is actually present,
-  `PERF-USERBOX-044` records whether registry focus is still present after
-  box_factory stays absent, and `PERF-USERBOX-045` chooses whether rebuild-cache
-  or register-many is the next registry owner. `PERF-USERBOX-046` keeps
-  rebuild-cache as the dominant registry owner while preserving the runner-up
-  signals. `PERF-USERBOX-047` records whether scheduler remains present under
-  the rebuild-cache-dominant report, and `PERF-USERBOX-048` records whether
-  register-many remains present under the rebuild-cache-dominant report, and
-  `PERF-USERBOX-049` records whether create-default-registry remains present
-  under the rebuild-cache-dominant report, and `PERF-USERBOX-050` records
-  whether ring0 remains present under the rebuild-cache-dominant report, and
-  `PERF-USERBOX-051` records whether `global_hooks::set_from_runtime` remains
-  present under the rebuild-cache-dominant report, and `PERF-USERBOX-052`
-  records whether `global_hooks::set_from_runtime` remains present as its own
-  exact top-symbol signal under the rebuild-cache-dominant report, and
-  `PERF-USERBOX-053` records whether `Ring0Registry::build_with_fs` remains
-  present as its own exact top-symbol signal under the rebuild-cache-dominant
-  report, and `PERF-USERBOX-054` records whether
-  `get_factory_order_by_policy` stays absent as its own exact top-symbol
-  signal under the rebuild-cache-dominant report, and `PERF-USERBOX-056`
-  records the libc_process exact-top-symbol variability distribution under the
-  exact-AOT startup report, and `PERF-USERBOX-057` records the libc_process
-  malloc/getenv split under the exact-AOT startup report, and
-  `PERF-USERBOX-058` records the libc_process malloc dominance under the exact-
-  AOT startup report, and `PERF-USERBOX-059` records the libc_process
-  malloc-family dominance under the exact-AOT startup report. Keep env / stdio
-  / path closed; keep the libc_process owner family as a variability
-  distribution instead of forcing a single-symbol read. When the raw report
-  shifts to box_factory, pivot the next owner there instead of forcing
-  registry-only reads.
-  Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
-  evidence for the entry floor and should stay closed unless the current
-  executable owner flatlines.
+  PERF-USERBOX-041..054 keep the registry branch split readable.
+  PERF-USERBOX-056..059 move the libc_process ladder from variability to
+  malloc-family dominance.
+  Keep env / stdio / path closed.
+  Keep the entry-floor probes closed unless the executable owner flatlines.
 ```
