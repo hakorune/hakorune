@@ -82,6 +82,7 @@ Rules:
 | `PERF-USERBOX-026` | startup executable ret0 nyash_kernel_runtime registry exact top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime registry exact top symbols so registry exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-027` | startup executable ret0 nyash_kernel_runtime runtime exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_runtime_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime runtime exact top symbols so runtime exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-028` | startup executable ret0 nyash_kernel_runtime build exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime build exact top symbols so build exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
+| `PERF-USERBOX-029` | startup executable ret0 nyash_kernel_runtime build-registry exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_registry_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime build-registry exact top symbols so build-registry exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-002` | runtime-build-off probe | `k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh` | `NyashRuntimeBuilder` / GC controller construction is skipped inside the current minimal NyRT entry | default runtime build, runtime hooks, GC metrics semantics |
 | `NYRT-STARTUP-FLOOR-003` | entry-path-prep-off probe | `k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh` | `current_exe` / PATH / PYTHONHOME preparation is skipped inside the current minimal NyRT entry | default plugin-host path prep, default entry path discovery |
@@ -113,7 +114,8 @@ The path exact top-symbol distribution flatlined in `PERF-USERBOX-024`, then
 `PERF-USERBOX-025` showed the nyash_kernel_runtime exact top symbols,
 `PERF-USERBOX-026` split the registry exact top symbols inside that owner,
 `PERF-USERBOX-027` split the runtime exact top symbols inside that owner, and
-`PERF-USERBOX-028` now splits the build exact top symbols inside that owner.
-The startup executable owner still has signal, so keep the nyash_kernel_runtime
-lane closed from env / stdio / path and only split within the exact build
-subfamily when a finer owner is worth landing.
+`PERF-USERBOX-028` split the build exact top symbols inside that owner. The
+build-registry exact top-symbol distribution now has its own probe in
+`PERF-USERBOX-029`, so keep the nyash_kernel_runtime lane closed from env /
+stdio / path and only split within the exact build-registry subfamily when a
+finer owner is worth landing.
