@@ -174,6 +174,7 @@ run_entry_probe() {
     NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
     NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
     HAKO_NYRT_PLUGIN_HOST="${HAKO_NYRT_PLUGIN_HOST:-off}" \
+    NYASH_NYRT_RING0_INIT="${NYASH_NYRT_RING0_INIT:-auto}" \
     NYASH_NYRT_RUNTIME_HOOKS="${NYASH_NYRT_RUNTIME_HOOKS:-off}" \
     NYASH_NYRT_RUNTIME_BUILD="${NYASH_NYRT_RUNTIME_BUILD:-auto}" \
     NYASH_NYRT_ENTRY_PATH_PREP="${NYASH_NYRT_ENTRY_PATH_PREP:-auto}" \
@@ -187,6 +188,7 @@ run_entry_probe() {
     NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
     NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
     HAKO_NYRT_PLUGIN_HOST="${HAKO_NYRT_PLUGIN_HOST:-off}" \
+    NYASH_NYRT_RING0_INIT="${NYASH_NYRT_RING0_INIT:-auto}" \
     NYASH_NYRT_RUNTIME_HOOKS="${NYASH_NYRT_RUNTIME_HOOKS:-off}" \
     NYASH_NYRT_RUNTIME_BUILD="${NYASH_NYRT_RUNTIME_BUILD:-auto}" \
     NYASH_NYRT_ENTRY_PATH_PREP="${NYASH_NYRT_ENTRY_PATH_PREP:-auto}" \
@@ -319,6 +321,7 @@ lines = [
     "entry_a=current_minimal_nyrt",
     "entry_b=bare_libc_main",
     f"startup_runs={startup_runs}",
+    f"ring0_init_mode={os.environ.get('NYASH_NYRT_RING0_INIT', 'auto').strip().lower() or 'auto'}",
     f"runtime_build_mode={os.environ.get('NYASH_NYRT_RUNTIME_BUILD', 'auto').strip().lower() or 'auto'}",
     f"entry_path_prep_mode={os.environ.get('NYASH_NYRT_ENTRY_PATH_PREP', 'auto').strip().lower() or 'auto'}",
     "current_minimal_run_status=ok",

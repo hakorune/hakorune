@@ -39,6 +39,7 @@ These are the only knobs this lane treats as first-class:
 | `NYASH_NYRT_RUNTIME_HOOKS` | `auto` | `auto` publishes runtime hooks into the global safepoint bridge; `off` skips the runtime-hooks publication step for diagnostic startup-floor probes. |
 | `NYASH_NYRT_RUNTIME_BUILD` | `auto` | `auto` builds the normal minimal runtime; `off` skips `NyashRuntimeBuilder` / GC controller construction for diagnostic startup-floor probes and requires `NYASH_NYRT_RUNTIME_HOOKS=off`. |
 | `NYASH_NYRT_ENTRY_PATH_PREP` | `auto` | `auto` keeps the executable-path preparation step (`current_exe`, PATH / PYTHONHOME shaping); `off` skips that prep for diagnostic startup-floor probes and requires `HAKO_NYRT_PLUGIN_HOST=off`. |
+| `NYASH_NYRT_RING0_INIT` | `auto` | `auto` keeps the ring0 bootstrap step; `off` skips `Ring0Context` initialization for diagnostic startup-floor probes and requires `HAKO_NYRT_PLUGIN_HOST=off`, `NYASH_NYRT_RUNTIME_HOOKS=off`, `NYASH_NYRT_RUNTIME_BUILD=off`, and `NYASH_NYRT_ENTRY_PATH_PREP=off`. |
 | `NYASH_NYRT_SILENT_RESULT` | off | Suppresses the standard `Result: <code>` line so startup probes can keep stdout clean. |
 
 Rules:
@@ -63,6 +64,7 @@ Rules:
 | `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-002` | runtime-build-off probe | `k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh` | `NyashRuntimeBuilder` / GC controller construction is skipped inside the current minimal NyRT entry | default runtime build, runtime hooks, GC metrics semantics |
 | `NYRT-STARTUP-FLOOR-003` | entry-path-prep-off probe | `k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh` | `current_exe` / PATH / PYTHONHOME preparation is skipped inside the current minimal NyRT entry | default plugin-host path prep, default entry path discovery |
+| `NYRT-STARTUP-FLOOR-004` | ring0-init-off probe | `k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh` | Ring0Context initialization is skipped inside the current minimal NyRT entry | default ring0 bootstrap, default ring0-dependent startup services |
 
 ## Reading Order
 
@@ -94,6 +96,7 @@ entry_a=current_minimal_nyrt
 entry_b=bare_libc_main
 runtime_build_mode=auto|off
 entry_path_prep_mode=auto|off
+ring0_init_mode=auto|off
 current_minimal_cycles
 bare_entry_cycles
 entry_delta_cycles

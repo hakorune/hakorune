@@ -20,6 +20,11 @@ enum EntryPathPrepMode {
     Off,
 }
 
+enum Ring0InitMode {
+    Auto,
+    Off,
+}
+
 fn minimal_startup_enabled_from_env() -> bool {
     crate::env_flags::flag_on("NYASH_NYRT_MINIMAL_STARTUP")
 }
@@ -128,18 +133,44 @@ fn entry_path_prep_mode_from_env() -> Result<EntryPathPrepMode, String> {
     ))
 }
 
+fn ring0_init_mode_from_env() -> Result<Ring0InitMode, String> {
+    let Ok(raw) = std::env::var("NYASH_NYRT_RING0_INIT") else {
+        return Ok(Ring0InitMode::Auto);
+    };
+    let value = raw.trim();
+    if value.is_empty()
+        || value.eq_ignore_ascii_case("auto")
+        || value.eq_ignore_ascii_case("on")
+        || value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+    {
+        return Ok(Ring0InitMode::Auto);
+    }
+    if value.eq_ignore_ascii_case("off")
+        || value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("none")
+    {
+        return Ok(Ring0InitMode::Off);
+    }
+    Err(format!(
+        "[freeze:contract][nyrt/ring0-init-mode] expected=auto|on|1|true|off|0|false|none got={}",
+        value
+    ))
+}
+
 // ---- Process entry (driver) ----
 #[cfg(not(test))]
 #[no_mangle]
 pub extern "C" fn main() -> i32 {
     crate::rss_observe::checkpoint("entry_start");
-    // AOT 実行器でも Ring0Context は必須（PluginHost/ログなどが依存する）。
-    // EXE 直起動では host 側の init が存在しないため、ここで先に初期化する。
-    if nyash_rust::runtime::ring0::GLOBAL_RING0.get().is_none() {
-        nyash_rust::runtime::ring0::init_global_ring0(nyash_rust::runtime::ring0::default_ring0());
-    }
-    crate::rss_observe::checkpoint("after_ring0");
-
+    let ring0_init_mode = match ring0_init_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
+    };
     let entry_path_prep_mode = match entry_path_prep_mode_from_env() {
         Ok(mode) => mode,
         Err(message) => {
@@ -147,6 +178,56 @@ pub extern "C" fn main() -> i32 {
             return 70;
         }
     };
+    let runtime_build_mode = match runtime_build_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
+    };
+    let runtime_hooks_mode = match runtime_hooks_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
+    };
+    let plugin_host_mode = match plugin_host_mode_from_env() {
+        Ok(mode) => mode,
+        Err(message) => {
+            eprintln!("{}", message);
+            return 70;
+        }
+    };
+    if matches!(runtime_build_mode, RuntimeBuildMode::Off)
+        && matches!(runtime_hooks_mode, RuntimeHooksMode::Auto)
+    {
+        eprintln!(
+            "[freeze:contract][nyrt/runtime-build-off] NYASH_NYRT_RUNTIME_BUILD=off requires NYASH_NYRT_RUNTIME_HOOKS=off"
+        );
+        return 70;
+    }
+    if matches!(ring0_init_mode, Ring0InitMode::Off)
+        && (!matches!(runtime_hooks_mode, RuntimeHooksMode::Off)
+            || !matches!(runtime_build_mode, RuntimeBuildMode::Off)
+            || !matches!(plugin_host_mode, PluginHostMode::Off))
+    {
+        eprintln!(
+            "[freeze:contract][nyrt/ring0-init-off] NYASH_NYRT_RING0_INIT=off requires HAKO_NYRT_PLUGIN_HOST=off, NYASH_NYRT_RUNTIME_HOOKS=off, and NYASH_NYRT_RUNTIME_BUILD=off"
+        );
+        return 70;
+    }
+
+    // AOT 実行器でも Ring0Context は必須（PluginHost/ログなどが依存する）。
+    // EXE 直起動では host 側の init が存在しないため、ここで先に初期化する。
+    if matches!(ring0_init_mode, Ring0InitMode::Auto) {
+        if nyash_rust::runtime::ring0::GLOBAL_RING0.get().is_none() {
+            nyash_rust::runtime::ring0::init_global_ring0(
+                nyash_rust::runtime::ring0::default_ring0(),
+            );
+        }
+    }
+    crate::rss_observe::checkpoint("after_ring0");
 
     // Initialize plugin host: prefer nyash.toml next to the executable; fallback to CWD
     let exe_dir = if matches!(entry_path_prep_mode, EntryPathPrepMode::Auto) {
@@ -197,28 +278,6 @@ pub extern "C" fn main() -> i32 {
             }
         }
     }
-    let runtime_build_mode = match runtime_build_mode_from_env() {
-        Ok(mode) => mode,
-        Err(message) => {
-            eprintln!("{}", message);
-            return 70;
-        }
-    };
-    let runtime_hooks_mode = match runtime_hooks_mode_from_env() {
-        Ok(mode) => mode,
-        Err(message) => {
-            eprintln!("{}", message);
-            return 70;
-        }
-    };
-    if matches!(runtime_build_mode, RuntimeBuildMode::Off)
-        && matches!(runtime_hooks_mode, RuntimeHooksMode::Auto)
-    {
-        eprintln!(
-            "[freeze:contract][nyrt/runtime-build-off] NYASH_NYRT_RUNTIME_BUILD=off requires NYASH_NYRT_RUNTIME_HOOKS=off"
-        );
-        return 70;
-    }
 
     // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints.
     // Diagnostic floor probes can skip this when runtime hooks and metrics are off.
@@ -251,13 +310,6 @@ pub extern "C" fn main() -> i32 {
     }
     crate::rss_observe::checkpoint("after_runtime_hooks");
 
-    let plugin_host_mode = match plugin_host_mode_from_env() {
-        Ok(mode) => mode,
-        Err(message) => {
-            eprintln!("{}", message);
-            return 70;
-        }
-    };
     if matches!(entry_path_prep_mode, EntryPathPrepMode::Off)
         && !matches!(plugin_host_mode, PluginHostMode::Off)
     {

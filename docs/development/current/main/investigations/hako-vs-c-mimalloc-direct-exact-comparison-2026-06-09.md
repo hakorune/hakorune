@@ -269,6 +269,11 @@ preparation once plugin host is already off. That lets the next comparison
 separate path-shaping cost from the remaining loader floor without changing
 default runtime behavior.
 
+`NYRT-STARTUP-FLOOR-004` finally isolates the ring0 bootstrap seam:
+`NYASH_NYRT_RING0_INIT=off` skips Ring0Context initialization once plugin host,
+runtime hooks, and runtime build are already off. That keeps the next evidence
+focused on the last startup bootstrap residue before the loader / libc floor.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter
