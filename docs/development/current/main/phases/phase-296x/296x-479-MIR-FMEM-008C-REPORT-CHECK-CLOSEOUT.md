@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-06
 Scope: MIR-FMEM-008C report/check closeout for layout/table LLVM producer coverage.
 Related:

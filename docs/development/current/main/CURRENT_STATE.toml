@@ -8,29 +8,20 @@
 status = "Active"
 date = "2026-06-12"
 
-active_lane = "Hako Mimalloc typed-object exact slot ABI split"
-active_lane_status = "Exact-slot ABI split lane; link/startup attribution lands through explicit probe rows."
+active_lane = "MIR-FMEM-008C report/check closeout"
+active_lane_status = "MIR-FMEM-008C report/check closeout lane; layout/table lowering is closed and 008D owner-runtime producer pilot is next."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
-method_anchor = "docs/development/current/main/design/hako-mimalloc-performance-parity-ssot.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-479-MIR-FMEM-008C-REPORT-CHECK-CLOSEOUT.md"
+method_anchor = "docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-656-TYPED-OBJECT-EXACT-SLOT-NATIVEDIRECT-PILOT-ROUTE-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-656-TYPED-OBJECT-EXACT-SLOT-NATIVEDIRECT-PILOT-ROUTE-SELECTION.md"
-latest_card_summary = """296x-651 accepts the typed-object exact slot ABI split and now anchors
-PERF-USERBOX-001..064, NYRT-STARTUP-FLOOR-001..004, NYRT-ENV-001,
-NYRT-ENV-002, NYRT-ENV-003, NYRT-ENV-004, NYRT-ENV-005, NYRT-ENV-006,
-NYRT-ENV-007, and NYRT-ENV-008. Coverage includes floor attribution,
-loader/startup owner split, ld-linux / libc split, ret0 executable
-bucket/family/symbol probes, nyash_kernel_runtime registry/box_factory/runtime
-branches, libc_process malloc/getenv env ladder and callgraph attribution, and
-the NyRT floor / env inventory / centralization-priority / P0 helper / P1
-metrics helper / P2 telemetry / P3 minimal startup / P4 startup gates / P5
-path-shaping probes, plus the row652 typed-object exact-slot NativeDirect
-readiness inventory, row653 NativeDirect guard surface, row654 pilot
-selection, row655 NativeDirect pilot implementation seam, and row656 NativeDirect
-pilot route selection. Defaults stay unchanged."""
+latest_card = "296x-479-MIR-FMEM-008C-REPORT-CHECK-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-479-MIR-FMEM-008C-REPORT-CHECK-CLOSEOUT.md"
+latest_card_summary = """296x-479 closes MIR-FMEM-008C report/check coverage for the layout/table
+LLVM producer pilot. TableIndex, FieldLoad, and FieldStore layout-ref lowering
+are already landed in code and now have producer-neutral lowered-count coverage.
+The next implementation row is 008D owner-runtime producer pilot."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -40,6 +31,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-12: MIR-FMEM-008C report/check closeout passes producer-neutral coverage after fastmem_check_smoke and current-state pointer verification.",
   "2026-06-12: row656 selects the typed-object exact-slot NativeDirect route decision when direct-state facts are ready.",
   "2026-06-12: row655 adds the typed-object exact-slot NativeDirect pilot implementation seam without opening the pilot.",
   "2026-06-12: row654 selects the typed-object exact-slot NativeDirect pilot owner without opening the pilot.",

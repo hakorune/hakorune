@@ -39,7 +39,8 @@ docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
 docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
 ```
 
-The active lane is the typed-object exact slot ABI split row. Use the inventory
-note first when pointer hunting gets noisy, use the typed-object exact slot ABI
-SSOT before changing user-box exact field lowering, and use the comparison note
-when you want the exact-front diff that chooses the next workload.
+The active lane is the MIR-FMEM-008C report/check closeout row. Use the
+FastMemory handoff and proof rows when pointer hunting gets noisy, use the
+layout/table producer SSOT before changing FastMemory lowering, and use the
+producer-neutral readiness note when you want the exact-front diff that chooses
+the next workload.

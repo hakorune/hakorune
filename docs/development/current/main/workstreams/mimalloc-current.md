@@ -17,21 +17,20 @@ the long history in the inventory note.
 
 ## Current Lane
 
-- active lane: `Hako Mimalloc typed-object exact slot ABI split`
+- active lane: `MIR-FMEM-008C report/check closeout`
 - blocker: read `CURRENT_STATE.toml`
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-- comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
-- typed-object exact slot ABI SSOT: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
+- fastmem layout/table SSOT: `docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md`
 
 ## Thin Mirrors
 
 ```text
-active_lane=Hako Mimalloc typed-object exact slot ABI split
+active_lane=MIR-FMEM-008C report/check closeout
 current_state_pointer_guard=pass
 restart_surface_thin=1
 long_history_in_current_mirrors=0
 implementation_gap_count=0
-typed_object_exact_slot_abi_split_active=1
+mir_fmem_008c_report_check_closeout_active=1
 ```
 
 ## Archived Lane Notes
