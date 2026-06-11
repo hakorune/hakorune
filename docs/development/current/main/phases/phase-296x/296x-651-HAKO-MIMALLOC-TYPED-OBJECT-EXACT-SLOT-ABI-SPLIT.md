@@ -580,6 +580,16 @@ PERF-USERBOX-045:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_exact_top_symbol_dominance_guard.sh
 
+PERF-USERBOX-046:
+  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
+  register-many/box_factory exact-top-symbol dominance probe for exact-AOT
+  startup attribution. The rebuild-cache dominance probe is now closed, so the
+  probe repeats the ret0 bucket split and keeps rebuild-cache as the dominant
+  registry owner while preserving the runner-up signals.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_box_factory_exact_top_symbol_dominance_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -654,9 +664,11 @@ Next:
   stable box_factory plugin/factory_type focus is actually present,
   `PERF-USERBOX-044` records whether registry focus is still present after
   box_factory stays absent, and `PERF-USERBOX-045` chooses whether rebuild-cache
-  or register-many is the next registry owner. Keep env / stdio / path closed;
-  when the raw report shifts to box_factory, pivot the next owner there instead
-  of forcing registry-only reads.
+  or register-many is the next registry owner. `PERF-USERBOX-046` keeps
+  rebuild-cache as the dominant registry owner while preserving the runner-up
+  signals. Keep env / stdio / path closed; when the raw report shifts to
+  box_factory, pivot the next owner there instead of forcing registry-only
+  reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
