@@ -508,6 +508,17 @@ PERF-USERBOX-038:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_gc_mode_parse_exact_top_symbol_variability_guard.sh
 
+PERF-USERBOX-039:
+  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache
+  tagged_checkpoint exact-top-symbol variability probe for exact-AOT startup
+  attribution. The registry rebuild-cache gc_mode_parse probe is now closed,
+  so the probe repeats the ret0 bucket split and aggregates the registry
+  rebuild-cache tagged_checkpoint exact top symbols before choosing the next
+  owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_tagged_checkpoint_exact_top_symbol_variability_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -569,10 +580,11 @@ Next:
   PERF-USERBOX-036 now isolates the registry rebuild-cache build exact top
   symbols inside nyash_kernel_runtime, PERF-USERBOX-037 now isolates the
   registry rebuild-cache gc_mode exact top symbols inside nyash_kernel_runtime,
-  and PERF-USERBOX-038 now isolates the registry rebuild-cache gc_mode_parse
-  exact top symbols inside nyash_kernel_runtime. Keep env / stdio / path
-  closed; only split within the exact registry subfamily when further
-  granularity is worth landing.
+  PERF-USERBOX-038 now isolates the registry rebuild-cache gc_mode_parse exact
+  top symbols inside nyash_kernel_runtime, and PERF-USERBOX-039 now isolates
+  the registry rebuild-cache tagged_checkpoint exact top symbols inside
+  nyash_kernel_runtime. Keep env / stdio / path closed; only split within the
+  exact registry subfamily when further granularity is worth landing.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.

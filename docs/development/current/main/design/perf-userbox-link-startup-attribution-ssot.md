@@ -92,6 +92,7 @@ Rules:
 | `PERF-USERBOX-036` | startup executable ret0 nyash_kernel_runtime registry rebuild-cache build exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_build_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime registry rebuild-cache exact top symbols plus build evidence so build exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-037` | startup executable ret0 nyash_kernel_runtime registry rebuild-cache gc_mode exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_gc_mode_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime registry rebuild-cache exact top symbols plus gc_mode evidence so gc_mode exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-038` | startup executable ret0 nyash_kernel_runtime registry rebuild-cache gc_mode_parse exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_gc_mode_parse_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime registry rebuild-cache exact top symbols plus gc_mode_parse evidence so gc_mode_parse exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
+| `PERF-USERBOX-039` | startup executable ret0 nyash_kernel_runtime registry rebuild-cache tagged_checkpoint exact-top-symbol variability probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_tagged_checkpoint_exact_top_symbol_variability_guard.sh` | the startup report now packages repeated nyash_kernel_runtime registry rebuild-cache exact top symbols plus rss_observe tagged_checkpoint evidence so tagged_checkpoint exact owner signals can be split before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-002` | runtime-build-off probe | `k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh` | `NyashRuntimeBuilder` / GC controller construction is skipped inside the current minimal NyRT entry | default runtime build, runtime hooks, GC metrics semantics |
 | `NYRT-STARTUP-FLOOR-003` | entry-path-prep-off probe | `k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh` | `current_exe` / PATH / PYTHONHOME preparation is skipped inside the current minimal NyRT entry | default plugin-host path prep, default entry path discovery |
@@ -135,7 +136,9 @@ exact top symbols inside that owner, `PERF-USERBOX-035` now captures the
 registry rebuild-cache subkind counts inside that owner, `PERF-USERBOX-036`
 now captures the registry rebuild-cache build exact top symbols inside that
 owner, `PERF-USERBOX-037` now captures the registry rebuild-cache gc_mode exact
-top symbols inside that owner, and `PERF-USERBOX-038` now captures the
-registry rebuild-cache gc_mode_parse exact top symbols inside that owner. Keep
-the nyash_kernel_runtime lane closed from env / stdio / path and only split
-within the exact registry subfamily when a finer owner is worth landing.
+top symbols inside that owner, `PERF-USERBOX-038` now captures the registry
+rebuild-cache gc_mode_parse exact top symbols inside that owner, and
+`PERF-USERBOX-039` now captures the registry rebuild-cache tagged_checkpoint
+exact top symbols inside that owner. Keep the nyash_kernel_runtime lane closed
+from env / stdio / path and only split within the exact registry subfamily
+when a finer owner is worth landing.
