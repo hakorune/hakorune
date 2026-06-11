@@ -683,6 +683,16 @@ PERF-USERBOX-056:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_exact_top_symbol_variability_guard.sh
 
+PERF-USERBOX-057:
+  add a startup executable ret0 libc_process malloc/getenv exact-top-symbol
+  split probe for exact-AOT startup attribution. The loader owner split is now
+  reading libc_process as the primary family, so the probe repeats the ret0
+  bucket split several times and records the malloc versus getenv evidence
+  inside libc_process before choosing the next owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_malloc_getenv_exact_top_symbol_dominance_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -776,10 +786,12 @@ Next:
   `get_factory_order_by_policy` stays absent as its own exact top-symbol
   signal under the rebuild-cache-dominant report, and `PERF-USERBOX-056`
   records the libc_process exact-top-symbol variability distribution under the
-  exact-AOT startup report. Keep env / stdio / path closed; keep the
-  libc_process owner family as a variability distribution instead of forcing a
-  single-symbol read. When the raw report shifts to box_factory, pivot the
-  next owner there instead of forcing registry-only reads.
+  exact-AOT startup report, and `PERF-USERBOX-057` records the libc_process
+  malloc/getenv split under the exact-AOT startup report. Keep env /
+  stdio / path closed; keep the libc_process owner family as a variability
+  distribution instead of forcing a single-symbol read. When the raw report
+  shifts to box_factory, pivot the next owner there instead of forcing
+  registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
