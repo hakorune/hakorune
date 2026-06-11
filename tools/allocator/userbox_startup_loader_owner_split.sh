@@ -165,6 +165,7 @@ env \
   NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
   NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}" \
   NYASH_NYRT_RUNTIME_HOOKS="${NYASH_NYRT_RUNTIME_HOOKS:-auto}" \
+  NYASH_NYRT_MINIMAL_STARTUP="${NYASH_NYRT_MINIMAL_STARTUP:-0}" \
   NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   NYASH_SKIP_TOML_ENV="${NYASH_SKIP_TOML_ENV:-1}" \
   perf record -o "$perf_data" -F 999 -- "$runner_bin" "$STARTUP_RUNS" "$ret0_exe" >/dev/null 2>&1 || true
@@ -236,6 +237,7 @@ if category_pct:
 lanes = read_kv(lanes_path)
 runtime_hooks_mode = os.environ.get("NYASH_NYRT_RUNTIME_HOOKS", "auto").strip().lower() or "auto"
 runtime_hooks_init_skipped = "1" if runtime_hooks_mode == "off" else "0"
+minimal_startup_mode = os.environ.get("NYASH_NYRT_MINIMAL_STARTUP", "0").strip().lower() or "0"
 lines = [
     "output_contract=perf-userbox-startup-loader-owner-split-v0",
     "input_contract=perf-userbox-direct-helper-floor-attribution-v0",
@@ -244,6 +246,7 @@ lines = [
     f"startup_runs={startup_runs}",
     f"runtime_hooks_mode={runtime_hooks_mode}",
     f"runtime_hooks_init_skipped={runtime_hooks_init_skipped}",
+    f"minimal_startup_mode={minimal_startup_mode}",
     f"ret0_perf_top_available={1 if rows else 0}",
     f"ret0_perf_top_row_count={len(rows)}",
     f"startup_loader_primary_owner_family={primary}",

@@ -57,6 +57,7 @@ Rules:
 | `PERF-USERBOX-004` | minimal system libs probe | `k2_wide_phase296x_perf_aot_minimal_system_libs_probe_guard.sh` | dynamic `libm` also drops on ret0 | default link mode, full static linking |
 | `PERF-USERBOX-005` | NyRT plugin-host-off probe | `k2_wide_phase296x_perf_nyrt_plugin_host_off_probe_guard.sh` | plugin-host init is skipped for the floor seed | normal NyRT plugin support, default runtime behavior |
 | `PERF-USERBOX-006` | NyRT runtime-hooks-off probe | `k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh` | runtime-hooks publication is skipped for the floor seed | normal runtime hooks, default runtime behavior |
+| `PERF-USERBOX-007` | NyRT minimal-startup probe | `k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh` | default registry startup is bypassed for the floor seed | normal runtime registry behavior |
 
 ## Reading Order
 
@@ -76,5 +77,5 @@ Rules:
 
 ## Next Seam
 
-The current floor is now below loader, libgcc, libm, plugin-host init, and runtime-hooks publication.
+The current floor is now below loader, libgcc, libm, plugin-host init, runtime-hooks publication, and default registry startup.
 The next owner is the NyRT env / stdio startup floor.

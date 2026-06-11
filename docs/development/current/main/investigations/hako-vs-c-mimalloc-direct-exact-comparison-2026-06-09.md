@@ -246,6 +246,11 @@ plugin-host-off floor and adds `NYASH_NYRT_RUNTIME_HOOKS=off` so the startup
 sample can separate runtime-hooks publication from the remaining env / stdio
 costs without changing the default runtime behavior.
 
+`PERF-USERBOX-007` then adds `NYASH_NYRT_MINIMAL_STARTUP=1` on top of the
+same floor. That probe bypasses default registry startup, which removes
+`box_factory_policy_mode` from the startup top and keeps the next evidence on
+the env / stdio surface instead of the registry policy path.
+
 ## Next Optimization Focus
 
 The sweep suggests the next exact front should come from the userbox / counter

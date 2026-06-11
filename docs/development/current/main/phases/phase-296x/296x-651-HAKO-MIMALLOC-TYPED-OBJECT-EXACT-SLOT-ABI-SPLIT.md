@@ -200,6 +200,14 @@ PERF-USERBOX-006:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_nyrt_runtime_hooks_off_probe_guard.sh
 
+PERF-USERBOX-007:
+  add an explicit NyRT minimal-startup probe mode for startup attribution.
+  The default stays full; the probe uses `NYASH_NYRT_MINIMAL_STARTUP=1` to
+  bypass default registry startup for ret0 / no-plugin seeds.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_nyrt_minimal_startup_probe_guard.sh
+
 Next:
   NyRT env / stdio startup floor.
 ```

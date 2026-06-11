@@ -77,6 +77,12 @@ impl NyashRuntimeBuilder {
         self
     }
 
+    /// Inject a prebuilt Box registry for diagnostic/minimal startup paths.
+    pub fn with_box_registry(mut self, registry: Arc<Mutex<UnifiedBoxRegistry>>) -> Self {
+        self.box_registry = Some(registry);
+        self
+    }
+
     pub fn build(self) -> NyashRuntime {
         let registry = self
             .box_registry

@@ -10,6 +10,10 @@ enum RuntimeHooksMode {
     Off,
 }
 
+fn minimal_startup_enabled_from_env() -> bool {
+    crate::env_flags::flag_on("NYASH_NYRT_MINIMAL_STARTUP")
+}
+
 fn plugin_host_mode_from_env() -> Result<PluginHostMode, String> {
     let Ok(raw) = std::env::var("HAKO_NYRT_PLUGIN_HOST") else {
         return Ok(PluginHostMode::Auto);
@@ -121,7 +125,16 @@ pub extern "C" fn main() -> i32 {
     }
     // Initialize a minimal runtime to back global hooks (GC/scheduler) for safepoints.
     // This is still built for ret0 diagnostic runs unless explicitly disabled.
-    let mut rt_builder = nyash_rust::runtime::NyashRuntimeBuilder::new();
+    let mut rt_builder = if minimal_startup_enabled_from_env() {
+        let registry = std::sync::Arc::new(std::sync::Mutex::new(
+            nyash_rust::box_factory::UnifiedBoxRegistry::with_policy(
+                nyash_rust::box_factory::FactoryPolicy::StrictPluginFirst,
+            ),
+        ));
+        nyash_rust::runtime::NyashRuntimeBuilder::new().with_box_registry(registry)
+    } else {
+        nyash_rust::runtime::NyashRuntimeBuilder::new()
+    };
     let gc_mode = nyash_rust::runtime::gc_mode::GcMode::from_env();
     let controller = std::sync::Arc::new(nyash_rust::runtime::gc_controller::GcController::new(
         gc_mode,
