@@ -272,6 +272,15 @@ PERF-USERBOX-014:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_symbol_split_guard.sh
 
+PERF-USERBOX-015:
+  add a startup executable ret0 stack split probe for exact-AOT startup
+  attribution. The probe exposes the leading ret0.exe symbol stack on the
+  startup loader report so the executable contribution can be split as a small
+  ret0 stack while the closed loader/libc summary stays in place.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_stack_split_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -313,8 +322,8 @@ Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh
 
 Next:
-  Use the ret0.exe executable split to choose the next owner. The executable
-  symbol contribution is now the next row; keep the startup executable owner
+  Use the ret0.exe symbol stack split to choose the next owner. The executable
+  stack contribution is now the next row; keep the startup executable owner
   split moving inward before reopening any broader loader / libc / NyRT entry
   work. Runtime-build-off, entry-path-prep-off, and ring0-init-off remain
   historical evidence for the entry floor and should stay closed unless the

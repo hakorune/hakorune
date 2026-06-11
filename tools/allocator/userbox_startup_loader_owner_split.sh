@@ -280,6 +280,14 @@ if ret0_rows:
             f"startup_loader_ret0_exe_first_family={ret0_family}",
         ]
     )
+    for idx, (pct, _dso, symbol, family) in enumerate(ret0_rows[:3]):
+        lines.extend(
+            [
+                f"startup_loader_ret0_exe_top_{idx}_pct={pct:.2f}",
+                f"startup_loader_ret0_exe_top_{idx}_symbol={symbol.replace(' ', '_')}",
+                f"startup_loader_ret0_exe_top_{idx}_family={family}",
+            ]
+        )
 else:
     lines.extend(
         [
@@ -287,6 +295,15 @@ else:
             "startup_loader_ret0_exe_first_pct=missing",
             "startup_loader_ret0_exe_first_symbol=missing",
             "startup_loader_ret0_exe_first_family=missing",
+            "startup_loader_ret0_exe_top_0_pct=missing",
+            "startup_loader_ret0_exe_top_0_symbol=missing",
+            "startup_loader_ret0_exe_top_0_family=missing",
+            "startup_loader_ret0_exe_top_1_pct=missing",
+            "startup_loader_ret0_exe_top_1_symbol=missing",
+            "startup_loader_ret0_exe_top_1_family=missing",
+            "startup_loader_ret0_exe_top_2_pct=missing",
+            "startup_loader_ret0_exe_top_2_symbol=missing",
+            "startup_loader_ret0_exe_top_2_family=missing",
         ]
     )
 
