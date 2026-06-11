@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
-latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..009 plus NYRT-STARTUP-FLOOR-001..004: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, loader/libc floor summary, loader owner split summary, plugin-host-off, runtime-hooks-off, minimal-startup, bare-entry A/B, runtime-build-off, entry-path-prep-off, and ring0-init-off probes, while defaults stay unchanged."
+latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..010 plus NYRT-STARTUP-FLOOR-001..004: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, loader/libc floor summary, loader owner split summary, ld-linux / libc loader split, plugin-host-off, runtime-hooks-off, minimal-startup, bare-entry A/B, runtime-build-off, entry-path-prep-off, and ring0-init-off probes, while defaults stay unchanged."
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-11: PERF-USERBOX-010 now checks the ld-linux / libc loader split directly on the startup loader report while keeping the loader/libc floor summary closed, so the next owner can move inside the loader floor itself.",
   "2026-06-11: PERF-USERBOX-009 joined the startup-loader owner split with the loader/libc floor summary so the next owner stays loader/libc while dynamic_loader remains the primary startup owner family.",
   "2026-06-11: PERF-USERBOX-002 now reports dynamic_loader as the primary startup-loader owner family once release artifacts are synced, so the next floor can be treated as loader/libc rather than env/stdio/registry.",
   "2026-06-11: NYRT-STARTUP-FLOOR-004 added the ring0-init-off probe so the current minimal NyRT entry can skip Ring0Context initialization once plugin host, runtime hooks, and runtime build are already off, isolating the final remaining entry bootstrap cost.",
