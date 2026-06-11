@@ -8,7 +8,7 @@
 use std::process::Command;
 
 pub(super) fn apply(cmd: &mut Command) {
-    if std::env::var("NYASH_NYRT_SILENT_RESULT").is_err() {
+    if !crate::config::env::stage1::nyrt_silent_result_present() {
         cmd.env("NYASH_NYRT_SILENT_RESULT", "1");
     }
     if std::env::var("NYASH_DISABLE_PLUGINS").is_err() {

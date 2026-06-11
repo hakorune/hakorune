@@ -54,6 +54,9 @@ path_shape_knob_last=1
   `gc_metrics`, `gc_collect_sp_interval`, and `gc_collect_alloc_bytes`.
 - `P0` is the first seam because it can be centralized without widening the
   path discovery surface or changing startup-floor behavior.
+- `NYRT-ENV-003` lands that P0 seam in `src/config/env/stage1.rs`, so the
+  NyRT entry tail and the Stage-1 bridge runtime defaults share the same
+  helper.
 - `P4` and `P5` stay explicit until a later probe proves that a move will not
   blur the startup floor boundary.
 

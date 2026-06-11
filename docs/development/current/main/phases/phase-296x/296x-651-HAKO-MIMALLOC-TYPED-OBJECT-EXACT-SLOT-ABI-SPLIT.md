@@ -764,6 +764,16 @@ NYRT-ENV-002:
 Guard:
   Guard: NYRT-ENV-002
 
+NYRT-ENV-003:
+  land the P0 centralization implementation by moving the shared
+  `NYASH_NYRT_SILENT_RESULT` helper into `src/config/env/stage1.rs` and using
+  it from both the NyRT entry tail and the Stage-1 bridge runtime defaults.
+  This keeps the output-only seam shared without widening the GC or path
+  shaping clusters.
+
+Guard:
+  Guard: NYRT-ENV-003
+
 Next:
   Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
   create-default-registry exact top-symbol distribution to choose the next

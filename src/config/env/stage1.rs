@@ -15,6 +15,20 @@ pub fn child_invocation() -> bool {
     env_bool("NYASH_STAGE1_CLI_CHILD")
 }
 
+/// NyRT exact-EXE / Stage-1 shared result-line toggle.
+///
+/// This is the P0 seam for `NYASH_NYRT_SILENT_RESULT`, shared by the NyRT
+/// entry tail and the Stage-1 bridge runtime defaults.
+pub fn nyrt_silent_result_enabled() -> bool {
+    env_bool("NYASH_NYRT_SILENT_RESULT")
+}
+
+/// Returns `true` when the shared silent-result toggle is already set in the
+/// process environment.
+pub fn nyrt_silent_result_present() -> bool {
+    std::env::var("NYASH_NYRT_SILENT_RESULT").is_ok()
+}
+
 /// Stage-1 mode hint (emit-program / emit-mir / run).
 pub fn mode() -> Option<String> {
     if let Some(m) = std::env::var("HAKO_STAGE1_MODE")
@@ -142,4 +156,54 @@ pub fn binary_only_emit_direct_enabled() -> bool {
 /// Mainline default is OFF unless explicit override is set to true.
 pub fn binary_only_run_direct_enabled() -> bool {
     binary_only_run_direct_override().unwrap_or(false)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    struct EnvRestore {
+        key: &'static str,
+        old: Option<String>,
+    }
+
+    impl EnvRestore {
+        fn clear(key: &'static str) -> Self {
+            let old = std::env::var(key).ok();
+            std::env::remove_var(key);
+            Self { key, old }
+        }
+
+        fn set(key: &'static str, value: &'static str) -> Self {
+            let old = std::env::var(key).ok();
+            std::env::set_var(key, value);
+            Self { key, old }
+        }
+    }
+
+    impl Drop for EnvRestore {
+        fn drop(&mut self) {
+            if let Some(value) = &self.old {
+                std::env::set_var(self.key, value);
+            } else {
+                std::env::remove_var(self.key);
+            }
+        }
+    }
+
+    #[test]
+    fn nyrt_silent_result_helper_tracks_presence_and_truthiness() {
+        let _lock = ENV_LOCK.lock().unwrap();
+        let _clear = EnvRestore::clear("NYASH_NYRT_SILENT_RESULT");
+
+        assert!(!nyrt_silent_result_present());
+        assert!(!nyrt_silent_result_enabled());
+
+        let _set = EnvRestore::set("NYASH_NYRT_SILENT_RESULT", "1");
+        assert!(nyrt_silent_result_present());
+        assert!(nyrt_silent_result_enabled());
+    }
 }

@@ -380,7 +380,7 @@ pub extern "C" fn main() -> i32 {
             }
         };
         // Print standardized result line for golden comparisons (can be silenced for tests)
-        let silent = crate::env_flags::flag_on("NYASH_NYRT_SILENT_RESULT");
+        let silent = nyash_rust::config::env::stage1::nyrt_silent_result_enabled();
         if !silent {
             println!("Result: {}", exit_code);
         }

@@ -46,7 +46,12 @@ NyRT exact-EXE startup の direct env read / path probe inventory owner は
 NyRT exact-EXE startup の centralization priority は
 `docs/development/current/main/design/nyrt-startup-env-centralization-priority-ssot.md`
 を参照する。ここでは優先順位の説明だけを固定し、実装順を暗黙に
-拡張しない。
+拡張しない。P0 の `NYASH_NYRT_SILENT_RESULT` は
+`src/config/env/stage1.rs` の shared helper で扱い、NyRT entry tail と
+Stage-1 bridge defaults は同じ helper を通す。
+P0 の landed slice は
+`docs/development/current/main/design/nyrt-startup-env-p0-centralization-ssot.md`
+に置く。
 
 ### ダンプの使い分け
 - 実行経路SSOT（推奨）: `NYASH_VM_DUMP_MIR=1 ./target/release/hakorune --backend vm apps/tests/minimal.hako`

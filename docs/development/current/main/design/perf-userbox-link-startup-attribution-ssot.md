@@ -215,4 +215,6 @@ attribution before choosing the next owner. The next owner after 064 is
 before any env cache or snapshot design is considered. `NYRT-ENV-002` then
 orders that inventory into a centralization priority table, with the
 output-only `NYASH_NYRT_SILENT_RESULT` seam first and the path-shaping knobs
-last.
+last. `NYRT-ENV-003` lands the first implementation slice by centralizing that
+P0 seam through `src/config/env/stage1.rs`, so the NyRT entry tail and the
+Stage-1 bridge runtime defaults share the same helper.
