@@ -652,6 +652,28 @@ PERF-USERBOX-057:
 Guard:
   PERF-USERBOX-057
 
+PERF-USERBOX-058:
+  malloc dominance probe for libc_process.
+  Records `_int_malloc` as the dominant flat symbol for this slice.
+
+Guard:
+  PERF-USERBOX-058
+
+PERF-USERBOX-059:
+  malloc-family dominance probe for libc_process.
+  Keeps `_int_malloc` and getenv as the allocator-family runner-up pair.
+
+Guard:
+  PERF-USERBOX-059
+
+PERF-USERBOX-060:
+  malloc/getenv internal split probe for libc_process.
+  Records that `_int_malloc`, malloc-family symbols, libc string helpers, and
+  getenv can all appear inside the same libc_process owner.
+
+Guard:
+  PERF-USERBOX-060
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -719,8 +741,8 @@ Next:
   registry rebuild-cache tagged_checkpoint exact top symbols inside
   nyash_kernel_runtime, PERF-USERBOX-040 now isolates the registry
   PERF-USERBOX-041..054 keep the registry branch split readable.
-  PERF-USERBOX-056..059 move the libc_process ladder from variability to
-  malloc-family dominance.
+  PERF-USERBOX-056..060 move the libc_process ladder from variability to
+  malloc/getenv internal split.
   Keep env / stdio / path closed.
   Keep the entry-floor probes closed unless the executable owner flatlines.
 ```
