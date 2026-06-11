@@ -39,8 +39,7 @@ docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
 docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
 ```
 
-The active lane is the MIR-FMEM-008C report/check closeout row. Use the
+The active lane is the MIM-PORT-FMEM-001 PageMeta scalar pilot row. Use the
 FastMemory handoff and proof rows when pointer hunting gets noisy, use the
 layout/table producer SSOT before changing FastMemory lowering, and use the
-producer-neutral readiness note when you want the exact-front diff that chooses
-the next workload.
+MIM-PORT-FMEM rows when you want the next narrow hako_alloc body migration.

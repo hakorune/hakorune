@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-06
 Scope: MIR-FMEM-008D-C owner-runtime report/check closeout.
 Related:

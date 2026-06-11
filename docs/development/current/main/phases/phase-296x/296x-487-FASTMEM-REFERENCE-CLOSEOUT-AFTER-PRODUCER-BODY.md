@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-06
 Scope: FASTMEM-REFERENCE-CLOSEOUT-AFTER-PRODUCER-BODY-296X-001.
 Related:

@@ -17,7 +17,7 @@ the long history in the inventory note.
 
 ## Current Lane
 
-- active lane: `MIR-FMEM-008C report/check closeout`
+- active lane: `MIM-PORT-FMEM-001 PageMeta scalar pilot`
 - blocker: read `CURRENT_STATE.toml`
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
 - fastmem layout/table SSOT: `docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md`
@@ -25,12 +25,13 @@ the long history in the inventory note.
 ## Thin Mirrors
 
 ```text
-active_lane=MIR-FMEM-008C report/check closeout
+active_lane=MIM-PORT-FMEM-001 PageMeta scalar pilot
 current_state_pointer_guard=pass
 restart_surface_thin=1
 long_history_in_current_mirrors=0
 implementation_gap_count=0
-mir_fmem_008c_report_check_closeout_active=1
+mim_port_fmem_001_done=1
+next_row=MIM-PORT-FMEM-002
 ```
 
 ## Archived Lane Notes

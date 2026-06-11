@@ -8,20 +8,20 @@
 status = "Active"
 date = "2026-06-12"
 
-active_lane = "MIR-FMEM-008C report/check closeout"
-active_lane_status = "MIR-FMEM-008C report/check closeout lane; layout/table lowering is closed and 008D owner-runtime producer pilot is next."
+active_lane = "MIM-PORT-FMEM-001 PageMeta scalar pilot"
+active_lane_status = "MIM-PORT-FMEM-001 is implemented and verified; next implementation row is MIM-PORT-FMEM-002 PageMeta scalar verified evidence."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-479-MIR-FMEM-008C-REPORT-CHECK-CLOSEOUT.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-488-MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT.md"
 method_anchor = "docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-479-MIR-FMEM-008C-REPORT-CHECK-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-479-MIR-FMEM-008C-REPORT-CHECK-CLOSEOUT.md"
-latest_card_summary = """296x-479 closes MIR-FMEM-008C report/check coverage for the layout/table
-LLVM producer pilot. TableIndex, FieldLoad, and FieldStore layout-ref lowering
-are already landed in code and now have producer-neutral lowered-count coverage.
-The next implementation row is 008D owner-runtime producer pilot."""
+latest_card = "296x-488-MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-488-MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT.md"
+latest_card_summary = """296x-488 opens and verifies the first narrow hako_alloc
+PageMeta scalar FastMemory body pilot. The source-level PageMeta path uses the
+already-proven TableIndex, FieldLoad, and FieldStore substrate and keeps free
+lists, owner mutation, routing policy, and product activation closed."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -31,6 +31,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-12: MIM-PORT-FMEM-001 PageMeta scalar pilot is verified through source syntax, capability inventory, fastmem check/parity, contract tests, and current-state guard.",
+  "2026-06-12: MIR-FMEM-008D/008E owner-runtime producer and producer-neutral readiness are verified as the substrate before MIM-PORT-FMEM-001.",
   "2026-06-12: MIR-FMEM-008C report/check closeout passes producer-neutral coverage after fastmem_check_smoke and current-state pointer verification.",
   "2026-06-12: row656 selects the typed-object exact-slot NativeDirect route decision when direct-state facts are ready.",
   "2026-06-12: row655 adds the typed-object exact-slot NativeDirect pilot implementation seam without opening the pilot.",
