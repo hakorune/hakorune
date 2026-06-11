@@ -16,8 +16,8 @@ method_anchor = "docs/development/current/main/design/hako-mimalloc-performance-
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
+latest_card = "296x-655-TYPED-OBJECT-EXACT-SLOT-NATIVEDIRECT-PILOT-IMPLEMENTATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-655-TYPED-OBJECT-EXACT-SLOT-NATIVEDIRECT-PILOT-IMPLEMENTATION.md"
 latest_card_summary = """296x-651 accepts the typed-object exact slot ABI split and now anchors
 PERF-USERBOX-001..064, NYRT-STARTUP-FLOOR-001..004, NYRT-ENV-001,
 NYRT-ENV-002, NYRT-ENV-003, NYRT-ENV-004, NYRT-ENV-005, NYRT-ENV-006,
@@ -28,8 +28,9 @@ branches, libc_process malloc/getenv env ladder and callgraph attribution, and
 the NyRT floor / env inventory / centralization-priority / P0 helper / P1
 metrics helper / P2 telemetry / P3 minimal startup / P4 startup gates / P5
 path-shaping probes, plus the row652 typed-object exact-slot NativeDirect
-readiness inventory, row653 NativeDirect guard surface, and row654 pilot
-selection. Defaults stay unchanged."""
+readiness inventory, row653 NativeDirect guard surface, row654 pilot
+selection, and row655 NativeDirect pilot implementation seam. Defaults stay
+unchanged."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -39,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-12: row655 adds the typed-object exact-slot NativeDirect pilot implementation seam without opening the pilot.",
   "2026-06-12: row654 selects the typed-object exact-slot NativeDirect pilot owner without opening the pilot.",
   "2026-06-12: row653 freezes the typed-object exact-slot NativeDirect guard surface without opening the pilot.",
   "2026-06-12: row652 inventories typed-object exact-slot NativeDirect readiness without opening the pilot.",

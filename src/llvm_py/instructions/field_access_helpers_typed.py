@@ -26,6 +26,8 @@ from instructions.field_access_helpers_common import (
     _ensure_handle,
     _field_ptr,
     _is_exact_slot_u64_storage,
+    _direct_slot_nativedirect_storage_supported,
+    _direct_slot_payload_ptr,
     _lower_direct_slot_nativedirect_get,
     _lower_direct_slot_nativedirect_set,
     _mark_bool_immediate,
@@ -116,6 +118,42 @@ def _selected_typed_object_exact_slot_route_decision(
     return None
 
 
+def _selected_typed_object_exact_slot_native_direct_route_decision(
+    *,
+    resolver,
+    box_vid: Optional[int],
+    field_name: str,
+    semantic_op: str,
+) -> Optional[Dict[str, Any]]:
+    receiver_box_type = _receiver_box_type(resolver, box_vid)
+    for decision in _current_route_decisions_for_site(resolver):
+        if not isinstance(decision, dict):
+            continue
+        if decision.get("source_plan_kind") != _TYPED_OBJECT_EXACT_SLOT_SOURCE_PLAN:
+            continue
+        if decision.get("semantic_op") != semantic_op:
+            continue
+        if decision.get("selected_lowering_form") != "native_direct":
+            continue
+        if decision.get("field_id") not in (None, field_name):
+            continue
+        if decision.get("receiver_box_name") not in (None, receiver_box_type):
+            continue
+        selected_route = decision.get("selected_route")
+        if not isinstance(selected_route, str):
+            continue
+        if not selected_route.startswith("hako.typed_object.slot_"):
+            continue
+        backend = decision.get("selected_backend")
+        if backend is not None and backend not in (
+            "typed_object_exact_slot_nativedirect",
+            "typed_object_exact_slot_native_direct",
+        ):
+            continue
+        return decision
+    return None
+
+
 def _exact_slot_storage_lane(storage: Any) -> Optional[str]:
     if _is_exact_slot_u64_storage(storage):
         return "u64"
@@ -152,6 +190,49 @@ def _lower_exact_slot_get_bridge(
         else:
             _mark_integer_immediate(resolver, int(dst_vid))
     return result
+
+
+def _lower_exact_slot_native_direct_get(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    recv_h: ir.Value,
+    slot: int,
+    storage: Any,
+    dst_vid: Optional[int],
+    vmap: Dict[int, Any],
+    resolver,
+) -> Optional[ir.Value]:
+    if not _direct_slot_nativedirect_storage_supported(storage):
+        raise RuntimeError(
+            f"[typed-object/native-direct] unsupported exact slot storage: {storage}"
+        )
+    ptr = _direct_slot_payload_ptr(builder, recv_h, slot)
+    result = builder.load(ptr, name="typed_object_native_direct_payload_load")
+    if dst_vid is not None:
+        vmap[int(dst_vid)] = result
+        if is_handle_storage(storage):
+            mark_as_handle(resolver, int(dst_vid))
+        else:
+            _mark_integer_immediate(resolver, int(dst_vid))
+    return result
+
+
+def _lower_exact_slot_native_direct_set(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    recv_h: ir.Value,
+    slot: int,
+    storage: Any,
+    value_val: ir.Value,
+) -> Optional[ir.Value]:
+    if not _direct_slot_nativedirect_storage_supported(storage):
+        raise RuntimeError(
+            f"[typed-object/native-direct] unsupported exact slot storage: {storage}"
+        )
+    i64 = ir.IntType(64)
+    ptr = _direct_slot_payload_ptr(builder, recv_h, slot)
+    builder.store(value_val, ptr)
+    return ir.Constant(i64, 1)
 
 
 def _lower_exact_slot_set_bridge(
@@ -520,6 +601,23 @@ def _lower_exact_object_field_get(
     )
     if direct_result is not None:
         return direct_result
+    native_direct_route = _selected_typed_object_exact_slot_native_direct_route_decision(
+        resolver=resolver,
+        box_vid=box_vid,
+        field_name=field_name,
+        semantic_op="FieldGet",
+    )
+    if native_direct_route is not None:
+        return _lower_exact_slot_native_direct_get(
+            builder,
+            module,
+            recv_h,
+            slot,
+            storage,
+            dst_vid,
+            vmap,
+            resolver,
+        )
     selected_route = _selected_typed_object_exact_slot_route_decision(
         resolver=resolver,
         box_vid=box_vid,
@@ -656,6 +754,21 @@ def _lower_exact_object_field_set(
     )
     if direct_status is not None:
         return direct_status
+    native_direct_route = _selected_typed_object_exact_slot_native_direct_route_decision(
+        resolver=resolver,
+        box_vid=box_vid,
+        field_name=field_name,
+        semantic_op="FieldSet",
+    )
+    if native_direct_route is not None:
+        return _lower_exact_slot_native_direct_set(
+            builder,
+            module,
+            recv_h,
+            slot,
+            storage,
+            value_val,
+        )
 
     selected_route = _selected_typed_object_exact_slot_route_decision(
         resolver=resolver,

@@ -113,6 +113,11 @@ Row 654 then selects the first pilot owner for that future NativeDirect
 attempt without opening lowering yet. It keeps the pilot closed while making
 the next implementation seam explicit.
 
+Row 655 then adds the first NativeDirect lowering seam itself. The planner
+still defaults to the exact-helper bridge, but the exact-slot typed-object
+lowering helper can now consume an explicit `native_direct` route decision for
+the pinned-arena backed lane.
+
 ## First Implementation Slice
 
 ```text
