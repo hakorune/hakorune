@@ -309,6 +309,16 @@ PERF-USERBOX-018:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_variability_guard.sh
 
+PERF-USERBOX-019:
+  add a startup executable ret0 bucket symbol variability probe for exact-AOT
+  startup attribution. The probe repeats the ret0 bucket split and aggregates
+  the representative bucket symbols so env / once / path / minimal_main /
+  nyash_kernel_runtime can be read as stable owner signals before choosing the
+  next owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_symbol_variability_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -350,10 +360,10 @@ Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh
 
 Next:
-  Use the ret0.exe bucket variability distribution to choose the next owner.
-  The bucket distribution is now the next row; keep the startup executable
-  owner split moving inward before reopening any broader loader / libc / NyRT
-  entry work. Runtime-build-off, entry-path-prep-off, and ring0-init-off
-  remain historical evidence for the entry floor and should stay closed unless
-  the current executable owner flatlines.
+  Use the ret0.exe bucket representative-symbol distribution to choose the
+  next owner. Keep env / once / path / minimal_main / nyash_kernel_runtime
+  inside the startup executable owner until the bucket symbols flatline.
+  Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
+  evidence for the entry floor and should stay closed unless the current
+  executable owner flatlines.
 ```
