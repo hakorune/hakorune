@@ -118,6 +118,11 @@ still defaults to the exact-helper bridge, but the exact-slot typed-object
 lowering helper can now consume an explicit `native_direct` route decision for
 the pinned-arena backed lane.
 
+Row 656 then makes the planner actually select `native_direct` when the
+direct-state facts are ready. That is the first row where the exact-slot typed
+object lane chooses inline direct load/store as the selected lowering form
+instead of the helper bridge.
+
 ## First Implementation Slice
 
 ```text

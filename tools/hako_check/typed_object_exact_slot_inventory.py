@@ -342,3 +342,47 @@ def typed_object_exact_slot_nativedirect_pilot_selection_inventory(
         "global_allocator": 0,
         "summary": "ok",
     }
+
+
+def typed_object_exact_slot_nativedirect_pilot_route_selection_inventory(
+    implementation: dict[str, int | str]
+) -> dict[str, int | str]:
+    return {
+        "output_contract": "typed-object-exact-slot-nativedirect-pilot-route-selection-v0",
+        "input_contract": "typed-object-exact-slot-nativedirect-pilot-implementation-v0",
+        "candidate_representation": str(
+            implementation.get("candidate_representation", "NativeDirect")
+        ),
+        "selected_owner": "mir_route_decision_typed_object_exact_slot_nativedirect_pilot_route_selection",
+        "selected_owner_file": "src/mir/route_decision.rs",
+        "selected_backend": "typed_object_exact_slot_nativedirect",
+        "selected_route": str(
+            implementation.get("selected_route", "hako.typed_object.slot_load_i64")
+        ),
+        "selected_lowering_form": "native_direct",
+        "selected_bridge_symbol": "none",
+        "storage_substrate": str(
+            implementation.get("storage_substrate", "PinnedTypedObjectArena")
+        ),
+        "fallback_boundary": str(
+            implementation.get(
+                "fallback_boundary", "explicit_materialized_view_handle"
+            )
+        ),
+        "required_facts": "|".join(NATIVEDIRECT_REQUIRED_FACT_KEYS),
+        "pilot_open": 1,
+        "implementation_open": 1,
+        "optimization_open": 1,
+        "llvm_lowering_open": 1,
+        "native_direct_open": 1,
+        "direct_load_store_open": 1,
+        "route_decision_native_direct_supported": 1,
+        "helper_bridge_default_unchanged": 1,
+        "helper_bridge_fallback_removed": 0,
+        "winner_claim": 0,
+        "replacement_active": 0,
+        "hook_installed": 0,
+        "global_allocator": 0,
+        "selected_next": "typed_object_exact_slot_nativedirect_native_direct_smoke",
+        "summary": "ok",
+    }

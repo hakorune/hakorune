@@ -20,6 +20,7 @@ from typed_object_exact_slot_inventory import (
     typed_object_exact_slot_route_decisions,
     typed_object_exact_slot_inventory,
     typed_object_exact_slot_nativedirect_guard_surface_inventory,
+    typed_object_exact_slot_nativedirect_pilot_route_selection_inventory,
     typed_object_exact_slot_nativedirect_pilot_selection_inventory,
     typed_object_exact_slot_nativedirect_readiness_inventory,
 )
@@ -483,6 +484,71 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
         self.assertEqual(
             report["selected_next"],
             "typed_object_exact_slot_nativedirect_pilot_implementation",
+        )
+        self.assertEqual(report["winner_claim"], 0)
+        self.assertEqual(report["replacement_active"], 0)
+        self.assertEqual(report["hook_installed"], 0)
+        self.assertEqual(report["global_allocator"], 0)
+        self.assertEqual(report["summary"], "ok")
+
+    def test_typed_object_exact_slot_nativedirect_pilot_route_selection_inventory_uses_implementation(
+        self,
+    ) -> None:
+        implementation = {
+            "candidate_representation": "NativeDirect",
+            "selected_route": "hako.typed_object.slot_load_i64",
+            "storage_substrate": "PinnedTypedObjectArena",
+            "fallback_boundary": "explicit_materialized_view_handle",
+        }
+
+        report = typed_object_exact_slot_nativedirect_pilot_route_selection_inventory(
+            implementation
+        )
+        self.assertEqual(
+            report["output_contract"],
+            "typed-object-exact-slot-nativedirect-pilot-route-selection-v0",
+        )
+        self.assertEqual(
+            report["input_contract"],
+            "typed-object-exact-slot-nativedirect-pilot-implementation-v0",
+        )
+        self.assertEqual(report["candidate_representation"], "NativeDirect")
+        self.assertEqual(
+            report["selected_owner"],
+            "mir_route_decision_typed_object_exact_slot_nativedirect_pilot_route_selection",
+        )
+        self.assertEqual(
+            report["selected_owner_file"],
+            "src/mir/route_decision.rs",
+        )
+        self.assertEqual(
+            report["selected_backend"],
+            "typed_object_exact_slot_nativedirect",
+        )
+        self.assertEqual(report["selected_route"], "hako.typed_object.slot_load_i64")
+        self.assertEqual(report["selected_lowering_form"], "native_direct")
+        self.assertEqual(report["selected_bridge_symbol"], "none")
+        self.assertEqual(report["storage_substrate"], "PinnedTypedObjectArena")
+        self.assertEqual(
+            report["fallback_boundary"],
+            "explicit_materialized_view_handle",
+        )
+        self.assertEqual(
+            report["required_facts"],
+            "object_storage_pinned_required|field_address_stable_required|object_generation_required|slot_layout_stable_required|handle_generation_validation_required|lease_region_required|lease_barrier_policy_required",
+        )
+        self.assertEqual(report["pilot_open"], 1)
+        self.assertEqual(report["implementation_open"], 1)
+        self.assertEqual(report["optimization_open"], 1)
+        self.assertEqual(report["llvm_lowering_open"], 1)
+        self.assertEqual(report["native_direct_open"], 1)
+        self.assertEqual(report["direct_load_store_open"], 1)
+        self.assertEqual(report["route_decision_native_direct_supported"], 1)
+        self.assertEqual(report["helper_bridge_default_unchanged"], 1)
+        self.assertEqual(report["helper_bridge_fallback_removed"], 0)
+        self.assertEqual(
+            report["selected_next"],
+            "typed_object_exact_slot_nativedirect_native_direct_smoke",
         )
         self.assertEqual(report["winner_claim"], 0)
         self.assertEqual(report["replacement_active"], 0)

@@ -8,7 +8,7 @@
 
 use crate::mir::direct_array_access_plan::{DirectArrayAccessOp, DirectArrayAccessPlan};
 use crate::mir::direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan;
-use crate::mir::function::{TypedObjectFieldStorage, TypedObjectPlan};
+use crate::mir::function::{DirectStatePlan, TypedObjectFieldStorage, TypedObjectPlan};
 use crate::mir::map_lookup_fusion_plan::MapLookupFusionRoute;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirModule, MirType, ValueId};
@@ -183,6 +183,7 @@ pub fn refresh_module_typed_object_exact_slot_route_decisions(module: &mut MirMo
         let decisions = collect_typed_object_exact_slot_route_decisions(
             function,
             &module.metadata.typed_object_plans,
+            &module.metadata.direct_state_plans,
         );
         function.metadata.route_decisions.extend(decisions);
         function.metadata.route_decisions.sort_by_key(|decision| {
@@ -200,6 +201,7 @@ pub fn refresh_module_typed_object_exact_slot_route_decisions(module: &mut MirMo
 fn collect_typed_object_exact_slot_route_decisions(
     function: &MirFunction,
     typed_object_plans: &[TypedObjectPlan],
+    direct_state_plans: &[DirectStatePlan],
 ) -> Vec<RouteDecision> {
     let def_map = build_value_def_map(function);
     let mut decisions = Vec::new();
@@ -215,6 +217,7 @@ fn collect_typed_object_exact_slot_route_decisions(
                     function,
                     &def_map,
                     typed_object_plans,
+                    direct_state_plans,
                     block.id,
                     instruction_index,
                     "FieldGet",
@@ -231,6 +234,7 @@ fn collect_typed_object_exact_slot_route_decisions(
                     function,
                     &def_map,
                     typed_object_plans,
+                    direct_state_plans,
                     block.id,
                     instruction_index,
                     "FieldSet",
@@ -252,6 +256,7 @@ fn typed_object_exact_slot_route_decision_for_field(
     function: &MirFunction,
     def_map: &ValueDefMap,
     typed_object_plans: &[TypedObjectPlan],
+    direct_state_plans: &[DirectStatePlan],
     block: BasicBlockId,
     instruction_index: usize,
     semantic_op: &'static str,
@@ -270,6 +275,13 @@ fn typed_object_exact_slot_route_decision_for_field(
     let (selected_route, fallback_route, selected_bridge_symbol, selected_storage) =
         typed_object_exact_slot_route_parts(semantic_op, field_plan.storage)?;
     let selected_slot = field_plan.slot;
+    let native_direct_ready = typed_object_exact_slot_native_direct_ready_for_field(
+        direct_state_plans,
+        &receiver_box_name,
+        field_name,
+        selected_slot,
+        selected_storage,
+    );
     let mut proof_ids = vec![
         "typed_object_plan",
         "field_decl_authority",
@@ -280,6 +292,13 @@ fn typed_object_exact_slot_route_decision_for_field(
         "materialization_boundary_known",
         "exact_slot_bridge_available",
     ];
+    if native_direct_ready {
+        proof_ids.push("direct_state_plan_present");
+        proof_ids.push("direct_state_plan_field_selected");
+        proof_ids.push("direct_state_plan_materialization_boundary_known");
+        proof_ids.push("direct_state_plan_positive_net_expected");
+        proof_ids.push("native_direct_ready");
+    }
     if declared_type.is_some() {
         proof_ids.push("declared_type_present");
     }
@@ -298,13 +317,56 @@ fn typed_object_exact_slot_route_decision_for_field(
         source_plan_kind: "TypedObjectExactSlotRoute",
         selected_i64_const: None,
         selected_bool_const: None,
-        selected_lowering_form: Some("exact_helper_bridge"),
-        selected_bridge_symbol: Some(selected_bridge_symbol),
+        selected_lowering_form: Some(if native_direct_ready {
+            "native_direct"
+        } else {
+            "exact_helper_bridge"
+        }),
+        selected_bridge_symbol: if native_direct_ready {
+            None
+        } else {
+            Some(selected_bridge_symbol)
+        },
         selected_slot: Some(selected_slot),
         selected_storage: Some(selected_storage),
         receiver_box_name: Some(receiver_box_name),
         field_id: Some(field_name.to_string()),
     })
+}
+
+fn typed_object_exact_slot_native_direct_ready_for_field(
+    direct_state_plans: &[DirectStatePlan],
+    receiver_box_name: &str,
+    field_name: &str,
+    selected_slot: u32,
+    selected_storage: &str,
+) -> bool {
+    direct_state_plans.iter().any(|plan| {
+        plan.box_name == receiver_box_name
+            && plan.field_decl_authority
+            && plan.materialization_boundary_known
+            && plan.positive_net_expected
+            && plan.fields.iter().any(|field| {
+                field.name == field_name
+                    && field.slot == selected_slot
+                    && typed_object_exact_slot_native_direct_storage_matches(
+                        selected_storage,
+                        field.storage,
+                    )
+            })
+    })
+}
+
+fn typed_object_exact_slot_native_direct_storage_matches(
+    selected_storage: &str,
+    storage: TypedObjectFieldStorage,
+) -> bool {
+    match (selected_storage, storage) {
+        ("i64", TypedObjectFieldStorage::I64 | TypedObjectFieldStorage::ISize) => true,
+        ("u64", TypedObjectFieldStorage::U64 | TypedObjectFieldStorage::USize) => true,
+        ("handle", TypedObjectFieldStorage::Handle) => true,
+        _ => false,
+    }
 }
 
 fn typed_object_exact_slot_route_parts(
@@ -540,7 +602,8 @@ mod tests {
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::direct_array_access_plan::refresh_function_direct_array_access_plans;
     use crate::mir::function::{
-        RequiredFastPathRegion, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+        DirectStateFieldPlan, DirectStatePlan, RequiredFastPathRegion, TypedObjectFieldPlan,
+        TypedObjectFieldStorage, TypedObjectPlan,
     };
     use crate::mir::generic_method_route_plan::refresh_function_generic_method_routes;
     use crate::mir::{
@@ -627,6 +690,32 @@ mod tests {
                     declared_type_name: Some("handle".to_string()),
                     storage: TypedObjectFieldStorage::Handle,
                     is_weak: false,
+                },
+            ],
+        }
+    }
+
+    fn direct_state_ready_plan() -> DirectStatePlan {
+        DirectStatePlan {
+            box_name: "Page".to_string(),
+            state_repr: "direct_v0".to_string(),
+            field_decl_authority: true,
+            selected_field_count: 2,
+            unsupported_field_count: 0,
+            materialization_boundary_known: true,
+            positive_net_expected: true,
+            fields: vec![
+                DirectStateFieldPlan {
+                    name: "capacity".to_string(),
+                    slot: 0,
+                    declared_type_name: Some("usize".to_string()),
+                    storage: TypedObjectFieldStorage::USize,
+                },
+                DirectStateFieldPlan {
+                    name: "used".to_string(),
+                    slot: 1,
+                    declared_type_name: Some("i64".to_string()),
+                    storage: TypedObjectFieldStorage::I64,
                 },
             ],
         }
@@ -812,6 +901,69 @@ mod tests {
         assert_eq!(set_decision.field_id.as_deref(), Some("used"));
         assert_eq!(set_decision.receiver_box_name.as_deref(), Some("Page"));
         assert_eq!(set_decision.fallback_policy, "fail_fast");
+    }
+
+    #[test]
+    fn route_decision_reports_typed_object_exact_slot_native_direct_when_direct_state_is_ready() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "Page".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(2),
+            base: ValueId::new(1),
+            field: "capacity".to_string(),
+            declared_type: Some(MirType::Integer),
+        });
+        block.set_terminator(MirInstruction::Return { value: None });
+        function.add_block(block);
+
+        let mut module = MirModule::new("typed_object_exact_slot_native_direct_test".to_string());
+        module
+            .metadata
+            .typed_object_plans
+            .push(typed_object_route_plan());
+        module.metadata.direct_state_plans.push(direct_state_ready_plan());
+        module.add_function(function);
+
+        refresh_module_typed_object_exact_slot_route_decisions(&mut module);
+
+        let function = &module.functions["main"];
+        assert_eq!(function.metadata.route_decisions.len(), 1);
+
+        let decision = &function.metadata.route_decisions[0];
+        assert_eq!(decision.site_id, "b0.i1");
+        assert_eq!(decision.semantic_op, "FieldGet");
+        assert_eq!(decision.source_plan_kind, "TypedObjectExactSlotRoute");
+        assert_eq!(
+            decision.preferred_route,
+            "hako.typed_object.slot_load_u64"
+        );
+        assert_eq!(decision.selected_route, "hako.typed_object.slot_load_u64");
+        assert_eq!(decision.selected_lowering_form, Some("native_direct"));
+        assert_eq!(decision.selected_bridge_symbol, None);
+        assert_eq!(decision.selected_slot, Some(0));
+        assert_eq!(decision.selected_storage, Some("u64"));
+        assert_eq!(decision.field_id.as_deref(), Some("capacity"));
+        assert_eq!(decision.receiver_box_name.as_deref(), Some("Page"));
+        assert_eq!(decision.fallback_policy, "fail_fast");
+        assert!(
+            decision
+                .proof_ids
+                .iter()
+                .any(|proof| *proof == "native_direct_ready")
+        );
     }
 
     #[test]
