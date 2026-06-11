@@ -600,6 +600,16 @@ PERF-USERBOX-047:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_scheduler_presence_guard.sh
 
+PERF-USERBOX-048:
+  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
+  register-many presence probe for exact-AOT startup attribution. The rebuild-
+  cache dominance probe is now closed, so the probe repeats the ret0 bucket
+  split and records whether register-many remains present under the rebuild-
+  cache-dominant report.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_register_many_presence_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -677,9 +687,10 @@ Next:
   or register-many is the next registry owner. `PERF-USERBOX-046` keeps
   rebuild-cache as the dominant registry owner while preserving the runner-up
   signals. `PERF-USERBOX-047` records whether scheduler remains present under
-  the rebuild-cache-dominant report. Keep env / stdio / path closed; when the
-  raw report shifts to box_factory, pivot the next owner there instead of
-  forcing registry-only reads.
+  the rebuild-cache-dominant report, and `PERF-USERBOX-048` records whether
+  register-many remains present under the rebuild-cache-dominant report. Keep
+  env / stdio / path closed; when the raw report shifts to box_factory, pivot
+  the next owner there instead of forcing registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
