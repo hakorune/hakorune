@@ -294,12 +294,14 @@ if ret0_rows:
     ret0_family_counts: dict[str, int] = defaultdict(int)
     ret0_bucket_counts: dict[str, int] = defaultdict(int)
     ret0_bucket_first_symbol: dict[str, str] = {}
+    ret0_bucket_rows: dict[str, list[tuple[float, str, str, str]]] = defaultdict(list)
     for _pct, _dso, _symbol, family in ret0_rows:
         ret0_family_counts[family] += 1
     for _pct, _dso, symbol, _family in ret0_rows:
         bucket = classify_ret0_bucket(symbol)
         ret0_bucket_counts[bucket] += 1
         ret0_bucket_first_symbol.setdefault(bucket, symbol)
+        ret0_bucket_rows[bucket].append((_pct, _dso, symbol, _family))
     ret0_primary_family = max(ret0_family_counts.items(), key=lambda item: item[1])[0]
     ret0_primary_bucket = max(ret0_bucket_counts.items(), key=lambda item: item[1])[0]
     lines.extend(
@@ -345,6 +347,14 @@ if ret0_rows:
             f"startup_loader_ret0_exe_bucket_{bucket}_first_symbol="
             f"{ret0_bucket_first_symbol.get(bucket, 'missing').replace(' ', '_') if ret0_bucket_first_symbol.get(bucket) else 'missing'}"
         )
+    for idx, (pct, _dso, symbol, family) in enumerate(ret0_bucket_rows.get("env", [])[:3]):
+        lines.extend(
+            [
+                f"startup_loader_ret0_exe_bucket_env_top_{idx}_pct={pct:.2f}",
+                f"startup_loader_ret0_exe_bucket_env_top_{idx}_symbol={symbol.replace(' ', '_')}",
+                f"startup_loader_ret0_exe_bucket_env_top_{idx}_family={family}",
+            ]
+        )
 else:
     lines.extend(
         [
@@ -386,6 +396,15 @@ else:
             "startup_loader_ret0_exe_bucket_nyash_kernel_runtime_first_symbol=missing",
             "startup_loader_ret0_exe_bucket_minimal_main_count=0",
             "startup_loader_ret0_exe_bucket_minimal_main_first_symbol=missing",
+            "startup_loader_ret0_exe_bucket_env_top_0_pct=missing",
+            "startup_loader_ret0_exe_bucket_env_top_0_symbol=missing",
+            "startup_loader_ret0_exe_bucket_env_top_0_family=missing",
+            "startup_loader_ret0_exe_bucket_env_top_1_pct=missing",
+            "startup_loader_ret0_exe_bucket_env_top_1_symbol=missing",
+            "startup_loader_ret0_exe_bucket_env_top_1_family=missing",
+            "startup_loader_ret0_exe_bucket_env_top_2_pct=missing",
+            "startup_loader_ret0_exe_bucket_env_top_2_symbol=missing",
+            "startup_loader_ret0_exe_bucket_env_top_2_family=missing",
         ]
     )
 

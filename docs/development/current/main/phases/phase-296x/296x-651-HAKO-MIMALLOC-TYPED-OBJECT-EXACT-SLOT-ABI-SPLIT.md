@@ -349,6 +349,16 @@ PERF-USERBOX-022:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_env_top_symbol_family_variability_guard.sh
 
+PERF-USERBOX-023:
+  add a startup executable ret0 env exact top-symbol variability probe for
+  exact-AOT startup attribution. The probe repeats the ret0 bucket split and
+  aggregates the env exact top symbols so env can be split into
+  current_exe / minimal_startup_enabled_from_env / gc_mode signals before
+  choosing the next owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_env_exact_top_symbol_variability_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -390,9 +400,9 @@ Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh
 
 Next:
-  Use the ret0.exe env top-symbol family distribution to choose the next
-  owner. Keep env inside the startup executable owner until the env family
-  top symbols flatline.
+  Use the ret0.exe env exact top-symbol distribution to choose the next
+  owner. Keep env inside the startup executable owner until the env exact top
+  symbols flatline.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
