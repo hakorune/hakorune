@@ -113,6 +113,7 @@ Rules:
 | `PERF-USERBOX-058` | startup executable ret0 libc_process malloc dominance probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_malloc_dominance_guard.sh` | the startup report now packages repeated libc_process malloc exact top symbols so the libc_process owner family can be read with `_int_malloc` as the dominant owner before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-059` | startup executable ret0 libc_process malloc-family dominance probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_malloc_family_dominance_guard.sh` | the startup report now packages repeated libc_process malloc-family exact top symbols so `_int_malloc` can be read as the dominant allocator-family owner while getenv remains the runner-up | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-060` | startup executable ret0 libc_process malloc/getenv internal split probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_malloc_getenv_internal_split_guard.sh` | the startup report now packages libc_process allocator and getenv buckets so `_int_malloc`, malloc, libc string helpers, and getenv can be read together before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
+| `PERF-USERBOX-061` | startup executable ret0 libc_process allocator/getenv/string distribution probe | `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_libc_process_allocator_getenv_string_distribution_guard.sh` | the startup report now packages libc_process allocator, getenv, and libc string buckets so string-helper dominance can be read before choosing the next owner | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-002` | runtime-build-off probe | `k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh` | `NyashRuntimeBuilder` / GC controller construction is skipped inside the current minimal NyRT entry | default runtime build, runtime hooks, GC metrics semantics |
 | `NYRT-STARTUP-FLOOR-003` | entry-path-prep-off probe | `k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh` | `current_exe` / PATH / PYTHONHOME preparation is skipped inside the current minimal NyRT entry | default plugin-host path prep, default entry path discovery |
@@ -202,5 +203,6 @@ owner. `PERF-USERBOX-057` then records the libc_process malloc/getenv split
 under the exact-AOT startup report before choosing the next owner.
 `PERF-USERBOX-058` then records the libc_process malloc dominance under the
 exact-AOT startup report, `PERF-USERBOX-059` records the libc_process
-malloc-family dominance, and `PERF-USERBOX-060` records the malloc/getenv
-internal split before choosing the next owner.
+malloc-family dominance, `PERF-USERBOX-060` records the malloc/getenv internal
+split, and `PERF-USERBOX-061` records the allocator/getenv/string distribution
+before choosing the next owner.
