@@ -389,6 +389,15 @@ PERF-USERBOX-026:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability_guard.sh
 
+PERF-USERBOX-027:
+  add a startup executable ret0 nyash_kernel_runtime runtime exact-top-symbol
+  variability probe for exact-AOT startup attribution. The registry exact
+  probe is now closed, so the probe repeats the ret0 bucket split and
+  aggregates the runtime exact top symbols before choosing the next owner.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_runtime_exact_top_symbol_variability_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -432,9 +441,12 @@ Guard:
 Next:
   Use the ret0.exe nyash_kernel_runtime runtime exact-top-symbol
   distribution to choose the next owner. The path exact top-symbol
-  distribution flatlined in PERF-USERBOX-024, and PERF-USERBOX-026 now
-  isolates registry exact top symbols inside nyash_kernel_runtime. Runtime-
-  build-off, entry-path-prep-off, and ring0-init-off remain historical
-  evidence for the entry floor and should stay closed unless the current
-  executable owner flatlines.
+  distribution flatlined in PERF-USERBOX-024, PERF-USERBOX-026 isolated the
+  registry exact top symbols inside nyash_kernel_runtime, and PERF-USERBOX-027
+  now isolates the runtime exact top symbols inside nyash_kernel_runtime.
+  Keep env / stdio / path closed; only split inside the exact runtime
+  subfamily when further granularity is worth landing. Runtime-build-off,
+  entry-path-prep-off, and ring0-init-off remain historical evidence for the
+  entry floor and should stay closed unless the current executable owner
+  flatlines.
 ```
