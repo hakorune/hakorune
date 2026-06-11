@@ -690,6 +690,14 @@ PERF-USERBOX-062:
 Guard:
   PERF-USERBOX-062
 
+PERF-USERBOX-063:
+  env ladder probe for libc_process.
+  Runs inherited, required-only, and many-dummy env variants to see whether
+  getenv/string-scan buckets move with environment shape.
+
+Guard:
+  PERF-USERBOX-063
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -757,8 +765,8 @@ Next:
   registry rebuild-cache tagged_checkpoint exact top symbols inside
   nyash_kernel_runtime, PERF-USERBOX-040 now isolates the registry
   PERF-USERBOX-041..054 keep the registry branch split readable.
-  PERF-USERBOX-056..062 move the libc_process ladder from variability to
-  allocator/getenv/env-string scan distribution.
+  PERF-USERBOX-056..063 move the libc_process ladder from variability to
+  env ladder sensitivity.
   Keep env / stdio / path closed.
   Keep the entry-floor probes closed unless the executable owner flatlines.
 ```
