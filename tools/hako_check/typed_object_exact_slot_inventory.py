@@ -13,6 +13,15 @@ from typing import Any
 SIGNED_STORAGE_FAMILIES = {"i8", "i16", "i32", "i64", "isize"}
 UNSIGNED_STORAGE_FAMILIES = {"u8", "u16", "u32", "u64", "usize"}
 HANDLE_STORAGE_FAMILY = {"handle"}
+NATIVEDIRECT_REQUIRED_FACT_KEYS = (
+    "object_storage_pinned_required",
+    "field_address_stable_required",
+    "object_generation_required",
+    "slot_layout_stable_required",
+    "handle_generation_validation_required",
+    "lease_region_required",
+    "lease_barrier_policy_required",
+)
 
 
 def root_list(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
@@ -285,6 +294,48 @@ def typed_object_exact_slot_nativedirect_guard_surface_inventory(
         "raw_runtime_vec_pointer_exposure_allowed": 0,
         "by_name_hako_alloc_special_case_allowed": 0,
         "selected_next": "typed_object_exact_slot_nativedirect_pilot_selection",
+        "winner_claim": 0,
+        "replacement_active": 0,
+        "hook_installed": 0,
+        "global_allocator": 0,
+        "summary": "ok",
+    }
+
+
+def typed_object_exact_slot_nativedirect_pilot_selection_inventory(
+    guard_surface: dict[str, int | str]
+) -> dict[str, int | str]:
+    return {
+        "output_contract": "typed-object-exact-slot-nativedirect-pilot-selection-v0",
+        "input_contract": "typed-object-exact-slot-nativedirect-guard-surface-v0",
+        "candidate_representation": str(
+            guard_surface.get("candidate_representation", "NativeDirect")
+        ),
+        "selected_owner": "llvm_field_access_typed_object_exact_slot_nativedirect_pilot_selection",
+        "selected_owner_file": "src/llvm_py/instructions/field_access_helpers_typed.py",
+        "selected_backend": "typed_object_exact_slot_nativedirect",
+        "selected_route": str(
+            guard_surface.get("selected_route", "hako.typed_object.slot_load_i64")
+        ),
+        "selected_lowering_form": str(
+            guard_surface.get("selected_lowering_form", "exact_helper_bridge")
+        ),
+        "storage_substrate": str(
+            guard_surface.get("storage_substrate", "PinnedTypedObjectArena")
+        ),
+        "fallback_boundary": str(
+            guard_surface.get(
+                "fallback_boundary", "explicit_materialized_view_handle"
+            )
+        ),
+        "required_facts": "|".join(NATIVEDIRECT_REQUIRED_FACT_KEYS),
+        "pilot_open": 0,
+        "implementation_open": 0,
+        "optimization_open": 0,
+        "llvm_lowering_open": 0,
+        "native_direct_open": 0,
+        "direct_load_store_open": 0,
+        "selected_next": "typed_object_exact_slot_nativedirect_pilot_implementation",
         "winner_claim": 0,
         "replacement_active": 0,
         "hook_installed": 0,

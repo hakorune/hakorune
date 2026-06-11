@@ -109,6 +109,10 @@ That row freezes the pinned arena and lease prerequisites without opening the
 pilot. It is the next seam before `TYPEDOBJ-ABI-004` can become a real inline
 direct-load/store attempt.
 
+Row 654 then selects the first pilot owner for that future NativeDirect
+attempt without opening lowering yet. It keeps the pilot closed while making
+the next implementation seam explicit.
+
 ## First Implementation Slice
 
 ```text

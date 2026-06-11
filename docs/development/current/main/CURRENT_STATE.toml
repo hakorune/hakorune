@@ -28,8 +28,8 @@ branches, libc_process malloc/getenv env ladder and callgraph attribution, and
 the NyRT floor / env inventory / centralization-priority / P0 helper / P1
 metrics helper / P2 telemetry / P3 minimal startup / P4 startup gates / P5
 path-shaping probes, plus the row652 typed-object exact-slot NativeDirect
-readiness inventory and row653 NativeDirect guard surface. Defaults stay
-unchanged."""
+readiness inventory, row653 NativeDirect guard surface, and row654 pilot
+selection. Defaults stay unchanged."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-12: row654 selects the typed-object exact-slot NativeDirect pilot owner without opening the pilot.",
   "2026-06-12: row653 freezes the typed-object exact-slot NativeDirect guard surface without opening the pilot.",
   "2026-06-12: row652 inventories typed-object exact-slot NativeDirect readiness without opening the pilot.",
   "2026-06-12: NYRT-ENV-005..008 centralize the GC telemetry cluster, minimal startup knob, startup gates, and path shaping into shared helpers.",
@@ -49,9 +50,5 @@ landed_tail = [
   "2026-06-11: PERF-USERBOX-056..064 tighten the libc_process ladder from variability to env ladder and callgraph attribution.",
   "2026-06-11: PERF-USERBOX-047..054 keep the rebuild-cache registry branch split into scheduler / register-many / create-default-registry / ring0 / global_hooks / get_factory_order_by_policy signals.",
   "2026-06-11: PERF-USERBOX-042..046 keep the box_factory / registry focus boundary explicit while preserving runner-up signals.",
-  "2026-06-11: PERF-USERBOX-018..035 keep the ret0 bucket and nyash_kernel_runtime family split readable without reopening the loader floor.",
-  "2026-06-11: PERF-USERBOX-010..013 and NYRT-STARTUP-FLOOR-001..004 keep loader/libc and NyRT entry floor evidence separate from app-specific counters.",
-  "2026-06-10 to 2026-06-11: the PERF-USERBOX link/startup ladder stays in the compact SSOT so default link mode and NyRT startup floor probes remain explicit owner rows.",
   "2026-06-09: 296x-651 opened the typed-object exact slot ABI split lane after user-box counter-heavy perf moved the owner into startup attribution evidence.",
-  "2026-06-09: 296x-650 to 296x-648 cover the adjacent MapBox cleanup and direct-exact mimalloc handoff rows.",
 ]
