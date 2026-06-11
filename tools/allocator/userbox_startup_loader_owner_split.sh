@@ -269,6 +269,27 @@ for idx, (pct, dso, symbol, category) in enumerate(rows[:10]):
     lines.append(f"startup_loader_top_{idx}_symbol={safe_symbol}")
     lines.append(f"startup_loader_top_{idx}_family={category}")
 
+ret0_rows = [(pct, dso, symbol, category) for pct, dso, symbol, category in rows if dso == "ret0.exe"]
+if ret0_rows:
+    ret0_pct, _ret0_dso, ret0_symbol, ret0_family = ret0_rows[0]
+    lines.extend(
+        [
+            f"startup_loader_ret0_exe_top_count={len(ret0_rows)}",
+            f"startup_loader_ret0_exe_first_pct={ret0_pct:.2f}",
+            f"startup_loader_ret0_exe_first_symbol={ret0_symbol.replace(' ', '_')}",
+            f"startup_loader_ret0_exe_first_family={ret0_family}",
+        ]
+    )
+else:
+    lines.extend(
+        [
+            "startup_loader_ret0_exe_top_count=0",
+            "startup_loader_ret0_exe_first_pct=missing",
+            "startup_loader_ret0_exe_first_symbol=missing",
+            "startup_loader_ret0_exe_first_family=missing",
+        ]
+    )
+
 for key in (
     "floor_run_status",
     "direct_helper_floor_invalid_arraybox_handle_count",

@@ -67,6 +67,7 @@ Rules:
 | `PERF-USERBOX-011` | ld-linux / libc loader percent split probe | `k2_wide_phase296x_perf_userbox_loader_dso_percent_guard.sh` | the startup loader split now exposes ld-linux versus libc percent sums so the loader floor can be split more precisely while the closed floor summary stays in place | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-012` | ld-linux / libc loader symbol split probe | `k2_wide_phase296x_perf_userbox_loader_symbol_split_guard.sh` | the startup loader split now exposes the leading ld-linux and libc symbols so the loader floor can be split at symbol granularity while the closed floor summary stays in place | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `PERF-USERBOX-013` | startup executable split probe | `k2_wide_phase296x_perf_userbox_startup_executable_split_guard.sh` | the startup report now exposes the ret0.exe executable contribution so the startup executable can be split from the loader floor while the closed loader/libc summary stays in place | default link mode, exact-AOT runtime surface, exact helper lowering |
+| `PERF-USERBOX-014` | startup executable symbol split probe | `k2_wide_phase296x_perf_userbox_startup_executable_symbol_split_guard.sh` | the startup report now exposes the leading ret0.exe symbol so the executable contribution can be split at symbol granularity while the closed loader/libc summary stays in place | default link mode, exact-AOT runtime surface, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-001` | bare-entry floor A/B probe | `k2_wide_phase296x_nyrt_startup_floor_bare_entry_ab_probe_guard.sh` | one ret0 `ny_main` object is linked through current minimal NyRT entry and bare libc `main` | default entry, `.hako`, MIRBuilder, route planner, exact helper lowering |
 | `NYRT-STARTUP-FLOOR-002` | runtime-build-off probe | `k2_wide_phase296x_nyrt_runtime_build_off_probe_guard.sh` | `NyashRuntimeBuilder` / GC controller construction is skipped inside the current minimal NyRT entry | default runtime build, runtime hooks, GC metrics semantics |
 | `NYRT-STARTUP-FLOOR-003` | entry-path-prep-off probe | `k2_wide_phase296x_nyrt_entry_path_prep_off_probe_guard.sh` | `current_exe` / PATH / PYTHONHOME preparation is skipped inside the current minimal NyRT entry | default plugin-host path prep, default entry path discovery |
@@ -91,24 +92,23 @@ Rules:
 
 ## Next Seam
 
-The current floor is now below loader, libgcc, libm, plugin-host init, runtime-hooks publication, and default registry startup.
-The next owner is the ld-linux / libc split inside the loader floor as one owner, not separate env / stdio / registry work.
+The current floor is now below loader, libgcc, libm, plugin-host init, runtime-hooks publication, default registry startup, and the first ret0.exe executable contribution row.
+The next owner is the ret0.exe internal symbol split inside the startup executable contribution as one owner, not separate env / stdio / registry work.
 
-`NYRT-STARTUP-FLOOR-001` is the required next probe:
+`PERF-USERBOX-014` is the required next probe:
 
 ```text
-same_ny_main_object=1
-entry_a=current_minimal_nyrt
-entry_b=bare_libc_main
-runtime_build_mode=auto|off
-entry_path_prep_mode=auto|off
-ring0_init_mode=auto|off
-current_minimal_cycles
-bare_entry_cycles
-entry_delta_cycles
-perf_top_symbols_reported=1
+input_contract=perf-userbox-startup-loader-owner-split-v0
+measurement_scope=exact_aot_startup_executable_symbol_split
+startup_loader_ret0_exe_top_count=1
+startup_loader_ret0_exe_first_symbol=...
+startup_loader_ret0_exe_first_pct=...
+startup_loader_dynamic_loader_pct=...
+startup_loader_libc_process_pct=...
+loader_floor_owner=link_mode/loader/libc
+summary=ok
 ```
 
-If `entry_delta_cycles` is large, split the NyRT entry owner into env / stdio /
-registry sub-probes. If the delta is small and both entries are close, move the
-next owner to link mode / loader / libc floor instead.
+If the ret0.exe symbol contribution is still meaningful, keep splitting inside
+the startup executable owner. If it goes flat, stay on the loader/libc floor
+and do not reopen env / stdio / registry work.

@@ -18,7 +18,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-cur
 
 latest_card = "296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-651-HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT.md"
-latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..013 plus NYRT-STARTUP-FLOOR-001..004: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, loader/libc floor summary, loader owner split summary, ld-linux / libc loader split, ld-linux / libc loader percent split, ld-linux / libc loader symbol split, startup executable split, plugin-host-off, runtime-hooks-off, minimal-startup, bare-entry A/B, runtime-build-off, entry-path-prep-off, and ring0-init-off probes, while defaults stay unchanged."
+latest_card_summary = "296x-651 accepts the typed-object exact slot ABI split and now anchors PERF-USERBOX-001..014 plus NYRT-STARTUP-FLOOR-001..004: floor attribution, startup/loader owner split, static-libgcc, minimal system libs, loader/libc floor summary, loader owner split summary, ld-linux / libc loader split, ld-linux / libc loader percent split, ld-linux / libc loader symbol split, startup executable split, startup executable symbol split, plugin-host-off, runtime-hooks-off, minimal-startup, bare-entry A/B, runtime-build-off, entry-path-prep-off, and ring0-init-off probes, while defaults stay unchanged."
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-11: PERF-USERBOX-014 exposes the leading ret0.exe symbol directly on the startup loader report so the startup executable can be split at symbol granularity without reopening the closed loader/libc summary.",
   "2026-06-11: PERF-USERBOX-013 exposes the ret0.exe startup executable contribution directly on the startup loader report so the startup executable can be split from the loader floor without reopening the closed loader/libc summary.",
   "2026-06-11: PERF-USERBOX-012 exposes the leading ld-linux and libc symbols directly on the startup loader report so the loader floor can be split at symbol granularity without reopening the closed loader/libc summary.",
   "2026-06-11: PERF-USERBOX-011 exposes ld-linux versus libc percent sums directly on the startup loader report so the loader floor can be split more precisely without reopening the closed loader/libc summary.",
