@@ -630,6 +630,16 @@ PERF-USERBOX-050:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_ring0_presence_guard.sh
 
+PERF-USERBOX-051:
+  add a startup executable ret0 nyash_kernel_runtime registry rebuild-cache/
+  global_hooks presence probe for exact-AOT startup attribution. The rebuild-
+  cache dominance probe is now closed, so the probe repeats the ret0 bucket
+  split and records whether `global_hooks::set_from_runtime` remains present
+  under the rebuild-cache-dominant report.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_global_hooks_presence_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -711,9 +721,11 @@ Next:
   register-many remains present under the rebuild-cache-dominant report, and
   `PERF-USERBOX-049` records whether create-default-registry remains present
   under the rebuild-cache-dominant report, and `PERF-USERBOX-050` records
-  whether ring0 remains present under the rebuild-cache-dominant report. Keep
-  env / stdio / path closed; when the raw report shifts to box_factory, pivot
-  the next owner there instead of forcing registry-only reads.
+  whether ring0 remains present under the rebuild-cache-dominant report, and
+  `PERF-USERBOX-051` records whether `global_hooks::set_from_runtime` remains
+  present under the rebuild-cache-dominant report. Keep env / stdio / path
+  closed; when the raw report shifts to box_factory, pivot the next owner there
+  instead of forcing registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
