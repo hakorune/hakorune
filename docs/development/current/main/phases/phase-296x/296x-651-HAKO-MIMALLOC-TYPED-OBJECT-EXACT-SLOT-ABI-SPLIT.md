@@ -755,6 +755,15 @@ NYRT-ENV-001:
 Guard:
   Guard: NYRT-ENV-001
 
+NYRT-ENV-002:
+  rank the NyRT startup env reads into a centralization priority table. The
+  first seam is the output-only `NYASH_NYRT_SILENT_RESULT` toggle; the GC
+  metrics cluster follows; the startup-floor gates and path-shaping probes stay
+  closed until a later implementation slice.
+
+Guard:
+  Guard: NYRT-ENV-002
+
 Next:
   Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
   create-default-registry exact top-symbol distribution to choose the next

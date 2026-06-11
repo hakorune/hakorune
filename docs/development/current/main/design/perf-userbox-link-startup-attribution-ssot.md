@@ -212,4 +212,7 @@ split, `PERF-USERBOX-061` records the allocator/getenv/string distribution, and
 records the env ladder sensitivity, and `PERF-USERBOX-064` records callgraph
 attribution before choosing the next owner. The next owner after 064 is
 `NYRT-ENV-001`, which inventories the NyRT startup env reads and path probes
-before any env cache or snapshot design is considered.
+before any env cache or snapshot design is considered. `NYRT-ENV-002` then
+orders that inventory into a centralization priority table, with the
+output-only `NYASH_NYRT_SILENT_RESULT` seam first and the path-shaping knobs
+last.

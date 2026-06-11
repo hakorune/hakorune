@@ -43,6 +43,11 @@ NyRT exact-EXE startup の direct env read / path probe inventory owner は
 に置く。この参照は user-facing knob list の補足で、Knob 追加の正本
 ではない。
 
+NyRT exact-EXE startup の centralization priority は
+`docs/development/current/main/design/nyrt-startup-env-centralization-priority-ssot.md`
+を参照する。ここでは優先順位の説明だけを固定し、実装順を暗黙に
+拡張しない。
+
 ### ダンプの使い分け
 - 実行経路SSOT（推奨）: `NYASH_VM_DUMP_MIR=1 ./target/release/hakorune --backend vm apps/tests/minimal.hako`
 - Rust AST 直通（compile-only）: `./target/release/hakorune --dump-mir apps/tests/minimal.hako`（env は不要、stdout のみ）
