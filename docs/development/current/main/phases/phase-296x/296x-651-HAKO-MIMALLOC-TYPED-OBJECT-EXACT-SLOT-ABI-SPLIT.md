@@ -788,11 +788,13 @@ Next:
   records the libc_process exact-top-symbol variability distribution under the
   exact-AOT startup report, and `PERF-USERBOX-057` records the libc_process
   malloc/getenv split under the exact-AOT startup report, and
-  `PERF-USERBOX-058` records the libc_process malloc dominance under the
-  exact-AOT startup report. Keep env / stdio / path closed; keep the libc_process
-  owner family as a variability distribution instead of forcing a single-symbol
-  read. When the raw report shifts to box_factory, pivot the next owner there
-  instead of forcing registry-only reads.
+  `PERF-USERBOX-058` records the libc_process malloc dominance under the exact-
+  AOT startup report, and `PERF-USERBOX-059` records the libc_process
+  malloc-family dominance under the exact-AOT startup report. Keep env / stdio
+  / path closed; keep the libc_process owner family as a variability
+  distribution instead of forcing a single-symbol read. When the raw report
+  shifts to box_factory, pivot the next owner there instead of forcing
+  registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
