@@ -673,6 +673,17 @@ PERF-USERBOX-054:
 Guard:
   bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_get_factory_order_by_policy_exact_top_symbol_presence_guard.sh
 
+PERF-USERBOX-055:
+  add a startup executable ret0 nyash_kernel_runtime registry
+  rebuild-cache/ring0 exact-top-symbol
+  dominance probe for exact-AOT startup attribution. The rebuild-cache
+  dominance probe is now closed, so the probe repeats the ret0 bucket split
+  and records the current runner-up candidate while rebuild-cache stays
+  dominant.
+
+Guard:
+  bash tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_ring0_exact_top_symbol_dominance_guard.sh
+
 NYRT-STARTUP-FLOOR-001:
   add a bare-entry floor A/B probe. The probe builds one ret0 `ny_main` object
   and links it both through the current minimal NyRT entry and through a tiny
@@ -714,8 +725,9 @@ Guard:
   bash tools/checks/k2_wide_phase296x_nyrt_ring0_init_off_probe_guard.sh
 
 Next:
-  Use the ret0.exe nyash_kernel_runtime box_factory exact top-symbol
-  distribution to choose the next owner. The path exact top-symbol
+  Use the ret0.exe nyash_kernel_runtime registry rebuild-cache/register-many/
+  create-default-registry exact top-symbol distribution to choose the next
+  owner. The path exact top-symbol
   distribution flatlined in PERF-USERBOX-024, PERF-USERBOX-026 isolated the
   registry exact top symbols inside nyash_kernel_runtime, PERF-USERBOX-027
   isolated the runtime exact top symbols inside nyash_kernel_runtime,
@@ -763,9 +775,12 @@ Next:
   present as its own exact top-symbol signal under the rebuild-cache-dominant
   report, and `PERF-USERBOX-054` records whether
   `get_factory_order_by_policy` stays absent as its own exact top-symbol
-  signal under the rebuild-cache-dominant report. Keep env / stdio / path
-  closed; when the raw report shifts to box_factory, pivot the next owner there
-  instead of forcing registry-only reads.
+  signal under the rebuild-cache-dominant report, and `PERF-USERBOX-055`
+  records the current runner-up candidate under the rebuild-cache-dominant
+  report. Keep env / stdio / path closed; keep the registry runner-up split
+  as a snapshot instead of forcing a registry-only read. When the raw report
+  shifts to box_factory, pivot the next owner there instead of forcing
+  registry-only reads.
   Runtime-build-off, entry-path-prep-off, and ring0-init-off remain historical
   evidence for the entry floor and should stay closed unless the current
   executable owner flatlines.
