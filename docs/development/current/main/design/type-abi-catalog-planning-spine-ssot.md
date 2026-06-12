@@ -53,11 +53,15 @@ Plan:
 The catalog is the planning entry for cross-domain information. It must not
 replace direct access to a domain's own truth.
 
+It also must not own domain truth refresh. Existing refresh owners remain in
+place; the catalog is built after those refreshes have produced their normal
+metadata.
+
 ## Flow
 
 ```text
 MIR
-  -> domain truth refresh
+  -> existing domain refresh pipeline
   -> domain publish views
   -> TypeAbiCatalog
   -> domain planners
@@ -94,10 +98,6 @@ Example:
 
 ```rust
 impl TypeAbiDomain for FieldDomain {
-    fn refresh_truth(&self, module: &mut MirModule) {
-        refresh_module_typed_object_plans(module);
-    }
-
     fn publish_views(&self, module: &MirModule, catalog: &mut TypeAbiCatalog) {
         for plan in &module.metadata.typed_object_plans {
             catalog.publish(FieldViewAdapter::new(plan));
@@ -116,6 +116,41 @@ impl TypeAbiDomain for FieldDomain {
 
 The example is a shape contract, not a requirement that every domain migrate at
 once.
+
+## Refresh Boundary
+
+`TypeAbiCatalog` is downstream of existing refresh. It observes refreshed truth;
+it does not create, refresh, or canonicalize that truth.
+
+```text
+allowed:
+  existing refresh owner -> domain truth
+  domain truth -> TypeAbiView
+  TypeAbiView -> TypeAbiCatalog
+
+forbidden:
+  TypeAbiCatalog -> refresh domain truth
+  TypeAbiDomain::refresh_truth()
+  generic catalog driver owning MIR metadata refresh
+```
+
+The compile pipeline shape is:
+
+```rust
+fn planning_pipeline(world: &mut CompileWorld) {
+    refresh_existing_metadata(world);
+
+    let catalog = TypeAbiCatalog::from_refreshed_world(world.as_readonly());
+
+    for domain in TYPE_ABI_DOMAINS {
+        domain.generate_plans(world, &catalog);
+    }
+}
+```
+
+This preserves existing owners such as typed-object plans, fastmem plans,
+string corridor plans, plugin route exports, and type registry entries. The
+catalog only indexes their published views.
 
 ## Catalog Responsibilities
 
@@ -172,11 +207,10 @@ A common driver may exist, but it must stay orchestration-only.
 
 ```rust
 trait TypeAbiDomain {
-    fn refresh_truth(&self, module: &mut MirModule);
-    fn publish_views(&self, module: &MirModule, catalog: &mut TypeAbiCatalog);
-    fn generate_plans(&self, module: &mut MirModule, catalog: &TypeAbiCatalog);
-    fn verify(&self, module: &MirModule, catalog: &TypeAbiCatalog);
-    fn report(&self, module: &MirModule, out: &mut ReportSink);
+    fn publish_views(&self, world: &CompileWorld, catalog: &mut TypeAbiCatalog);
+    fn generate_plans(&self, world: &mut CompileWorld, catalog: &TypeAbiCatalog);
+    fn verify(&self, world: &CompileWorld, catalog: &TypeAbiCatalog);
+    fn report(&self, world: &CompileWorld, out: &mut ReportSink);
 }
 ```
 
@@ -186,11 +220,14 @@ Allowed:
 common stage order
 common report vocabulary
 common catalog creation
+reading refreshed truth
 ```
 
 Forbidden:
 
 ```text
+refresh_truth hook
+ownership of MIR metadata refresh
 one giant generate_plans()
 central ownership of all domain decisions
 forced migration of all existing domains in one slice
@@ -281,11 +318,28 @@ NewBox/DropBox use plans
 hot path Type ABI lookup remains 0
 ```
 
+### TYPEABI-CATALOG-CLEAN-000
+
+Docs/report cleanup: keep catalog downstream of existing refresh.
+
+Status: landed 2026-06-13.
+
+Acceptance:
+
+```text
+existing refresh pipeline remains owner
+TypeAbiDomain has no refresh_truth hook
+catalog is built from refreshed world
+type_abi_refresh_truth_trait_enabled=0
+```
+
 ## Report Vocabulary
 
 ```text
 type_abi_catalog_enabled=1
 type_abi_catalog_is_truth=0
+type_abi_existing_refresh_preserved=1
+type_abi_refresh_truth_trait_enabled=0
 type_abi_catalog_entry_count
 type_abi_catalog_query_count
 type_abi_catalog_cross_domain_query_count
