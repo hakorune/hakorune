@@ -1,6 +1,9 @@
 use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
+use crate::mir::{
+    BasicBlock, BinaryOp, Callee, CompareOp, ConstValue, EffectMask, FunctionSignature,
+    MirInstruction, MirType, ValueId,
+};
 
 #[test]
 fn detects_array_get_indexof_found_predicate_route() {

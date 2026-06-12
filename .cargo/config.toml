@@ -4,6 +4,12 @@
 # Use 24 threads by default for all cargo builds
 jobs = 24
 
-[env]
-# Environment variables for all cargo commands
-CARGO_INCREMENTAL = "1"
+[target.x86_64-unknown-linux-gnu]
+# Use clang as the linker driver and lld for faster linking.
+linker = "/usr/bin/clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[alias]
+# Daily development shortcuts for the lightweight profile.
+quick-build = "build --profile quick"
+quick-test = "test --profile quick"

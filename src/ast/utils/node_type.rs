@@ -1,4 +1,4 @@
-use super::ASTNode;
+use crate::ast::ASTNode;
 
 impl ASTNode {
     /// AST nodeの種類を文字列で取得 (デバッグ用)

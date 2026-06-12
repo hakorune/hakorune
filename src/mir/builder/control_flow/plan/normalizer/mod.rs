@@ -20,6 +20,7 @@ pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod helpers_layout;
 pub(in crate::mir::builder) mod helpers_pure_value;
 pub(in crate::mir::builder) mod helpers_value;
+pub(in crate::mir::builder) mod newbox;
 
 // Cond lowering modules (flattened from cond_lowering/)
 pub(in crate::mir::builder) mod cond_lowering_entry;
@@ -30,6 +31,8 @@ pub(in crate::mir::builder) mod cond_lowering_prelude;
 pub(in crate::mir::builder) mod cond_lowering_value_expr;
 
 pub(in crate::mir::builder) mod loop_body_lowering;
+#[cfg(test)]
+mod tests;
 #[cfg(test)]
 mod value_join_demo_if2;
 

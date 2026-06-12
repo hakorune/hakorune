@@ -2,6 +2,7 @@ use nyash_rust::ast::{ASTNode, ContractKind};
 use serde_json::{json, Value};
 
 use super::shared;
+mod constructors;
 mod helpers;
 mod json_to_ast;
 use helpers::{attrs_to_json, literal_to_joinir_json};

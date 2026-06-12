@@ -1,0 +1,673 @@
+use super::snapshot::SnapshotCounterField;
+
+pub(crate) const STORE_ARRAY_STR: &str = "store.array.str";
+pub(crate) const CONST_SUFFIX: &str = "const_suffix";
+pub(crate) const BIRTH_PLACEMENT: &str = "birth.placement";
+pub(crate) const BIRTH_BACKEND: &str = "birth.backend";
+pub(crate) const STR_CONCAT2_ROUTE: &str = "str.concat2.route";
+pub(crate) const STR_LEN_ROUTE: &str = "str.len.route";
+pub(crate) const STR_SUBSTRING_ROUTE: &str = "str.substring.route";
+pub(crate) const PIECEWISE_SUBRANGE: &str = "piecewise_subrange";
+pub(crate) const STABLE_BOX_DEMAND: &str = "stable_box_demand";
+pub(crate) const BORROWED_ALIAS: &str = "borrowed.alias";
+
+pub(crate) const STORE_ARRAY_STR_CACHE_HIT: &str = "cache_hit";
+pub(crate) const STORE_ARRAY_STR_CACHE_MISS_HANDLE: &str = "cache_miss_handle";
+pub(crate) const STORE_ARRAY_STR_CACHE_MISS_EPOCH: &str = "cache_miss_epoch";
+pub(crate) const STORE_ARRAY_STR_RETARGET_HIT: &str = "retarget_hit";
+pub(crate) const STORE_ARRAY_STR_SOURCE_STORE: &str = "source_store";
+pub(crate) const STORE_ARRAY_STR_NON_STRING_SOURCE: &str = "non_string_source";
+pub(crate) const STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT: &str = "latest_fresh_retarget_hit";
+pub(crate) const STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE: &str = "latest_fresh_source_store";
+pub(crate) const STORE_ARRAY_STR_EXISTING_SLOT: &str = "existing_slot";
+pub(crate) const STORE_ARRAY_STR_APPEND_SLOT: &str = "append_slot";
+pub(crate) const STORE_ARRAY_STR_SOURCE_STRING_BOX: &str = "source_string_box";
+pub(crate) const STORE_ARRAY_STR_SOURCE_STRING_VIEW: &str = "source_string_view";
+pub(crate) const STORE_ARRAY_STR_SOURCE_MISSING: &str = "source_missing";
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE: &str =
+    "plan.source_kind_string_like";
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT: &str =
+    "plan.source_kind_other_object";
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING: &str = "plan.source_kind_missing";
+pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS: &str =
+    "plan.slot_kind_borrowed_alias";
+pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER: &str = "plan.slot_kind_other";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS: &str = "plan.action_retarget_alias";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE: &str =
+    "plan.action_store_from_source";
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT: &str =
+    "plan.action_need_stable_object";
+pub(crate) const STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT: &str =
+    "reason.source_kind_via_object";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC: &str =
+    "reason.retarget_keep_source_arc";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT: &str =
+    "reason.retarget_keep_source_arc_ptr_eq_hit";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS: &str =
+    "reason.retarget_keep_source_arc_ptr_eq_miss";
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE: &str =
+    "reason.retarget_alias_update";
+pub(crate) const STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ: &str = "lookup.registry_slot_read";
+pub(crate) const STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG: &str =
+    "lookup.caller_latest_fresh_tag";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT: &str = "update_text_resident_hit";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS: &str = "update_text_resident_miss";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT: &str = "update_text_fallback_hit";
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS: &str = "update_text_fallback_miss";
+
+pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT: &str = "cached_handle_hit";
+pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD: &str = "text_cache_reload";
+pub(crate) const CONST_SUFFIX_FREEZE_FALLBACK: &str = "freeze_fallback";
+pub(crate) const CONST_SUFFIX_EMPTY_RETURN: &str = "empty_return";
+pub(crate) const CONST_SUFFIX_CACHED_FAST_STR_HIT: &str = "cached_fast_str_hit";
+pub(crate) const CONST_SUFFIX_CACHED_SPAN_HIT: &str = "cached_span_hit";
+
+pub(crate) const BIRTH_PLACEMENT_RETURN_HANDLE: &str = "return_handle";
+pub(crate) const BIRTH_PLACEMENT_BORROW_VIEW: &str = "borrow_view";
+pub(crate) const BIRTH_PLACEMENT_FREEZE_OWNED: &str = "freeze_owned";
+pub(crate) const BIRTH_PLACEMENT_FRESH_HANDLE: &str = "fresh_handle";
+pub(crate) const BIRTH_PLACEMENT_MATERIALIZE_OWNED: &str = "materialize_owned";
+pub(crate) const BIRTH_PLACEMENT_STORE_FROM_SOURCE: &str = "store_from_source";
+
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL: &str = "freeze_text_plan_total";
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1: &str = "freeze_text_plan_view1";
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2: &str = "freeze_text_plan_pieces2";
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3: &str = "freeze_text_plan_pieces3";
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4: &str = "freeze_text_plan_pieces4";
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP: &str = "freeze_text_plan_owned_tmp";
+pub(crate) const BIRTH_BACKEND_STRING_BOX_NEW_TOTAL: &str = "string_box_new_total";
+pub(crate) const BIRTH_BACKEND_STRING_BOX_NEW_BYTES: &str = "string_box_new_bytes";
+pub(crate) const BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL: &str = "string_box_ctor_total";
+pub(crate) const BIRTH_BACKEND_STRING_BOX_CTOR_BYTES: &str = "string_box_ctor_bytes";
+pub(crate) const BIRTH_BACKEND_ARC_WRAP_TOTAL: &str = "arc_wrap_total";
+pub(crate) const BIRTH_BACKEND_HANDLE_ISSUE_TOTAL: &str = "handle_issue_total";
+pub(crate) const BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL: &str =
+    "objectize_stable_box_now_total";
+pub(crate) const BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES: &str =
+    "objectize_stable_box_now_bytes";
+pub(crate) const BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL: &str = "issue_fresh_handle_total";
+pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL: &str = "materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES: &str = "materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_GC_ALLOC_CALLED: &str = "gc_alloc_called";
+pub(crate) const BIRTH_BACKEND_GC_ALLOC_BYTES: &str = "gc_alloc_bytes";
+pub(crate) const BIRTH_BACKEND_GC_ALLOC_SKIPPED: &str = "gc_alloc_skipped";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX: &str = "carrier_kind.stable_box";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP: &str = "carrier_kind.source_keep";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES: &str = "carrier_kind.owned_bytes";
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_HANDLE: &str = "carrier_kind.handle";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY: &str =
+    "publish_reason.external_boundary";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT: &str =
+    "publish_reason.need_stable_object";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK: &str =
+    "publish_reason.generic_fallback";
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API: &str = "publish_reason.explicit_api";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL: &str =
+    "publish_boundary.slot_publish_handle_total";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL: &str =
+    "publish_boundary.slot_objectize_stable_box_total";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY: &str = "publish_boundary.slot_empty";
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED: &str =
+    "publish_boundary.slot_already_published";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.string_concat_hh.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES: &str =
+    "site.string_concat_hh.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL: &str =
+    "site.string_concat_hh.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL: &str =
+    "site.string_concat_hh.publish_handle_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.string_substring_concat_hhii.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES: &str =
+    "site.string_substring_concat_hhii.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL: &str =
+    "site.string_substring_concat_hhii.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL: &str =
+    "site.string_substring_concat_hhii.publish_handle_total";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.const_suffix.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES: &str =
+    "site.const_suffix.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL: &str =
+    "site.const_suffix.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL: &str =
+    "site.const_suffix.publish_handle_total";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL: &str =
+    "site.freeze_text_plan_pieces3.materialize_owned_total";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES: &str =
+    "site.freeze_text_plan_pieces3.materialize_owned_bytes";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL: &str =
+    "site.freeze_text_plan_pieces3.objectize_box_total";
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL: &str =
+    "site.freeze_text_plan_pieces3.publish_handle_total";
+
+pub(crate) const STR_CONCAT2_ROUTE_TOTAL: &str = "total";
+pub(crate) const STR_CONCAT2_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
+pub(crate) const STR_CONCAT2_ROUTE_FAST_STR_OWNED: &str = "fast_str_owned";
+pub(crate) const STR_CONCAT2_ROUTE_FAST_STR_RETURN_HANDLE: &str = "fast_str_return_handle";
+pub(crate) const STR_CONCAT2_ROUTE_SPAN_FREEZE: &str = "span_freeze";
+pub(crate) const STR_CONCAT2_ROUTE_SPAN_RETURN_HANDLE: &str = "span_return_handle";
+pub(crate) const STR_CONCAT2_ROUTE_MATERIALIZE_FALLBACK: &str = "materialize_fallback";
+pub(crate) const STR_CONCAT2_ROUTE_UNCLASSIFIED: &str = "unclassified";
+
+pub(crate) const STR_LEN_ROUTE_TOTAL: &str = "total";
+pub(crate) const STR_LEN_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
+pub(crate) const STR_LEN_ROUTE_FAST_STR_HIT: &str = "fast_str_hit";
+pub(crate) const STR_LEN_ROUTE_FALLBACK_HIT: &str = "fallback_hit";
+pub(crate) const STR_LEN_ROUTE_MISS: &str = "miss";
+pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FAST_STR_HIT: &str =
+    "latest_fresh_handle_fast_str_hit";
+pub(crate) const STR_LEN_ROUTE_LATEST_FRESH_HANDLE_FALLBACK_HIT: &str =
+    "latest_fresh_handle_fallback_hit";
+pub(crate) const STR_LEN_ROUTE_UNCLASSIFIED: &str = "unclassified";
+
+pub(crate) const STR_SUBSTRING_ROUTE_TOTAL: &str = "total";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_HANDLE_HIT: &str = "view_arc_cache_handle_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_REISSUE_HIT: &str =
+    "view_arc_cache_reissue_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_VIEW_ARC_CACHE_MISS: &str = "view_arc_cache_miss";
+pub(crate) const STR_SUBSTRING_ROUTE_FAST_CACHE_HIT: &str = "fast_cache_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_DISPATCH_HIT: &str = "dispatch_hit";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN: &str = "slow_plan";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_HANDLE: &str = "slow_plan_return_handle";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_RETURN_EMPTY: &str = "slow_plan_return_empty";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_FREEZE_SPAN: &str = "slow_plan_freeze_span";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_VIEW_SPAN: &str = "slow_plan_view_span";
+pub(crate) const STR_SUBSTRING_ROUTE_SLOW_PLAN_UNCLASSIFIED: &str = "slow_plan_unclassified";
+
+pub(crate) const PIECEWISE_SUBRANGE_TOTAL: &str = "total";
+pub(crate) const PIECEWISE_SUBRANGE_SINGLE_SESSION_HIT: &str = "single_session_hit";
+pub(crate) const PIECEWISE_SUBRANGE_FALLBACK_INSERT: &str = "fallback_insert";
+pub(crate) const PIECEWISE_SUBRANGE_EMPTY_RETURN: &str = "empty_return";
+pub(crate) const PIECEWISE_SUBRANGE_PREFIX_ONLY: &str = "prefix_only";
+pub(crate) const PIECEWISE_SUBRANGE_MIDDLE_ONLY: &str = "middle_only";
+pub(crate) const PIECEWISE_SUBRANGE_SUFFIX_ONLY: &str = "suffix_only";
+pub(crate) const PIECEWISE_SUBRANGE_PREFIX_MIDDLE: &str = "prefix_middle";
+pub(crate) const PIECEWISE_SUBRANGE_MIDDLE_SUFFIX: &str = "middle_suffix";
+pub(crate) const PIECEWISE_SUBRANGE_PREFIX_SUFFIX: &str = "prefix_suffix";
+pub(crate) const PIECEWISE_SUBRANGE_ALL_THREE: &str = "all_three";
+pub(crate) const PIECEWISE_SUBRANGE_UNCLASSIFIED: &str = "unclassified";
+
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH: &str = "object_get_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH: &str =
+    "object_with_handle_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH: &str = "object_pair_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH: &str = "object_triple_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH: &str =
+    "text_read_handle_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH: &str =
+    "text_read_pair_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH: &str =
+    "text_read_triple_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH: &str =
+    "object_with_handle_array_store_str_source_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH: &str =
+    "object_with_handle_substring_plan_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH: &str =
+    "object_with_handle_decode_array_fast_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH: &str =
+    "object_with_handle_decode_any_arg_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH: &str =
+    "object_with_handle_decode_any_index_latest_fresh";
+pub(crate) const STABLE_BOX_DEMAND_FIELD_COUNT: usize = 12;
+pub(crate) const STABLE_BOX_DEMAND_SUMMARY_FIELD_NAMES: [&str; STABLE_BOX_DEMAND_FIELD_COUNT] = [
+    STABLE_BOX_DEMAND_OBJECT_GET_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_PAIR_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_TRIPLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_TEXT_READ_HANDLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_TEXT_READ_PAIR_LATEST_FRESH,
+    STABLE_BOX_DEMAND_TEXT_READ_TRIPLE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_ARRAY_STORE_STR_SOURCE_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_SUBSTRING_PLAN_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ARRAY_FAST_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_ARG_LATEST_FRESH,
+    STABLE_BOX_DEMAND_OBJECT_WITH_HANDLE_DECODE_ANY_INDEX_LATEST_FRESH,
+];
+
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX: &str = "to_string_box";
+pub(crate) const BORROWED_ALIAS_EQUALS: &str = "equals";
+pub(crate) const BORROWED_ALIAS_CLONE_BOX: &str = "clone_box";
+pub(crate) const BORROWED_ALIAS_TO_STRING_BOX_LATEST_FRESH: &str = "to_string_box_latest_fresh";
+pub(crate) const BORROWED_ALIAS_EQUALS_LATEST_FRESH: &str = "equals_latest_fresh";
+pub(crate) const BORROWED_ALIAS_CLONE_BOX_LATEST_FRESH: &str = "clone_box_latest_fresh";
+pub(crate) const BORROWED_ALIAS_BORROWED_SOURCE_FAST: &str = "borrowed_source_fast";
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST: &str = "as_str_fast";
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_LIVE_SOURCE: &str = "as_str_fast_live_source";
+pub(crate) const BORROWED_ALIAS_AS_STR_FAST_STALE_SOURCE: &str = "as_str_fast_stale_source";
+pub(crate) const BORROWED_ALIAS_ARRAY_LEN_BY_INDEX_LATEST_FRESH: &str =
+    "array_len_by_index_latest_fresh";
+pub(crate) const BORROWED_ALIAS_ARRAY_INDEXOF_BY_INDEX_LATEST_FRESH: &str =
+    "array_indexof_by_index_latest_fresh";
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT: &str = "encode_live_source_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_ARRAY_GET_INDEX: &str =
+    "encode_live_source_hit_array_get_index";
+pub(crate) const BORROWED_ALIAS_ENCODE_LIVE_SOURCE_HIT_MAP_RUNTIME_DATA_GET_ANY: &str =
+    "encode_live_source_hit_map_runtime_data_get_any";
+pub(crate) const BORROWED_ALIAS_ENCODE_EPOCH_HIT: &str = "encode_epoch_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT: &str = "encode_cached_handle_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_ARRAY_GET_INDEX: &str =
+    "encode_cached_handle_hit_array_get_index";
+pub(crate) const BORROWED_ALIAS_ENCODE_CACHED_HANDLE_HIT_MAP_RUNTIME_DATA_GET_ANY: &str =
+    "encode_cached_handle_hit_map_runtime_data_get_any";
+pub(crate) const BORROWED_ALIAS_ENCODE_PTR_EQ_HIT: &str = "encode_ptr_eq_hit";
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC: &str = "encode_to_handle_arc";
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_ARRAY_GET_INDEX: &str =
+    "encode_to_handle_arc_array_get_index";
+pub(crate) const BORROWED_ALIAS_ENCODE_TO_HANDLE_ARC_MAP_RUNTIME_DATA_GET_ANY: &str =
+    "encode_to_handle_arc_map_runtime_data_get_any";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct SnapshotCounterField {
+    pub name: &'static str,
+    pub snapshot_index: usize,
+}
+
+/// Number of slots emitted by the TLS snapshot backend.
+///
+/// Counter names, snapshot indexes, and the snapshot length live in this module
+/// so backends and tests do not carry separate raw registration facts.
+pub(crate) const SNAPSHOT_COUNTER_LEN: usize = 153;
+
+impl SnapshotCounterField {
+    pub(crate) const fn new(name: &'static str, snapshot_index: usize) -> Self {
+        Self {
+            name,
+            snapshot_index,
+        }
+    }
+
+    #[inline(always)]
+    pub(crate) fn read(self, snapshot: &[u64]) -> u64 {
+        snapshot[self.snapshot_index]
+    }
+
+    #[cfg(test)]
+    pub(crate) fn write_for_tests(self, snapshot: &mut [u64], value: u64) {
+        snapshot[self.snapshot_index] = value;
+    }
+}
+
+pub(crate) const STORE_ARRAY_STR_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR, 0);
+pub(crate) const STORE_ARRAY_STR_CACHE_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_CACHE_HIT, 1);
+pub(crate) const STORE_ARRAY_STR_CACHE_MISS_HANDLE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_CACHE_MISS_HANDLE, 2);
+pub(crate) const STORE_ARRAY_STR_CACHE_MISS_EPOCH_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_CACHE_MISS_EPOCH, 3);
+pub(crate) const STORE_ARRAY_STR_RETARGET_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_RETARGET_HIT, 4);
+pub(crate) const STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT, 5);
+pub(crate) const STORE_ARRAY_STR_SOURCE_STORE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_SOURCE_STORE, 6);
+pub(crate) const STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE, 7);
+pub(crate) const STORE_ARRAY_STR_NON_STRING_SOURCE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_NON_STRING_SOURCE, 8);
+pub(crate) const STORE_ARRAY_STR_EXISTING_SLOT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_EXISTING_SLOT, 9);
+pub(crate) const STORE_ARRAY_STR_APPEND_SLOT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_APPEND_SLOT, 10);
+pub(crate) const STORE_ARRAY_STR_SOURCE_STRING_BOX_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_SOURCE_STRING_BOX, 11);
+pub(crate) const STORE_ARRAY_STR_SOURCE_STRING_VIEW_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_SOURCE_STRING_VIEW, 12);
+pub(crate) const STORE_ARRAY_STR_SOURCE_MISSING_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_SOURCE_MISSING, 13);
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE, 89);
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT, 90);
+pub(crate) const STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING, 91);
+pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS, 92);
+pub(crate) const STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER, 93);
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS, 94);
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE, 95);
+pub(crate) const STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT, 96);
+pub(crate) const STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT, 97);
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC, 98);
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT,
+    99,
+);
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS,
+    100,
+);
+pub(crate) const STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE, 101);
+pub(crate) const STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ, 121);
+pub(crate) const STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG, 122);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT, 149);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS, 150);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT, 151);
+pub(crate) const STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS, 152);
+
+pub(crate) const STORE_ARRAY_STR_SUMMARY_FIELDS: [SnapshotCounterField; 33] = [
+    STORE_ARRAY_STR_TOTAL_FIELD,
+    STORE_ARRAY_STR_CACHE_HIT_FIELD,
+    STORE_ARRAY_STR_CACHE_MISS_HANDLE_FIELD,
+    STORE_ARRAY_STR_CACHE_MISS_EPOCH_FIELD,
+    STORE_ARRAY_STR_RETARGET_HIT_FIELD,
+    STORE_ARRAY_STR_LATEST_FRESH_RETARGET_HIT_FIELD,
+    STORE_ARRAY_STR_SOURCE_STORE_FIELD,
+    STORE_ARRAY_STR_LATEST_FRESH_SOURCE_STORE_FIELD,
+    STORE_ARRAY_STR_NON_STRING_SOURCE_FIELD,
+    STORE_ARRAY_STR_EXISTING_SLOT_FIELD,
+    STORE_ARRAY_STR_APPEND_SLOT_FIELD,
+    STORE_ARRAY_STR_SOURCE_STRING_BOX_FIELD,
+    STORE_ARRAY_STR_SOURCE_STRING_VIEW_FIELD,
+    STORE_ARRAY_STR_SOURCE_MISSING_FIELD,
+    STORE_ARRAY_STR_PLAN_SOURCE_KIND_STRING_LIKE_FIELD,
+    STORE_ARRAY_STR_PLAN_SOURCE_KIND_OTHER_OBJECT_FIELD,
+    STORE_ARRAY_STR_PLAN_SOURCE_KIND_MISSING_FIELD,
+    STORE_ARRAY_STR_PLAN_SLOT_KIND_BORROWED_ALIAS_FIELD,
+    STORE_ARRAY_STR_PLAN_SLOT_KIND_OTHER_FIELD,
+    STORE_ARRAY_STR_PLAN_ACTION_RETARGET_ALIAS_FIELD,
+    STORE_ARRAY_STR_PLAN_ACTION_STORE_FROM_SOURCE_FIELD,
+    STORE_ARRAY_STR_PLAN_ACTION_NEED_STABLE_OBJECT_FIELD,
+    STORE_ARRAY_STR_REASON_SOURCE_KIND_VIA_OBJECT_FIELD,
+    STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_FIELD,
+    STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_HIT_FIELD,
+    STORE_ARRAY_STR_REASON_RETARGET_KEEP_SOURCE_ARC_PTR_EQ_MISS_FIELD,
+    STORE_ARRAY_STR_REASON_RETARGET_ALIAS_UPDATE_FIELD,
+    STORE_ARRAY_STR_LOOKUP_REGISTRY_SLOT_READ_FIELD,
+    STORE_ARRAY_STR_LOOKUP_CALLER_LATEST_FRESH_TAG_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_HIT_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_RESIDENT_MISS_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_HIT_FIELD,
+    STORE_ARRAY_STR_UPDATE_TEXT_FALLBACK_MISS_FIELD,
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct SnapshotCounterValue {
+    pub name: &'static str,
+    pub value: u64,
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_total(snapshot: &[u64]) -> u64 {
+    STORE_ARRAY_STR_SUMMARY_FIELDS[0].read(snapshot)
+}
+
+#[inline(always)]
+pub(crate) fn store_array_str_detail_values(
+    snapshot: &[u64],
+) -> impl Iterator<Item = SnapshotCounterValue> + '_ {
+    STORE_ARRAY_STR_SUMMARY_FIELDS
+        .into_iter()
+        .skip(1)
+        .map(|field| SnapshotCounterValue {
+            name: field.name,
+            value: field.read(snapshot),
+        })
+}
+
+#[inline(always)]
+pub(crate) fn stable_box_demand_values(
+    snapshot: &[u64; STABLE_BOX_DEMAND_FIELD_COUNT],
+) -> impl Iterator<Item = SnapshotCounterValue> + '_ {
+    STABLE_BOX_DEMAND_SUMMARY_FIELD_NAMES
+        .into_iter()
+        .zip(snapshot.iter().copied())
+        .map(|(name, value)| SnapshotCounterValue { name, value })
+}
+
+pub(crate) const CONST_SUFFIX_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX, 14);
+pub(crate) const CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_CACHED_HANDLE_HIT, 15);
+pub(crate) const CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_TEXT_CACHE_RELOAD, 16);
+pub(crate) const CONST_SUFFIX_FREEZE_FALLBACK_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_FREEZE_FALLBACK, 17);
+pub(crate) const CONST_SUFFIX_EMPTY_RETURN_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_EMPTY_RETURN, 18);
+pub(crate) const CONST_SUFFIX_CACHED_FAST_STR_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_CACHED_FAST_STR_HIT, 19);
+pub(crate) const CONST_SUFFIX_CACHED_SPAN_HIT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(CONST_SUFFIX_CACHED_SPAN_HIT, 20);
+pub(crate) const CONST_SUFFIX_SUMMARY_FIELDS: [SnapshotCounterField; 7] = [
+    CONST_SUFFIX_TOTAL_FIELD,
+    CONST_SUFFIX_CACHED_HANDLE_HIT_FIELD,
+    CONST_SUFFIX_TEXT_CACHE_RELOAD_FIELD,
+    CONST_SUFFIX_FREEZE_FALLBACK_FIELD,
+    CONST_SUFFIX_EMPTY_RETURN_FIELD,
+    CONST_SUFFIX_CACHED_FAST_STR_HIT_FIELD,
+    CONST_SUFFIX_CACHED_SPAN_HIT_FIELD,
+];
+
+pub(crate) const BIRTH_PLACEMENT_RETURN_HANDLE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_PLACEMENT_RETURN_HANDLE, 21);
+pub(crate) const BIRTH_PLACEMENT_BORROW_VIEW_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_PLACEMENT_BORROW_VIEW, 22);
+pub(crate) const BIRTH_PLACEMENT_FREEZE_OWNED_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_PLACEMENT_FREEZE_OWNED, 23);
+pub(crate) const BIRTH_PLACEMENT_FRESH_HANDLE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_PLACEMENT_FRESH_HANDLE, 24);
+pub(crate) const BIRTH_PLACEMENT_MATERIALIZE_OWNED_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_PLACEMENT_MATERIALIZE_OWNED, 25);
+pub(crate) const BIRTH_PLACEMENT_STORE_FROM_SOURCE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_PLACEMENT_STORE_FROM_SOURCE, 26);
+pub(crate) const BIRTH_PLACEMENT_SUMMARY_FIELDS: [SnapshotCounterField; 6] = [
+    BIRTH_PLACEMENT_RETURN_HANDLE_FIELD,
+    BIRTH_PLACEMENT_BORROW_VIEW_FIELD,
+    BIRTH_PLACEMENT_FREEZE_OWNED_FIELD,
+    BIRTH_PLACEMENT_FRESH_HANDLE_FIELD,
+    BIRTH_PLACEMENT_MATERIALIZE_OWNED_FIELD,
+    BIRTH_PLACEMENT_STORE_FROM_SOURCE_FIELD,
+];
+
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL, 27);
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1, 28);
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2, 29);
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3, 30);
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4, 31);
+pub(crate) const BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP, 32);
+pub(crate) const BIRTH_BACKEND_STRING_BOX_NEW_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_STRING_BOX_NEW_TOTAL, 33);
+pub(crate) const BIRTH_BACKEND_STRING_BOX_NEW_BYTES_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_STRING_BOX_NEW_BYTES, 34);
+pub(crate) const BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL, 35);
+pub(crate) const BIRTH_BACKEND_STRING_BOX_CTOR_BYTES_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_STRING_BOX_CTOR_BYTES, 36);
+pub(crate) const BIRTH_BACKEND_ARC_WRAP_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_ARC_WRAP_TOTAL, 37);
+pub(crate) const BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL, 38);
+pub(crate) const BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES, 39);
+pub(crate) const BIRTH_BACKEND_HANDLE_ISSUE_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_HANDLE_ISSUE_TOTAL, 40);
+pub(crate) const BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL, 41);
+pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL, 42);
+pub(crate) const BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES, 43);
+pub(crate) const BIRTH_BACKEND_GC_ALLOC_CALLED_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_GC_ALLOC_CALLED, 44);
+pub(crate) const BIRTH_BACKEND_GC_ALLOC_BYTES_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_GC_ALLOC_BYTES, 45);
+pub(crate) const BIRTH_BACKEND_GC_ALLOC_SKIPPED_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_GC_ALLOC_SKIPPED, 46);
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX, 113);
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP, 114);
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES, 115);
+pub(crate) const BIRTH_BACKEND_CARRIER_KIND_HANDLE_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_CARRIER_KIND_HANDLE, 116);
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY, 117);
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT, 118);
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK, 119);
+pub(crate) const BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API, 120);
+pub(crate) const BIRTH_BACKEND_CORE_SUMMARY_FIELDS: [SnapshotCounterField; 28] = [
+    BIRTH_BACKEND_FREEZE_TEXT_PLAN_TOTAL_FIELD,
+    BIRTH_BACKEND_FREEZE_TEXT_PLAN_VIEW1_FIELD,
+    BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES2_FIELD,
+    BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES3_FIELD,
+    BIRTH_BACKEND_FREEZE_TEXT_PLAN_PIECES4_FIELD,
+    BIRTH_BACKEND_FREEZE_TEXT_PLAN_OWNED_TMP_FIELD,
+    BIRTH_BACKEND_STRING_BOX_NEW_TOTAL_FIELD,
+    BIRTH_BACKEND_STRING_BOX_NEW_BYTES_FIELD,
+    BIRTH_BACKEND_STRING_BOX_CTOR_TOTAL_FIELD,
+    BIRTH_BACKEND_STRING_BOX_CTOR_BYTES_FIELD,
+    BIRTH_BACKEND_ARC_WRAP_TOTAL_FIELD,
+    BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_TOTAL_FIELD,
+    BIRTH_BACKEND_OBJECTIZE_STABLE_BOX_NOW_BYTES_FIELD,
+    BIRTH_BACKEND_HANDLE_ISSUE_TOTAL_FIELD,
+    BIRTH_BACKEND_ISSUE_FRESH_HANDLE_TOTAL_FIELD,
+    BIRTH_BACKEND_MATERIALIZE_OWNED_TOTAL_FIELD,
+    BIRTH_BACKEND_MATERIALIZE_OWNED_BYTES_FIELD,
+    BIRTH_BACKEND_GC_ALLOC_CALLED_FIELD,
+    BIRTH_BACKEND_GC_ALLOC_BYTES_FIELD,
+    BIRTH_BACKEND_GC_ALLOC_SKIPPED_FIELD,
+    BIRTH_BACKEND_CARRIER_KIND_STABLE_BOX_FIELD,
+    BIRTH_BACKEND_CARRIER_KIND_SOURCE_KEEP_FIELD,
+    BIRTH_BACKEND_CARRIER_KIND_OWNED_BYTES_FIELD,
+    BIRTH_BACKEND_CARRIER_KIND_HANDLE_FIELD,
+    BIRTH_BACKEND_PUBLISH_REASON_EXTERNAL_BOUNDARY_FIELD,
+    BIRTH_BACKEND_PUBLISH_REASON_NEED_STABLE_OBJECT_FIELD,
+    BIRTH_BACKEND_PUBLISH_REASON_GENERIC_FALLBACK_FIELD,
+    BIRTH_BACKEND_PUBLISH_REASON_EXPLICIT_API_FIELD,
+];
+
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL,
+    139,
+);
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL,
+    140,
+);
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY, 141);
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED, 142);
+pub(crate) const BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_SUMMARY_FIELDS: [SnapshotCounterField; 4] = [
+    BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_PUBLISH_HANDLE_TOTAL_FIELD,
+    BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_OBJECTIZE_STABLE_BOX_TOTAL_FIELD,
+    BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_EMPTY_FIELD,
+    BIRTH_BACKEND_PUBLISH_BOUNDARY_SLOT_ALREADY_PUBLISHED_FIELD,
+];
+
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL,
+    123,
+);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES,
+    124,
+);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL_FIELD:
+    SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL, 125);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL,
+    126,
+);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL,
+    127,
+);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES,
+    128,
+);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL,
+    129,
+);
+pub(crate) const BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL,
+    130,
+);
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL_FIELD:
+    SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL, 131);
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES_FIELD:
+    SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES, 132);
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL, 133);
+pub(crate) const BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL_FIELD: SnapshotCounterField =
+    SnapshotCounterField::new(BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL, 134);
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL,
+    135,
+);
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES,
+    136,
+);
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL,
+    137,
+);
+pub(crate) const BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL_FIELD:
+    SnapshotCounterField = SnapshotCounterField::new(
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL,
+    138,
+);
+pub(crate) const BIRTH_BACKEND_SITE_SUMMARY_FIELDS: [SnapshotCounterField; 16] = [
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_MATERIALIZE_OWNED_BYTES_FIELD,
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_OBJECTIZE_BOX_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_STRING_CONCAT_HH_PUBLISH_HANDLE_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_MATERIALIZE_OWNED_BYTES_FIELD,
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_OBJECTIZE_BOX_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_STRING_SUBSTRING_CONCAT_HHII_PUBLISH_HANDLE_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_CONST_SUFFIX_MATERIALIZE_OWNED_BYTES_FIELD,
+    BIRTH_BACKEND_SITE_CONST_SUFFIX_OBJECTIZE_BOX_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_CONST_SUFFIX_PUBLISH_HANDLE_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_MATERIALIZE_OWNED_BYTES_FIELD,
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_OBJECTIZE_BOX_TOTAL_FIELD,
+    BIRTH_BACKEND_SITE_FREEZE_TEXT_PLAN_PIECES3_PUBLISH_HANDLE_TOTAL_FIELD,
+];

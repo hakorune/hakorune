@@ -1,11 +1,7 @@
-#[cfg(test)]
 use std::collections::BTreeMap;
 
-#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
-#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
-#[cfg(test)]
 use crate::mir::BasicBlockId;
 
 /// Phase 281 P3: cleanup() Normal + Return exit wiring implementation
@@ -50,7 +46,7 @@ use crate::mir::BasicBlockId;
 ///
 /// Rationale: scan_with_init / split_scan routes require flexible exit wiring for Normal/Return exits.
 /// cleanup_frag must be "exit-only" to prevent terminator confusion.
-#[cfg(test)]
+#[allow(dead_code)] // Phase 281 P3: Normal+Return wiring; awaiting non-test callers
 pub(crate) fn cleanup(
     main: Frag,
     cleanup_frag: Frag,

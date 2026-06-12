@@ -1,3 +1,4 @@
+use super::model::UserBoxKnownReceiverMethodSeedProof;
 use super::*;
 
 pub(crate) fn counter_step_copy_local_i64() -> UserBoxKnownReceiverMethodSeedRoute {

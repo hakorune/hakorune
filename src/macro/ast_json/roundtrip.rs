@@ -1,19 +1,14 @@
 use nyash_rust::ast::{
-    ASTNode, DeclarationAttrs, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl,
-    LiteralValue, RuneAttr, Span,
+    ASTNode, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl, LiteralValue, Span,
 };
 use serde_json::Value;
 use std::collections::HashMap;
 
-use super::shared;
+use super::shared::{self, json_to_attrs, json_to_local_declared_type_names};
 
 pub const SCHEMA: &str = "ast_json_roundtrip_v1";
 pub const SCHEMA_VERSION: u32 = 1;
 
-/// Encode AST JSON for tooling/macro pipelines (schema-tagged).
-///
-/// Note: This currently reuses the JoinIR-compatible exporter for node shapes,
-/// and adds a schema tag at the root so callers can distinguish it quickly.
 pub fn ast_to_json_roundtrip(ast: &ASTNode) -> Value {
     let mut v = super::joinir_compat::ast_to_json(ast);
     if let Value::Object(ref mut m) = v {
@@ -25,9 +20,6 @@ pub fn ast_to_json_roundtrip(ast: &ASTNode) -> Value {
     v
 }
 
-/// Decode AST JSON into `ASTNode`.
-///
-/// Accepts both schema-tagged roundtrip JSON and legacy JoinIR-compatible shapes.
 pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
     let k = v.get("kind")?.as_str()?;
     Some(match k {
@@ -703,52 +695,4 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         _ => return None,
     })
-}
-
-fn json_to_attrs(value: Option<&Value>) -> DeclarationAttrs {
-    let runes = value
-        .and_then(|attrs| attrs.get("runes"))
-        .and_then(Value::as_array)
-        .map(|entries| {
-            entries
-                .iter()
-                .filter_map(|entry| {
-                    Some(RuneAttr {
-                        name: entry.get("name")?.as_str()?.to_string(),
-                        args: entry
-                            .get("args")
-                            .and_then(Value::as_array)
-                            .map(|args| {
-                                args.iter()
-                                    .filter_map(|arg| arg.as_str().map(|s| s.to_string()))
-                                    .collect::<Vec<_>>()
-                            })
-                            .unwrap_or_default(),
-                    })
-                })
-                .collect::<Vec<_>>()
-        })
-        .unwrap_or_default();
-    DeclarationAttrs { runes }
-}
-
-fn json_to_local_declared_type_names(v: &Value, len: usize) -> Vec<Option<String>> {
-    if let Some(values) = v.get("declared_type_names").and_then(Value::as_array) {
-        return values
-            .iter()
-            .map(|value| {
-                if value.is_null() {
-                    None
-                } else {
-                    value.as_str().map(str::to_string)
-                }
-            })
-            .collect();
-    }
-    if len == 1 {
-        if let Some(value) = v.get("declared_type") {
-            return vec![value.as_str().map(str::to_string)];
-        }
-    }
-    vec![None; len]
 }

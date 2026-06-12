@@ -26,6 +26,7 @@ mod helpers;
 mod method_router;
 mod object_field_store;
 pub mod static_box_registry;
+mod trace;
 mod utils;
 
 pub use static_box_registry::StaticBoxRegistry;

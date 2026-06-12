@@ -11,10 +11,10 @@ use std::collections::BTreeMap;
 
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    string_corridor::{StringCorridorBorrowContract, StringPublishReason, StringPublishReprPolicy},
+    string_corridor::{StringPublishReason, StringPublishReprPolicy},
     string_corridor_placement::{
         StringCorridorCandidate, StringCorridorCandidateKind, StringCorridorCandidateProof,
-        StringCorridorPublicationBoundary, StringCorridorPublicationContract,
+        StringCorridorPublicationBoundary,
     },
     string_corridor_recognizer::{
         match_len_call, match_method_set_call, match_substring_call,
@@ -24,6 +24,7 @@ use super::{
 };
 
 mod model;
+mod support;
 pub use model::{
     StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanCarrier,
     StringKernelPlanConsumer, StringKernelPlanFamily, StringKernelPlanLegality,
@@ -32,39 +33,7 @@ pub use model::{
     StringKernelPlanRetainedForm, StringKernelPlanSlotHopSubstring, StringKernelPlanTextConsumer,
     StringKernelPlanVerifierOwner,
 };
-
-fn candidate_priority(kind: StringCorridorCandidateKind) -> u8 {
-    match kind {
-        StringCorridorCandidateKind::DirectKernelEntry => 0,
-        StringCorridorCandidateKind::PublicationSink => 1,
-        StringCorridorCandidateKind::MaterializationSink => 2,
-        StringCorridorCandidateKind::BorrowCorridorFusion => 3,
-    }
-}
-
-fn publication_contract_from_plan(
-    plan: crate::mir::string_corridor_placement::StringCorridorCandidatePlan,
-) -> Option<StringKernelPlanPublicationContract> {
-    match plan.publication_contract {
-        Some(
-            StringCorridorPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-        ) => Some(
-            StringKernelPlanPublicationContract::PublishNowNotRequiredBeforeFirstExternalBoundary,
-        ),
-        None => None,
-    }
-}
-
-fn borrow_contract_from_plan(
-    plan: crate::mir::string_corridor_placement::StringCorridorCandidatePlan,
-) -> Option<StringKernelPlanBorrowContract> {
-    match plan.borrow_contract {
-        Some(StringCorridorBorrowContract::BorrowTextFromObject) => {
-            Some(StringKernelPlanBorrowContract::BorrowTextFromObject)
-        }
-        None => None,
-    }
-}
+use support::{borrow_contract_from_plan, candidate_priority, publication_contract_from_plan};
 
 fn const_string_literal(
     function: &MirFunction,

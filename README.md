@@ -117,6 +117,11 @@ Dev shortcuts (Operator Boxes & JSON smokes)
 - Run quick profile with Operator Boxes: `./tools/opbox-quick.sh`
 - Details: `docs/guides/operator-boxes.md`
 
+Build shortcuts
+- Daily build: `cargo quick-build`
+- Daily test: `cargo quick-test`
+- Both use the lightweight `quick` profile from `Cargo.toml` and keep release settings untouched.
+
 Dev mode and defaults
 - `hakorune --dev script.hako` turns on safe development defaults (AST using ON, Operator Boxes observe, diagnostics minimal) while `hakorune script.hako` stays production-like and quiet.
 - You can still use the dev shortcuts for a one‑command setup: `./tools/opbox-json.sh`, `./tools/opbox-quick.sh`.

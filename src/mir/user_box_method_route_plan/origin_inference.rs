@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use super::return_shape::{UserBoxFieldReturnHints, UserBoxMethodInferredReturn};
 use super::target_collection::{
@@ -6,7 +6,6 @@ use super::target_collection::{
 };
 use super::{
     BoxOriginInference, FieldBoxOriginKey, FieldBoxOriginMap, ParamBoxOriginKey, ParamBoxOriginMap,
-    UserBoxMethodRoute,
 };
 use crate::mir::definitions::call_unified::TypeCertainty;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
@@ -14,7 +13,20 @@ use crate::mir::{
     BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
 
-pub(super) fn infer_user_box_method_param_box_origins(
+#[path = "merge.rs"]
+mod merge;
+#[path = "value_helpers.rs"]
+pub(super) mod value_helpers;
+
+use self::merge::{merge_field_box_origin, merge_param_box_origin};
+pub(crate) use self::value_helpers::{
+    box_name_from_type, box_origin_known, build_route_result_box_lookup, field_box_origin,
+    generic_method_route_result_box_name, method_receiver_box_name, param_box_origin,
+    route_result_box_name, route_result_box_name_cached, sorted_block_ids, value_box_name,
+    value_param_index,
+};
+
+pub(crate) fn infer_user_box_method_param_box_origins(
     module: &MirModule,
     targets: &BTreeMap<String, UserBoxMethodTargetFacts>,
     field_box_origins: &FieldBoxOriginMap,
@@ -263,7 +275,7 @@ fn param_accepts_inferred_box_origin(function: &MirFunction, param_index: usize)
     )
 }
 
-pub(super) fn infer_user_box_field_box_origins(
+pub(crate) fn infer_user_box_field_box_origins(
     module: &MirModule,
     targets: &BTreeMap<String, UserBoxMethodTargetFacts>,
     param_box_origins: &ParamBoxOriginMap,
@@ -460,7 +472,7 @@ fn collect_birth_field_param_bindings(module: &MirModule) -> BTreeMap<(String, S
     bindings
 }
 
-pub(super) fn build_user_box_field_return_hints(
+pub(crate) fn build_user_box_field_return_hints(
     module: &MirModule,
     field_box_origins: &FieldBoxOriginMap,
 ) -> UserBoxFieldReturnHints {
@@ -489,45 +501,7 @@ pub(super) fn build_user_box_field_return_hints(
     hints
 }
 
-fn merge_param_box_origin(
-    origins: &mut ParamBoxOriginMap,
-    key: ParamBoxOriginKey,
-    box_name: String,
-) -> bool {
-    match origins.get(&key) {
-        Some(BoxOriginInference::Known(existing)) if existing == &box_name => false,
-        Some(BoxOriginInference::Conflict) => false,
-        Some(BoxOriginInference::Known(_)) => {
-            origins.insert(key, BoxOriginInference::Conflict);
-            true
-        }
-        None => {
-            origins.insert(key, BoxOriginInference::Known(box_name));
-            true
-        }
-    }
-}
-
-fn merge_field_box_origin(
-    origins: &mut FieldBoxOriginMap,
-    key: FieldBoxOriginKey,
-    box_name: String,
-) -> bool {
-    match origins.get(&key) {
-        Some(BoxOriginInference::Known(existing)) if existing == &box_name => false,
-        Some(BoxOriginInference::Conflict) => false,
-        Some(BoxOriginInference::Known(_)) => {
-            origins.insert(key, BoxOriginInference::Conflict);
-            true
-        }
-        None => {
-            origins.insert(key, BoxOriginInference::Known(box_name));
-            true
-        }
-    }
-}
-
-pub(super) fn user_box_route_receiver_box_name(
+pub(crate) fn user_box_route_receiver_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
     route_result_lookup: &HashMap<ValueId, String>,
@@ -552,7 +526,7 @@ pub(super) fn user_box_route_receiver_box_name(
     .filter(|box_name| user_box_names.contains(box_name))
 }
 
-pub(super) fn user_box_value_box_name(
+pub(crate) fn user_box_value_box_name(
     function: &MirFunction,
     def_map: &ValueDefMap,
     route_result_lookup: &HashMap<ValueId, String>,
@@ -616,76 +590,6 @@ pub(super) fn user_box_value_box_name(
                     .flatten()
             })
         })
-}
-
-fn value_param_index(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-    value: ValueId,
-    cache: &mut HashMap<ValueId, Option<usize>>,
-) -> Option<usize> {
-    if let Some(cached) = cache.get(&value) {
-        return *cached;
-    }
-    let mut visiting = HashSet::new();
-    let resolved = value_param_index_inner(function, def_map, value, &mut visiting, cache);
-    cache.insert(value, resolved);
-    resolved
-}
-
-fn value_param_index_inner(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-    value: ValueId,
-    visiting: &mut HashSet<ValueId>,
-    cache: &mut HashMap<ValueId, Option<usize>>,
-) -> Option<usize> {
-    if let Some(cached) = cache.get(&value) {
-        return *cached;
-    }
-    if !visiting.insert(value) {
-        return None;
-    }
-    if let Some(index) = function.params.iter().position(|param| *param == value) {
-        visiting.remove(&value);
-        cache.insert(value, Some(index));
-        return Some(index);
-    }
-    let result = def_map
-        .get(&value)
-        .and_then(|(block_id, instruction_index)| {
-            function
-                .blocks
-                .get(block_id)
-                .and_then(|block| block.instructions.get(*instruction_index))
-        })
-        .and_then(|instruction| match instruction {
-            MirInstruction::Copy { src, .. } => {
-                value_param_index_inner(function, def_map, *src, visiting, cache)
-            }
-            MirInstruction::Phi { inputs, .. } => {
-                let mut inferred = None;
-                for (_incoming_block, incoming_value) in inputs {
-                    let index = value_param_index_inner(
-                        function,
-                        def_map,
-                        *incoming_value,
-                        visiting,
-                        cache,
-                    )?;
-                    inferred = match inferred {
-                        None => Some(index),
-                        Some(existing) if existing == index => Some(existing),
-                        Some(_) => return None,
-                    };
-                }
-                inferred
-            }
-            _ => None,
-        });
-    visiting.remove(&value);
-    cache.insert(value, result);
-    result
 }
 
 fn phi_input_box_name(
@@ -767,157 +671,4 @@ fn route_flow_value_box_name(
 
     visiting.remove(&origin);
     result
-}
-
-pub(super) fn route_result_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
-    function
-        .metadata
-        .user_box_method_routes
-        .iter()
-        .find(|route| route.reason().is_none() && route.result_value() == Some(value))
-        .and_then(UserBoxMethodRoute::target_result_box_name)
-        .or_else(|| {
-            function
-                .metadata
-                .generic_method_routes
-                .iter()
-                .find(|route| route.result_value() == Some(value))
-                .and_then(generic_method_route_result_box_name)
-        })
-        .or_else(|| {
-            function
-                .metadata
-                .global_call_routes
-                .iter()
-                .find(|route| route.result_value() == Some(value))
-                .and_then(global_call_route_result_box_name)
-        })
-}
-
-fn route_result_box_name_cached(
-    route_result_lookup: &HashMap<ValueId, String>,
-    value: ValueId,
-) -> Option<&str> {
-    route_result_lookup.get(&value).map(String::as_str)
-}
-
-pub(super) fn build_route_result_box_lookup(function: &MirFunction) -> HashMap<ValueId, String> {
-    let mut lookup = HashMap::new();
-    for route in &function.metadata.user_box_method_routes {
-        if route.reason().is_none() {
-            if let (Some(value), Some(box_name)) =
-                (route.result_value(), route.target_result_box_name())
-            {
-                lookup.entry(value).or_insert_with(|| box_name.to_string());
-            }
-        }
-    }
-    for route in &function.metadata.generic_method_routes {
-        if let (Some(value), Some(box_name)) = (
-            route.result_value(),
-            generic_method_route_result_box_name(route),
-        ) {
-            lookup.entry(value).or_insert_with(|| box_name.to_string());
-        }
-    }
-    for route in &function.metadata.global_call_routes {
-        if let (Some(value), Some(box_name)) = (
-            route.result_value(),
-            global_call_route_result_box_name(route),
-        ) {
-            lookup.entry(value).or_insert_with(|| box_name.to_string());
-        }
-    }
-    lookup
-}
-
-pub(super) fn generic_method_route_result_box_name(
-    route: &crate::mir::generic_method_route_plan::GenericMethodRoute,
-) -> Option<&str> {
-    route
-        .result_origin_box()
-        .or_else(|| match route.route_kind_tag() {
-            "string_substring" => Some("StringBox"),
-            "map_keys_array" => Some("ArrayBox"),
-            _ => None,
-        })
-}
-
-pub(super) fn value_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
-    function
-        .metadata
-        .value_types
-        .get(&value)
-        .and_then(box_name_from_type)
-        .or_else(|| {
-            function
-                .params
-                .iter()
-                .position(|param| *param == value)
-                .and_then(|index| function.signature.params.get(index))
-                .and_then(box_name_from_type)
-        })
-}
-
-pub(super) fn box_name_from_type(ty: &MirType) -> Option<&str> {
-    match ty {
-        MirType::String => Some("StringBox"),
-        MirType::Box(name) => Some(name.as_str()),
-        _ => None,
-    }
-}
-
-fn global_call_route_result_box_name(
-    route: &crate::mir::global_call_route_plan::GlobalCallRoute,
-) -> Option<&'static str> {
-    if route.result_origin() == "string" {
-        return Some("StringBox");
-    }
-    match route.return_shape() {
-        Some("string_handle" | "string_handle_or_null") => Some("StringBox"),
-        Some("array_handle") => Some("ArrayBox"),
-        Some("map_handle") => Some("MapBox"),
-        _ => None,
-    }
-}
-
-pub(super) fn param_box_origin(
-    param_box_origins: &ParamBoxOriginMap,
-    function_name: &str,
-    index: usize,
-) -> Option<String> {
-    match param_box_origins.get(&(function_name.to_string(), index)) {
-        Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
-        Some(BoxOriginInference::Conflict) | None => None,
-    }
-}
-
-pub(super) fn field_box_origin(
-    field_box_origins: &FieldBoxOriginMap,
-    box_name: &str,
-    field: &str,
-) -> Option<String> {
-    match field_box_origins.get(&(box_name.to_string(), field.to_string())) {
-        Some(BoxOriginInference::Known(field_box)) => Some(field_box.clone()),
-        Some(BoxOriginInference::Conflict) | None => None,
-    }
-}
-
-fn box_origin_known(origin: &BoxOriginInference) -> Option<&str> {
-    match origin {
-        BoxOriginInference::Known(box_name) => Some(box_name.as_str()),
-        BoxOriginInference::Conflict => None,
-    }
-}
-
-fn method_receiver_box_name(symbol: &str) -> Option<String> {
-    let (owner_and_method, _arity) = symbol.rsplit_once('/')?;
-    let (box_name, _method) = owner_and_method.rsplit_once('.')?;
-    Some(box_name.to_string())
-}
-
-pub(super) fn sorted_block_ids(function: &MirFunction) -> Vec<BasicBlockId> {
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
-    block_ids
 }

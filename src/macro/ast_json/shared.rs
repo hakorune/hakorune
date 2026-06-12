@@ -1,6 +1,6 @@
 use nyash_rust::ast::{
-    ASTNode, BinaryOperator, ContractClause, ContractKind, LiteralValue, ParamDecl, TransitionDecl,
-    UnaryOperator,
+    ASTNode, BinaryOperator, ContractClause, ContractKind, DeclarationAttrs, LiteralValue,
+    ParamDecl, RuneAttr, TransitionDecl, UnaryOperator,
 };
 use serde_json::{json, Value};
 
@@ -201,4 +201,52 @@ pub(crate) fn json_to_transition_decls(value: Option<&Value>) -> Option<Vec<Tran
             })
             .collect(),
     )
+}
+
+pub(crate) fn json_to_attrs(value: Option<&Value>) -> DeclarationAttrs {
+    let runes = value
+        .and_then(|attrs| attrs.get("runes"))
+        .and_then(Value::as_array)
+        .map(|entries| {
+            entries
+                .iter()
+                .filter_map(|entry| {
+                    Some(RuneAttr {
+                        name: entry.get("name")?.as_str()?.to_string(),
+                        args: entry
+                            .get("args")
+                            .and_then(Value::as_array)
+                            .map(|args| {
+                                args.iter()
+                                    .filter_map(|arg| arg.as_str().map(|s| s.to_string()))
+                                    .collect::<Vec<_>>()
+                            })
+                            .unwrap_or_default(),
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    DeclarationAttrs { runes }
+}
+
+pub(crate) fn json_to_local_declared_type_names(v: &Value, len: usize) -> Vec<Option<String>> {
+    if let Some(values) = v.get("declared_type_names").and_then(Value::as_array) {
+        return values
+            .iter()
+            .map(|value| {
+                if value.is_null() {
+                    None
+                } else {
+                    value.as_str().map(str::to_string)
+                }
+            })
+            .collect();
+    }
+    if len == 1 {
+        if let Some(value) = v.get("declared_type") {
+            return vec![value.as_str().map(str::to_string)];
+        }
+    }
+    vec![None; len]
 }

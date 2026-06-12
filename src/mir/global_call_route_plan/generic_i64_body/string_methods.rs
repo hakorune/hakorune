@@ -1,7 +1,9 @@
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
-use super::{generic_i64_value_class, set_generic_i64_value_class, GenericI64ValueClass};
+use super::value_class::{
+    generic_i64_value_class, set_generic_i64_value_class, GenericI64ValueClass,
+};
 
 pub(super) fn generic_i64_accepts_length_method(
     box_name: &str,
