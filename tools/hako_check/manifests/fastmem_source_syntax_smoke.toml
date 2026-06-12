@@ -48,9 +48,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_owne
 
 [[fixtures.producers]]
 profile = "local-free"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_owner_free_body.local.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/same_owner_free_body.local.check.expected.kv"
 
 [[fixtures]]
 id = "LOCAL_FREE_ALLOC_BODY"
@@ -63,9 +63,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_fre
 
 [[fixtures.producers]]
 profile = "local-free"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_alloc_body.local.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/local_free_alloc_body.local.check.expected.kv"
 
 [[fixtures]]
 id = "LOCAL_FREE_TO_FREE_REFILL_BODY"
@@ -112,9 +112,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head
 
 [[fixtures.producers]]
 profile = "local-free"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head_alloc_body.local.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head_alloc_body.local.check.expected.kv"
 
 [[fixtures]]
 id = "REFILL_THEN_FREE_HEAD_ALLOC_BODY"
@@ -127,9 +127,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/refill_th
 
 [[fixtures.producers]]
 profile = "local-free"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/refill_then_free_head_alloc_body.local.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/refill_then_free_head_alloc_body.local.check.expected.kv"
 
 [[fixtures]]
 id = "PAGE_LOCAL_ALLOC_ROUTE_CFG_PREFLIGHT"
@@ -218,9 +218,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head
 
 [[fixtures.producers]]
 profile = "layout-table"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/free_head.layout-table.check.expected.kv"
 
 [[fixtures]]
 id = "FASTMEM_BRANCH_RETURN_SCOPE"
@@ -233,9 +233,10 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/fastmem_b
 
 [[fixtures.producers]]
 profile = "layout-table"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "check_failure"
+check_expect_failure = true
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/fastmem_branch_return_scope.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/fastmem_branch_return_scope.layout-table.check.expected.kv"
 
 [[fixtures]]
 id = "FASTMEM_BRANCH_CFG_LOWERING"
@@ -602,9 +603,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.mir
 
 [[fixtures.producers]]
 profile = "layout-table"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/pilot.layout-table.check.expected.kv"
 
 [[fixtures]]
 id = "OWNER"
@@ -617,9 +618,9 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.mir
 
 [[fixtures.producers]]
 profile = "layout-table"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "success"
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.layout-table.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/owner.layout-table.check.expected.kv"
 
 [[fixtures]]
 id = "OWNER_EQ"
@@ -798,9 +799,10 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_re
 
 [[fixtures.producers]]
 profile = "remote-free-drain-preflight"
-kind = "report_failure"
-expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+kind = "check_failure"
+check_expect_failure = true
+report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_remote_head_drain_vocabulary.remote-free-drain-preflight.report.expected.kv"
+check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/atomic_remote_head_drain_vocabulary.remote-free-drain-preflight.check.expected.kv"
 
 [[fixtures]]
 id = "DRAIN_REMOTE_LIST_TO_LOCAL_VOCABULARY"
@@ -815,7 +817,7 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/drain_rem
 profile = "remote-free-drain-to-local"
 kind = "report_failure"
 expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/drain_remote_list_to_local_vocabulary.remote-free-drain-to-local.stderr.expected.txt"
 
 [[fixtures]]
 id = "REMOTE_OWNER_BRANCH_ROUTING_LOWERING_BOX"
@@ -830,7 +832,7 @@ mir_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/remote_ow
 profile = "layout-table"
 kind = "report_failure"
 expect_failure = true
-stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/llvm_expected_layout_ref.stderr.expected.txt"
+stderr_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/drain_remote_list_to_local_vocabulary.remote-free-drain-to-local.stderr.expected.txt"
 
 [[fixtures]]
 id = "PAGE_MAP_BRIDGE_BOX"
@@ -844,8 +846,7 @@ mir_expect_failure = true
 
 [[fixtures.producers]]
 profile = "layout-table"
-kind = "check_failure"
-check_expect_failure = true
+kind = "success"
 report_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_bridge_box.report.expected.kv"
 check_expected = "tools/hako_check/manifests/fastmem_source_syntax_smoke/page_map_bridge_box.check.expected.kv"
 

@@ -12,6 +12,7 @@ for _path in (str(_REPO_ROOT), str(_LLVM_PY_ROOT)):
         sys.path.insert(0, _path)
 
 from src.llvm_py.instructions.memop import lower_memop
+from src.llvm_py.instructions.copy import lower_copy
 
 
 class _DummyResolver:
@@ -380,6 +381,43 @@ class TestFastMemMemOpLayoutRef(unittest.TestCase):
                 {},
                 {},
             )
+
+    def test_layout_ref_copy_propagates_without_vmap_escape(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        resolver.current_instruction_index = 1
+        plan = _verified_field_load_plan()
+        plan["base"] = 14
+        resolver.fastmem_access_plans_by_site[(0, 1)] = [plan]
+        base_ptr = builder.inttoptr(
+            ir.Constant(i64, 8192),
+            ir.IntType(8).as_pointer(),
+            name="copied_layout_ref",
+        )
+        resolver.fastmem_layout_refs[12] = {
+            "ptr": base_ptr,
+            "layout_id": "PageMetaLayoutV0",
+            "table_id": "page_table",
+            "region": 1,
+        }
+        vmap = {}
+
+        lower_copy(builder, 14, 12, vmap, resolver, builder.block, {}, {}, {})
+        lower_memop(
+            builder,
+            {"kind": "field_load", "dst": 13, "operands": [14]},
+            vmap,
+            resolver,
+            builder.block,
+            {},
+            {},
+            {},
+        )
+        builder.ret(vmap[13])
+
+        self.assertIn(14, resolver.fastmem_layout_refs)
+        self.assertNotIn(14, vmap)
+        self.assertIn("fastmem_field_ptr_13", str(module))
 
     def test_incomplete_table_plan_is_rejected(self):
         i64, _module, builder = _new_builder()

@@ -49,6 +49,15 @@ def lower_copy(
                 bb_map = ctx.bb_map
         except _SAFE_COPY_EXC:
             pass
+    try:
+        refs = getattr(resolver, "fastmem_layout_refs", None)
+        if isinstance(refs, dict) and int(src) in refs:
+            refs[int(dst)] = dict(refs[int(src)])
+            if vmap is not None:
+                vmap.pop(int(dst), None)
+            return
+    except _SAFE_COPY_EXC:
+        pass
     # Prefer local SSA directly in FAST lane to avoid resolver round-trip overhead
     # on dense copy chains (numeric_mixed_medium hotspot).
     val = None

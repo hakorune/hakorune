@@ -1017,6 +1017,7 @@ def _build_route_summary(
     if profile not in (
         "owner-runtime",
         "local-free",
+        "layout-table",
         "layout_table",
     ):
         if refresh_spec is not None:
