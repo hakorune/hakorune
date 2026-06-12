@@ -7,6 +7,17 @@
 use super::{MirFunction, MirModule};
 use crate::debug::log as dlog;
 use crate::mir::verification_types::VerificationError;
+
+/// Collect errors from a `Result<(), Vec<VerificationError>>` into a target vec.
+/// Replaces the recurring `if let Err(mut $name) = $expr { $target.append(&mut $name); }` pattern.
+macro_rules! collect_errors {
+    ($target:expr, $check:expr) => {
+        if let Err(mut _errs) = $check {
+            $target.append(&mut _errs);
+        }
+    };
+}
+
 mod awaits;
 mod barrier;
 mod cfg;
@@ -44,26 +55,10 @@ impl MirVerifier {
             return Ok(());
         }
 
-        if let Err(mut numeric_errors) =
-            numeric_substrate::check_exact_numeric_field_assignments(module)
-        {
-            self.errors.append(&mut numeric_errors);
-        }
-        if let Err(mut module_metadata_errors) =
-            module_metadata::check_module_metadata_invariants(module)
-        {
-            self.errors.append(&mut module_metadata_errors);
-        }
-        if let Err(mut hako_alloc_metadata_errors) =
-            hako_alloc_metadata::check_hako_alloc_metadata_invariants(module)
-        {
-            self.errors.append(&mut hako_alloc_metadata_errors);
-        }
-        if let Err(mut hako_alloc_page_lifecycle_errors) =
-            hako_alloc_page_lifecycle::check_hako_alloc_page_lifecycle_invariants(module)
-        {
-            self.errors.append(&mut hako_alloc_page_lifecycle_errors);
-        }
+        collect_errors!(self.errors, numeric_substrate::check_exact_numeric_field_assignments(module));
+        collect_errors!(self.errors, module_metadata::check_module_metadata_invariants(module));
+        collect_errors!(self.errors, hako_alloc_metadata::check_hako_alloc_metadata_invariants(module));
+        collect_errors!(self.errors, hako_alloc_page_lifecycle::check_hako_alloc_page_lifecycle_invariants(module));
 
         for (_name, function) in &module.functions {
             if let Err(mut func_errors) = self.verify_function(function) {
@@ -191,9 +186,7 @@ impl MirVerifier {
         };
 
         // 1. Check SSA form
-        if let Err(mut ssa_errors) = self.verify_ssa_form(function) {
-            local_errors.append(&mut ssa_errors);
-        }
+        collect_errors!(local_errors, self.verify_ssa_form(function));
 
         // 2. Check dominance relations
         if let Some((def_block, dominators)) = def_block.as_ref().zip(dominators.as_ref()) {
@@ -206,14 +199,10 @@ impl MirVerifier {
         }
 
         // 3. Check control flow integrity
-        if let Err(mut cfg_errors) = self.verify_control_flow(function) {
-            local_errors.append(&mut cfg_errors);
-        }
+        collect_errors!(local_errors, self.verify_control_flow(function));
 
         // Phase 257 P1-1: PHI predecessor validation
-        if let Err(mut phi_errors) = cfg::check_phi_predecessors(function) {
-            local_errors.append(&mut phi_errors);
-        }
+        collect_errors!(local_errors, cfg::check_phi_predecessors(function));
 
         // 4. Check merge-block value usage (ensure Phi is used)
         if let Some((preds, def_block, dominators)) = preds
@@ -231,56 +220,36 @@ impl MirVerifier {
             local_errors.append(&mut merge_errors);
         }
         // 5. Minimal checks for WeakRef/Barrier
-        if let Err(mut weak_barrier_errors) = self.verify_weakref_and_barrier(function) {
-            local_errors.append(&mut weak_barrier_errors);
-        }
+        collect_errors!(local_errors, self.verify_weakref_and_barrier(function));
         // 6. Light barrier-context diagnostic (strict mode only)
-        if let Err(mut barrier_ctx) = self.verify_barrier_context(function) {
-            local_errors.append(&mut barrier_ctx);
-        }
+        collect_errors!(local_errors, self.verify_barrier_context(function));
         // 7. Forbid legacy instructions (must be rewritten to Core-15)
-        if let Err(mut legacy_errors) = self.verify_no_legacy_ops(function) {
-            local_errors.append(&mut legacy_errors);
-        }
+        collect_errors!(local_errors, self.verify_no_legacy_ops(function));
         // 8. Async semantics: ensure checkpoints around await
-        if let Err(mut await_cp) = self.verify_await_checkpoints(function) {
-            local_errors.append(&mut await_cp);
-        }
+        collect_errors!(local_errors, self.verify_await_checkpoints(function));
 
         // 9. PHI-off strict edge-copy policy (optional)
         if crate::config::env::mir_no_phi() && crate::config::env::verify_edge_copy_strict() {
-            if let Err(mut ecs) = self.verify_edge_copy_strict(function) {
-                local_errors.append(&mut ecs);
-            }
+            collect_errors!(local_errors, self.verify_edge_copy_strict(function));
         }
 
         // 10. Ret-block purity (optional, dev-only)
         if crate::config::env::verify_ret_purity() {
-            if let Err(mut rpe) = self.verify_ret_block_purity(function) {
-                local_errors.append(&mut rpe);
-            }
+            collect_errors!(local_errors, self.verify_ret_block_purity(function));
         }
 
         // 11. String direct-kernel legality / consumer rule verification
-        if let Err(mut string_kernel_errors) = self.verify_string_kernel_plans(function) {
-            local_errors.append(&mut string_kernel_errors);
-        }
+        collect_errors!(local_errors, self.verify_string_kernel_plans(function));
 
         // 12. Rune contract metadata verification before any backend may trust it.
-        if let Err(mut rune_contract_errors) = self.verify_rune_contracts(function) {
-            local_errors.append(&mut rune_contract_errors);
-        }
+        collect_errors!(local_errors, self.verify_rune_contracts(function));
 
         // 13. Required inline verification before strict lowering may trust it.
-        if let Err(mut inline_required_errors) = self.verify_required_inline_plans(function) {
-            local_errors.append(&mut inline_required_errors);
-        }
+        collect_errors!(local_errors, self.verify_required_inline_plans(function));
 
         // 14. FastMemory MemOp region contract verification before any backend
         // may consume the dialect.
-        if let Err(mut fastmem_errors) = self.verify_fastmem_regions(function) {
-            local_errors.append(&mut fastmem_errors);
-        }
+        collect_errors!(local_errors, self.verify_fastmem_regions(function));
 
         if local_errors.is_empty() {
             Ok(())
