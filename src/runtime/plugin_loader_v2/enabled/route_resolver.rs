@@ -8,6 +8,7 @@ use super::loader::PluginLoaderV2;
 use super::PluginCallableExport;
 use crate::bid::{BidError, BidResult};
 
+#[cfg(test)]
 #[derive(Clone, Debug)]
 pub(super) struct MethodRouteContract {
     pub type_id: u32,
@@ -81,6 +82,7 @@ pub(super) fn resolve_lib_box_for_type_id(
     cands.into_iter().next()
 }
 
+#[cfg(test)]
 fn selected_library_name(loader: &PluginLoaderV2, box_type: &str) -> Option<String> {
     let cfg = loader.config.as_ref()?;
     let (_lib_name, _lib_def) = cfg.find_library_for_box(box_type)?;
@@ -103,6 +105,7 @@ fn type_id_from_selected_lib(
         .and_then(|spec| spec.type_id))
 }
 
+#[cfg(test)]
 pub(super) fn resolve_type_info(
     loader: &PluginLoaderV2,
     box_type: &str,
@@ -270,6 +273,7 @@ pub(super) fn resolve_type_and_fini_for_lib(
     Ok((resolved_type, fini_id))
 }
 
+#[cfg(test)]
 pub(super) fn resolve_method_contract(
     loader: &PluginLoaderV2,
     box_type: &str,

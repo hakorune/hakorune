@@ -4,7 +4,7 @@
 //! function pointers at the runtime boundary.
 
 use crate::bid::{BidError, BidResult};
-use crate::box_callable::providers::plugin_loader::seed_plugin_loader;
+use crate::box_callable::providers::plugin_loader::{seed_plugin_exports, seed_plugin_loader};
 use crate::box_callable::{
     BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableTarget, InvokeRoutePlan,
     NewBoxRoutePlan,
@@ -41,7 +41,37 @@ pub(super) fn resolve_newbox_lifecycle_plan(
 ) -> BidResult<PluginNewBoxExecutionPlan> {
     let mut registry = BoxCallableRegistry::new();
     seed_plugin_loader(&mut registry, loader)?;
+    resolve_newbox_lifecycle_plan_from_registry(loader, &registry, box_type)
+}
 
+pub(super) fn resolve_newbox_lifecycle_plan_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+) -> BidResult<PluginNewBoxExecutionPlan> {
+    let exports = loader.export_box_callables()?;
+    let selected: Vec<_> = exports
+        .iter()
+        .filter(|export| match export {
+            crate::runtime::plugin_loader_v2::PluginCallableExport::Lifecycle {
+                lib_name: export_lib,
+                box_type: export_box,
+                ..
+            } => export_lib == lib_name && export_box == box_type,
+            _ => false,
+        })
+        .cloned()
+        .collect();
+    let mut registry = BoxCallableRegistry::new();
+    seed_plugin_exports(&mut registry, selected.iter());
+    resolve_newbox_lifecycle_plan_from_registry(loader, &registry, box_type)
+}
+
+fn resolve_newbox_lifecycle_plan_from_registry(
+    loader: &PluginLoaderV2,
+    registry: &BoxCallableRegistry,
+    box_type: &str,
+) -> BidResult<PluginNewBoxExecutionPlan> {
     let key = BoxCallableKey::new(box_type, BoxCallableRole::Birth, "birth", 0);
     let target = registry.get(&key).ok_or(BidError::InvalidMethod)?;
     let BoxCallableTarget::PluginLifecycle { type_id, .. } = target else {

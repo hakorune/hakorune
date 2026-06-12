@@ -1,7 +1,7 @@
 use super::PluginLoaderV2;
 use crate::bid::{BidError, BidResult};
 use crate::runtime::get_global_ring0;
-use crate::runtime::plugin_loader_v2::enabled::{host_bridge, types};
+use crate::runtime::plugin_loader_v2::enabled::{lifecycle_route_plan, types};
 
 pub(super) fn prebirth_singletons(loader: &PluginLoaderV2) -> BidResult<()> {
     let Some(config) = loader.config.as_ref() else {
@@ -39,19 +39,16 @@ pub(super) fn ensure_singleton_handle(
     let plugins = loader.plugins.read().map_err(|_| BidError::PluginError)?;
     let _plugin = plugins.get(lib_name).ok_or(BidError::PluginError)?;
 
-    let birth_contract =
-        super::super::route_resolver::resolve_birth_contract_for_lib(loader, lib_name, box_type)?;
-    let type_id = birth_contract.type_id;
-    let fini_id = birth_contract.fini_id;
+    let plan =
+        lifecycle_route_plan::resolve_newbox_lifecycle_plan_for_lib(loader, lib_name, box_type)?;
+    let type_id = plan.type_id;
+    let fini_id = plan.fini_id;
 
     let tlv_args = crate::runtime::plugin_ffi_common::encode_empty_args();
-    let route = super::super::route_resolver::resolve_invoke_route_contract(loader, type_id);
-    let (status, _, out_vec) = host_bridge::invoke_alloc_with_route(
-        route.invoke_box_fn,
-        route.invoke_shim_fn,
-        route.allow_compat_shim,
+    let (status, _, out_vec) = lifecycle_route_plan::invoke_plugin_lifecycle(
+        plan.invoke_route,
         type_id,
-        0,
+        plan.birth_id,
         0,
         &tlv_args,
     );
@@ -71,9 +68,9 @@ pub(super) fn ensure_singleton_handle(
     let instance_id = u32::from_le_bytes([out_vec[0], out_vec[1], out_vec[2], out_vec[3]]);
     let handle = Arc::new(types::PluginHandleInner {
         type_id,
-        invoke_fn: route.invoke_shim_fn,
-        invoke_box_fn: route.invoke_box_fn,
-        allow_compat_shim: route.allow_compat_shim,
+        invoke_fn: plan.invoke_route.invoke_shim_fn,
+        invoke_box_fn: plan.invoke_route.invoke_box_fn,
+        allow_compat_shim: plan.invoke_route.allow_compat_shim,
         instance_id,
         fini_method_id: fini_id,
         finalized: std::sync::atomic::AtomicBool::new(false),

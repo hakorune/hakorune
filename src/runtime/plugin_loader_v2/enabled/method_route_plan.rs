@@ -14,6 +14,7 @@ use super::loader::PluginLoaderV2;
 pub(super) struct PluginMethodExecutionPlan {
     pub type_id: u32,
     pub method_id: u32,
+    pub returns_result: bool,
     pub invoke_box_fn: Option<BoxInvokeFn>,
     pub invoke_shim_fn: InvokeFn,
     pub allow_compat_shim: bool,
@@ -25,28 +26,24 @@ pub(super) fn resolve_method_call_plan(
     method_name: &str,
     arity: u8,
 ) -> BidResult<PluginMethodExecutionPlan> {
-    let mut registry = BoxCallableRegistry::new();
-    seed_plugin_loader(&mut registry, loader)?;
-
-    let target = find_method_target(&registry, box_type, method_name, arity)
-        .ok_or(BidError::InvalidMethod)?;
+    let target = resolve_method_target(loader, box_type, method_name, arity)?;
     let BoxCallableTarget::PluginMethod { type_id, .. } = target else {
         return Err(BidError::InvalidMethod);
     };
 
-    let runtime_route = super::route_resolver::resolve_invoke_route_contract(loader, *type_id);
+    let runtime_route = super::route_resolver::resolve_invoke_route_contract(loader, type_id);
     let semantic_route = InvokeRoutePlan::PluginV2 {
-        type_id: *type_id,
+        type_id,
         invoke_box_available: runtime_route.invoke_box_fn.is_some(),
         allow_compat_shim: runtime_route.allow_compat_shim,
     };
-    let semantic_plan = MethodCallRoutePlan::from_target(target, Some(semantic_route))
+    let semantic_plan = MethodCallRoutePlan::from_target(&target, Some(semantic_route))
         .ok_or(BidError::InvalidMethod)?;
 
     let MethodCallRoutePlan::PluginInvoke {
         type_id,
         method_id,
-        returns_result: _,
+        returns_result,
         ..
     } = semantic_plan
     else {
@@ -56,10 +53,24 @@ pub(super) fn resolve_method_call_plan(
     Ok(PluginMethodExecutionPlan {
         type_id,
         method_id,
+        returns_result,
         invoke_box_fn: runtime_route.invoke_box_fn,
         invoke_shim_fn: runtime_route.invoke_shim_fn,
         allow_compat_shim: runtime_route.allow_compat_shim,
     })
+}
+
+pub(super) fn resolve_method_target(
+    loader: &PluginLoaderV2,
+    box_type: &str,
+    method_name: &str,
+    arity: u8,
+) -> BidResult<BoxCallableTarget> {
+    let mut registry = BoxCallableRegistry::new();
+    seed_plugin_loader(&mut registry, loader)?;
+    find_method_target(&registry, box_type, method_name, arity)
+        .cloned()
+        .ok_or(BidError::InvalidMethod)
 }
 
 fn find_method_target<'a>(
@@ -116,6 +127,7 @@ mod tests {
         let plan = PluginMethodExecutionPlan {
             type_id: 42,
             method_id: 7,
+            returns_result: false,
             invoke_box_fn: None,
             invoke_shim_fn: shim,
             allow_compat_shim: false,

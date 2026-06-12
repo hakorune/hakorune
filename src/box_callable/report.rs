@@ -34,6 +34,14 @@ pub const METHOD_CALL_PLAN_DERIVES_FROM_REGISTRY_COUNT: &str =
 pub const SLOW_DYNAMIC_ROUTE_EXPLICIT_COUNT: &str = "slow_dynamic_route_explicit_count";
 pub const FALLBACK_AFTER_SELECTED_METHOD_ROUTE_COUNT: &str =
     "fallback_after_selected_method_route_count";
+pub const DUPLICATE_CALLABLE_TRUTH_COUNT: &str = "duplicate_callable_truth_count";
+pub const PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY: &str = "plugin_loader_callable_provider_only";
+pub const TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY: &str = "type_registry_callable_provider_only";
+pub const TYPE_ABI_CATALOG_PROJECTION_ONLY: &str = "type_abi_catalog_projection_only";
+pub const METHOD_RESOLVER_DERIVES_FROM_ROUTE_PLAN_COUNT: &str =
+    "method_resolver_derives_from_route_plan_count";
+pub const SINGLETON_BIRTH_DERIVES_FROM_LIFECYCLE_PLAN_COUNT: &str =
+    "singleton_birth_derives_from_lifecycle_plan_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -103,6 +111,17 @@ pub const BOXCALL_007_ROWS: &[(&str, &str)] = &[
     (METHOD_SLOT_ID_SPACE, ID_SPACE_INTERNAL_VTABLE_SLOT),
     (SLOW_DYNAMIC_ROUTE_EXPLICIT_COUNT, "1"),
     (FALLBACK_AFTER_SELECTED_METHOD_ROUTE_COUNT, "0"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BOXCALL_008_ROWS: &[(&str, &str)] = &[
+    (DUPLICATE_CALLABLE_TRUTH_COUNT, "0"),
+    (PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY, "1"),
+    (TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY, "1"),
+    (TYPE_ABI_CATALOG_PROJECTION_ONLY, "1"),
+    (METHOD_RESOLVER_DERIVES_FROM_ROUTE_PLAN_COUNT, "1"),
+    (SINGLETON_BIRTH_DERIVES_FROM_LIFECYCLE_PLAN_COUNT, "1"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
 ];
@@ -215,6 +234,23 @@ mod tests {
         assert_eq!(rows[METHOD_SLOT_ID_SPACE], ID_SPACE_INTERNAL_VTABLE_SLOT);
         assert_eq!(rows[SLOW_DYNAMIC_ROUTE_EXPLICIT_COUNT], "1");
         assert_eq!(rows[FALLBACK_AFTER_SELECTED_METHOD_ROUTE_COUNT], "0");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_008_rows_retire_duplicate_callable_truth() {
+        let rows = BOXCALL_008_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[DUPLICATE_CALLABLE_TRUTH_COUNT], "0");
+        assert_eq!(rows[PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY], "1");
+        assert_eq!(rows[TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY], "1");
+        assert_eq!(rows[TYPE_ABI_CATALOG_PROJECTION_ONLY], "1");
+        assert_eq!(rows[METHOD_RESOLVER_DERIVES_FROM_ROUTE_PLAN_COUNT], "1");
+        assert_eq!(rows[SINGLETON_BIRTH_DERIVES_FROM_LIFECYCLE_PLAN_COUNT], "1");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
     }

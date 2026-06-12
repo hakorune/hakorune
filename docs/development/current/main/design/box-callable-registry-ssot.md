@@ -524,12 +524,53 @@ Runtime executable method plans:
 
 Retire duplicate callable truth.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 PluginLoader no longer owns callable route truth after registration
 type_registry is provider / seed source, not parallel planner truth
 TypeAbiCatalog remains projection index
+```
+
+Code entry:
+
+```text
+Method resolver cutover:
+  src/runtime/plugin_loader_v2/enabled/method_resolver.rs
+  src/runtime/plugin_loader_v2/enabled/method_route_plan.rs
+
+Singleton lifecycle cutover:
+  src/runtime/plugin_loader_v2/enabled/loader/singletons.rs
+  src/runtime/plugin_loader_v2/enabled/lifecycle_route_plan.rs
+
+Report guard rows:
+  src/box_callable/report.rs
+```
+
+Allowed residual PluginLoader route resolver uses:
+
+```text
+provider export:
+  PluginLoader reads config/spec/loading metadata and exports PluginCallableExport.
+
+runtime invoke boundary:
+  Runtime execution plans close over invoke_box/invoke_shim function pointers.
+
+handle hydration:
+  Returned plugin handles may resolve runtime metadata from type_id.
+```
+
+Forbidden after this point:
+
+```text
+method call / method metadata public helpers must not re-resolve method_id
+or returns_result directly from PluginLoader route_resolver.
+
+singleton birth must not bypass BoxCallable lifecycle plans.
+
+TypeAbiCatalog must not become an execution route.
 ```
 
 ## Non-Goals
