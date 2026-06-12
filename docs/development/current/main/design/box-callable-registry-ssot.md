@@ -499,12 +499,25 @@ Plugin lifecycle execution plan:
 
 Cut over method call planning.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 method call plans derive from registry entries
 internal slot and plugin method id remain separate targets
 slow dynamic route is explicit
+```
+
+Code entry:
+
+```text
+Semantic route plans:
+  src/box_callable/route_plan.rs
+
+Runtime executable method plans:
+  src/runtime/plugin_loader_v2/enabled/method_route_plan.rs
+  src/runtime/plugin_loader_v2/enabled/ffi_bridge.rs
 ```
 
 ### BOXCALL-008

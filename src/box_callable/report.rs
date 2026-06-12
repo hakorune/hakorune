@@ -29,6 +29,11 @@ pub const LIFECYCLE_SELECTED_ROUTE_RERESOLVE_HOT_COUNT: &str =
     "lifecycle_selected_route_reresolve_hot_count";
 pub const FALLBACK_AFTER_SELECTED_LIFECYCLE_ROUTE_COUNT: &str =
     "fallback_after_selected_lifecycle_route_count";
+pub const METHOD_CALL_PLAN_DERIVES_FROM_REGISTRY_COUNT: &str =
+    "method_call_plan_derives_from_registry_count";
+pub const SLOW_DYNAMIC_ROUTE_EXPLICIT_COUNT: &str = "slow_dynamic_route_explicit_count";
+pub const FALLBACK_AFTER_SELECTED_METHOD_ROUTE_COUNT: &str =
+    "fallback_after_selected_method_route_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -90,6 +95,16 @@ pub const BOXCALL_006_ROWS: &[(&str, &str)] = &[
     (LIFECYCLE_SELECTED_ROUTE_RERESOLVE_HOT_COUNT, "0"),
     (FALLBACK_AFTER_SELECTED_LIFECYCLE_ROUTE_COUNT, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+];
+
+pub const BOXCALL_007_ROWS: &[(&str, &str)] = &[
+    (METHOD_CALL_PLAN_DERIVES_FROM_REGISTRY_COUNT, "1"),
+    (PLUGIN_METHOD_ID_SPACE, ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID),
+    (METHOD_SLOT_ID_SPACE, ID_SPACE_INTERNAL_VTABLE_SLOT),
+    (SLOW_DYNAMIC_ROUTE_EXPLICIT_COUNT, "1"),
+    (FALLBACK_AFTER_SELECTED_METHOD_ROUTE_COUNT, "0"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (ID_SPACE_MIXED_COUNT, "0"),
 ];
 
 #[cfg(test)]
@@ -183,5 +198,24 @@ mod tests {
         assert_eq!(rows[LIFECYCLE_SELECTED_ROUTE_RERESOLVE_HOT_COUNT], "0");
         assert_eq!(rows[FALLBACK_AFTER_SELECTED_LIFECYCLE_ROUTE_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_007_rows_keep_method_calls_on_registry_route_plan_seam() {
+        let rows = BOXCALL_007_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[METHOD_CALL_PLAN_DERIVES_FROM_REGISTRY_COUNT], "1");
+        assert_eq!(
+            rows[PLUGIN_METHOD_ID_SPACE],
+            ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID
+        );
+        assert_eq!(rows[METHOD_SLOT_ID_SPACE], ID_SPACE_INTERNAL_VTABLE_SLOT);
+        assert_eq!(rows[SLOW_DYNAMIC_ROUTE_EXPLICIT_COUNT], "1");
+        assert_eq!(rows[FALLBACK_AFTER_SELECTED_METHOD_ROUTE_COUNT], "0");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
     }
 }

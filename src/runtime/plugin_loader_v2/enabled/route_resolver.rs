@@ -10,7 +10,6 @@ use crate::bid::{BidError, BidResult};
 
 #[derive(Clone, Debug)]
 pub(super) struct MethodRouteContract {
-    pub lib_name: String,
     pub type_id: u32,
     pub method_id: u32,
     pub returns_result: bool,
@@ -282,7 +281,6 @@ pub(super) fn resolve_method_contract(
         resolve_method_returns_result_for_lib(loader, &lib_name, box_type, method_name)
             .unwrap_or(false);
     Ok(MethodRouteContract {
-        lib_name,
         type_id,
         method_id,
         returns_result,
@@ -515,7 +513,6 @@ run = { method_id = 7, returns_result = true }
     fn resolve_method_contract_from_specs() {
         let loader = seed_loader_with_spec();
         let got = resolve_method_contract(&loader, "DemoBox", "run").expect("method contract");
-        assert_eq!(got.lib_name, "demo");
         assert_eq!(got.type_id, 42);
         assert_eq!(got.method_id, 7);
         assert!(got.returns_result);

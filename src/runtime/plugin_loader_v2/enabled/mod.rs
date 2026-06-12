@@ -12,6 +12,7 @@ mod instance_manager;
 mod lifecycle_route_plan;
 mod loader;
 mod method_resolver;
+mod method_route_plan;
 mod route_resolver;
 mod types;
 

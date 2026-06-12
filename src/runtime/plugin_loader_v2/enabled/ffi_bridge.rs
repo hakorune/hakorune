@@ -19,16 +19,14 @@ impl PluginLoaderV2 {
         instance_id: u32,
         args: &[Box<dyn NyashBox>],
     ) -> BidResult<Option<Box<dyn NyashBox>>> {
-        // Mainline path: resolve route contract from selected library config/spec only.
-        // This avoids route drift into legacy resolver fallback paths.
-        let contract = super::route_resolver::resolve_method_contract(self, box_type, method_name)?;
-        let type_id = contract.type_id;
-        let method_id = contract.method_id;
-        let lib_name = contract.lib_name;
-
-        // Get plugin handle
-        let plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
-        let _plugin = plugins.get(&lib_name).ok_or(BidError::PluginError)?;
+        let plan = super::method_route_plan::resolve_method_call_plan(
+            self,
+            box_type,
+            method_name,
+            args.len() as u8,
+        )?;
+        let type_id = plan.type_id;
+        let method_id = plan.method_id;
 
         super::compat_ffi_bridge::maybe_probe_c_wrap(box_type, method_name);
         super::compat_ffi_bridge::maybe_probe_c_core(
@@ -53,16 +51,8 @@ impl PluginLoaderV2 {
             ));
         }
 
-        let route = super::route_resolver::resolve_invoke_route_contract(self, type_id);
-        let (code, out_len, out) = super::host_bridge::invoke_alloc_with_route(
-            route.invoke_box_fn,
-            route.invoke_shim_fn,
-            route.allow_compat_shim,
-            type_id,
-            method_id,
-            instance_id,
-            &tlv,
-        );
+        let (code, out_len, out) =
+            super::method_route_plan::invoke_plugin_method(plan, instance_id, &tlv);
         if code != 0 {
             if dbg_on() {
                 get_global_ring0().log.debug(&format!(
