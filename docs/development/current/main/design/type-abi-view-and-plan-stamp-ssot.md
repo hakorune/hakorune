@@ -445,6 +445,8 @@ It is a transient cold query result and must not become domain truth.
 
 Add internal Rust pack builder.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
@@ -452,6 +454,10 @@ existing truth encodes to TypeAbiPack bytes
 TypeAbiPack is documented and reported as snapshot
 planners/lowerers do not consume pack for hot decisions
 ```
+
+The v0 pack builder is internal Rust code only. It encodes `TypeAbiView`
+entries into a generated snapshot and does not add a C cursor or planner
+consumer.
 
 ### TYPEABI-CURSOR-000
 

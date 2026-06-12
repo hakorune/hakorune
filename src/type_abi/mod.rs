@@ -5,6 +5,7 @@
 //! domain needs cold tooling or report output.
 
 pub mod method_entry;
+pub mod pack;
 pub mod report;
 
 /// Stable tag for a Type ABI entry payload.
@@ -96,7 +97,7 @@ pub struct TypeAbiEntryHeader {
 }
 
 impl TypeAbiEntryHeader {
-    pub fn from_view(view: &impl TypeAbiView) -> Self {
+    pub fn from_view<V: TypeAbiView + ?Sized>(view: &V) -> Self {
         Self {
             tag: view.abi_tag(),
             id: view.abi_id(),

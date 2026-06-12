@@ -75,6 +75,15 @@ pub const TYPEABI_VIEW_003_IN_MEMORY_QUERY_ROWS: &[(&str, &str)] = &[
     (TYPE_ABI_QUERY_HOT_PATH_COUNT, "0"),
 ];
 
+pub const TYPEABI_PACK_000_ROWS: &[(&str, &str)] = &[
+    (TYPE_ABI_PACK_IS_TRUTH, "0"),
+    (TYPE_ABI_PACK_GENERATED_COUNT, "1"),
+    (TYPE_ABI_PACK_SCHEMA_VERSION, "1"),
+    (TYPE_ABI_C_API_FUNCTION_COUNT, "0"),
+    (TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (TYPE_ABI_QUERY_HOT_PATH_COUNT, "0"),
+];
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -131,5 +140,19 @@ mod tests {
         assert_eq!(rows[TYPE_ABI_C_API_FUNCTION_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_QUERY_HOT_PATH_COUNT], "0");
+    }
+
+    #[test]
+    fn pack_rows_keep_snapshot_out_of_hot_path() {
+        let rows = TYPEABI_PACK_000_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[TYPE_ABI_PACK_IS_TRUTH], "0");
+        assert_eq!(rows[TYPE_ABI_PACK_GENERATED_COUNT], "1");
+        assert_eq!(rows[TYPE_ABI_PACK_SCHEMA_VERSION], "1");
+        assert_eq!(rows[TYPE_ABI_C_API_FUNCTION_COUNT], "0");
+        assert_eq!(rows[TYPE_ABI_HOT_LOOKUP_COUNT], "0");
     }
 }
