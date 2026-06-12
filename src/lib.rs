@@ -19,6 +19,7 @@ pub mod box_arithmetic {
         AddBox, CompareBox, DivideBox, ModuloBox, MultiplyBox, SubtractBox,
     };
 }
+pub mod box_callable;
 pub mod box_factory; // unified Box Factory
 pub mod box_operators {
     pub use crate::boxes::operators::*;

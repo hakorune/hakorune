@@ -26,6 +26,13 @@ pub const TYPE_ABI_PACK_USED_BY_PLANNER_COUNT: &str = "type_abi_pack_used_by_pla
 pub const DOMAIN_PLANNER_OWN_TRUTH_READ_COUNT: &str = "domain_planner_own_truth_read_count";
 pub const DOMAIN_PLANNER_CATALOG_QUERY_COUNT: &str = "domain_planner_catalog_query_count";
 pub const GENERIC_TYPEABI_GENERATE_PLANS_COUNT: &str = "generic_typeabi_generate_plans_count";
+pub const BOX_DESCRIPTOR_MODE: &str = "box_descriptor_mode";
+pub const BOX_DESCRIPTOR_MODE_PROJECTION_OVER_BOX_CALLABLE_REGISTRY: &str =
+    "projection_over_box_callable_registry";
+pub const BOX_DESCRIPTOR_PACK_IS_TRUTH: &str = "box_descriptor_pack_is_truth";
+pub const BOX_DESCRIPTOR_HOT_LOOKUP_COUNT: &str = "box_descriptor_hot_lookup_count";
+pub const BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY: &str =
+    "box_descriptor_catalog_is_execution_registry";
 
 pub const TYPE_ABI_QUERY_PHASE_PLANNING: &str = "planning";
 pub const TYPE_ABI_QUERY_PHASE_REFLECTION: &str = "reflection";
@@ -102,6 +109,17 @@ pub const TYPEABI_CATALOG_001_ROWS: &[(&str, &str)] = &[
     (TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT, "0"),
     (TYPE_ABI_PACK_USED_BY_PLANNER_COUNT, "0"),
     (GENERIC_TYPEABI_GENERATE_PLANS_COUNT, "0"),
+];
+
+pub const TYPEABI_NAMING_001_ROWS: &[(&str, &str)] = &[
+    (
+        BOX_DESCRIPTOR_MODE,
+        BOX_DESCRIPTOR_MODE_PROJECTION_OVER_BOX_CALLABLE_REGISTRY,
+    ),
+    (TYPE_ABI_MODE, TYPE_ABI_MODE_VIEW_OVER_EXISTING_TRUTH),
+    (BOX_DESCRIPTOR_PACK_IS_TRUTH, "0"),
+    (BOX_DESCRIPTOR_HOT_LOOKUP_COUNT, "0"),
+    (BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY, "0"),
 ];
 
 #[cfg(test)]
@@ -188,5 +206,22 @@ mod tests {
         assert_eq!(rows[TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_PACK_USED_BY_PLANNER_COUNT], "0");
         assert_eq!(rows[GENERIC_TYPEABI_GENERATE_PLANS_COUNT], "0");
+    }
+
+    #[test]
+    fn box_descriptor_rows_prefer_new_projection_names() {
+        let rows = TYPEABI_NAMING_001_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(
+            rows[BOX_DESCRIPTOR_MODE],
+            BOX_DESCRIPTOR_MODE_PROJECTION_OVER_BOX_CALLABLE_REGISTRY
+        );
+        assert_eq!(rows[TYPE_ABI_MODE], TYPE_ABI_MODE_VIEW_OVER_EXISTING_TRUTH);
+        assert_eq!(rows[BOX_DESCRIPTOR_PACK_IS_TRUTH], "0");
+        assert_eq!(rows[BOX_DESCRIPTOR_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY], "0");
     }
 }

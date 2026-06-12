@@ -144,6 +144,8 @@ BoxCallableRegistry remains callable truth
 
 Add report aliases for BoxDescriptor naming.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
@@ -155,6 +157,8 @@ new reports prefer box_descriptor_* keys
 ### TYPEABI-NAMING-002
 
 Add code aliases without moving files.
+
+Status: landed 2026-06-13.
 
 Acceptance:
 

@@ -4,6 +4,7 @@
 //! domain data remains the truth; adapters implement `TypeAbiView` when a
 //! domain needs cold tooling or report output.
 
+pub mod box_descriptor;
 pub mod box_domain;
 pub mod catalog;
 pub mod method_entry;

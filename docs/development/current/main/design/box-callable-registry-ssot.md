@@ -326,6 +326,8 @@ type_registry becomes provider / seed source in the final model
 
 Add `BoxCallableRegistry` skeleton.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
@@ -339,12 +341,29 @@ no Type ABI dependency
 
 Add BoxDescriptor report aliases before broader registry migration.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 BoxDescriptor naming exists in reports
 TypeAbi* names remain compatibility aliases
 TypeBox ABI v2 remains the only plugin execution ABI
+```
+
+### TYPEABI-NAMING-002
+
+Add BoxDescriptor code aliases without moving files.
+
+Status: landed 2026-06-13.
+
+Acceptance:
+
+```text
+BoxDescriptorView aliases TypeAbiView
+BoxDescriptorCatalog aliases TypeAbiCatalog
+BoxDescriptorPack aliases TypeAbiPack
+no public behavior changes
 ```
 
 ### BOXCALL-002
