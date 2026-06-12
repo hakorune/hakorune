@@ -53,6 +53,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - Type ABI view boundary and PlanStamp owner; keeps Type ABI as read-only
     descriptor/snapshot surface over existing domain truth instead of a third
     canonical ABI or hot execution path
+- `design/type-abi-catalog-planning-spine-ssot.md`
+  - TypeAbiCatalog planning spine contract; keeps Catalog as a thin
+    cross-domain query index and TypeAbiPack as a downstream artifact
 - `design/type-abi-box-domain-ssot.md`
   - Box Domain ownership for TypeBox slots, PluginLoader route contracts,
     lifecycle routes, and NewBox/DropBox plan boundaries
@@ -145,6 +148,8 @@ Rule:
   - Typed Object Exact Slot ABI（compat field route vs exact slot route boundary）: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
   - Type ABI View / PlanStamp:
     `docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md`
+  - Type ABI Catalog Planning Spine:
+    `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
   - Type ABI Box Domain:
     `docs/development/current/main/design/type-abi-box-domain-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`

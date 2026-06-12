@@ -5,6 +5,7 @@ Date: 2026-06-13
 Scope: Box Domain ownership for Type ABI views, plugin route contracts,
 NewBox/DropBox planning, and TypeBox slot visibility.
 Related:
+  - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -35,6 +36,9 @@ PluginLoader route resolver:
 
 Type ABI:
   read-only view over those truths
+
+TypeAbiCatalog:
+  cross-domain planning query spine
 
 Plan:
   execution route for NewBox / DropBox / MethodCall

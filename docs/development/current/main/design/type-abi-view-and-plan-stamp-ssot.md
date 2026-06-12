@@ -7,6 +7,7 @@ Related:
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/ABI_INDEX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
+  - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
   - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
@@ -28,6 +29,9 @@ Type ABI:
 
 TypeAbiPack:
   generated cold snapshot
+
+TypeAbiCatalog:
+  thin planning query spine
 
 Plan:
   execute selected route
@@ -131,6 +135,10 @@ cursor:
 
 `TypeAbiPack` must not be used as the source that planners or lowerers consult
 for hot decisions.
+
+In-process planning should prefer `TypeAbiCatalog` over pack bytes. The catalog
+is a thin index over published views; the pack is an artifact generated from
+that catalog for external or tooling consumers.
 
 Allowed readers:
 
