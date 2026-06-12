@@ -24,8 +24,7 @@ Related:
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- implementation gaps: none; open work is typed-object exact slot ABI split, and adjacent
-  array-text session route work is landing through the selected-route boundary slice
+- implementation gaps: none; read `active_lane_status` in `CURRENT_STATE.toml`
 
 ## Next
 
@@ -44,7 +43,8 @@ Related:
   closed-form scalar IR instead of adding source or MIRBuilder witnesses
 - use the inventory note first when pointer hunting is noisy
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
-- further user-box counter-heavy optimization must use selected exact slot routes, not compat `field_get_hii`
+- further optimization must use the active method anchor from
+  `CURRENT_STATE.toml` instead of stale historical lane notes
 
 ## Rules
 

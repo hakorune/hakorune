@@ -33,21 +33,37 @@ Provider ABI dispatch, or Python-template C semantic fallback.
 ## Implemented
 
 ```text
+src/llvm_py/instructions/copy.py:
+  propagates FastMemory LayoutRef carriers through Copy aliases without placing
+  raw LayoutRef values in the ordinary LLVM value map.
+
+src/llvm_py/tests/test_fastmem_memop_layoutref.py:
+  adds a regression that verifies Copy keeps LayoutRef in
+  resolver.fastmem_layout_refs and out of vmap before a field load consumes it.
+
 tools/hako_check/fastmem_mir_to_llvm_producer_report.py:
   compiles a MIR JSON file through the existing Python LLVM producer, then
   emits observation-only KV evidence from verified FastMemory access-plan
   metadata.
 
+tools/hako_check/fastmem_mir_to_llvm_producer_report_route_rows.py:
+  accepts the CLI profile spelling layout-table as the layout-table producer
+  profile, so route rows no longer fall back to stale atomic-remote defaults.
+
 tools/hako_check.sh:
   exposes the report as:
     fastmem-mir-to-llvm-producer-report --mir-json mir.json [--out report.kv]
 
-tools/hako_check/fastmem_source_syntax_smoke.sh:
+tools/hako_check/manifests/fastmem_source_syntax_smoke.toml:
   extends the existing FastMemory smoke so the PageMeta pilot now checks:
     source inventory
     MIR metadata inventory
     MIR-to-LLVM producer evidence
     fastmem-check over that evidence
+
+  The manifest also records newly reached producer boundaries where the Copy
+  LayoutRef fix advances old `expected-layout-ref` failures to either
+  producer success, check failure, or a later fail-fast reason.
 ```
 
 ## Evidence Shape
@@ -128,6 +144,35 @@ bash tools/hako_check/fastmem_producer_parity_smoke.sh
   src/llvm_py/tests/test_fastmem_memop_layoutref.py
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+Verified on 2026-06-12:
+
+```text
+.venv/bin/pytest -q src/llvm_py/tests/test_fastmem_metadata_loader.py \
+  src/llvm_py/tests/test_fastmem_memop_layoutref.py
+  -> 31 passed
+
+bash tools/hako_check/fastmem_source_syntax_smoke.sh
+  -> [TEST/OK] fastmem_source_syntax
+
+bash tools/hako_check/fastmem_capability_inventory_smoke.sh
+  -> [TEST/OK] fastmem_capability_inventory
+
+bash tools/hako_check/fastmem_check_smoke.sh
+  -> [TEST/OK] fastmem_check
+
+bash tools/hako_check/fastmem_producer_parity_smoke.sh
+  -> [TEST/OK] fastmem_producer_parity
+
+bash tools/checks/current_state_pointer_guard.sh
+  -> ok
+
+cargo check --release --bin hakorune
+  -> finished release profile
+
+git diff --check
+  -> ok
 ```
 
 ## Next
