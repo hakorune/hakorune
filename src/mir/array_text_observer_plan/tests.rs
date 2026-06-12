@@ -2,7 +2,7 @@ use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::{
     BasicBlock, BinaryOp, Callee, CompareOp, ConstValue, EffectMask, FunctionSignature,
-    MirInstruction, MirType, ValueId,
+    MirFunction, MirInstruction, MirType, ValueId,
 };
 
 #[test]

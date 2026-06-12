@@ -1,8 +1,11 @@
 use super::*;
 use crate::mir::{
-    thin_entry::{ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryValueClass},
-    thin_entry_selection::ThinEntrySelectionState,
-    EffectMask, FunctionSignature,
+    thin_entry::{
+        ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntryValueClass,
+    },
+    thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState},
+    BasicBlockId, BinaryOp, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
+    MirType, ValueId,
 };
 
 fn make_function(return_type: MirType) -> MirFunction {
