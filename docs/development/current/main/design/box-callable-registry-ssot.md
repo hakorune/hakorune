@@ -370,12 +370,20 @@ no public behavior changes
 
 Seed builtin callables from `type_registry::MethodEntry`.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 source=type_registry
 target=InternalSlot
 MethodEntry remains input truth during migration
+```
+
+Code entry:
+
+```text
+src/box_callable/providers/builtin_type_registry.rs
 ```
 
 ### BOXCALL-003
