@@ -204,6 +204,8 @@ cross-domain reads go through Catalog
 
 Add in-memory `TypeAbiCatalog` skeleton.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
@@ -217,6 +219,8 @@ type_abi_catalog_hot_lookup_count=0
 
 Publish `MethodEntry` views into `TypeAbiCatalog`.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
@@ -229,6 +233,8 @@ MethodEntry remains truth
 ### TYPEABI-BOXDOMAIN-001
 
 Add Box Domain report vocabulary.
+
+Status: landed 2026-06-13.
 
 Acceptance:
 

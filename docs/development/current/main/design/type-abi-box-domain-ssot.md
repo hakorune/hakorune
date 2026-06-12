@@ -273,6 +273,8 @@ Type ABI remains read-only view
 
 Add report vocabulary for Box Domain route ownership.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text

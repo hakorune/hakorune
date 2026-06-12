@@ -14,6 +14,18 @@ pub const TYPE_ABI_PACK_GENERATED_COUNT: &str = "type_abi_pack_generated_count";
 pub const TYPE_ABI_PACK_SOURCE_HASH: &str = "type_abi_pack_source_hash";
 pub const TYPE_ABI_PACK_ENTRY_COUNT: &str = "type_abi_pack_entry_count";
 pub const TYPE_ABI_PACK_SCHEMA_VERSION: &str = "type_abi_pack_schema_version";
+pub const TYPE_ABI_CATALOG_ENABLED: &str = "type_abi_catalog_enabled";
+pub const TYPE_ABI_CATALOG_IS_TRUTH: &str = "type_abi_catalog_is_truth";
+pub const TYPE_ABI_CATALOG_ENTRY_COUNT: &str = "type_abi_catalog_entry_count";
+pub const TYPE_ABI_CATALOG_QUERY_COUNT: &str = "type_abi_catalog_query_count";
+pub const TYPE_ABI_CATALOG_CROSS_DOMAIN_QUERY_COUNT: &str =
+    "type_abi_catalog_cross_domain_query_count";
+pub const TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT: &str = "type_abi_catalog_hot_lookup_count";
+pub const TYPE_ABI_PACK_FROM_CATALOG_COUNT: &str = "type_abi_pack_from_catalog_count";
+pub const TYPE_ABI_PACK_USED_BY_PLANNER_COUNT: &str = "type_abi_pack_used_by_planner_count";
+pub const DOMAIN_PLANNER_OWN_TRUTH_READ_COUNT: &str = "domain_planner_own_truth_read_count";
+pub const DOMAIN_PLANNER_CATALOG_QUERY_COUNT: &str = "domain_planner_catalog_query_count";
+pub const GENERIC_TYPEABI_GENERATE_PLANS_COUNT: &str = "generic_typeabi_generate_plans_count";
 
 pub const TYPE_ABI_QUERY_PHASE_PLANNING: &str = "planning";
 pub const TYPE_ABI_QUERY_PHASE_REFLECTION: &str = "reflection";
@@ -82,6 +94,14 @@ pub const TYPEABI_PACK_000_ROWS: &[(&str, &str)] = &[
     (TYPE_ABI_C_API_FUNCTION_COUNT, "0"),
     (TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (TYPE_ABI_QUERY_HOT_PATH_COUNT, "0"),
+];
+
+pub const TYPEABI_CATALOG_001_ROWS: &[(&str, &str)] = &[
+    (TYPE_ABI_CATALOG_ENABLED, "1"),
+    (TYPE_ABI_CATALOG_IS_TRUTH, "0"),
+    (TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT, "0"),
+    (TYPE_ABI_PACK_USED_BY_PLANNER_COUNT, "0"),
+    (GENERIC_TYPEABI_GENERATE_PLANS_COUNT, "0"),
 ];
 
 #[cfg(test)]
@@ -154,5 +174,19 @@ mod tests {
         assert_eq!(rows[TYPE_ABI_PACK_SCHEMA_VERSION], "1");
         assert_eq!(rows[TYPE_ABI_C_API_FUNCTION_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+    }
+
+    #[test]
+    fn catalog_rows_keep_catalog_thin_and_out_of_hot_path() {
+        let rows = TYPEABI_CATALOG_001_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[TYPE_ABI_CATALOG_ENABLED], "1");
+        assert_eq!(rows[TYPE_ABI_CATALOG_IS_TRUTH], "0");
+        assert_eq!(rows[TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[TYPE_ABI_PACK_USED_BY_PLANNER_COUNT], "0");
+        assert_eq!(rows[GENERIC_TYPEABI_GENERATE_PLANS_COUNT], "0");
     }
 }

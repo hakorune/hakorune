@@ -6,6 +6,7 @@
 use crate::runtime::type_box_abi::MethodEntry;
 
 use super::{TypeAbiError, TypeAbiPayloadSink, TypeAbiTag, TypeAbiView};
+use crate::type_abi::catalog::TypeAbiCatalog;
 
 /// Payload schema for a TypeBox `MethodEntry` view.
 ///
@@ -52,12 +53,16 @@ impl TypeAbiView for MethodEntry {
     }
 }
 
+pub fn publish_method_entry(catalog: &mut TypeAbiCatalog, entry: &MethodEntry) -> usize {
+    catalog.publish(entry)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::runtime::type_box_abi::MethodEntry;
 
     use super::*;
-    use crate::type_abi::TypeAbiEntryHeader;
+    use crate::type_abi::{catalog::TypeAbiCatalog, TypeAbiEntryHeader};
 
     #[test]
     fn method_entry_view_reads_existing_slot_truth() {
@@ -104,5 +109,22 @@ mod tests {
         assert_eq!(header.id, 200);
         assert_eq!(header.name.as_deref(), Some("len"));
         assert_eq!(header.payload_schema, TYPE_ABI_METHOD_ENTRY_SCHEMA_V0);
+    }
+
+    #[test]
+    fn method_entry_publish_adds_method_slot_header_to_catalog() {
+        let entry = MethodEntry {
+            name: "size",
+            arity: 0,
+            slot: 201,
+        };
+        let mut catalog = TypeAbiCatalog::new();
+
+        let index = publish_method_entry(&mut catalog, &entry);
+
+        assert_eq!(index, 0);
+        let got = catalog.get_by_tag_name(TypeAbiTag::Method, "size").unwrap();
+        assert_eq!(got.id, 201);
+        assert_eq!(got.payload_schema, TYPE_ABI_METHOD_ENTRY_SCHEMA_V0);
     }
 }
