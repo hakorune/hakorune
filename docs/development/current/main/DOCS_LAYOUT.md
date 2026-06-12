@@ -53,6 +53,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - Type ABI view boundary and PlanStamp owner; keeps Type ABI as read-only
     descriptor/snapshot surface over existing domain truth instead of a third
     canonical ABI or hot execution path
+- `design/type-abi-box-domain-ssot.md`
+  - Box Domain ownership for TypeBox slots, PluginLoader route contracts,
+    lifecycle routes, and NewBox/DropBox plan boundaries
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
 - `design/current-docs-archive-policy-ssot.md`
@@ -142,6 +145,8 @@ Rule:
   - Typed Object Exact Slot ABI（compat field route vs exact slot route boundary）: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
   - Type ABI View / PlanStamp:
     `docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md`
+  - Type ABI Box Domain:
+    `docs/development/current/main/design/type-abi-box-domain-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 

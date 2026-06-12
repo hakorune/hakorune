@@ -7,6 +7,7 @@ Related:
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/ABI_INDEX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
+  - docs/development/current/main/design/type-abi-box-domain-ssot.md
   - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
   - docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
   - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
@@ -53,6 +54,9 @@ Existing domain truth remains the source of authority:
 ```text
 call / method truth:
   type_registry / TypeBox MethodEntry
+
+box lifecycle / plugin route truth:
+  PluginLoader route resolver contracts
 
 typed field truth:
   typed-object plans and exact slot route decisions
