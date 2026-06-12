@@ -1,3 +1,4 @@
+mod box_callable_exports;
 pub(crate) mod compat_codegen_receiver;
 mod compat_ffi_bridge;
 mod compat_host_bridge;
@@ -13,6 +14,7 @@ mod method_resolver;
 mod route_resolver;
 mod types;
 
+pub use box_callable_exports::PluginCallableExport;
 pub use extern_functions::handle_box_introspect;
 pub use globals::{get_global_loader_v2, init_global_loader_v2, shutdown_plugins_v2};
 pub use loader::PluginLoaderV2;

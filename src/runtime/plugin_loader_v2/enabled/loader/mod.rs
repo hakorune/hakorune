@@ -89,4 +89,8 @@ impl PluginLoaderV2 {
     ) -> BidResult<Option<Box<dyn NyashBox>>> {
         super::extern_functions::extern_call(iface_name, method_name, args)
     }
+
+    pub fn export_box_callables(&self) -> BidResult<Vec<super::PluginCallableExport>> {
+        super::route_resolver::export_box_callable_contracts(self)
+    }
 }

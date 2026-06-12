@@ -13,11 +13,17 @@ pub const INTERNAL_SLOT_USED_AS_PLUGIN_METHOD_ID_COUNT: &str =
     "internal_slot_used_as_plugin_method_id_count";
 pub const BOX_CALLABLE_TRUTH_SOURCE_INTERNAL_SLOT: &str =
     "box_callable_truth_source[internal_slot]";
+pub const BOX_CALLABLE_TRUTH_SOURCE_PLUGIN_METHOD: &str =
+    "box_callable_truth_source[plugin_method]";
+pub const BOX_CALLABLE_TRUTH_SOURCE_LIFECYCLE: &str = "box_callable_truth_source[lifecycle]";
 pub const BOX_CALLABLE_BUILTIN_SEED_SOURCE: &str = "box_callable_builtin_seed_source";
+pub const BOX_CALLABLE_PLUGIN_SEED_SOURCE: &str = "box_callable_plugin_seed_source";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
+pub const ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID: &str = "plugin_lifecycle_method_id";
 pub const TRUTH_SOURCE_TYPE_REGISTRY: &str = "type_registry";
+pub const TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER: &str = "plugin_loader_provider";
 
 pub const BOXCALL_001_ROWS: &[(&str, &str)] = &[
     (BOX_CALLABLE_REGISTRY_ENABLED, "1"),
@@ -38,6 +44,24 @@ pub const BOXCALL_002_ROWS: &[(&str, &str)] = &[
     ),
     (BOX_CALLABLE_BUILTIN_SEED_SOURCE, TRUTH_SOURCE_TYPE_REGISTRY),
     (METHOD_SLOT_ID_SPACE, ID_SPACE_INTERNAL_VTABLE_SLOT),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BOXCALL_003_ROWS: &[(&str, &str)] = &[
+    (
+        BOX_CALLABLE_TRUTH_SOURCE_PLUGIN_METHOD,
+        TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER,
+    ),
+    (
+        BOX_CALLABLE_TRUTH_SOURCE_LIFECYCLE,
+        TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER,
+    ),
+    (
+        BOX_CALLABLE_PLUGIN_SEED_SOURCE,
+        TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER,
+    ),
+    (PLUGIN_METHOD_ID_SPACE, ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID),
+    (LIFECYCLE_ID_SPACE, ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID),
     (ID_SPACE_MIXED_COUNT, "0"),
 ];
 
@@ -73,6 +97,36 @@ mod tests {
         );
         assert_eq!(rows[BOX_CALLABLE_BUILTIN_SEED_SOURCE], "type_registry");
         assert_eq!(rows[METHOD_SLOT_ID_SPACE], ID_SPACE_INTERNAL_VTABLE_SLOT);
+        assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_003_rows_mark_plugin_loader_as_plugin_seed_source() {
+        let rows = BOXCALL_003_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(
+            rows[BOX_CALLABLE_TRUTH_SOURCE_PLUGIN_METHOD],
+            TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER
+        );
+        assert_eq!(
+            rows[BOX_CALLABLE_TRUTH_SOURCE_LIFECYCLE],
+            TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER
+        );
+        assert_eq!(
+            rows[BOX_CALLABLE_PLUGIN_SEED_SOURCE],
+            TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER
+        );
+        assert_eq!(
+            rows[PLUGIN_METHOD_ID_SPACE],
+            ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID
+        );
+        assert_eq!(
+            rows[LIFECYCLE_ID_SPACE],
+            ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID
+        );
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
     }
 }

@@ -390,12 +390,32 @@ src/box_callable/providers/builtin_type_registry.rs
 
 Seed plugin callables from PluginLoader route contracts.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 source=plugin_loader_provider
 target=PluginMethod / PluginLifecycle
 route_resolver internals remain encapsulated
+```
+
+Code entry:
+
+```text
+PluginLoader snapshot:
+  src/runtime/plugin_loader_v2/enabled/box_callable_exports.rs
+  src/runtime/plugin_loader_v2/enabled/route_resolver.rs
+
+Registry provider:
+  src/box_callable/providers/plugin_loader.rs
+```
+
+Arity rule:
+
+```text
+nyash.toml v2 args -> BoxCallableKey.arity
+legacy plugin specs without args -> arity 0 compatibility key
 ```
 
 ### BOXCALL-004

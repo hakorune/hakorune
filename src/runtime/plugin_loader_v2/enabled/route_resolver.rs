@@ -5,6 +5,7 @@
 
 use super::host_bridge::{BoxInvokeFn, InvokeFn};
 use super::loader::PluginLoaderV2;
+use super::PluginCallableExport;
 use crate::bid::{BidError, BidResult};
 
 #[derive(Clone, Debug)]
@@ -327,6 +328,138 @@ pub(super) fn resolve_invoke_route_contract(
     }
 }
 
+pub(super) fn export_box_callable_contracts(
+    loader: &PluginLoaderV2,
+) -> BidResult<Vec<PluginCallableExport>> {
+    let mut out = Vec::new();
+
+    if let (Some(config), Some(toml_value)) = (loader.config.as_ref(), loader.config_toml.as_ref())
+    {
+        for (lib_name, lib_def) in &config.libraries {
+            for box_type in &lib_def.boxes {
+                let Some(box_conf) = config.get_box_config(lib_name, box_type, toml_value) else {
+                    continue;
+                };
+                export_lifecycle_contract_for_lib(loader, lib_name, box_type, &mut out)?;
+                let mut methods: Vec<(&str, u8)> = box_conf
+                    .methods
+                    .iter()
+                    .map(|(name, method)| {
+                        let arity = method
+                            .args
+                            .as_ref()
+                            .map(|args| args.len() as u8)
+                            .unwrap_or(0);
+                        (name.as_str(), arity)
+                    })
+                    .collect();
+                methods.sort_by(|(name_a, _), (name_b, _)| name_a.cmp(name_b));
+                for (method_name, arity) in methods {
+                    if matches!(method_name, "birth" | "fini") {
+                        continue;
+                    }
+                    export_method_contract_for_lib(
+                        loader,
+                        lib_name,
+                        box_type,
+                        method_name,
+                        arity,
+                        &mut out,
+                    )?;
+                }
+            }
+        }
+        return Ok(out);
+    }
+
+    let map = loader.box_specs.read().map_err(|_| BidError::PluginError)?;
+    let mut specs: Vec<_> = map.iter().collect();
+    specs.sort_by(|((lib_a, box_a), _), ((lib_b, box_b), _)| {
+        lib_a.cmp(lib_b).then_with(|| box_a.cmp(box_b))
+    });
+    for ((lib_name, box_type), spec) in specs {
+        let Some(type_id) = spec.type_id else {
+            continue;
+        };
+        let birth_id = spec.methods.get("birth").map(|method| method.method_id);
+        if birth_id.is_some() || spec.fini_method_id.is_some() {
+            out.push(PluginCallableExport::Lifecycle {
+                lib_name: lib_name.clone(),
+                box_type: box_type.clone(),
+                type_id,
+                birth_id,
+                fini_id: spec.fini_method_id,
+            });
+        }
+        let mut method_names: Vec<&str> = spec.methods.keys().map(String::as_str).collect();
+        method_names.sort_unstable();
+        for method_name in method_names {
+            if matches!(method_name, "birth" | "fini") {
+                continue;
+            }
+            let Some(method) = spec.methods.get(method_name) else {
+                continue;
+            };
+            out.push(PluginCallableExport::Method {
+                lib_name: lib_name.clone(),
+                box_type: box_type.clone(),
+                type_id,
+                method_name: method_name.to_string(),
+                arity: 0,
+                method_id: method.method_id,
+                returns_result: method.returns_result,
+            });
+        }
+    }
+
+    Ok(out)
+}
+
+fn export_lifecycle_contract_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+    out: &mut Vec<PluginCallableExport>,
+) -> BidResult<()> {
+    let Ok(contract) = resolve_birth_contract_for_lib(loader, lib_name, box_type) else {
+        return Ok(());
+    };
+    out.push(PluginCallableExport::Lifecycle {
+        lib_name: lib_name.to_string(),
+        box_type: box_type.to_string(),
+        type_id: contract.type_id,
+        birth_id: Some(contract.birth_id),
+        fini_id: contract.fini_id,
+    });
+    Ok(())
+}
+
+fn export_method_contract_for_lib(
+    loader: &PluginLoaderV2,
+    lib_name: &str,
+    box_type: &str,
+    method_name: &str,
+    arity: u8,
+    out: &mut Vec<PluginCallableExport>,
+) -> BidResult<()> {
+    let type_id =
+        type_id_from_selected_lib(loader, lib_name, box_type)?.ok_or(BidError::InvalidType)?;
+    let method_id = resolve_method_id_for_lib(loader, lib_name, box_type, method_name)?;
+    let returns_result =
+        resolve_method_returns_result_for_lib(loader, lib_name, box_type, method_name)
+            .unwrap_or(false);
+    out.push(PluginCallableExport::Method {
+        lib_name: lib_name.to_string(),
+        box_type: box_type.to_string(),
+        type_id,
+        method_name: method_name.to_string(),
+        arity,
+        method_id,
+        returns_result,
+    });
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -394,6 +527,29 @@ run = { method_id = 7, returns_result = true }
         assert_eq!(got.type_id, 42);
         assert_eq!(got.birth_id, 1);
         assert_eq!(got.fini_id, Some(999));
+    }
+
+    #[test]
+    fn export_box_callable_contracts_from_specs() {
+        let loader = seed_loader_with_spec();
+        let exports = export_box_callable_contracts(&loader).expect("callable exports");
+
+        assert!(exports.contains(&PluginCallableExport::Lifecycle {
+            lib_name: "demo".to_string(),
+            box_type: "DemoBox".to_string(),
+            type_id: 42,
+            birth_id: Some(1),
+            fini_id: Some(999),
+        }));
+        assert!(exports.contains(&PluginCallableExport::Method {
+            lib_name: "demo".to_string(),
+            box_type: "DemoBox".to_string(),
+            type_id: 42,
+            method_name: "run".to_string(),
+            arity: 0,
+            method_id: 7,
+            returns_result: true,
+        }));
     }
 
     #[test]

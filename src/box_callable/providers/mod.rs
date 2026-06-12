@@ -4,3 +4,4 @@
 //! They are seed sources only; execution still goes through route plans.
 
 pub mod builtin_type_registry;
+pub mod plugin_loader;

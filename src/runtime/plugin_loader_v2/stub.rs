@@ -34,6 +34,27 @@ pub struct PluginHandleInner {
 pub struct PluginLoaderV2 {
     pub config: Option<()>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PluginCallableExport {
+    Method {
+        lib_name: String,
+        box_type: String,
+        type_id: u32,
+        method_name: String,
+        arity: u8,
+        method_id: u32,
+        returns_result: bool,
+    },
+    Lifecycle {
+        lib_name: String,
+        box_type: String,
+        type_id: u32,
+        birth_id: Option<u32>,
+        fini_id: Option<u32>,
+    },
+}
+
 impl PluginLoaderV2 {
     pub fn new() -> Self {
         Self { config: None }
@@ -74,6 +95,9 @@ impl PluginLoaderV2 {
         None
     }
     pub fn shutdown_singletons(&self) {}
+    pub fn export_box_callables(&self) -> BidResult<Vec<PluginCallableExport>> {
+        Ok(Vec::new())
+    }
 }
 
 static GLOBAL_LOADER_V2: Lazy<Arc<RwLock<PluginLoaderV2>>> =
