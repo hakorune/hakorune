@@ -18,6 +18,10 @@ pub const BOX_CALLABLE_TRUTH_SOURCE_PLUGIN_METHOD: &str =
 pub const BOX_CALLABLE_TRUTH_SOURCE_LIFECYCLE: &str = "box_callable_truth_source[lifecycle]";
 pub const BOX_CALLABLE_BUILTIN_SEED_SOURCE: &str = "box_callable_builtin_seed_source";
 pub const BOX_CALLABLE_PLUGIN_SEED_SOURCE: &str = "box_callable_plugin_seed_source";
+pub const METHOD_CALL_ROUTE_PLAN_EXISTS: &str = "method_call_route_plan_exists";
+pub const NEWBOX_ROUTE_PLAN_EXISTS: &str = "newbox_route_plan_exists";
+pub const DROPBOX_ROUTE_PLAN_EXISTS: &str = "dropbox_route_plan_exists";
+pub const ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT: &str = "route_plan_type_abi_hot_lookup_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -62,6 +66,14 @@ pub const BOXCALL_003_ROWS: &[(&str, &str)] = &[
     ),
     (PLUGIN_METHOD_ID_SPACE, ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID),
     (LIFECYCLE_ID_SPACE, ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BOXCALL_005_ROWS: &[(&str, &str)] = &[
+    (METHOD_CALL_ROUTE_PLAN_EXISTS, "1"),
+    (NEWBOX_ROUTE_PLAN_EXISTS, "1"),
+    (DROPBOX_ROUTE_PLAN_EXISTS, "1"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
 ];
 
@@ -127,6 +139,20 @@ mod tests {
             rows[LIFECYCLE_ID_SPACE],
             ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID
         );
+        assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_005_rows_enable_route_plan_vocabulary_without_type_abi_hot_lookup() {
+        let rows = BOXCALL_005_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[METHOD_CALL_ROUTE_PLAN_EXISTS], "1");
+        assert_eq!(rows[NEWBOX_ROUTE_PLAN_EXISTS], "1");
+        assert_eq!(rows[DROPBOX_ROUTE_PLAN_EXISTS], "1");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
     }
 }

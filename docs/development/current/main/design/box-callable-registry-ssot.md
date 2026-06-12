@@ -442,6 +442,8 @@ src/type_abi/box_callable.rs
 
 Add route plan vocabulary.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
@@ -449,6 +451,12 @@ MethodCallRoutePlan exists
 NewBoxRoutePlan exists
 DropBoxRoutePlan exists
 hot path Type ABI lookup remains 0
+```
+
+Code entry:
+
+```text
+src/box_callable/route_plan.rs
 ```
 
 ### BOXCALL-006
