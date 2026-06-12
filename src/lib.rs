@@ -47,6 +47,7 @@ pub mod rune_profile_registry;
 pub mod scope_tracker; // Box lifecycle tracking for VM
 pub mod stdlib;
 pub mod tokenizer;
+pub mod type_abi;
 #[path = "core/type_box.rs"]
 pub mod type_box; // TypeBox system (arithmetic moved from box_trait.rs)
 

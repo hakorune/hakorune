@@ -3,6 +3,7 @@ Status: Active
 Date: 2026-06-04
 Scope: Type ABI route descriptor / control-plane boundary for allocator and mimalloc route evidence.
 Related:
+  - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
   - docs/development/current/main/design/mimalloc-benchmark-route-taxonomy-ssot.md
   - docs/development/current/main/design/provider-abi-v1-ssot.md
   - docs/development/current/main/design/provider-abi-shim-boundary-ssot.md
@@ -10,6 +11,13 @@ Related:
 ---
 
 # Type ABI Route Descriptor Plane
+
+Parent contract:
+`docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md`
+
+This file is the allocator/provider route descriptor application of the parent
+Type ABI view rule. Type ABI remains descriptor/control-plane metadata and is
+not the execution plane.
 
 ## Decision
 
