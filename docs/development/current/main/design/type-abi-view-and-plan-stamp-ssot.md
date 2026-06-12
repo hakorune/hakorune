@@ -7,6 +7,7 @@ Related:
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/abi/ABI_INDEX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
+  - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
   - docs/development/current/main/design/type-abi-route-descriptor-plane-ssot.md
@@ -22,6 +23,10 @@ Related:
 Type ABI is a read-only view over existing domain truth. It is not a new
 execution ABI and not a new owner of type, method, field, layout, string, or
 GUI facts.
+
+Naming note: `TypeAbiView`, `TypeAbiCatalog`, and `TypeAbiPack` are historical
+code names. Their actual role is BoxDescriptor projection. TypeBox ABI v2 is
+the plugin execution ABI.
 
 ```text
 Type ABI:

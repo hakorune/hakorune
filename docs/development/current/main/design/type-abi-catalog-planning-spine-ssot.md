@@ -5,6 +5,7 @@ Date: 2026-06-13
 Scope: TypeAbiCatalog as the thin planning query spine between domain truth,
 TypeAbiView adapters, TypeAbiPack snapshots, and domain-owned plans.
 Related:
+  - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
@@ -19,6 +20,10 @@ Related:
 
 `TypeAbiCatalog` is the thin in-memory query spine for planning and tooling.
 It is not central truth and not a generic plan generator.
+
+Naming note: the intended long-term name is `BoxDescriptorCatalog`. The current
+`TypeAbiCatalog` name is historical and must not be confused with TypeBox ABI
+v2, the plugin execution ABI.
 
 Long-term, Box callable planning moves to `BoxCallableRegistry`. In that final
 shape, `TypeAbiCatalog` remains the read-only projection index for Type ABI

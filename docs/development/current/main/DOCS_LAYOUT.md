@@ -49,6 +49,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/box-callable-registry-ssot.md`
   - final callable truth owner for builtin/plugin/user Box callables;
     Type ABI becomes projection and PluginLoader/type_registry become providers
+- `design/type-abi-naming-and-box-descriptor-ssot.md`
+  - naming boundary for TypeBox ABI v2 vs historical TypeAbi* descriptor
+    projection surfaces and future BoxDescriptor naming
 - `design/typed-object-exact-slot-abi-ssot.md`
   - typed-object exact slot ABI split owner; keeps compat `field_get_hii`
     separate from selected `typed_object.slot_load/store_*` exact routes
@@ -143,6 +146,8 @@ Rule:
   - Hotline CoreMethodContract（zero-cost hot-line / method contract migration SSOT）: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
   - Box Callable Registry:
     `docs/development/current/main/design/box-callable-registry-ssot.md`
+  - Type ABI Naming / BoxDescriptor:
+    `docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md`
   - Substrate Capability Ladder（allocator/collection/runtime substrate parent SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`

@@ -5,6 +5,7 @@ Date: 2026-06-13
 Scope: Box Domain ownership for Type ABI views, plugin route contracts,
 NewBox/DropBox planning, and TypeBox slot visibility.
 Related:
+  - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
@@ -65,6 +66,9 @@ canonical ABI surfaces:
 
 Type ABI vNext is a cold descriptor/view surface. It is not a hot execution ABI
 and not a replacement for TypeBox ABI v2.
+
+Naming note: future docs and reports should prefer BoxDescriptor for this
+descriptor/view surface. `TypeAbi*` remains current code compatibility naming.
 
 ## Box Domain Parts
 

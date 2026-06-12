@@ -5,6 +5,7 @@ Date: 2026-06-13
 Scope: Final Box callable ownership model for builtin boxes, plugin boxes,
 user boxes, Type ABI projection, and route plan generation.
 Related:
+  - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
@@ -48,8 +49,9 @@ plan
 execution
 ```
 
-Type ABI remains useful, but it is the outward window over registry state, not
-the center of planning or execution.
+Type ABI remains useful as historical code naming, but the intended long-term
+name for that outward window is BoxDescriptor. It is not the center of planning
+or execution.
 
 ## Ownership
 
@@ -64,9 +66,10 @@ inputs:
   IntrinsicProvider
 
 projection:
-  TypeAbiView
-  TypeAbiCatalog
-  TypeAbiPack
+  BoxDescriptorView
+  BoxDescriptorCatalog
+  BoxDescriptorPack
+  currently implemented as TypeAbiView / TypeAbiCatalog / TypeAbiPack
 
 execution:
   MethodCallRoutePlan
@@ -80,7 +83,7 @@ Plugin and Type ABI become siblings under the registry:
 PluginLoader -> BoxCallableRegistry -> RoutePlan
                                 |
                                 v
-                         Type ABI projection
+                         BoxDescriptor projection
 ```
 
 ## BoxCallable Model
@@ -176,9 +179,10 @@ PluginLoader route resolver contracts
 This removes duplicate route truth while keeping the existing plugin loading
 code as the input boundary.
 
-## Type ABI Relationship
+## Descriptor Projection Relationship
 
-Type ABI projects registry state.
+BoxDescriptor projects registry state. Current code still uses historical
+`TypeAbi*` names for this projection.
 
 ```text
 BoxCallableRegistry
@@ -329,6 +333,18 @@ registry stores BoxCallableKey -> BoxCallableTarget
 id spaces remain typed by target
 no execution cutover
 no Type ABI dependency
+```
+
+### TYPEABI-NAMING-001
+
+Add BoxDescriptor report aliases before broader registry migration.
+
+Acceptance:
+
+```text
+BoxDescriptor naming exists in reports
+TypeAbi* names remain compatibility aliases
+TypeBox ABI v2 remains the only plugin execution ABI
 ```
 
 ### BOXCALL-002
