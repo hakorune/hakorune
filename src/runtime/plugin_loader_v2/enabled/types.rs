@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 use super::host_bridge::{BoxInvokeFn, InvokeFn};
+use super::lifecycle_route_plan::{
+    invoke_plugin_lifecycle, PluginDropBoxExecutionPlan, PluginInvokeExecutionPlan,
+};
 use crate::box_trait::{BoxCore, NyashBox, StringBox};
 use crate::runtime::get_global_ring0;
 use std::any::Any;
@@ -56,7 +59,7 @@ pub struct PluginHandleInner {
 
 impl Drop for PluginHandleInner {
     fn drop(&mut self) {
-        if let Some(fini_id) = self.fini_method_id {
+        if let Some(plan) = self.dropbox_execution_plan() {
             if !self
                 .finalized
                 .swap(true, std::sync::atomic::Ordering::SeqCst)
@@ -64,11 +67,17 @@ impl Drop for PluginHandleInner {
                 if dbg_on() {
                     get_global_ring0().log.debug(&format!(
                         "[PluginHandleInner] fini id={} instance_id={}",
-                        fini_id, self.instance_id
+                        plan.fini_id, self.instance_id
                     ));
                 }
                 let tlv_args = PluginHandleInner::fini_tlv_args();
-                let _ = self.invoke_self(fini_id, &tlv_args);
+                let _ = invoke_plugin_lifecycle(
+                    plan.invoke_route,
+                    plan.type_id,
+                    plan.fini_id,
+                    self.instance_id,
+                    &tlv_args,
+                );
             }
         }
     }
@@ -103,15 +112,33 @@ impl PluginHandleInner {
         [1, 0, 0, 0]
     }
 
+    fn dropbox_execution_plan(&self) -> Option<PluginDropBoxExecutionPlan> {
+        Some(PluginDropBoxExecutionPlan {
+            type_id: self.type_id,
+            fini_id: self.fini_method_id?,
+            invoke_route: PluginInvokeExecutionPlan {
+                invoke_box_fn: self.invoke_box_fn,
+                invoke_shim_fn: self.invoke_fn,
+                allow_compat_shim: self.allow_compat_shim,
+            },
+        })
+    }
+
     pub fn finalize_now(&self) {
-        if let Some(fini_id) = self.fini_method_id {
+        if let Some(plan) = self.dropbox_execution_plan() {
             if !self
                 .finalized
                 .swap(true, std::sync::atomic::Ordering::SeqCst)
             {
                 crate::runtime::leak_tracker::finalize_plugin("PluginBox", self.instance_id);
                 let tlv_args = Self::fini_tlv_args();
-                let _ = self.invoke_self(fini_id, &tlv_args);
+                let _ = invoke_plugin_lifecycle(
+                    plan.invoke_route,
+                    plan.type_id,
+                    plan.fini_id,
+                    self.instance_id,
+                    &tlv_args,
+                );
             }
         }
     }

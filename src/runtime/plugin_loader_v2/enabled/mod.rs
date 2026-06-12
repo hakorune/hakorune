@@ -9,6 +9,7 @@ mod ffi_bridge;
 mod globals;
 mod host_bridge;
 mod instance_manager;
+mod lifecycle_route_plan;
 mod loader;
 mod method_resolver;
 mod route_resolver;

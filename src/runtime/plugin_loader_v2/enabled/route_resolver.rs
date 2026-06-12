@@ -289,6 +289,7 @@ pub(super) fn resolve_method_contract(
     })
 }
 
+#[cfg(test)]
 pub(super) fn resolve_birth_contract(
     loader: &PluginLoaderV2,
     box_type: &str,

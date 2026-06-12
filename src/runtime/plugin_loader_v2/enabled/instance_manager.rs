@@ -9,7 +9,9 @@ use crate::runtime::plugin_loader_v2::enabled::{
 };
 use std::sync::Arc;
 
-use super::route_resolver::BirthRouteContract;
+use super::lifecycle_route_plan::{
+    invoke_plugin_lifecycle, resolve_newbox_lifecycle_plan, PluginNewBoxExecutionPlan,
+};
 
 fn dbg_on() -> bool {
     std::env::var("PLUGIN_DEBUG").is_ok()
@@ -22,10 +24,10 @@ impl PluginLoaderV2 {
         box_type: &str,
         _args: &[Box<dyn NyashBox>],
     ) -> BidResult<Box<dyn NyashBox>> {
-        // Non-recursive: resolve birth contract -> invoke birth -> construct PluginBoxV2
-        let contract = resolve_instance_birth_contract(self, box_type)?;
-        let instance_id = invoke_birth_and_decode_instance_id(self, box_type, contract)?;
-        let bx = build_plugin_box_handle(self, box_type, contract, instance_id);
+        // Non-recursive: registry lifecycle target -> route plan -> invoke birth.
+        let plan = resolve_newbox_lifecycle_plan(self, box_type)?;
+        let instance_id = invoke_birth_and_decode_instance_id(box_type, plan)?;
+        let bx = build_plugin_box_handle(box_type, plan, instance_id);
 
         // Get loaded plugin invoke
         let _plugins = self.plugins.read().map_err(|_| BidError::PluginError)?;
@@ -47,43 +49,26 @@ impl PluginLoaderV2 {
     }
 }
 
-/// Resolve birth contract (type_id, birth_id, fini_id) from configuration or specs.
-fn resolve_instance_birth_contract(
-    loader: &PluginLoaderV2,
-    box_type: &str,
-) -> BidResult<BirthRouteContract> {
-    super::route_resolver::resolve_birth_contract(loader, box_type)
-}
-
 /// Invoke plugin birth and decode returned instance id from first 4 bytes (little-endian).
 fn invoke_birth_and_decode_instance_id(
-    loader: &PluginLoaderV2,
     box_type: &str,
-    contract: BirthRouteContract,
+    plan: PluginNewBoxExecutionPlan,
 ) -> BidResult<u32> {
     if dbg_on() {
         get_global_ring0().log.debug(&format!(
             "[PluginLoaderV2] invoking birth: box_type={} type_id={} birth_id={}",
-            box_type, contract.type_id, contract.birth_id
+            box_type, plan.type_id, plan.birth_id
         ));
     }
 
     let tlv = crate::runtime::plugin_ffi_common::encode_empty_args();
-    let route = super::route_resolver::resolve_invoke_route_contract(loader, contract.type_id);
-    let (code, out_len, out_buf) = super::host_bridge::invoke_alloc_with_route(
-        route.invoke_box_fn,
-        route.invoke_shim_fn,
-        route.allow_compat_shim,
-        contract.type_id,
-        contract.birth_id,
-        0,
-        &tlv,
-    );
+    let (code, out_len, out_buf) =
+        invoke_plugin_lifecycle(plan.invoke_route, plan.type_id, plan.birth_id, 0, &tlv);
 
     if dbg_on() {
         get_global_ring0().log.debug(&format!(
             "[PluginLoaderV2] create_box: box_type={} type_id={} birth_id={} code={} out_len={}",
-            box_type, contract.type_id, contract.birth_id, code, out_len
+            box_type, plan.type_id, plan.birth_id, code, out_len
         ));
         if out_len > 0 {
             get_global_ring0().log.debug(&format!(
@@ -104,21 +89,19 @@ fn invoke_birth_and_decode_instance_id(
 
 /// Build a PluginBoxV2 handle from resolved birth contract and created instance id.
 fn build_plugin_box_handle(
-    loader: &PluginLoaderV2,
     box_type: &str,
-    contract: BirthRouteContract,
+    plan: PluginNewBoxExecutionPlan,
     instance_id: u32,
 ) -> PluginBoxV2 {
-    let route = super::route_resolver::resolve_invoke_route_contract(loader, contract.type_id);
     PluginBoxV2 {
         box_type: box_type.to_string(),
         inner: Arc::new(PluginHandleInner {
-            type_id: contract.type_id,
-            invoke_fn: route.invoke_shim_fn,
-            invoke_box_fn: route.invoke_box_fn,
-            allow_compat_shim: route.allow_compat_shim,
+            type_id: plan.type_id,
+            invoke_fn: plan.invoke_route.invoke_shim_fn,
+            invoke_box_fn: plan.invoke_route.invoke_box_fn,
+            allow_compat_shim: plan.invoke_route.allow_compat_shim,
             instance_id,
-            fini_method_id: contract.fini_id,
+            fini_method_id: plan.fini_id,
             finalized: std::sync::atomic::AtomicBool::new(false),
         }),
     }

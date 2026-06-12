@@ -22,6 +22,13 @@ pub const METHOD_CALL_ROUTE_PLAN_EXISTS: &str = "method_call_route_plan_exists";
 pub const NEWBOX_ROUTE_PLAN_EXISTS: &str = "newbox_route_plan_exists";
 pub const DROPBOX_ROUTE_PLAN_EXISTS: &str = "dropbox_route_plan_exists";
 pub const ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT: &str = "route_plan_type_abi_hot_lookup_count";
+pub const NEWBOX_PLAN_DERIVES_FROM_REGISTRY_COUNT: &str = "newbox_plan_derives_from_registry_count";
+pub const DROPBOX_PLAN_DERIVES_FROM_HANDLE_ROUTE_COUNT: &str =
+    "dropbox_plan_derives_from_handle_route_count";
+pub const LIFECYCLE_SELECTED_ROUTE_RERESOLVE_HOT_COUNT: &str =
+    "lifecycle_selected_route_reresolve_hot_count";
+pub const FALLBACK_AFTER_SELECTED_LIFECYCLE_ROUTE_COUNT: &str =
+    "fallback_after_selected_lifecycle_route_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -75,6 +82,14 @@ pub const BOXCALL_005_ROWS: &[(&str, &str)] = &[
     (DROPBOX_ROUTE_PLAN_EXISTS, "1"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BOXCALL_006_ROWS: &[(&str, &str)] = &[
+    (NEWBOX_PLAN_DERIVES_FROM_REGISTRY_COUNT, "1"),
+    (DROPBOX_PLAN_DERIVES_FROM_HANDLE_ROUTE_COUNT, "1"),
+    (LIFECYCLE_SELECTED_ROUTE_RERESOLVE_HOT_COUNT, "0"),
+    (FALLBACK_AFTER_SELECTED_LIFECYCLE_ROUTE_COUNT, "0"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
 ];
 
 #[cfg(test)]
@@ -154,5 +169,19 @@ mod tests {
         assert_eq!(rows[DROPBOX_ROUTE_PLAN_EXISTS], "1");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_006_rows_keep_lifecycle_execution_on_route_plan_seam() {
+        let rows = BOXCALL_006_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[NEWBOX_PLAN_DERIVES_FROM_REGISTRY_COUNT], "1");
+        assert_eq!(rows[DROPBOX_PLAN_DERIVES_FROM_HANDLE_ROUTE_COUNT], "1");
+        assert_eq!(rows[LIFECYCLE_SELECTED_ROUTE_RERESOLVE_HOT_COUNT], "0");
+        assert_eq!(rows[FALLBACK_AFTER_SELECTED_LIFECYCLE_ROUTE_COUNT], "0");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
     }
 }

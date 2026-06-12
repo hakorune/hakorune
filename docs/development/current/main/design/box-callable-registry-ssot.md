@@ -463,12 +463,36 @@ src/box_callable/route_plan.rs
 
 Cut over NewBox / DropBox planning first.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 NewBox/DropBox plans derive from registry entries
 PluginLoader is not re-resolved in hot path
 fallback after selected lifecycle route=0
+```
+
+Code entry:
+
+```text
+Semantic route plans:
+  src/box_callable/route_plan.rs
+
+Runtime executable lifecycle plans:
+  src/runtime/plugin_loader_v2/enabled/lifecycle_route_plan.rs
+  src/runtime/plugin_loader_v2/enabled/instance_manager.rs
+  src/runtime/plugin_loader_v2/enabled/types.rs
+```
+
+Boundary:
+
+```text
+BoxCallable RoutePlan:
+  semantic ids and route shape only
+
+Plugin lifecycle execution plan:
+  runtime-owned fn pointers and compat-shim policy
 ```
 
 ### BOXCALL-007
