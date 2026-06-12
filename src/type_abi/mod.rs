@@ -4,6 +4,7 @@
 //! domain data remains the truth; adapters implement `TypeAbiView` when a
 //! domain needs cold tooling or report output.
 
+pub mod box_callable;
 pub mod box_descriptor;
 pub mod box_domain;
 pub mod catalog;
@@ -20,6 +21,7 @@ pub enum TypeAbiTag {
     Memory = 3,
     String = 4,
     Gui = 5,
+    BoxCallable = 6,
     Index = 0xffff,
 }
 

@@ -422,12 +422,20 @@ legacy plugin specs without args -> arity 0 compatibility key
 
 Expose Type ABI projection from `BoxCallableRegistry`.
 
+Status: landed 2026-06-13.
+
 Acceptance:
 
 ```text
 TypeAbiCatalog can index registry projection
 TypeAbiPack can snapshot registry projection
 planner does not read TypeAbiPack
+```
+
+Code entry:
+
+```text
+src/type_abi/box_callable.rs
 ```
 
 ### BOXCALL-005

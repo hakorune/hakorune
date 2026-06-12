@@ -122,6 +122,18 @@ pub const TYPEABI_NAMING_001_ROWS: &[(&str, &str)] = &[
     (BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY, "0"),
 ];
 
+pub const BOXCALL_004_ROWS: &[(&str, &str)] = &[
+    (
+        BOX_DESCRIPTOR_MODE,
+        BOX_DESCRIPTOR_MODE_PROJECTION_OVER_BOX_CALLABLE_REGISTRY,
+    ),
+    (TYPE_ABI_PACK_IS_TRUTH, "0"),
+    (TYPE_ABI_PACK_USED_BY_PLANNER_COUNT, "0"),
+    (TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (BOX_DESCRIPTOR_HOT_LOOKUP_COUNT, "0"),
+    (BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY, "0"),
+];
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -221,6 +233,24 @@ mod tests {
         );
         assert_eq!(rows[TYPE_ABI_MODE], TYPE_ABI_MODE_VIEW_OVER_EXISTING_TRUTH);
         assert_eq!(rows[BOX_DESCRIPTOR_PACK_IS_TRUTH], "0");
+        assert_eq!(rows[BOX_DESCRIPTOR_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY], "0");
+    }
+
+    #[test]
+    fn boxcall_004_rows_keep_registry_projection_cold() {
+        let rows = BOXCALL_004_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(
+            rows[BOX_DESCRIPTOR_MODE],
+            BOX_DESCRIPTOR_MODE_PROJECTION_OVER_BOX_CALLABLE_REGISTRY
+        );
+        assert_eq!(rows[TYPE_ABI_PACK_IS_TRUTH], "0");
+        assert_eq!(rows[TYPE_ABI_PACK_USED_BY_PLANNER_COUNT], "0");
+        assert_eq!(rows[TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[BOX_DESCRIPTOR_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[BOX_DESCRIPTOR_CATALOG_IS_EXECUTION_REGISTRY], "0");
     }
