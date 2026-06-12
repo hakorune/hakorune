@@ -8,8 +8,7 @@
  */
 
 use super::{
-    array_text_observer_region_contract::ArrayTextObserverExecutorContract, BasicBlockId,
-    MirFunction, ValueId,
+    array_text_observer_region_contract::ArrayTextObserverExecutorContract, BasicBlockId, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -8,9 +8,7 @@
  */
 
 use super::{
-    thin_entry::{ThinEntryPreferredEntry, ThinEntrySurface},
-    thin_entry_selection::ThinEntrySelection,
-    BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+    thin_entry::ThinEntrySurface, BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
