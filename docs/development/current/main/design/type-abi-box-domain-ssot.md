@@ -5,6 +5,7 @@ Date: 2026-06-13
 Scope: Box Domain ownership for Type ABI views, plugin route contracts,
 NewBox/DropBox planning, and TypeBox slot visibility.
 Related:
+  - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
@@ -46,6 +47,9 @@ Plan:
 
 The Box Domain is an ownership and reporting umbrella. It does not collapse id
 spaces and does not create a third canonical ABI.
+
+Long-term callable route truth moves to `BoxCallableRegistry`. This document
+remains the Type ABI / report boundary for Box callable projections.
 
 ## Canonical ABI Boundary
 

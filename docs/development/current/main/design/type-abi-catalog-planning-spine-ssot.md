@@ -5,6 +5,7 @@ Date: 2026-06-13
 Scope: TypeAbiCatalog as the thin planning query spine between domain truth,
 TypeAbiView adapters, TypeAbiPack snapshots, and domain-owned plans.
 Related:
+  - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-view-and-plan-stamp-ssot.md
   - docs/development/current/main/design/type-abi-box-domain-ssot.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
@@ -19,6 +20,10 @@ Related:
 `TypeAbiCatalog` is the thin in-memory query spine for planning and tooling.
 It is not central truth and not a generic plan generator.
 
+Long-term, Box callable planning moves to `BoxCallableRegistry`. In that final
+shape, `TypeAbiCatalog` remains the read-only projection index for Type ABI
+and tooling, not the callable registry.
+
 ```text
 domain truth:
   owned by each domain
@@ -29,6 +34,9 @@ TypeAbiView:
 TypeAbiCatalog:
   thin index of published views
   used for cross-domain queries
+
+BoxCallableRegistry:
+  canonical Box callable truth for call/new/drop planning
 
 TypeAbiPack:
   generated snapshot for tooling / external consumers
@@ -292,6 +300,7 @@ generic_typeabi_generate_plans_count=0
 Catalog is a thin index.
 Pack is an artifact.
 Truth stays in domains.
+Box callable truth moves to BoxCallableRegistry.
 Plans execute.
 Hot path reads plans only.
 ```
