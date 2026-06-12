@@ -55,10 +55,22 @@ impl MirVerifier {
             return Ok(());
         }
 
-        collect_errors!(self.errors, numeric_substrate::check_exact_numeric_field_assignments(module));
-        collect_errors!(self.errors, module_metadata::check_module_metadata_invariants(module));
-        collect_errors!(self.errors, hako_alloc_metadata::check_hako_alloc_metadata_invariants(module));
-        collect_errors!(self.errors, hako_alloc_page_lifecycle::check_hako_alloc_page_lifecycle_invariants(module));
+        collect_errors!(
+            self.errors,
+            numeric_substrate::check_exact_numeric_field_assignments(module)
+        );
+        collect_errors!(
+            self.errors,
+            module_metadata::check_module_metadata_invariants(module)
+        );
+        collect_errors!(
+            self.errors,
+            hako_alloc_metadata::check_hako_alloc_metadata_invariants(module)
+        );
+        collect_errors!(
+            self.errors,
+            hako_alloc_page_lifecycle::check_hako_alloc_page_lifecycle_invariants(module)
+        );
 
         for (_name, function) in &module.functions {
             if let Err(mut func_errors) = self.verify_function(function) {

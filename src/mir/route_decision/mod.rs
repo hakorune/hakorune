@@ -563,7 +563,10 @@ mod tests {
             .metadata
             .typed_object_plans
             .push(typed_object_route_plan());
-        module.metadata.direct_state_plans.push(direct_state_ready_plan());
+        module
+            .metadata
+            .direct_state_plans
+            .push(direct_state_ready_plan());
         module.add_function(function);
 
         refresh_module_typed_object_exact_slot_route_decisions(&mut module);
@@ -575,10 +578,7 @@ mod tests {
         assert_eq!(decision.site_id, "b0.i1");
         assert_eq!(decision.semantic_op, "FieldGet");
         assert_eq!(decision.source_plan_kind, "TypedObjectExactSlotRoute");
-        assert_eq!(
-            decision.preferred_route,
-            "hako.typed_object.slot_load_u64"
-        );
+        assert_eq!(decision.preferred_route, "hako.typed_object.slot_load_u64");
         assert_eq!(decision.selected_route, "hako.typed_object.slot_load_u64");
         assert_eq!(decision.selected_lowering_form, Some("native_direct"));
         assert_eq!(decision.selected_bridge_symbol, None);
@@ -587,12 +587,10 @@ mod tests {
         assert_eq!(decision.field_id.as_deref(), Some("capacity"));
         assert_eq!(decision.receiver_box_name.as_deref(), Some("Page"));
         assert_eq!(decision.fallback_policy, "fail_fast");
-        assert!(
-            decision
-                .proof_ids
-                .iter()
-                .any(|proof| *proof == "native_direct_ready")
-        );
+        assert!(decision
+            .proof_ids
+            .iter()
+            .any(|proof| *proof == "native_direct_ready"));
     }
 
     #[test]
