@@ -88,6 +88,7 @@ pub mod grammar;
 pub mod syntax; // syntax sugar config and helpers
                 // Execution runner (CLI coordinator)
 pub mod runner;
+pub mod test_support;
 pub mod runner_hv1_inline_guard {}
 pub mod stage1;
 pub mod using; // using resolver scaffolding (Phase 15)

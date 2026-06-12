@@ -1,10 +1,5 @@
 use nyash_rust::parser::NyashParser;
-use std::sync::{Mutex, OnceLock};
-
-fn env_guard() -> &'static Mutex<()> {
-    static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
-    GUARD.get_or_init(|| Mutex::new(()))
-}
+use nyash_rust::test_support::with_env_vars;
 
 fn ensure_ring0_initialized_for_alias_warning() {
     use nyash_rust::runtime::ring0::{default_ring0, init_global_ring0};
@@ -19,41 +14,17 @@ fn with_stage3_env<F: FnOnce()>(
     hako_stage3: Option<&str>,
     f: F,
 ) {
-    let _lock = env_guard().lock().unwrap_or_else(|e| e.into_inner());
     ensure_ring0_initialized_for_alias_warning();
-    let prev_features = std::env::var("NYASH_FEATURES").ok();
-    let prev_parser_stage3 = std::env::var("NYASH_PARSER_STAGE3").ok();
-    let prev_hako_stage3 = std::env::var("HAKO_PARSER_STAGE3").ok();
-
-    // Phase 73: Unified to NYASH_FEATURES=stage3
+    // Phase 73: Unified to NYASH_FEATURES=stage3.
     // Legacy aliases (NYASH_PARSER_STAGE3 / HAKO_PARSER_STAGE3) still gate on/off.
-    match features {
-        Some(v) => std::env::set_var("NYASH_FEATURES", v),
-        None => std::env::remove_var("NYASH_FEATURES"),
-    }
-    match parser_stage3 {
-        Some(v) => std::env::set_var("NYASH_PARSER_STAGE3", v),
-        None => std::env::remove_var("NYASH_PARSER_STAGE3"),
-    }
-    match hako_stage3 {
-        Some(v) => std::env::set_var("HAKO_PARSER_STAGE3", v),
-        None => std::env::remove_var("HAKO_PARSER_STAGE3"),
-    }
-
-    f();
-
-    match prev_features {
-        Some(v) => std::env::set_var("NYASH_FEATURES", v),
-        None => std::env::remove_var("NYASH_FEATURES"),
-    }
-    match prev_parser_stage3 {
-        Some(v) => std::env::set_var("NYASH_PARSER_STAGE3", v),
-        None => std::env::remove_var("NYASH_PARSER_STAGE3"),
-    }
-    match prev_hako_stage3 {
-        Some(v) => std::env::set_var("HAKO_PARSER_STAGE3", v),
-        None => std::env::remove_var("HAKO_PARSER_STAGE3"),
-    }
+    with_env_vars(
+        &[
+            ("NYASH_FEATURES", features),
+            ("NYASH_PARSER_STAGE3", parser_stage3),
+            ("HAKO_PARSER_STAGE3", hako_stage3),
+        ],
+        f,
+    );
 }
 
 #[test]

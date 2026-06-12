@@ -43,6 +43,15 @@ src/mir/range_index_fact.rs:
   preserves explicit FastMemAssume range-index facts alongside loop-derived
   range facts.
 
+src/mir/fastmem_access_plan.rs:
+  collects function-local Copy aliases before access-plan linking so local
+  SSA copies do not hide the relationship between TableIndex results and
+  later field loads/stores.
+
+src/mir/fastmem_access_plan/table.rs:
+  links verified field plans back to the table-index result through Copy
+  aliases, allowing the table proof to resolve field offsets and overflow.
+
 tools/hako_check/fastmem_capability_inventory_common.py:
   treats proof annotations as allowed fastmem contract operations instead of
   forbidden calls.

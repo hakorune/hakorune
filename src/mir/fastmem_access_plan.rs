@@ -24,6 +24,7 @@ use fact_store::{collect_remote_drain_token_facts, region_contract, FastMemFactS
 use field::field_plan;
 use free_list::{free_head_plan, local_free_plan, maybe_add_derived_free_head_non_empty_fact};
 use remote::{atomic_remote_head_plan, drain_remote_list_to_local_plan};
+use std::collections::HashMap;
 use table::{table_field_access_links, table_plan};
 pub use types::{
     FastMemAccessPlan, FastMemAccessPlanKind, FastMemAccessPlanPayload, FastMemAccessPlanStatus,
@@ -50,6 +51,7 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
         .collect();
     let range_index_facts = function.metadata.range_index_facts.clone();
     let remote_drain_token_facts = collect_remote_drain_token_facts(function);
+    let copy_aliases = collect_copy_aliases(function);
 
     for block_id in function.block_ids() {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -96,10 +98,25 @@ pub fn refresh_function_fastmem_access_plans(function: &mut MirFunction) {
         }
     }
 
-    let table_field_links = table_field_access_links(&mut plans);
+    let table_field_links = table_field_access_links(&mut plans, &copy_aliases);
     function.metadata.fastmem_access_plans = plans;
     function.metadata.fastmem_table_field_access_links = table_field_links;
     function.metadata.fastmem_free_head_non_empty_facts = free_head_non_empty_facts;
+}
+
+fn collect_copy_aliases(function: &MirFunction) -> HashMap<ValueId, ValueId> {
+    let mut aliases = HashMap::new();
+    for block_id in function.block_ids() {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for sp in block.all_spanned_instructions() {
+            if let MirInstruction::Copy { dst, src } = sp.inst {
+                aliases.insert(*dst, *src);
+            }
+        }
+    }
+    aliases
 }
 
 fn plan_from_memop(

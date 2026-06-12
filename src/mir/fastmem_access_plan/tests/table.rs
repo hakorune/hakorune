@@ -1,7 +1,7 @@
 use super::support::*;
 use crate::mir::fastmem_access_plan::*;
 use crate::mir::instruction::{MemOpAccess, MemOpKind};
-use crate::mir::ValueId;
+use crate::mir::{MirInstruction, ValueId};
 
 #[test]
 fn refresh_verifies_page_meta_field_sites_and_rejects_unbounded_table() {
@@ -83,6 +83,41 @@ fn refresh_verifies_page_meta_field_sites_and_rejects_unbounded_table() {
     assert_eq!(owner_link.byte_offset, 0);
     assert_eq!(owner_link.field_size, 8);
     assert_eq!(owner_link.proof, "table_field_link:0:1");
+}
+
+#[test]
+fn refresh_links_table_index_to_field_sites_through_copy_aliases() {
+    let mut function = make_function(vec![
+        memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(10)),
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(MemOpAccess::table("page_table")),
+        ),
+        MirInstruction::Copy {
+            dst: ValueId::new(11),
+            src: ValueId::new(10),
+        },
+        MirInstruction::Copy {
+            dst: ValueId::new(12),
+            src: ValueId::new(11),
+        },
+        memop(
+            MemOpKind::FieldLoad,
+            Some(ValueId::new(13)),
+            vec![ValueId::new(12)],
+            Some(MemOpAccess::field("block_size")),
+        ),
+    ]);
+
+    refresh_function_fastmem_access_plans(&mut function);
+
+    assert_eq!(function.metadata.fastmem_access_plans.len(), 2);
+    assert_eq!(function.metadata.fastmem_table_field_access_links.len(), 1);
+    let link = &function.metadata.fastmem_table_field_access_links[0];
+    assert_eq!(link.table_result, ValueId::new(10));
+    assert_eq!(link.field_base, ValueId::new(12));
+    assert_eq!(link.field_id, "block_size");
 }
 
 #[test]

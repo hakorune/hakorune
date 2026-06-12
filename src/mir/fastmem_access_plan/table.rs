@@ -1,6 +1,7 @@
 use crate::mir::fastmem_layout_contract::resolve_fastmem_table_contract;
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess};
 use crate::mir::{BasicBlockId, ValueId};
+use std::collections::HashMap;
 
 use super::fact_store::FastMemFactStore;
 use super::types::{
@@ -141,6 +142,7 @@ pub(super) fn table_plan(
 
 pub(super) fn table_field_access_links(
     plans: &mut [FastMemAccessPlan],
+    copy_aliases: &HashMap<ValueId, ValueId>,
 ) -> Vec<FastMemTableFieldAccessLink> {
     let mut links = Vec::new();
 
@@ -158,6 +160,7 @@ pub(super) fn table_field_access_links(
                 table_instruction_index,
                 region,
                 table_result,
+                copy_aliases,
             ) else {
                 continue;
             };
@@ -322,6 +325,7 @@ fn field_link_target(
     table_instruction_index: usize,
     region: FastMemRegionId,
     table_result: ValueId,
+    copy_aliases: &HashMap<ValueId, ValueId>,
 ) -> Option<FastMemTableFieldAccessLink> {
     if plan.status != FastMemAccessPlanStatus::Verified
         || plan.block != table_block
@@ -333,7 +337,9 @@ fn field_link_target(
     let FastMemAccessPlanPayload::Field(field) = &plan.payload else {
         return None;
     };
-    if field.base != table_result {
+    if resolve_copy_alias(field.base, copy_aliases)
+        != resolve_copy_alias(table_result, copy_aliases)
+    {
         return None;
     }
     Some(FastMemTableFieldAccessLink {
@@ -355,4 +361,18 @@ fn field_link_target(
             table_instruction_index, plan.instruction_index
         ),
     })
+}
+
+fn resolve_copy_alias(value: ValueId, copy_aliases: &HashMap<ValueId, ValueId>) -> ValueId {
+    let mut current = value;
+    for _ in 0..32 {
+        let Some(next) = copy_aliases.get(&current).copied() else {
+            break;
+        };
+        if next == current {
+            break;
+        }
+        current = next;
+    }
+    current
 }
