@@ -108,12 +108,27 @@ impl super::MirBuilder {
         } else {
             self.next_value_id()
         };
-        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
-            dst: field_val,
-            base: object_value,
-            field: field.clone(),
-            declared_type,
-        })?;
+        if let Some(region) = region {
+            self.emit_fastmem_memop(
+                region,
+                crate::mir::instruction::MemOpKind::FieldLoad,
+                Some(field_val),
+                vec![object_value],
+                Some(crate::mir::instruction::MemOpAccess::field(field.clone())),
+            )?;
+            if declared_type.is_none() {
+                self.type_ctx
+                    .value_types
+                    .insert(field_val, crate::mir::MirType::Integer);
+            }
+        } else {
+            self.emit_instruction(crate::mir::MirInstruction::FieldGet {
+                dst: field_val,
+                base: object_value,
+                field: field.clone(),
+                declared_type,
+            })?;
+        }
 
         self.publish_field_result_origin(field_val, object_value, &field);
 
@@ -174,8 +189,16 @@ impl super::MirBuilder {
             field.clone(),
             None,
             "store",
-            "none",
-            "allow_dynamic",
+            if region.is_some() {
+                "verified_layout_field"
+            } else {
+                "none"
+            },
+            if region.is_some() {
+                "forbidden"
+            } else {
+                "allow_dynamic"
+            },
         )?;
         let declared_type = self.declared_field_type_for_value(object_value, &field);
 
@@ -191,12 +214,22 @@ impl super::MirBuilder {
             )?;
         }
 
-        self.emit_instruction(crate::mir::MirInstruction::FieldSet {
-            base: object_value,
-            field: field.clone(),
-            value: value_result,
-            declared_type,
-        })?;
+        if let Some(region) = region {
+            self.emit_fastmem_memop(
+                region,
+                crate::mir::instruction::MemOpKind::FieldStore,
+                None,
+                vec![object_value, value_result],
+                Some(crate::mir::instruction::MemOpAccess::field(field.clone())),
+            )?;
+        } else {
+            self.emit_instruction(crate::mir::MirInstruction::FieldSet {
+                base: object_value,
+                field: field.clone(),
+                value: value_result,
+                declared_type,
+            })?;
+        }
 
         // Write barrier if weak field
         if self.is_weak_field_on_base(object_value, &field).is_some() {

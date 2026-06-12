@@ -39,7 +39,8 @@ docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
 docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
 ```
 
-The active lane is the MIM-PORT-FMEM-001 PageMeta scalar pilot row. Use the
-FastMemory handoff and proof rows when pointer hunting gets noisy, use the
-layout/table producer SSOT before changing FastMemory lowering, and use the
-MIM-PORT-FMEM rows when you want the next narrow hako_alloc body migration.
+The active lane is the MIM-PORT-FMEM-002 PageMeta scalar verified evidence row.
+Use the FastMemory handoff and proof rows when pointer hunting gets noisy, use
+the layout/table producer SSOT before changing FastMemory lowering, and use the
+MIM-PORT-FMEM rows when you want the next narrow hako_alloc body migration. The
+next implementation row is MIM-PORT-FMEM-003 PageMeta TableIndex proof surface.

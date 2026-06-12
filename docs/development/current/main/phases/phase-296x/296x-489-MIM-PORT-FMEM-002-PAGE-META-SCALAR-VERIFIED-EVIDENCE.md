@@ -29,13 +29,17 @@ source fastmem block
 ```
 
 `FieldLoad` / `FieldStore` rows for `PageMetaLayoutV0` are verified from the
-existing layout contract. `TableIndex` is observed and linked to the field
-uses, but remains not lowerable until a table length plus range/bounds proof
-producer is added.
+existing layout contract. `TableIndex` is observed, but remains not lowerable
+until a table length plus range/bounds proof producer is added.
 
 ## Implemented
 
 ```text
+src/mir/builder/fields.rs:
+  lowers field reads/writes inside a FastMemory region to FieldLoad/FieldStore
+  MemOps with symbolic field ids instead of leaving them as ordinary
+  FieldGet/FieldSet instructions.
+
 src/mir/semantic_refresh.rs:
   adds a function-local FastMemory emitted MemOp count resync from the
   canonical MIR instruction stream.
@@ -51,6 +55,10 @@ tools/hako_check/fastmem_capability_inventory_impl.py:
 tools/hako_check/fastmem_source_syntax_smoke.sh:
   emits MIR JSON for the concrete PageMeta pilot and checks verified field
   access-plan evidence.
+
+tools/hako_check/manifests/fastmem_source_syntax_smoke/*:
+  updates MIR-side expected inventories and fail-fast stderr contracts after
+  FieldLoad/FieldStore become first-class MIR MemOps in FastMemory regions.
 ```
 
 ## Evidence Shape

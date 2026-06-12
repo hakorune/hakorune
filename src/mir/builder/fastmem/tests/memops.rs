@@ -429,18 +429,27 @@ fn fastmem_source_records_access_sites() {
         .collect();
     assert!(instructions.iter().any(|inst| matches!(
         inst,
-        MirInstruction::FieldGet { field, .. } if field == "owner_worker_id"
+        MirInstruction::MemOp {
+            kind: MemOpKind::FieldLoad,
+            access: Some(access),
+            ..
+        } if access.field_id.as_deref() == Some("owner_worker_id")
     )));
     assert!(instructions.iter().any(|inst| matches!(
         inst,
-        MirInstruction::FieldSet { field, .. } if field == "used"
+        MirInstruction::MemOp {
+            kind: MemOpKind::FieldStore,
+            access: Some(access),
+            ..
+        } if access.field_id.as_deref() == Some("used")
     )));
     assert!(!instructions.iter().any(|inst| matches!(
         inst,
-        MirInstruction::MemOp {
-            kind: MemOpKind::FieldLoad | MemOpKind::FieldStore,
-            ..
-        }
+        MirInstruction::FieldGet { field, .. } if field == "owner_worker_id"
+    )));
+    assert!(!instructions.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::FieldSet { field, .. } if field == "used"
     )));
 }
 

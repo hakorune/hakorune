@@ -8,20 +8,19 @@
 status = "Active"
 date = "2026-06-12"
 
-active_lane = "MIM-PORT-FMEM-001 PageMeta scalar pilot"
-active_lane_status = "MIM-PORT-FMEM-001 is implemented and verified; next implementation row is MIM-PORT-FMEM-002 PageMeta scalar verified evidence."
+active_lane = "MIM-PORT-FMEM-002 PageMeta scalar verified evidence"
+active_lane_status = "MIM-PORT-FMEM-002 is implemented and verified; next implementation row is MIM-PORT-FMEM-003 PageMeta TableIndex proof surface."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-488-MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-489-MIM-PORT-FMEM-002-PAGE-META-SCALAR-VERIFIED-EVIDENCE.md"
 method_anchor = "docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-488-MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-488-MIM-PORT-FMEM-001-PAGE-META-SCALAR-PILOT.md"
-latest_card_summary = """296x-488 opens and verifies the first narrow hako_alloc
-PageMeta scalar FastMemory body pilot. The source-level PageMeta path uses the
-already-proven TableIndex, FieldLoad, and FieldStore substrate and keeps free
-lists, owner mutation, routing policy, and product activation closed."""
+latest_card = "296x-489-MIM-PORT-FMEM-002-PAGE-META-SCALAR-VERIFIED-EVIDENCE"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-489-MIM-PORT-FMEM-002-PAGE-META-SCALAR-VERIFIED-EVIDENCE.md"
+latest_card_summary = """296x-489 connects the PageMeta scalar pilot to
+MIR-side FastMemory FieldLoad/FieldStore MemOps and verified PageMetaLayoutV0
+field access plans while keeping TableIndex full proof and LLVM lowering closed."""
 current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -31,6 +30,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-12: MIM-PORT-FMEM-002 PageMeta scalar verified evidence is verified through MIR JSON inventory, source syntax, fastmem check/parity, semantic refresh tests, and current-state guard.",
   "2026-06-12: MIM-PORT-FMEM-001 PageMeta scalar pilot is verified through source syntax, capability inventory, fastmem check/parity, contract tests, and current-state guard.",
   "2026-06-12: MIR-FMEM-008D/008E owner-runtime producer and producer-neutral readiness are verified as the substrate before MIM-PORT-FMEM-001.",
   "2026-06-12: MIR-FMEM-008C report/check closeout passes producer-neutral coverage after fastmem_check_smoke and current-state pointer verification.",
