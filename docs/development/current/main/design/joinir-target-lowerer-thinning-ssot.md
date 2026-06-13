@@ -444,10 +444,19 @@ stage1_using_resolver/dispatch.rs:
   owns stage1-specific params_len guard and diagnostics
 
 skip_ws.rs:
-  route entry, MIR probe, handwritten wrapper, and skip_ws-specific canary hook
+  route facade only
+  owns public lower_skip_ws_to_joinir entry
+  preserves generic-first route order
 
 skip_ws/builder.rs:
   route-local handwritten/shared JoinIR construction
+
+skip_ws/dispatch.rs:
+  MIR-vs-handwritten dispatch
+
+skip_ws/generic_probe.rs:
+  route-local minimal LoopForm canary
+  not routed through common/target_adapter.rs
 
 stageb_funcscanner.rs:
   route facade only
