@@ -4,6 +4,8 @@
 
 - `cfg_shape.rs` — CFG / instruction shape probes used by target-specific MIR lowerers.
 - `dispatch.rs` — MIR-based vs handwritten lowering dispatch and fallback logging.
+- `string_whitespace.rs` — shared string whitespace predicate instruction
+  sequence for trim-style lowerers. It does not own route acceptance policy.
 - `target_adapter.rs` — generic Case-A probe orchestration for target-local
   lowerers. It does not own route policy or Exec/LowerOnly behavior.
   Do not add target-specific guard options here; keep those in route modules.

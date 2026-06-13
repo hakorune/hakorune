@@ -7,6 +7,7 @@
 pub mod case_a;
 mod cfg_shape;
 mod dispatch;
+pub(crate) mod string_whitespace;
 mod target_adapter;
 mod type_hint;
 

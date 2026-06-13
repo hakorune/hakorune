@@ -44,14 +44,15 @@
 //! }
 //! ```
 
+use crate::mir::join_ir::lowering::common::string_whitespace::{
+    append_string_whitespace_predicate, WhitespacePredicateIds,
+};
 use crate::mir::join_ir::{
     BinOpKind, CompareOp, ConstValue, JoinFuncId, JoinFunction, JoinInst, JoinModule,
     LoopExitShape, LoopHeaderShape, MirLikeInst,
 };
 use crate::mir::ValueId;
 use crate::runtime::get_global_ring0;
-
-use super::whitespace::{append_whitespace_predicate, WhitespacePredicateIds};
 
 /// Phase 27.11: Common JoinIR builder for FuncScannerBox.trim/1
 ///
@@ -285,7 +286,7 @@ pub(super) fn build_funcscanner_trim_joinir(module: &crate::mir::MirModule) -> O
 
     let or1 = ValueId(6016);
     let or2 = ValueId(6017);
-    let is_space = append_whitespace_predicate(
+    let is_space = append_string_whitespace_predicate(
         &mut loop_step_func,
         ch,
         WhitespacePredicateIds {
@@ -406,7 +407,7 @@ pub(super) fn build_funcscanner_trim_joinir(module: &crate::mir::MirModule) -> O
         args: vec![s_skip, i_skip, i_plus_1_skip],
     }));
 
-    let is_space_skip = append_whitespace_predicate(
+    let is_space_skip = append_string_whitespace_predicate(
         &mut skip_func,
         ch_skip,
         WhitespacePredicateIds {

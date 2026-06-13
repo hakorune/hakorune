@@ -1,9 +1,12 @@
-//! Route-local whitespace predicate builder for FuncScanner trim lowering.
+//! String whitespace predicate builder shared by trim lowerers.
+//!
+//! This is instruction-sequence sharing only. It does not decide which route
+//! accepts a source shape or which target lowerer owns execution.
 
 use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, JoinFunction, JoinInst, MirLikeInst};
 use crate::mir::ValueId;
 
-pub(super) struct WhitespacePredicateIds {
+pub(crate) struct WhitespacePredicateIds {
     pub cmp_space: ValueId,
     pub cmp_tab: ValueId,
     pub cmp_newline: ValueId,
@@ -17,7 +20,7 @@ pub(super) struct WhitespacePredicateIds {
     pub is_space: ValueId,
 }
 
-pub(super) fn append_whitespace_predicate(
+pub(crate) fn append_string_whitespace_predicate(
     func: &mut JoinFunction,
     ch: ValueId,
     ids: WhitespacePredicateIds,

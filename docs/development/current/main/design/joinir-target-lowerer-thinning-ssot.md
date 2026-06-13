@@ -57,6 +57,9 @@ common/cfg_shape.rs:
 common/dispatch.rs:
   MIR-based vs handwritten lowering dispatch
 
+common/string_whitespace.rs:
+  trim-style whitespace predicate instruction sequence
+
 common/type_hint.rs:
   IfSelect / IfMerge type hint extraction
 
@@ -421,9 +424,10 @@ funcscanner_trim/builder.rs:
 funcscanner_trim/dispatch.rs:
   MIR-vs-handwritten dispatch and route-local sanity checks
 
-funcscanner_trim/whitespace.rs:
-  route-local whitespace predicate instruction builder
-  shared by tail-trim loop and skip-leading helper
+common/string_whitespace.rs:
+  shared whitespace predicate instruction builder for trim-style lowerers
+  used by handwritten trim and generic Case-A trim
+  does not own route acceptance or fallback policy
 
 stage1_using_resolver.rs:
   route entry, MIR probe, handwritten wrapper, and stage1-specific generic hook
