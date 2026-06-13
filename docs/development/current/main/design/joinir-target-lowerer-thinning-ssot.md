@@ -165,30 +165,125 @@ keep LowerOnly observation in lower_only_routes.rs
 
 ### JOINIR-TARGET-THIN-003: Target Lowerer Route Inventory
 
-Before moving code between target lowerers, write a read-only inventory for each
-target:
+Status: landed as read-only inventory.
+
+Before moving code between target lowerers, keep the route inventory explicit.
+The inventory follows `JOINIR_TARGETS`; it is documentation-only and must not
+change accepted shapes.
+
+#### `Main.skip/1`
 
 ```text
-skip_ws:
-  Exec target
-  generic_case_a first, then existing dispatcher
-
-funcscanner_trim:
-  Exec target
-  MIR shape probe, generic_case_a, handwritten fallback
-
-stage1_using_resolver:
-  LowerOnly target
-  structural observation, normal VM execution
-
-stageb_body:
-  LowerOnly target
-  structural observation, normal VM execution
-
-stageb_funcscanner:
-  LowerOnly target
-  structural observation, normal VM execution
+bridge_kind: Exec
+lowerer_entry: lower_skip_ws_to_joinir
+route_shape:
+  if lower_generic_enabled:
+    try try_lower_skip_ws_generic_case_a first
+  else:
+    dispatch through dispatch_lowering to MIR-probed or handwritten builder
+fallback:
+  generic failure -> existing dispatcher
+  MIR-probe failure -> handwritten builder
+execution:
+  VM bridge may execute and produce output
 ```
+
+#### `FuncScannerBox.trim/1`
+
+```text
+bridge_kind: Exec
+lowerer_entry: lower_funcscanner_trim_to_joinir
+route_shape:
+  dispatch through dispatch_lowering
+  MIR path checks entry CFG / string patterns
+  optional generic Case-A through LoopToJoinLowerer
+  otherwise shared handwritten builder
+fallback:
+  MIR-probe or generic failure -> handwritten builder
+execution:
+  VM bridge may execute and produce output
+```
+
+#### `FuncScannerBox.append_defs/2`
+
+```text
+bridge_kind: LowerOnly
+lowerer_entry: LoopToJoinLowerer::lower_case_a_for_append_defs
+route_shape:
+  no dedicated top-level route module
+  generic Case-A target published through JOINIR_TARGETS
+  lowered by generic_case_a/append_defs.rs
+  selected when LoopToJoinLowerer sees ArrayAccumulation
+fallback:
+  no bridge exec route
+execution:
+  structural lowering only
+  normal VM Route A owns execution
+```
+
+#### `Stage1UsingResolverBox.resolve_for_source/5`
+
+```text
+bridge_kind: LowerOnly
+lowerer_entry: lower_stage1_usingresolver_to_joinir
+route_shape:
+  dispatch through dispatch_lowering
+  MIR path checks entry CFG / Const(0)
+  optional LoopForm construction
+  optional LoopToJoinLowerer::lower_case_a_for_stage1_resolver
+  otherwise shared builder
+fallback:
+  MIR/generic failure -> handwritten builder
+execution:
+  LowerOnly bridge always returns to normal VM Route A
+```
+
+#### `StageBBodyExtractorBox.build_body_src/2`
+
+```text
+bridge_kind: LowerOnly
+lowerer_entry: lower_stageb_body_to_joinir
+route_shape:
+  dispatch through dispatch_lowering
+  MIR path checks entry CFG
+  optional LoopForm construction
+  optional LoopToJoinLowerer::lower_case_a_for_stageb_body
+  otherwise shared builder
+fallback:
+  MIR/generic failure -> handwritten builder
+execution:
+  LowerOnly bridge always returns to normal VM Route A
+```
+
+#### `StageBFuncScannerBox.scan_all_boxes/1`
+
+```text
+bridge_kind: LowerOnly
+lowerer_entry: lower_stageb_funcscanner_to_joinir
+route_shape:
+  dispatch through dispatch_lowering
+  MIR path checks entry CFG
+  optional LoopForm construction
+  optional LoopToJoinLowerer::lower_case_a_for_stageb_funcscanner
+  otherwise shared builder
+fallback:
+  MIR/generic failure -> handwritten builder
+execution:
+  LowerOnly bridge always returns to normal VM Route A
+```
+
+Shared repetition visible after this inventory:
+
+```text
+find target function
+probe entry CFG shape
+optionally construct LoopForm
+optionally try LoopToJoinLowerer / generic Case-A
+fall back to route-local handwritten builder
+```
+
+This repeated shape is only a candidate seam. It does not justify merging route
+truth or changing `Exec` / `LowerOnly` behavior.
 
 Acceptance:
 
@@ -196,6 +291,7 @@ Acceptance:
 inventory_only=1
 behavior_changed=0
 accepted_shape_added=0
+append_defs_loweronly_without_exec_route=1
 ```
 
 ### JOINIR-TARGET-THIN-004: Candidate Shared Target Adapter
