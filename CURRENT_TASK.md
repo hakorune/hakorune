@@ -52,11 +52,12 @@ Scope: current lane / next lane / restart order only.
 - concurrency/thread pre-selfhost work is a side-lane candidate, not the active
   lane: `CONC-RUNTIME-INVENTORY-001`, `CONC-SCHED-ROUTE-001`,
   `CONC-CAP-INVENTORY-001`, `CONC-SYNCBOX-003`, `CONC-CHANNEL-002`,
-  `CONC-CHANNEL-003`, and `CONC-CONTEXT-002` are landed; next is
-  `CONC-SOURCE-PARALLEL-001` in
-  `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md`;
-  keep `nowait_os_thread_spawn=0` and do not add source-level thread syntax
-  before send/share/thread-root safety is pinned
+  `CONC-CHANNEL-003`, `CONC-CONTEXT-002`, and
+  `CONC-SOURCE-PARALLEL-001` are landed through docs/report vocabulary;
+  `worker_scope workers=N { parallel ... }` is reserved design-only, `workers=N`
+  is an upper-bound scheduler hint, and parser/lowering remain gated on
+  `THREAD-SAFETY-001`; keep `nowait_os_thread_spawn=0` and do not add
+  source-level thread syntax before send/share/thread-root safety is pinned
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules

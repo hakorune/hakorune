@@ -9,7 +9,7 @@ TASKBOARD="$ROOT_DIR/docs/development/current/main/design/concurrency-boundary-m
 REFERENCE="$ROOT_DIR/docs/reference/concurrency/boundary-model.md"
 AST="$ROOT_DIR/src/ast/mod.rs"
 PARSER="$ROOT_DIR/src/parser/statements/task_scope.rs"
-PROGRAM_JSON="$ROOT_DIR/src/stage1/program_json_v0/lowering.rs"
+PROGRAM_JSON_STATEMENTS="$ROOT_DIR/src/stage1/program_json_v0/lowering/statements.rs"
 AST_JSON_ROUNDTRIP="$ROOT_DIR/src/macro/ast_json/roundtrip.rs"
 JSON_BRIDGE="$ROOT_DIR/src/runner/json_v0_bridge/lowering/stmts.rs"
 
@@ -19,7 +19,7 @@ guard_require_files "$TAG" \
   "$REFERENCE" \
   "$AST" \
   "$PARSER" \
-  "$PROGRAM_JSON" \
+  "$PROGRAM_JSON_STATEMENTS" \
   "$AST_JSON_ROUNDTRIP" \
   "$JSON_BRIDGE"
 
@@ -29,7 +29,7 @@ guard_expect_in_file "$TAG" "landed-parser-json" "$TASKBOARD" "taskboard must re
 guard_expect_in_file "$TAG" 'co \{ \.\.\. \}' "$REFERENCE" "reference must name canonical co surface"
 guard_expect_in_file "$TAG" "source_keyword" "$AST" "AST must preserve canonical/compat task scope spelling"
 guard_expect_in_file "$TAG" "is_task_scope_statement_start" "$PARSER" "parser must use contextual task-scope detection"
-guard_expect_in_file "$TAG" '"TaskScope"' "$PROGRAM_JSON" "Program JSON must carry TaskScope rows"
+guard_expect_in_file "$TAG" '"TaskScope"' "$PROGRAM_JSON_STATEMENTS" "Program JSON must carry TaskScope rows"
 guard_expect_in_file "$TAG" '"TaskScope"' "$AST_JSON_ROUNDTRIP" "AST JSON roundtrip must preserve TaskScope rows"
 guard_expect_in_file "$TAG" "task_scope_lowering_missing" "$JSON_BRIDGE" "JSON bridge must fail-fast until runtime hook lowering lands"
 

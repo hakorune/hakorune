@@ -26,6 +26,7 @@ kept only as provenance in phase logs and execution ledgers.
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
 | `context` / `scoped` | yes | reference | no | Parser/AST JSON capsule is active; CONC-CONTEXT-002 adds explicit-scope child snapshot reference behavior while Program JSON / MIR stay fail-fast. |
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
+| `worker_scope` / `parallel` | reserved | no | no | CONC-SOURCE-PARALLEL-001 reserves the future structured parallel surface; parser/MIR/lowering stay closed until Send/Share/ThreadRoot safety is enforced. |
 | true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
 
 Mimalloc reading:
@@ -61,6 +62,10 @@ Terminology note:
   Future/task ownership.
 - The structured-concurrency source surface should be read as `co`.
 - `task_scope` is the compatibility spelling and semantic/runtime wording.
+- `worker_scope workers=N { parallel ... }` is reserved design only. `workers=N`
+  is a scheduler hint / upper bound, not a promise to create exactly N OS
+  threads.
+- Raw `thread { ... }` is closed.
 - The current runtime scaffold behind that scope is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`.
 - `RoutineScopeBox` is historical wording only; do not use it as the current code name.
 
@@ -147,6 +152,51 @@ Current reference runtime:
   inherit the active `context`/historical `scoped` bindings by snapshot at child
   creation time. The implicit root scope remains best-effort ownership only and
   is not a detached context propagation contract.
+
+### Reserved Structured Parallel Surface
+
+`worker_scope` / `parallel` is reserved for a later structured parallel source
+surface. It is not active syntax in the current row.
+
+Reserved shape:
+
+```hako
+worker_scope workers = N {
+    parallel i in range {
+        work(i)
+    }
+}
+```
+
+Current contract:
+
+```text
+worker_scope_design_reserved=1
+worker_scope_parser_enabled=0
+worker_scope_mir_lowering_enabled=0
+worker_scope_runtime_route_enabled=0
+raw_thread_parser_enabled=0
+```
+
+`workers = N` is a scheduler budget hint and upper bound:
+
+```text
+worker_scope_workers_is_upper_bound=1
+worker_scope_exact_thread_count_promise=0
+worker_scope_os_thread_spawn_direct=0
+```
+
+Parser/lowering support requires the later safety gate:
+
+```text
+hako_send_share_enforced=1
+thread_registry_gc_roots_enabled=1
+worker_scope_capture_check_enabled=1
+```
+
+Once `worker_scope` becomes source-visible, silent fallback is forbidden. If the
+runtime chooses cooperative/inline execution or fewer effective workers, it must
+report the effective route and reason.
 
 ### Ambient Context (`context`, parser capsule)
 - `context name[: Type] = value { ... }` is the preferred source spelling.

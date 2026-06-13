@@ -45,6 +45,9 @@ WorkerPoolScheduler=implemented
 ThreadRegistry v0=implemented
 source_level_thread_syntax=0
 worker_pool_source_route_enabled=0
+worker_scope_design_reserved=1
+worker_scope_parser_enabled=0
+worker_scope_workers_is_upper_bound=1
 ```
 
 The implemented worker pool is runtime substrate only. It is not evidence that
@@ -250,7 +253,7 @@ Use this order if the concurrency substrate is reopened before selfhost:
 | 3 | `CONC-CAP-INVENTORY-001` | Inventory send/share/thread-root requirements before cross-worker `.hako` values move. | no enforcement; no value movement |
 | 4 | `CONC-SYNCBOX-003` | Add reference serialized entry behavior for canonical `sync box`. | no fairness/reentrancy guarantee |
 | 5 | `CONC-CHANNEL-002/003` | Implement the future `Channel<T>` queue runtime separately from legacy P2P `ChannelBox`. | no hidden blocking ordinary calls |
-| 6 | `CONC-SOURCE-PARALLEL-001` | Consider source-level worker/parallel surface only after substrate safety rows. | no raw thread syntax by default |
+| 6 | `CONC-SOURCE-PARALLEL-001` | Reserve source-level worker/parallel surface after substrate safety rows. | docs-only; `THREAD-SAFETY-001` required before parser/lowering |
 
 Do not use `lock<T>` as the new canonical source surface. `sync box` is the
 canonical shared-mutable surface; locks remain runtime/internal or historical
@@ -816,6 +819,72 @@ mir_context_scope_lowering=0
 
 This row proves child creation snapshots at runtime registration time. It does
 not open Program JSON / MIR lowering for `ContextScope`.
+
+### CONC-SOURCE-PARALLEL-001: structured parallel source reservation
+
+Status: landed-docs.
+
+`co { nowait ... await ... }` remains the current canonical user-facing
+concurrency source surface:
+
+```text
+co_nowait_await_canonical_source_surface=1
+nowait_os_thread_spawn=0
+```
+
+The future structured parallel source surface is reserved as design-only:
+
+```hako
+worker_scope workers = N {
+    parallel i in range {
+        work(i)
+    }
+}
+```
+
+Current status:
+
+```text
+worker_scope_design_reserved=1
+worker_scope_parser_enabled=0
+worker_scope_ast_json_enabled=0
+worker_scope_program_json_enabled=0
+worker_scope_mir_lowering_enabled=0
+worker_scope_llvm_lowering_enabled=0
+worker_scope_runtime_route_enabled=0
+raw_thread_parser_enabled=0
+source_level_thread_syntax=0
+```
+
+`workers = N` is a scheduler budget hint and upper bound. It must not become an
+exact OS-thread-count promise:
+
+```text
+worker_scope_workers_is_upper_bound=1
+worker_scope_exact_thread_count_promise=0
+worker_scope_os_thread_spawn_direct=0
+```
+
+Opening source-visible `worker_scope` requires safety enforcement first:
+
+```text
+thread_safety_gate_required=1
+hako_send_share_enforced=1
+thread_registry_gc_roots_enabled=1
+worker_scope_capture_check_enabled=1
+worker_scope_value_movement_enabled=1
+```
+
+Until those fields are true, do not add parser support, AST JSON, Program JSON,
+MIR lowering, LLVM lowering, or runtime route activation. If a later row makes
+`worker_scope` source-visible, any route that uses fewer/equivalent workers or
+falls back to cooperative/inline execution must report that route explicitly:
+
+```text
+worker_scope_silent_fallback_count=0
+worker_scope_effective_route=inline_resolved_future|cooperative_task|worker_pool_task
+worker_scope_effective_workers=<n>
+```
 
 ### THREAD-SOURCE-001: structured worker source surface
 

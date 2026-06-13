@@ -60,6 +60,8 @@ lock<T>
 scoped
 task_scope
 worker_local
+worker_scope
+parallel
 Atomic<T>
 Mutex
 Thread
@@ -136,6 +138,54 @@ Diagnostics should guide compatibility source toward `co`:
 `task_scope` is accepted as a compatibility spelling.
 Use `co { ... }` for the canonical structured concurrency scope.
 ```
+
+## Reserved Worker Scope Boundary
+
+`worker_scope` / `parallel` is a reserved future structured parallel surface,
+not active source syntax.
+
+Reserved shape:
+
+```hako
+worker_scope workers = N {
+    parallel i in range {
+        work(i)
+    }
+}
+```
+
+Meaning when a later row opens it:
+
+- The scope owns the worker/parallel lifecycle.
+- `parallel` may appear only inside an explicit `worker_scope`.
+- Captures must pass Send / Share / ThreadRoot safety checks.
+- `workers = N` is a scheduler budget hint and upper bound.
+- `workers = N` is not an exact OS-thread-count promise.
+- The runtime may choose fewer/equivalent workers only with explicit report
+  evidence; silent fallback is forbidden once this surface is source-visible.
+
+Current status:
+
+```text
+worker_scope_design_reserved=1
+worker_scope_parser_enabled=0
+worker_scope_mir_lowering_enabled=0
+worker_scope_runtime_route_enabled=0
+worker_scope_workers_is_upper_bound=1
+worker_scope_exact_thread_count_promise=0
+```
+
+Opening parser or lowering support requires the thread-safety gate:
+
+```text
+hako_send_share_enforced=1
+thread_registry_gc_roots_enabled=1
+worker_scope_capture_check_enabled=1
+```
+
+Raw `thread { ... }` remains closed. If it ever appears, it should be treated as
+an explicit expert/runtime escape hatch, not the normal Hakorune concurrency
+surface.
 
 ## Future Boundary
 

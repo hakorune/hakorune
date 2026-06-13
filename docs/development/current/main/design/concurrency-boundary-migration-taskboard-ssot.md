@@ -75,7 +75,10 @@ Recommended substrate rows:
 | 5 | `CONC-CHANNEL-002` / `003` | Implement the future `Channel<T>` queue runtime separately from legacy P2P `ChannelBox`. | no hidden blocking ordinary calls |
 
 Only after these rows should a source-level `worker_scope` / `parallel` /
-explicit worker surface be considered.
+explicit worker surface be considered. `CONC-SOURCE-PARALLEL-001` reserves that
+surface as design-only; parser, AST JSON, Program JSON, MIR, LLVM, and runtime
+route activation stay closed until `THREAD-SAFETY-001` enforces send/share/root
+safety.
 
 ## Recommended Task Order
 
@@ -160,7 +163,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-CONTEXT-001` | landed-parser-json | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/AST JSON guard + scoped compat audit | no propagation runtime yet |
 | `CONC-CONTEXT-002` | landed-code | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | `src/runtime/context_snapshot.rs` + `293x-1006-CONC-CONTEXT-002-CONTEXT-SNAPSHOT-REFERENCE.md` | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |
-| `CONC-SOURCE-PARALLEL-001` | pending | Decide and pin the source-level worker/parallel surface after substrate safety rows. | design card / report vocabulary | no raw thread syntax by default |
+| `CONC-SOURCE-PARALLEL-001` | landed-docs | Reserve the source-level worker/parallel surface while keeping parser/lowering closed. | `293x-CONC-SOURCE-PARALLEL-001-SOURCE-PARALLEL-SURFACE-FREEZE.md` + report vocabulary | `THREAD-SAFETY-001` required before parser/lowering; raw thread syntax closed |
 
 ## Row Details
 
@@ -408,6 +411,102 @@ register_future_to_current_group(future) inside explicit co/task_scope
   -> captures current context stack snapshot
 register_future_to_current_group(future) outside explicit scope
   -> no context propagation
+```
+
+### CONC-SOURCE-PARALLEL-001
+
+This row reserves the future structured parallel source surface without opening
+parser or lowering support.
+
+Current canonical source surface:
+
+```hako
+co {
+    local a = nowait { workA() }
+    local b = nowait { workB() }
+
+    local x = await a
+    local y = await b
+    return x + y
+}
+```
+
+Reserved future structured parallel surface:
+
+```hako
+worker_scope workers = N {
+    parallel i in range {
+        work(i)
+    }
+}
+```
+
+Closed surface:
+
+```hako
+thread {
+    work()
+}
+```
+
+Decisions:
+
+```text
+co_nowait_await_canonical_source_surface=1
+worker_scope_design_reserved=1
+worker_scope_parser_enabled=0
+worker_scope_ast_json_enabled=0
+worker_scope_program_json_enabled=0
+worker_scope_mir_lowering_enabled=0
+worker_scope_llvm_lowering_enabled=0
+worker_scope_runtime_route_enabled=0
+raw_thread_parser_enabled=0
+```
+
+`workers = N` is a scheduler budget hint and upper bound, not an exact OS
+thread-count promise:
+
+```text
+worker_scope_workers_is_upper_bound=1
+worker_scope_exact_thread_count_promise=0
+worker_scope_os_thread_spawn_direct=0
+```
+
+Opening parser/lowering for `worker_scope` requires `THREAD-SAFETY-001` to
+enforce the safety boundary:
+
+```text
+thread_safety_gate_required=1
+hako_send_share_enforced=1
+thread_registry_gc_roots_enabled=1
+worker_scope_capture_check_enabled=1
+worker_scope_value_movement_enabled=1
+```
+
+Until those fields are true, `worker_scope` is documentation-only. Do not add a
+parser capsule, AST JSON shape, MIR metadata carry, LLVM lowering, or runtime
+worker-pool route for it.
+
+No silent fallback rule:
+
+```text
+worker_scope_silent_fallback_count=0
+```
+
+Once `worker_scope` becomes source-visible, any route that executes fewer
+workers than requested, or uses a cooperative/inline route instead of a worker
+pool, must report the effective route and reason. It must not silently claim
+`worker_pool_task`.
+
+Fail-fast tags reserved for later implementation:
+
+```text
+[concurrency/worker-scope-disabled]
+[concurrency/parallel-outside-worker-scope]
+[concurrency/raw-thread-disabled]
+[concurrency/send-not-proven]
+[concurrency/share-not-proven]
+[concurrency/thread-root-missing]
 ```
 
 ## Mimalloc Stop Line
