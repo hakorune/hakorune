@@ -54,17 +54,17 @@ These are not immediate deletes without a small inventory card first:
 | --- | --- | --- |
 | `if_dry_runner` | HOLD | Live dev caller in runner VM execution path. Keep unless dev route is retired. |
 | Stage1/StageB lower-only routes | HOLD | Metadata now truthful as LowerOnly; do not delete while structural lowering probes exist. |
-| `condition_pattern` | NEEDS-INVENTORY | Looks self-test heavy, but owns condition vocabulary. Confirm no active route semantics before pruning. |
+| `condition_pattern` | RETIRED | Removed by 291x-748 after usage inventory showed no production caller; condition vocabulary now belongs to active route facts / `condition_lowerer` / `ExprLowerer`. |
 | `condition_lowering_box` | RETIRED | Removed after usage inventory showed only the test-only trait harness. |
 | `condition_to_joinir` facade | RETIRED | Removed after direct `condition_lowerer` tests covered the old facade surface. |
 | `update_env` | RETIRED | Removed after promoted-variable/body-local resolution was covered through `ScopeManager` / `condition_lowerer` / `expr_lowerer` tests. |
-| `JoinValueSpace` extra methods | TEST-SURFACE CANDIDATE | Production uses the core allocator path; narrow unused helpers only after a method-level inventory. |
-| `common::dual_value_rewriter` and tiny common helpers | DELETE-CANDIDATE | Verify no current callers, then prune in a focused common-helper card. |
+| `JoinValueSpace` extra methods | RETIRED | Unused `alloc_join_param` / `alloc_join_local` wrappers removed; callers use `alloc_param` / `alloc_local` directly. |
+| `common::dual_value_rewriter` | RETIRED | Already removed; no current source hits remain. |
+| `common.rs` tiny helpers | HOLD | Current helper functions have active callers in target-specific lowerers / if-select / if-merge. |
 
 ## Next Safe Pass
 
-Start with a read-only inventory card for `condition_pattern` or another live
-surface.
+Start with a read-only inventory card for another live surface.
 Do not mix it with bridge routing cleanup or live LowerOnly route changes.
 
 ## Proof

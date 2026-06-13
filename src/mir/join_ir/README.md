@@ -137,6 +137,10 @@ Active lowering / bridge surfaces:
 
 Retired:
 
+- `lowering/condition_pattern.rs`
+  - retired by 291x-748 after usage inventory showed no production caller
+  - condition vocabulary now belongs to active route facts, `condition_lowerer`,
+    and `ExprLowerer`
 - `lowering/update_env.rs`
   - retired after usage inventory showed only the old test-only update-expression
     environment harness
@@ -149,6 +153,12 @@ Retired:
   - retired by `JOINIR-THIN-002`
   - it was a `#[cfg(test)]` re-export facade with no external references
   - tests now exercise `lowering/condition_lowerer/*` directly
+- `JoinValueSpace::alloc_join_param` / `JoinValueSpace::alloc_join_local`
+  - retired as unused wrapper API
+  - callers use `alloc_param` / `alloc_local` directly so allocation ownership
+    has one method pair
+- `common::dual_value_rewriter`
+  - already removed; do not reintroduce name-based rewrite shelves
 
 Rules:
 

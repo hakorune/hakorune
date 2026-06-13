@@ -138,22 +138,6 @@ impl JoinValueSpace {
         self.next_local += 1;
         ValueId(id)
     }
-
-    /// Phase 286 P1+: JoinIR function parameter allocation
-    ///
-    /// Use this for: function parameters, loop variables, condition variables
-    /// Wrapper around `alloc_param()` with explicit "JoinIR" context
-    pub fn alloc_join_param(&mut self) -> ValueId {
-        self.alloc_param()
-    }
-
-    /// Phase 286 P1+: JoinIR local variable allocation
-    ///
-    /// Use this for: temporary values, intermediate computations, local variables
-    /// Wrapper around `alloc_local()` with explicit "JoinIR" context
-    pub fn alloc_join_local(&mut self) -> ValueId {
-        self.alloc_local()
-    }
 }
 
 impl Default for JoinValueSpace {

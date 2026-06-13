@@ -69,7 +69,7 @@ pub(in crate::mir::builder::control_flow::joinir) fn verify_boundary_contract_at
                     "[{}] join_inputs[{}] = {:?} outside Param region (expected 100-999)",
                     context, i, join_id
                 ),
-                "use alloc_join_param() for function parameters",
+                "use JoinValueSpace::alloc_param() for function parameters",
             ));
         }
     }
