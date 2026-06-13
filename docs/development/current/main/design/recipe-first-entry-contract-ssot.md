@@ -41,8 +41,9 @@ AST
 - 候補が複数成立したら strict/dev(+planner_required) で **freeze**（入口の曖昧さは禁止）
 - release は挙動を変えないが、設計目標は guard を disjoint にして一意化すること
 - 「特定パターン優先」を避け、優先させたい場合は **guard を狭めて重なりを消す**（支配関係で一意化）
-- loop_scan_methods_block_v0 が成立する場合は loop_scan_methods_v0 を候補にしない（entry disjoint）
-- loop_scan_methods_block_v0 は nested loop では候補にしない（entry disjoint）
+- block-wrapped scan_methods は `COREPLAN-E1-002` 以降
+  `loop_scan_methods_v0` が観測する。専用 `loop_scan_methods_block_v0`
+  候補は retired。
 
 #### Entry guard matrix (summary)
 
@@ -55,7 +56,6 @@ AST
 | `if_phi_join` | `IfPhiJoin` | facts present | excludes `loop_cond_break_continue` |
 | `loop_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_cond_break_continue`, `loop_cond_continue_only` |
 | `loop_true_early_exit` | `LoopTrueEarlyExit` | facts present | excludes `loop_true_break_continue` |
-| `loop_scan_methods_block_v0` | `LoopScanMethodsBlockV0` | non-nested scan methods | excludes `loop_scan_methods_v0`, `loop_cond_break_continue` |
 | `loop_scan_methods_v0` | `LoopScanMethodsV0` | nested (or no block_v0) scan methods | excludes `loop_cond_break_continue` |
 | `loop_scan_*` (v0/phi_vars/collect/bundle) | `LoopScan*` | facts present | excludes `loop_cond_break_continue` |
 | `loop_bundle_resolver_v0` | `LoopBundleResolverV0` | facts present | excludes `generic_loop_v1` |
@@ -75,7 +75,6 @@ Note: Candidate keys follow current semantic fact accessors where available; his
 - LoopBreak（facts: loop_break）が成立する場合は generic_loop_v1 を候補にしない（entry disjoint）
 - LoopCharMap（facts: `loop_char_map`）が成立する場合、generic_loop_v1 を候補にしない
 - LoopSimpleWhile（facts: `loop_simple_while`）が成立する場合は generic_loop_v1 を候補にしない
-- loop_scan_methods_block_v0 は non-nested のみ候補（segments に nested がある場合は loop_scan_methods_v0 に寄せる）
 - loop_cond_break_continue が成立する場合、generic_loop_v1 は候補にしない（conditional_update を含む）
 - loop_bundle_resolver_v0 が成立する場合、generic_loop_v1 は候補にしない
 - IfPhiJoin（facts: `if_phi_join`）が成立する場合、loop_cond_break_continue は候補にしない

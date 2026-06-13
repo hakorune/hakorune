@@ -26,7 +26,6 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::try_extract_loop_cond_return_in_body_facts;
-use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
@@ -73,10 +72,6 @@ fn try_build_loop_facts_inner(
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
     // build a concrete route fact set (no guesses / no hardcoded names).
     //
-    // NOTE: Some BoxCount routes intentionally match on `ScopeBox`/block wrapper
-    // boundaries (analysis-only observation). Those must run on the original body,
-    // before `flatten_scope_boxes()` strips wrapper nodes.
-    let loop_scan_methods_block_v0 = try_extract_loop_scan_methods_block_v0_facts(condition, body)?;
     let flat_body = flatten_scope_boxes(body);
     let body = flat_body.as_slice();
 
@@ -177,7 +172,6 @@ fn try_build_loop_facts_inner(
         || loop_char_map.is_some()
         || loop_array_join.is_some()
         || string_is_integer.is_some()
-        || loop_scan_methods_block_v0.is_some()
         || loop_scan_methods_v0.is_some()
         || loop_scan_v0.is_some()
         || loop_scan_phi_vars_v0.is_some()
@@ -233,7 +227,6 @@ fn try_build_loop_facts_inner(
         loop_cond_continue_with_return,
         loop_cond_return_in_body,
         loop_scan_v0,
-        loop_scan_methods_block_v0,
         loop_scan_methods_v0,
         loop_scan_phi_vars_v0,
         loop_collect_using_entries_v0,
@@ -247,9 +240,8 @@ fn try_build_loop_facts_inner(
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} scan_methods_block={} loop_scan={} loop_scan_phi_vars={} collect_using_entries={} bundle_resolver={}",
+            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} loop_scan={} loop_scan_phi_vars={} collect_using_entries={} bundle_resolver={}",
             facts.loop_scan_methods_v0.is_some() as u8,
-            facts.loop_scan_methods_block_v0.is_some() as u8,
             facts.loop_scan_v0.is_some() as u8,
             facts.loop_scan_phi_vars_v0.is_some() as u8,
             facts.loop_collect_using_entries_v0.is_some() as u8,

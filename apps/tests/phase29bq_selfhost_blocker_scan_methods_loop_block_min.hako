@@ -1,7 +1,8 @@
 // Phase 29bq: selfhost blocker reproducer (FuncScannerBox._scan_methods outer loop shape)
 //
 // Goal: "loop(i < n)" where the scan window inner loop is wrapped by a statement block `{ ... }`.
-// This shape must be accepted under planner-required (BoxCount: loop_scan_methods_block_v0).
+// This shape is accepted under planner-required by loop_scan_methods_v0.
+// COREPLAN-E1-002 retired the dedicated loop_scan_methods_block_v0 box.
 //
 // Expected: stdout=0, RC=0
 static box Main {

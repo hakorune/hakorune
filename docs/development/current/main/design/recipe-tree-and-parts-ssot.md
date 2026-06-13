@@ -295,8 +295,12 @@ Drift check:
 
 ### scan 系: linear は RecipeBlock、nested は planner
 
-- `loop_scan_methods_v0` などの scan 系は、**線形部分を `NoExitBlockRecipe` として固定**し、nested loop は single_planner に委譲する（別レゴとして合成）。
-- `loop_scan_methods_block_v0` も同じ方針で segment-first にする（BoxCountで追加された “ブロック内に nested loop” 形の薄皮）。
+- `loop_scan_methods_v0` などの scan 系は、**線形部分を
+  `LinearBlockRecipe::{NoExit|ExitAllowed}` として固定**し、nested loop
+  は single_planner に委譲する（別レゴとして合成）。
+- `loop_scan_methods_block_v0` は `COREPLAN-E1-002` で retired。
+  block-wrapper observation は `loop_scan_methods_v0` の segment-first path
+  が所有する。
 - pipeline 側での直 lower（手走査/手 lowering）を戻さない。
 
 scan系 segment vocabulary SSOT:
@@ -314,8 +318,7 @@ Drift check:
 - `rg -n "enum LoopScanSegment\\b" src/mir/builder/control_flow/plan/loop_scan_* --glob '!*.md'` → 0件
 - `rg -n "lower_nested_loop_depth1_any\\b" src/mir/builder/control_flow/plan/loop_scan_* --glob '!*.md'` → 0件
 - `rg -n "lower_nested_loop_recipe_stmt_only\\b" src/mir/builder/control_flow/plan/loop_scan_* --glob '!*.md'` → 1件以上
-- `rg -n "lower_stmt_list_join_if_and_nested_loops\\b|lower_effect_stmt\\b" src/mir/builder/control_flow/plan/loop_scan_methods_block_v0 --glob '!*.md'` → 0件
-- `rg -n "LoopScanSegment\\b" src/mir/builder/control_flow/plan/loop_scan_methods_block_v0 --glob '!*.md'` → 0件（ローカル袋禁止: `scan_loop_segments` の alias を使う）
+- `rg -n "loop_scan_methods_block_v0|LoopScanMethodsBlock|SCAN_METHODS_BLOCK|scan_methods_block" src/mir/builder/control_flow -g '*.rs'` → 0件
 - `rg -n "pub .*RecipeBody\\b" src/mir/builder/control_flow/plan --glob '!*.md'` → 想定箇所のみ（payload用の `pub body: RecipeBody` など）
 - `rg -n "RecipeBodies::bodies" src --glob '!*.md'` → 0件
 
@@ -889,8 +892,8 @@ Status: exception routes = 0 (all entry-gate migrations complete; the temporary 
   - Drift check: `rg -n "\\[CorePlan\\]|&CorePlan|Vec<CorePlan>|Result<.*CorePlan|Option<Vec<CorePlan>>" src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns.rs src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_pipeline.rs` → 0件
   - Note: `CorePlan::Loop` / `CorePlan::Exit` / `CorePlan::Effect` の生成と match は維持（名前置換は M6 後段）
   - Milestone: `plan/features` 配下の `Vec<CorePlan>` / `Result<CorePlan>` 型境界は 0件（tests除く）
-- ✅ M6-min17: `loop_{scan_v0,scan_methods_v0,scan_methods_block_v0,scan_phi_vars_v0,bundle_resolver_v0,collect_using_entries_v0}/pipeline` の型境界（戻り型/Vec境界/参照境界）を `LoweredRecipe` へ段階移行した（挙動不変）。
-  - Drift check: `rg -n "\\[CorePlan\\]|&CorePlan|Vec<CorePlan>|Result<.*CorePlan|Option<Vec<CorePlan>>" src/mir/builder/control_flow/plan/loop_scan_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_scan_methods_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_scan_methods_block_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_scan_phi_vars_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_bundle_resolver_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_collect_using_entries_v0/pipeline.rs` → 0件
+- ✅ M6-min17: `loop_{scan_v0,scan_methods_v0,scan_phi_vars_v0,bundle_resolver_v0,collect_using_entries_v0}/pipeline` の型境界（戻り型/Vec境界/参照境界）を `LoweredRecipe` へ段階移行した（挙動不変）。`loop_scan_methods_block_v0` は `COREPLAN-E1-002` で retired。
+  - Drift check: `rg -n "\\[CorePlan\\]|&CorePlan|Vec<CorePlan>|Result<.*CorePlan|Option<Vec<CorePlan>>" src/mir/builder/control_flow/plan/loop_scan_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_scan_methods_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_scan_phi_vars_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_bundle_resolver_v0/pipeline.rs src/mir/builder/control_flow/plan/loop_collect_using_entries_v0/pipeline.rs` → 0件
   - Note: `CorePlan::Loop` / `CorePlan::Exit` / `CorePlan::Effect` の生成と match は維持（名前置換は M6 後段）
 - ✅ M6-min18: `loop_true_break_continue/normalizer`・`generic_loop/normalizer`・`nested_loop_depth1/normalizer`・`nested_loop_plan`・`composer/coreloop_v2_nested_minimal` の型境界（戻り型/Option戻り型）を `LoweredRecipe` へ段階移行した（挙動不変）。Old cfg-test `coreloop_v0` / `coreloop_v1` / `coreloop_single_entry` shelves were retired in 291x-754.
   - Drift check: `rg -n "\\[CorePlan\\]|&CorePlan|Vec<CorePlan>|Result<.*CorePlan|Option<CorePlan>|Option<Vec<CorePlan>>" src/mir/builder/control_flow/plan/loop_true_break_continue/normalizer.rs src/mir/builder/control_flow/plan/generic_loop/normalizer.rs src/mir/builder/control_flow/plan/nested_loop_depth1/normalizer.rs src/mir/builder/control_flow/plan/nested_loop_plan.rs src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs` → 0件

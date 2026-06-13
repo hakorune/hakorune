@@ -18,7 +18,6 @@ pub(crate) mod entry_keys {
     pub(crate) const BOOL_PREDICATE_SCAN: &str = "bool_predicate_scan";
     pub(crate) const ACCUM_CONST_LOOP: &str = "accum_const_loop";
     pub(crate) const LOOP_SCAN_METHODS_V0: &str = "loop_scan_methods_v0";
-    pub(crate) const LOOP_SCAN_METHODS_BLOCK_V0: &str = "loop_scan_methods_block_v0";
     pub(crate) const LOOP_SCAN_PHI_VARS_V0: &str = "loop_scan_phi_vars_v0";
     pub(crate) const LOOP_SCAN_V0: &str = "loop_scan_v0";
     pub(crate) const LOOP_COLLECT_USING_ENTRIES_V0: &str = "loop_collect_using_entries_v0";
@@ -37,7 +36,6 @@ pub(crate) mod route_labels {
     pub(crate) const LOOP_CHAR_MAP: &str = "loop_char_map";
     pub(crate) const LOOP_ARRAY_JOIN: &str = "loop_array_join";
     pub(crate) const SCAN_METHODS_V0: &str = "scan_methods_v0";
-    pub(crate) const SCAN_METHODS_BLOCK_V0: &str = "scan_methods_block_v0";
     pub(crate) const SCAN_PHI_VARS_V0: &str = "scan_phi_vars_v0";
     pub(crate) const SCAN_V0: &str = "scan_v0";
     pub(crate) const COLLECT_USING_ENTRIES_V0: &str = "collect_using_entries_v0";

@@ -36,8 +36,9 @@ Related:
   reconcile older TypeAbiBoxDomain rows with landed BoxCallable rows and name
   narrow proof commands
 - CorePlan C1 planner_required route-exhaustion, D1 normalizer AST-boundary,
-  and E1 active-v0 inventory guards are landed; next implementation is
-  `COREPLAN-E1-002`, retiring exactly one v0 box with fixture/gate proof
+  E1 active-v0 inventory, and E1-002 first retire guards are landed; next
+  implementation is `COREPLAN-E1-003`, selecting the next remaining active v0
+  box
 - exact-front optimization is paused; resume later through
   `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -59,7 +60,7 @@ Related:
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1009-COREPLAN-E1-001-ACTIVE-V0-INVENTORY.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1010-COREPLAN-E1-002-FIRST-V0-RETIRE-PILOT.md`
 9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
 10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 

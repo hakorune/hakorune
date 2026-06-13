@@ -68,7 +68,6 @@ guard_expect_fixed_in_file "$TAG" \
 active_v0=(
   "loop_scan_v0"
   "loop_scan_methods_v0"
-  "loop_scan_methods_block_v0"
   "loop_scan_phi_vars_v0"
   "loop_collect_using_entries_v0"
   "loop_bundle_resolver_v0"
@@ -82,30 +81,16 @@ for name in "${active_v0[@]}"; do
   guard_expect_fixed_in_file "$TAG" "$name" "$ENTRY_REGISTRY" "route registry must route $name while active"
 done
 
-guard_expect_fixed_in_file "$TAG" \
-  "loop_scan_methods_block_v0" \
-  "$PREDICATES" \
-  "predicates must keep block-v0 disjointness while active"
-guard_expect_fixed_in_file "$TAG" \
-  "route_loop_scan_methods_block_v0" \
-  "$ROUTES" \
-  "handlers must keep block-v0 route while active"
-guard_expect_fixed_in_file "$TAG" \
-  "compose_loop_scan_methods_block_v0" \
-  "$COMPOSER" \
-  "composer must keep block-v0 route while active"
-guard_expect_fixed_in_file "$TAG" \
-  "loop_scan_methods_block_v0" \
-  "$MATCHER" \
-  "matcher must verify block-v0 while active"
-guard_expect_fixed_in_file "$TAG" \
-  "loop_scan_methods_block_v0" \
-  "$ROUTER" \
-  "router release allow-list must mention block-v0 while active"
-guard_expect_fixed_in_file "$TAG" \
-  "mod loop_scan_methods_block_v0;" \
-  "$PLAN_MOD" \
-  "plan mod must keep block-v0 module while active"
+if rg -n \
+  "loop_scan_methods_block_v0|LoopScanMethodsBlock|SCAN_METHODS_BLOCK|scan_methods_block" \
+  src/mir/builder/control_flow \
+  -g '*.rs' >/tmp/coreplan-active-v0-retired-block.refs 2>&1; then
+  echo "[$TAG] ERROR: retired loop_scan_methods_block_v0 code reference found" >&2
+  cat /tmp/coreplan-active-v0-retired-block.refs >&2
+  rm -f /tmp/coreplan-active-v0-retired-block.refs
+  exit 1
+fi
+rm -f /tmp/coreplan-active-v0-retired-block.refs
 
 echo "[$TAG] active_v0_box_count=${#active_v0[@]}"
 echo "[$TAG] ok"

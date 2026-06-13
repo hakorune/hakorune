@@ -165,12 +165,6 @@ impl RecipeMatcher {
             verify_loop_scan_methods_v0_recipe
         );
 
-        // Phase C15: LoopScanMethodsBlockV0 verification (planner_required only)
-        verify_route!(
-            facts.facts.loop_scan_methods_block_v0(),
-            verify_loop_scan_methods_block_v0_recipe
-        );
-
         // Phase C15: LoopScanPhiVarsV0 verification (planner_required only)
         verify_route!(
             facts.facts.loop_scan_phi_vars_v0(),

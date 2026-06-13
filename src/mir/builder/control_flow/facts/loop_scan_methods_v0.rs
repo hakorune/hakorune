@@ -7,9 +7,10 @@ use crate::mir::builder::control_flow::facts::scan_common_predicates::{
     as_var_name, extract_step_var_from_tail, is_loop_cond_var_lt_var, match_next_i_guard,
 };
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::{
-    LoopScanMethodsV0Recipe, LoopScanSegment, NestedLoopRecipe,
+    LinearBlockRecipe, LoopScanMethodsV0Recipe, LoopScanSegment, NestedLoopRecipe,
 };
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
@@ -86,6 +87,16 @@ fn contains_scan_window_loop(stmts: &[ASTNode], limit_var: &str) -> bool {
     }
 
     walk(stmts, limit_var)
+}
+
+fn build_linear_block_recipe(stmts: &[ASTNode], allow_extended: bool) -> Option<LinearBlockRecipe> {
+    if let Some(recipe) = try_build_no_exit_block_recipe(stmts, allow_extended) {
+        return Some(LinearBlockRecipe::NoExit(recipe));
+    }
+    if let Some(recipe) = try_build_exit_allowed_block_recipe(stmts, allow_extended) {
+        return Some(LinearBlockRecipe::ExitAllowed(recipe));
+    }
+    None
 }
 
 fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
@@ -197,9 +208,8 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
         match stmt {
             ASTNode::Loop { .. } => {
                 if !linear.is_empty() {
-                    let Some(recipe) = try_build_no_exit_block_recipe(&linear, ALLOW_EXTENDED)
-                    else {
-                        debug_reject("linear_segment_not_no_exit");
+                    let Some(recipe) = build_linear_block_recipe(&linear, ALLOW_EXTENDED) else {
+                        debug_reject("linear_segment_not_recipe_block");
                         return Ok(None);
                     };
                     segments.push(LoopScanSegment::Linear(recipe));
@@ -231,18 +241,31 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
         }
     }
     if !linear.is_empty() {
-        let Some(recipe) = try_build_no_exit_block_recipe(&linear, ALLOW_EXTENDED) else {
-            debug_reject("linear_tail_segment_not_no_exit");
+        let Some(recipe) = build_linear_block_recipe(&linear, ALLOW_EXTENDED) else {
+            debug_reject("linear_tail_segment_not_recipe_block");
             return Ok(None);
         };
         segments.push(LoopScanSegment::Linear(recipe));
     }
 
+    let body_lowering_policy = if segments.iter().any(|segment| {
+        matches!(
+            segment,
+            LoopScanSegment::Linear(LinearBlockRecipe::ExitAllowed(_))
+        )
+    }) {
+        BodyLoweringPolicy::ExitAllowed {
+            allow_join_if: true,
+        }
+    } else {
+        BodyLoweringPolicy::RecipeOnly
+    };
+
     Ok(Some(LoopScanMethodsV0Facts {
         loop_var,
         limit_var,
         condition: condition.clone(),
-        body_lowering_policy: BodyLoweringPolicy::RecipeOnly,
+        body_lowering_policy,
         recipe: LoopScanMethodsV0Recipe { segments },
     }))
 }

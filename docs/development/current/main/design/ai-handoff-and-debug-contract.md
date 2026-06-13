@@ -111,9 +111,8 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_methods] verified OK`
 - Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_methods_v0 path=recipe_first`
 - Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_methods_v0: recipe-only entry`
-- Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_methods_block] verified OK`
-- Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_methods_block_v0 path=recipe_first`
-- Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_methods_block_v0: recipe-only entry`
+- Retired in `COREPLAN-E1-002`: former scan_methods_block recipe-first tags.
+  Block-wrapped scan-methods bodies now route through `scan_methods_v0`.
 - Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_phi_vars] verified OK`
 - Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_phi_vars_v0 path=recipe_first`
 - Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_phi_vars_v0: recipe-only entry`
@@ -300,7 +299,7 @@ Additional plan trace tags (SSOT):
   - Output fields (1 line): `strict_or_dev=<bool> planner_required=<bool> debug_enabled=<bool>`
 - `[plan/trace:facts_summary]`
   - Purpose: Record which loop facts candidates are Some/None before routing.
-  - Output fields (1 line): `ctx=<...> scan_methods=<0|1> scan_methods_block=<0|1> loop_scan=<0|1> loop_scan_phi_vars=<0|1> collect_using_entries=<0|1> bundle_resolver=<0|1>`
+  - Output fields (1 line): `ctx=<...> scan_methods=<0|1> loop_scan=<0|1> loop_scan_phi_vars=<0|1> collect_using_entries=<0|1> bundle_resolver=<0|1>`
 - `[plan/trace:entry_route]`
   - Purpose: Observe which loop entry route was taken (recipe_first / none).
   - Output fields (1 line): `ctx=<...> route=<...>`

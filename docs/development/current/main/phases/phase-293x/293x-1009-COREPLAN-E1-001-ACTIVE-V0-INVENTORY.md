@@ -50,10 +50,17 @@ The guard tracks the current active set:
 ```text
 loop_scan_v0
 loop_scan_methods_v0
-loop_scan_methods_block_v0
 loop_scan_phi_vars_v0
 loop_collect_using_entries_v0
 loop_bundle_resolver_v0
+```
+
+Note:
+
+```text
+loop_scan_methods_block_v0 was tracked by this card at inventory time, then
+retired by COREPLAN-E1-002. The guard intentionally tracks the current active
+set, so it now reports five active boxes.
 ```
 
 ## Stop Lines

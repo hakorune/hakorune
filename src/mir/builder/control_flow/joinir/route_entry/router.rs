@@ -186,7 +186,6 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
     // Phase C15/C16 scan families already have recipe-first pipelines and fast gates.
     // Keep release nested-loop policy aligned with those migrated routes.
     if facts.facts.loop_scan_methods_v0().is_some()
-        || facts.facts.loop_scan_methods_block_v0().is_some()
         || facts.facts.loop_scan_phi_vars_v0().is_some()
         || facts.facts.loop_scan_v0().is_some()
         || facts.facts.loop_collect_using_entries_v0().is_some()
@@ -346,7 +345,6 @@ pub(crate) fn route_loop(
 mod tests {
     use super::release_allows_nested_recipe_first;
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use crate::mir::builder::control_flow::facts::loop_scan_methods_block_v0::try_extract_loop_scan_methods_block_v0_facts;
     use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
     use crate::mir::builder::control_flow::lower::normalize::canonicalize_loop_facts;
     use crate::mir::builder::control_flow::lower::PlanBuildOutcome;
@@ -436,7 +434,6 @@ mod tests {
             loop_cond_continue_with_return: None,
             loop_cond_return_in_body: None,
             loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
             loop_scan_methods_v0: None,
             loop_scan_phi_vars_v0: None,
             loop_collect_using_entries_v0: None,
@@ -449,7 +446,7 @@ mod tests {
         }
     }
 
-    fn nested_outcome_with_block_facts() -> PlanBuildOutcome {
+    fn nested_outcome_with_block_wrapped_scan_methods_facts() -> PlanBuildOutcome {
         let mut facts = base_loop_facts();
         let condition = sample_condition();
         let inner_loop_body = vec![
@@ -507,10 +504,10 @@ mod tests {
             },
             assign(var("i"), var("next_i")),
         ];
-        facts.loop_scan_methods_block_v0 = Some(
-            try_extract_loop_scan_methods_block_v0_facts(&condition, &body)
+        facts.loop_scan_methods_v0 = Some(
+            try_extract_loop_scan_methods_v0_facts(&condition, &body)
                 .expect("extract ok")
-                .expect("block facts"),
+                .expect("scan methods facts"),
         );
         PlanBuildOutcome {
             facts: Some(canonicalize_loop_facts(facts)),
@@ -560,9 +557,9 @@ mod tests {
     }
 
     #[test]
-    fn release_nested_recipe_first_allows_scan_methods_block_family() {
+    fn release_nested_recipe_first_allows_block_wrapped_scan_methods_family() {
         assert!(release_allows_nested_recipe_first(
-            &nested_outcome_with_block_facts()
+            &nested_outcome_with_block_wrapped_scan_methods_facts()
         ));
     }
 

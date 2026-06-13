@@ -166,7 +166,6 @@ run targeted planner/facts tests
   - `facts::extractors::if_phi_join`
   - `facts::extractors::loop_simple_while`
   - `facts::loop_scan_methods_v0`
-  - `facts::loop_scan_methods_block_v0`
   - `facts::loop_bundle_resolver_v0`
   - `facts::loop_cond_continue_only`
   - `facts::loop_cond_continue_with_return`
@@ -207,7 +206,6 @@ run targeted planner/facts tests
   - `recipes::loop_cond_continue_only`
   - `recipes::loop_cond_continue_with_return`
   - `recipes::loop_cond_shared`
-  - `recipes::loop_scan_methods_block_v0`
   - `plan/recipe_tree` now imports `recipes::{RecipeBody, refs}` directly
 - next actual move:
   - `none confirmed`
@@ -290,7 +288,6 @@ run targeted planner/facts tests
 - `loop_bundle_resolver_v0`
 - `loop_collect_using_entries_v0`
 - `loop_cond`
-- `loop_scan_methods_block_v0`
 - `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`
 - `loop_scan_v0`

@@ -14,7 +14,6 @@ These modules are still part of the routed planner path (`registry`/handlers/com
 
 - `loop_scan_v0`
 - `loop_scan_methods_v0`
-- `loop_scan_methods_block_v0`
 - `loop_scan_phi_vars_v0`
 - `loop_collect_using_entries_v0`
 - `loop_bundle_resolver_v0`
@@ -24,6 +23,8 @@ See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`l
 ## Retired modules
 
 - `loop_flag_exit_v0` is physically removed (`CLEAN-PLAN-V0-REMOVE-1`).
+- `loop_scan_methods_block_v0` is physically removed and folded into
+  `loop_scan_methods_v0` (`COREPLAN-E1-002`).
 
 No module is considered retired unless:
 

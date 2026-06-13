@@ -35,44 +35,6 @@ impl RecipeComposer {
         .map_err(|e| Freeze::contract(&format!("loop_scan_methods_v0 normalize failed: {}", e)))
     }
 
-    /// Compose loop_scan_methods_block_v0 facts into LoweredRecipe.
-    ///
-    /// Phase C15: Recipe-first compose path for loop_scan_methods_block_v0.
-    pub fn compose_loop_scan_methods_block_v0(
-        builder: &mut MirBuilder,
-        facts: &CanonicalLoopFacts,
-        ctx: &LoopRouteContext,
-    ) -> Result<LoweredRecipe, Freeze> {
-        use crate::config::env::joinir_dev;
-
-        let scan_facts = facts
-            .facts
-            .loop_scan_methods_block_v0
-            .clone()
-            .ok_or_else(|| {
-                Freeze::contract(
-                "loop_scan_methods_block_v0 facts missing in compose_loop_scan_methods_block_v0",
-            )
-            })?;
-
-        if joinir_dev::debug_enabled() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug("[recipe:compose] route=scan_methods_block_v0 path=recipe_first");
-        }
-
-        crate::mir::builder::control_flow::plan::loop_scan_methods_block_v0::lower_loop_scan_methods_block_v0(
-            builder, scan_facts, ctx,
-        )
-        .map_err(|e| {
-            Freeze::contract(&format!(
-                "loop_scan_methods_block_v0 normalize failed: {}",
-                e
-            ))
-        })
-    }
-
     /// Compose loop_scan_phi_vars_v0 facts into LoweredRecipe.
     ///
     /// Phase C15: Recipe-first compose path for loop_scan_phi_vars_v0.

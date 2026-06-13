@@ -42,7 +42,7 @@ struct ScanFamilyPresence {
 
 impl ScanFamilyPresence {
     fn from_facts(facts: &CanonicalLoopFacts) -> Self {
-        let methods = pred_loop_scan_methods_v0(facts) || pred_loop_scan_methods_block_v0(facts);
+        let methods = pred_loop_scan_methods_v0(facts);
         let v0 = pred_loop_scan_v0(facts)
             || pred_loop_scan_phi_vars_v0(facts)
             || pred_loop_collect_using_entries_v0(facts)
@@ -72,10 +72,6 @@ impl ScanFamilyPresence {
 
 pub(crate) fn pred_loop_scan_methods_v0(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_scan_methods_v0().is_some()
-        && facts.facts.loop_scan_methods_block_v0().is_none()
-}
-pub(crate) fn pred_loop_scan_methods_block_v0(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_scan_methods_block_v0().is_some()
 }
 
 pred_accessor!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);

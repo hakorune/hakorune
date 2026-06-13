@@ -11,7 +11,6 @@ pub(in crate::mir::builder) mod loop_cond_continue_only;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return;
 pub(in crate::mir::builder) mod loop_cond_return_in_body;
 pub(in crate::mir::builder) mod loop_cond_shared;
-pub(in crate::mir::builder) mod loop_scan_methods_block_v0;
 pub(in crate::mir::builder) mod loop_scan_methods_v0;
 pub(in crate::mir::builder) mod loop_scan_phi_vars_v0;
 pub(in crate::mir::builder) mod refs;

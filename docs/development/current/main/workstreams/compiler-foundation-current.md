@@ -486,22 +486,102 @@ bash tools/checks/coreplan_active_v0_inventory_guard.sh
 
 ### COREPLAN-E1-002: first one-v0 retire pilot
 
-Next CorePlan implementation task.
+Status: Landed.
 
-Candidate:
+Landed by:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-1010-COREPLAN-E1-002-FIRST-V0-RETIRE-PILOT.md
+tools/checks/coreplan_first_v0_retire_guard.sh
+```
+
+Retired:
 
 ```text
 loop_scan_methods_block_v0
+```
+
+Replacement owner:
+
+```text
+loop_scan_methods_v0
 ```
 
 Acceptance:
 
 ```text
 one_v0_box_retired=1
-replacement_fixture_gate_green=1
 route_wiring_removed_for_one_box=1
-facts_field_removed_or_quarantined_for_one_box=1
+facts_field_removed_for_one_box=1
 accepted_shape_added=0
+active_v0_box_count=5
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_first_v0_retire_guard.sh
+bash tools/checks/coreplan_active_v0_inventory_guard.sh
+```
+
+### COREPLAN-E1-003: next one-v0 retire selection
+
+Next CorePlan task.
+
+Purpose:
+
+```text
+select the next remaining active v0 box for either retirement or explicit hold
+```
+
+Acceptance:
+
+```text
+remaining_active_v0_inventory_refreshed=1
+next_retire_candidate_selected=1
+one_box_only=1
+accepted_shape_added=0
+implementation_started=0
+```
+
+Recommended order from the remaining active-v0 inventory:
+
+```text
+1. COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE
+   target: loop_collect_using_entries_v0
+   risk: low
+   reason: thin NoExit wrapper around loop-v0 parts; best next retire proof
+
+2. COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE
+   target: loop_bundle_resolver_v0
+   risk: low-medium
+   reason: thin route, but ExitAllowed / nested return makes it riskier than collect_using_entries
+
+3. COREPLAN-E1-005-SCAN-V0-SKELETON-PROMOTE-RETIRE
+   target: loop_scan_v0
+   risk: high
+   reason: promote reusable scan skeleton / substring-step features before retiring
+
+4. COREPLAN-E1-006-SCAN-METHODS-V0-RETIRE
+   target: loop_scan_methods_v0
+   risk: medium-high
+   reason: selfhost-pinned scan-methods route; wait until scan skeleton vocabulary exists
+
+5. COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE
+   target: loop_scan_phi_vars_v0
+   risk: highest
+   reason: PHI/carrier-sensitive collect shape with classic and EXT shape routes
+```
+
+Common acceptance for each retire card:
+
+```text
+one_v0_box_retired=1
+active_v0_box_count_decrements_by_1=1
+route_wiring_removed_for_one_box=1
+facts_field_removed_for_one_box=1
+accepted_shape_added=0
+focused_fixture_gate_green=1
 ```
 
 ### COREPLAN-LOOP-WIRING-001: failing-fixture selection only

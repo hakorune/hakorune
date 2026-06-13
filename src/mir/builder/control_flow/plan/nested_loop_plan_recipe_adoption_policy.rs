@@ -81,7 +81,6 @@ mod tests {
             loop_cond_continue_with_return: None,
             loop_cond_return_in_body: None,
             loop_scan_v0: None,
-            loop_scan_methods_block_v0: None,
             loop_scan_methods_v0: None,
             loop_scan_phi_vars_v0: None,
             loop_collect_using_entries_v0: None,

@@ -17,7 +17,10 @@ use super::route_finalize::finalize_loop_scan_methods_route;
 use super::segment_linear::lower_loop_scan_methods_linear_segment;
 use super::segment_nested_loop::lower_loop_scan_methods_nested_segment;
 use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::LoopScanMethodsV0Facts;
-use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::LoopScanSegment;
+use crate::mir::builder::control_flow::recipes::loop_scan_methods_v0::{
+    LinearBlockRecipe, LoopScanSegment,
+};
+use crate::mir::policies::BodyLoweringPolicy;
 
 const LOOP_SCAN_METHODS_ERR: &str = "[normalizer] loop_scan_methods_v0";
 
@@ -140,9 +143,25 @@ pub(in crate::mir::builder) fn lower_loop_scan_methods_v0(
         branches: header_result.branches,
     };
 
-    facts
-        .body_lowering_policy
-        .expect_recipe_only("[loop_scan_methods_v0]", LOOP_SCAN_METHODS_ERR)?;
+    let has_exit_allowed_segment = facts.recipe.segments.iter().any(|segment| {
+        matches!(
+            segment,
+            LoopScanSegment::Linear(LinearBlockRecipe::ExitAllowed(_))
+        )
+    });
+    match (facts.body_lowering_policy, has_exit_allowed_segment) {
+        (BodyLoweringPolicy::RecipeOnly, true) => {
+            return Err(format!(
+                "[freeze:contract][loop_scan_methods_v0] RecipeOnly policy with ExitAllowed segment: ctx={LOOP_SCAN_METHODS_ERR}"
+            ));
+        }
+        (BodyLoweringPolicy::ExitAllowed { .. }, false) => {
+            return Err(format!(
+                "[freeze:contract][loop_scan_methods_v0] ExitAllowed policy without ExitAllowed segment: ctx={LOOP_SCAN_METHODS_ERR}"
+            ));
+        }
+        _ => {}
+    }
 
     let mut body_plans: Vec<LoweredRecipe> = Vec::new();
     for segment in &facts.recipe.segments {
