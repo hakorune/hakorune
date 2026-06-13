@@ -17,6 +17,7 @@ mod allocator_provider_registry_facade_tests;
 pub(crate) mod allocator_provider_registry_snapshot;
 pub(crate) mod allocator_provider_selection_decision;
 pub(crate) mod allocator_provider_toml_helpers;
+pub mod box_object_model;
 pub mod box_registry;
 pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
@@ -66,6 +67,11 @@ pub mod weak_handles;
 #[cfg(test)]
 mod tests;
 
+pub use box_object_model::{
+    box_object_model_replacement_map, box_object_model_report_fields, BoxDispatchSurface,
+    BoxObjectModelReplacementMap, CloneShareSemantics, PluginLifecycleOwner, VMBoxRefCarrier,
+    VMBoxRefCarrierMigrationPlan,
+};
 pub use box_registry::{get_global_registry, BoxFactoryRegistry, BoxProvider};
 pub use core_box_ids::{CoreBoxCategory, CoreBoxId, CoreMethodId}; // Phase 87: 型安全enum
 pub use plugin_config::PluginConfig;

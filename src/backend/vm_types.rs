@@ -9,6 +9,7 @@ use crate::ast::Span;
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox, VoidBox};
 use crate::boxes::null_box::NullBox;
 use crate::mir::{BasicBlockId, ConstValue};
+use crate::runtime::VMBoxRefCarrierMigrationPlan;
 use std::sync::{Arc, Weak};
 
 /// VM execution error
@@ -204,6 +205,15 @@ impl PartialEq for VMValue {
 }
 
 impl VMValue {
+    /// Current VM object carrier migration plan for Arc retirement.
+    ///
+    /// This is reportable contract data only. `VMValue::BoxRef` still carries
+    /// `Arc<dyn NyashBox>` until a later ARC-RETIRE family gate allows changing
+    /// the runtime carrier.
+    pub const fn boxref_carrier_migration_plan() -> VMBoxRefCarrierMigrationPlan {
+        VMBoxRefCarrierMigrationPlan::CURRENT_TO_OBJECT_HANDLE
+    }
+
     /// Convert to NyashBox for output
     pub fn to_nyash_box(&self) -> Box<dyn NyashBox> {
         match self {
@@ -359,5 +369,21 @@ impl From<&ConstValue> for VMValue {
             ConstValue::Null => VMValue::Void,
             ConstValue::Void => VMValue::Void,
         }
+    }
+}
+
+#[cfg(test)]
+mod boxref_carrier_tests {
+    use super::VMValue;
+    use crate::runtime::VMBoxRefCarrier;
+
+    #[test]
+    fn vmvalue_boxref_reports_arc_to_object_handle_migration_plan() {
+        let plan = VMValue::boxref_carrier_migration_plan();
+
+        assert_eq!(plan.current_strong, VMBoxRefCarrier::ArcDynNyashBox);
+        assert_eq!(plan.future_strong, VMBoxRefCarrier::ObjectHandle);
+        assert_eq!(plan.current_weak, VMBoxRefCarrier::WeakDynNyashBox);
+        assert_eq!(plan.future_weak, VMBoxRefCarrier::WeakObjectHandle);
     }
 }

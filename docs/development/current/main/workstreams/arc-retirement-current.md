@@ -17,14 +17,15 @@ optimization lane.
 ## Current Decision
 
 ```text
-arc_retirement_mode=host_handle_seam
+arc_retirement_mode=box_object_model_map
 arc_hot_path_retirement_started=0
 active_optimization_lane_changed=0
 ```
 
 Arc retirement is allowed as docs/inventory planning, contract-only runtime
-types, and host-handle identity seam work now. Arc replacement starts only
-after a concrete family retirement gate exists.
+types, host-handle identity seam work, and Box object model replacement-map
+work now. Arc replacement starts only after a concrete family retirement gate
+exists.
 
 ## Task Order
 
@@ -235,18 +236,30 @@ no global Arc removal claim
 
 ### ARC-RETIRE-005: Box object model replacement map
 
-Docs + inventory.
+Status:
 
 ```text
-map:
-  dyn dispatch
-  clone_box
-  share_box
-  downcast / TypeId
-  type_name
-  Send / Sync
-  finalization
-  plugin lifecycle
+landed_by=
+  docs/development/current/main/design/box-object-model-replacement-map-ssot.md
+  src/runtime/box_object_model.rs
+  src/backend/vm_types.rs
+```
+
+Docs + contract inventory before any family Arc retirement.
+
+```text
+slices:
+  ARC-RETIRE-005A:
+    clone/share semantics inventory
+
+  ARC-RETIRE-005B:
+    dyn dispatch / as_any / TypeId surface inventory
+
+  ARC-RETIRE-005C:
+    plugin lifecycle owner map
+
+  ARC-RETIRE-005D:
+    VMValue::BoxRef carrier migration plan
 ```
 
 Acceptance:
@@ -254,7 +267,29 @@ Acceptance:
 ```text
 box_object_model_replacement_map=1
 clone_share_semantics_classified=1
+identity_share_box_count_reported=1
+clone_returns_fresh_value_count_reported=1
+share_preserves_state_count_reported=1
+plugin_clone_share_semantics_reported=1
+dyn_dispatch_surface_reported=1
+downcast_typeid_surface_reported=1
 plugin_lifecycle_owner_defined=1
+vmvalue_boxref_carrier_migration_plan=1
+vmvalue_boxref_current_carrier=arc_dyn_nyashbox
+vmvalue_boxref_future_carrier=object_handle
+vmvalue_weakbox_current_carrier=weak_dyn_nyashbox
+vmvalue_weakbox_future_carrier=weak_object_handle
+typeabi_identity_truth_count=0
+arc_hot_path_retirement_started=0
+```
+
+Non-goals:
+
+```text
+no VMValue::BoxRef layout change
+no plugin ABI change
+no Box trait rewrite
+no family Arc retirement claim
 ```
 
 ### ARC-RETIRE-006: Family retirement gate

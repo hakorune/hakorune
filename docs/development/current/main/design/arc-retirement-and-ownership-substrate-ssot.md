@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/object-handle-box-identity-contract-ssot.md
+  - docs/development/current/main/design/box-object-model-replacement-map-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
 ---
 
@@ -435,6 +436,54 @@ finalization
 plugin lifecycle
 ```
 
+Contract owner:
+
+```text
+docs/development/current/main/design/box-object-model-replacement-map-ssot.md
+src/runtime/box_object_model.rs
+src/backend/vm_types.rs
+```
+
+Slices:
+
+```text
+ARC-RETIRE-005A:
+  clone/share semantics inventory
+
+ARC-RETIRE-005B:
+  dyn dispatch / as_any / TypeId surface inventory
+
+ARC-RETIRE-005C:
+  plugin lifecycle owner map
+
+ARC-RETIRE-005D:
+  VMValue::BoxRef carrier migration plan
+```
+
+Acceptance:
+
+```text
+box_object_model_replacement_map=1
+clone_share_semantics_classified=1
+identity_share_box_count_reported=1
+clone_returns_fresh_value_count_reported=1
+share_preserves_state_count_reported=1
+plugin_clone_share_semantics_reported=1
+dyn_dispatch_surface_reported=1
+downcast_typeid_surface_reported=1
+plugin_lifecycle_owner_defined=1
+vmvalue_boxref_carrier_migration_plan=1
+vmvalue_boxref_current_carrier=arc_dyn_nyashbox
+vmvalue_boxref_future_carrier=object_handle
+vmvalue_weakbox_current_carrier=weak_dyn_nyashbox
+vmvalue_weakbox_future_carrier=weak_object_handle
+typeabi_identity_truth_count=0
+arc_hot_path_retirement_started=0
+```
+
+This is still a map. It does not replace `VMValue::BoxRef`, plugin carriers,
+or `dyn NyashBox` dispatch.
+
 ### ARC-RETIRE-006: Family-by-family retirement gates
 
 A Box family may retire Arc only when:
@@ -479,7 +528,20 @@ host_handle_identity_generation=legacy_unversioned|versioned
 borrowed_access_preserved=0|1
 identity_snapshot_available=0|1
 host_handle_backing_arc_replaced=0|1
+box_object_model_replacement_map=0|1
+clone_share_semantics_classified=0|1
+identity_share_box_count_reported=0|1
+clone_returns_fresh_value_count_reported=0|1
+share_preserves_state_count_reported=0|1
+plugin_clone_share_semantics_reported=0|1
+dyn_dispatch_surface_reported=0|1
+downcast_typeid_surface_reported=0|1
 plugin_lifecycle_owner_defined=0|1
+vmvalue_boxref_carrier_migration_plan=0|1
+vmvalue_boxref_current_carrier=arc_dyn_nyashbox|object_handle
+vmvalue_boxref_future_carrier=object_handle
+vmvalue_weakbox_current_carrier=weak_dyn_nyashbox|weak_object_handle
+vmvalue_weakbox_future_carrier=weak_object_handle
 arc_hot_path_retirement_started=0|1
 summary=ok|fail
 ```
