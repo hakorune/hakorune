@@ -34,7 +34,7 @@ pub(crate) enum TypedSlotStorage {
 }
 
 impl TypedSlotStorage {
-    fn from_tag(tag: i64) -> Option<Self> {
+    pub(crate) fn from_tag(tag: i64) -> Option<Self> {
         match tag {
             STORAGE_I64 => Some(Self::I64),
             STORAGE_HANDLE => Some(Self::Handle),

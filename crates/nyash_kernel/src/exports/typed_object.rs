@@ -6,12 +6,11 @@
 mod types;
 pub(crate) use types::{
     default_layout_fields, field_get_hii_dispatch, field_set_hii_dispatch, handle_to_index,
-    normalize_field_count, normalize_slot, TypedSlot, TypedSlotLayout, TypedSlotObject,
-    TypedSlotStorage, TypedSlotValue, STORAGE_HANDLE, STORAGE_I16, STORAGE_I32, STORAGE_I64,
-    STORAGE_I8, STORAGE_ISIZE, STORAGE_U16, STORAGE_U32, STORAGE_U64, STORAGE_U8, STORAGE_USIZE,
+    normalize_field_count, normalize_slot, typed_layouts, TypedSlot, TypedSlotLayout,
+    TypedSlotObject, TypedSlotStorage, TypedSlotValue,
 };
 
-use super::typed_object_pinned_arena::{read_direct_slot_compat_i64, write_direct_slot_compat_i64};
+use super::typed_object_pinned_arena::read_direct_slot_compat_i64;
 use super::typed_object_pinned_arena::{read_direct_slot_i64, write_direct_slot_i64};
 use super::typed_object_store_backend::{
     exact_slot_record_alloc_success, exact_slot_record_release_success, exact_slot_rmw_add_u64,
@@ -171,70 +170,6 @@ fn exact_slot_index(slot: i64) -> Option<usize> {
         return None;
     }
     usize::try_from(slot).ok()
-}
-
-#[inline(always)]
-fn field_get_hii_dispatch() -> FieldGetHiiImpl {
-    *FIELD_GET_HII_DISPATCH.get_or_init(|| {
-        if matches!(
-            super::typed_object_store_backend::selected_backend(),
-            super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
-        ) {
-            field_get_hii_direct
-        } else {
-            field_get_hii_generic
-        }
-    })
-}
-
-#[inline(always)]
-fn field_set_hii_dispatch() -> FieldSetHiiImpl {
-    *FIELD_SET_HII_DISPATCH.get_or_init(|| {
-        if matches!(
-            super::typed_object_store_backend::selected_backend(),
-            super::typed_object_store_backend::TypedObjectStoreBackend::DirectSlotExact
-        ) {
-            field_set_hii_direct
-        } else {
-            field_set_hii_generic
-        }
-    })
-}
-
-#[inline(always)]
-fn field_get_hii_generic(handle: i64, slot: i64) -> i64 {
-    if slot < 0 {
-        return 0;
-    }
-    let slot = slot as usize;
-    get_compat_i64(handle, slot).unwrap_or(0)
-}
-
-#[inline(always)]
-fn field_get_hii_direct(handle: i64, slot: i64) -> i64 {
-    if slot < 0 || handle < 0 {
-        return 0;
-    }
-    let slot = slot as usize;
-    read_direct_slot_compat_i64(handle, slot).unwrap_or(0)
-}
-
-#[inline(always)]
-fn field_set_hii_generic(handle: i64, slot: i64, value: i64) {
-    if slot < 0 {
-        return;
-    }
-    let slot = slot as usize;
-    let _ = set_compat_i64(handle, slot, value);
-}
-
-#[inline(always)]
-fn field_set_hii_direct(handle: i64, slot: i64, value: i64) {
-    if slot < 0 || handle < 0 {
-        return;
-    }
-    let slot = slot as usize;
-    let _ = write_direct_slot_compat_i64(handle, slot, value);
 }
 
 #[inline(always)]

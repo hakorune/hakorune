@@ -90,7 +90,7 @@ pub extern "C" fn main() -> i32 {
         entry_path_prep_mode,
         nyash_rust::config::env::stage1::NyrtAutoOffMode::Auto
     ) {
-        nyash_rust::config::env::paths::nyrt_entry_exe_dir()
+        nyash_rust::config::env::nyrt_entry_exe_dir()
     } else {
         None
     };
@@ -179,7 +179,7 @@ pub extern "C" fn main() -> i32 {
                     .as_ref()
                     .map(|p| p.display().to_string())
                     .unwrap_or_else(|| "?".into()),
-                nyash_rust::config::env::paths::nyrt_entry_current_dir_display()
+                nyash_rust::config::env::nyrt_entry_current_dir_display()
                     .unwrap_or_else(|| "?".into())
             );
         } else {
