@@ -12,7 +12,9 @@ Layout:
   always-on/deprecation handling stays in `src/config/env/joinir_flags.rs`)
 - `targets.rs`: descriptor table (`JOINIR_TARGETS`, `JoinIrBridgeKind`, `JoinIrTargetDesc`)
 - `exec_routes.rs`: Exec-capable routes (skip_ws, trim)
-- `lower_only_routes.rs`: LowerOnly routes (Stage1/StageB) for structural verification only
+- `lower_only_routes.rs`: LowerOnly routes (Stage1/StageB) for structural
+  verification only; route functions share one observer helper and always
+  return to normal VM Route A
 
 Routing rule:
 - `Exec` targets may handle process output/exit through JoinIR VM bridge.
