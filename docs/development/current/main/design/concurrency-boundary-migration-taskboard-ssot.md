@@ -152,7 +152,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
 | `CONC-CHANNEL-001` | landed-api-docs | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | docs/reference + guard | no wait runtime rewrite |
-| `CONC-CHANNEL-002` | pending | Implement `await ch.close()` semantics in the future `Channel<T>` queue runtime scaffold. | VM/reference guard for close wake/drain/send-after-close | no true parallel scheduler |
+| `CONC-CHANNEL-002` | landed-code | Implement `await ch.close()` semantics in the future `Channel<T>` queue runtime scaffold. | `src/runtime/channel_queue.rs` + `293x-1004-CONC-CHANNEL-002-REFERENCE-CLOSE-SEMANTICS.md` | no true parallel scheduler |
 | `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
@@ -238,6 +238,54 @@ runtime/MIR hook lowering stays fail-fast until CONC-CONTEXT-002 or a dedicated 
 ```
 
 ### CONC-CHANNEL-001
+
+### CONC-CHANNEL-002
+
+Reference runtime scaffold:
+
+```text
+source surface:
+  await ch.close()
+
+runtime owner:
+  src/runtime/channel_queue.rs
+
+legacy separation:
+  src/core/channel_box.rs ChannelBox is not reused
+```
+
+Contract pinned in this row:
+
+```text
+close marks the queue closed
+close wakes blocking reference receivers
+send after close is rejected and returns the value to the caller
+recv drains buffered values after close
+recv returns closed only after the buffer is empty
+double close is rejected
+```
+
+Report fields:
+
+```text
+channel_queue_reference_runtime_enabled=1
+channel_queue_legacy_p2p_channelbox_reused=0
+channel_queue_close_wakes_waiters_reference=1
+channel_queue_send_after_close_rejected=1
+channel_queue_drain_after_close_enabled=1
+channel_queue_double_close_rejected=1
+channel_queue_true_parallel_scheduler_required=0
+channel_queue_source_blocking_call_enabled=0
+```
+
+Stop line:
+
+```text
+no source-level blocking call
+no hidden ordinary send/recv wait
+no worker-pool activation
+no Program JSON / MIR / LLVM route widening
+```
 
 Docs/API decision already fixed by `boundary-model.md`:
 

@@ -701,6 +701,46 @@ Reentrant sync method entry is fail-fast in v0:
 This row does not open normal MIR/Program JSON/LLVM lowering. It proves the
 reference runtime boundary and keeps backend fallback forbidden.
 
+### CONC-CHANNEL-002: reference close semantics
+
+Status: landed as reference runtime only.
+
+Scope:
+
+```text
+src/runtime/channel_queue.rs
+ChannelQueue<T>
+ChannelQueue::close()
+ChannelQueue::try_recv()
+ChannelQueue::recv_blocking_reference()
+```
+
+Report fields:
+
+```text
+channel_queue_reference_runtime_enabled=1
+channel_queue_legacy_p2p_channelbox_reused=0
+channel_queue_close_wakes_waiters_reference=1
+channel_queue_send_after_close_rejected=1
+channel_queue_drain_after_close_enabled=1
+channel_queue_double_close_rejected=1
+channel_queue_true_parallel_scheduler_required=0
+channel_queue_source_blocking_call_enabled=0
+```
+
+Reading:
+
+```text
+channel_queue_truth_owner=runtime_channel_queue_reference
+legacy_p2p_channelbox_is_canonical_channel=0
+source_blocking_recv_enabled=0
+worker_pool_required_for_close=0
+```
+
+`recv_blocking_reference()` exists only to prove that close wakes a waiting
+reference receiver. It is not a source-level ordinary blocking call.
+`CONC-CHANNEL-003` owns await-visible `send` / `recv` route integration.
+
 ### THREAD-SOURCE-001: structured worker source surface
 
 Reserved future row. Prefer structured surfaces such as `worker_scope` /

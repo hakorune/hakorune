@@ -74,6 +74,10 @@ pub use plugin_loader_v2::{get_global_loader_v2, init_global_loader_v2, PluginLo
 pub use ring0::{get_global_ring0, init_global_ring0, Ring0Context}; // Phase 88: Ring0 公開 API
 pub use runtime_profile::RuntimeProfile; // Phase 109: RuntimeProfile enum
 pub mod cache_versions;
+pub mod channel_queue;
+pub use channel_queue::{
+    channel_queue_reference_report_fields, ChannelQueue, ChannelQueueError, ChannelQueueSendError,
+};
 pub use gc::{BarrierKind, GcHooks};
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
 pub use scheduler::{Scheduler, SingleThreadScheduler, WorkerPoolScheduler};

@@ -20,7 +20,7 @@ kept only as provenance in phase logs and execution ledgers.
 | Feature | Design | VM | LLVM | Notes |
 | --- | --- | --- | --- | --- |
 | `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
-| `Channel` | yes | scaffold | not active | Boundary model requires await-visible `send` / `recv` / `close`; runtime wait integration is later. |
+| `Channel` | yes | reference | not active | CONC-CHANNEL-002 pins reference close/drain/send-after-close behavior for the future queue runtime; await route integration is later. |
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
 | `sync box` | yes | reference | no | Parser/AST JSON capsule and wait-forbidden verifier are active; CONC-SYNCBOX-003 adds reference-only serialized entry while Program JSON / MIR / LLVM stay fail-fast. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
@@ -83,6 +83,21 @@ Implementation naming note:
 - The existing Rust `src/core/channel_box.rs` `ChannelBox` is an older P2P/arrow communication box, not the canonical `Channel<T>` await-visible queue API described here.
 - `src/lib.rs` currently exports that legacy `ChannelBox` / `MessageBox`, and `src/boxes/box_trait.rs` lists `ChannelBox` as a builtin type name; those facts do not make it the `Channel<T>` queue contract.
 - `CONC-CHANNEL-*` rows must not reinterpret that P2P box as the new task boundary without an explicit migration row.
+
+Current reference runtime:
+- `src/runtime/channel_queue.rs` owns the future `Channel<T>` queue scaffold.
+- `CONC-CHANNEL-002` pins close/drain/send-after-close behavior only.
+- `recv_blocking_reference()` exists for the close-wakes-waiters proof and must not be exposed as an ordinary source-level blocking call.
+- `CONC-CHANNEL-003` owns await-visible `send` / `recv` route integration.
+- Report fields:
+  - `channel_queue_reference_runtime_enabled=1`
+  - `channel_queue_legacy_p2p_channelbox_reused=0`
+  - `channel_queue_close_wakes_waiters_reference=1`
+  - `channel_queue_send_after_close_rejected=1`
+  - `channel_queue_drain_after_close_enabled=1`
+  - `channel_queue_double_close_rejected=1`
+  - `channel_queue_true_parallel_scheduler_required=0`
+  - `channel_queue_source_blocking_call_enabled=0`
 
 ### Select Semantics
 - `when(channel, handler)` registers selectable cases.
