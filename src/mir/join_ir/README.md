@@ -111,6 +111,10 @@ This inventory supports `JOINIR-THIN-001` / `JOINIR-THIN-002` from the compiler
 pipeline thinning SSOT. It is classification-only unless a file is proven unused
 by `rg` and a targeted JoinIR test stays green.
 
+Target-specific lowerer cleanup order is owned by:
+
+- `docs/development/current/main/design/joinir-target-lowerer-thinning-ssot.md`
+
 Observation / support surfaces:
 
 - `json.rs`

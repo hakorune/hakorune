@@ -76,6 +76,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - compiler pipeline thinning execution order; keeps semantic refresh,
     optimizer, verifier, and JoinIR thinning as facade/boundary cleanup before
     any behavior merge
+- `design/joinir-target-lowerer-thinning-ssot.md`
+  - JoinIR target-specific lowerer thinning order; keeps shared seams,
+    LowerOnly observation, and route-specific behavior separated
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
