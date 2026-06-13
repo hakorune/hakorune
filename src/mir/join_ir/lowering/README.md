@@ -52,4 +52,4 @@ Read first:
 - **JoinIR lowering（この層）**: `ScopeManager` が `ConditionEnv/LoopBodyLocalEnv/CapturedEnv/CarrierInfo` を束ねて解決順序を固定する。
 - **解析箱**: `LoopConditionScopeBox` は「条件が参照して良いスコープか」を判定する箱で、名前解決そのものはしない。
 
-詳しい境界ルールは `docs/development/current/main/phase238-exprlowerer-scope-boundaries.md` を参照してね。***
+詳しい境界ルールは `docs/development/current/main/phase238-exprlowerer-scope-boundaries.md` を参照してね。

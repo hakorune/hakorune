@@ -45,6 +45,10 @@ Scope: current lane / next lane / restart order only.
   `SUBCONCAT-LEN-CLOSED-FORM-001` should emit scalar closed-form IR from the
   existing StableLengthScalar route; do not return to `.hako` or MIRBuilder for
   this slice
+- compiler cleanup had a BoxShape-only clean-enough closeout:
+  `docs/development/current/main/phases/phase-291x/291x-792-compiler-cleanliness-clean-enough-closeout-card.md`
+  and the nav/dead-dust follow-up is
+  `docs/development/current/main/phases/phase-291x/291x-793-compiler-cleanliness-nav-dead-dust-closeout-card.md`
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules

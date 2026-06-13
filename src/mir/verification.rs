@@ -530,15 +530,6 @@ impl MirVerifier {
         cfg::check_merge_uses(function)
     }
 
-    /// Get all verification errors from the last run
-    pub fn get_errors(&self) -> &[VerificationError] {
-        &self.errors
-    }
-
-    /// Clear verification errors
-    pub fn clear_errors(&mut self) {
-        self.errors.clear();
-    }
 }
 
 impl Default for MirVerifier {

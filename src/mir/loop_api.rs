@@ -44,49 +44,6 @@ pub trait LoopBuilderApi {
     }
 }
 
-/// Helper: simplified loop lowering usable by any LoopBuilderApi implementor
-pub fn build_simple_loop<L: LoopBuilderApi>(
-    lb: &mut L,
-    condition: ValueId,
-    build_body: &mut dyn FnMut(&mut L) -> Result<(), String>,
-) -> Result<ValueId, String> {
-    let header = lb.new_block();
-    let body = lb.new_block();
-    let after = lb.new_block();
-
-    // Jump to header
-    lb.emit(MirInstruction::Jump {
-        target: header,
-        edge_args: None,
-    })?;
-
-    // Header: branch on provided condition
-    lb.start_new_block(header)?;
-    lb.emit(MirInstruction::Branch {
-        condition,
-        then_bb: body,
-        else_bb: after,
-        then_edge_args: None,
-        else_edge_args: None,
-    })?;
-
-    // Body
-    lb.start_new_block(body)?;
-    build_body(lb)?;
-    lb.emit(MirInstruction::Jump {
-        target: header,
-        edge_args: None,
-    })?;
-
-    // After: return void value
-    lb.start_new_block(after)?;
-    let void_id = lb.new_value();
-    lb.emit(MirInstruction::Const {
-        dst: void_id,
-        value: crate::mir::ConstValue::Void,
-    })?;
-    Ok(void_id)
-}
 
 // Legacy wiring for `MirBuilder` lives in `src/mir/builder/loop_api_impl.rs`
 // so that emit/CFG mutations stay inside `src/mir/builder/**`.

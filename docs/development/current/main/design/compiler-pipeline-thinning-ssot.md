@@ -39,6 +39,37 @@ thin does not mean:
 This is a BoxShape cleanup lane. It must not change route selection, optimizer
 behavior, accepted CorePlan shapes, backend lowering, or perf keeper claims.
 
+## Child Cleanup SSOTs
+
+This pipeline SSOT is the parent entry for the current compiler-cleanliness
+cleanup wave. The narrower child SSOTs below own local BoxShape boundaries and
+must remain discoverable from this page:
+
+```text
+docs/development/current/main/design/joinir-target-lowerer-thinning-ssot.md
+  JoinIR target lowerer facade / dispatch / builder / common seam boundary
+
+docs/development/current/main/design/loop-update-analyzer-thinning-ssot.md
+  loop update analyzer test/helper split boundary
+
+docs/development/current/main/design/loop-body-local-init-thinning-ssot.md
+  loop body-local init expression and method-call shelf boundary
+
+docs/development/current/main/design/inline-boundary-builder-thinning-ssot.md
+  JoinInlineBoundary builder construction/test split boundary
+
+docs/development/current/main/design/generic-case-a-trim-thinning-ssot.md
+  Generic Case A trim route-local builder split boundary
+
+docs/development/current/main/design/user-method-policy-thinning-ssot.md
+  user-defined static method policy allow-list/test split boundary
+```
+
+Do not add local cleanup cards that bypass this parent entry. If a future
+cleanup candidate touches policy, route selection, pattern acceptance,
+optimizer behavior, or verifier behavior, create a separate behavior card
+instead of extending the BoxShape cleanup wave.
+
 ## Current Shape
 
 The current effective pipeline is:
