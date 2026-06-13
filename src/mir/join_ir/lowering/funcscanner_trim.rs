@@ -7,6 +7,7 @@ use crate::mir::join_ir::JoinModule;
 
 pub(super) mod builder;
 mod dispatch;
+mod loop_step;
 mod skip_leading;
 
 /// Phase 27.9: Toggle dispatcher for trim lowering
