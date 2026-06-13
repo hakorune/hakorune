@@ -117,6 +117,10 @@ Observation / support surfaces:
 - `frontend/func_meta.rs`
 - `verify.rs`
 - `verify_phi_reserved.rs`
+- `lowering/if_dry_runner.rs`
+  - dev-only observation scanner invoked from the VM runner when JoinIR dev and
+    IfSelect observation flags are enabled
+  - it must not mutate MIR or become the If lowering truth
 - `lowering/canonical_names.rs`
 - `lowering/error_tags.rs`
 - `lowering/debug_output_box.rs`
@@ -163,5 +167,7 @@ Retired:
 Rules:
 
 - keep Recipe / Verifier / Lower ownership outside JoinIR observation modules
+- keep `if_dry_runner` observation-only; promote route decisions through active
+  `if_lowering_router` / `condition_lowerer` owners instead
 - do not add new accepted source shapes in this subtree during thinning
 - do not remove core loop/if route support as part of cleanup

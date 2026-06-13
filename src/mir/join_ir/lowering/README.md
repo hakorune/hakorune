@@ -29,6 +29,7 @@ Read first:
 - legacy `UpdateEnv` は退役済み。現役の名前解決は ScopeManager→ConditionEnv / LoopBodyLocalEnv で完結させる。
 - legacy `condition_to_joinir` facade は退役済み。条件 lowering のテストは `condition_lowerer/*` を直接見る。
 - legacy `condition_lowering_box` trait harness も退役済み。新しい条件 lowering 入口は増やさず、`ExprLowerer` / `condition_lowerer` の直接 API を使う。
+- `if_dry_runner` は runner から呼ばれる dev-only observation surface。MIR を書き換えず、route truth を持たない。If lowering の現役判断は `if_lowering_router` / `condition_lowerer` 側に置く。
 - ConditionEnv は「条件で参照する JoinIR ValueId だけ」を持つ。body-local を直接入れず、必要なら昇格＋ScopeManager に解決を任せる。
 - Fail-Fast 原則: Unsupported/NotFound は明示エラーにして、by-name ヒューリスティックや静かなフォールバックは禁止。
 

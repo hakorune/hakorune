@@ -52,7 +52,7 @@ These are not immediate deletes without a small inventory card first:
 
 | Surface | Status | Next action |
 | --- | --- | --- |
-| `if_dry_runner` | HOLD | Live dev caller in runner VM execution path. Keep unless dev route is retired. |
+| `if_dry_runner` | OBSERVATION-HOLD | Live dev caller in runner VM execution path. Keep as observation-only; it must not mutate MIR or own If lowering route truth. |
 | Stage1/StageB lower-only routes | HOLD | Metadata now truthful as LowerOnly; do not delete while structural lowering probes exist. |
 | `condition_pattern` | RETIRED | Removed by 291x-748 after usage inventory showed no production caller; condition vocabulary now belongs to active route facts / `condition_lowerer` / `ExprLowerer`. |
 | `condition_lowering_box` | RETIRED | Removed after usage inventory showed only the test-only trait harness. |
