@@ -47,8 +47,8 @@ Scope: current lane / next lane / restart order only.
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0
   inventory, E1-002 first retire, E1-003 collect_using_entries, E1-004
-  bundle_resolver, and E1-005 scan_v0 retire guards are landed; next is
-  `COREPLAN-E1-006` scan_methods_v0 retire
+  bundle_resolver, E1-005 scan_v0, and E1-006 scan_methods_v0 retire guards
+  are landed; next is `COREPLAN-E1-007` scan_phi_vars_v0 retire
 - optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel

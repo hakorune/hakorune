@@ -240,6 +240,11 @@ run_case_from_list() {
     fixture="$NYASH_ROOT/$fixture"
   fi
 
+  local case_timeout_secs="${RUN_TIMEOUT_SECS:-10}"
+  if [[ "$_rest" =~ (^|[[:space:]])timeout=([0-9]+)([[:space:]]|$) ]]; then
+    case_timeout_secs="${BASH_REMATCH[2]}"
+  fi
+
   run_step "phase29bq_fast_gate_cases:$case_id" "$log_path" \
     run_planner_first_gate \
     "phase29bq_fast_gate_cases:$case_id" \
@@ -247,7 +252,7 @@ run_case_from_list() {
     "$expected" \
     "$planner_tag" \
     "$allowed_rc" \
-    "${RUN_TIMEOUT_SECS:-10}"
+    "$case_timeout_secs"
 }
 
 case_in_list() {

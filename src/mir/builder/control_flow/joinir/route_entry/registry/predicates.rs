@@ -19,9 +19,7 @@ pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
     if facts.nested_loop {
         return false;
     }
-    // Keep scan-methods families on their dedicated routes.
-    // Otherwise loop_simple_while can over-capture nested scan loops and produce
-    // unstable step wiring (seen in selfhost scan_methods nested fixtures).
+    // Keep the remaining scan-phi family on its dedicated route.
     let scan = ScanFamilyPresence::from_facts(facts);
     !scan.blocks_simple_while()
 }
@@ -34,7 +32,6 @@ pred_accessor!(pred_accum_const_loop, accum_const_loop);
 
 #[derive(Debug, Clone, Copy)]
 struct ScanFamilyPresence {
-    methods: bool,
     v0: bool,
     init: bool,
     predicate: bool,
@@ -42,12 +39,10 @@ struct ScanFamilyPresence {
 
 impl ScanFamilyPresence {
     fn from_facts(facts: &CanonicalLoopFacts) -> Self {
-        let methods = pred_loop_scan_methods_v0(facts);
         let v0 = pred_loop_scan_phi_vars_v0(facts);
         let init = facts.facts.scan_with_init().is_some() || facts.facts.split_scan().is_some();
         let predicate = pred_bool_predicate_scan(facts) || pred_accum_const_loop(facts);
         Self {
-            methods,
             v0,
             init,
             predicate,
@@ -55,7 +50,7 @@ impl ScanFamilyPresence {
     }
 
     fn blocks_simple_while(self) -> bool {
-        self.methods || self.v0
+        self.v0
     }
 
     fn blocks_loop_cond_break(self) -> bool {
@@ -63,12 +58,8 @@ impl ScanFamilyPresence {
     }
 
     fn blocks_return_or_generic(self) -> bool {
-        self.methods || self.v0 || self.init || self.predicate
+        self.v0 || self.init || self.predicate
     }
-}
-
-pub(crate) fn pred_loop_scan_methods_v0(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_scan_methods_v0().is_some()
 }
 
 pred_accessor!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
@@ -118,7 +109,7 @@ pub(crate) fn pred_generic_loop_v1(facts: &CanonicalLoopFacts) -> bool {
     if pred_loop_simple_while(facts) {
         return false;
     }
-    if facts.facts.loop_cond_break_continue().is_some() {
+    if pred_loop_cond_break_continue(facts) {
         return false;
     }
     let scan = ScanFamilyPresence::from_facts(facts);

@@ -108,11 +108,10 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Recipe-first verification (dev/debug only, Phase C14): `[recipe:verify] route=accum_const_loop status=ok`
 - Recipe-first compose (dev/debug only, Phase C14): `[recipe:compose] route=accum_const_loop path=recipe_block`
 - Recipe-first entry (dev/debug only, Phase C14): `[recipe:entry] accum_const_loop: recipe-only entry`
-- Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_methods] verified OK`
-- Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_methods_v0 path=recipe_first`
-- Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_methods_v0: recipe-only entry`
-- Retired in `COREPLAN-E1-002`: former scan_methods_block recipe-first tags.
-  Block-wrapped scan-methods bodies now route through `scan_methods_v0`.
+- Retired in `COREPLAN-E1-006`: former scan_methods_v0 recipe-first tags
+  (`[recipe:scan_methods]`, `[recipe:compose] route=scan_methods_v0`,
+  `[recipe:entry] scan_methods_v0`). Block-wrapped scan-methods bodies now
+  route through existing replacement owners.
 - Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_phi_vars] verified OK`
 - Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_phi_vars_v0 path=recipe_first`
 - Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_phi_vars_v0: recipe-only entry`

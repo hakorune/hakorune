@@ -165,7 +165,6 @@ run targeted planner/facts tests
   - `facts::extractors::common_helpers::loop_true_early_exit`
   - `facts::extractors::if_phi_join`
   - `facts::extractors::loop_simple_while`
-  - `facts::loop_scan_methods_v0`
   - `facts::loop_cond_continue_only`
   - `facts::loop_cond_continue_with_return`
   - `facts::loop_cond_return_in_body`
@@ -282,7 +281,6 @@ run targeted planner/facts tests
 - `generic_loop`
 - `loop_break`
 - `loop_cond`
-- `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`
 - `loop_true_break_continue`
 - `nested_loop_depth1`

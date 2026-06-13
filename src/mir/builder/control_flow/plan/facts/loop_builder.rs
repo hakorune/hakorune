@@ -24,7 +24,6 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::try_extract_loop_cond_return_in_body_facts;
-use crate::mir::builder::control_flow::facts::loop_scan_methods_v0::try_extract_loop_scan_methods_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::try_extract_loop_scan_phi_vars_v0_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
     has_generic_loop_v1_recipe_hint, try_extract_generic_loop_v0_facts,
@@ -83,7 +82,6 @@ fn try_build_loop_facts_inner(
     let loop_char_map = try_extract_loop_char_map_facts(condition, body, &observation)?;
     let loop_array_join = try_extract_loop_array_join_facts(condition, body, &observation)?;
     let string_is_integer = try_extract_string_is_integer_facts(condition, body)?;
-    let loop_scan_methods_v0 = try_extract_loop_scan_methods_v0_facts(condition, body)?;
     let loop_scan_phi_vars_v0 = try_extract_loop_scan_phi_vars_v0_facts(condition, body)?;
     // Phase 29bq: Extract loop_cond_break_continue BEFORE generic_loop_v0
     // Reason: loop_cond_break_continue handles shapes (like ExitIfTree) that generic_loop_v0
@@ -165,7 +163,6 @@ fn try_build_loop_facts_inner(
         || loop_char_map.is_some()
         || loop_array_join.is_some()
         || string_is_integer.is_some()
-        || loop_scan_methods_v0.is_some()
         || loop_scan_phi_vars_v0.is_some()
         || generic_loop_v0.is_some()
         || generic_loop_v1.is_some()
@@ -216,7 +213,6 @@ fn try_build_loop_facts_inner(
         loop_cond_continue_only,
         loop_cond_continue_with_return,
         loop_cond_return_in_body,
-        loop_scan_methods_v0,
         loop_scan_phi_vars_v0,
         nested_loop_minimal,
         bool_predicate_scan,
@@ -227,8 +223,7 @@ fn try_build_loop_facts_inner(
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} loop_scan_phi_vars={}",
-            facts.loop_scan_methods_v0.is_some() as u8,
+            "[plan/trace:facts_summary] ctx=loop_facts loop_scan_phi_vars={}",
             facts.loop_scan_phi_vars_v0.is_some() as u8
         ));
     }

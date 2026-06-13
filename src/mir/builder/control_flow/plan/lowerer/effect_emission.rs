@@ -140,10 +140,15 @@ impl super::PlanLowerer {
                 ))?;
             }
             CoreEffectPlan::GlobalCall { dst, func, args } => {
-                builder.emit_unified_call(*dst, CallTarget::Global(func.clone()), args.clone())?;
+                let args: Vec<ValueId> =
+                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                builder.emit_unified_call(*dst, CallTarget::Global(func.clone()), args)?;
             }
             CoreEffectPlan::ValueCall { dst, callee, args } => {
-                builder.emit_unified_call(*dst, CallTarget::Value(*callee), args.clone())?;
+                let callee = builder.local_arg(*callee);
+                let args: Vec<ValueId> =
+                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                builder.emit_unified_call(*dst, CallTarget::Value(callee), args)?;
             }
             CoreEffectPlan::ExternCall {
                 dst,

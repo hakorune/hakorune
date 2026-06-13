@@ -41,9 +41,9 @@ AST
 - 候補が複数成立したら strict/dev(+planner_required) で **freeze**（入口の曖昧さは禁止）
 - release は挙動を変えないが、設計目標は guard を disjoint にして一意化すること
 - 「特定パターン優先」を避け、優先させたい場合は **guard を狭めて重なりを消す**（支配関係で一意化）
-- block-wrapped scan_methods は `COREPLAN-E1-002` 以降
-  `loop_scan_methods_v0` が観測する。専用 `loop_scan_methods_block_v0`
-  候補は retired。
+- block-wrapped scan_methods は `COREPLAN-E1-006` 以降、既存の
+  scan-methods replacement owners が観測する。専用
+  `loop_scan_methods_block_v0` / `loop_scan_methods_v0` 候補は retired。
 
 #### Entry guard matrix (summary)
 
@@ -56,7 +56,6 @@ AST
 | `if_phi_join` | `IfPhiJoin` | facts present | excludes `loop_cond_break_continue` |
 | `loop_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_cond_break_continue`, `loop_cond_continue_only` |
 | `loop_true_early_exit` | `LoopTrueEarlyExit` | facts present | excludes `loop_true_break_continue` |
-| `loop_scan_methods_v0` | `LoopScanMethodsV0` | nested (or no block_v0) scan methods | excludes `loop_cond_break_continue` |
 | `loop_scan_phi_vars_v0` | `LoopScanPhiVarsV0` | facts present | excludes `loop_cond_break_continue` |
 | `loop_cond_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_continue_only` |
 | `loop_cond_continue_with_return` | `LoopContinueWithReturn` | facts present | see bullet list |

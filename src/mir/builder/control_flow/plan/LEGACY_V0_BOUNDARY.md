@@ -12,7 +12,6 @@ silent fallback behavior.
 
 These modules are still part of the routed planner path (`registry`/handlers/composer wiring exists):
 
-- `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`
 
 See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`loop_*_v0 audit snapshot` section).
@@ -30,6 +29,9 @@ See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`l
 - `loop_scan_v0` is physically removed and replaced by the existing
   `loop_cond_break_continue` / `LoopCondBreak` route for the focused scan
   fixtures (`COREPLAN-E1-005`).
+- `loop_scan_methods_v0` is physically removed and replaced by existing
+  `LoopSimpleWhile` / `LoopCondBreak` / `flowbox/adopt` replacement owners for
+  the focused scan-methods fixtures (`COREPLAN-E1-006`).
 
 No module is considered retired unless:
 

@@ -54,13 +54,18 @@ run_planner_first_list_gate() {
     local case_name
     case_name=$(basename "$fixture")
 
+    local case_timeout_secs="$timeout_secs"
+    if [[ "$_rest" =~ (^|[[:space:]])timeout=([0-9]+)([[:space:]]|$) ]]; then
+      case_timeout_secs="${BASH_REMATCH[2]}"
+    fi
+
     if ! run_planner_first_gate \
       "$gate_name:$case_name" \
       "$fixture" \
       "$expected" \
       "$planner_tag" \
       "$allowed_rc" \
-      "$timeout_secs"; then
+      "$case_timeout_secs"; then
       fail=1
       break
     fi

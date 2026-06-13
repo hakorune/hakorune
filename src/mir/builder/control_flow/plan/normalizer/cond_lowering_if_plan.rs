@@ -374,7 +374,6 @@ fn lower_joinless_or_leaf_chain(
         );
     }
 
-    let then_has_loop_like = plans_have_loop_like(&then_plans);
     let mut root_then = Some(then_plans);
     let mut current_else = else_plans;
 
@@ -394,7 +393,6 @@ fn lower_joinless_or_leaf_chain(
                 root_then.as_ref().ok_or_else(|| {
                     "[freeze:contract][cond_or_leaf] missing then template".to_string()
                 })?,
-                then_has_loop_like,
             )?
         };
 
@@ -427,7 +425,6 @@ fn lower_joinless_and_leaf_chain(
         );
     }
 
-    let else_has_loop_like = plans_have_loop_like(&else_plans);
     let mut root_else = Some(else_plans);
     let mut current_then = then_plans;
 
@@ -447,7 +444,6 @@ fn lower_joinless_and_leaf_chain(
                 root_else.as_ref().ok_or_else(|| {
                     "[freeze:contract][cond_and_leaf] missing else template".to_string()
                 })?,
-                else_has_loop_like,
             )?
         };
 
@@ -497,41 +493,65 @@ fn collect_and_terms<'a>(expr: &'a ASTNode, out: &mut Vec<&'a ASTNode>) {
 fn clone_branch_plans_for_shortcircuit(
     builder: &mut MirBuilder,
     plans: &[LoweredRecipe],
-    has_loop_like: bool,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    if has_loop_like {
+    // Short-circuit lowering may place the same branch template under multiple
+    // leaf tests. Even "simple" non-loop branches can contain Const/BinOp/Call
+    // definitions, so a plain Vec clone would emit the same ValueId in multiple
+    // blocks. Branches without definition sites are safe to clone directly.
+    if plans_have_definition_sites(plans) {
         Ok(clone_plans_with_fresh_loops(builder, plans)?.plans)
     } else {
         Ok(plans.to_vec())
     }
 }
 
-fn plans_have_loop_like(plans: &[LoweredRecipe]) -> bool {
-    plans.iter().any(plan_has_loop_like)
+fn plans_have_definition_sites(plans: &[LoweredRecipe]) -> bool {
+    plans.iter().any(plan_has_definition_site)
 }
 
-fn plan_has_loop_like(plan: &LoweredRecipe) -> bool {
+fn plan_has_definition_site(plan: &LoweredRecipe) -> bool {
     match plan {
-        CorePlan::Loop(_) => true,
-        CorePlan::Seq(inner) => plans_have_loop_like(inner),
+        CorePlan::Seq(inner) => plans_have_definition_sites(inner),
         CorePlan::If(if_plan) => {
-            plans_have_loop_like(&if_plan.then_plans)
+            plans_have_definition_sites(&if_plan.then_plans)
                 || if_plan
                     .else_plans
                     .as_ref()
-                    .is_some_and(|plans| plans_have_loop_like(plans))
+                    .is_some_and(|plans| plans_have_definition_sites(plans))
+                || !if_plan.joins.is_empty()
         }
+        CorePlan::Loop(_) => true,
         CorePlan::BranchN(branch_plan) => {
             branch_plan
                 .arms
                 .iter()
-                .any(|arm| plans_have_loop_like(&arm.plans))
+                .any(|arm| plans_have_definition_sites(&arm.plans))
                 || branch_plan
                     .else_plans
                     .as_ref()
-                    .is_some_and(|plans| plans_have_loop_like(plans))
+                    .is_some_and(|plans| plans_have_definition_sites(plans))
         }
-        CorePlan::Effect(_) | CorePlan::Exit(_) => false,
+        CorePlan::Effect(effect) => effect_defines_value(effect),
+        CorePlan::Exit(_) => false,
+    }
+}
+
+fn effect_defines_value(effect: &CoreEffectPlan) -> bool {
+    match effect {
+        CoreEffectPlan::MethodCall { dst, .. }
+        | CoreEffectPlan::GlobalCall { dst, .. }
+        | CoreEffectPlan::ValueCall { dst, .. }
+        | CoreEffectPlan::ExternCall { dst, .. } => dst.is_some(),
+        CoreEffectPlan::NewBox { .. }
+        | CoreEffectPlan::BinOp { .. }
+        | CoreEffectPlan::Compare { .. }
+        | CoreEffectPlan::Select { .. }
+        | CoreEffectPlan::Const { .. }
+        | CoreEffectPlan::Copy { .. }
+        | CoreEffectPlan::FieldGet { .. } => true,
+        CoreEffectPlan::FieldSet { .. }
+        | CoreEffectPlan::ExitIf { .. }
+        | CoreEffectPlan::IfEffect { .. } => false,
     }
 }
 

@@ -75,11 +75,6 @@ pub(crate) const ENTRIES: &[Entry] = &[
         route: Some(route_accum_const_loop),
     },
     Entry {
-        name: entry_keys::LOOP_SCAN_METHODS_V0,
-        predicate: pred_loop_scan_methods_v0,
-        route: Some(route_loop_scan_methods_v0),
-    },
-    Entry {
         name: entry_keys::LOOP_SCAN_PHI_VARS_V0,
         predicate: pred_loop_scan_phi_vars_v0,
         route: Some(route_loop_scan_phi_vars_v0),
@@ -127,7 +122,6 @@ pub(crate) const ENTRIES: &[Entry] = &[
 ];
 
 struct CandidateSuppression {
-    scan_methods_candidate: bool,
     if_phi_join_candidate: bool,
     loop_continue_only_candidate: bool,
     loop_cond_continue_only_candidate: bool,
@@ -138,8 +132,7 @@ struct CandidateSuppression {
 fn should_skip_candidate(name: &str, suppression: &CandidateSuppression) -> bool {
     match name {
         entry_keys::LOOP_COND_BREAK_CONTINUE => {
-            suppression.scan_methods_candidate
-                || suppression.if_phi_join_candidate
+            suppression.if_phi_join_candidate
                 || suppression.loop_continue_only_candidate
                 || suppression.loop_cond_continue_only_candidate
                 || suppression.array_join_candidate
@@ -156,7 +149,6 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
     };
     let mut names = Vec::new();
     let suppression = CandidateSuppression {
-        scan_methods_candidate: pred_loop_scan_methods_v0(facts),
         if_phi_join_candidate: pred_if_phi_join(facts),
         loop_continue_only_candidate: pred_loop_continue_only(facts),
         loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
@@ -192,7 +184,6 @@ pub(crate) fn try_route_recipe_first(
         return Ok(None);
     };
     let suppression = CandidateSuppression {
-        scan_methods_candidate: pred_loop_scan_methods_v0(facts),
         if_phi_join_candidate: pred_if_phi_join(facts),
         loop_continue_only_candidate: pred_loop_continue_only(facts),
         loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
