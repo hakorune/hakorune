@@ -50,7 +50,8 @@ Scope: current lane / next lane / restart order only.
   and the nav/dead-dust follow-up is
   `docs/development/current/main/phases/phase-291x/291x-793-compiler-cleanliness-nav-dead-dust-closeout-card.md`
 - concurrency/thread pre-selfhost work is a side-lane candidate, not the active
-  lane: start with `CONC-RUNTIME-INVENTORY-001` in
+  lane: `CONC-RUNTIME-INVENTORY-001` and `CONC-SCHED-ROUTE-001` are landed;
+  next is `CONC-CAP-INVENTORY-001` in
   `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md`;
   keep `nowait_os_thread_spawn=0` and do not add source-level thread syntax
   before send/share/thread-root safety is pinned

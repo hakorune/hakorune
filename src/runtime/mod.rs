@@ -48,6 +48,7 @@ pub mod ring0; // Phase 88: Ring0Context - OS API 抽象化レイヤー
 pub mod rss_observe;
 pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
+pub mod scheduler_route;
 pub mod semantics;
 pub mod thread_capability;
 pub mod thread_registry;
@@ -75,6 +76,10 @@ pub mod cache_versions;
 pub use gc::{BarrierKind, GcHooks};
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
 pub use scheduler::{Scheduler, SingleThreadScheduler, WorkerPoolScheduler};
+pub use scheduler_route::{
+    scheduler_route_activation_report_fields, scheduler_route_descriptors,
+    scheduler_route_report_fields, HakoSchedulerRoute, SchedulerRouteDescriptor,
+};
 pub use thread_capability::{
     thread_capability_descriptors, thread_capability_enforcement_report_fields,
     thread_capability_report_fields, HakoThreadCapability, ThreadCapabilityDescriptor,

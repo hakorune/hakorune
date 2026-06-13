@@ -147,7 +147,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | --- | --- | --- | --- | --- |
 | `CONC-BOUNDARY-001` | landed-docs | Adopt Boundary model as design SSOT. | `docs/reference/concurrency/boundary-model.md` | no runtime change |
 | `CONC-RUNTIME-INVENTORY-001` | landed-docs | Sync current implementation inventory for ThreadApi, WorkerPoolScheduler, FutureBox, and TaskGroupBox before source-level thread design. | `293x-1000-CONC-RUNTIME-INVENTORY-001-THREAD-SUBSTRATE-REALITY.md` | no behavior change |
-| `CONC-SCHED-ROUTE-001` | pending | Pin scheduler route vocabulary and report/check fields for future worker-pool execution routes. | route vocabulary + report fields | no default worker-pool activation |
+| `CONC-SCHED-ROUTE-001` | landed-code | Pin scheduler route vocabulary and report/check fields for future worker-pool execution routes. | `src/runtime/scheduler_route.rs` + `293x-1001-CONC-SCHED-ROUTE-001-SCHEDULER-ROUTE-VOCABULARY.md` | no default worker-pool activation |
 | `CONC-CAP-INVENTORY-001` | pending | Inventory HakoSend/HakoShare/ThreadRoot gaps before cross-worker value movement. | report-only capability inventory | no source semantics change |
 | `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |

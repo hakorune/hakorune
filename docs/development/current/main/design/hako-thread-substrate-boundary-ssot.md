@@ -485,6 +485,34 @@ nowait_os_thread_spawn=0
 worker_pool_enabled_by_default=0
 ```
 
+### CONC-SCHED-ROUTE-001: scheduler route vocabulary
+
+Status: landed as report/check vocabulary only.
+
+Scope:
+
+```text
+src/runtime/scheduler_route.rs
+HakoSchedulerRoute::InlineResolvedFuture
+HakoSchedulerRoute::CooperativeTask
+HakoSchedulerRoute::WorkerPoolTask
+```
+
+Report fields:
+
+```text
+scheduler_route_inline_resolved_future_descriptor_present=1
+scheduler_route_cooperative_task_descriptor_present=1
+scheduler_route_worker_pool_task_descriptor_present=1
+scheduler_route_worker_pool_default_enabled=0
+worker_pool_source_route_enabled=0
+source_level_thread_syntax=0
+nowait_os_thread_spawn=0
+```
+
+This row does not select a scheduler route. It only freezes the names future
+reports and checks must use.
+
 ### THREAD-SAFETY-001: send/share/root capability
 
 Status: ThreadRegistry v0 landed. Box send/share capability remains closed.
