@@ -296,7 +296,7 @@ append_defs_loweronly_without_exec_route=1
 
 ### JOINIR-TARGET-THIN-004: Candidate Shared Target Adapter
 
-Status: partially landed for Stage-B target-local generic Case-A hooks.
+Status: partially landed for trim and Stage-B target-local generic Case-A hooks.
 
 Only after `JOINIR-TARGET-THIN-003`, a shared adapter may cover the repeated
 target pattern:
@@ -334,6 +334,12 @@ common/target_adapter.rs:
 Current users:
 
 ```text
+trim:
+  entry_is_preheader=true
+  has_break=true
+  route entrypoint=lower_case_a_for_trim
+  note: string-pattern CFG checks stay route-local before the adapter call
+
 stageb_body:
   entry_is_preheader=true
   has_break=true
@@ -348,9 +354,6 @@ stageb_funcscanner:
 Not yet moved:
 
 ```text
-trim:
-  has string-pattern CFG checks and route-specific fallback shape.
-
 stage1_using_resolver:
   has a params_len guard and a not-simple debug branch.
 
