@@ -443,6 +443,16 @@ skip_ws.rs:
 
 skip_ws/builder.rs:
   route-local handwritten/shared JoinIR construction
+
+stageb_funcscanner.rs:
+  route facade only
+  owns public lower_stageb_funcscanner_to_joinir entry
+
+stageb_funcscanner/builder.rs:
+  route-local handwritten/shared JoinIR construction
+
+stageb_funcscanner/dispatch.rs:
+  MIR-vs-handwritten dispatch and route-local generic Case-A hook
 ```
 
 This split is physical packaging only. It does not change route selection,
