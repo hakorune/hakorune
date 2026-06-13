@@ -54,6 +54,20 @@ pub const RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT: &str =
     "runtime_invoke_boundary_derives_fn_pointer_count";
 pub const CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT: &str =
     "callable_route_truth_from_invoke_boundary_count";
+pub const PLUGIN_CATALOG_PROJECTION_CHAIN_DOCUMENTED: &str =
+    "plugin_catalog_projection_chain_documented";
+pub const PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT: &str =
+    "plugin_loader_to_typeabi_direct_truth_count";
+pub const TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT: &str =
+    "type_abi_catalog_as_plugin_route_truth_count";
+pub const PLUGIN_SNAPSHOT_CATALOG_PROJECTION_HELPER_COUNT: &str =
+    "plugin_snapshot_catalog_projection_helper_count";
+pub const PLUGIN_SNAPSHOT_CATALOG_READS_LOADER_DIRECTLY: &str =
+    "plugin_snapshot_catalog_reads_loader_directly";
+pub const PLUGIN_CATALOG_ROUTEPLAN_CONSUMER_COUNT: &str = "plugin_catalog_routeplan_consumer_count";
+pub const PLUGIN_CATALOG_HOT_PATH_CONSUMER_COUNT: &str = "plugin_catalog_hot_path_consumer_count";
+pub const PLUGIN_CATALOG_TOOLING_CONSUMER_COUNT: &str = "plugin_catalog_tooling_consumer_count";
+pub const REGISTRY_SNAPSHOT_CACHE_DEFAULT_ENABLED: &str = "registry_snapshot_cache_default_enabled";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -155,6 +169,21 @@ pub const BOXCALL_010_ROWS: &[(&str, &str)] = &[
     (RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT, "1"),
     (CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT, "0"),
     (DUPLICATE_CALLABLE_TRUTH_COUNT, "0"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const PLUGIN_CATALOG_000_005_ROWS: &[(&str, &str)] = &[
+    (PLUGIN_CATALOG_PROJECTION_CHAIN_DOCUMENTED, "1"),
+    (PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT, "0"),
+    (TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT, "0"),
+    (PLUGIN_SNAPSHOT_CATALOG_PROJECTION_HELPER_COUNT, "1"),
+    (PLUGIN_SNAPSHOT_CATALOG_READS_LOADER_DIRECTLY, "0"),
+    (REGISTRY_SNAPSHOT_CACHE_REQUIRED_COUNT, "0"),
+    (REGISTRY_SNAPSHOT_CACHE_DEFAULT_ENABLED, "0"),
+    (PLUGIN_CATALOG_TOOLING_CONSUMER_COUNT, "1"),
+    (PLUGIN_CATALOG_ROUTEPLAN_CONSUMER_COUNT, "0"),
+    (PLUGIN_CATALOG_HOT_PATH_CONSUMER_COUNT, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
 ];
@@ -317,6 +346,27 @@ mod tests {
         assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT], "1");
         assert_eq!(rows[CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT], "0");
         assert_eq!(rows[DUPLICATE_CALLABLE_TRUTH_COUNT], "0");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn plugin_catalog_rows_keep_projection_out_of_route_truth() {
+        let rows = PLUGIN_CATALOG_000_005_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[PLUGIN_CATALOG_PROJECTION_CHAIN_DOCUMENTED], "1");
+        assert_eq!(rows[PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT], "0");
+        assert_eq!(rows[TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT], "0");
+        assert_eq!(rows[PLUGIN_SNAPSHOT_CATALOG_PROJECTION_HELPER_COUNT], "1");
+        assert_eq!(rows[PLUGIN_SNAPSHOT_CATALOG_READS_LOADER_DIRECTLY], "0");
+        assert_eq!(rows[REGISTRY_SNAPSHOT_CACHE_REQUIRED_COUNT], "0");
+        assert_eq!(rows[REGISTRY_SNAPSHOT_CACHE_DEFAULT_ENABLED], "0");
+        assert_eq!(rows[PLUGIN_CATALOG_TOOLING_CONSUMER_COUNT], "1");
+        assert_eq!(rows[PLUGIN_CATALOG_ROUTEPLAN_CONSUMER_COUNT], "0");
+        assert_eq!(rows[PLUGIN_CATALOG_HOT_PATH_CONSUMER_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
     }

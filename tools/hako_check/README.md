@@ -209,6 +209,11 @@ type_abi_catalog_is_truth=0
 type_abi_refresh_truth_trait_enabled=0
 type_abi_catalog_from_refreshed_world=1
 type_abi_catalog_refresh_owner_count=0
+plugin_catalog_projection_chain_documented=1
+plugin_loader_to_typeabi_direct_truth_count=0
+type_abi_catalog_as_plugin_route_truth_count=0
+plugin_catalog_routeplan_consumer_count=0
+plugin_catalog_hot_path_consumer_count=0
 summary=ok
 ```
 

@@ -61,6 +61,17 @@ pub fn publish_box_callable_registry(
     count
 }
 
+pub fn build_catalog_from_box_callable_registry_snapshot(
+    registry: &BoxCallableRegistry,
+) -> TypeAbiCatalog {
+    let mut catalog = TypeAbiCatalog::builder_from_refreshed_world();
+    for (key, target) in registry.iter() {
+        let view = BoxCallableEntryView::new(key, target);
+        catalog.publish(&view);
+    }
+    catalog.finish()
+}
+
 pub fn build_box_callable_registry_pack(
     registry: &BoxCallableRegistry,
 ) -> Result<TypeAbiPack, TypeAbiError> {
@@ -169,7 +180,9 @@ fn role_code(role: BoxCallableRole) -> u8 {
 
 #[cfg(test)]
 mod tests {
+    use crate::box_callable::providers::plugin_loader::seed_plugin_exports;
     use crate::box_callable::{BoxCallableKey, BoxCallableRegistry, BoxCallableRole};
+    use crate::runtime::plugin_loader_v2::PluginCallableExport;
 
     use super::*;
 
@@ -242,5 +255,53 @@ mod tests {
         let pack = build_box_callable_registry_pack(&registry).unwrap();
 
         assert_eq!(pack.entry_count(), 1);
+    }
+
+    #[test]
+    fn plugin_snapshot_registry_projects_to_empty_catalog() {
+        let registry = BoxCallableRegistry::new();
+
+        let catalog = build_catalog_from_box_callable_registry_snapshot(&registry);
+
+        assert!(catalog.is_empty());
+    }
+
+    #[test]
+    fn plugin_callable_exports_project_to_catalog_through_registry() {
+        let exports = [
+            PluginCallableExport::Method {
+                lib_name: "demo".to_string(),
+                box_type: "DemoBox".to_string(),
+                type_id: 42,
+                method_name: "run".to_string(),
+                arity: 2,
+                method_id: 7,
+                returns_result: true,
+            },
+            PluginCallableExport::Lifecycle {
+                lib_name: "demo".to_string(),
+                box_type: "DemoBox".to_string(),
+                type_id: 42,
+                birth_id: Some(1),
+                fini_id: Some(999),
+            },
+        ];
+
+        let mut registry = BoxCallableRegistry::new();
+        seed_plugin_exports(&mut registry, exports.iter());
+
+        let catalog = build_catalog_from_box_callable_registry_snapshot(&registry);
+        let entries = catalog.query_by_tag(TypeAbiTag::BoxCallable);
+
+        assert_eq!(entries.len(), 3);
+        assert!(entries
+            .iter()
+            .any(|entry| entry.name.as_deref() == Some("run")));
+        assert!(entries
+            .iter()
+            .any(|entry| entry.name.as_deref() == Some("birth")));
+        assert!(entries
+            .iter()
+            .any(|entry| entry.name.as_deref() == Some("fini")));
     }
 }

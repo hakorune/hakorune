@@ -668,7 +668,7 @@ route_resolver:
 
 Document the plugin data projection chain.
 
-Status: planned.
+Status: landed 2026-06-13.
 
 Decision:
 
@@ -696,7 +696,7 @@ type_abi_catalog_as_plugin_route_truth_count=0
 
 Add a registry-to-catalog projection helper for plugin snapshots.
 
-Status: planned.
+Status: landed 2026-06-13.
 
 Scope:
 
@@ -728,11 +728,18 @@ src/type_abi/box_callable.rs
 src/runtime/plugin_loader_v2/enabled/box_callable_registry.rs
 ```
 
+Landed code entry:
+
+```text
+src/type_abi/box_callable.rs:
+  build_catalog_from_box_callable_registry_snapshot(...)
+```
+
 ### PLUGIN-CATALOG-002
 
 Add a hako_check report row for plugin snapshot catalog projection.
 
-Status: planned.
+Status: landed 2026-06-13.
 
 Acceptance:
 
@@ -751,7 +758,7 @@ names or Type ABI payload shape.
 
 Add a unit smoke for empty and non-empty plugin registry catalog projection.
 
-Status: planned.
+Status: landed 2026-06-13.
 
 Acceptance:
 
@@ -766,7 +773,7 @@ Plugin method_id and lifecycle ids remain in BoxCallableTarget only
 
 Decide whether a plugin registry snapshot cache is justified.
 
-Status: planned.
+Status: landed 2026-06-13.
 
 Decision rule:
 
@@ -779,16 +786,16 @@ construction is a real owner.
 Acceptance:
 
 ```text
-registry_snapshot_cache_required_count=0|1
+registry_snapshot_cache_required_count=0
 registry_snapshot_cache_default_enabled=0
-cache_decision_evidence_path=<path-or-none>
+cache_decision_evidence_path=none
 ```
 
 ### PLUGIN-CATALOG-005
 
 Connect catalog projection to tooling surfaces only.
 
-Status: planned.
+Status: landed 2026-06-13.
 
 Allowed consumers:
 

@@ -418,7 +418,7 @@ real world type requires two independent domain consumers
 Plugin data may appear in `TypeAbiCatalog` only through a
 `BoxCallableRegistry` projection.
 
-Status: planned in `box-callable-registry-ssot.md`.
+Status: landed 2026-06-13 in `box-callable-registry-ssot.md`.
 
 Acceptance:
 
