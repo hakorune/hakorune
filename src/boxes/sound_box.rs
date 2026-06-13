@@ -157,6 +157,12 @@ impl SoundBox {
         }
     }
 
+    fn sleep_for(duration: Duration) {
+        crate::runtime::ring0::ensure_global_ring0_initialized()
+            .thread
+            .sleep(duration);
+    }
+
     /// ビープ音を鳴らす（基本）
     pub fn beep(&self) -> Box<dyn NyashBox> {
         // 端末ベル文字を出力
@@ -174,7 +180,7 @@ impl SoundBox {
             for i in 0..count_int.value {
                 print!("\x07");
                 if i < count_int.value - 1 {
-                    std::thread::sleep(Duration::from_millis(100));
+                    Self::sleep_for(Duration::from_millis(100));
                 }
             }
 
@@ -213,7 +219,7 @@ impl SoundBox {
                 Err(_) => {
                     // beepコマンドが無い場合は端末ベルを使用
                     print!("\x07");
-                    std::thread::sleep(Duration::from_millis(dur_int.value as u64));
+                    Self::sleep_for(Duration::from_millis(dur_int.value as u64));
                     Box::new(StringBox::new(&format!(
                         "Fallback beep ({}Hz, {}ms)",
                         freq_int.value, dur_int.value
@@ -233,7 +239,7 @@ impl SoundBox {
         for i in 0..3 {
             print!("\x07");
             if i < 2 {
-                std::thread::sleep(Duration::from_millis(150));
+                Self::sleep_for(Duration::from_millis(150));
             }
         }
         Box::new(StringBox::new("Alert sound played"))
@@ -243,7 +249,7 @@ impl SoundBox {
     pub fn success(&self) -> Box<dyn NyashBox> {
         // 1回長めのビープ
         print!("\x07");
-        std::thread::sleep(Duration::from_millis(50));
+        Self::sleep_for(Duration::from_millis(50));
         print!("\x07");
         Box::new(StringBox::new("Success sound played"))
     }
@@ -252,7 +258,7 @@ impl SoundBox {
     pub fn error(&self) -> Box<dyn NyashBox> {
         // 2回素早いビープ
         print!("\x07");
-        std::thread::sleep(Duration::from_millis(80));
+        Self::sleep_for(Duration::from_millis(80));
         print!("\x07");
         Box::new(StringBox::new("Error sound played"))
     }
@@ -267,18 +273,18 @@ impl SoundBox {
                     '.' => {
                         // 短いビープ
                         print!("\x07");
-                        std::thread::sleep(Duration::from_millis(100));
+                        Self::sleep_for(Duration::from_millis(100));
                         beep_count += 1;
                     }
                     '-' => {
                         // 長いビープ
                         print!("\x07");
-                        std::thread::sleep(Duration::from_millis(300));
+                        Self::sleep_for(Duration::from_millis(300));
                         beep_count += 1;
                     }
                     ' ' => {
                         // 無音（待機）
-                        std::thread::sleep(Duration::from_millis(200));
+                        Self::sleep_for(Duration::from_millis(200));
                     }
                     _ => {
                         // その他の文字は無視
@@ -286,7 +292,7 @@ impl SoundBox {
                 }
 
                 // 文字間の短い間隔
-                std::thread::sleep(Duration::from_millis(50));
+                Self::sleep_for(Duration::from_millis(50));
             }
 
             Box::new(StringBox::new(&format!(
@@ -323,7 +329,7 @@ impl SoundBox {
             for i in 0..times_int.value {
                 print!("\x07");
                 if i < times_int.value - 1 {
-                    std::thread::sleep(Duration::from_millis(interval_int.value as u64));
+                    Self::sleep_for(Duration::from_millis(interval_int.value as u64));
                 }
             }
 

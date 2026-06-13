@@ -183,6 +183,18 @@ HTTPServerBox accept loop
 This is a box/runtime implementation route only. It does not imply a
 source-level thread surface.
 
+`TimeBox`, `SoundBox`, and `SocketBox` route user-visible sleep/polling waits
+through Ring0 `ThreadApi::sleep`:
+
+```text
+TimeBox.sleep
+SoundBox playback/timing waits
+SocketBox accept-loop polling wait
+```
+
+These routes preserve the old blocking behavior while keeping OS sleep
+ownership under the runtime thread substrate.
+
 ## Benchmark Claim Boundary
 
 C pthread allocator benchmarks and replacement-front LD_PRELOAD tests are

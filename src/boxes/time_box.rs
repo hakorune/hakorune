@@ -137,6 +137,12 @@ impl TimeBox {
         }
     }
 
+    fn sleep_for(duration: Duration) {
+        crate::runtime::ring0::ensure_global_ring0_initialized()
+            .thread
+            .sleep(duration);
+    }
+
     /// 現在時刻を取得
     pub fn now(&self) -> Box<dyn NyashBox> {
         Box::new(DateTimeBox::now())
@@ -169,7 +175,7 @@ impl TimeBox {
     pub fn sleep(&self, millis: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         if let Some(int_box) = millis.as_any().downcast_ref::<IntegerBox>() {
             if int_box.value > 0 {
-                std::thread::sleep(Duration::from_millis(int_box.value as u64));
+                Self::sleep_for(Duration::from_millis(int_box.value as u64));
                 Box::new(StringBox::new("ok"))
             } else {
                 Box::new(StringBox::new(

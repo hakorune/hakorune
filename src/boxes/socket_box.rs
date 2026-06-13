@@ -101,6 +101,12 @@ impl SocketBox {
         }
     }
 
+    fn sleep_for(duration: Duration) {
+        crate::runtime::ring0::ensure_global_ring0_initialized()
+            .thread
+            .sleep(duration);
+    }
+
     /// TCP ソケットをアドレス・ポートにバインド
     pub fn bind(&self, address: Box<dyn NyashBox>, port: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let addr_str = address.to_string_box().value;
@@ -234,7 +240,7 @@ impl SocketBox {
                                     let _ = listener.set_nonblocking(false);
                                     return Box::new(crate::box_trait::VoidBox::new());
                                 }
-                                std::thread::sleep(Duration::from_millis(5));
+                                Self::sleep_for(Duration::from_millis(5));
                                 continue;
                             } else {
                                 socket_warn!("[socket/accept_timeout] err={}", e);

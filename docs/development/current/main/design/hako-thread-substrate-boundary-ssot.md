@@ -192,9 +192,23 @@ thread roots, and handle safety are pinned.
 
 ## Direct std::thread Cleanup Inventory
 
-The current tree keeps only non-runtime-substrate direct spawn sites outside
-ThreadApi. Runtime policy and delayed Future substrate calls are routed through
-ThreadApi before opening worker-pool execution:
+Runtime policy, delayed Future substrate calls, P2P async reply helpers, and
+main runtime Box substrate sleeps are routed through ThreadApi before opening
+worker-pool execution:
+
+```text
+THREAD-SLEEP-001:
+  src/boxes/time_box.rs:
+    TimeBox.sleep routes through Ring0 ThreadApi::sleep
+
+  src/boxes/sound_box.rs:
+    playback/timing waits route through Ring0 ThreadApi::sleep
+
+  src/boxes/socket_box.rs:
+    accept-loop polling wait routes through Ring0 ThreadApi::sleep
+```
+
+Direct native thread calls that remain intentionally classified:
 
 ```text
 crates/nyash_kernel/src/exports/mem.rs:
@@ -202,12 +216,51 @@ crates/nyash_kernel/src/exports/mem.rs:
 
 crates/nyash_kernel/src/tests/mimalloc_parallel_stress.rs:
   std::thread::spawn in tests only
+
+src/runtime/channel_queue.rs:
+  std::thread::spawn/sleep inside close-waiter tests only
+
+plugins/nyash-net-plugin/src/sockets.rs:
+  independent plugin cdylib thread/sleep sites; ThreadApi is not introduced
+  into this plugin in THREAD-SLEEP-001
+
+plugins/nyash-net-plugin/src/boxes/server_impl.rs:
+  independent plugin cdylib accept-loop spawn site; ThreadApi is not
+  introduced into this plugin in THREAD-SLEEP-001
+
+plugins/nyash-net-plugin/src/boxes/response_impl.rs:
+  independent plugin cdylib polling sleep sites; ThreadApi is not introduced
+  into this plugin in THREAD-SLEEP-001
+
+src/macro/macro_box_ny/child.rs:
+  macro child process polling wait, outside runtime Box substrate
+
+src/runner/modes/**:
+  runner/selfhost process polling waits, outside runtime Box substrate
+
+src/boxes/p2p_box/tests.rs:
+  test-only wait
 ```
 
 This inventory is not a request to rewrite all callers in one change. Runtime
-policy and runtime/plugin delayed Future surfaces are closed behind ThreadApi;
-P2P async reply helpers need a separate P2P/task-route cleanup, and native
-stress/test files stay native evidence.
+policy, runtime/plugin delayed Future surfaces, P2P async reply helpers, and
+main runtime Box substrate waits are closed behind ThreadApi. Native stress
+files, runner internals, plugin cdylib internals, macro child polling, and
+test-only waits stay classified evidence until a dedicated owner card opens
+them.
+
+Use these report fields for this boundary:
+
+```text
+box_substrate_direct_std_thread_sleep_count=0
+time_box_threadapi_sleep_route=1
+sound_box_threadapi_sleep_route=1
+socket_box_threadapi_sleep_route=1
+channel_queue_test_only_spawn_classified=1
+plugin_direct_thread_sites_classified=1
+source_syntax_exposure=0
+nowait_os_thread_spawn=0
+```
 
 ## Context, Worker Local, and Sync Boundaries
 
