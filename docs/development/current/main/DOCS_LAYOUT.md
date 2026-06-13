@@ -103,6 +103,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/hako-thread-substrate-boundary-ssot.md`
   - `.hako` source-level concurrency, runtime ThreadApi substrate, and
     allocator pthread benchmark claim boundary owner
+- `design/arc-retirement-and-ownership-substrate-ssot.md`
+  - Arc retirement parent map; keeps RC insertion, ownership substrate,
+    Box object model, TypeAbiCatalog, BoxCallableRegistry, and optional GC
+    recipe responsibilities separated before any Arc replacement implementation
 - `design/mimalloc-replacement-front-fidelity-ssot.md`
   - mimalloc fidelity guard for replacement-front execution shape; prevents
     accepting a fast but non-mimalloc-shaped allocator route as keeper
@@ -187,6 +191,8 @@ Rule:
     `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
   - Type ABI Box Domain:
     `docs/development/current/main/design/type-abi-box-domain-ssot.md`
+  - Arc Retirement / Ownership Substrate:
+    `docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md`
   - MIR Cleanup Policy:
     `docs/development/current/main/design/mir-cleanup-policy-ssot.md`
   - Compiler Pipeline Thinning:

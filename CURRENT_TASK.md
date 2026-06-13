@@ -62,6 +62,11 @@ Scope: current lane / next lane / restart order only.
   is an upper-bound scheduler hint, and parser/lowering remain gated on
   `THREAD-SAFETY-001`; keep `nowait_os_thread_spawn=0` and do not add
   source-level thread syntax before send/share/thread-root safety is pinned
+- Arc retirement is a side-lane taskboard, not the active optimization lane:
+  `docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md`
+  and `docs/development/current/main/workstreams/arc-retirement-current.md`
+  define the task order; do not start Arc replacement implementation from this
+  pointer alone
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules
