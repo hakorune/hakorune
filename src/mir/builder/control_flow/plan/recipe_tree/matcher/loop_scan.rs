@@ -64,29 +64,3 @@ pub(super) fn verify_loop_scan_phi_vars_v0_recipe(
     }
     Ok(())
 }
-
-/// Recipe-first verification for loop_scan_v0.
-pub(super) fn verify_loop_scan_v0_recipe(
-    scan_v0: &crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts,
-) -> Result<(), Freeze> {
-    use crate::mir::builder::control_flow::plan::loop_scan_v0::recipe::LoopScanSegment;
-
-    for (idx, segment) in scan_v0.segments.iter().enumerate() {
-        match segment {
-            LoopScanSegment::Linear(recipe) => {
-                let ctx = format!("loop_scan_v0_linear_{idx}");
-                verify_exit_allowed_block_recipe(recipe, &ctx)?;
-            }
-            LoopScanSegment::NestedLoop(nested) => {
-                let ctx = format!("loop_scan_v0_nested_{idx}");
-                verify_nested_loop_stmt_only_if_available(nested, &ctx)?;
-            }
-        }
-    }
-
-    if joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("[recipe:scan_v0] verified OK"));
-    }
-    Ok(())
-}

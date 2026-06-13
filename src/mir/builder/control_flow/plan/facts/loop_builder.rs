@@ -37,7 +37,6 @@ use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
     try_extract_loop_cond_break_continue_facts_with_limit,
 };
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::try_extract_loop_true_break_continue_facts;
-use crate::mir::builder::control_flow::plan::loop_scan_v0::try_extract_loop_scan_v0_facts;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
@@ -85,7 +84,6 @@ fn try_build_loop_facts_inner(
     let loop_array_join = try_extract_loop_array_join_facts(condition, body, &observation)?;
     let string_is_integer = try_extract_string_is_integer_facts(condition, body)?;
     let loop_scan_methods_v0 = try_extract_loop_scan_methods_v0_facts(condition, body)?;
-    let loop_scan_v0 = try_extract_loop_scan_v0_facts(condition, body)?;
     let loop_scan_phi_vars_v0 = try_extract_loop_scan_phi_vars_v0_facts(condition, body)?;
     // Phase 29bq: Extract loop_cond_break_continue BEFORE generic_loop_v0
     // Reason: loop_cond_break_continue handles shapes (like ExitIfTree) that generic_loop_v0
@@ -168,7 +166,6 @@ fn try_build_loop_facts_inner(
         || loop_array_join.is_some()
         || string_is_integer.is_some()
         || loop_scan_methods_v0.is_some()
-        || loop_scan_v0.is_some()
         || loop_scan_phi_vars_v0.is_some()
         || generic_loop_v0.is_some()
         || generic_loop_v1.is_some()
@@ -219,7 +216,6 @@ fn try_build_loop_facts_inner(
         loop_cond_continue_only,
         loop_cond_continue_with_return,
         loop_cond_return_in_body,
-        loop_scan_v0,
         loop_scan_methods_v0,
         loop_scan_phi_vars_v0,
         nested_loop_minimal,
@@ -231,9 +227,8 @@ fn try_build_loop_facts_inner(
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} loop_scan={} loop_scan_phi_vars={}",
+            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} loop_scan_phi_vars={}",
             facts.loop_scan_methods_v0.is_some() as u8,
-            facts.loop_scan_v0.is_some() as u8,
             facts.loop_scan_phi_vars_v0.is_some() as u8
         ));
     }

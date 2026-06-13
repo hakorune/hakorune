@@ -284,7 +284,6 @@ run targeted planner/facts tests
 - `loop_cond`
 - `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`
-- `loop_scan_v0`
 - `loop_true_break_continue`
 - `nested_loop_depth1`
 

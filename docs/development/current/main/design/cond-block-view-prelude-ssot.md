@@ -95,7 +95,8 @@ If BlockExpr proves insufficient, supporting explicit condition prelude would re
   - `rg -n "lower_bool_expr_value_id\\(" src/mir/builder/control_flow/plan` → 1件以上
 
 - Guardrail: bool conditions are not value-lowered (regression check for a past footgun):
-  - `rg -n "lower_value_ast\\(\\s*&facts\\.recipe\\.(comma_if_cond|close_if_cond)" src/mir/builder/control_flow/plan/loop_scan_v0/pipeline.rs` → 0件
+  - `COREPLAN-E1-005` retired the former `loop_scan_v0` pipeline; focused
+    scan fixtures now stay on `LoopCondBreak`.
 
 ## Phase B4: Plan-side condition prelude lowering
 

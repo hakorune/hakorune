@@ -185,9 +185,7 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
 
     // Phase C15/C16 scan families already have recipe-first pipelines and fast gates.
     // Keep release nested-loop policy aligned with those migrated routes.
-    if facts.facts.loop_scan_methods_v0().is_some()
-        || facts.facts.loop_scan_phi_vars_v0().is_some()
-        || facts.facts.loop_scan_v0().is_some()
+    if facts.facts.loop_scan_methods_v0().is_some() || facts.facts.loop_scan_phi_vars_v0().is_some()
     {
         return true;
     }
@@ -431,7 +429,6 @@ mod tests {
             loop_cond_continue_only: None,
             loop_cond_continue_with_return: None,
             loop_cond_return_in_body: None,
-            loop_scan_v0: None,
             loop_scan_methods_v0: None,
             loop_scan_phi_vars_v0: None,
             nested_loop_minimal: None,

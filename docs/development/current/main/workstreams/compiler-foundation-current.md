@@ -586,28 +586,54 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
 
 ### COREPLAN-E1-005: scan_v0 skeleton promote retire
 
-Next CorePlan task.
+Status: Landed.
 
-Target:
+Landed by:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-1013-COREPLAN-E1-005-SCAN-V0-RETIRE.md
+tools/checks/coreplan_scan_v0_retire_guard.sh
+```
+
+Retired:
 
 ```text
 loop_scan_v0
 ```
 
+Replacement owner:
+
+```text
+loop_cond_break_continue
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_scan_v0_retire_guard.sh
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only scan_loop_v0_comma_close_min
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only scan_loop_v0_lte_n_minus1_min
+```
+
+### COREPLAN-E1-006: scan_methods v0 retire
+
+Next CorePlan task.
+
+Target:
+
+```text
+loop_scan_methods_v0
+```
+
 Recommended remaining order:
 
 ```text
-1. COREPLAN-E1-005-SCAN-V0-SKELETON-PROMOTE-RETIRE
-   target: loop_scan_v0
-   risk: high
-   reason: promote reusable scan skeleton / substring-step features before retiring
-
-2. COREPLAN-E1-006-SCAN-METHODS-V0-RETIRE
+1. COREPLAN-E1-006-SCAN-METHODS-V0-RETIRE
    target: loop_scan_methods_v0
    risk: medium-high
    reason: selfhost-pinned scan-methods route; wait until scan skeleton vocabulary exists
 
-3. COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE
+2. COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE
    target: loop_scan_phi_vars_v0
    risk: highest
    reason: PHI/carrier-sensitive collect shape with classic and EXT shape routes

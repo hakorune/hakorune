@@ -73,8 +73,6 @@ pub(in crate::mir::builder) mod loop_cond;
 mod loop_scan_methods_v0;
 // Phase 29bq+: selfhost _collect_phi_vars outer loop coverage (BoxCount)
 mod loop_scan_phi_vars_v0;
-// Phase 29bq+: one-shape scan loop coverage (BoxCount)
-mod loop_scan_v0;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
 // Phase 12: Unified nested loop depth1 module (consolidates 4 variants)

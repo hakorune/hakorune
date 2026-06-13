@@ -37,8 +37,8 @@ Related:
   narrow proof commands
 - CorePlan C1 planner_required route-exhaustion, D1 normalizer AST-boundary,
   E1 active-v0 inventory, E1-002 first retire, E1-003 collect_using_entries,
-  and E1-004 bundle_resolver retire guards are landed; next implementation is
-  `COREPLAN-E1-005` scan_v0 skeleton promote retire
+  E1-004 bundle_resolver, and E1-005 scan_v0 retire guards are landed; next
+  implementation is `COREPLAN-E1-006` scan_methods_v0 retire
 - exact-front optimization is paused; resume later through
   `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -60,7 +60,7 @@ Related:
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1012-COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1013-COREPLAN-E1-005-SCAN-V0-RETIRE.md`
 9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
 10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 

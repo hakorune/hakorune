@@ -66,7 +66,6 @@ guard_expect_fixed_in_file "$TAG" \
   "check index must list this guard"
 
 active_v0=(
-  "loop_scan_v0"
   "loop_scan_methods_v0"
   "loop_scan_phi_vars_v0"
 )
@@ -80,7 +79,7 @@ for name in "${active_v0[@]}"; do
 done
 
 if rg -n \
-  "loop_scan_methods_block_v0|LoopScanMethodsBlock|SCAN_METHODS_BLOCK|scan_methods_block|loop_collect_using_entries_v0|LoopCollectUsingEntries|LOOP_COLLECT_USING_ENTRIES|collect_using_entries_v0|loop_bundle_resolver_v0|LoopBundleResolver|BUNDLE_RESOLVER|bundle_resolver_v0" \
+  "loop_scan_methods_block_v0|LoopScanMethodsBlock|SCAN_METHODS_BLOCK|scan_methods_block|loop_collect_using_entries_v0|LoopCollectUsingEntries|LOOP_COLLECT_USING_ENTRIES|collect_using_entries_v0|loop_bundle_resolver_v0|LoopBundleResolver|BUNDLE_RESOLVER|bundle_resolver_v0|loop_scan_v0|LoopScanV0|SCAN_V0|scan_v0" \
   src/mir/builder/control_flow \
   -g '*.rs' >/tmp/coreplan-active-v0-retired.refs 2>&1; then
   echo "[$TAG] ERROR: retired v0 code reference found" >&2

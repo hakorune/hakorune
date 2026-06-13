@@ -392,26 +392,6 @@ pub(crate) fn route_loop_scan_phi_vars_v0(
     route_standard(builder, ctx, outcome, env, &ENTRY)
 }
 
-pub(crate) fn route_loop_scan_v0(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
-) -> Result<Option<ValueId>, String> {
-    const ENTRY: StandardEntry = StandardEntry {
-        route_label: route_labels::SCAN_V0,
-        missing_contract_msg: "loop_scan_v0 requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_loop_scan_v0,
-        planner_required_only: false,
-        skip_without_contract: false,
-        planner_first: PlannerFirstMode::StrictOrDev,
-        plan_rule: Some(PlanRuleId::LoopCondBreak),
-        flowbox_via_strict: FlowboxVia::Shadow,
-        flowbox_via_release: FlowboxVia::Shadow,
-    };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
-}
-
 pub(crate) fn route_nested_loop_minimal(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,

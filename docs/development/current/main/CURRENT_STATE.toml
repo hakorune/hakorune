@@ -16,20 +16,20 @@ TypeAbiCatalog/BoxDescriptor as read-only projection. CorePlan foundation has a
 remaining-family inventory after the B1 boundary: C1 fail-fast guard first, then
 D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
 C1, D1, E1-001 inventory, E1-002 first retire, E1-003
-collect_using_entries retire, and E1-004 bundle_resolver retire guards are
-landed; next is scan_v0 skeleton promote retire."""
+collect_using_entries retire, E1-004 bundle_resolver retire, and E1-005
+scan_v0 retire guards are landed; next is scan_methods_v0 retire."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1012-COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1013-COREPLAN-E1-005-SCAN-V0-RETIRE.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "293x-1012-COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1012-COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE.md"
-latest_card_summary = """293x-1012 retires loop_bundle_resolver_v0
-after proving the focused BundleResolver fixture stays on FlowBox adoption.
-Active routed loop_*_v0 count is now three; next is E1-005 scan_v0."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-E1-005-NEXT-293X-006"
+latest_card = "293x-1013-COREPLAN-E1-005-SCAN-V0-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1013-COREPLAN-E1-005-SCAN-V0-RETIRE.md"
+latest_card_summary = """293x-1013 retires loop_scan_v0 after proving
+focused scan fixtures stay on LoopCondBreak. Active routed loop_*_v0 count is
+now two; next is E1-006 scan_methods_v0."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-E1-006-NEXT-293X-007"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

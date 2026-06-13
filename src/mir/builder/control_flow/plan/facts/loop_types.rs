@@ -27,7 +27,6 @@ use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
-use crate::mir::builder::control_flow::plan::loop_scan_v0::LoopScanV0Facts;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopFacts {
@@ -51,7 +50,6 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_cond_continue_only: Option<LoopCondContinueOnlyFacts>,
     pub loop_cond_continue_with_return: Option<LoopCondContinueWithReturnFacts>,
     pub loop_cond_return_in_body: Option<LoopCondReturnInBodyFacts>,
-    pub loop_scan_v0: Option<LoopScanV0Facts>,
     pub loop_scan_methods_v0: Option<LoopScanMethodsV0Facts>,
     pub loop_scan_phi_vars_v0: Option<LoopScanPhiVarsV0Facts>,
     pub nested_loop_minimal: Option<NestedLoopMinimalFacts>,
@@ -152,10 +150,6 @@ impl LoopFacts {
 
     pub fn loop_scan_phi_vars_v0(&self) -> Option<&LoopScanPhiVarsV0Facts> {
         self.loop_scan_phi_vars_v0.as_ref()
-    }
-
-    pub fn loop_scan_v0(&self) -> Option<&LoopScanV0Facts> {
-        self.loop_scan_v0.as_ref()
     }
 }
 
