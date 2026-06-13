@@ -92,6 +92,7 @@ pub use context_snapshot::{
     context_snapshot_report_fields, ContextBindingSnapshot, ContextSnapshot,
 };
 pub use gc::{BarrierKind, GcHooks};
+pub use host_handles::host_handle_identity_report_fields;
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
 pub use object_identity::{
     object_identity_contract_report_fields, BoxIdentity, BuiltinIdentity, FiniOwner,

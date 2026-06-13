@@ -17,14 +17,14 @@ optimization lane.
 ## Current Decision
 
 ```text
-arc_retirement_mode=contract_only
+arc_retirement_mode=host_handle_seam
 arc_hot_path_retirement_started=0
 active_optimization_lane_changed=0
 ```
 
-Arc retirement is allowed as docs/inventory planning and contract-only runtime
-types now. Arc replacement starts only after a concrete retirement seam has its
-own gate.
+Arc retirement is allowed as docs/inventory planning, contract-only runtime
+types, and host-handle identity seam work now. Arc replacement starts only
+after a concrete family retirement gate exists.
 
 ## Task Order
 
@@ -169,13 +169,60 @@ arc_hot_path_retirement_started=0
 
 ### ARC-RETIRE-004: Host handle table seam
 
-First possible implementation seam, but only after ARC-RETIRE-003.
+Status:
+
+```text
+landed_by=
+  src/runtime/host_handles.rs
+```
+
+First implementation seam after ARC-RETIRE-003. External host ABI remains
+`u64`; current backing storage remains `Arc<dyn NyashBox>`.
 
 ```text
 goal:
   keep external u64 handle ABI stable
   replace/classify backing Arc table responsibilities
   preserve borrowed access APIs
+```
+
+Slices:
+
+```text
+ARC-RETIRE-004A:
+  to_object_handle(raw_u64) / to_raw_handle(ObjectHandle)
+  external_host_abi_changed=0
+
+ARC-RETIRE-004B:
+  identity(raw_u64) -> BoxIdentity::legacy(ObjectHandle)
+  host_handle_identity_generation=legacy_unversioned
+
+ARC-RETIRE-004C:
+  with_object_handle(ObjectHandle, ...)
+  with_object_handle_ready(ObjectHandle, ...)
+  borrowed_access_preserved=1
+
+ARC-RETIRE-004D:
+  descriptor(raw_u64) -> ObjectIdentityDescriptor
+  identity_snapshot() -> Vec<ObjectIdentityDescriptor>
+  identity_snapshot_available=1
+
+ARC-RETIRE-004E:
+  host_handle_identity_report_fields()
+  object_handle_contract_used_by_host_handles=1
+  host_handle_backing_arc_replaced=0
+```
+
+Acceptance:
+
+```text
+external_host_abi_changed=0
+object_handle_contract_used_by_host_handles=1
+host_handle_identity_generation=legacy_unversioned
+borrowed_access_preserved=1
+identity_snapshot_available=1
+host_handle_backing_arc_replaced=0
+arc_hot_path_retirement_started=0
 ```
 
 Non-goals:

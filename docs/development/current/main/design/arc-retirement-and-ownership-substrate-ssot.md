@@ -396,9 +396,29 @@ public ABI can remain `u64`.
 
 ```text
 external_host_abi_changed=0
-host_handle_backing_arc_count_reduced_or_classified=1
+object_handle_contract_used_by_host_handles=1
+host_handle_identity_generation=legacy_unversioned
 borrowed_access_preserved=1
+identity_snapshot_available=1
+host_handle_backing_arc_replaced=0
+arc_hot_path_retirement_started=0
 ```
+
+Implemented API surface:
+
+```text
+to_object_handle(raw_u64)
+to_raw_handle(ObjectHandle)
+identity(raw_u64)
+descriptor(raw_u64)
+with_object_handle(ObjectHandle, ...)
+with_object_handle_ready(ObjectHandle, ...)
+identity_snapshot()
+host_handle_identity_report_fields()
+```
+
+This is a seam, not Arc retirement. Current host handles still store
+`Arc<dyn NyashBox>`.
 
 ### ARC-RETIRE-005: Box object model replacement map
 
@@ -454,6 +474,11 @@ box_object_model_replacement_required=1
 typeabi_identity_truth_count=0
 box_callable_dispatch_truth_count
 object_handle_contract_defined=0|1
+object_handle_contract_used_by_host_handles=0|1
+host_handle_identity_generation=legacy_unversioned|versioned
+borrowed_access_preserved=0|1
+identity_snapshot_available=0|1
+host_handle_backing_arc_replaced=0|1
 plugin_lifecycle_owner_defined=0|1
 arc_hot_path_retirement_started=0|1
 summary=ok|fail

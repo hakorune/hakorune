@@ -21,6 +21,10 @@ use std::sync::{
 };
 
 use super::host_handles_policy;
+use super::object_identity::{
+    BoxIdentity, FiniOwner, ObjectHandle, ObjectIdentityDescriptor, ObjectIdentityKind,
+    RootVisibility,
+};
 use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
@@ -34,7 +38,8 @@ struct LatestFreshStableBox {
 }
 
 thread_local! {
-    static LATEST_FRESH_STABLE_BOX: RefCell<Option<LatestFreshStableBox>> = const { RefCell::new(None) };
+    static LATEST_FRESH_STABLE_BOX: RefCell<Option<LatestFreshStableBox>> =
+        const { RefCell::new(None) };
 }
 
 enum HandlePayload {
@@ -57,6 +62,30 @@ impl HandlePayload {
     #[inline(always)]
     fn as_str_fast(&self) -> Option<&str> {
         self.stable_box_ref().as_ref().as_str_fast()
+    }
+
+    #[inline(always)]
+    fn identity_descriptor(&self, identity: BoxIdentity) -> ObjectIdentityDescriptor {
+        ObjectIdentityDescriptor::new(
+            identity,
+            classify_object_identity_kind(self.stable_box_ref().as_ref()),
+            RootVisibility::StrongRoot,
+            FiniOwner::ObjectDrop,
+        )
+    }
+}
+
+#[inline(always)]
+fn legacy_identity_for_raw_handle(handle: u64) -> Option<BoxIdentity> {
+    ObjectHandle::new(handle).map(BoxIdentity::legacy)
+}
+
+#[inline(always)]
+fn classify_object_identity_kind(obj: &dyn NyashBox) -> ObjectIdentityKind {
+    match obj.type_name() {
+        "PluginBoxV2" => ObjectIdentityKind::Plugin,
+        name if crate::box_trait::is_builtin_box(name) => ObjectIdentityKind::Builtin,
+        _ => ObjectIdentityKind::Unknown,
     }
 }
 
@@ -198,6 +227,29 @@ impl Registry {
         f(obj)
     }
     #[inline(always)]
+    fn identity(&self, h: u64) -> Option<BoxIdentity> {
+        let table = self.table.read();
+        slot_ref(&table, h)?;
+        legacy_identity_for_raw_handle(h)
+    }
+
+    #[inline(always)]
+    fn descriptor(&self, h: u64) -> Option<ObjectIdentityDescriptor> {
+        let table = self.table.read();
+        let payload = slot_ref(&table, h)?;
+        let identity = legacy_identity_for_raw_handle(h)?;
+        Some(payload.identity_descriptor(identity))
+    }
+
+    #[inline(always)]
+    fn with_object_handle<R>(
+        &self,
+        handle: ObjectHandle,
+        f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
+    ) -> R {
+        self.with_handle(handle.raw(), f)
+    }
+    #[inline(always)]
     fn get_pair(&self, a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
         let table = self.table.read();
         let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
@@ -303,6 +355,20 @@ impl Registry {
             .collect()
     }
     #[inline(always)]
+    fn identity_snapshot(&self) -> Vec<ObjectIdentityDescriptor> {
+        let table = self.table.read();
+        table
+            .slots
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, slot)| {
+                let payload = slot.as_ref()?;
+                let identity = legacy_identity_for_raw_handle(idx as u64)?;
+                Some(payload.identity_descriptor(identity))
+            })
+            .collect()
+    }
+    #[inline(always)]
     fn drop_handle(&self, h: u64) {
         let mut table = self.table.write();
         let removed = if let Ok(idx) = usize::try_from(h) {
@@ -353,6 +419,20 @@ pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
     handle
 }
 
+/// Convert a raw host handle to the future object-handle contract type.
+/// This does not validate liveness; use `identity()` when a live table entry is
+/// required.
+#[inline(always)]
+pub fn to_object_handle(h: u64) -> Option<ObjectHandle> {
+    ObjectHandle::new(h)
+}
+
+/// Convert an object handle back to the current public host-handle ABI.
+#[inline(always)]
+pub fn to_raw_handle(handle: ObjectHandle) -> u64 {
+    handle.raw()
+}
+
 #[inline(always)]
 pub fn perf_observe_mark_latest_fresh_handle(h: u64) {
     perf_observe::mark_latest_fresh_handle(h);
@@ -380,6 +460,31 @@ pub fn with_handle<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -
     reg().with_handle(h, f)
 }
 
+/// Return the generation-aware identity for a live host handle.
+///
+/// Current host handles are legacy-unversioned, so the generation is `0` until
+/// a later ownership substrate adds slot generations.
+#[inline(always)]
+pub fn identity(h: u64) -> Option<BoxIdentity> {
+    reg().identity(h)
+}
+
+/// Return a read-only identity descriptor for a live host handle.
+#[inline(always)]
+pub fn descriptor(h: u64) -> Option<ObjectIdentityDescriptor> {
+    reg().descriptor(h)
+}
+
+/// Borrow an object handle under one registry read lock and run `f`.
+/// This mirrors `with_handle` while forcing callers onto the ObjectHandle seam.
+#[inline(always)]
+pub fn with_object_handle<R>(
+    handle: ObjectHandle,
+    f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
+) -> R {
+    reg().with_object_handle(handle, f)
+}
+
 /// Borrow handle only when the registry is already initialized.
 /// This avoids the OnceCell `get_or_init` path on hot routes that are known to
 /// run after the registry has been touched.
@@ -387,6 +492,16 @@ pub fn with_handle<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -
 pub fn with_handle_ready<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> Option<R> {
     let reg = REG.get()?;
     Some(reg.with_handle(h, f))
+}
+
+/// Borrow an object handle only when the registry is already initialized.
+#[inline(always)]
+pub fn with_object_handle_ready<R>(
+    handle: ObjectHandle,
+    f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
+) -> Option<R> {
+    let reg = REG.get()?;
+    Some(reg.with_object_handle(handle, f))
 }
 
 #[inline(always)]
@@ -517,6 +632,14 @@ pub fn snapshot() -> Vec<Arc<dyn NyashBox>> {
     reg().snapshot()
 }
 
+/// Snapshot current handle identities for diagnostics and future root reports.
+/// This does not replace the existing GC/root snapshot, which still returns
+/// `Arc<dyn NyashBox>` roots.
+#[inline(always)]
+pub fn identity_snapshot() -> Vec<ObjectIdentityDescriptor> {
+    reg().identity_snapshot()
+}
+
 /// Drop a handle from the registry, decrementing its reference count
 #[inline(always)]
 pub fn drop_handle(h: u64) {
@@ -530,10 +653,24 @@ pub fn drop_epoch() -> u64 {
     DROP_EPOCH.load(Ordering::Relaxed)
 }
 
+/// Stable report fields for ARC-RETIRE-004 host-handle identity seam.
+pub fn host_handle_identity_report_fields() -> &'static [(&'static str, &'static str)] {
+    &[
+        ("external_host_abi_changed", "0"),
+        ("object_handle_contract_used_by_host_handles", "1"),
+        ("host_handle_identity_generation", "legacy_unversioned"),
+        ("borrowed_access_preserved", "1"),
+        ("identity_snapshot_available", "1"),
+        ("host_handle_backing_arc_replaced", "0"),
+        ("arc_hot_path_retirement_started", "0"),
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::box_trait::IntegerBox;
+    use crate::runtime::object_identity::ObjectGeneration;
     use std::sync::Mutex;
 
     static HOST_HANDLE_POLICY_ENV_LOCK: Mutex<()> = Mutex::new(());
@@ -548,6 +685,13 @@ mod tests {
         } else {
             std::env::remove_var("NYASH_HOST_HANDLE_ALLOC_POLICY");
         }
+    }
+
+    fn with_global_host_handles<F: FnOnce()>(f: F) {
+        let _guard = HOST_HANDLE_POLICY_ENV_LOCK
+            .lock()
+            .expect("host handle lock");
+        f();
     }
 
     fn int_box(value: i64) -> Arc<dyn NyashBox> {
@@ -579,21 +723,111 @@ mod tests {
 
     #[test]
     fn latest_fresh_stable_box_returns_current_object() {
-        let handle = to_handle_arc(int_box(41));
-        let got = with_latest_fresh_stable_box(handle, |obj| {
-            obj.as_any()
-                .downcast_ref::<IntegerBox>()
-                .expect("integer latest fresh object")
-                .value
+        with_global_host_handles(|| {
+            let handle = to_handle_arc(int_box(41));
+            let got = with_latest_fresh_stable_box(handle, |obj| {
+                obj.as_any()
+                    .downcast_ref::<IntegerBox>()
+                    .expect("integer latest fresh object")
+                    .value
+            });
+            assert_eq!(got, Some(41));
+            drop_handle(handle);
         });
-        assert_eq!(got, Some(41));
     }
 
     #[test]
     fn latest_fresh_stable_box_invalidates_after_drop_epoch_changes() {
-        let handle = to_handle_arc(int_box(52));
-        assert!(with_latest_fresh_stable_box(handle, |_| ()).is_some());
-        drop_handle(handle);
-        assert!(with_latest_fresh_stable_box(handle, |_| ()).is_none());
+        with_global_host_handles(|| {
+            let handle = to_handle_arc(int_box(52));
+            assert!(with_latest_fresh_stable_box(handle, |_| ()).is_some());
+            drop_handle(handle);
+            assert!(with_latest_fresh_stable_box(handle, |_| ()).is_none());
+        });
+    }
+
+    #[test]
+    fn object_handle_projection_preserves_raw_host_abi() {
+        with_global_host_handles(|| {
+            let raw = to_handle_arc(int_box(63));
+            let handle = to_object_handle(raw).expect("non-zero object handle");
+
+            assert_eq!(to_raw_handle(handle), raw);
+            assert_eq!(ObjectHandle::new(0), None);
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
+    fn live_host_handle_identity_is_legacy_generation() {
+        with_global_host_handles(|| {
+            let raw = to_handle_arc(int_box(74));
+            let box_identity = identity(raw).expect("live host handle identity");
+
+            assert_eq!(box_identity.handle().raw(), raw);
+            assert_eq!(
+                box_identity.generation(),
+                ObjectGeneration::LEGACY_UNVERSIONED
+            );
+
+            drop_handle(raw);
+            assert_eq!(identity(raw), None);
+        });
+    }
+
+    #[test]
+    fn with_object_handle_borrows_without_arc_clone_api() {
+        with_global_host_handles(|| {
+            let raw = to_handle_arc(int_box(85));
+            let handle = to_object_handle(raw).expect("object handle");
+
+            let got = with_object_handle(handle, |obj| {
+                obj.and_then(|obj| obj.as_i64_fast())
+                    .expect("integer value")
+            });
+            assert_eq!(got, 85);
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
+    fn identity_descriptor_reports_current_strong_root() {
+        with_global_host_handles(|| {
+            let raw = to_handle_arc(int_box(96));
+            let descriptor = descriptor(raw).expect("identity descriptor");
+
+            assert_eq!(descriptor.identity.handle().raw(), raw);
+            assert_eq!(descriptor.root_visibility, RootVisibility::StrongRoot);
+            assert_eq!(descriptor.fini_owner, FiniOwner::ObjectDrop);
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
+    fn identity_snapshot_includes_live_handle() {
+        with_global_host_handles(|| {
+            let raw = to_handle_arc(int_box(107));
+            let handle = to_object_handle(raw).expect("object handle");
+            let snapshot = identity_snapshot();
+
+            assert!(snapshot
+                .iter()
+                .any(|entry| entry.identity.handle() == handle));
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
+    fn host_handle_identity_report_fields_are_explicit() {
+        let fields = host_handle_identity_report_fields();
+
+        assert!(fields.contains(&("external_host_abi_changed", "0")));
+        assert!(fields.contains(&("object_handle_contract_used_by_host_handles", "1")));
+        assert!(fields.contains(&("borrowed_access_preserved", "1")));
+        assert!(fields.contains(&("host_handle_backing_arc_replaced", "0")));
     }
 }

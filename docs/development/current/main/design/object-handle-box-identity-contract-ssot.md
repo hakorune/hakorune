@@ -173,5 +173,8 @@ host handle table internals.
 ```text
 external_host_abi_changed=0
 borrowed_access_preserved=1
-object_handle_contract_used_by_host_handles=planned
+object_handle_contract_used_by_host_handles=1
+host_handle_identity_generation=legacy_unversioned
+identity_snapshot_available=1
+host_handle_backing_arc_replaced=0
 ```
