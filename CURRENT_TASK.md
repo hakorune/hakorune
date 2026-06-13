@@ -13,12 +13,12 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
-4. `docs/development/current/main/design/array-text-session-route-ssot.md`
-5. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-6. `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
-7. `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
+2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
+3. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
+4. `docs/development/current/main/design/box-callable-registry-ssot.md`
+5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
+6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 8. `docs/development/current/main/05-Restart-Quick-Resume.md`
 9. `docs/development/current/main/10-Now.md`
 10. `git status -sb`
@@ -37,10 +37,18 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- current work is the next non-folded exact-front selection lane named by
-  `CURRENT_STATE.toml`; `kilo_micro_userbox_flag_toggle` landed as the
-  inline-bool scalar lowering keeper, and
-  `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
+- current work is the compiler foundation lane named by `CURRENT_STATE.toml`;
+  exact-front optimization is paused until this lane reaches a closeout or an
+  explicit pause point
+- first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
+  BoxCallableRegistry is callable truth, TypeAbiCatalog and BoxDescriptor are
+  read-only projection/tooling surfaces
+- second foundation owner is CorePlan / JoinIR expressivity: select one family
+  before implementation, and do not mix BoxCount acceptance expansion with
+  BoxShape cleanup
+- optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
+  `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
+  and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row
 - adjacent array-text session route design is documented, and the selected-route session boundary is now landing
@@ -79,8 +87,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
-4. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-5. `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
-6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
+3. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
+4. `docs/development/current/main/design/box-callable-registry-ssot.md`
+5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
+6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

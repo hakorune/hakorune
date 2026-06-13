@@ -13,12 +13,12 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-- typed-object exact slot ABI SSOT: `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
-- adjacent array-text session route SSOT: `docs/development/current/main/design/array-text-session-route-ssot.md`
-- inspect scope dump SSOT: `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-- substring-concat closed-form lowering SSOT: `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
-- comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
+- compiler foundation taskboard: `docs/development/current/main/workstreams/compiler-foundation-current.md`
+- active selection card: `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
+- BoxCallable registry SSOT: `docs/development/current/main/design/box-callable-registry-ssot.md`
+- TypeAbiCatalog planning spine SSOT: `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
+- CorePlan migration roadmap SSOT: `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+- compiler expressivity policy: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
@@ -32,19 +32,16 @@ Related:
   `latest_card_path` in `CURRENT_STATE.toml`
 - current day-to-day tasks live in `latest_workstream_card` from
   `CURRENT_STATE.toml`
-- if string hot-path work resumes, use the array-text session route SSOT
-  instead of extending `nyash.array.string_indexof_hisi` as the semantic owner
-  and continue through the selected-route cache-backed session boundary slice
-- if MIR / LLVM IR / assembly slices are needed, use the inspect scope dump
-  SSOT: source anchors are selectors, while dumps are `hako_check` artifacts
-  with explicit mapping quality
-- if `kilo_micro_substring_concat` resumes, continue as lowering/codegen
-  residual work: consume the existing StableLengthScalar route and emit
-  closed-form scalar IR instead of adding source or MIRBuilder witnesses
-- use the inventory note first when pointer hunting is noisy
+- next BoxCallable task is reconciliation/proof, not first implementation:
+  reconcile older TypeAbiBoxDomain rows with landed BoxCallable rows and name
+  narrow proof commands
+- next CorePlan task is selection only: choose one B1/C1/D1/E1 family before
+  implementation
+- exact-front optimization is paused; resume later through
+  `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
-- further optimization must use the active method anchor from
-  `CURRENT_STATE.toml` instead of stale historical lane notes
+- use the active method anchor from `CURRENT_STATE.toml` instead of stale
+  historical lane notes
 
 ## Rules
 
@@ -55,11 +52,11 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-3. `docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md`
-4. `docs/development/current/main/design/array-text-session-route-ssot.md`
-5. `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`
-6. `docs/development/current/main/design/substring-concat-len-closed-form-lowering-ssot.md`
+2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
+3. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
+4. `docs/development/current/main/design/box-callable-registry-ssot.md`
+5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
+6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle

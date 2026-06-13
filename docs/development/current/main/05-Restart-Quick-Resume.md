@@ -28,9 +28,8 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
+- compiler foundation taskboard: `docs/development/current/main/workstreams/compiler-foundation-current.md`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
-- comparison note: `docs/development/current/main/investigations/hako-vs-c-mimalloc-direct-exact-comparison-2026-06-09.md`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
@@ -42,4 +41,5 @@ cargo check -q
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
-- use the inventory note when pointer hunting gets noisy
+- exact-front optimization is paused while the compiler foundation lane is
+  active; resume only through the return lane named by the active taskboard

@@ -32,6 +32,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - active multi-day work cards
   - inventory / selection / smoke / parking-lot notes live here instead of
     becoming one numbered row per observation
+  - `workstreams/compiler-foundation-current.md`
+    - active compiler foundation taskboard when exact-front optimization is
+      paused for BoxCallable / TypeAbiCatalog / CorePlan foundation work
 - `05-Restart-Quick-Resume.md`
   - fastest reboot path only
 - `design/kernel-implementation-phase-plan-ssot.md`
@@ -116,9 +119,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     downcast surfaces, plugin lifecycle ownership, and `VMValue::BoxRef`
     carrier migration planning before any family Arc retirement gate
 - `design/arc-retirement-family-gate-and-first-family-ssot.md`
-  - ARC-RETIRE-006..016 contract owner for family retirement gates, first
+  - ARC-RETIRE-006..018 contract owner for family retirement gates, first
     candidate selection, refcount storage prototype, atomic retain/release
-    vocabulary, and the first host-handle text payload carrier cutover
+    vocabulary, first host-handle text payload carrier cutover, and first text
+    producer cutover
 - `design/mimalloc-replacement-front-fidelity-ssot.md`
   - mimalloc fidelity guard for replacement-front execution shape; prevents
     accepting a fast but non-mimalloc-shaped allocator route as keeper
