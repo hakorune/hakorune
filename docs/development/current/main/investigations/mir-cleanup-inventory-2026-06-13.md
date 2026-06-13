@@ -855,6 +855,43 @@ no production behavior change
 callsite canonicalization tests stay green
 ```
 
+### MIR-CLEAN-015
+
+Collapse one more pure re-export thin `mod.rs`.
+
+Status: landed 2026-06-13.
+
+Candidate selected:
+
+```text
+src/mir/builder/ssa/mod.rs
+  -> src/mir/builder/ssa.rs
+```
+
+Reason:
+
+```text
+pure module declaration file
+module path remains crate::mir::builder::ssa::{local, phi_input_contract}
+no layer boundary documentation in the mod.rs itself
+```
+
+Verification:
+
+```bash
+cargo check --release --lib
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+one thin mod.rs collapsed
+no production behavior change
+ssa module paths stay stable
+no additional thin mod.rs files collapsed in the same pilot
+```
+
 ## Non-Goals
 
 ```text
@@ -871,9 +908,9 @@ do not move active perf lanes into cleanup cards
 Proceed with the next low-risk BoxShape cleanup in this order:
 
 ```text
-1. MIR-CLEAN-015: classify and collapse one more pure re-export thin mod.rs
-2. MIR-CLEAN-016: prepare JoinIR merge ownership docs before any deep path flatten
-3. MIR-CLEAN-017: split another production-adjacent large test file
+1. MIR-CLEAN-016: prepare JoinIR merge ownership docs before any deep path flatten
+2. MIR-CLEAN-017: split another production-adjacent large test file
+3. MIR-CLEAN-018: collapse another pure re-export thin mod.rs only after classification
 ```
 
 Do not start another deep flatten pilot until the next owner seam is documented.
