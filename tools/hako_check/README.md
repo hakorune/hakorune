@@ -26,6 +26,7 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_alloc_owner_check_smoke.sh`
 - `bash tools/hako_check/fastmem_alloc_owner_shadow_counter_smoke.sh`
 - `bash tools/hako_check.sh --help`
+- `bash tools/hako_check.sh boxcall-contract`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 
@@ -177,6 +178,37 @@ summary=ok
 - Stop line: this surface never rewrites source, changes MIR, activates a
   provider, replaces the process allocator, installs hooks, or makes benchmark
   winner claims.
+
+BoxCallable / TypeAbiCatalog Contract
+- `hako_check boxcall-contract` is a read-only contract surface for the
+  BoxCallable registry, TypeAbiCatalog projection, and plugin invoke boundary
+  cleanup.
+- It does not inspect source, infer routes, select keepers, activate providers,
+  or rewrite MIR. It only emits the stable boundary vocabulary fixed by:
+  `docs/development/current/main/design/box-callable-registry-ssot.md`
+  and
+  `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`.
+- Stable entry:
+
+```bash
+bash tools/hako_check.sh boxcall-contract
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-boxcall-contract-v0
+tool_surface=hako_check_boxcall_contract
+observation_only=1
+rewrite_executed=0
+box_callable_registry_enabled=1
+duplicate_callable_truth_count=0
+plugin_loader_registry_snapshot_entrypoint_count=1
+runtime_invoke_boundary_module_count=1
+type_abi_catalog_is_truth=0
+type_abi_refresh_truth_trait_enabled=0
+summary=ok
+```
 
 Replacement Front Report
 - `hako_check replacement-front-report` is an observation-only adapter for

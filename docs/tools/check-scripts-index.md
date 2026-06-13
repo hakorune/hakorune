@@ -187,6 +187,8 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/hako_check/fastpath_explain.sh` | hako_check FastPath explain developer wrapper。`.hako` app から一時 MIR JSON を作って read-only adapter に渡す薄い入口。compiler build / benchmark / keeper selection / source rewrite はしない。 |
 | `tools/hako_check.sh inspect` | hako_check root wrapper の inspect scope/route/mark/diff subcommand。source span / comment anchor / route metadata を read-only bundle にする入口。MIR/report/LLVM/asm は実装済みで、mapping quality 付きの inspect bundle を出す。 |
 | `tools/hako_check/inspect_scope_dump.py` | hako_check inspect adapter。scope/route/mark/diff bundle を生成し、source slice・manifest・report.kv・diff.json を出す read-only surface。 |
+| `tools/hako_check.sh boxcall-contract` | hako_check root wrapper の BoxCallable / TypeAbiCatalog contract subcommand。registry snapshot / invoke boundary / Type ABI projection の read-only vocabulary を出す。 |
+| `tools/hako_check/boxcall_contract.py` | hako_check BoxCallable contract tool。BOXCALL-001..010 と TypeAbiCatalog cleanup の stable report vocabulary を observation-only で出す。 |
 | `tools/hako_check/llvm_pipeline_inventory_smoke.sh` | hako_check LLVM pipeline inventory smoke。LLVM runner の env future rewrite / method-id seam / JoinIR experiment / PyVM-harness-mock fallback visibility を静的 report として固定し、実行や rewrite を開かないことを検証する。 |
 | `tools/smokes/v2/profiles/integration/llvm/llvm_pipeline_runtime_report.sh` | LLVM pipeline runtime report smoke。`NYASH_LLVM_PIPELINE_REPORT_OUT` 指定時だけ runner が pipeline/executor kv report を出し、mock fallback 実行を可視化することを固定する。 |
 | `tools/hako_check/fastmem_capability_inventory_smoke.sh` | hako_check FastMemory capability inventory smoke。benchmark report fixture から observation-only fastmem inventory fields を固定する。 |
