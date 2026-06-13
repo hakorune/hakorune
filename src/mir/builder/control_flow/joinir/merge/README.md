@@ -21,6 +21,60 @@ Fail-Fast の基本:
 
 ---
 
+## Cleanup Ownership Boundary
+
+MIR cleanup may reduce path depth here, but only after the owner seam is clear.
+
+Current owner groups:
+
+```text
+coordinator/:
+  phase orchestration for merge_into_host
+  may call remap / rewrite / phi / exit-line helpers
+  must not absorb helper-specific contracts
+
+rewriter/:
+  JoinIR block rewrite pipeline
+  Plan stage is pure transformation
+  Apply stage is the only builder-mutation stage
+  must not own contract checks
+
+contract_checks/:
+  fail-fast validation surface
+  must not select routes or mutate builder
+
+exit_line/:
+  ExitLine reconnection and exit metadata routing
+  must not rewrite ordinary JoinIR instructions
+
+top-level helpers:
+  remappers, collectors, PHI builders, carrier initialization, and debug checks
+  may be grouped only when a single semantic family is selected
+```
+
+Deep path cleanup rule:
+
+```text
+do:
+  document one owner family first
+  move one semantic subtree per cleanup card
+  keep old module paths as compatibility facades until consumers migrate
+  run the smallest JoinIR merge test that exercises the moved subtree
+
+do not:
+  flatten rewriter/stages/plan mechanically
+  merge Plan and Apply responsibilities
+  move contract checks into rewriter
+  move ExitLine reconnection into generic instruction rewriting
+  change accepted JoinIR/MIR shapes
+```
+
+Next eligible cleanup is docs/test-only unless a separate card selects a single
+semantic family such as terminator rewrite, ExitLine reconnection, or PHI
+builder ownership.
+
+---
+
 ## JoinIR Merge Contracts (SSOT)
 
 ### Phase 132-R0: Continuation Contract

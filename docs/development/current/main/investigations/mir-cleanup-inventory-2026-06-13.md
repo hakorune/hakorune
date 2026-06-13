@@ -892,6 +892,47 @@ ssa module paths stay stable
 no additional thin mod.rs files collapsed in the same pilot
 ```
 
+### MIR-CLEAN-016
+
+Prepare JoinIR merge ownership docs before any deep path flatten.
+
+Status: landed 2026-06-13.
+
+Target:
+
+```text
+src/mir/builder/control_flow/joinir/merge/README.md
+```
+
+Decision:
+
+```text
+Do not flatten joinir/merge/rewriter/stages/plan mechanically.
+JoinIR merge cleanup must first name the owner family:
+  coordinator
+  rewriter Plan/Apply
+  contract checks
+  exit-line reconnection
+  PHI builders
+  remappers / collectors / carrier initialization
+```
+
+Verification:
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Acceptance:
+
+```text
+JoinIR merge cleanup boundary documented
+Plan vs Apply boundary preserved
+contract checks stay out of rewriter
+no file movement
+no accepted JoinIR/MIR shape added
+```
+
 ## Non-Goals
 
 ```text
@@ -908,9 +949,9 @@ do not move active perf lanes into cleanup cards
 Proceed with the next low-risk BoxShape cleanup in this order:
 
 ```text
-1. MIR-CLEAN-016: prepare JoinIR merge ownership docs before any deep path flatten
-2. MIR-CLEAN-017: split another production-adjacent large test file
-3. MIR-CLEAN-018: collapse another pure re-export thin mod.rs only after classification
+1. MIR-CLEAN-017: split another production-adjacent large test file
+2. MIR-CLEAN-018: collapse another pure re-export thin mod.rs only after classification
+3. MIR-CLEAN-019: select one JoinIR merge semantic family before any deep flatten
 ```
 
 Do not start another deep flatten pilot until the next owner seam is documented.
