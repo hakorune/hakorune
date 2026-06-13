@@ -26,4 +26,5 @@ fn method_call(
 mod collection_builders;
 mod mir_json_fields;
 mod runtime_data_string;
+#[path = "string_methods/mod.rs"]
 mod string_methods;

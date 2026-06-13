@@ -933,6 +933,87 @@ no file movement
 no accepted JoinIR/MIR shape added
 ```
 
+### MIR-CLEAN-017
+
+Split another production-adjacent large test file.
+
+Status: landed 2026-06-13.
+
+Target:
+
+```text
+src/mir/global_call_route_plan/tests/runtime_methods/string_methods.rs
+```
+
+Landed split:
+
+```text
+src/mir/global_call_route_plan/tests/runtime_methods/string_methods/mod.rs
+src/mir/global_call_route_plan/tests/runtime_methods/string_methods/metadata.rs
+src/mir/global_call_route_plan/tests/runtime_methods/string_methods/routes.rs
+```
+
+Decision:
+
+```text
+Group string-method semantic checks by responsibility:
+  metadata refresh tests
+  global route inference tests
+Keep common imports in string_methods/mod.rs.
+```
+
+Verification:
+
+```bash
+cargo test --release --lib global_call_route_plan::tests::runtime_methods -- --nocapture
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+test module split only
+no production behavior change
+runtime_methods string tests stay green
+```
+
+### MIR-CLEAN-018
+
+Collapse one more pure re-export thin `mod.rs`.
+
+Status: landed 2026-06-13.
+
+Candidate selected:
+
+```text
+src/mir/lowerers/mod.rs
+  -> src/mir/lowerers.rs
+```
+
+Reason:
+
+```text
+single-child module declaration
+public module path remains crate::mir::lowerers::loops
+no layer boundary documentation in the mod.rs itself
+```
+
+Verification:
+
+```bash
+cargo check --release --lib
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+one thin mod.rs collapsed
+no production behavior change
+lowerers module path stays stable
+no additional thin mod.rs files collapsed in the same pilot
+```
+
 ## Non-Goals
 
 ```text
@@ -949,9 +1030,9 @@ do not move active perf lanes into cleanup cards
 Proceed with the next low-risk BoxShape cleanup in this order:
 
 ```text
-1. MIR-CLEAN-017: split another production-adjacent large test file
-2. MIR-CLEAN-018: collapse another pure re-export thin mod.rs only after classification
-3. MIR-CLEAN-019: select one JoinIR merge semantic family before any deep flatten
+1. MIR-CLEAN-019: select one JoinIR merge semantic family before any deep flatten
+2. MIR-CLEAN-020: split another production-adjacent large test file
+3. MIR-CLEAN-021: collapse another pure re-export thin mod.rs only after classification
 ```
 
 Do not start another deep flatten pilot until the next owner seam is documented.
