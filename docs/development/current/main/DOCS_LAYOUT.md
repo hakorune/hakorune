@@ -79,6 +79,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/joinir-target-lowerer-thinning-ssot.md`
   - JoinIR target-specific lowerer thinning order; keeps shared seams,
     LowerOnly observation, and route-specific behavior separated
+- `design/loop-update-analyzer-thinning-ssot.md`
+  - BoxShape-only cleanup order for JoinIR carrier-update observation; keeps
+    accepted update shapes unchanged while tests/helpers are split
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
