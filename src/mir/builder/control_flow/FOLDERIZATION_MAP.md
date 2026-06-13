@@ -60,6 +60,15 @@ Selected deep flatten pilot:
 generic_loop step placement
 ```
 
+Pilot status:
+
+```text
+landed 2026-06-13
+new owner: src/mir/builder/control_flow/step_placement/
+old facts path: facts/canon/generic_loop/step/placement remains facade
+old plan path: plan/canon/generic_loop/step/placement remains facade
+```
+
 Pilot rule:
 
 ```text

@@ -429,10 +429,35 @@ forbidden cross-layer dependencies listed
 
 Deep path flatten pilot.
 
+Status: landed 2026-06-13.
+
 Candidate:
 
 ```text
 generic_loop step placement
+```
+
+Landed owner:
+
+```text
+src/mir/builder/control_flow/step_placement/
+  README.md
+  facts.rs
+  plan.rs
+```
+
+Compatibility facades:
+
+```text
+src/mir/builder/control_flow/facts/canon/generic_loop/step/placement/matcher.rs
+src/mir/builder/control_flow/plan/canon/generic_loop/step/placement/decision.rs
+```
+
+Verification:
+
+```bash
+cargo test --release --lib generic_loop::facts::extract -- --nocapture
+cargo fmt --check
 ```
 
 Acceptance:

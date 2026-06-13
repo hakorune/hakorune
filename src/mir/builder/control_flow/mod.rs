@@ -71,6 +71,9 @@ pub(in crate::mir::builder) mod lower;
 // Phase 29ca P1: top-level cleanup/policy owner surface (folderization first cut)
 pub(in crate::mir::builder) mod cleanup;
 
+// MIR-CLEAN-005: generic-loop step placement owner surface.
+pub(in crate::mir::builder) mod step_placement;
+
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 
