@@ -9,19 +9,25 @@ status = "Active"
 date = "2026-06-13"
 
 active_lane = "MIMALLOC-USERBOX-COUNTER-HEAVY-001 exact-front optimization"
-active_lane_status = "296x-657 refreshed kilo_micro_userbox_counter_step_chain source/MIR/perf evidence after fixing the nyash_kernel release-build seam; next work inspects the selected AOT route for Counter.step_chain/0 and Counter.step/0."
+active_lane_status = """296x-658 reclassifies
+kilo_micro_userbox_counter_step_chain from a Counter.step_chain
+dispatch/boxing owner into a startup/entry floor sentinel: AOT ny_main and the
+C comparison both constant-fold the kernel, lane counters are startup
+dominated, and the next step is to select either a startup/entry floor row or a
+new non-folded exact kernel front."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-657-MIMALLOC-USERBOX-COUNTER-HEAVY-001-BASELINE-REFRESH.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-658-MIMALLOC-USERBOX-COUNTER-HEAVY-001A-OWNER-RECLASSIFICATION.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-657-MIMALLOC-USERBOX-COUNTER-HEAVY-001-BASELINE-REFRESH"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-657-MIMALLOC-USERBOX-COUNTER-HEAVY-001-BASELINE-REFRESH.md"
-latest_card_summary = """296x-657 refreshes the selected
-kilo_micro_userbox_counter_step_chain source/MIR/perf baseline, records the
-nyash_kernel release-build seam fix, and keeps provider activation,
-replacement, hooks, global allocator claims, and winner claims closed."""
+latest_card = "296x-658-MIMALLOC-USERBOX-COUNTER-HEAVY-001A-OWNER-RECLASSIFICATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-658-MIMALLOC-USERBOX-COUNTER-HEAVY-001A-OWNER-RECLASSIFICATION.md"
+latest_card_summary = """296x-658 supersedes the 296x-657
+step_chain dispatch/boxing owner hypothesis: AOT ny_main is a constant return,
+the C comparison folds the loop too, lane counters are startup dominated, and
+the next row must choose either startup/entry floor work or a new non-folded
+exact kernel front."""
 current_blocker_token = "HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

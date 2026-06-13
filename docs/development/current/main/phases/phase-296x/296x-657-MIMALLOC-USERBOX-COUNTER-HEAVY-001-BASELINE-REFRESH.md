@@ -136,6 +136,16 @@ ipc_shape=similar
 current_owner=step_chain_call_dispatch_and_boxing_cost
 ```
 
+Superseded by:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-658-MIMALLOC-USERBOX-COUNTER-HEAVY-001A-OWNER-RECLASSIFICATION.md
+```
+
+The `current_owner` line above was the pre-assembly hypothesis for this
+baseline row. 296x-658 reclassifies `counter_step_chain` as a startup/entry
+floor sentinel after direct AOT/C assembly and lane counter inspection.
+
 ## Next
 
 ```text
