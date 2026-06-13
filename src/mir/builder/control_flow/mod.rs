@@ -74,6 +74,9 @@ pub(in crate::mir::builder) mod cleanup;
 // MIR-CLEAN-005: generic-loop step placement owner surface.
 pub(in crate::mir::builder) mod step_placement;
 
+// MIR-CLEAN-006: generic-loop update canon owner surface.
+pub(in crate::mir::builder) mod generic_loop_update_canon;
+
 // Phase 273 P0: Plan Extractor (Pure) + PlanLowerer SSOT
 pub(in crate::mir::builder) mod plan;
 

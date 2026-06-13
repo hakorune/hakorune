@@ -469,6 +469,50 @@ no acceptance shape added
 targeted planner/facts tests green
 ```
 
+### MIR-CLEAN-006
+
+Deep path flatten follow-up.
+
+Status: landed 2026-06-13.
+
+Candidate:
+
+```text
+generic_loop update canon
+```
+
+Landed owner:
+
+```text
+src/mir/builder/control_flow/generic_loop_update_canon/
+  README.md
+  literal_match.rs
+  literal_step.rs
+  mod.rs
+```
+
+Compatibility facade:
+
+```text
+src/mir/builder/control_flow/facts/canon/generic_loop/update.rs
+```
+
+Verification:
+
+```bash
+cargo test --release --lib generic_loop::facts::extract -- --nocapture
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+facts-only update canon subtree
+old facts path remains facade-backed
+no acceptance shape added
+targeted generic-loop facts tests green
+```
+
 ## Non-Goals
 
 ```text

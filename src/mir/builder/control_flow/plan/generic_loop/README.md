@@ -31,9 +31,10 @@ Condition split (SSOT, no behavior change):
 - `condition/candidates.rs`: loop_var candidate 観測だけ担当
 - `condition/bound.rs`: BoundExpr 観測だけ担当
 
-Update split (SSOT, no behavior change):
-- `update/literal_match.rs`: update 式の shape match だけ担当
-- `update/literal_step.rs`: `UpdateCanon` の literal step 生成だけ担当
+Update canon split (SSOT, no behavior change):
+- `control_flow/generic_loop_update_canon/literal_match.rs`: update 式の shape match だけ担当
+- `control_flow/generic_loop_update_canon/literal_step.rs`: `UpdateCanon` の literal step 生成だけ担当
+- `facts/canon/generic_loop/update.rs`: compatibility facade only
 
 Type split (SSOT, no behavior change):
 - `canon/generic_loop/types.rs`: Condition/Update/Step の観測型定義

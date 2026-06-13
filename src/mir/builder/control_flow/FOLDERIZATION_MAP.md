@@ -69,6 +69,14 @@ old facts path: facts/canon/generic_loop/step/placement remains facade
 old plan path: plan/canon/generic_loop/step/placement remains facade
 ```
 
+Follow-up pilot:
+
+```text
+landed 2026-06-13
+new owner: src/mir/builder/control_flow/generic_loop_update_canon/
+old facts path: facts/canon/generic_loop/update.rs remains facade
+```
+
 Pilot rule:
 
 ```text
