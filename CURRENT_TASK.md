@@ -37,8 +37,11 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- current work is typed-object exact slot ABI split before further user-box counter-heavy optimization
-- typed-object exact slot report/check vocabulary is landing in the current slice
+- current work is the userbox/counter-heavy exact-front optimization lane named
+  by `CURRENT_STATE.toml`; the selected primary front is
+  `kilo_micro_userbox_counter_step_chain`
+- MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
+  active implementation row
 - adjacent array-text session route design is documented, and the selected-route session boundary is now landing
 - inspect scope dump design is documented: dump is a `hako_check` query, not `.hako` source syntax
 - substring-concat length residual is documented as lowering/codegen work:

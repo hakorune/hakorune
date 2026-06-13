@@ -8,20 +8,21 @@
 status = "Active"
 date = "2026-06-12"
 
-active_lane = "MIM-PORT-FMEM-004 PageMeta MIR-to-LLVM producer evidence"
-active_lane_status = "MIM-PORT-FMEM-004 is implemented and verified; next implementation row is MIM-PORT-FMEM-005 PageMeta owner scalar read."
+active_lane = "MIMALLOC-USERBOX-COUNTER-HEAVY-001 exact-front optimization"
+active_lane_status = "296x-649 selected kilo_micro_userbox_counter_step_chain as the primary userbox/counter-heavy exact front; next work reduces step_chain dispatch/boxing cost with source/MIR/perf evidence fixed."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-491-MIM-PORT-FMEM-004-PAGE-META-MIR-LLVM-PRODUCER-EVIDENCE.md"
-method_anchor = "docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-649-HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION.md"
+method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-491-MIM-PORT-FMEM-004-PAGE-META-MIR-LLVM-PRODUCER-EVIDENCE"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-491-MIM-PORT-FMEM-004-PAGE-META-MIR-LLVM-PRODUCER-EVIDENCE.md"
-latest_card_summary = """296x-491 verifies PageMeta MIR-to-LLVM producer
-evidence by propagating FastMemory LayoutRef carriers through Copy aliases and
-normalizing the layout-table producer profile report/check surface."""
-current_blocker_token = "HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001"
+latest_card = "296x-649-HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-649-HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION.md"
+latest_card_summary = """296x-649 starts the userbox/counter-heavy exact-front
+optimization lane with kilo_micro_userbox_counter_step_chain as the primary
+front and keeps provider activation, allocator replacement, hooks, global
+allocator claims, and winner claims closed."""
+current_blocker_token = "HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -30,24 +31,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",
+  "2026-06-09: 296x-648 selects the direct-exact optimization sweep owner from the Hako vs C mimalloc comparison evidence.",
+  "2026-06-08: 296x-639..647 close the selfhost surface preflight, production allocator API selections, and current docs pointer cleanup before returning to exact-front optimization.",
+  "2026-06-06: MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows: owner_worker_id scalar read and free_head read-only pointer observation.",
   "2026-06-12: MIM-PORT-FMEM-004 PageMeta MIR-to-LLVM producer evidence is verified through LayoutRef Copy propagation, layout-table producer profile evidence, fastmem source syntax, inventory/check/parity smokes, pytest, cargo check, and current-state guard.",
-  "2026-06-12: MIM-PORT-FMEM-003 PageMeta TableIndex proof surface is verified through MIR JSON inventory, source syntax, fastmem check/parity, range/table/access-plan tests, and current-state guard.",
-  "2026-06-12: MIM-PORT-FMEM-002 PageMeta scalar verified evidence is verified through MIR JSON inventory, source syntax, fastmem check/parity, semantic refresh tests, and current-state guard.",
-  "2026-06-12: MIM-PORT-FMEM-001 PageMeta scalar pilot is verified through source syntax, capability inventory, fastmem check/parity, contract tests, and current-state guard.",
-  "2026-06-12: MIR-FMEM-008D/008E owner-runtime producer and producer-neutral readiness are verified as the substrate before MIM-PORT-FMEM-001.",
-  "2026-06-12: MIR-FMEM-008C report/check closeout passes producer-neutral coverage after fastmem_check_smoke and current-state pointer verification.",
-  "2026-06-12: row656 selects the typed-object exact-slot NativeDirect route decision when direct-state facts are ready.",
-  "2026-06-12: row655 adds the typed-object exact-slot NativeDirect pilot implementation seam without opening the pilot.",
-  "2026-06-12: row654 selects the typed-object exact-slot NativeDirect pilot owner without opening the pilot.",
-  "2026-06-12: row653 freezes the typed-object exact-slot NativeDirect guard surface without opening the pilot.",
-  "2026-06-12: row652 inventories typed-object exact-slot NativeDirect readiness without opening the pilot.",
-  "2026-06-12: NYRT-ENV-005..008 centralize the GC telemetry cluster, minimal startup knob, startup gates, and path shaping into shared helpers.",
-  "2026-06-12: NYRT-ENV-004 centralizes the post-ny_main GC metrics cluster through src/config/env/stage1.rs.",
-  "2026-06-12: NYRT-ENV-003 centralizes the output-only P0 helper for NYASH_NYRT_SILENT_RESULT through src/config/env/stage1.rs.",
-  "2026-06-11: NYRT-ENV-002 ranks the NyRT startup env reads into a centralization priority table after the 001 inventory.",
-  "2026-06-11: NYRT-ENV-001 inventories the NyRT startup env reads and path probes after the 064 callgraph attribution split.",
   "2026-06-11: PERF-USERBOX-056..064 tighten the libc_process ladder from variability to env ladder and callgraph attribution.",
-  "2026-06-11: PERF-USERBOX-047..054 keep the rebuild-cache registry branch split into scheduler / register-many / create-default-registry / ring0 / global_hooks / get_factory_order_by_policy signals.",
-  "2026-06-11: PERF-USERBOX-042..046 keep the box_factory / registry focus boundary explicit while preserving runner-up signals.",
-  "2026-06-09: 296x-651 opened the typed-object exact slot ABI split lane after user-box counter-heavy perf moved the owner into startup attribution evidence.",
 ]

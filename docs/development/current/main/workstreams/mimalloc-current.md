@@ -17,22 +17,29 @@ the long history in the inventory note.
 
 ## Current Lane
 
-- active lane: `MIM-PORT-FMEM-001 PageMeta scalar pilot`
+- active lane: read `active_lane` in `CURRENT_STATE.toml`
 - blocker: read `CURRENT_STATE.toml`
 - inventory note: `docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md`
-- fastmem layout/table SSOT: `docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md`
+- optimization method SSOT: `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+- fastmem layout/table SSOT, when returning to FastMemory body work:
+  `docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md`
 
 ## Thin Mirrors
 
 ```text
-active_lane=MIM-PORT-FMEM-001 PageMeta scalar pilot
+active_lane_from_current_state=1
 current_state_pointer_guard=pass
 restart_surface_thin=1
 long_history_in_current_mirrors=0
 implementation_gap_count=0
-mim_port_fmem_001_done=1
-next_row=MIM-PORT-FMEM-002
+mim_port_fmem_005_done=1
+mim_port_fmem_006_done=1
+latest_active_card_from_current_state=1
 ```
+
+`MIM-PORT-FMEM-005` and `MIM-PORT-FMEM-006` are historical Done rows. Do not
+treat them as the next active row unless `CURRENT_STATE.toml` explicitly points
+back to them.
 
 ## Archived Lane Notes
 
