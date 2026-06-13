@@ -268,6 +268,52 @@ cargo fmt --check
 
 Classify thin `mod.rs` files.
 
+Status: landed 2026-06-13.
+
+Classification after MIR-CLEAN-001:
+
+```text
+thin_mod_total_count=98
+thin_mod_pure_reexport_count=9
+thin_mod_boundary_keep_count=73
+thin_mod_test_group_keep_count=16
+thin_mod_deleted_count=0
+```
+
+Pure re-export collapse candidates:
+
+```text
+src/mir/builder/schedule/mod.rs
+src/mir/builder/ssa/mod.rs
+src/mir/contracts/mod.rs
+src/mir/lowerers/mod.rs
+src/mir/builder/vars/mod.rs
+src/mir/builder/control_flow/plan/generic_loop/body_check/mod.rs
+src/mir/optimizer_passes/mod.rs
+src/mir/ssot/mod.rs
+src/mir/passes/mod.rs
+```
+
+Test grouping keep examples:
+
+```text
+src/mir/builder/control_flow/edgecfg/api/compose/tests/mod.rs
+src/mir/generic_method_route_plan/tests/core_routes/mod.rs
+src/mir/global_call_route_plan/tests/void_sentinel/mod.rs
+src/mir/passes/dce/tests/mod.rs
+src/mir/user_box_method_route_plan/tests/mod.rs
+```
+
+Boundary keep examples:
+
+```text
+src/mir/builder/control_flow/plan/generic_loop/facts/mod.rs
+src/mir/builder/control_flow/plan/canon/mod.rs
+src/mir/builder/control_flow/plan/planner/mod.rs
+src/mir/builder/control_flow/verify/mod.rs
+src/mir/control_tree/step_tree/mod.rs
+```
+
 Acceptance:
 
 ```text
