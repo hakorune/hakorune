@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/object-handle-box-identity-contract-ssot.md
   - docs/development/current/main/design/box-object-model-replacement-map-ssot.md
+  - docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
 ---
 
@@ -499,6 +500,67 @@ fini_owner_defined=1
 backend_unsupported_surfaces_fail_fast=1
 ```
 
+Contract owner:
+
+```text
+docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+arc_retirement_family_gate_defined=1
+arc_retirement_family_gate_satisfied=1
+```
+
+### ARC-RETIRE-007: First candidate family selection
+
+Select the narrow first family scope:
+
+```text
+first_arc_retirement_candidate=vm_scalar_value_boxes
+first_arc_retirement_scope=vmvalue_carrier
+```
+
+This is a VM-carrier scope. It does not replace `dyn NyashBox` or plugin
+carriers.
+
+### ARC-RETIRE-008: Refcount storage owner prototype
+
+First-family storage:
+
+```text
+refcount_storage_owner_defined=1
+refcount_storage_strategy=immediate_scalar_no_refcount
+```
+
+Future refcounted families still require object header or side-table storage.
+
+### ARC-RETIRE-009: Atomic retain/release/free-on-zero contract
+
+Primitive vocabulary:
+
+```text
+atomic_retain_release_contract_defined=1
+retain_symbol=hako_atomic_slot_fetch_add_i64
+release_symbol=hako_atomic_slot_fetch_add_i64
+release_uses_fetch_add_minus_one=1
+free_symbol=hako_mem_free
+```
+
+### ARC-RETIRE-010: First-family Arc-retirement scaffold
+
+First scoped claim:
+
+```text
+first_family_arc_retirement_scaffold=1
+first_family_vm_carrier=direct_vm_scalar
+first_family_vm_carrier_arc_free=1
+first_family_box_trait_arc_replaced=0
+global_arc_replaced=0
+```
+
 ## Stop Line
 
 ```text
@@ -542,6 +604,30 @@ vmvalue_boxref_current_carrier=arc_dyn_nyashbox|object_handle
 vmvalue_boxref_future_carrier=object_handle
 vmvalue_weakbox_current_carrier=weak_dyn_nyashbox|weak_object_handle
 vmvalue_weakbox_future_carrier=weak_object_handle
+arc_retirement_family_gate_defined=0|1
+arc_retirement_family_gate_satisfied=0|1
+object_identity_owner_exists=0|1
+refcount_storage_owner_exists=0|1
+atomic_free_on_zero_exists=0|1
+dispatch_route_owner_exists=0|1
+clone_share_semantics_preserved=0|1
+weak_behavior_defined=0|1
+fini_owner_defined=0|1
+backend_unsupported_surfaces_fail_fast=0|1
+first_arc_retirement_candidate=vm_scalar_value_boxes
+first_arc_retirement_scope=vmvalue_carrier
+refcount_storage_owner_defined=0|1
+refcount_storage_strategy=immediate_scalar_no_refcount|object_header|side_table
+atomic_retain_release_contract_defined=0|1
+retain_symbol=hako_atomic_slot_fetch_add_i64
+release_symbol=hako_atomic_slot_fetch_add_i64
+release_uses_fetch_add_minus_one=0|1
+free_symbol=hako_mem_free
+first_family_arc_retirement_scaffold=0|1
+first_family_vm_carrier=direct_vm_scalar
+first_family_vm_carrier_arc_free=0|1
+first_family_box_trait_arc_replaced=0|1
+global_arc_replaced=0|1
 arc_hot_path_retirement_started=0|1
 summary=ok|fail
 ```

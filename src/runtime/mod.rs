@@ -17,6 +17,7 @@ mod allocator_provider_registry_facade_tests;
 pub(crate) mod allocator_provider_registry_snapshot;
 pub(crate) mod allocator_provider_selection_decision;
 pub(crate) mod allocator_provider_toml_helpers;
+pub mod arc_retirement;
 pub mod box_object_model;
 pub mod box_registry;
 pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
@@ -67,6 +68,13 @@ pub mod weak_handles;
 #[cfg(test)]
 mod tests;
 
+pub use arc_retirement::{
+    arc_retirement_report_fields, atomic_retain_release_contract, family_retirement_gate,
+    first_family_arc_retirement_scaffold, first_family_candidate, refcount_storage_prototype,
+    ArcRetirementFamily, ArcRetirementScope, AtomicRetainReleaseContract,
+    FamilyRetirementCandidate, FamilyRetirementGate, FirstFamilyArcRetirementScaffold,
+    RefcountStoragePrototype, RefcountStorageStrategy,
+};
 pub use box_object_model::{
     box_object_model_replacement_map, box_object_model_report_fields, BoxDispatchSurface,
     BoxObjectModelReplacementMap, CloneShareSemantics, PluginLifecycleOwner, VMBoxRefCarrier,

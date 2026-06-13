@@ -45,6 +45,7 @@ pub enum PluginLifecycleOwner {
 /// Current and future carrier for VM object references.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum VMBoxRefCarrier {
+    DirectVmScalar,
     ArcDynNyashBox,
     WeakDynNyashBox,
     ObjectHandle,

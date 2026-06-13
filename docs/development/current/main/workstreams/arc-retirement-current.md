@@ -17,15 +17,15 @@ optimization lane.
 ## Current Decision
 
 ```text
-arc_retirement_mode=box_object_model_map
+arc_retirement_mode=first_family_scaffold
 arc_hot_path_retirement_started=0
 active_optimization_lane_changed=0
 ```
 
 Arc retirement is allowed as docs/inventory planning, contract-only runtime
 types, host-handle identity seam work, and Box object model replacement-map
-work now. Arc replacement starts only after a concrete family retirement gate
-exists.
+work now. ARC-RETIRE-006..010 additionally defines the first family gate and
+VM scalar carrier scaffold. Global Arc replacement has not started.
 
 ## Task Order
 
@@ -294,6 +294,14 @@ no family Arc retirement claim
 
 ### ARC-RETIRE-006: Family retirement gate
 
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
 Define the gate for retiring Arc in one Box family.
 
 ```text
@@ -308,7 +316,104 @@ required:
   backend_unsupported_surfaces_fail_fast=1
 ```
 
-Only after this gate exists may a concrete Box family start Arc retirement.
+Acceptance:
+
+```text
+arc_retirement_family_gate_defined=1
+arc_retirement_family_gate_satisfied=1
+object_identity_owner_exists=1
+refcount_storage_owner_exists=1
+atomic_free_on_zero_exists=1
+dispatch_route_owner_exists=1
+clone_share_semantics_preserved=1
+weak_behavior_defined=1
+fini_owner_defined=1
+backend_unsupported_surfaces_fail_fast=1
+```
+
+### ARC-RETIRE-007: First candidate family selection
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Selected first family:
+
+```text
+first_arc_retirement_candidate=vm_scalar_value_boxes
+first_arc_retirement_scope=vmvalue_carrier
+```
+
+This selection is intentionally VM-carrier only. It does not claim Box trait
+carrier replacement.
+
+### ARC-RETIRE-008: Refcount storage owner prototype
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Current first family:
+
+```text
+refcount_storage_owner_defined=1
+refcount_storage_strategy=immediate_scalar_no_refcount
+```
+
+Future object families still require object header or side-table storage before
+Box trait carrier retirement.
+
+### ARC-RETIRE-009: Atomic retain/release/free-on-zero contract
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Contract:
+
+```text
+atomic_retain_release_contract_defined=1
+retain_symbol=hako_atomic_slot_fetch_add_i64
+release_symbol=hako_atomic_slot_fetch_add_i64
+release_uses_fetch_add_minus_one=1
+free_symbol=hako_mem_free
+```
+
+### ARC-RETIRE-010: First-family Arc-retirement scaffold
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+first_family_arc_retirement_scaffold=1
+first_family_vm_carrier=direct_vm_scalar
+first_family_vm_carrier_arc_free=1
+first_family_box_trait_arc_replaced=0
+global_arc_replaced=0
+typeabi_identity_truth_count=0
+```
+
+This closes the first scoped Arc-retirement scaffold for VM scalar carriers.
+It does not change `VMValue::BoxRef`, plugin carriers, or `dyn NyashBox`.
 
 ## Do Not Do Yet
 
