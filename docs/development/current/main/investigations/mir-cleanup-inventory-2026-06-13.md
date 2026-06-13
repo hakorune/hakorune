@@ -440,7 +440,11 @@ generic_loop step placement
 Landed owner:
 
 ```text
-src/mir/builder/control_flow/step_placement/
+initial:
+  src/mir/builder/control_flow/step_placement/
+
+current after MIR-CLEAN-007:
+  src/mir/builder/control_flow/generic_loop_canon/step_placement/
   README.md
   facts.rs
   plan.rs
@@ -484,7 +488,11 @@ generic_loop update canon
 Landed owner:
 
 ```text
-src/mir/builder/control_flow/generic_loop_update_canon/
+initial:
+  src/mir/builder/control_flow/generic_loop_update_canon/
+
+current after MIR-CLEAN-007:
+  src/mir/builder/control_flow/generic_loop_canon/update/
   README.md
   literal_match.rs
   literal_step.rs
@@ -510,6 +518,50 @@ Acceptance:
 facts-only update canon subtree
 old facts path remains facade-backed
 no acceptance shape added
+targeted generic-loop facts tests green
+```
+
+### MIR-CLEAN-007
+
+Group shallow generic-loop canon owners before adding more.
+
+Status: landed 2026-06-13.
+
+Reason:
+
+```text
+step_placement and generic_loop_update_canon proved the flatten seam.
+Adding condition/step_extract as more control_flow/ siblings would make the
+top-level layer too wide.
+```
+
+Target shape:
+
+```text
+src/mir/builder/control_flow/generic_loop_canon/
+  README.md
+  step_placement/
+    facts.rs
+    plan.rs
+  update/
+    literal_match.rs
+    literal_step.rs
+```
+
+Compatibility facades remain:
+
+```text
+facts/canon/generic_loop/update.rs
+facts/canon/generic_loop/step/placement/matcher.rs
+plan/canon/generic_loop/step/placement/decision.rs
+```
+
+Acceptance:
+
+```text
+no behavior change
+existing shallow pilots grouped under one semantic family owner
+no additional generic-loop acceptance shape added
 targeted generic-loop facts tests green
 ```
 

@@ -64,7 +64,8 @@ Pilot status:
 
 ```text
 landed 2026-06-13
-new owner: src/mir/builder/control_flow/step_placement/
+initial owner: src/mir/builder/control_flow/step_placement/
+current owner: src/mir/builder/control_flow/generic_loop_canon/step_placement/
 old facts path: facts/canon/generic_loop/step/placement remains facade
 old plan path: plan/canon/generic_loop/step/placement remains facade
 ```
@@ -73,8 +74,18 @@ Follow-up pilot:
 
 ```text
 landed 2026-06-13
-new owner: src/mir/builder/control_flow/generic_loop_update_canon/
+initial owner: src/mir/builder/control_flow/generic_loop_update_canon/
+current owner: src/mir/builder/control_flow/generic_loop_canon/update/
 old facts path: facts/canon/generic_loop/update.rs remains facade
+```
+
+Grouping decision:
+
+```text
+Decision: landed 2026-06-13
+Generic-loop canon helpers must not accumulate as many control_flow/ siblings.
+Existing pilots are grouped under src/mir/builder/control_flow/generic_loop_canon/.
+Add future generic-loop condition/step-extract owners under that grouped owner.
 ```
 
 Pilot rule:

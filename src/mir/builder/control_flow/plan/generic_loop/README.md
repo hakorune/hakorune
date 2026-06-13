@@ -24,16 +24,17 @@ Step extract order (SSOT, no behavior change):
 - `complex_step` (`i = (i - x) / k` style)
 
 Step placement split (SSOT, no behavior change):
-- `step/placement/matcher.rs`: increment/conditional step の形マッチだけ担当
-- `step/placement/decision.rs`: `RejectReason` を含む placement 判定だけ担当
+- `control_flow/generic_loop_canon/step_placement/facts.rs`: increment/conditional step の形マッチだけ担当
+- `control_flow/generic_loop_canon/step_placement/plan.rs`: `RejectReason` を含む placement 判定だけ担当
+- `facts/canon/generic_loop/step/placement/*`: compatibility facade only
 
 Condition split (SSOT, no behavior change):
 - `condition/candidates.rs`: loop_var candidate 観測だけ担当
 - `condition/bound.rs`: BoundExpr 観測だけ担当
 
 Update canon split (SSOT, no behavior change):
-- `control_flow/generic_loop_update_canon/literal_match.rs`: update 式の shape match だけ担当
-- `control_flow/generic_loop_update_canon/literal_step.rs`: `UpdateCanon` の literal step 生成だけ担当
+- `control_flow/generic_loop_canon/update/literal_match.rs`: update 式の shape match だけ担当
+- `control_flow/generic_loop_canon/update/literal_step.rs`: `UpdateCanon` の literal step 生成だけ担当
 - `facts/canon/generic_loop/update.rs`: compatibility facade only
 
 Type split (SSOT, no behavior change):

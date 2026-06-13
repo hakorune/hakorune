@@ -1,11 +1,11 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::generic_loop_canon::step_placement::facts::{
+    collect_conditional_step_indices, collect_direct_step_indices,
+};
 use crate::mir::builder::control_flow::plan::canon::generic_loop::{
     StepPlacement, StepPlacementDecision,
 };
 use crate::mir::builder::control_flow::plan::facts::reject_reason::RejectReason;
-use crate::mir::builder::control_flow::step_placement::facts::{
-    collect_conditional_step_indices, collect_direct_step_indices,
-};
 
 pub(crate) fn classify_step_placement(
     body: &[ASTNode],

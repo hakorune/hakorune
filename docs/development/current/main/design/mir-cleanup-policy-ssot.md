@@ -107,21 +107,38 @@ forbidden:
   collapse facts and plan truth into one owner
   re-export policy across layers to make imports compile
   move multiple unrelated deep paths at once
+  create many sibling owner folders for the same semantic family
   delete mod.rs files mechanically
 ```
 
-Preferred shape for the first pilot:
+Preferred grouped shape after the first pilot:
 
 ```text
-step_placement/
+generic_loop_canon/
   README.md
-  facts.rs
-  matcher.rs
-  decision.rs
-  plan.rs
+  update/
+  condition/
+  step_extract/
+  step_placement/
 ```
 
 The exact file names may differ, but the boundary must stay explicit.
+
+Rule of thumb:
+
+```text
+one or two pilots:
+  top-level owner folders are acceptable while proving the seam
+
+three or more related pilots:
+  introduce a grouped owner folder before adding more siblings
+```
+
+`control_flow/` top-level owner folders should be reserved for semantic boxes
+that an engineer would intentionally search for from the control-flow entry.
+Closely related generic-loop canon helpers belong under a grouped
+`generic_loop_canon/` owner instead of accumulating as separate top-level
+sibling folders.
 
 ## Thin mod.rs Rule
 
