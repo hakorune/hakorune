@@ -160,7 +160,7 @@ The code-side v0 shape is:
 refreshed inputs:
   already refreshed MIR/module metadata
   type_registry method-slot entries
-  optional PluginLoader callable snapshot
+  optional PluginLoader callable snapshot after BoxCallableRegistry projection
   future domain registries only when they already exist
 
 catalog construction:
@@ -170,6 +170,7 @@ catalog construction:
 forbidden:
   TypeAbiCatalog owning refresh order
   TypeAbiCatalog constructing type_registry / PluginLoader state
+  TypeAbiCatalog reading PluginLoader as plugin route truth
   a new global CompileWorld with mutable ownership of every domain
 ```
 
@@ -177,6 +178,27 @@ Only introduce a real `CompileWorld` / `RefreshedWorld` type if at least two
 independent domains need the same read-only input bundle. Until then, pass
 the existing domain inputs directly and use the catalog builder as the named
 boundary.
+
+Plugin data follows the BoxCallable ownership chain:
+
+```text
+PluginLoader
+  -> PluginCallableExport
+  -> BoxCallableRegistry
+  -> TypeAbiCatalog
+  -> TypeAbiPack / hako_check / inspect
+```
+
+Forbidden inversion:
+
+```text
+PluginLoader
+  -> TypeAbiCatalog
+  -> RoutePlan
+```
+
+The detailed plugin task ladder is tracked in
+`box-callable-registry-ssot.md` under `PLUGIN-CATALOG-*`.
 
 ## Catalog Responsibilities
 
@@ -389,6 +411,22 @@ CompileWorld is documented as conceptual, not required code
 v0 catalog inputs are existing refreshed metadata / type_registry / optional PluginLoader snapshot
 no new global mutable CompileWorld is introduced
 real world type requires two independent domain consumers
+```
+
+### PLUGIN-CATALOG bridge
+
+Plugin data may appear in `TypeAbiCatalog` only through a
+`BoxCallableRegistry` projection.
+
+Status: planned in `box-callable-registry-ssot.md`.
+
+Acceptance:
+
+```text
+PluginLoader -> PluginCallableExport -> BoxCallableRegistry -> TypeAbiCatalog
+plugin_loader_to_typeabi_direct_truth_count=0
+type_abi_catalog_as_plugin_route_truth_count=0
+plugin_catalog_routeplan_consumer_count=0
 ```
 
 ## Report Vocabulary

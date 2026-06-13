@@ -664,6 +664,157 @@ route_resolver:
   remains config/spec/provider export helper, not invoke execution route truth.
 ```
 
+### PLUGIN-CATALOG-000
+
+Document the plugin data projection chain.
+
+Status: planned.
+
+Decision:
+
+```text
+PluginLoader data may be exposed through TypeAbiCatalog only after it has been
+projected into BoxCallableRegistry.
+
+Allowed:
+  PluginLoader -> PluginCallableExport -> BoxCallableRegistry -> TypeAbiCatalog
+
+Forbidden:
+  PluginLoader -> TypeAbiCatalog -> RoutePlan
+  PluginLoader -> TypeAbiCatalog as callable truth
+```
+
+Acceptance:
+
+```text
+plugin_catalog_projection_chain_documented=1
+plugin_loader_to_typeabi_direct_truth_count=0
+type_abi_catalog_as_plugin_route_truth_count=0
+```
+
+### PLUGIN-CATALOG-001
+
+Add a registry-to-catalog projection helper for plugin snapshots.
+
+Status: planned.
+
+Scope:
+
+```text
+Input:
+  BoxCallableRegistry snapshot produced by PluginLoader.
+
+Output:
+  TypeAbiCatalog headers for BoxCallable entries.
+
+No direct PluginLoader read from TypeAbiCatalog code.
+No RoutePlan generation.
+No TypeAbiPack dependency.
+```
+
+Acceptance:
+
+```text
+plugin_snapshot_catalog_projection_helper_count=1
+plugin_snapshot_catalog_entry_count>=0
+plugin_snapshot_catalog_reads_loader_directly=0
+type_abi_pack_used_by_planner_count=0
+```
+
+Candidate code entry:
+
+```text
+src/type_abi/box_callable.rs
+src/runtime/plugin_loader_v2/enabled/box_callable_registry.rs
+```
+
+### PLUGIN-CATALOG-002
+
+Add a hako_check report row for plugin snapshot catalog projection.
+
+Status: planned.
+
+Acceptance:
+
+```text
+plugin_loader_registry_snapshot_entrypoint_count=1
+plugin_snapshot_catalog_projection_helper_count=1
+plugin_loader_to_typeabi_direct_truth_count=0
+type_abi_catalog_as_plugin_route_truth_count=0
+summary=ok
+```
+
+The report remains observation-only. It must not infer route truth from helper
+names or Type ABI payload shape.
+
+### PLUGIN-CATALOG-003
+
+Add a unit smoke for empty and non-empty plugin registry catalog projection.
+
+Status: planned.
+
+Acceptance:
+
+```text
+empty PluginLoader snapshot can project to an empty TypeAbiCatalog
+fixture PluginCallableExport can project to BoxCallableRegistry
+BoxCallableRegistry can publish BoxCallable entries to TypeAbiCatalog
+Plugin method_id and lifecycle ids remain in BoxCallableTarget only
+```
+
+### PLUGIN-CATALOG-004
+
+Decide whether a plugin registry snapshot cache is justified.
+
+Status: planned.
+
+Decision rule:
+
+```text
+Do not add a cache by default.
+Add a cache only if measurement or repeated-call evidence shows snapshot
+construction is a real owner.
+```
+
+Acceptance:
+
+```text
+registry_snapshot_cache_required_count=0|1
+registry_snapshot_cache_default_enabled=0
+cache_decision_evidence_path=<path-or-none>
+```
+
+### PLUGIN-CATALOG-005
+
+Connect catalog projection to tooling surfaces only.
+
+Status: planned.
+
+Allowed consumers:
+
+```text
+hako_check boxcall-contract
+inspect/report bundles
+TypeAbiPack generation
+```
+
+Forbidden consumers:
+
+```text
+runtime method invoke
+runtime birth/fini
+RoutePlan construction
+hot path dispatch
+```
+
+Acceptance:
+
+```text
+plugin_catalog_tooling_consumer_count>=1
+plugin_catalog_routeplan_consumer_count=0
+plugin_catalog_hot_path_consumer_count=0
+```
+
 ## Non-Goals
 
 ```text
