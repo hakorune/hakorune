@@ -573,6 +573,50 @@ singleton birth must not bypass BoxCallable lifecycle plans.
 TypeAbiCatalog must not become an execution route.
 ```
 
+### BOXCALL-009
+
+Centralize PluginLoader registry snapshot projection.
+
+Status: landed 2026-06-13.
+
+Decision:
+
+```text
+Do not introduce a long-lived registry cache yet.
+Do introduce one PluginLoader snapshot entrypoint.
+Runtime plans consume that entrypoint instead of seeding providers directly.
+```
+
+Acceptance:
+
+```text
+plugin_loader_registry_snapshot_entrypoint_count=1
+method_plan_direct_provider_seed_count=0
+lifecycle_plan_direct_provider_seed_count=0
+registry_snapshot_cache_required_count=0
+```
+
+Code entry:
+
+```text
+Snapshot entry:
+  src/runtime/plugin_loader_v2/enabled/box_callable_registry.rs
+  src/runtime/plugin_loader_v2/enabled/loader/mod.rs
+
+Consumers:
+  src/runtime/plugin_loader_v2/enabled/method_route_plan.rs
+  src/runtime/plugin_loader_v2/enabled/lifecycle_route_plan.rs
+```
+
+Boundary:
+
+```text
+PluginLoader remains provider projection owner.
+BoxCallableRegistry remains callable truth snapshot.
+Route plans remain execution shape.
+No TypeAbiCatalog lookup is introduced in runtime path.
+```
+
 ## Non-Goals
 
 ```text

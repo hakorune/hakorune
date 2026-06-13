@@ -1,7 +1,6 @@
 //! Runtime-owned executable method-call plans for plugin boxes.
 
 use crate::bid::{BidError, BidResult};
-use crate::box_callable::providers::plugin_loader::seed_plugin_loader;
 use crate::box_callable::{
     BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableTarget, InvokeRoutePlan,
     MethodCallRoutePlan,
@@ -66,8 +65,7 @@ pub(super) fn resolve_method_target(
     method_name: &str,
     arity: u8,
 ) -> BidResult<BoxCallableTarget> {
-    let mut registry = BoxCallableRegistry::new();
-    seed_plugin_loader(&mut registry, loader)?;
+    let registry = loader.box_callable_registry_snapshot()?;
     find_method_target(&registry, box_type, method_name, arity)
         .cloned()
         .ok_or(BidError::InvalidMethod)

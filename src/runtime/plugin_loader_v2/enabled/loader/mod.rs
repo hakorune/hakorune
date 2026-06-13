@@ -9,6 +9,7 @@ mod util;
 use super::host_bridge::BoxInvokeFn;
 use super::types::{LoadedPluginV2, PluginBoxMetadata, PluginHandleInner};
 use crate::bid::BidResult;
+use crate::box_callable::BoxCallableRegistry;
 use crate::box_trait::NyashBox;
 use crate::config::nyash_toml_v2::{LibraryDefinition, NyashConfigV2};
 pub(super) use specs::LoadedBoxSpec;
@@ -92,5 +93,17 @@ impl PluginLoaderV2 {
 
     pub fn export_box_callables(&self) -> BidResult<Vec<super::PluginCallableExport>> {
         super::route_resolver::export_box_callable_contracts(self)
+    }
+
+    pub fn box_callable_registry_snapshot(&self) -> BidResult<BoxCallableRegistry> {
+        super::box_callable_registry::build_snapshot(self)
+    }
+
+    pub fn box_callable_lifecycle_registry_snapshot_for_lib(
+        &self,
+        lib_name: &str,
+        box_type: &str,
+    ) -> BidResult<BoxCallableRegistry> {
+        super::box_callable_registry::build_lifecycle_snapshot_for_lib(self, lib_name, box_type)
     }
 }
