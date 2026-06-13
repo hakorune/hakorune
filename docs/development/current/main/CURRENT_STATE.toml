@@ -12,22 +12,22 @@ active_lane = "COMPILER-FOUNDATION-001 BoxCallable / TypeAbiCatalog / CorePlan f
 active_lane_status = """Exact-front optimization is paused after the
 flag-toggle bool scalar lowering keeper. The current work is compiler
 foundation: make BoxCallableRegistry the callable truth owner, keep
-TypeAbiCatalog/BoxDescriptor as read-only projection. CorePlan foundation has
-selected B1 remaining compatibility normalizer lego-ization and fixed the first
-SSOT/guard boundary before any behavior change."""
+TypeAbiCatalog/BoxDescriptor as read-only projection. CorePlan foundation has a
+remaining-family inventory after the B1 boundary: C1 fail-fast guard first, then
+D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1005-COREPLAN-FOUND-000-001.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "293x-1005-COREPLAN-FOUND-000-001"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1005-COREPLAN-FOUND-000-001.md"
-latest_card_summary = """293x-1005 selects B1 remaining compatibility
-normalizer lego-ization for CorePlan foundation and adds the first
-SSOT/guard boundary without changing release behavior or adding accepted
-shapes."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-B1-NEXT-293X-001"
+latest_card = "293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md"
+latest_card_summary = """293x-1006 inventories the remaining CorePlan families
+after the B1 boundary and fixes the implementation order as C1 planner_required
+fail-fast guard, D1 normalizer AST-boundary inventory, then E1 active-v0
+inventory/retire work."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-C1-NEXT-293X-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -44,8 +44,10 @@ Scope: current lane / next lane / restart order only.
   BoxCallableRegistry is callable truth, TypeAbiCatalog and BoxDescriptor are
   read-only projection/tooling surfaces
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
-  compatibility normalizer lego-ization is selected, with the first SSOT/guard
-  boundary landed before behavior changes
+  compatibility normalizer lego-ization has its first SSOT/guard boundary, and
+  the remaining family inventory now orders the next slices as C1
+  planner_required fail-fast guard, D1 normalizer AST-boundary inventory, then
+  E1 active-v0 inventory/retire work
 - optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
@@ -92,5 +94,6 @@ Scope: current lane / next lane / restart order only.
 4. `docs/development/current/main/design/box-callable-registry-ssot.md`
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-7. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
+8. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+9. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

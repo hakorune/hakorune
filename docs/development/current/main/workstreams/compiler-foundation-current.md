@@ -5,6 +5,7 @@ Scope: Compiler foundation workstream after pausing exact-front optimization.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md
+  - docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
@@ -339,6 +340,151 @@ Proof:
 
 ```bash
 bash tools/checks/coreplan_compat_normalizer_legoization_guard.sh
+```
+
+### COREPLAN-FOUND-002: remaining family inventory
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md
+```
+
+Purpose:
+
+```text
+turn remaining CorePlan / JoinIR gaps into ordered one-purpose rows
+before implementation
+```
+
+Order:
+
+```text
+1. C1_planner_required_ambiguity_failfast
+2. D1_normalizer_to_composition_only
+3. E1_compatibility_fallback_zero
+4. loop_if_loop_or_loop_loop_if_lowering_wiring only after failing fixture
+```
+
+Acceptance:
+
+```text
+coreplan_remaining_family_inventory_landed=1
+boxcount_boxshape_mixed=0
+release_default_changed=0
+accepted_shape_added=0
+next_implementation_family=C1_planner_required_ambiguity_failfast
+```
+
+### COREPLAN-C1-001: planner_required route-exhaustion inventory guard
+
+Next CorePlan implementation task.
+
+Purpose:
+
+```text
+classify strict/dev + planner_required Ok(None) boundaries
+freeze target-like route exhaustion before more normalizer/v0 cleanup
+```
+
+Acceptance:
+
+```text
+planner_required_target_like_route_exhaustion_classified=1
+planner_required_silent_ok_none_inventory=1
+candidate_ambiguity_owner_documented=1
+accepted_shape_added=0
+release_default_changed=0
+```
+
+Stop line:
+
+```text
+do not convert all optional facts Ok(None) into errors
+do not hide route ambiguity with priority scoring
+do not duplicate route truth between single_planner and route_entry/registry
+```
+
+### COREPLAN-D1-001: normalizer AST-boundary inventory
+
+Run after C1 guard lands.
+
+Purpose:
+
+```text
+report direct ASTNode:: ownership under plan/normalizer
+report synthetic ASTNode construction in recipe_tree composers
+keep the normalizer moving toward adapter/composition-only
+```
+
+Acceptance:
+
+```text
+normalizer_ast_boundary_inventory=1
+normalizer_ast_hit_counts_reported=1
+synthetic_ast_composer_inventory=1
+release_default_changed=0
+accepted_shape_added=0
+```
+
+### COREPLAN-E1-001: active-v0 inventory guard
+
+Run after D1 inventory guard lands.
+
+Purpose:
+
+```text
+cross-check the active routed loop_*_v0 surfaces before retiring them
+keep legacy normalizer closeout and active-v0 closeout separate
+```
+
+Acceptance:
+
+```text
+active_v0_inventory_guard=1
+active_v0_box_count_reported=1
+legacy_normalizer_empty_and_active_v0_empty_are_separate=1
+one_v0_box_per_retire_slice=1
+```
+
+### COREPLAN-E1-002: first one-v0 retire pilot
+
+Run after the active-v0 inventory guard proves the surface.
+
+Candidate:
+
+```text
+loop_scan_methods_block_v0
+```
+
+Acceptance:
+
+```text
+one_v0_box_retired=1
+replacement_fixture_gate_green=1
+route_wiring_removed_for_one_box=1
+facts_field_removed_or_quarantined_for_one_box=1
+accepted_shape_added=0
+```
+
+### COREPLAN-LOOP-WIRING-001: failing-fixture selection only
+
+Do not implement from inventory alone.
+
+Purpose:
+
+```text
+select a concrete failing nested-loop / loop-if-loop fixture before opening
+a BoxCount row
+```
+
+Acceptance:
+
+```text
+failing_fixture_selected=1
+existing_nested_loop_gates_checked=1
+implementation_started=0
 ```
 
 ## Do Not Do Yet
