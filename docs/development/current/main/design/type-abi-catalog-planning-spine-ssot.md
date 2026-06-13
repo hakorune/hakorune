@@ -152,6 +152,32 @@ This preserves existing owners such as typed-object plans, fastmem plans,
 string corridor plans, plugin route exports, and type registry entries. The
 catalog only indexes their published views.
 
+`CompileWorld` in this SSOT is a conceptual boundary name, not a required Rust
+type. Do not add a large shared world object just to satisfy this document.
+The code-side v0 shape is:
+
+```text
+refreshed inputs:
+  already refreshed MIR/module metadata
+  type_registry method-slot entries
+  optional PluginLoader callable snapshot
+  future domain registries only when they already exist
+
+catalog construction:
+  TypeAbiCatalog::builder_from_refreshed_world()
+  TypeAbiCatalog::from_refreshed_views(...)
+
+forbidden:
+  TypeAbiCatalog owning refresh order
+  TypeAbiCatalog constructing type_registry / PluginLoader state
+  a new global CompileWorld with mutable ownership of every domain
+```
+
+Only introduce a real `CompileWorld` / `RefreshedWorld` type if at least two
+independent domains need the same read-only input bundle. Until then, pass
+the existing domain inputs directly and use the catalog builder as the named
+boundary.
+
 ## Catalog Responsibilities
 
 Allowed:
@@ -348,6 +374,21 @@ catalog construction names the refreshed-world boundary
 type_abi_catalog_from_refreshed_world=1
 type_abi_catalog_refresh_owner_count=0
 TypeAbiCatalog still has no refresh_truth hook
+```
+
+### TYPEABI-CATALOG-CLEAN-002
+
+Freeze the minimal refreshed-world input shape.
+
+Status: landed 2026-06-13.
+
+Acceptance:
+
+```text
+CompileWorld is documented as conceptual, not required code
+v0 catalog inputs are existing refreshed metadata / type_registry / optional PluginLoader snapshot
+no new global mutable CompileWorld is introduced
+real world type requires two independent domain consumers
 ```
 
 ## Report Vocabulary
