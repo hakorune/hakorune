@@ -1,8 +1,10 @@
 # 291x-762 ConditionToJoinIR Facade Gating Card
 
-Status: Landed
+Status: Superseded
 Date: 2026-04-30
 Lane: phase-291x CoreBox surface contract cleanup
+Superseded-By: JOINIR-THIN-002 in
+`docs/development/current/main/design/compiler-pipeline-thinning-ssot.md`
 
 ## Scope
 
@@ -28,6 +30,12 @@ Make `condition_lowerer` and `condition_env` the production owners:
 - condition binding/env types: `condition_env`
 - legacy API facade: `condition_to_joinir.rs` under `#[cfg(test)]`
 
+Follow-up decision:
+
+- `JOINIR-THIN-002` retired `condition_to_joinir.rs` entirely after usage
+  inventory showed no external references.
+- Tests now exercise `lowering/condition_lowerer/*` directly.
+
 ## Landed
 
 - Gated `lowering::condition_to_joinir` with `#[cfg(test)]`.
@@ -37,8 +45,8 @@ Make `condition_lowerer` and `condition_env` the production owners:
 
 ## Remaining Queue Impact
 
-The `condition_to_joinir` production-facade item is closed. Remaining structural
-cleanup is now:
+The `condition_to_joinir` production-facade item is closed and the test-only
+facade is retired. Remaining structural cleanup is now:
 
 - bridge strict/env/LowerOnly semantics
 - broad JoinIR lowering module-level `dead_code` allowance inventory

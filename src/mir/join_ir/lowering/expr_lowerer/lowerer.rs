@@ -7,11 +7,7 @@ use crate::mir::join_ir::JoinInst;
 use crate::mir::ValueId;
 use crate::runtime::get_global_ring0;
 
-#[cfg(test)]
-use super::super::condition_lowerer::lower_condition_to_joinir;
 use super::super::condition_lowerer::lower_condition_to_joinir_no_body_locals;
-#[cfg(test)]
-use super::super::condition_lowering_box::{ConditionContext, ConditionLoweringBox};
 use super::super::scope_manager::ScopeManager;
 
 /// Phase 231: Expression lowerer (pilot implementation)
@@ -36,7 +32,7 @@ use super::super::scope_manager::ScopeManager;
 ///         // Use value_id in JoinIR
 ///     }
 ///     Err(ExprLoweringError::UnsupportedNode(_)) => {
-///         // Fall back to legacy condition_to_joinir path
+///         // Let the caller choose another explicit lowering route.
 ///     }
 ///     Err(e) => {
 ///         // Handle other errors (variable not found, etc.)
@@ -155,84 +151,5 @@ impl<'env, S: ScopeManager> ExprLowerer<'env, S> {
     /// Public helper used by `loop_break` / `if_phi_join` callers to gate ExprLowerer usage.
     pub fn is_supported_condition(ast: &ASTNode) -> bool {
         ast_support::is_supported_condition(ast)
-    }
-}
-
-#[cfg(test)]
-impl<'env, S: ScopeManager> ConditionLoweringBox<S> for ExprLowerer<'env, S> {
-    /// Phase 244: Implement ConditionLoweringBox trait for ExprLowerer
-    ///
-    /// This allows ExprLowerer to be used interchangeably with other condition
-    /// lowering implementations through the unified ConditionLoweringBox interface.
-    ///
-    /// # Design
-    ///
-    /// This implementation is a thin wrapper around the existing `lower()` method.
-    /// The `ConditionContext` parameter is currently unused because ExprLowerer
-    /// already has access to ScopeManager through its constructor.
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// // LoopBreak: use ExprLowerer via ConditionLoweringBox trait
-    /// let mut lowerer = ExprLowerer::new(&scope, ExprContext::Condition, &mut builder);
-    ///
-    /// let context = ConditionContext {
-    ///     loop_var_name: "i".to_string(),
-    ///     loop_var_id: ValueId(1),
-    ///     scope: &scope,
-    ///     alloc_value: &mut alloc_fn,
-    /// };
-    ///
-    /// let cond_value = lowerer.lower_condition(&break_cond_ast, &context)?;
-    /// ```
-    fn lower_condition(
-        &mut self,
-        condition: &ASTNode,
-        context: &mut ConditionContext<S>,
-    ) -> Result<ValueId, String> {
-        // Phase 244+ / Phase 201 SSOT: ValueId allocation must be coordinated by the caller.
-        //
-        // JoinIR lowering uses JoinValueSpace as SSOT for ValueId regions.
-        // If we allocate locally here (e.g. starting from 1000), we can collide with
-        // other JoinIR value users (main params, carrier slots), and after remapping
-        // this becomes a MIR-level ValueId collision.
-        if !ast_support::is_supported_condition(condition) {
-            return Err(format!("Unsupported condition node: {:?}", condition));
-        }
-
-        let condition_env =
-            scope_resolution::build_condition_env_from_scope(context.scope, condition)
-                .map_err(|e| e.to_string())?;
-
-        // Delegate to the well-tested lowerer, but use the caller-provided allocator (SSOT).
-        // Phase 256.7: Pass current_static_box_name for this.method(...) support
-        let (result_value, instructions) = lower_condition_to_joinir(
-            condition,
-            &mut *context.alloc_value,
-            &condition_env,
-            None,                                       // body_local_env
-            context.current_static_box_name.as_deref(), // Phase 256.7
-        )
-        .map_err(|e| e.to_string())?;
-
-        self.last_instructions = instructions;
-
-        if self.debug {
-            get_global_ring0().log.debug(&format!(
-                "[expr_lowerer/phase244] Lowered condition → ValueId({:?}) (context alloc)",
-                result_value
-            ));
-        }
-
-        Ok(result_value)
-    }
-
-    /// Phase 244: Check if ExprLowerer supports a given condition pattern
-    ///
-    /// This delegates to the existing `is_supported_condition()` static method,
-    /// allowing callers to check support before attempting lowering.
-    fn supports(&self, condition: &ASTNode) -> bool {
-        ast_support::is_supported_condition(condition)
     }
 }

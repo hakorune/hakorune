@@ -245,7 +245,7 @@ JoinIR を触るときは、次を破ったら「即エラーで止める」前�
 - **理由**: JoinIR params (ValueId(1000+)) と衝突し、merge 時に header PHI dst を上書きする
 - **検出**: `--verify` で "Value %N defined multiple times" エラー
 - **履歴**: Phase 135 P0 では `ConditionContext.alloc_value` で固定した。291x-761 で
-  `ConditionLoweringBox` は test-only harness に縮退し、現役経路は condition lowering API
+  `ConditionLoweringBox` は test-only harness に縮退し、その後退役済み。現役経路は condition lowering API
   の allocator 引数を SSOT とする。
 
 ### Boundary Injection SSA（Phase 135）

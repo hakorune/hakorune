@@ -55,15 +55,16 @@ These are not immediate deletes without a small inventory card first:
 | `if_dry_runner` | HOLD | Live dev caller in runner VM execution path. Keep unless dev route is retired. |
 | Stage1/StageB lower-only routes | HOLD | Metadata now truthful as LowerOnly; do not delete while structural lowering probes exist. |
 | `condition_pattern` | NEEDS-INVENTORY | Looks self-test heavy, but owns condition vocabulary. Confirm no active route semantics before pruning. |
-| `condition_lowering_box` | NEEDS-RECONCILE | Trait exists around `ExprLowerer`; decide whether trait is SSOT or stale abstraction. |
-| `condition_to_joinir` facade | HOLD/RECONCILE | Public alias surface is still imported by inline-boundary and expression lowerer paths. |
-| `update_env` | NEEDS-INVENTORY | Appears test-only, but overlaps promoted-variable/body-local resolution. Compare with `ScopeManager` before deletion. |
+| `condition_lowering_box` | RETIRED | Removed after usage inventory showed only the test-only trait harness. |
+| `condition_to_joinir` facade | RETIRED | Removed after direct `condition_lowerer` tests covered the old facade surface. |
+| `update_env` | RETIRED | Removed after promoted-variable/body-local resolution was covered through `ScopeManager` / `condition_lowerer` / `expr_lowerer` tests. |
 | `JoinValueSpace` extra methods | TEST-SURFACE CANDIDATE | Production uses the core allocator path; narrow unused helpers only after a method-level inventory. |
 | `common::dual_value_rewriter` and tiny common helpers | DELETE-CANDIDATE | Verify no current callers, then prune in a focused common-helper card. |
 
 ## Next Safe Pass
 
-Start with a read-only inventory card for `condition_pattern` or `update_env`.
+Start with a read-only inventory card for `condition_pattern` or another live
+surface.
 Do not mix it with bridge routing cleanup or live LowerOnly route changes.
 
 ## Proof

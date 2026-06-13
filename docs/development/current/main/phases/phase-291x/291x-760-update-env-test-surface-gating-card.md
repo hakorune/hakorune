@@ -22,6 +22,15 @@ resolution owner next to `ScopeManager`.
 
 ## Decision
 
+Superseded by the compiler-thin cleanup pass:
+
+- `src/mir/join_ir/lowering/update_env.rs` is retired.
+- active name resolution remains `ScopeManager`.
+- promoted body-local / carrier resolution is covered by `ScopeManager`,
+  `condition_lowerer`, and `expr_lowerer` tests.
+
+Original 291x-760 decision:
+
 Do not delete the file in this card. Keep the old resolution behavior as a
 test-only harness and make the production ownership explicit:
 
@@ -40,8 +49,8 @@ test-only harness and make the production ownership explicit:
 
 ## Remaining Queue Impact
 
-The `update_env` production-surface item is closed. Remaining structural cleanup
-is now:
+The `update_env` production-surface item is closed and the legacy test-only
+harness has since been retired. Remaining structural cleanup is now:
 
 - `condition_lowering_box` / `condition_to_joinir`
 - bridge strict/env/LowerOnly semantics

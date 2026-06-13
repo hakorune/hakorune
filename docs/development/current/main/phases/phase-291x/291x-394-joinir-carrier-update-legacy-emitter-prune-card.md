@@ -35,14 +35,17 @@ Updated `loop_with_break_minimal::carrier_update` so all carrier updates use:
 emit_carrier_update_with_env
 ```
 
-When no body-local environment exists, the caller now creates an empty
-`LoopBodyLocalEnv` and still routes through `UpdateEnv`. This removes the
-ConditionEnv-only branch without changing resolution order for existing cases.
+When no body-local environment existed, the caller created an empty
+`LoopBodyLocalEnv` and routed through the then-current `UpdateEnv`. That was the
+historical state for this card; the later compiler-thin cleanup retired
+`UpdateEnv`, and active name resolution now flows through `ScopeManager`.
 
 ## Preserved Behavior
 
-- Existing ConditionEnv-only cases still resolve through `UpdateEnv`.
-- Body-local update cases continue to use the same `UpdateEnv` path.
+- Existing ConditionEnv-only cases preserve their resolution priority through
+  the active lowering env stack.
+- Body-local update cases preserve their priority through `ScopeManager` /
+  `LoopBodyLocalEnv`.
 - Conditional-step carrier updates are unchanged.
 
 ## Next Cleanup

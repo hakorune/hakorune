@@ -20,11 +20,6 @@ pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod common; // Internal lowering utilities
 pub mod condition_env; // Phase 171-fix: Condition expression environment
 pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logic
-#[cfg(test)]
-pub mod condition_lowering_box; // Legacy trait-adapter self-test harness
-#[cfg(test)]
-pub mod condition_to_joinir; // Legacy re-export facade self-test harness
-#[cfg(test)]
 pub(crate) mod condition_var_extractor; // Phase 171-fix: Variable extraction from condition AST
 pub mod debug_output_box; // Phase 85: Centralized debug output management
 pub mod error_tags; // Phase 86: Centralized error message formatting
@@ -63,8 +58,6 @@ pub mod stageb_body;
 pub mod stageb_funcscanner;
 pub mod type_hint_policy; // Phase 65.5: 型ヒントポリシー箱化
 pub mod type_inference; // Phase 65-2-A
-#[cfg(test)]
-pub mod update_env; // Legacy self-test harness for old update-expression env resolution
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
 pub(crate) mod value_id_ranges; // Internal ValueId range management
 

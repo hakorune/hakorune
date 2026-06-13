@@ -62,11 +62,8 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `join_value_space.rs`
 - `lowering` condition cluster
   - `condition_env.rs`
-  - `condition_lowering_box.rs` (test-only legacy trait harness)
-  - `condition_to_joinir.rs` (test-only legacy re-export facade)
   - `condition_var_extractor.rs`
   - `scope_manager.rs`
-  - `update_env.rs` (test-only legacy harness)
 - `lowering` loop-route cluster
   - `loop_form_intake.rs`
   - `loop_route_validator.rs`
@@ -107,3 +104,54 @@ Prep rule:
   coupling is reduced
 - prefer extracting pure sub-boxes first, then clean intra-tree boundaries, and
   only then revisit whole-subtree packaging
+
+## JOINIR-THIN Inventory
+
+This inventory supports `JOINIR-THIN-001` / `JOINIR-THIN-002` from the compiler
+pipeline thinning SSOT. It is classification-only unless a file is proven unused
+by `rg` and a targeted JoinIR test stays green.
+
+Observation / support surfaces:
+
+- `json.rs`
+- `frontend/func_meta.rs`
+- `verify.rs`
+- `verify_phi_reserved.rs`
+- `lowering/canonical_names.rs`
+- `lowering/error_tags.rs`
+- `lowering/debug_output_box.rs`
+- `lowering/value_id_ranges.rs`
+- `lowering/join_value_space.rs`
+- `ownership/*`
+
+Active lowering / bridge surfaces:
+
+- `lowering/condition_lowerer/*`
+- `lowering/expr_lowerer/*`
+- `lowering/generic_case_a/*`
+- `lowering/loop_to_join/*`
+- `lowering/loop_scope_shape/*`
+- target-specific lowerers such as `skip_ws.rs`, `funcscanner_trim.rs`,
+  `stage1_using_resolver.rs`, `stageb_body.rs`, and `stageb_funcscanner.rs`
+- bridge fence: `join_ir_vm_bridge/` and `join_ir_vm_bridge_dispatch/`
+
+Retired:
+
+- `lowering/update_env.rs`
+  - retired after usage inventory showed only the old test-only update-expression
+    environment harness
+  - promoted body-local / carrier resolution is covered by `ScopeManager`,
+    `condition_lowerer`, and `expr_lowerer` tests
+- `lowering/condition_lowering_box.rs`
+  - retired after usage inventory showed only the test-only trait harness
+  - `expr_lowerer` tests exercise the direct lowering API instead
+- `lowering/condition_to_joinir.rs`
+  - retired by `JOINIR-THIN-002`
+  - it was a `#[cfg(test)]` re-export facade with no external references
+  - tests now exercise `lowering/condition_lowerer/*` directly
+
+Rules:
+
+- keep Recipe / Verifier / Lower ownership outside JoinIR observation modules
+- do not add new accepted source shapes in this subtree during thinning
+- do not remove core loop/if route support as part of cleanup
