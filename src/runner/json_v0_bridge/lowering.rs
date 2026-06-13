@@ -272,15 +272,7 @@ pub(super) fn lower_program(
         .iter()
         .map(static_data_plan_from_json_v0)
         .collect();
-    crate::mir::record_layout_plan::refresh_module_record_layout_plans(&mut module);
-    crate::mir::array_record_storage_plan::refresh_module_array_record_storage_plans(&mut module);
-    crate::mir::array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans(&mut module);
-    crate::mir::array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans(&mut module);
-    crate::mir::array_record_packed_autouse_pilot::refresh_module_array_record_packed_autouse_pilot_plans(&mut module);
-    crate::mir::source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans(&mut module);
-    crate::mir::source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans(&mut module);
-    crate::mir::hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(&mut module);
-    crate::mir::hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(&mut module);
+    crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
     program::lower_main_body(&mut module, &prog.body, &env)?;
     if let Some(entry_def) = prog
         .defs

@@ -97,6 +97,22 @@ fn mir_optimizer_phase29x_allowlist_lock() {
 }
 
 #[test]
+fn mir_optimizer_visible_pipeline_groups_lock() {
+    assert_eq!(
+        mir_opt_pipeline_groups(),
+        &[
+            "normalize_frontend_surface",
+            "placement_effect_pre",
+            "canonical_simplification",
+            "memory_cleanup_wave",
+            "placement_effect_post",
+            "late_call_and_inline",
+            "optional_and_diagnostics",
+        ]
+    );
+}
+
+#[test]
 fn test_dce_does_not_drop_typeop_used_by_console_log() {
     // Build: %v=TypeOp(check); extern_call env.console.log(%v); ensure TypeOp remains after optimize
     let signature = FunctionSignature {

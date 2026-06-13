@@ -511,17 +511,7 @@ impl super::MirBuilder {
             .collect();
         module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();
         module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();
-        crate::mir::record_layout_plan::refresh_module_record_layout_plans(&mut module);
-        crate::mir::array_record_storage_plan::refresh_module_array_record_storage_plans(
-            &mut module,
-        );
-        crate::mir::array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans(&mut module);
-        crate::mir::array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans(&mut module);
-        crate::mir::array_record_packed_autouse_pilot::refresh_module_array_record_packed_autouse_pilot_plans(&mut module);
-        crate::mir::source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans(&mut module);
-        crate::mir::source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans(&mut module);
-        crate::mir::hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(&mut module);
-        crate::mir::hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(&mut module);
+        crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
         crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
 

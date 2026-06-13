@@ -42,6 +42,52 @@ Next review target:
 - pass-local verification and fail-fast checks
 - small helper wiring for optimizer / normalization stages
 
+## Optimizer Schedule Facade
+
+The visible optimizer schedule is documented as seven facade groups. These
+groups do not merge behavior-owning passes; they only make the top-level order
+readable.
+
+```text
+normalize_frontend_surface
+placement_effect_pre
+canonical_simplification
+memory_cleanup_wave
+placement_effect_post
+late_call_and_inline
+optional_and_diagnostics
+```
+
+SSOT:
+
+- `docs/development/current/main/design/compiler-pipeline-thinning-ssot.md`
+- `src/mir/optimizer/core.rs`
+
+Critical order contracts:
+
+```text
+placement_effect_pre
+  -> canonical_simplification
+  -> memory_cleanup_wave
+  -> placement_effect_post
+  -> late_call_and_inline
+```
+
+Do not physically merge DCE, memory-effect cleanup, or pre/post
+placement-effect without a separate optimizer behavior card.
+
+## Reserved / Scaffold Hooks
+
+These entries currently exist to keep the schedule seam stable. Do not read
+them as active optimizer wins.
+
+| Hook | Current behavior | Schedule group | Rule |
+| --- | --- | --- | --- |
+| `optimizer_passes::reorder::reorder_pure_instructions` | no-op scaffold; debug logging only | `late_call_and_inline` | keep until a separate card either implements or retires it |
+| `optimizer_passes::intrinsics::optimize_intrinsic_calls` | no-op scaffold; debug logging only | `late_call_and_inline` | keep until a separate card either implements or retires it |
+| `passes::type_hints::propagate_param_type_hints` | returns `0` updates | `late_call_and_inline` | keep as reserved hook; do not claim type propagation is active |
+| `optimizer_passes::normalize::normalize_ref_field_access` | idempotence marker only unless future rewriting lands | `normalize_frontend_surface` | do not move before proving Core-13 / ref-field timing |
+
 ## P5 Crate Split Prep
 
 `src/mir/passes/` is a future `hakorune-mir-passes` candidate. Keep the public seam

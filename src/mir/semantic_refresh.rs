@@ -62,6 +62,10 @@ use super::{
     refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
+    refresh_module_string_kernel_plans, refresh_module_sum_placement_facts,
+    refresh_module_sum_placement_layouts, refresh_module_sum_placement_selections,
+    refresh_module_thin_entry_candidates, refresh_module_thin_entry_selections,
+    refresh_module_value_consumer_facts,
     route_decision::{
         refresh_function_route_decisions, refresh_module_hotcore_route_decisions,
         refresh_module_typed_object_exact_slot_route_decisions,
@@ -90,13 +94,7 @@ pub fn refresh_function_string_corridor_metadata(function: &mut MirFunction) {
     refresh_function_string_corridor_candidates(function);
 }
 
-/// Refresh MIR semantic metadata for one function using the current module
-/// metadata as the shared context owner.
-///
-/// The first cut keeps the existing refresh order behavior-preserving while
-/// moving the owner behind a single entry point. Demand facts are refreshed
-/// beside placement decisions here, but they remain inspection-only metadata.
-pub fn refresh_function_semantic_metadata(
+fn refresh_function_source_and_fact_metadata(
     function: &mut MirFunction,
     module_metadata: &ModuleMetadata,
 ) {
@@ -109,9 +107,21 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_sum_placement_facts(function);
     refresh_function_sum_placement_selections(function);
     refresh_function_sum_placement_layouts(function);
+}
+
+fn refresh_function_placement_metadata(
+    function: &mut MirFunction,
+    module_metadata: &ModuleMetadata,
+) {
     refresh_function_agg_local_scalarization_routes(function, module_metadata);
     refresh_function_placement_effect_routes(function);
     refresh_function_value_consumer_facts(function);
+}
+
+fn refresh_function_pre_fixpoint_routes(
+    function: &mut MirFunction,
+    module_metadata: &ModuleMetadata,
+) {
     refresh_function_string_kernel_plans(function);
     refresh_function_string_direct_set_window_routes(function);
     refresh_function_generic_method_routes(function);
@@ -139,6 +149,9 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_array_text_residence_session_routes(function);
     refresh_function_array_text_observer_routes(function);
     refresh_function_array_text_combined_region_routes(function);
+}
+
+fn refresh_function_experimental_seed_routes(function: &mut MirFunction) {
     refresh_function_array_string_store_micro_seed_route(function);
     refresh_function_array_getset_micro_seed_route(function);
     refresh_function_array_rmw_add1_leaf_seed_route(function);
@@ -150,6 +163,22 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_userbox_loop_micro_seed_route(function);
     refresh_function_exact_seed_backend_route(function);
     refresh_function_array_text_state_residence_route(function);
+}
+
+/// Refresh MIR semantic metadata for one function using the current module
+/// metadata as the shared context owner.
+///
+/// The first cut keeps the existing refresh order behavior-preserving while
+/// moving the owner behind a single entry point. Demand facts are refreshed
+/// beside placement decisions here, but they remain inspection-only metadata.
+pub fn refresh_function_semantic_metadata(
+    function: &mut MirFunction,
+    module_metadata: &ModuleMetadata,
+) {
+    refresh_function_source_and_fact_metadata(function, module_metadata);
+    refresh_function_placement_metadata(function, module_metadata);
+    refresh_function_pre_fixpoint_routes(function, module_metadata);
+    refresh_function_experimental_seed_routes(function);
 }
 
 /// Recompute FastMemory region instruction counts from the canonical MIR stream.
@@ -183,6 +212,21 @@ pub fn refresh_function_fastmem_region_emitted_counts(function: &mut MirFunction
 
 /// Refresh MIR semantic metadata for the whole module.
 pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
+    refresh_module_layout_and_decl_plans(module);
+    let module_metadata = module.metadata.clone();
+    refresh_all_functions_semantic_metadata(module, &module_metadata);
+    refresh_module_route_convergence(module);
+    refresh_function_post_fixpoint_consumers(module, &module_metadata);
+    refresh_module_contracts_and_exact_numeric(module);
+}
+
+/// Refresh declaration-derived record/packed layout rows.
+///
+/// Builder and bridge paths need this subset immediately after declaration
+/// metadata is installed, before all function-local semantic metadata exists.
+/// Keep typed-object and direct-state planning out of this helper so callers do
+/// not accidentally move those timing boundaries.
+pub fn refresh_module_record_and_packed_layout_plans(module: &mut MirModule) {
     refresh_module_record_layout_plans(module);
     refresh_module_array_record_storage_plans(module);
     refresh_module_array_record_autouse_eligibility_plans(module);
@@ -192,15 +236,49 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_source_packed_array_direct_read_consumption_plans(module);
     refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);
     refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);
+}
+
+/// Refresh the JSON v0 bridge metadata subset after callsite canonicalization.
+///
+/// This preserves the historical bridge timing: JSON v0 lowers a partial module,
+/// canonicalizes callsites for runtime preflight compatibility, then refreshes
+/// only the metadata consumers required by the bridge. Do not replace this with
+/// full semantic refresh without a separate bridge timing proof.
+pub fn refresh_module_json_v0_post_canonicalize_metadata(module: &mut MirModule) {
+    refresh_module_thin_entry_candidates(module);
+    refresh_module_thin_entry_selections(module);
+    refresh_module_sum_placement_facts(module);
+    refresh_module_sum_placement_selections(module);
+    refresh_module_sum_placement_layouts(module);
+    refresh_module_value_consumer_facts(module);
+    refresh_module_string_kernel_plans(module);
+}
+
+fn refresh_module_layout_and_decl_plans(module: &mut MirModule) {
+    refresh_module_record_and_packed_layout_plans(module);
     refresh_module_typed_object_plans(module);
     refresh_module_direct_state_plans(module);
     refresh_module_record_state_residence_plans(module);
     refresh_module_typed_object_field_value_types(module);
-    let module_metadata = module.metadata.clone();
+}
+
+fn refresh_all_functions_semantic_metadata(
+    module: &mut MirModule,
+    module_metadata: &ModuleMetadata,
+) {
     for function in module.functions.values_mut() {
-        refresh_function_semantic_metadata(function, &module_metadata);
+        refresh_function_semantic_metadata(function, module_metadata);
     }
+}
+
+fn refresh_module_route_convergence(module: &mut MirModule) {
     refresh_module_route_fixpoint(module);
+}
+
+fn refresh_function_post_fixpoint_consumers(
+    module: &mut MirModule,
+    module_metadata: &ModuleMetadata,
+) {
     for function in module.functions.values_mut() {
         // Route fixpoint can add or refine generic method routes after the
         // function-local pass. Recompute route consumers here so metadata such
@@ -217,6 +295,9 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         refresh_function_receiver_snapshot_publication_plans(function);
         refresh_function_hotcore_method_summaries(function);
     }
+}
+
+fn refresh_module_contracts_and_exact_numeric(module: &mut MirModule) {
     refresh_module_direct_exact_hotcore_call_plans(module);
     refresh_module_hotcore_route_decisions(module);
     refresh_module_typed_object_exact_slot_route_decisions(module);

@@ -19,6 +19,24 @@ pub fn phase29x_opt_safeset() -> &'static [&'static str] {
     PHASE29X_OPT_SAFESET
 }
 
+/// Visible optimizer schedule groups.
+///
+/// These are facade groups only. They document the stable top-level ordering
+/// while the existing subpasses remain the behavior-owning implementation.
+pub const MIR_OPT_PIPELINE_GROUPS: &[&str] = &[
+    "normalize_frontend_surface",
+    "placement_effect_pre",
+    "canonical_simplification",
+    "memory_cleanup_wave",
+    "placement_effect_post",
+    "late_call_and_inline",
+    "optional_and_diagnostics",
+];
+
+pub fn mir_opt_pipeline_groups() -> &'static [&'static str] {
+    MIR_OPT_PIPELINE_GROUPS
+}
+
 impl MirOptimizer {
     /// Create new optimizer
     pub fn new() -> Self {
@@ -62,116 +80,127 @@ impl MirOptimizer {
                 .debug("🚀 Starting MIR optimization passes");
         }
 
-        // Env toggles for phased MIR cleanup
+        self.run_normalize_frontend_surface(module, &mut stats);
+        self.run_placement_effect_pre(module, &mut stats);
+        self.run_canonical_simplification(module, &mut stats);
+        self.run_memory_cleanup_wave(module, &mut stats);
+        self.run_placement_effect_post(module, &mut stats);
+        self.run_late_call_and_inline(module, &mut stats);
+        self.run_optional_and_diagnostics(module, &mut stats);
+
+        stats
+    }
+
+    fn run_normalize_frontend_surface(
+        &mut self,
+        module: &mut MirModule,
+        stats: &mut OptimizationStats,
+    ) {
         let core13 = crate::config::env::mir_core13();
         let mut ref_to_boxcall = crate::config::env::mir_ref_boxcall();
         if core13 {
             ref_to_boxcall = true;
         }
 
-        // Pass 0: Normalize legacy instructions to unified forms
-        //  - Includes optional Array→BoxCall guarded by env (inside the pass)
+        // Pass 0: Normalize legacy instructions to unified forms.
+        // Includes optional Array→BoxCall guarded by env inside the pass.
         stats.merge(
             crate::mir::optimizer_passes::normalize::normalize_legacy_instructions(self, module),
         );
-        // Pass 0.1: RefGet/RefSet → BoxCall(getField/setField) (guarded)
+        // Pass 0.1: RefGet/RefSet → BoxCall(getField/setField) (guarded).
         if ref_to_boxcall {
             stats.merge(
                 crate::mir::optimizer_passes::normalize::normalize_ref_field_access(self, module),
             );
         }
 
-        // Normalize Python helper form: py.getattr(obj, name) → obj.getattr(name)
+        // Normalize Python helper form: py.getattr(obj, name) → obj.getattr(name).
         stats.merge(
             crate::mir::optimizer_passes::normalize::normalize_python_helper_calls(self, module),
         );
+    }
 
-        // Step 5: run the first generic placement/effect transform owner seam
-        // before DCE so dead intermediate borrowed-string values can be removed
-        // in the same optimize wave.
+    fn run_placement_effect_pre(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
+        // Run the first generic placement/effect transform owner seam before
+        // DCE so dead intermediate borrowed-string values can be removed in
+        // the same optimize wave.
         let placement_effect_rewrites =
             crate::mir::passes::placement_effect_transform::apply_pre_dce_transforms(module);
         if placement_effect_rewrites > 0 {
             stats.intrinsic_optimizations += placement_effect_rewrites;
         }
+    }
 
-        // Pass 1: semantic simplification bundle owner seam
-        // Current cut keeps behavior identical by bundling the landed DCE and
-        // CSE passes under one top-level owner.
+    fn run_canonical_simplification(
+        &mut self,
+        module: &mut MirModule,
+        stats: &mut OptimizationStats,
+    ) {
+        // Semantic simplification bundle owner seam. Current cut keeps
+        // behavior identical by bundling the landed DCE and CSE passes under
+        // one top-level owner.
         stats.merge(crate::mir::passes::semantic_simplification::apply(module));
+    }
 
-        // Pass 1.1: memory-effect layer owner seam
-        // Current cut keeps the landed private-carrier Load/Store cleanup as a
-        // separate owner so future store/load widening can grow without
-        // re-burying the logic inside DCE.
+    fn run_memory_cleanup_wave(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
+        // Memory-effect layer owner seam. This remains separate from DCE so
+        // future store/load widening can grow without re-burying memory logic
+        // inside DCE.
         stats.merge(crate::mir::passes::memory_effect::apply(module));
 
-        // Pass 1.2: rerun the landed pure DCE cleanup after memory effects.
-        // The memory-effect lane can expose newly dead pure defs, so we keep
-        // the pure DCE sweep available as a cleanup pass without re-owning the
-        // memory-sensitive Load/Store logic.
+        // Rerun pure DCE after memory effects; this can expose newly dead pure
+        // defs after private-carrier Load/Store cleanup.
         stats.dead_code_eliminated += crate::mir::passes::dce::eliminate_dead_code(module);
+    }
 
-        // Step 5.1: rerun the generic placement/effect transform owner seam
-        // after the cleanup wave. The first sweep introduces `substring_len_hii`,
-        // but complementary length-pair fusion may only become single-use once
-        // dead substring temps and memory cleanup have both run in the same
-        // optimization wave.
+    fn run_placement_effect_post(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
+        // Rerun placement/effect after the cleanup wave. Some string corridor
+        // length-pair fusions only become single-use after dead temps and
+        // memory cleanup have both run.
         let placement_effect_reruns =
             crate::mir::passes::placement_effect_transform::apply_post_dce_transforms(module);
         if placement_effect_reruns > 0 {
             stats.intrinsic_optimizations += placement_effect_reruns;
         }
+    }
 
-        // Pass 2: Pure instruction reordering for better locality
+    fn run_late_call_and_inline(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
+        // Reserved hooks stay in their current order until a separate
+        // classification card retires or hides them from the visible schedule.
         stats.merge(crate::mir::optimizer_passes::reorder::reorder_pure_instructions(self, module));
-
-        // Pass 3: Intrinsic function optimization
         stats.merge(
             crate::mir::optimizer_passes::intrinsics::optimize_intrinsic_calls(self, module),
         );
 
-        // Safety-net passesは削除（Phase 2: 変換の一本化）。診断のみ後段で実施。
-
-        // Pass 4: BoxField dependency optimization
         stats.merge(
             crate::mir::optimizer_passes::boxfield::optimize_boxfield_operations(self, module),
         );
 
-        // Pass 5: 受け手型ヒントの伝搬（callsite→callee）
-        // 目的: helper(arr){ return arr.length() } のようなケースで、
-        //       呼び出し元の引数型（String/Integer/Bool/Float）を callee の params に反映し、
-        //       Lowererがより正確にBox種別を選べるようにする。
         let updates = crate::mir::passes::type_hints::propagate_param_type_hints(module);
         if updates > 0 {
             stats.intrinsic_optimizations += updates as usize;
         }
 
-        // Pass 5.5: Call-site canonicalization lane entry (MCL-0 scaffold)
         let canonicalized =
             crate::mir::passes::callsite_canonicalize::canonicalize_callsites(module);
         if canonicalized > 0 {
             stats.intrinsic_optimizations += canonicalized;
         }
 
-        // Pass 5.6: same-module leaf inline.
-        // This consumes MIR InlinePlan metadata only. Failed inline keeps the
-        // original call. Required inline is accepted only when the MIR-owned
-        // plan verifies against the current optimized leaf shape.
-        //
-        // Earlier cleanup passes can turn a required-inline body from
-        // over-budget into a narrow leaf. Refresh rune-derived plans here so
-        // inline acceptance reads the current MIR shape, not the builder-time
-        // pre-cleanup shape.
+        // Inline consumes refreshed MIR InlinePlan metadata only.
         crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
         let inline_soft_leaf = crate::mir::passes::inline_soft_leaf::apply(module);
         if inline_soft_leaf > 0 {
             stats.intrinsic_optimizations += inline_soft_leaf;
         }
+    }
 
-        // Pass 5.7 (opt-in): String concat chain canonicalization
-        //   (a + b) + c / a + (b + c) -> call extern nyash.string.concat3_hhh(a, b, c)
-        // NOTE: kept behind env gate while tuning perf parity with backend-local concat folding.
+    fn run_optional_and_diagnostics(
+        &mut self,
+        module: &mut MirModule,
+        stats: &mut OptimizationStats,
+    ) {
+        // Opt-in string concat chain canonicalization.
         if std::env::var("NYASH_MIR_CONCAT3_CANON").ok().as_deref() == Some("1") {
             let concat3 =
                 crate::mir::passes::concat3_canonicalize::canonicalize_string_concat3(module);
@@ -180,7 +209,8 @@ impl MirOptimizer {
             }
         }
 
-        // Pass 6 (optional): Core-13 pure normalization
+        // Optional Core-13 pure normalization stays late until a separate
+        // optimizer behavior card proves a different position is safe.
         if crate::config::env::mir_core13_pure() {
             stats.merge(
                 crate::mir::optimizer_passes::normalize_core13_pure::normalize_pure_core13(
@@ -194,16 +224,14 @@ impl MirOptimizer {
                 .log
                 .debug(&format!("✅ Optimization complete: {}", stats));
         }
-        // Diagnostics (informational): report unlowered patterns
+
         let diag1 =
             crate::mir::optimizer_passes::diagnostics::diagnose_unlowered_type_ops(self, module);
         stats.merge(diag1);
-        // Diagnostics (policy): detect legacy (pre-unified) instructions when requested
+
         let diag2 =
             crate::mir::optimizer_passes::diagnostics::diagnose_legacy_instructions(self, module);
         stats.merge(diag2);
-
-        stats
     }
 
     /// Convert instruction to string key for CSE

@@ -27,6 +27,8 @@ Canonical helpers
 - `bash tools/hako_check/fastmem_alloc_owner_shadow_counter_smoke.sh`
 - `bash tools/hako_check.sh --help`
 - `bash tools/hako_check.sh boxcall-contract`
+- `bash tools/hako_check.sh optimizer-schedule`
+- `bash tools/hako_check.sh semantic-refresh-inventory`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 
@@ -249,6 +251,77 @@ boxcall_contract_optional_sample_flag_count=1
 The plugin catalog sample remains an optional flag while it only demonstrates
 the same BoxCallable contract surface. Split it into a separate subcommand only
 when live artifact inputs or non-fixture report readers are added.
+
+Optimizer Schedule
+- `hako_check optimizer-schedule` is a read-only report surface for the visible
+  MIR optimizer facade schedule.
+- It reads `src/mir/optimizer/core.rs::MIR_OPT_PIPELINE_GROUPS` and renders the
+  stable group order. It does not infer optimizer behavior, merge physical
+  passes, run optimization, select keepers, or mutate MIR.
+- Stable entry:
+
+```bash
+bash tools/hako_check.sh optimizer-schedule
+```
+
+- Compact human summary:
+
+```bash
+bash tools/hako_check.sh optimizer-schedule --format summary
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-optimizer-schedule-v0
+tool_surface=hako_check_optimizer_schedule
+observation_only=1
+rewrite_executed=0
+keeper_selection=0
+optimizer_schedule_truth_source=src/mir/optimizer/core.rs::MIR_OPT_PIPELINE_GROUPS
+hako_check_optimizer_truth_count=0
+optimizer_behavior_changed=0
+optimizer_physical_pass_merge_count=0
+visible_group_count=7
+visible_group_order_matches_expected=1
+schedule_group[0]=normalize_frontend_surface
+schedule_group[1]=placement_effect_pre
+schedule_group[2]=canonical_simplification
+schedule_group[3]=memory_cleanup_wave
+schedule_group[4]=placement_effect_post
+schedule_group[5]=late_call_and_inline
+schedule_group[6]=optional_and_diagnostics
+summary=ok
+```
+
+Semantic Refresh Inventory
+- `hako_check semantic-refresh-inventory` is a read-only report surface for the
+  remaining semantic refresh duplicate entry seams.
+- It does not run refresh, change ordering, infer pass safety, or mutate MIR.
+  It records which entry points are intentional timing seams and which one is
+  the next duplicate helper candidate.
+- Stable entry:
+
+```bash
+bash tools/hako_check.sh semantic-refresh-inventory
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-semantic-refresh-inventory-v0
+tool_surface=hako_check_semantic_refresh_inventory
+observation_only=1
+rewrite_executed=0
+semantic_refresh_truth_source=src/mir/semantic_refresh.rs
+semantic_refresh_inventory_source=docs/development/current/main/design/compiler-pipeline-thinning-ssot.md
+semantic_refresh_remaining_duplicate_candidate_count=0
+semantic_refresh_resolved_helper_count=1
+semantic_refresh_inventory[5].id=json_v0_post_canonicalize_metadata_subset
+semantic_refresh_behavior_changed=0
+semantic_refresh_order_changed=0
+summary=ok
+```
 
 Replacement Front Report
 - `hako_check replacement-front-report` is an observation-only adapter for

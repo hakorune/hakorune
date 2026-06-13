@@ -72,6 +72,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/mir-cleanup-policy-ssot.md`
   - BoxShape-only MIR cleanup policy; keeps cleanup work separate from
     acceptance-shape, optimizer, and perf keeper changes
+- `design/compiler-pipeline-thinning-ssot.md`
+  - compiler pipeline thinning execution order; keeps semantic refresh,
+    optimizer, verifier, and JoinIR thinning as facade/boundary cleanup before
+    any behavior merge
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
@@ -167,6 +171,8 @@ Rule:
     `docs/development/current/main/design/type-abi-box-domain-ssot.md`
   - MIR Cleanup Policy:
     `docs/development/current/main/design/mir-cleanup-policy-ssot.md`
+  - Compiler Pipeline Thinning:
+    `docs/development/current/main/design/compiler-pipeline-thinning-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 
