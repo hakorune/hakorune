@@ -29,8 +29,9 @@ Step placement split (SSOT, no behavior change):
 - `facts/canon/generic_loop/step/placement/*`: compatibility facade only
 
 Condition split (SSOT, no behavior change):
-- `condition/candidates.rs`: loop_var candidate 観測だけ担当
-- `condition/bound.rs`: BoundExpr 観測だけ担当
+- `control_flow/generic_loop_canon/condition/candidates.rs`: loop_var candidate 観測だけ担当
+- `control_flow/generic_loop_canon/condition/bound.rs`: BoundExpr 観測だけ担当
+- `facts/canon/generic_loop/condition.rs`: compatibility facade only
 
 Update canon split (SSOT, no behavior change):
 - `control_flow/generic_loop_canon/update/literal_match.rs`: update 式の shape match だけ担当

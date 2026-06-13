@@ -11,6 +11,12 @@ update/:
   no route selection
   no lowering
 
+condition/:
+  observes loop-condition candidates and bounds
+  builds facts-side ConditionCanon
+  no route selection
+  no lowering
+
 step_placement/:
   observes direct and conditional step assignments
   classifies observations into StepPlacementDecision
@@ -23,6 +29,7 @@ Older deep paths remain facades while imports migrate:
 
 ```text
 facts/canon/generic_loop/update.rs
+facts/canon/generic_loop/condition.rs
 facts/canon/generic_loop/step/placement/matcher.rs
 plan/canon/generic_loop/step/placement/decision.rs
 ```

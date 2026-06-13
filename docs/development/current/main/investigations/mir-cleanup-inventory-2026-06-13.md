@@ -565,6 +565,49 @@ no additional generic-loop acceptance shape added
 targeted generic-loop facts tests green
 ```
 
+### MIR-CLEAN-008
+
+Move generic-loop condition canon under grouped owner.
+
+Status: landed 2026-06-13.
+
+Candidate:
+
+```text
+generic_loop condition canon
+```
+
+Landed owner:
+
+```text
+src/mir/builder/control_flow/generic_loop_canon/condition/
+  bound.rs
+  candidates.rs
+  mod.rs
+```
+
+Compatibility facade:
+
+```text
+src/mir/builder/control_flow/facts/canon/generic_loop/condition.rs
+```
+
+Verification:
+
+```bash
+cargo test --release --lib generic_loop::facts::extract -- --nocapture
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+facts-only condition canon subtree
+old facts path remains facade-backed
+no acceptance shape added
+targeted generic-loop facts tests green
+```
+
 ## Non-Goals
 
 ```text

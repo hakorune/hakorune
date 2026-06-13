@@ -88,6 +88,14 @@ Existing pilots are grouped under src/mir/builder/control_flow/generic_loop_cano
 Add future generic-loop condition/step-extract owners under that grouped owner.
 ```
 
+Condition canon follow-up:
+
+```text
+landed 2026-06-13
+current owner: src/mir/builder/control_flow/generic_loop_canon/condition/
+old facts path: facts/canon/generic_loop/condition.rs remains facade
+```
+
 Pilot rule:
 
 ```text
