@@ -111,8 +111,7 @@ fn decode_tlv_result(
                         } else {
                             (box_type.to_string(), None)
                         };
-                    let route =
-                        super::route_resolver::resolve_invoke_route_contract(loader, ret_type);
+                    let route = super::runtime_invoke_boundary::resolve(loader, ret_type);
                     let handle = Arc::new(super::types::PluginHandleInner {
                         type_id: ret_type,
                         invoke_fn: route.invoke_shim_fn,

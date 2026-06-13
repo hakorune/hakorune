@@ -48,6 +48,12 @@ pub const METHOD_PLAN_DIRECT_PROVIDER_SEED_COUNT: &str = "method_plan_direct_pro
 pub const LIFECYCLE_PLAN_DIRECT_PROVIDER_SEED_COUNT: &str =
     "lifecycle_plan_direct_provider_seed_count";
 pub const REGISTRY_SNAPSHOT_CACHE_REQUIRED_COUNT: &str = "registry_snapshot_cache_required_count";
+pub const RUNTIME_INVOKE_BOUNDARY_MODULE_COUNT: &str = "runtime_invoke_boundary_module_count";
+pub const ROUTE_RESOLVER_INVOKE_CONTRACT_COUNT: &str = "route_resolver_invoke_contract_count";
+pub const RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT: &str =
+    "runtime_invoke_boundary_derives_fn_pointer_count";
+pub const CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT: &str =
+    "callable_route_truth_from_invoke_boundary_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -138,6 +144,16 @@ pub const BOXCALL_009_ROWS: &[(&str, &str)] = &[
     (LIFECYCLE_PLAN_DIRECT_PROVIDER_SEED_COUNT, "0"),
     (REGISTRY_SNAPSHOT_CACHE_REQUIRED_COUNT, "0"),
     (PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY, "1"),
+    (DUPLICATE_CALLABLE_TRUTH_COUNT, "0"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BOXCALL_010_ROWS: &[(&str, &str)] = &[
+    (RUNTIME_INVOKE_BOUNDARY_MODULE_COUNT, "1"),
+    (ROUTE_RESOLVER_INVOKE_CONTRACT_COUNT, "0"),
+    (RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT, "1"),
+    (CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT, "0"),
     (DUPLICATE_CALLABLE_TRUTH_COUNT, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
@@ -284,6 +300,22 @@ mod tests {
         assert_eq!(rows[LIFECYCLE_PLAN_DIRECT_PROVIDER_SEED_COUNT], "0");
         assert_eq!(rows[REGISTRY_SNAPSHOT_CACHE_REQUIRED_COUNT], "0");
         assert_eq!(rows[PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY], "1");
+        assert_eq!(rows[DUPLICATE_CALLABLE_TRUTH_COUNT], "0");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_010_rows_keep_invoke_boundary_out_of_route_truth() {
+        let rows = BOXCALL_010_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_MODULE_COUNT], "1");
+        assert_eq!(rows[ROUTE_RESOLVER_INVOKE_CONTRACT_COUNT], "0");
+        assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT], "1");
+        assert_eq!(rows[CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT], "0");
         assert_eq!(rows[DUPLICATE_CALLABLE_TRUTH_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");

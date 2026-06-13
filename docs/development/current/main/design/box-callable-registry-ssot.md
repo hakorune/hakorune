@@ -617,6 +617,53 @@ Route plans remain execution shape.
 No TypeAbiCatalog lookup is introduced in runtime path.
 ```
 
+### BOXCALL-010
+
+Name runtime invoke binding as a boundary, not route truth.
+
+Status: landed 2026-06-13.
+
+Decision:
+
+```text
+Plugin method_id / lifecycle_id route truth lives in BoxCallableRegistry.
+Runtime function pointers and compat shim policy live in runtime_invoke_boundary.
+Do not expose invoke function pointer lookup as route_resolver truth.
+```
+
+Acceptance:
+
+```text
+runtime_invoke_boundary_module_count=1
+route_resolver_invoke_contract_count=0
+runtime_invoke_boundary_derives_fn_pointer_count=1
+callable_route_truth_from_invoke_boundary_count=0
+```
+
+Code entry:
+
+```text
+Runtime invoke boundary:
+  src/runtime/plugin_loader_v2/enabled/runtime_invoke_boundary.rs
+
+Consumers:
+  src/runtime/plugin_loader_v2/enabled/method_route_plan.rs
+  src/runtime/plugin_loader_v2/enabled/lifecycle_route_plan.rs
+  src/runtime/plugin_loader_v2/enabled/ffi_bridge.rs
+  src/runtime/plugin_loader_v2/enabled/loader/metadata.rs
+  src/runtime/plugin_loader_v2/enabled/types.rs
+```
+
+Boundary:
+
+```text
+runtime_invoke_boundary:
+  resolves invoke_box/invoke_shim function pointers and compat shim policy.
+
+route_resolver:
+  remains config/spec/provider export helper, not invoke execution route truth.
+```
+
 ## Non-Goals
 
 ```text

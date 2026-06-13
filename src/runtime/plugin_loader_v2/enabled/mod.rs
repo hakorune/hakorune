@@ -15,6 +15,7 @@ mod loader;
 mod method_resolver;
 mod method_route_plan;
 mod route_resolver;
+mod runtime_invoke_boundary;
 mod types;
 
 pub use box_callable_exports::PluginCallableExport;

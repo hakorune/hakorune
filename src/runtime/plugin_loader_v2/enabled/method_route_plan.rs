@@ -30,7 +30,7 @@ pub(super) fn resolve_method_call_plan(
         return Err(BidError::InvalidMethod);
     };
 
-    let runtime_route = super::route_resolver::resolve_invoke_route_contract(loader, type_id);
+    let runtime_route = super::runtime_invoke_boundary::resolve(loader, type_id);
     let semantic_route = InvokeRoutePlan::PluginV2 {
         type_id,
         invoke_box_available: runtime_route.invoke_box_fn.is_some(),

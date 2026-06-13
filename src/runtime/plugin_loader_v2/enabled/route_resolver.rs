@@ -3,7 +3,6 @@
 //! Keeps config/spec/compat resolution policy in one place so bridge and
 //! instance manager do not duplicate route logic.
 
-use super::host_bridge::{BoxInvokeFn, InvokeFn};
 use super::loader::PluginLoaderV2;
 use super::PluginCallableExport;
 use crate::bid::{BidError, BidResult};
@@ -21,13 +20,6 @@ pub(super) struct BirthRouteContract {
     pub type_id: u32,
     pub birth_id: u32,
     pub fini_id: Option<u32>,
-}
-
-#[derive(Clone, Copy)]
-pub(super) struct InvokeRouteContract {
-    pub invoke_box_fn: Option<BoxInvokeFn>,
-    pub invoke_shim_fn: InvokeFn,
-    pub allow_compat_shim: bool,
 }
 
 #[inline]
@@ -320,17 +312,6 @@ pub(super) fn resolve_birth_contract_for_lib(
     })
 }
 
-pub(super) fn resolve_invoke_route_contract(
-    loader: &PluginLoaderV2,
-    type_id: u32,
-) -> InvokeRouteContract {
-    InvokeRouteContract {
-        invoke_box_fn: loader.box_invoke_fn_for_type_id(type_id),
-        invoke_shim_fn: super::super::nyash_plugin_invoke_v2_shim,
-        allow_compat_shim: compat_route_fallback_enabled(),
-    }
-}
-
 pub(super) fn export_box_callable_contracts(
     loader: &PluginLoaderV2,
 ) -> BidResult<Vec<PluginCallableExport>> {
@@ -562,34 +543,6 @@ run = { method_id = 7, returns_result = true }
         assert_eq!(got.type_id, 42);
         assert_eq!(got.birth_id, 1);
         assert_eq!(got.fini_id, Some(999));
-    }
-
-    #[test]
-    fn resolve_invoke_route_contract_returns_shim_when_invoke_box_missing() {
-        let loader = seed_loader_with_spec();
-        with_env_vars(
-            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
-            || {
-                let got = resolve_invoke_route_contract(&loader, 42);
-                assert!(got.invoke_box_fn.is_none());
-                assert!(got.allow_compat_shim);
-                // With no per-box invoke function, shim returns E_PLUGIN (-5).
-                let mut out = [0u8; 8];
-                let mut out_len: usize = out.len();
-                let code = unsafe {
-                    (got.invoke_shim_fn)(
-                        42,
-                        7,
-                        1,
-                        std::ptr::null(),
-                        0,
-                        out.as_mut_ptr(),
-                        &mut out_len,
-                    )
-                };
-                assert_eq!(code, -5);
-            },
-        );
     }
 
     #[test]

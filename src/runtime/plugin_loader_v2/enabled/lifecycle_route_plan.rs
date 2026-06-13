@@ -62,7 +62,7 @@ fn resolve_newbox_lifecycle_plan_from_registry(
         return Err(BidError::InvalidMethod);
     };
 
-    let runtime_route = super::route_resolver::resolve_invoke_route_contract(loader, *type_id);
+    let runtime_route = super::runtime_invoke_boundary::resolve(loader, *type_id);
     let semantic_route = InvokeRoutePlan::PluginV2 {
         type_id: *type_id,
         invoke_box_available: runtime_route.invoke_box_fn.is_some(),

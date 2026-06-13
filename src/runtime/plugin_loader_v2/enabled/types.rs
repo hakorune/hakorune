@@ -15,7 +15,7 @@ fn dbg_on() -> bool {
 fn resolve_global_invoke_box_fn(type_id: u32) -> Option<BoxInvokeFn> {
     let loader = super::globals::get_global_loader_v2();
     let guard = loader.read().ok()?;
-    let route = super::route_resolver::resolve_invoke_route_contract(&guard, type_id);
+    let route = super::runtime_invoke_boundary::resolve(&guard, type_id);
     route.invoke_box_fn
 }
 
@@ -24,7 +24,7 @@ fn resolve_global_allow_compat_shim(type_id: u32) -> bool {
     let Some(guard) = loader.read().ok() else {
         return false;
     };
-    let route = super::route_resolver::resolve_invoke_route_contract(&guard, type_id);
+    let route = super::runtime_invoke_boundary::resolve(&guard, type_id);
     route.allow_compat_shim
 }
 
