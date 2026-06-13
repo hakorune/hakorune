@@ -91,6 +91,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/generic-case-a-trim-thinning-ssot.md`
   - BoxShape-only cleanup order for FuncScanner trim JoinIR lowering; keeps
     trim shape, ValueId ranges, and whitespace semantics unchanged
+- `design/user-method-policy-thinning-ssot.md`
+  - BoxShape-only cleanup order for JoinIR user-defined static method policy;
+    keeps allow-list truth and unknown-box fail-fast behavior unchanged
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
