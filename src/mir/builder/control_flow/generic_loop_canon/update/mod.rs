@@ -4,7 +4,7 @@
 //! and fact construction separate.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
-use crate::mir::builder::control_flow::facts::canon::generic_loop::UpdateCanon;
+use crate::mir::builder::control_flow::generic_loop_canon::UpdateCanon;
 
 mod literal_match;
 mod literal_step;

@@ -8,11 +8,11 @@ pub(in crate::mir::builder) mod step;
 pub(in crate::mir::builder) mod types;
 mod update;
 
-pub(crate) use condition::canon_condition_for_generic_loop_v0;
-pub(crate) use step::{
-    canon_loop_increment_for_var, is_break_else_if_with_increment, is_continue_if_with_increment,
-    matches_loop_increment,
+#[allow(unused_imports)]
+pub(crate) use crate::mir::builder::control_flow::generic_loop_canon::{
+    canon_condition_for_generic_loop_v0, canon_loop_increment_for_var, canon_update_for_loop_var,
+    is_break_else_if_with_increment, is_continue_if_with_increment, matches_loop_increment,
+    ConditionCanon, UpdateCanon,
 };
 #[allow(unused_imports)]
-pub(crate) use types::{ConditionCanon, UpdateCanon};
-pub(crate) use update::canon_update_for_loop_var;
+pub(crate) use types::{ConditionCanon as LegacyConditionCanon, UpdateCanon as LegacyUpdateCanon};

@@ -1,5 +1,5 @@
 use crate::ast::LiteralValue;
-use crate::mir::builder::control_flow::facts::canon::generic_loop::UpdateCanon;
+use crate::mir::builder::control_flow::generic_loop_canon::UpdateCanon;
 
 use super::UpdateLiteralMatch;
 

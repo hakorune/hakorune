@@ -663,6 +663,46 @@ no acceptance shape added
 targeted generic-loop facts tests green
 ```
 
+### MIR-CLEAN-010
+
+Migrate generic-loop canon consumers away from old facades.
+
+Status: landed 2026-06-13.
+
+Scope:
+
+```text
+src/mir/builder/control_flow/plan/generic_loop/**
+src/mir/builder/control_flow/facts/extractors/**
+src/mir/builder/control_flow/plan/canon/generic_loop**
+src/mir/builder/control_flow/facts/canon/generic_loop**
+```
+
+Decision:
+
+```text
+generic_loop_canon is the direct owner for canon functions and canon types.
+Old facts/plan canon paths remain compatibility facades only.
+```
+
+Verification:
+
+```bash
+rg -n "control_flow::facts::canon::generic_loop|control_flow::plan::canon::generic_loop" src/mir
+cargo test --release --lib generic_loop::facts::extract -- --nocapture
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+generic-loop planner consumers import generic_loop_canon directly
+generic_loop_canon internals do not import old facts/plan facades
+old facts/plan canon paths remain re-export-only facades
+no acceptance shape added
+targeted generic-loop facts tests green
+```
+
 ## Non-Goals
 
 ```text

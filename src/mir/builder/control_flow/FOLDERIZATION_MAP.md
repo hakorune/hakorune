@@ -104,6 +104,15 @@ current owner: src/mir/builder/control_flow/generic_loop_canon/step_extract/
 old facts path: facts/canon/generic_loop/step/extract.rs remains facade
 ```
 
+Facade import migration:
+
+```text
+landed 2026-06-13
+generic_loop_canon is the direct owner for canon functions and canon types
+facts/canon/generic_loop** and plan/canon/generic_loop** remain compatibility facades
+new generic-loop consumers should import generic_loop_canon directly
+```
+
 Pilot rule:
 
 ```text

@@ -4,7 +4,7 @@
 //! candidate collection and bound extraction separate.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::facts::canon::generic_loop::ConditionCanon;
+use crate::mir::builder::control_flow::generic_loop_canon::ConditionCanon;
 use crate::mir::policies::{CondParam, CondProfile, CondSkeleton};
 
 pub(in crate::mir::builder) mod bound;

@@ -11,6 +11,10 @@ update/:
   no route selection
   no lowering
 
+types.rs:
+  owns ConditionCanon, UpdateCanon, StepPlacement, and StepPlacementDecision
+  old facts/plan type paths are compatibility facades
+
 condition/:
   observes loop-condition candidates and bounds
   builds facts-side ConditionCanon
@@ -39,6 +43,8 @@ facts/canon/generic_loop/condition.rs
 facts/canon/generic_loop/step/extract.rs
 facts/canon/generic_loop/step/placement/matcher.rs
 plan/canon/generic_loop/step/placement/decision.rs
+facts/canon/generic_loop/types.rs
+plan/canon/generic_loop/types.rs
 ```
 
 Do not add more top-level `control_flow/` siblings for generic-loop canon
