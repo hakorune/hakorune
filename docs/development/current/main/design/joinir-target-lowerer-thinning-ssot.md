@@ -420,6 +420,12 @@ funcscanner_trim/builder.rs:
 
 funcscanner_trim/dispatch.rs:
   MIR-vs-handwritten dispatch and route-local sanity checks
+
+stage1_using_resolver.rs:
+  route entry, MIR probe, handwritten wrapper, and stage1-specific generic hook
+
+stage1_using_resolver/builder.rs:
+  route-local handwritten/shared JoinIR construction
 ```
 
 This split is physical packaging only. It does not change route selection,
