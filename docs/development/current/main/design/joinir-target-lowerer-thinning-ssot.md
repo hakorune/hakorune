@@ -424,6 +424,9 @@ funcscanner_trim/builder.rs:
 funcscanner_trim/dispatch.rs:
   MIR-vs-handwritten dispatch and route-local sanity checks
 
+funcscanner_trim/skip_leading.rs:
+  route-local skip_leading JoinIR function construction
+
 common/string_whitespace.rs:
   shared whitespace predicate instruction builder for trim-style lowerers
   used by handwritten trim and generic Case-A trim
