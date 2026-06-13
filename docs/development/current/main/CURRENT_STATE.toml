@@ -6,22 +6,22 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-12"
+date = "2026-06-13"
 
 active_lane = "MIMALLOC-USERBOX-COUNTER-HEAVY-001 exact-front optimization"
-active_lane_status = "296x-649 selected kilo_micro_userbox_counter_step_chain as the primary userbox/counter-heavy exact front; next work reduces step_chain dispatch/boxing cost with source/MIR/perf evidence fixed."
+active_lane_status = "296x-657 refreshed kilo_micro_userbox_counter_step_chain source/MIR/perf evidence after fixing the nyash_kernel release-build seam; next work inspects the selected AOT route for Counter.step_chain/0 and Counter.step/0."
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-649-HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-657-MIMALLOC-USERBOX-COUNTER-HEAVY-001-BASELINE-REFRESH.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-649-HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-649-HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION.md"
-latest_card_summary = """296x-649 starts the userbox/counter-heavy exact-front
-optimization lane with kilo_micro_userbox_counter_step_chain as the primary
-front and keeps provider activation, allocator replacement, hooks, global
-allocator claims, and winner claims closed."""
+latest_card = "296x-657-MIMALLOC-USERBOX-COUNTER-HEAVY-001-BASELINE-REFRESH"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-657-MIMALLOC-USERBOX-COUNTER-HEAVY-001-BASELINE-REFRESH.md"
+latest_card_summary = """296x-657 refreshes the selected
+kilo_micro_userbox_counter_step_chain source/MIR/perf baseline, records the
+nyash_kernel release-build seam fix, and keeps provider activation,
+replacement, hooks, global allocator claims, and winner claims closed."""
 current_blocker_token = "HAKO-MIMALLOC-USERBOX-COUNTER-HEAVY-OPTIMIZATION-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
