@@ -85,6 +85,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/loop-body-local-init-thinning-ssot.md`
   - BoxShape-only cleanup order for JoinIR body-local init lowering; keeps
     expression support and receiver lookup order unchanged
+- `design/inline-boundary-builder-thinning-ssot.md`
+  - BoxShape-only cleanup order for JoinInlineBoundary construction; keeps
+    builder defaults and ParamRole routing unchanged
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
