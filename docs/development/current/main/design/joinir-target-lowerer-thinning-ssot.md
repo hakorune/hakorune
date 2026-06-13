@@ -433,10 +433,15 @@ common/string_whitespace.rs:
   does not own route acceptance or fallback policy
 
 stage1_using_resolver.rs:
-  route entry, MIR probe, handwritten wrapper, and stage1-specific generic hook
+  route facade only
+  owns public lower_stage1_usingresolver_to_joinir entry
 
 stage1_using_resolver/builder.rs:
   route-local handwritten/shared JoinIR construction
+
+stage1_using_resolver/dispatch.rs:
+  MIR-vs-handwritten dispatch
+  owns stage1-specific params_len guard and diagnostics
 
 skip_ws.rs:
   route entry, MIR probe, handwritten wrapper, and skip_ws-specific canary hook
