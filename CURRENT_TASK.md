@@ -37,9 +37,9 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- current work is the exact inline-bool scalar lowering lane named by
-  `CURRENT_STATE.toml`; `kilo_micro_userbox_flag_toggle` is the selected
-  non-folded exact-AOT kernel front, and
+- current work is the next non-folded exact-front selection lane named by
+  `CURRENT_STATE.toml`; `kilo_micro_userbox_flag_toggle` landed as the
+  inline-bool scalar lowering keeper, and
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row

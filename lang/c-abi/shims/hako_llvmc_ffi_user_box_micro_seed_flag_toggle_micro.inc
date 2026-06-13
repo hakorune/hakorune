@@ -25,40 +25,31 @@ static int hako_llvmc_emit_userbox_flag_toggle_micro_ir(
 
   hako_llvmc_emit_entry_header(f, selection);
   fprintf(f, "entry:\n");
-  fprintf(f, "  %%enabled = alloca i64, align 8\n");
   fprintf(f, "  %%acc = alloca i64, align 8\n");
-  fprintf(f, "  %%i = alloca i64, align 8\n");
-  /* Keep the synthetic BoolBox field promotable; acc stays volatile as the benchmark anchor. */
-  fprintf(f, "  store i64 1, ptr %%enabled, align 8\n");
+  /* Keep acc volatile as the benchmark anchor. The synthetic BoolBox field is a
+   * proven 0/1 scalar on this exact route, so carry it in SSA instead of
+   * re-normalizing it through an i64 load each iteration. */
   fprintf(f, "  store volatile i64 0, ptr %%acc, align 8\n");
-  fprintf(f, "  store i64 0, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");
 
   fprintf(f, "loop:\n");
-  fprintf(f, "  %%i.cur = load i64, ptr %%i, align 8\n");
+  fprintf(f, "  %%i.cur = phi i64 [0, %%entry], [%%i.next, %%loop.body]\n");
+  fprintf(f, "  %%enabled.cur = phi i64 [1, %%entry], [%%enabled.next, %%loop.body]\n");
   fprintf(f, "  %%loop.cond = icmp slt i64 %%i.cur, %lld\n", ops);
   fprintf(f, "  br i1 %%loop.cond, label %%loop.body, label %%exit\n\n");
 
   fprintf(f, "loop.body:\n");
-  fprintf(f, "  %%enabled.cur = load i64, ptr %%enabled, align 8\n");
-  fprintf(f, "  %%enabled.cur.bool = icmp ne i64 %%enabled.cur, 0\n");
-  fprintf(f, "  %%enabled.cur.i64 = zext i1 %%enabled.cur.bool to i64\n");
   fprintf(f, "  %%acc.cur = load volatile i64, ptr %%acc, align 8\n");
-  fprintf(f, "  %%acc.next = add i64 %%acc.cur, %%enabled.cur.i64\n");
+  fprintf(f, "  %%acc.next = add i64 %%acc.cur, %%enabled.cur\n");
   fprintf(f, "  store volatile i64 %%acc.next, ptr %%acc, align 8\n");
   fprintf(f, "  %%enabled.next.bool = icmp slt i64 %%i.cur, %lld\n", flip_at);
   fprintf(f, "  %%enabled.next = zext i1 %%enabled.next.bool to i64\n");
-  fprintf(f, "  store i64 %%enabled.next, ptr %%enabled, align 8\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
-  fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");
 
   fprintf(f, "exit:\n");
   fprintf(f, "  %%acc.fin = load volatile i64, ptr %%acc, align 8\n");
-  fprintf(f, "  %%enabled.fin = load i64, ptr %%enabled, align 8\n");
-  fprintf(f, "  %%enabled.fin.bool = icmp ne i64 %%enabled.fin, 0\n");
-  fprintf(f, "  %%enabled.fin.i64 = zext i1 %%enabled.fin.bool to i64\n");
-  fprintf(f, "  %%ret = add i64 %%acc.fin, %%enabled.fin.i64\n");
+  fprintf(f, "  %%ret = add i64 %%acc.fin, %%enabled.cur\n");
   fprintf(f, "  ret i64 %%ret\n");
   fprintf(f, "}\n");
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
