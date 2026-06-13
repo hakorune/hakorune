@@ -289,6 +289,14 @@ type_abi_hot_lookup_count=0
 
 Select exactly one CorePlan / JoinIR compiler-expressivity family.
 
+Status:
+
+```text
+selected_by=
+  docs/development/current/main/phases/phase-293x/293x-1005-COREPLAN-FOUND-000-001.md
+selected_family=B1_remaining_compatibility_normalizer_legoization
+```
+
 Candidate families:
 
 ```text
@@ -317,6 +325,20 @@ selected_family_ssot_exists=1
 fixture_or_guard_named=1
 release_default_changed=0
 planner_required_failfast_preserved=1
+```
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md
+  tools/checks/coreplan_compat_normalizer_legoization_guard.sh
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_compat_normalizer_legoization_guard.sh
 ```
 
 ## Do Not Do Yet

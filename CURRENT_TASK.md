@@ -43,9 +43,9 @@ Scope: current lane / next lane / restart order only.
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
   BoxCallableRegistry is callable truth, TypeAbiCatalog and BoxDescriptor are
   read-only projection/tooling surfaces
-- second foundation owner is CorePlan / JoinIR expressivity: select one family
-  before implementation, and do not mix BoxCount acceptance expansion with
-  BoxShape cleanup
+- second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
+  compatibility normalizer lego-ization is selected, with the first SSOT/guard
+  boundary landed before behavior changes
 - optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
@@ -92,4 +92,5 @@ Scope: current lane / next lane / restart order only.
 4. `docs/development/current/main/design/box-callable-registry-ssot.md`
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+7. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

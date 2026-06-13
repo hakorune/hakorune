@@ -35,8 +35,9 @@ Related:
 - next BoxCallable task is reconciliation/proof, not first implementation:
   reconcile older TypeAbiBoxDomain rows with landed BoxCallable rows and name
   narrow proof commands
-- next CorePlan task is selection only: choose one B1/C1/D1/E1 family before
-  implementation
+- CorePlan family B1 is selected: remaining compatibility normalizer
+  lego-ization has a first SSOT/guard boundary; next code work must keep that
+  row BoxShape-only unless a new BoxCount card is opened
 - exact-front optimization is paused; resume later through
   `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -57,7 +58,8 @@ Related:
 4. `docs/development/current/main/design/box-callable-registry-ssot.md`
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+7. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 

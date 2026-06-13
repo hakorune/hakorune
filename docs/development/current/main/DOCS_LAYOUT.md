@@ -68,6 +68,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/type-abi-box-domain-ssot.md`
   - Box Domain ownership for TypeBox slots, PluginLoader route contracts,
     lifecycle routes, and NewBox/DropBox plan boundaries
+- `design/coreplan-compat-normalizer-legoization-ssot.md`
+  - COREPLAN-FOUND-000/001 owner for the first selected CorePlan foundation
+    family; keeps remaining compatibility normalizer work as BoxShape-only
+    lego-ization before any accepted-shape expansion
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
 - `design/current-docs-archive-policy-ssot.md`

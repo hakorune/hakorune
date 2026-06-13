@@ -11,14 +11,18 @@ Responsibilities:
 
 Forbidden:
 - Do not re-parse AST for shape detection (facts/canon only).
+- Do not list retired route files as active modules.
+- Do not add new route-specific normalizer files for CorePlan acceptance; use
+  skeletons/features/parts/recipe_tree and update REGISTRY instead.
 
 Modules:
 - helpers.rs: shared block layouts, phi bindings, AST-to-ValueId lowering helpers.
 - common.rs: small normalizer helpers shared across loop-cond pipelines.
 - cond_lowering_*.rs: header/body/value condition lowering entry points.
 - loop_body_lowering.rs: statement/effect lowering helpers used by loop pipelines.
-- simple_while_coreloop_builder.rs: simple-while coreloop scaffold helper.
 
 Retired:
 - loop_break.rs: removed in 291x-711; break expansion belongs in ExitMap /
   feature pipelines, not a test-only normalizer shelf.
+- simple_while_coreloop_builder.rs: removed; simple-while expansion belongs in
+  generic loop skeleton/features or a documented FlowPlanner row.
