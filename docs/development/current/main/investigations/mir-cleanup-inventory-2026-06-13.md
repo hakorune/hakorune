@@ -328,6 +328,50 @@ no module deletion yet
 
 Classify compat / legacy candidates.
 
+Status: landed 2026-06-13.
+
+Filename candidate classification:
+
+```text
+keep:
+  src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md
+    active boundary SSOT for routed loop_*_v0 compatibility boxes
+
+  src/mir/verification/legacy.rs
+    active verifier guard for legacy instructions lowered away by Core-15
+
+quarantine:
+  src/mir/builder/control_flow/lower/planner_compat.rs
+    live lower-side facade for planner/lowerer exports and router probes
+    current owner docs already reference this as an intentional boundary
+
+  src/mir/string_corridor_compat.rs
+    active quarantine for string helper/runtime-name semantic recovery
+
+not_a_cleanup_candidate:
+  src/mir/passes/string_corridor_sink/tests/concat_and_return_parts/publication_helper_shape_reads_folded_route_proof_without_legacy_candidates.rs
+    test name contains "legacy_candidates"; it is not a legacy module
+
+retire:
+  none
+```
+
+Retire gates if this changes later:
+
+```text
+planner_compat:
+  prove direct consumers moved to a new lower facade
+  cargo test --release --lib control_flow::lower -- --nocapture
+
+string_corridor_compat:
+  prove helper/runtime-name recovery is replaced by selected route metadata
+  cargo test --release --lib string_corridor -- --nocapture
+
+verification/legacy:
+  prove Core-15 lowered-away verifier is replaced by a non-legacy name
+  cargo test --release --lib verification -- --nocapture
+```
+
 Acceptance:
 
 ```text
