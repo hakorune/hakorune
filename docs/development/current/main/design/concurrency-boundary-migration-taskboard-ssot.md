@@ -158,8 +158,9 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | landed-code | Add reference-only serialized method-entry behavior. | `src/runtime/sync_box.rs` + `293x-1003-CONC-SYNCBOX-003-REFERENCE-SERIALIZED-ENTRY.md` | Program JSON / MIR / LLVM fail-fast continue |
 | `CONC-CONTEXT-001` | landed-parser-json | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/AST JSON guard + scoped compat audit | no propagation runtime yet |
-| `CONC-CONTEXT-002` | pending | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | VM/reference guard | implicit root is not detached propagation |
+| `CONC-CONTEXT-002` | landed-code | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | `src/runtime/context_snapshot.rs` + `293x-1006-CONC-CONTEXT-002-CONTEXT-SNAPSHOT-REFERENCE.md` | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |
+| `CONC-SOURCE-PARALLEL-001` | pending | Decide and pin the source-level worker/parallel surface after substrate safety rows. | design card / report vocabulary | no raw thread syntax by default |
 
 ## Row Details
 
@@ -380,6 +381,34 @@ Split naming from propagation:
 ```
 
 The implicit root scope must not become detached context propagation.
+
+CONC-CONTEXT-002 reference owner:
+
+```text
+src/runtime/context_snapshot.rs
+src/runtime/global_hooks.rs
+```
+
+Report fields:
+
+```text
+context_snapshot_runtime_enabled=1
+context_snapshot_explicit_scope_only=1
+context_snapshot_implicit_root_propagation=0
+context_snapshot_program_json_enabled=0
+context_snapshot_mir_lowering_enabled=0
+context_snapshot_llvm_enabled=0
+```
+
+Runtime contract:
+
+```text
+push_context_binding(name, value)
+register_future_to_current_group(future) inside explicit co/task_scope
+  -> captures current context stack snapshot
+register_future_to_current_group(future) outside explicit scope
+  -> no context propagation
+```
 
 ## Mimalloc Stop Line
 

@@ -1,6 +1,7 @@
 //! Lightweight global hooks for JIT/extern to reach GC/scheduler without owning NyashRuntime.
 
 use once_cell::sync::OnceCell;
+use std::collections::HashMap;
 use std::sync::{
     atomic::{AtomicBool, AtomicU8, Ordering},
     Arc, RwLock,
@@ -8,6 +9,7 @@ use std::sync::{
 
 use super::scheduler::CancellationToken;
 use super::{gc::BarrierKind, gc::GcHooks, scheduler::Scheduler};
+use crate::box_trait::BoxCore;
 
 const SAFEPOINT_FLAG_GC: u8 = 1 << 0;
 const SAFEPOINT_FLAG_POLL: u8 = 1 << 1;
@@ -28,6 +30,8 @@ struct GlobalHooksState {
     root_cancel_reason: Option<String>,
     scope_depth: usize,
     group_stack: Vec<std::sync::Arc<crate::boxes::task_group_box::TaskGroupInner>>,
+    context_stack: Vec<crate::runtime::context_snapshot::ContextBindingSnapshot>,
+    future_context_snapshots: HashMap<u64, crate::runtime::context_snapshot::ContextSnapshot>,
 }
 
 impl GlobalHooksState {
@@ -43,6 +47,8 @@ impl GlobalHooksState {
             root_cancel_reason: None,
             scope_depth: 0,
             group_stack: Vec::new(),
+            context_stack: Vec::new(),
+            future_context_snapshots: HashMap::new(),
         }
     }
 }
@@ -96,6 +102,8 @@ pub fn set_from_runtime(rt: &crate::runtime::nyash_runtime::NyashRuntime) {
         st.scope_depth = 0;
         st.token_stack.clear();
         st.group_stack.clear();
+        st.context_stack.clear();
+        st.future_context_snapshots.clear();
         publish_runtime_fast_flags(&st);
     }
 }
@@ -169,8 +177,11 @@ pub fn cancel_current_group_with_reason(reason: &str) {
 pub fn register_future_to_current_group(fut: &crate::boxes::future::FutureBox) {
     if let Ok(mut st) = state().write() {
         // Prefer explicit current TaskGroup at top of stack
-        if let Some(inner) = st.group_stack.last() {
-            inner.register_future(fut, inner);
+        if let Some(inner) = st.group_stack.last().cloned() {
+            let snapshot =
+                crate::runtime::context_snapshot::ContextSnapshot::new(st.context_stack.clone());
+            st.future_context_snapshots.insert(fut.box_id(), snapshot);
+            inner.register_future(fut, &inner);
             return;
         }
         if let Some(reason) = st.root_cancel_reason.clone() {
@@ -181,6 +192,51 @@ pub fn register_future_to_current_group(fut: &crate::boxes::future::FutureBox) {
         st.futures.push(fut.downgrade());
         st.strong.push(fut.clone());
     }
+}
+
+pub fn push_context_binding(name: impl Into<String>, value: Box<dyn crate::box_trait::NyashBox>) {
+    if let Ok(mut st) = state().write() {
+        st.context_stack
+            .push(crate::runtime::context_snapshot::ContextBindingSnapshot {
+                name: name.into(),
+                value,
+            });
+    }
+}
+
+pub fn pop_context_binding(expected_name: &str) -> Result<(), String> {
+    if let Ok(mut st) = state().write() {
+        let Some(binding) = st.context_stack.pop() else {
+            return Err(format!(
+                "[context/snapshot-pop-empty] expected={}",
+                expected_name
+            ));
+        };
+        if binding.name != expected_name {
+            return Err(format!(
+                "[context/snapshot-pop-mismatch] expected={} actual={}",
+                expected_name, binding.name
+            ));
+        }
+        return Ok(());
+    }
+    Err("[context/snapshot-state-poisoned]".to_string())
+}
+
+pub fn current_context_snapshot() -> crate::runtime::context_snapshot::ContextSnapshot {
+    if let Ok(st) = state().read() {
+        return crate::runtime::context_snapshot::ContextSnapshot::new(st.context_stack.clone());
+    }
+    crate::runtime::context_snapshot::ContextSnapshot::default()
+}
+
+pub fn context_snapshot_for_future(
+    fut: &crate::boxes::future::FutureBox,
+) -> Option<crate::runtime::context_snapshot::ContextSnapshot> {
+    state()
+        .read()
+        .ok()
+        .and_then(|st| st.future_context_snapshots.get(&fut.box_id()).cloned())
 }
 
 /// Join all currently registered futures with a coarse timeout guard.
@@ -365,6 +421,7 @@ pub fn gc_barrier(kind: BarrierKind) {
 mod tests {
     use super::*;
     use crate::box_trait::NyashBox;
+    use crate::box_trait::StringBox;
     use crate::boxes::basic::ErrorBox;
     use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
     use std::sync::Arc;
@@ -555,6 +612,47 @@ mod tests {
             late.to_string_box().value,
             "Future(cancelled: Cancelled: scope-cancelled)"
         );
+        reset_for_tests();
+    }
+
+    #[test]
+    fn explicit_scope_future_captures_context_snapshot_at_registration() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_context_binding("request_id", Box::new(StringBox::new("r1")));
+        push_task_scope();
+        let fut = crate::boxes::future::FutureBox::new();
+
+        register_future_to_current_group(&fut);
+        push_context_binding("request_id", Box::new(StringBox::new("r2")));
+
+        let snapshot = context_snapshot_for_future(&fut).expect("snapshot should be captured");
+        assert_eq!(
+            snapshot
+                .get("request_id")
+                .expect("request_id should exist")
+                .to_string_box()
+                .value,
+            "r1"
+        );
+
+        pop_context_binding("request_id").expect("pop r2");
+        pop_task_scope().expect("scope exit must succeed");
+        pop_context_binding("request_id").expect("pop r1");
+        reset_for_tests();
+    }
+
+    #[test]
+    fn implicit_root_future_does_not_capture_context_snapshot() {
+        let _guard = TEST_GUARD.lock().unwrap();
+        reset_for_tests();
+        push_context_binding("request_id", Box::new(StringBox::new("root")));
+        let fut = crate::boxes::future::FutureBox::new();
+
+        register_future_to_current_group(&fut);
+
+        assert!(context_snapshot_for_future(&fut).is_none());
+        pop_context_binding("request_id").expect("pop root");
         reset_for_tests();
     }
 }

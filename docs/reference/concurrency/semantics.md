@@ -24,7 +24,7 @@ kept only as provenance in phase logs and execution ledgers.
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
 | `sync box` | yes | reference | no | Parser/AST JSON capsule and wait-forbidden verifier are active; CONC-SYNCBOX-003 adds reference-only serialized entry while Program JSON / MIR / LLVM stay fail-fast. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
-| `context` / `scoped` | yes | no | no | Parser/AST JSON capsule is active; `context` is preferred and `scoped` is compatibility spelling. |
+| `context` / `scoped` | yes | reference | no | Parser/AST JSON capsule is active; CONC-CONTEXT-002 adds explicit-scope child snapshot reference behavior while Program JSON / MIR stay fail-fast. |
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
 | true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
 
@@ -155,8 +155,20 @@ Current reference runtime:
 - `context` and `scoped` are contextual identifiers; ordinary locals and calls
   with those names remain legal outside the exact context statement shape.
 - Current implementation carries the AST/AST-JSON capsule only. Program JSON
-  and MIR lowering fail-fast until `CONC-CONTEXT-002` owns propagation and child
-  creation snapshots.
+  and MIR lowering still fail-fast; `CONC-CONTEXT-002` owns runtime reference
+  snapshots for explicit `co` / compatibility `task_scope` child creation.
+- `push_context_binding(name, value)` records active runtime context bindings.
+- `register_future_to_current_group(future)` captures a snapshot only when an
+  explicit structured scope is active.
+- The implicit root scope remains best-effort ownership only and does not
+  propagate context.
+- Reference runtime fields:
+  - `context_snapshot_runtime_enabled=1`
+  - `context_snapshot_explicit_scope_only=1`
+  - `context_snapshot_implicit_root_propagation=0`
+  - `context_snapshot_program_json_enabled=0`
+  - `context_snapshot_mir_lowering_enabled=0`
+  - `context_snapshot_llvm_enabled=0`
 
 ### Serialized Shared State (`sync box`, parser/verifier capsule)
 - `sync box` is the preferred shared-mutable source surface.

@@ -779,6 +779,44 @@ channel_route_lowering_enabled=0
 This row fixes the route names and source shapes only. It does not infer
 `Channel<T>` receiver types and does not lower channel waits through MIR.
 
+### CONC-CONTEXT-002: explicit-scope context snapshot
+
+Status: landed as reference runtime only.
+
+Scope:
+
+```text
+src/runtime/context_snapshot.rs
+src/runtime/global_hooks.rs
+push_context_binding(name, value)
+pop_context_binding(name)
+current_context_snapshot()
+context_snapshot_for_future(future)
+```
+
+Report fields:
+
+```text
+context_snapshot_runtime_enabled=1
+context_snapshot_explicit_scope_only=1
+context_snapshot_implicit_root_propagation=0
+context_snapshot_program_json_enabled=0
+context_snapshot_mir_lowering_enabled=0
+context_snapshot_llvm_enabled=0
+```
+
+Reading:
+
+```text
+explicit_co_task_scope_child_context_snapshot=1
+implicit_root_context_propagation=0
+program_json_context_scope_support=0
+mir_context_scope_lowering=0
+```
+
+This row proves child creation snapshots at runtime registration time. It does
+not open Program JSON / MIR lowering for `ContextScope`.
+
 ### THREAD-SOURCE-001: structured worker source surface
 
 Reserved future row. Prefer structured surfaces such as `worker_scope` /
