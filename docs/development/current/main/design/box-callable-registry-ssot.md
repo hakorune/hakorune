@@ -638,6 +638,10 @@ runtime_invoke_boundary_module_count=1
 route_resolver_invoke_contract_count=0
 runtime_invoke_boundary_derives_fn_pointer_count=1
 callable_route_truth_from_invoke_boundary_count=0
+runtime_invoke_boundary_owns_method_id_count=0
+runtime_invoke_boundary_owns_lifecycle_id_count=0
+runtime_invoke_boundary_typeabi_lookup_count=0
+runtime_invoke_boundary_function_pointer_binding_count=1
 ```
 
 Code entry:
@@ -659,6 +663,8 @@ Boundary:
 ```text
 runtime_invoke_boundary:
   resolves invoke_box/invoke_shim function pointers and compat shim policy.
+  owns no method_id / birth_id / fini_id truth.
+  performs no TypeAbiCatalog / BoxDescriptorCatalog lookup.
 
 route_resolver:
   remains config/spec/provider export helper, not invoke execution route truth.
@@ -851,6 +857,9 @@ plugin_catalog_sample_lifecycle_entry_count=2
 plugin_catalog_sample_routeplan_consumer_count=0
 plugin_catalog_sample_hot_path_consumer_count=0
 plugin_catalog_sample_executes_plugin_loader_count=0
+boxcall_contract_split_required_count=0
+boxcall_sample_subcommand_required_count=0
+boxcall_contract_optional_sample_flag_count=1
 ```
 
 Boundary:
@@ -864,6 +873,14 @@ sample must not:
   generate RoutePlan
   call plugin methods
   infer truth from Type ABI payload bytes
+```
+
+Split rule:
+
+```text
+Keep the sample behind --include-plugin-catalog-sample while it is fixture-only.
+Split to a dedicated hako_check subcommand only after live artifact inputs or
+non-fixture report readers are added.
 ```
 
 ## Non-Goals

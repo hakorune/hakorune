@@ -54,6 +54,14 @@ pub const RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT: &str =
     "runtime_invoke_boundary_derives_fn_pointer_count";
 pub const CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT: &str =
     "callable_route_truth_from_invoke_boundary_count";
+pub const RUNTIME_INVOKE_BOUNDARY_OWNS_METHOD_ID_COUNT: &str =
+    "runtime_invoke_boundary_owns_method_id_count";
+pub const RUNTIME_INVOKE_BOUNDARY_OWNS_LIFECYCLE_ID_COUNT: &str =
+    "runtime_invoke_boundary_owns_lifecycle_id_count";
+pub const RUNTIME_INVOKE_BOUNDARY_TYPEABI_LOOKUP_COUNT: &str =
+    "runtime_invoke_boundary_typeabi_lookup_count";
+pub const RUNTIME_INVOKE_BOUNDARY_FUNCTION_POINTER_BINDING_COUNT: &str =
+    "runtime_invoke_boundary_function_pointer_binding_count";
 pub const PLUGIN_CATALOG_PROJECTION_CHAIN_DOCUMENTED: &str =
     "plugin_catalog_projection_chain_documented";
 pub const PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT: &str =
@@ -80,6 +88,11 @@ pub const PLUGIN_CATALOG_SAMPLE_HOT_PATH_CONSUMER_COUNT: &str =
     "plugin_catalog_sample_hot_path_consumer_count";
 pub const PLUGIN_CATALOG_SAMPLE_EXECUTES_PLUGIN_LOADER_COUNT: &str =
     "plugin_catalog_sample_executes_plugin_loader_count";
+pub const BOXCALL_CONTRACT_SPLIT_REQUIRED_COUNT: &str = "boxcall_contract_split_required_count";
+pub const BOXCALL_SAMPLE_SUBCOMMAND_REQUIRED_COUNT: &str =
+    "boxcall_sample_subcommand_required_count";
+pub const BOXCALL_CONTRACT_OPTIONAL_SAMPLE_FLAG_COUNT: &str =
+    "boxcall_contract_optional_sample_flag_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -180,6 +193,10 @@ pub const BOXCALL_010_ROWS: &[(&str, &str)] = &[
     (ROUTE_RESOLVER_INVOKE_CONTRACT_COUNT, "0"),
     (RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT, "1"),
     (CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT, "0"),
+    (RUNTIME_INVOKE_BOUNDARY_OWNS_METHOD_ID_COUNT, "0"),
+    (RUNTIME_INVOKE_BOUNDARY_OWNS_LIFECYCLE_ID_COUNT, "0"),
+    (RUNTIME_INVOKE_BOUNDARY_TYPEABI_LOOKUP_COUNT, "0"),
+    (RUNTIME_INVOKE_BOUNDARY_FUNCTION_POINTER_BINDING_COUNT, "1"),
     (DUPLICATE_CALLABLE_TRUTH_COUNT, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
@@ -211,6 +228,9 @@ pub const PLUGIN_CATALOG_006_SAMPLE_ROWS: &[(&str, &str)] = &[
     (PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT, "0"),
     (TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (BOXCALL_CONTRACT_SPLIT_REQUIRED_COUNT, "0"),
+    (BOXCALL_SAMPLE_SUBCOMMAND_REQUIRED_COUNT, "0"),
+    (BOXCALL_CONTRACT_OPTIONAL_SAMPLE_FLAG_COUNT, "1"),
 ];
 
 #[cfg(test)]
@@ -370,6 +390,13 @@ mod tests {
         assert_eq!(rows[ROUTE_RESOLVER_INVOKE_CONTRACT_COUNT], "0");
         assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_DERIVES_FN_POINTER_COUNT], "1");
         assert_eq!(rows[CALLABLE_ROUTE_TRUTH_FROM_INVOKE_BOUNDARY_COUNT], "0");
+        assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_OWNS_METHOD_ID_COUNT], "0");
+        assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_OWNS_LIFECYCLE_ID_COUNT], "0");
+        assert_eq!(rows[RUNTIME_INVOKE_BOUNDARY_TYPEABI_LOOKUP_COUNT], "0");
+        assert_eq!(
+            rows[RUNTIME_INVOKE_BOUNDARY_FUNCTION_POINTER_BINDING_COUNT],
+            "1"
+        );
         assert_eq!(rows[DUPLICATE_CALLABLE_TRUTH_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
@@ -416,5 +443,8 @@ mod tests {
         assert_eq!(rows[PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
+        assert_eq!(rows[BOXCALL_CONTRACT_SPLIT_REQUIRED_COUNT], "0");
+        assert_eq!(rows[BOXCALL_SAMPLE_SUBCOMMAND_REQUIRED_COUNT], "0");
+        assert_eq!(rows[BOXCALL_CONTRACT_OPTIONAL_SAMPLE_FLAG_COUNT], "1");
     }
 }

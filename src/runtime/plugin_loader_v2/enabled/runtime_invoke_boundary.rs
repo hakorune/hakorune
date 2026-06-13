@@ -1,7 +1,13 @@
-//! Runtime invoke boundary for plugin boxes.
+//! Runtime invoke boundary for selected plugin box plans.
 //!
-//! This is not callable route truth. It closes over runtime function pointers
-//! and compat-shim policy after a route plan has selected plugin execution.
+//! Inputs are the already-selected plugin `type_id` and the live
+//! `PluginLoaderV2` runtime binding table. Outputs are function pointers and
+//! compat-shim policy.
+//!
+//! This module is not callable route truth. It does not own `method_id`,
+//! `birth_id`, `fini_id`, route selection, or BoxDescriptor/TypeAbi lookup.
+//! It closes over runtime function pointers after a route plan has selected
+//! plugin execution.
 
 use super::host_bridge::{BoxInvokeFn, InvokeFn};
 use super::loader::PluginLoaderV2;

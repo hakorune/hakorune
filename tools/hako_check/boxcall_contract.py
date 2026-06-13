@@ -41,6 +41,10 @@ def contract_lines() -> list[str]:
         "route_resolver_invoke_contract_count=0",
         "runtime_invoke_boundary_derives_fn_pointer_count=1",
         "callable_route_truth_from_invoke_boundary_count=0",
+        "runtime_invoke_boundary_owns_method_id_count=0",
+        "runtime_invoke_boundary_owns_lifecycle_id_count=0",
+        "runtime_invoke_boundary_typeabi_lookup_count=0",
+        "runtime_invoke_boundary_function_pointer_binding_count=1",
         "plugin_catalog_projection_chain_documented=1",
         "plugin_loader_to_typeabi_direct_truth_count=0",
         "type_abi_catalog_as_plugin_route_truth_count=0",
@@ -72,6 +76,9 @@ def plugin_catalog_sample_lines() -> list[str]:
         "plugin_loader_to_typeabi_direct_truth_count=0",
         "type_abi_catalog_as_plugin_route_truth_count=0",
         "route_plan_type_abi_hot_lookup_count=0",
+        "boxcall_contract_split_required_count=0",
+        "boxcall_sample_subcommand_required_count=0",
+        "boxcall_contract_optional_sample_flag_count=1",
     ]
 
 

@@ -171,7 +171,24 @@ no public behavior changes
 
 ### TYPEABI-NAMING-003
 
-Move modules only after `BoxCallableRegistry` skeleton is stable.
+Extend BoxDescriptor naming aliases to registry projection helpers.
+
+Status: landed 2026-06-13.
+
+Acceptance:
+
+```text
+BoxDescriptorBoxCallableView aliases BoxCallableEntryView
+publish_box_callable_descriptors aliases publish_box_callable_registry
+build_box_descriptor_catalog_from_callable_registry aliases registry catalog projection
+build_box_descriptor_callable_pack aliases registry pack projection
+no file moves
+no public behavior changes
+```
+
+### TYPEABI-NAMING-004
+
+Move modules only after descriptor naming is stable in consumers.
 
 Acceptance:
 

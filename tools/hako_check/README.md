@@ -215,6 +215,10 @@ box_callable_registry_enabled=1
 duplicate_callable_truth_count=0
 plugin_loader_registry_snapshot_entrypoint_count=1
 runtime_invoke_boundary_module_count=1
+runtime_invoke_boundary_owns_method_id_count=0
+runtime_invoke_boundary_owns_lifecycle_id_count=0
+runtime_invoke_boundary_typeabi_lookup_count=0
+runtime_invoke_boundary_function_pointer_binding_count=1
 type_abi_catalog_is_truth=0
 type_abi_refresh_truth_trait_enabled=0
 type_abi_catalog_from_refreshed_world=1
@@ -237,7 +241,14 @@ plugin_catalog_sample_entry_count=3
 plugin_catalog_sample_routeplan_consumer_count=0
 plugin_catalog_sample_hot_path_consumer_count=0
 plugin_catalog_sample_executes_plugin_loader_count=0
+boxcall_contract_split_required_count=0
+boxcall_sample_subcommand_required_count=0
+boxcall_contract_optional_sample_flag_count=1
 ```
+
+The plugin catalog sample remains an optional flag while it only demonstrates
+the same BoxCallable contract surface. Split it into a separate subcommand only
+when live artifact inputs or non-fixture report readers are added.
 
 Replacement Front Report
 - `hako_check replacement-front-report` is an observation-only adapter for
