@@ -4,5 +4,6 @@
 //! accumulating directly under `control_flow/`.
 
 pub(in crate::mir::builder) mod condition;
+pub(in crate::mir::builder) mod step_extract;
 pub(in crate::mir::builder) mod step_placement;
 pub(in crate::mir::builder) mod update;

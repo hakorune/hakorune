@@ -19,9 +19,10 @@ SSOT:
 
 Step extract order (SSOT, no behavior change):
 - `extract_loop_increment_plan` (legacy helper fast path)
-- `var_step` (`i = i + step_var` and related top-level patterns)
-- `next_step` (`next_i = i + 1; i = next_i` style)
-- `complex_step` (`i = (i - x) / k` style)
+- `generic_loop_canon/step_extract/var_step.rs` (`i = i + step_var` and related top-level patterns)
+- `generic_loop_canon/step_extract/next_step.rs` (`next_i = i + 1; i = next_i` style)
+- `generic_loop_canon/step_extract/complex_step.rs` (`i = (i - x) / k` style)
+- `facts/canon/generic_loop/step/extract.rs`: compatibility facade only
 
 Step placement split (SSOT, no behavior change):
 - `control_flow/generic_loop_canon/step_placement/facts.rs`: increment/conditional step の形マッチだけ担当

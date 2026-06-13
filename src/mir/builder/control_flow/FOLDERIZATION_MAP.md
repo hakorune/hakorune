@@ -96,6 +96,14 @@ current owner: src/mir/builder/control_flow/generic_loop_canon/condition/
 old facts path: facts/canon/generic_loop/condition.rs remains facade
 ```
 
+Step extract follow-up:
+
+```text
+landed 2026-06-13
+current owner: src/mir/builder/control_flow/generic_loop_canon/step_extract/
+old facts path: facts/canon/generic_loop/step/extract.rs remains facade
+```
+
 Pilot rule:
 
 ```text

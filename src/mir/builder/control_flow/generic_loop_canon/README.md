@@ -17,6 +17,12 @@ condition/:
   no route selection
   no lowering
 
+step_extract/:
+  owns loop increment extraction order
+  observes legacy helper, var-step, next-step, and complex-step shapes
+  no placement classification
+  no lowering
+
 step_placement/:
   observes direct and conditional step assignments
   classifies observations into StepPlacementDecision
@@ -30,6 +36,7 @@ Older deep paths remain facades while imports migrate:
 ```text
 facts/canon/generic_loop/update.rs
 facts/canon/generic_loop/condition.rs
+facts/canon/generic_loop/step/extract.rs
 facts/canon/generic_loop/step/placement/matcher.rs
 plan/canon/generic_loop/step/placement/decision.rs
 ```

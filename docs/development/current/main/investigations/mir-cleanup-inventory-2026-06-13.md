@@ -76,7 +76,7 @@ lines   files  path
 Max observed Rust file directory depth under `src/mir` is 9 slash-separated
 directory components after the repo root.
 
-Representative deepest files:
+Initial representative deepest files before MIR-CLEAN-005..009:
 
 ```text
 src/mir/builder/control_flow/plan/canon/generic_loop/step/placement/decision.rs
@@ -85,12 +85,21 @@ src/mir/builder/control_flow/facts/canon/generic_loop/step/extract/var_step.rs
 src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/terminator_rewrite.rs
 ```
 
+Current generic-loop canon owner after cleanup:
+
+```text
+src/mir/builder/control_flow/generic_loop_canon/
+```
+
 Read:
 
 ```text
-facts/canon/generic_loop/step/...
-plan/canon/generic_loop/step/...
+facts/canon/generic_loop/step/... and plan/canon/generic_loop/step/...
+  are now compatibility facades for generic-loop canon helpers
+
 joinir/merge/rewriter/stages/plan/...
+  remains a near miss and should not be flattened without a separate JoinIR
+  merge ownership cleanup
 ```
 
 These are flatten candidates, but not first cleanup targets.
@@ -603,6 +612,52 @@ Acceptance:
 
 ```text
 facts-only condition canon subtree
+old facts path remains facade-backed
+no acceptance shape added
+targeted generic-loop facts tests green
+```
+
+### MIR-CLEAN-009
+
+Move generic-loop step extract under grouped owner.
+
+Status: landed 2026-06-13.
+
+Candidate:
+
+```text
+generic_loop step extract
+```
+
+Landed owner:
+
+```text
+src/mir/builder/control_flow/generic_loop_canon/step_extract/
+  complex_step.rs
+  next_step.rs
+  shared.rs
+  var_step.rs
+  mod.rs
+```
+
+Compatibility facade:
+
+```text
+src/mir/builder/control_flow/facts/canon/generic_loop/step/extract.rs
+```
+
+Verification:
+
+```bash
+cargo test --release --lib generic_loop::facts::extract -- --nocapture
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+facts-only step extract subtree
+step extraction order preserved
 old facts path remains facade-backed
 no acceptance shape added
 targeted generic-loop facts tests green
