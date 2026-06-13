@@ -38,9 +38,10 @@ use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::condition_env::ConditionEnv;
 use crate::mir::join_ir::lowering::debug_output_box::DebugOutputBox;
 use crate::mir::join_ir::lowering::loop_body_local_env::LoopBodyLocalEnv;
-use crate::mir::join_ir::lowering::method_call_lowerer::MethodCallLowerer;
 use crate::mir::join_ir::{BinOpKind, ConstValue, JoinInst, MirLikeInst};
 use crate::mir::ValueId;
+
+mod method_call_init;
 
 /// Loop body-local variable initialization lowerer
 ///
@@ -302,7 +303,7 @@ impl<'a> LoopBodyLocalInitLowerer<'a> {
 
             // Phase 226: MethodCall support with cascading LoopBodyLocalEnv
             ASTNode::MethodCall { object, method, arguments, .. } => {
-                Self::emit_method_call_init(
+                method_call_init::emit(
                     object,
                     method,
                     arguments,
@@ -344,216 +345,6 @@ impl<'a> LoopBodyLocalInitLowerer<'a> {
                 op
             )),
         }
-    }
-
-    /// Phase 226: Emit a method call in body-local init expression (with cascading support)
-    ///
-    /// Delegates to MethodCallLowerer for metadata-driven lowering.
-    /// This ensures consistency and avoids hardcoded method/box name mappings.
-    ///
-    /// # Cascading LoopBodyLocal Support (Phase 226)
-    ///
-    /// When lowering method arguments, this function checks BOTH environments:
-    /// 1. LoopBodyLocalEnv (for previously defined body-local variables like `ch`)
-    /// 2. ConditionEnv (for loop condition variables like `p`, `start`)
-    ///
-    /// This enables cascading dependencies:
-    /// ```nyash
-    /// local ch = s.substring(p, p+1)        // ch defined first
-    /// local digit_pos = digits.indexOf(ch)  // uses ch from LoopBodyLocalEnv
-    /// ```
-    ///
-    /// # Supported Methods
-    ///
-    /// All methods where `CoreMethodId::allowed_in_init() == true`:
-    /// - `substring`, `indexOf`, `upper`, `lower`, `trim` (StringBox)
-    /// - `get` (ArrayBox)
-    /// - `get`, `has`, `keys` (MapBox)
-    /// - And more - see CoreMethodId metadata
-    ///
-    /// # Arguments
-    ///
-    /// * `receiver` - Object on which method is called (must be in ConditionEnv or LoopBodyLocalEnv)
-    /// * `method` - Method name (resolved via CoreMethodId)
-    /// * `args` - Method arguments (lowered recursively, checks both envs)
-    /// * `cond_env` - Condition environment for variable resolution
-    /// * `body_local_env` - LoopBodyLocal environment (for cascading dependencies)
-    /// * `instructions` - Output buffer for JoinIR instructions
-    /// * `alloc` - ValueId allocator
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(ValueId)` - JoinIR ValueId of method call result
-    /// * `Err(msg)` - Unknown method or not allowed in init context
-    ///
-    /// # Example
-    ///
-    /// ```nyash
-    /// local ch = s.substring(p, p+1)
-    /// local digit_pos = digits.indexOf(ch)  // ch resolved from body_local_env
-    /// ```
-    ///
-    /// Delegation flow:
-    /// ```
-    /// emit_method_call_init
-    ///   → Resolve receiver variable (check body_local_env then cond_env)
-    ///   → Delegate to MethodCallLowerer::lower_for_init
-    ///       → Resolve method_name → CoreMethodId
-    ///       → Check allowed_in_init()
-    ///       → Check arity
-    ///       → Lower arguments (check body_local_env then cond_env)
-    ///       → Emit BoxCall with metadata-driven box_name
-    /// ```
-    fn emit_method_call_init(
-        receiver: &ASTNode,
-        method: &str,
-        args: &[ASTNode],
-        cond_env: &ConditionEnv,
-        body_local_env: &LoopBodyLocalEnv,
-        instructions: &mut Vec<JoinInst>,
-        alloc: &mut dyn FnMut() -> ValueId,
-        current_static_box_name: Option<&str>,
-    ) -> Result<ValueId, String> {
-        let debug = DebugOutputBox::new_dev("loop_body_local_init");
-        debug.log(
-            "method_call",
-            &format!(
-                "MethodCall: {}.{}(...)",
-                if let ASTNode::Variable { name, .. } = receiver {
-                    name
-                } else {
-                    "?"
-                },
-                method
-            ),
-        );
-
-        // 1. Resolve receiver (search order per SSOT: ConditionEnv → LoopBodyLocalEnv → CapturedEnv → CarrierInfo)
-        // Phase 100 P1-4: Search order aligns with scope/qualification hierarchy
-        // Phase 226: Cascading support - receiver can be previously defined body-local variable (after ConditionEnv)
-        let receiver_id = match receiver {
-            ASTNode::Variable { name, .. } => {
-                // Try ConditionEnv first (loop-outer scope)
-                if let Some(vid) = cond_env.get(name) {
-                    debug.log(
-                        "method_call",
-                        &format!("Receiver '{}' found in ConditionEnv → {:?}", name, vid),
-                    );
-                    vid
-                } else if let Some(vid) = body_local_env.get(name) {
-                    // Phase 226: Cascading - body-local variables can be receivers
-                    debug.log(
-                        "method_call",
-                        &format!("Receiver '{}' found in LoopBodyLocalEnv → {:?}", name, vid),
-                    );
-                    vid
-                } else if let Some(&vid) = cond_env.captured.get(name) {
-                    // Phase 100 P1-4: Search in CapturedEnv (pinned loop-outer locals)
-                    debug.log(
-                        "method_call",
-                        &format!(
-                            "Receiver '{}' found in CapturedEnv (pinned) → {:?}",
-                            name, vid
-                        ),
-                    );
-                    vid
-                } else {
-                    // Phase 100 P1-4: Full search order in error message
-                    return Err(format!(
-                        "Method receiver '{}' not found in ConditionEnv / LoopBodyLocalEnv / CapturedEnv (must be loop-outer variable, body-local, or pinned local)",
-                        name
-                    ));
-                }
-            }
-            ASTNode::Me { .. } | ASTNode::This { .. } => {
-                // Phase 256.6: Me/This receiver - use current_static_box_name
-                let box_name = current_static_box_name.ok_or_else(|| {
-                    format!(
-                        "me/this.{}(...) requires current_static_box_name (not in static box context)",
-                        method
-                    )
-                })?;
-
-                debug.log(
-                    "method_call",
-                    &format!("Me/This receiver → box_name={}", box_name),
-                );
-
-                // Check policy - only allowed methods
-                if !super::user_method_policy::UserMethodPolicy::allowed_in_init(box_name, method) {
-                    return Err(format!(
-                        "User-defined method not allowed in init: {}.{}()",
-                        box_name, method
-                    ));
-                }
-
-                // Lower arguments using condition_lowerer::lower_value_expression
-                let mut arg_ids = Vec::new();
-                for arg in args {
-                    let arg_id = super::condition_lowerer::lower_value_expression(
-                        arg,
-                        alloc,
-                        cond_env,
-                        Some(body_local_env),
-                        current_static_box_name,
-                        instructions,
-                    )?;
-                    arg_ids.push(arg_id);
-                }
-
-                // Emit BoxCall directly (static box method call)
-                let result_id = alloc();
-                instructions.push(JoinInst::Compute(MirLikeInst::BoxCall {
-                    dst: Some(result_id),
-                    box_name: box_name.to_string(),
-                    method: method.to_string(),
-                    args: arg_ids,
-                }));
-
-                debug.log(
-                    "method_call",
-                    &format!("Me/This.{}() emitted BoxCall → {:?}", method, result_id),
-                );
-
-                return Ok(result_id);
-            }
-            _ => {
-                return Err(
-                    "Complex receiver not supported in init method call (Phase 226 - only simple variables)"
-                        .to_string(),
-                );
-            }
-        };
-
-        // 2. Delegate to MethodCallLowerer for metadata-driven lowering
-        // Phase 226: Pass LoopBodyLocalEnv for cascading argument resolution
-        // This handles:
-        // - Method name → CoreMethodId resolution
-        // - allowed_in_init() whitelist check
-        // - Arity validation
-        // - Box name from CoreMethodId (no hardcoding!)
-        // - Argument lowering (checks both body_local_env and cond_env)
-        // - BoxCall emission
-        //
-        // Note: We need to wrap alloc in a closure to match the generic type
-        // parameter expected by lower_for_init (F: FnMut() -> ValueId)
-        let mut alloc_wrapper = || alloc();
-        let result_id = MethodCallLowerer::lower_for_init(
-            receiver_id,
-            method,
-            args,
-            &mut alloc_wrapper,
-            cond_env,
-            body_local_env,
-            instructions,
-        )?;
-
-        debug.log(
-            "method_call",
-            &format!("MethodCallLowerer completed → {:?}", result_id),
-        );
-
-        Ok(result_id)
     }
 }
 

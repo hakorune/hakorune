@@ -72,10 +72,18 @@ src/mir/join_ir/lowering/loop_body_local_init/tests.rs:
 
 No lowering logic changes.
 
-### LOOPBODY-INIT-THIN-002: Method-Call Helper Review
+### LOOPBODY-INIT-THIN-002: Method-Call Shelf Split
 
-After the test split, review `emit_method_call_init` as a possible private
-helper shelf. Do not change lookup order or allowed methods.
+Move method-call init lowering into a private sibling shelf.
+
+```text
+src/mir/join_ir/lowering/loop_body_local_init/method_call_init.rs:
+  receiver resolution for init method calls
+  me/this static-box receiver handling
+  delegation to MethodCallLowerer
+```
+
+Do not change lookup order or allowed methods.
 
 ## Guard Vocabulary
 
