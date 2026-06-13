@@ -46,6 +46,7 @@ pub enum PluginLifecycleOwner {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum VMBoxRefCarrier {
     DirectVmScalar,
+    StableTextPayload,
     ArcDynNyashBox,
     WeakDynNyashBox,
     ObjectHandle,

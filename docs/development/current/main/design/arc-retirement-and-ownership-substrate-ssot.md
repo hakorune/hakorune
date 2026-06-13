@@ -519,12 +519,12 @@ arc_retirement_family_gate_satisfied=1
 Select the narrow first family scope:
 
 ```text
-first_arc_retirement_candidate=vm_scalar_value_boxes
-first_arc_retirement_scope=vmvalue_carrier
+first_arc_retirement_candidate=host_handle_text_payload
+first_arc_retirement_scope=host_handle_carrier
 ```
 
-This is a VM-carrier scope. It does not replace `dyn NyashBox` or plugin
-carriers.
+This is a host-handle text payload scope. It does not replace global
+`dyn NyashBox`, `VMValue::BoxRef`, or plugin carriers.
 
 ### ARC-RETIRE-008: Refcount storage owner prototype
 
@@ -535,7 +535,8 @@ refcount_storage_owner_defined=1
 refcount_storage_strategy=immediate_scalar_no_refcount
 ```
 
-Future refcounted families still require object header or side-table storage.
+The first real family stores text directly in the host handle slot. Future
+refcounted families still require object header or side-table storage.
 
 ### ARC-RETIRE-009: Atomic retain/release/free-on-zero contract
 
@@ -555,8 +556,56 @@ First scoped claim:
 
 ```text
 first_family_arc_retirement_scaffold=1
-first_family_vm_carrier=direct_vm_scalar
-first_family_vm_carrier_arc_free=1
+first_family_carrier=stable_text_payload
+first_family_host_handle_text_arc_free=1
+first_family_box_trait_arc_replaced=0
+global_arc_replaced=0
+```
+
+### ARC-RETIRE-011: Object refcount storage design
+
+```text
+refcount_storage_owner_defined=1
+refcount_storage_strategy=immediate_scalar_no_refcount
+```
+
+### ARC-RETIRE-012: Retain/release MIR contract
+
+```text
+atomic_retain_release_contract_defined=1
+retain_symbol=hako_atomic_slot_fetch_add_i64
+release_symbol=hako_atomic_slot_fetch_add_i64
+release_uses_fetch_add_minus_one=1
+free_symbol=hako_mem_free
+```
+
+### ARC-RETIRE-013: ObjectHandle-backed object table prototype
+
+```text
+object_handle_contract_used_by_host_handles=1
+host_handle_text_payload_arc_replaced=1
+```
+
+### ARC-RETIRE-014: WeakObjectHandle behavior
+
+```text
+weak_behavior_defined=1
+weak_object_handle_generation_check_required=1
+```
+
+### ARC-RETIRE-015: First real object family selection
+
+```text
+first_arc_retirement_candidate=host_handle_text_payload
+first_arc_retirement_scope=host_handle_carrier
+```
+
+### ARC-RETIRE-016: First real family Arc carrier cutover
+
+```text
+first_family_arc_retirement_scaffold=1
+first_family_carrier=stable_text_payload
+first_family_host_handle_text_arc_free=1
 first_family_box_trait_arc_replaced=0
 global_arc_replaced=0
 ```
@@ -590,6 +639,8 @@ host_handle_identity_generation=legacy_unversioned|versioned
 borrowed_access_preserved=0|1
 identity_snapshot_available=0|1
 host_handle_backing_arc_replaced=0|1
+host_handle_text_payload_arc_replaced=0|1
+arc_family_retirement_started=0|1
 box_object_model_replacement_map=0|1
 clone_share_semantics_classified=0|1
 identity_share_box_count_reported=0|1
@@ -614,8 +665,8 @@ clone_share_semantics_preserved=0|1
 weak_behavior_defined=0|1
 fini_owner_defined=0|1
 backend_unsupported_surfaces_fail_fast=0|1
-first_arc_retirement_candidate=vm_scalar_value_boxes
-first_arc_retirement_scope=vmvalue_carrier
+first_arc_retirement_candidate=host_handle_text_payload
+first_arc_retirement_scope=host_handle_carrier
 refcount_storage_owner_defined=0|1
 refcount_storage_strategy=immediate_scalar_no_refcount|object_header|side_table
 atomic_retain_release_contract_defined=0|1
@@ -624,8 +675,8 @@ release_symbol=hako_atomic_slot_fetch_add_i64
 release_uses_fetch_add_minus_one=0|1
 free_symbol=hako_mem_free
 first_family_arc_retirement_scaffold=0|1
-first_family_vm_carrier=direct_vm_scalar
-first_family_vm_carrier_arc_free=0|1
+first_family_carrier=stable_text_payload
+first_family_host_handle_text_arc_free=0|1
 first_family_box_trait_arc_replaced=0|1
 global_arc_replaced=0|1
 arc_hot_path_retirement_started=0|1

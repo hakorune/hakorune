@@ -17,15 +17,17 @@ optimization lane.
 ## Current Decision
 
 ```text
-arc_retirement_mode=first_family_scaffold
+arc_retirement_mode=first_real_family_cutover
+arc_family_retirement_started=1
 arc_hot_path_retirement_started=0
 active_optimization_lane_changed=0
 ```
 
 Arc retirement is allowed as docs/inventory planning, contract-only runtime
 types, host-handle identity seam work, and Box object model replacement-map
-work now. ARC-RETIRE-006..010 additionally defines the first family gate and
-VM scalar carrier scaffold. Global Arc replacement has not started.
+work now. ARC-RETIRE-006..016 additionally defines the first family gate and
+cuts over host-handle text payloads from Arc-backed payloads to direct `String`
+payloads. Global Arc replacement has not started.
 
 ## Task Order
 
@@ -344,12 +346,12 @@ landed_by=
 Selected first family:
 
 ```text
-first_arc_retirement_candidate=vm_scalar_value_boxes
-first_arc_retirement_scope=vmvalue_carrier
+first_arc_retirement_candidate=host_handle_text_payload
+first_arc_retirement_scope=host_handle_carrier
 ```
 
-This selection is intentionally VM-carrier only. It does not claim Box trait
-carrier replacement.
+This selection is intentionally host-handle text-only. It does not claim global
+host-handle carrier replacement.
 
 ### ARC-RETIRE-008: Refcount storage owner prototype
 
@@ -368,8 +370,9 @@ refcount_storage_owner_defined=1
 refcount_storage_strategy=immediate_scalar_no_refcount
 ```
 
-Future object families still require object header or side-table storage before
-Box trait carrier retirement.
+The selected family is owned directly by the handle slot. Future object
+families still require object header or side-table storage before global Box
+trait carrier retirement.
 
 ### ARC-RETIRE-009: Atomic retain/release/free-on-zero contract
 
@@ -405,15 +408,123 @@ Acceptance:
 
 ```text
 first_family_arc_retirement_scaffold=1
-first_family_vm_carrier=direct_vm_scalar
-first_family_vm_carrier_arc_free=1
+first_family_carrier=stable_text_payload
+first_family_host_handle_text_arc_free=1
 first_family_box_trait_arc_replaced=0
 global_arc_replaced=0
 typeabi_identity_truth_count=0
 ```
 
-This closes the first scoped Arc-retirement scaffold for VM scalar carriers.
-It does not change `VMValue::BoxRef`, plugin carriers, or `dyn NyashBox`.
+This closes the first real family carrier cutover for host-handle text
+payloads. It does not change `VMValue::BoxRef`, plugin carriers, or global
+`dyn NyashBox`.
+
+### ARC-RETIRE-011: Object refcount storage design
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+refcount_storage_owner_defined=1
+refcount_storage_strategy=immediate_scalar_no_refcount
+```
+
+### ARC-RETIRE-012: Retain/release MIR contract
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+atomic_retain_release_contract_defined=1
+retain_symbol=hako_atomic_slot_fetch_add_i64
+release_symbol=hako_atomic_slot_fetch_add_i64
+release_uses_fetch_add_minus_one=1
+free_symbol=hako_mem_free
+```
+
+### ARC-RETIRE-013: ObjectHandle-backed object table prototype
+
+Status:
+
+```text
+landed_by=
+  src/runtime/host_handles.rs
+```
+
+Acceptance:
+
+```text
+object_handle_contract_used_by_host_handles=1
+host_handle_text_payload_arc_replaced=1
+```
+
+### ARC-RETIRE-014: WeakObjectHandle behavior
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/object_identity.rs
+```
+
+Acceptance:
+
+```text
+weak_behavior_defined=1
+weak_object_handle_generation_check_required=1
+```
+
+### ARC-RETIRE-015: First real object family selection
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+  src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+first_arc_retirement_candidate=host_handle_text_payload
+first_arc_retirement_scope=host_handle_carrier
+```
+
+### ARC-RETIRE-016: First real family Arc carrier cutover
+
+Status:
+
+```text
+landed_by=
+  src/runtime/host_handles.rs
+  src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+first_family_arc_retirement_scaffold=1
+first_family_carrier=stable_text_payload
+first_family_host_handle_text_arc_free=1
+first_family_box_trait_arc_replaced=0
+global_arc_replaced=0
+```
 
 ## Do Not Do Yet
 

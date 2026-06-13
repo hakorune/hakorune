@@ -25,7 +25,7 @@ use super::object_identity::{
     BoxIdentity, FiniOwner, ObjectHandle, ObjectIdentityDescriptor, ObjectIdentityKind,
     RootVisibility,
 };
-use crate::box_trait::NyashBox;
+use crate::box_trait::{NyashBox, StringBox};
 use crate::config::env::HostHandleAllocPolicyMode;
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;
@@ -44,33 +44,48 @@ thread_local! {
 
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
+    StableText(String),
 }
 
 impl HandlePayload {
     #[inline(always)]
-    fn stable_box_ref(&self) -> &Arc<dyn NyashBox> {
+    fn stable_box_ref(&self) -> Option<&Arc<dyn NyashBox>> {
         match self {
-            Self::StableBox(obj) => obj,
+            Self::StableBox(obj) => Some(obj),
+            Self::StableText(_) => None,
         }
     }
 
     #[inline(always)]
-    fn cloned_stable_box(&self) -> Arc<dyn NyashBox> {
-        self.stable_box_ref().clone()
+    fn cloned_box_for_compat(&self) -> Arc<dyn NyashBox> {
+        match self {
+            Self::StableBox(obj) => obj.clone(),
+            Self::StableText(text) => Arc::new(StringBox::new(text)),
+        }
     }
 
     #[inline(always)]
     fn as_str_fast(&self) -> Option<&str> {
-        self.stable_box_ref().as_ref().as_str_fast()
+        match self {
+            Self::StableBox(obj) => obj.as_ref().as_str_fast(),
+            Self::StableText(text) => Some(text.as_str()),
+        }
     }
 
     #[inline(always)]
     fn identity_descriptor(&self, identity: BoxIdentity) -> ObjectIdentityDescriptor {
+        let kind = match self {
+            Self::StableBox(obj) => classify_object_identity_kind(obj.as_ref()),
+            Self::StableText(_) => ObjectIdentityKind::Builtin,
+        };
         ObjectIdentityDescriptor::new(
             identity,
-            classify_object_identity_kind(self.stable_box_ref().as_ref()),
+            kind,
             RootVisibility::StrongRoot,
-            FiniOwner::ObjectDrop,
+            match self {
+                Self::StableBox(_) => FiniOwner::ObjectDrop,
+                Self::StableText(_) => FiniOwner::None,
+            },
         )
     }
 }
@@ -176,9 +191,18 @@ impl Registry {
 
     #[inline(always)]
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
+        self.alloc_payload(HandlePayload::StableBox(obj))
+    }
+
+    #[inline(always)]
+    fn alloc_text(&self, text: String) -> u64 {
+        self.alloc_payload(HandlePayload::StableText(text))
+    }
+
+    #[inline(always)]
+    fn alloc_payload(&self, payload: HandlePayload) -> u64 {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
-        let payload = HandlePayload::StableBox(obj);
 
         if let Some(h) = host_handles_policy::take_reusable_handle(policy_mode, &mut table.free) {
             let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
@@ -210,7 +234,7 @@ impl Registry {
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
         let table = self.table.read();
-        let out = slot_ref(&table, h).map(HandlePayload::cloned_stable_box);
+        let out = slot_ref(&table, h).map(HandlePayload::cloned_box_for_compat);
         if out.is_some() {
             perf_observe::object_get(h);
         }
@@ -220,7 +244,7 @@ impl Registry {
     #[inline(always)]
     fn with_handle<R>(&self, h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
         let table = self.table.read();
-        let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
+        let obj = slot_ref(&table, h).and_then(HandlePayload::stable_box_ref);
         if obj.is_some() {
             perf_observe::object_with_handle(h, PerfObserveObjectWithHandleCaller::Generic);
         }
@@ -252,8 +276,8 @@ impl Registry {
     #[inline(always)]
     fn get_pair(&self, a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
+        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_box_for_compat);
+        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_box_for_compat);
         if a_obj.is_some() || b_obj.is_some() {
             perf_observe::object_pair(a, b);
         }
@@ -268,8 +292,8 @@ impl Registry {
         f: impl FnOnce(Option<&Arc<dyn NyashBox>>, Option<&Arc<dyn NyashBox>>) -> R,
     ) -> R {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::stable_box_ref);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::stable_box_ref);
+        let a_obj = slot_ref(&table, a).and_then(HandlePayload::stable_box_ref);
+        let b_obj = slot_ref(&table, b).and_then(HandlePayload::stable_box_ref);
         if a_obj.is_some() || b_obj.is_some() {
             perf_observe::object_pair(a, b);
         }
@@ -289,9 +313,9 @@ impl Registry {
         ) -> R,
     ) -> R {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::stable_box_ref);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::stable_box_ref);
-        let c_obj = slot_ref(&table, c).map(HandlePayload::stable_box_ref);
+        let a_obj = slot_ref(&table, a).and_then(HandlePayload::stable_box_ref);
+        let b_obj = slot_ref(&table, b).and_then(HandlePayload::stable_box_ref);
+        let c_obj = slot_ref(&table, c).and_then(HandlePayload::stable_box_ref);
         if a_obj.is_some() || b_obj.is_some() || c_obj.is_some() {
             perf_observe::object_triple(a, b, c);
         }
@@ -337,9 +361,9 @@ impl Registry {
         Option<Arc<dyn NyashBox>>,
     ) {
         let table = self.table.read();
-        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_stable_box);
-        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_stable_box);
-        let c_obj = slot_ref(&table, c).map(HandlePayload::cloned_stable_box);
+        let a_obj = slot_ref(&table, a).map(HandlePayload::cloned_box_for_compat);
+        let b_obj = slot_ref(&table, b).map(HandlePayload::cloned_box_for_compat);
+        let c_obj = slot_ref(&table, c).map(HandlePayload::cloned_box_for_compat);
         if a_obj.is_some() || b_obj.is_some() || c_obj.is_some() {
             perf_observe::object_triple(a, b, c);
         }
@@ -351,7 +375,7 @@ impl Registry {
         table
             .slots
             .iter()
-            .filter_map(|slot| slot.as_ref().map(HandlePayload::cloned_stable_box))
+            .filter_map(|slot| slot.as_ref().map(HandlePayload::cloned_box_for_compat))
             .collect()
     }
     #[inline(always)]
@@ -417,6 +441,12 @@ pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
     let handle = reg().alloc(arc.clone());
     remember_latest_fresh_stable_box(handle, arc);
     handle
+}
+
+/// String payload -> HostHandle (u64) without storing `Arc<dyn NyashBox>`.
+#[inline(always)]
+pub fn to_handle_text(text: impl Into<String>) -> u64 {
+    reg().alloc_text(text.into())
 }
 
 /// Convert a raw host handle to the future object-handle contract type.
@@ -511,7 +541,7 @@ pub fn with_handle_caller<R>(
     f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R,
 ) -> R {
     let table = reg().table.read();
-    let obj = slot_ref(&table, h).map(HandlePayload::stable_box_ref);
+    let obj = slot_ref(&table, h).and_then(HandlePayload::stable_box_ref);
     if obj.is_some() {
         perf_observe::object_with_handle(h, caller);
     }
@@ -662,6 +692,7 @@ pub fn host_handle_identity_report_fields() -> &'static [(&'static str, &'static
         ("borrowed_access_preserved", "1"),
         ("identity_snapshot_available", "1"),
         ("host_handle_backing_arc_replaced", "0"),
+        ("host_handle_text_payload_arc_replaced", "1"),
         ("arc_hot_path_retirement_started", "0"),
     ]
 }
@@ -822,6 +853,46 @@ mod tests {
     }
 
     #[test]
+    fn text_payload_handle_reads_without_arc_payload() {
+        with_global_host_handles(|| {
+            let raw = to_handle_text("arc-free-text");
+            let got = with_str_handle(raw, |text| text.to_string());
+
+            assert_eq!(got.as_deref(), Some("arc-free-text"));
+            assert!(with_handle(raw, |obj| obj.is_none()));
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
+    fn text_payload_get_materializes_compat_string_box() {
+        with_global_host_handles(|| {
+            let raw = to_handle_text("compat-text");
+            let got = get(raw).expect("compat materialized string box");
+
+            assert_eq!(got.as_str_fast(), Some("compat-text"));
+            assert_eq!(got.type_name(), "StringBox");
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
+    fn text_payload_identity_has_no_fini_owner() {
+        with_global_host_handles(|| {
+            let raw = to_handle_text("identity-text");
+            let descriptor = descriptor(raw).expect("text identity descriptor");
+
+            assert_eq!(descriptor.identity.handle().raw(), raw);
+            assert_eq!(descriptor.root_visibility, RootVisibility::StrongRoot);
+            assert_eq!(descriptor.fini_owner, FiniOwner::None);
+
+            drop_handle(raw);
+        });
+    }
+
+    #[test]
     fn host_handle_identity_report_fields_are_explicit() {
         let fields = host_handle_identity_report_fields();
 
@@ -829,5 +900,6 @@ mod tests {
         assert!(fields.contains(&("object_handle_contract_used_by_host_handles", "1")));
         assert!(fields.contains(&("borrowed_access_preserved", "1")));
         assert!(fields.contains(&("host_handle_backing_arc_replaced", "0")));
+        assert!(fields.contains(&("host_handle_text_payload_arc_replaced", "1")));
     }
 }

@@ -116,9 +116,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     downcast surfaces, plugin lifecycle ownership, and `VMValue::BoxRef`
     carrier migration planning before any family Arc retirement gate
 - `design/arc-retirement-family-gate-and-first-family-ssot.md`
-  - ARC-RETIRE-006..010 contract owner for family retirement gates, first
+  - ARC-RETIRE-006..016 contract owner for family retirement gates, first
     candidate selection, refcount storage prototype, atomic retain/release
-    vocabulary, and the first VM-scalar carrier retirement scaffold
+    vocabulary, and the first host-handle text payload carrier cutover
 - `design/mimalloc-replacement-front-fidelity-ssot.md`
   - mimalloc fidelity guard for replacement-front execution shape; prevents
     accepting a fast but non-mimalloc-shaped allocator route as keeper

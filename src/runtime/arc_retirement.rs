@@ -11,6 +11,8 @@ use crate::runtime::VMBoxRefCarrier;
 pub enum ArcRetirementScope {
     /// Only the VM value carrier is Arc-free for this family.
     VmValueCarrier,
+    /// Host-handle payload carrier is Arc-free for this family.
+    HostHandleCarrier,
     /// Full Box trait object carrier has been replaced.
     BoxTraitCarrier,
     /// Plugin instance carrier has been replaced.
@@ -22,6 +24,8 @@ pub enum ArcRetirementScope {
 pub enum ArcRetirementFamily {
     /// VM scalar values already use direct `VMValue` variants instead of BoxRef.
     VmScalarValueBoxes,
+    /// Host-handle text payloads store `String` directly instead of Arc box payloads.
+    HostHandleTextPayload,
     /// Placeholder for future builtin identity families.
     BuiltinIdentityBox,
     /// Placeholder for future plugin-backed boxes.
@@ -87,6 +91,13 @@ impl FamilyRetirementCandidate {
         reason:
             "VM scalar values are already direct VMValue carriers and do not use VMValue::BoxRef",
     };
+
+    pub const HOST_HANDLE_TEXT_PAYLOAD: Self = Self {
+        family: ArcRetirementFamily::HostHandleTextPayload,
+        scope: ArcRetirementScope::HostHandleCarrier,
+        gate: FamilyRetirementGate::VM_SCALAR_VALUE_CARRIER,
+        reason: "host handle text payloads are stored as String and only materialize Arc boxes for compatibility APIs",
+    };
 }
 
 /// Refcount storage strategy for an Arc-retired family.
@@ -109,9 +120,9 @@ pub struct RefcountStoragePrototype {
 }
 
 impl RefcountStoragePrototype {
-    pub const VM_SCALAR_NO_REFCOUNT: Self = Self {
+    pub const IMMEDIATE_NO_REFCOUNT: Self = Self {
         strategy: RefcountStorageStrategy::ImmediateScalarNoRefcount,
-        storage_owner: "VMValue scalar variant",
+        storage_owner: "immediate payload owner",
         applies_to_first_family: true,
     };
 
@@ -156,10 +167,19 @@ pub struct FirstFamilyArcRetirementScaffold {
 impl FirstFamilyArcRetirementScaffold {
     pub const VM_SCALAR_VALUE_BOXES: Self = Self {
         candidate: FamilyRetirementCandidate::VM_SCALAR_VALUE_BOXES,
-        refcount_storage: RefcountStoragePrototype::VM_SCALAR_NO_REFCOUNT,
+        refcount_storage: RefcountStoragePrototype::IMMEDIATE_NO_REFCOUNT,
         atomic_contract: AtomicRetainReleaseContract::HAKO_ATOMIC_AND_MEM,
         current_boxref_carrier: VMBoxRefCarrier::ArcDynNyashBox,
         first_family_carrier: VMBoxRefCarrier::DirectVmScalar,
+        global_box_trait_arc_replaced: false,
+    };
+
+    pub const HOST_HANDLE_TEXT_PAYLOAD: Self = Self {
+        candidate: FamilyRetirementCandidate::HOST_HANDLE_TEXT_PAYLOAD,
+        refcount_storage: RefcountStoragePrototype::IMMEDIATE_NO_REFCOUNT,
+        atomic_contract: AtomicRetainReleaseContract::HAKO_ATOMIC_AND_MEM,
+        current_boxref_carrier: VMBoxRefCarrier::ArcDynNyashBox,
+        first_family_carrier: VMBoxRefCarrier::StableTextPayload,
         global_box_trait_arc_replaced: false,
     };
 }
@@ -169,11 +189,11 @@ pub fn family_retirement_gate() -> FamilyRetirementGate {
 }
 
 pub fn first_family_candidate() -> FamilyRetirementCandidate {
-    FamilyRetirementCandidate::VM_SCALAR_VALUE_BOXES
+    FamilyRetirementCandidate::HOST_HANDLE_TEXT_PAYLOAD
 }
 
 pub fn refcount_storage_prototype() -> RefcountStoragePrototype {
-    RefcountStoragePrototype::VM_SCALAR_NO_REFCOUNT
+    RefcountStoragePrototype::IMMEDIATE_NO_REFCOUNT
 }
 
 pub fn atomic_retain_release_contract() -> AtomicRetainReleaseContract {
@@ -181,13 +201,15 @@ pub fn atomic_retain_release_contract() -> AtomicRetainReleaseContract {
 }
 
 pub fn first_family_arc_retirement_scaffold() -> FirstFamilyArcRetirementScaffold {
-    FirstFamilyArcRetirementScaffold::VM_SCALAR_VALUE_BOXES
+    FirstFamilyArcRetirementScaffold::HOST_HANDLE_TEXT_PAYLOAD
 }
 
-/// Stable report fields for ARC-RETIRE-006..010.
+/// Stable report fields for ARC-RETIRE-006..016.
 pub fn arc_retirement_report_fields() -> &'static [(&'static str, &'static str)] {
     &[
-        ("arc_retirement_mode", "first_family_scaffold"),
+        ("arc_retirement_mode", "first_real_family_cutover"),
+        ("arc_family_retirement_started", "1"),
+        ("arc_hot_path_retirement_started", "0"),
         ("arc_retirement_family_gate_defined", "1"),
         ("arc_retirement_family_gate_satisfied", "1"),
         ("object_identity_owner_exists", "1"),
@@ -198,8 +220,8 @@ pub fn arc_retirement_report_fields() -> &'static [(&'static str, &'static str)]
         ("weak_behavior_defined", "1"),
         ("fini_owner_defined", "1"),
         ("backend_unsupported_surfaces_fail_fast", "1"),
-        ("first_arc_retirement_candidate", "vm_scalar_value_boxes"),
-        ("first_arc_retirement_scope", "vmvalue_carrier"),
+        ("first_arc_retirement_candidate", "host_handle_text_payload"),
+        ("first_arc_retirement_scope", "host_handle_carrier"),
         ("refcount_storage_owner_defined", "1"),
         ("refcount_storage_strategy", "immediate_scalar_no_refcount"),
         ("atomic_retain_release_contract_defined", "1"),
@@ -208,8 +230,9 @@ pub fn arc_retirement_report_fields() -> &'static [(&'static str, &'static str)]
         ("release_uses_fetch_add_minus_one", "1"),
         ("free_symbol", "hako_mem_free"),
         ("first_family_arc_retirement_scaffold", "1"),
-        ("first_family_vm_carrier", "direct_vm_scalar"),
-        ("first_family_vm_carrier_arc_free", "1"),
+        ("first_family_carrier", "stable_text_payload"),
+        ("host_handle_text_payload_arc_replaced", "1"),
+        ("first_family_host_handle_text_arc_free", "1"),
         ("first_family_box_trait_arc_replaced", "0"),
         ("global_arc_replaced", "0"),
         ("typeabi_identity_truth_count", "0"),
@@ -221,7 +244,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn family_gate_is_satisfied_for_vm_scalar_candidate() {
+    fn family_gate_is_satisfied_for_immediate_payload_candidate() {
         let gate = family_retirement_gate();
 
         assert!(gate.is_satisfied());
@@ -230,11 +253,11 @@ mod tests {
     }
 
     #[test]
-    fn first_candidate_is_vm_carrier_only() {
+    fn first_candidate_is_host_handle_text_payload() {
         let candidate = first_family_candidate();
 
-        assert_eq!(candidate.family, ArcRetirementFamily::VmScalarValueBoxes);
-        assert_eq!(candidate.scope, ArcRetirementScope::VmValueCarrier);
+        assert_eq!(candidate.family, ArcRetirementFamily::HostHandleTextPayload);
+        assert_eq!(candidate.scope, ArcRetirementScope::HostHandleCarrier);
         assert!(candidate.gate.is_satisfied());
     }
 
@@ -265,25 +288,28 @@ mod tests {
 
         assert_eq!(
             scaffold.candidate.family,
-            ArcRetirementFamily::VmScalarValueBoxes
+            ArcRetirementFamily::HostHandleTextPayload
         );
         assert_eq!(
             scaffold.first_family_carrier,
-            VMBoxRefCarrier::DirectVmScalar
+            VMBoxRefCarrier::StableTextPayload
         );
         assert!(!scaffold.global_box_trait_arc_replaced);
     }
 
     #[test]
-    fn report_fields_cover_006_to_010() {
+    fn report_fields_cover_006_to_016() {
         let fields = arc_retirement_report_fields();
 
         assert!(fields.contains(&("arc_retirement_family_gate_defined", "1")));
-        assert!(fields.contains(&("first_arc_retirement_candidate", "vm_scalar_value_boxes")));
+        assert!(fields.contains(&("arc_family_retirement_started", "1")));
+        assert!(fields.contains(&("arc_hot_path_retirement_started", "0")));
+        assert!(fields.contains(&("first_arc_retirement_candidate", "host_handle_text_payload")));
         assert!(fields.contains(&("refcount_storage_owner_defined", "1")));
         assert!(fields.contains(&("atomic_retain_release_contract_defined", "1")));
         assert!(fields.contains(&("first_family_arc_retirement_scaffold", "1")));
-        assert!(fields.contains(&("first_family_vm_carrier", "direct_vm_scalar")));
+        assert!(fields.contains(&("first_family_carrier", "stable_text_payload")));
+        assert!(fields.contains(&("host_handle_text_payload_arc_replaced", "1")));
         assert!(fields.contains(&("global_arc_replaced", "0")));
     }
 }
