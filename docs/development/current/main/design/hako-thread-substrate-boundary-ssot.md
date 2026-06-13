@@ -741,6 +741,44 @@ worker_pool_required_for_close=0
 reference receiver. It is not a source-level ordinary blocking call.
 `CONC-CHANNEL-003` owns await-visible `send` / `recv` route integration.
 
+### CONC-CHANNEL-003: await-visible route bridge
+
+Status: landed as route vocabulary / fail-fast bridge.
+
+Scope:
+
+```text
+src/runtime/channel_route.rs
+HakoChannelRoute
+ChannelRouteDescriptor
+```
+
+Report fields:
+
+```text
+channel_route_await_send_descriptor_present=1
+channel_route_await_recv_descriptor_present=1
+channel_route_await_close_descriptor_present=1
+channel_route_try_send_descriptor_present=1
+channel_route_try_recv_descriptor_present=1
+channel_route_hidden_blocking_ordinary_call_enabled=0
+channel_route_mir_lowering_enabled=0
+channel_route_program_json_enabled=0
+channel_route_llvm_enabled=0
+channel_route_legacy_p2p_channelbox_reused=0
+```
+
+Reading:
+
+```text
+await_visible_channel_route_shape_fixed=1
+ordinary_blocking_channel_call_enabled=0
+channel_route_lowering_enabled=0
+```
+
+This row fixes the route names and source shapes only. It does not infer
+`Channel<T>` receiver types and does not lower channel waits through MIR.
+
 ### THREAD-SOURCE-001: structured worker source surface
 
 Reserved future row. Prefer structured surfaces such as `worker_scope` /

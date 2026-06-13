@@ -153,7 +153,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
 | `CONC-CHANNEL-001` | landed-api-docs | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | docs/reference + guard | no wait runtime rewrite |
 | `CONC-CHANNEL-002` | landed-code | Implement `await ch.close()` semantics in the future `Channel<T>` queue runtime scaffold. | `src/runtime/channel_queue.rs` + `293x-1004-CONC-CHANNEL-002-REFERENCE-CLOSE-SEMANTICS.md` | no true parallel scheduler |
-| `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
+| `CONC-CHANNEL-003` | landed-code | Implement await-visible `send` / `recv` route shape as a fail-fast bridge. | `src/runtime/channel_route.rs` + `293x-1005-CONC-CHANNEL-003-AWAIT-VISIBLE-ROUTE-BRIDGE.md` | no hidden blocking ordinary call |
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | landed-code | Add reference-only serialized method-entry behavior. | `src/runtime/sync_box.rs` + `293x-1003-CONC-SYNCBOX-003-REFERENCE-SERIALIZED-ENTRY.md` | Program JSON / MIR / LLVM fail-fast continue |
@@ -285,6 +285,48 @@ no source-level blocking call
 no hidden ordinary send/recv wait
 no worker-pool activation
 no Program JSON / MIR / LLVM route widening
+```
+
+### CONC-CHANNEL-003
+
+Await-visible route descriptors:
+
+```text
+await ch.send(value)
+await ch.recv()
+await ch.close()
+ch.try_send(value)
+ch.try_recv()
+```
+
+Runtime owner:
+
+```text
+src/runtime/channel_route.rs
+```
+
+Report fields:
+
+```text
+channel_route_await_send_descriptor_present=1
+channel_route_await_recv_descriptor_present=1
+channel_route_await_close_descriptor_present=1
+channel_route_try_send_descriptor_present=1
+channel_route_try_recv_descriptor_present=1
+channel_route_hidden_blocking_ordinary_call_enabled=0
+channel_route_mir_lowering_enabled=0
+channel_route_program_json_enabled=0
+channel_route_llvm_enabled=0
+channel_route_legacy_p2p_channelbox_reused=0
+```
+
+Stop line:
+
+```text
+route descriptors only
+no Program JSON / MIR / LLVM lowering
+no ordinary blocking send / recv / close call
+no legacy P2P ChannelBox reuse
 ```
 
 Docs/API decision already fixed by `boundary-model.md`:

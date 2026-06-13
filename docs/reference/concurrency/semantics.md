@@ -20,7 +20,7 @@ kept only as provenance in phase logs and execution ledgers.
 | Feature | Design | VM | LLVM | Notes |
 | --- | --- | --- | --- | --- |
 | `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
-| `Channel` | yes | reference | not active | CONC-CHANNEL-002 pins reference close/drain/send-after-close behavior for the future queue runtime; await route integration is later. |
+| `Channel` | yes | reference | not active | CONC-CHANNEL-002 pins close/drain/send-after-close behavior; CONC-CHANNEL-003 pins await-visible route descriptors while lowering stays closed. |
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
 | `sync box` | yes | reference | no | Parser/AST JSON capsule and wait-forbidden verifier are active; CONC-SYNCBOX-003 adds reference-only serialized entry while Program JSON / MIR / LLVM stay fail-fast. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
@@ -88,7 +88,8 @@ Current reference runtime:
 - `src/runtime/channel_queue.rs` owns the future `Channel<T>` queue scaffold.
 - `CONC-CHANNEL-002` pins close/drain/send-after-close behavior only.
 - `recv_blocking_reference()` exists for the close-wakes-waiters proof and must not be exposed as an ordinary source-level blocking call.
-- `CONC-CHANNEL-003` owns await-visible `send` / `recv` route integration.
+- `src/runtime/channel_route.rs` owns await-visible route descriptors.
+- `CONC-CHANNEL-003` pins the route shape and keeps Program JSON / MIR / LLVM lowering closed.
 - Report fields:
   - `channel_queue_reference_runtime_enabled=1`
   - `channel_queue_legacy_p2p_channelbox_reused=0`
@@ -98,6 +99,15 @@ Current reference runtime:
   - `channel_queue_double_close_rejected=1`
   - `channel_queue_true_parallel_scheduler_required=0`
   - `channel_queue_source_blocking_call_enabled=0`
+  - `channel_route_await_send_descriptor_present=1`
+  - `channel_route_await_recv_descriptor_present=1`
+  - `channel_route_await_close_descriptor_present=1`
+  - `channel_route_try_send_descriptor_present=1`
+  - `channel_route_try_recv_descriptor_present=1`
+  - `channel_route_hidden_blocking_ordinary_call_enabled=0`
+  - `channel_route_mir_lowering_enabled=0`
+  - `channel_route_program_json_enabled=0`
+  - `channel_route_llvm_enabled=0`
 
 ### Select Semantics
 - `when(channel, handler)` registers selectable cases.

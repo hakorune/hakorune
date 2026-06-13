@@ -75,8 +75,13 @@ pub use ring0::{get_global_ring0, init_global_ring0, Ring0Context}; // Phase 88:
 pub use runtime_profile::RuntimeProfile; // Phase 109: RuntimeProfile enum
 pub mod cache_versions;
 pub mod channel_queue;
+pub mod channel_route;
 pub use channel_queue::{
     channel_queue_reference_report_fields, ChannelQueue, ChannelQueueError, ChannelQueueSendError,
+};
+pub use channel_route::{
+    channel_route_activation_report_fields, channel_route_descriptors, channel_route_report_fields,
+    channel_route_source_shape_report_fields, ChannelRouteDescriptor, HakoChannelRoute,
 };
 pub use gc::{BarrierKind, GcHooks};
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
