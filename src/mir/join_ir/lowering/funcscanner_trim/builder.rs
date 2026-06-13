@@ -51,6 +51,8 @@ use crate::mir::join_ir::{
 use crate::mir::ValueId;
 use crate::runtime::get_global_ring0;
 
+use super::whitespace::{append_whitespace_predicate, WhitespacePredicateIds};
+
 /// Phase 27.11: Common JoinIR builder for FuncScannerBox.trim/1
 ///
 /// This function generates the JoinIR for trim/1, shared by both:
@@ -281,97 +283,25 @@ pub(super) fn build_funcscanner_trim_joinir(module: &crate::mir::MirModule) -> O
     let const_newline = ValueId(6014);
     let const_cr = ValueId(6015);
 
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Const {
-            dst: const_space,
-            value: ConstValue::String(" ".to_string()),
-        }));
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Compare {
-            dst: cmp_space,
-            lhs: ch,
-            rhs: const_space,
-            op: CompareOp::Eq,
-        }));
-
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Const {
-            dst: const_tab,
-            value: ConstValue::String("\\t".to_string()),
-        }));
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Compare {
-            dst: cmp_tab,
-            lhs: ch,
-            rhs: const_tab,
-            op: CompareOp::Eq,
-        }));
-
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Const {
-            dst: const_newline,
-            value: ConstValue::String("\\n".to_string()),
-        }));
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Compare {
-            dst: cmp_newline,
-            lhs: ch,
-            rhs: const_newline,
-            op: CompareOp::Eq,
-        }));
-
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Const {
-            dst: const_cr,
-            value: ConstValue::String("\\r".to_string()),
-        }));
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::Compare {
-            dst: cmp_cr,
-            lhs: ch,
-            rhs: const_cr,
-            op: CompareOp::Eq,
-        }));
-
-    // OR chain: (cmp_space || cmp_tab) || cmp_newline || cmp_cr
     let or1 = ValueId(6016);
     let or2 = ValueId(6017);
-    let is_space = ValueId(6018);
-
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::BinOp {
-            dst: or1,
-            lhs: cmp_space,
-            rhs: cmp_tab,
-            op: BinOpKind::Or,
-        }));
-
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::BinOp {
-            dst: or2,
-            lhs: or1,
-            rhs: cmp_newline,
-            op: BinOpKind::Or,
-        }));
-
-    loop_step_func
-        .body
-        .push(JoinInst::Compute(MirLikeInst::BinOp {
-            dst: is_space,
-            lhs: or2,
-            rhs: cmp_cr,
-            op: BinOpKind::Or,
-        }));
+    let is_space = append_whitespace_predicate(
+        &mut loop_step_func,
+        ch,
+        WhitespacePredicateIds {
+            cmp_space,
+            cmp_tab,
+            cmp_newline,
+            cmp_cr,
+            const_space,
+            const_tab,
+            const_newline,
+            const_cr,
+            or1,
+            or2,
+            is_space: ValueId(6018),
+        },
+    );
 
     // is_space_false = (is_space == false)
     let is_space_false = ValueId(6021);
@@ -476,70 +406,23 @@ pub(super) fn build_funcscanner_trim_joinir(module: &crate::mir::MirModule) -> O
         args: vec![s_skip, i_skip, i_plus_1_skip],
     }));
 
-    // whitespace constants + comparisons
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Const {
-        dst: const_space_skip,
-        value: ConstValue::String(" ".to_string()),
-    }));
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Compare {
-        dst: cmp_space_skip,
-        lhs: ch_skip,
-        rhs: const_space_skip,
-        op: CompareOp::Eq,
-    }));
-
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Const {
-        dst: const_tab_skip,
-        value: ConstValue::String("\\t".to_string()),
-    }));
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Compare {
-        dst: cmp_tab_skip,
-        lhs: ch_skip,
-        rhs: const_tab_skip,
-        op: CompareOp::Eq,
-    }));
-
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Const {
-        dst: const_newline_skip,
-        value: ConstValue::String("\\n".to_string()),
-    }));
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Compare {
-        dst: cmp_newline_skip,
-        lhs: ch_skip,
-        rhs: const_newline_skip,
-        op: CompareOp::Eq,
-    }));
-
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Const {
-        dst: const_cr_skip,
-        value: ConstValue::String("\\r".to_string()),
-    }));
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::Compare {
-        dst: cmp_cr_skip,
-        lhs: ch_skip,
-        rhs: const_cr_skip,
-        op: CompareOp::Eq,
-    }));
-
-    // is_space_skip = OR chain
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::BinOp {
-        dst: or1_skip,
-        lhs: cmp_space_skip,
-        rhs: cmp_tab_skip,
-        op: BinOpKind::Or,
-    }));
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::BinOp {
-        dst: or2_skip,
-        lhs: or1_skip,
-        rhs: cmp_newline_skip,
-        op: BinOpKind::Or,
-    }));
-    skip_func.body.push(JoinInst::Compute(MirLikeInst::BinOp {
-        dst: is_space_skip,
-        lhs: or2_skip,
-        rhs: cmp_cr_skip,
-        op: BinOpKind::Or,
-    }));
+    let is_space_skip = append_whitespace_predicate(
+        &mut skip_func,
+        ch_skip,
+        WhitespacePredicateIds {
+            cmp_space: cmp_space_skip,
+            cmp_tab: cmp_tab_skip,
+            cmp_newline: cmp_newline_skip,
+            cmp_cr: cmp_cr_skip,
+            const_space: const_space_skip,
+            const_tab: const_tab_skip,
+            const_newline: const_newline_skip,
+            const_cr: const_cr_skip,
+            or1: or1_skip,
+            or2: or2_skip,
+            is_space: is_space_skip,
+        },
+    );
 
     // bool false + negation
     skip_func.body.push(JoinInst::Compute(MirLikeInst::Const {

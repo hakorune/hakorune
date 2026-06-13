@@ -421,6 +421,10 @@ funcscanner_trim/builder.rs:
 funcscanner_trim/dispatch.rs:
   MIR-vs-handwritten dispatch and route-local sanity checks
 
+funcscanner_trim/whitespace.rs:
+  route-local whitespace predicate instruction builder
+  shared by tail-trim loop and skip-leading helper
+
 stage1_using_resolver.rs:
   route entry, MIR probe, handwritten wrapper, and stage1-specific generic hook
 
