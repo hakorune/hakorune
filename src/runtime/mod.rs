@@ -82,7 +82,8 @@ pub use scheduler_route::{
 };
 pub use thread_capability::{
     thread_capability_descriptors, thread_capability_enforcement_report_fields,
-    thread_capability_report_fields, HakoThreadCapability, ThreadCapabilityDescriptor,
+    thread_capability_inventory_report_fields, thread_capability_report_fields,
+    HakoThreadCapability, ThreadCapabilityDescriptor,
 };
 pub use thread_registry::{
     global_thread_registry, ThreadRegistration, ThreadRegistry, ThreadRegistryRole,

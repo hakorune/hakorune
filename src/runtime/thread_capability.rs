@@ -86,6 +86,18 @@ pub fn thread_capability_enforcement_report_fields() -> Vec<(&'static str, &'sta
     ]
 }
 
+pub fn thread_capability_inventory_report_fields() -> Vec<(&'static str, &'static str)> {
+    vec![
+        ("hako_send_candidate_count", "0"),
+        ("hako_share_candidate_count", "0"),
+        ("hako_thread_root_candidate_count", "0"),
+        ("rejected_non_send_count", "0"),
+        ("rejected_non_share_count", "0"),
+        ("thread_root_required_count", "0"),
+        ("cross_worker_value_move_enabled", "0"),
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,6 +128,22 @@ mod tests {
                 ("worker_pool_source_route_enabled", "0"),
                 ("source_syntax_exposure", "0"),
                 ("nowait_os_thread_spawn", "0"),
+            ]
+        );
+    }
+
+    #[test]
+    fn thread_capability_inventory_starts_closed() {
+        assert_eq!(
+            thread_capability_inventory_report_fields(),
+            vec![
+                ("hako_send_candidate_count", "0"),
+                ("hako_share_candidate_count", "0"),
+                ("hako_thread_root_candidate_count", "0"),
+                ("rejected_non_send_count", "0"),
+                ("rejected_non_share_count", "0"),
+                ("thread_root_required_count", "0"),
+                ("cross_worker_value_move_enabled", "0"),
             ]
         );
     }

@@ -630,6 +630,32 @@ nowait_os_thread_spawn=0
 type_abi_hot_path_thread_lookup=0
 ```
 
+### CONC-CAP-INVENTORY-001: send/share/root gap inventory
+
+Status: landed as report/check vocabulary only.
+
+Scope:
+
+```text
+thread_capability_inventory_report_fields()
+```
+
+Report fields:
+
+```text
+hako_send_candidate_count=0
+hako_share_candidate_count=0
+hako_thread_root_candidate_count=0
+rejected_non_send_count=0
+rejected_non_share_count=0
+thread_root_required_count=0
+cross_worker_value_move_enabled=0
+```
+
+This row does not enforce send/share/root capabilities. It fixes the
+diagnostic vocabulary needed before a later row can move `.hako` values across
+workers or reject non-send/non-share values.
+
 ### THREAD-SOURCE-001: structured worker source surface
 
 Reserved future row. Prefer structured surfaces such as `worker_scope` /
