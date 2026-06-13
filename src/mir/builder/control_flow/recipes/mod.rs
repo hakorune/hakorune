@@ -4,7 +4,6 @@
 //! Non-`plan/` consumers should depend on this module first.
 
 mod body;
-pub(in crate::mir::builder) mod loop_bundle_resolver_v0;
 pub(in crate::mir::builder) mod loop_cond_break_continue;
 pub(in crate::mir::builder) mod loop_cond_continue_only;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return;

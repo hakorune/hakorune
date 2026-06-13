@@ -15,7 +15,6 @@ These modules are still part of the routed planner path (`registry`/handlers/com
 - `loop_scan_v0`
 - `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`
-- `loop_bundle_resolver_v0`
 
 See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`loop_*_v0 audit snapshot` section).
 
@@ -26,6 +25,9 @@ See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`l
   `loop_scan_methods_v0` (`COREPLAN-E1-002`).
 - `loop_collect_using_entries_v0` is physically removed and replaced by the
   existing `loop_simple_while` route (`COREPLAN-E1-003`).
+- `loop_bundle_resolver_v0` is physically removed and replaced by the
+  `flowbox/adopt` route for the focused BundleResolver fixture
+  (`COREPLAN-E1-004`).
 
 No module is considered retired unless:
 

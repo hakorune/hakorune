@@ -95,11 +95,6 @@ pub(crate) const ENTRIES: &[Entry] = &[
         route: Some(route_nested_loop_minimal),
     },
     Entry {
-        name: entry_keys::LOOP_BUNDLE_RESOLVER_V0,
-        predicate: pred_loop_bundle_resolver_v0,
-        route: Some(route_loop_bundle_resolver_v0),
-    },
-    Entry {
         name: entry_keys::LOOP_TRUE_BREAK_CONTINUE,
         predicate: pred_loop_true_break_continue,
         route: Some(route_loop_true_break_continue),
@@ -184,10 +179,8 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
         }
     }
 
-    let block_generic_loop_v1 = char_map_candidate
-        || pred_loop_simple_while(facts)
-        || pred_loop_bundle_resolver_v0(facts)
-        || pred_nested_loop_minimal(facts);
+    let block_generic_loop_v1 =
+        char_map_candidate || pred_loop_simple_while(facts) || pred_nested_loop_minimal(facts);
     if block_generic_loop_v1 {
         names.retain(|name| *name != entry_keys::GENERIC_LOOP_V1);
     }

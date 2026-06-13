@@ -18,7 +18,6 @@ use super::scan_shapes::{scan_condition_observation, ConditionShape, StepShape};
 use super::skeleton_facts::try_extract_loop_skeleton_facts;
 use super::string_is_integer_facts::try_extract_string_is_integer_facts;
 use super::try_extract_loop_continue_only_facts;
-use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::try_extract_loop_bundle_resolver_v0_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
 };
@@ -88,7 +87,6 @@ fn try_build_loop_facts_inner(
     let loop_scan_methods_v0 = try_extract_loop_scan_methods_v0_facts(condition, body)?;
     let loop_scan_v0 = try_extract_loop_scan_v0_facts(condition, body)?;
     let loop_scan_phi_vars_v0 = try_extract_loop_scan_phi_vars_v0_facts(condition, body)?;
-    let loop_bundle_resolver_v0 = try_extract_loop_bundle_resolver_v0_facts(condition, body)?;
     // Phase 29bq: Extract loop_cond_break_continue BEFORE generic_loop_v0
     // Reason: loop_cond_break_continue handles shapes (like ExitIfTree) that generic_loop_v0
     // would reject with a Freeze in strict mode. By trying loop_cond_break_continue first,
@@ -172,7 +170,6 @@ fn try_build_loop_facts_inner(
         || loop_scan_methods_v0.is_some()
         || loop_scan_v0.is_some()
         || loop_scan_phi_vars_v0.is_some()
-        || loop_bundle_resolver_v0.is_some()
         || generic_loop_v0.is_some()
         || generic_loop_v1.is_some()
         || if_phi_join.is_some()
@@ -225,7 +222,6 @@ fn try_build_loop_facts_inner(
         loop_scan_v0,
         loop_scan_methods_v0,
         loop_scan_phi_vars_v0,
-        loop_bundle_resolver_v0,
         nested_loop_minimal,
         bool_predicate_scan,
         accum_const_loop,
@@ -235,11 +231,10 @@ fn try_build_loop_facts_inner(
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} loop_scan={} loop_scan_phi_vars={} bundle_resolver={}",
+            "[plan/trace:facts_summary] ctx=loop_facts scan_methods={} loop_scan={} loop_scan_phi_vars={}",
             facts.loop_scan_methods_v0.is_some() as u8,
             facts.loop_scan_v0.is_some() as u8,
-            facts.loop_scan_phi_vars_v0.is_some() as u8,
-            facts.loop_bundle_resolver_v0.is_some() as u8
+            facts.loop_scan_phi_vars_v0.is_some() as u8
         ));
     }
     Ok(Some(facts))

@@ -87,38 +87,6 @@ impl RecipeComposer {
         .map_err(|e| Freeze::contract(&format!("loop_scan_v0 normalize failed: {}", e)))
     }
 
-    /// Compose loop_bundle_resolver_v0 facts into LoweredRecipe.
-    ///
-    /// Phase C16: Recipe-first compose path for loop_bundle_resolver_v0.
-    pub fn compose_loop_bundle_resolver_v0(
-        builder: &mut MirBuilder,
-        facts: &CanonicalLoopFacts,
-        ctx: &LoopRouteContext,
-    ) -> Result<LoweredRecipe, Freeze> {
-        use crate::config::env::joinir_dev;
-
-        let bundle_facts = facts.facts.loop_bundle_resolver_v0.clone().ok_or_else(|| {
-            Freeze::contract(
-                "loop_bundle_resolver_v0 facts missing in compose_loop_bundle_resolver_v0",
-            )
-        })?;
-
-        if joinir_dev::debug_enabled() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .debug("[recipe:compose] route=bundle_resolver_v0 path=recipe_first");
-        }
-
-        crate::mir::builder::control_flow::plan::loop_bundle_resolver_v0::pipeline::lower_loop_bundle_resolver_v0(builder, bundle_facts, ctx)
-            .map_err(|e| {
-                Freeze::contract(&format!(
-                    "loop_bundle_resolver_v0 normalize failed: {}",
-                    e
-                ))
-            })
-    }
-
     /// Compose loop_cond_break_continue facts into LoweredRecipe without normalizer.
     ///
     /// Used only in strict/dev + planner_required routing.

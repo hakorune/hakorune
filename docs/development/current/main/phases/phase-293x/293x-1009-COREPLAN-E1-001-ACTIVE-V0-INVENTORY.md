@@ -60,7 +60,7 @@ Note:
 ```text
 loop_scan_methods_block_v0 was tracked by this card at inventory time, then
 retired by COREPLAN-E1-002. The guard intentionally tracks the current active
-set, so it now reports five active boxes.
+set, and later retire cards shrink that set one box at a time.
 ```
 
 ## Stop Lines

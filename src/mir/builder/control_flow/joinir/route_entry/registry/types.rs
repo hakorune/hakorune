@@ -21,7 +21,6 @@ pub(crate) mod entry_keys {
     pub(crate) const LOOP_SCAN_PHI_VARS_V0: &str = "loop_scan_phi_vars_v0";
     pub(crate) const LOOP_SCAN_V0: &str = "loop_scan_v0";
     pub(crate) const NESTED_LOOP_MINIMAL: &str = "nested_loop_minimal";
-    pub(crate) const LOOP_BUNDLE_RESOLVER_V0: &str = "loop_bundle_resolver_v0";
     pub(crate) const LOOP_TRUE_BREAK_CONTINUE: &str = "loop_true_break_continue";
     pub(crate) const LOOP_COND_BREAK_CONTINUE: &str = "loop_cond_break_continue";
     pub(crate) const LOOP_COND_CONTINUE_ONLY: &str = "loop_cond_continue_only";
@@ -38,7 +37,6 @@ pub(crate) mod route_labels {
     pub(crate) const SCAN_PHI_VARS_V0: &str = "scan_phi_vars_v0";
     pub(crate) const SCAN_V0: &str = "scan_v0";
     pub(crate) const NESTED_LOOP_MINIMAL: &str = "nested_loop_minimal";
-    pub(crate) const BUNDLE_RESOLVER_V0: &str = "bundle_resolver_v0";
     pub(crate) const GENERIC_LOOP_V0: &str = "generic_loop_v0";
     pub(crate) const GENERIC_LOOP_V1: &str = "generic_loop_v1";
 }

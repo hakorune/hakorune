@@ -188,7 +188,6 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
     if facts.facts.loop_scan_methods_v0().is_some()
         || facts.facts.loop_scan_phi_vars_v0().is_some()
         || facts.facts.loop_scan_v0().is_some()
-        || facts.facts.loop_bundle_resolver_v0().is_some()
     {
         return true;
     }
@@ -435,7 +434,6 @@ mod tests {
             loop_scan_v0: None,
             loop_scan_methods_v0: None,
             loop_scan_phi_vars_v0: None,
-            loop_bundle_resolver_v0: None,
             nested_loop_minimal: None,
             bool_predicate_scan: None,
             accum_const_loop: None,

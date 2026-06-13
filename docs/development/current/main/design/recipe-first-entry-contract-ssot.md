@@ -57,8 +57,7 @@ AST
 | `loop_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_cond_break_continue`, `loop_cond_continue_only` |
 | `loop_true_early_exit` | `LoopTrueEarlyExit` | facts present | excludes `loop_true_break_continue` |
 | `loop_scan_methods_v0` | `LoopScanMethodsV0` | nested (or no block_v0) scan methods | excludes `loop_cond_break_continue` |
-| `loop_scan_*` (v0/phi_vars/collect/bundle) | `LoopScan*` | facts present | excludes `loop_cond_break_continue` |
-| `loop_bundle_resolver_v0` | `LoopBundleResolverV0` | facts present | excludes `generic_loop_v1` |
+| `loop_scan_*` (v0/phi_vars) | `LoopScan*` | facts present | excludes `loop_cond_break_continue` |
 | `loop_cond_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_continue_only` |
 | `loop_cond_continue_with_return` | `LoopContinueWithReturn` | facts present | see bullet list |
 | `loop_cond_return_in_body` | `LoopReturnInBody` | facts present | excludes `loop_cond_break_continue` |
@@ -66,7 +65,7 @@ AST
 | `loop_cond_break_continue` | `LoopExitIfBreakContinue` | exit-signal / conditional_update / nested-only | excluded by scan_methods candidates and pattern-specific disjoints |
 | `scan_with_init` / `split_scan` / `bool_predicate_scan` / `accum_const_loop` | `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `AccumConstLoop` | facts present | excludes `loop_cond_break_continue` |
 | `generic_loop_v0` | `LoopGenericFallbackV0` | fallback facts | release-only routing |
-| `generic_loop_v1` | `LoopGenericRecipeV1` | general loop facts | excluded by loop_break (`loop_break`) / loop_char_map (`loop_char_map`) / loop_simple_while (`loop_simple_while`) / `loop_cond_break_continue` / `loop_bundle_resolver_v0` |
+| `generic_loop_v1` | `LoopGenericRecipeV1` | general loop facts | excluded by loop_break (`loop_break`) / loop_char_map (`loop_char_map`) / loop_simple_while (`loop_simple_while`) / `loop_cond_break_continue` |
 
 Note: This matrix is a summary; the bullet list below is the authoritative SSOT. Display labels follow `entry-name-map-ssot.md`.
 Note: Candidate keys follow current semantic fact accessors where available; historical `pattern*` labels survive only in archive/migration docs.
@@ -76,7 +75,6 @@ Note: Candidate keys follow current semantic fact accessors where available; his
 - LoopCharMap（facts: `loop_char_map`）が成立する場合、generic_loop_v1 を候補にしない
 - LoopSimpleWhile（facts: `loop_simple_while`）が成立する場合は generic_loop_v1 を候補にしない
 - loop_cond_break_continue が成立する場合、generic_loop_v1 は候補にしない（conditional_update を含む）
-- loop_bundle_resolver_v0 が成立する場合、generic_loop_v1 は候補にしない
 - IfPhiJoin（facts: `if_phi_join`）が成立する場合、loop_cond_break_continue は候補にしない
 - LoopContinueOnly（facts: `loop_continue_only`）が成立する場合、loop_cond_break_continue は候補にしない
 - LoopContinueOnly（facts: `loop_continue_only`）が成立する場合、loop_cond_continue_only は候補にしない
@@ -84,7 +82,7 @@ Note: Candidate keys follow current semantic fact accessors where available; his
 - LoopArrayJoin（facts: `loop_array_join`）が成立する場合、loop_cond_break_continue は候補にしない
 - scan_methods_* が候補に入った場合のみ、loop_cond_break_continue を候補にしない
 - loop_cond_return_in_body が成立する場合、loop_cond_break_continue は候補にしない
-- remaining loop_scan_* / v0 families（v0/phi_vars/bundle_resolver）が成立する場合、loop_cond_break_continue は候補にしない
+- remaining loop_scan_* / v0 families（v0/phi_vars）が成立する場合、loop_cond_break_continue は候補にしない
 - ScanWithInit / SplitScan / BoolPredicateScan（`bool_predicate_scan`）/ AccumConstLoop（`accum_const_loop`）が成立する場合、loop_cond_break_continue は候補にしない
 - 必要に応じて debug 時のみ `[plan/trace:entry_candidates]` で候補を可視化（任意・SSOTはこのポリシー）
 - 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / none のどれに落ちたかを 1 行で確認できる

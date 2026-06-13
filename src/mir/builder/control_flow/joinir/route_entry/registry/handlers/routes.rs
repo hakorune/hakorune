@@ -450,27 +450,6 @@ pub(crate) fn route_nested_loop_minimal(
     )
 }
 
-pub(crate) fn route_loop_bundle_resolver_v0(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
-) -> Result<Option<ValueId>, String> {
-    const ENTRY: StandardEntry = StandardEntry {
-        route_label: route_labels::BUNDLE_RESOLVER_V0,
-        missing_contract_msg:
-            "loop_bundle_resolver_v0 requires recipe_contract in planner_required mode",
-        compose: RecipeComposer::compose_loop_bundle_resolver_v0,
-        planner_required_only: false,
-        skip_without_contract: false,
-        planner_first: PlannerFirstMode::Never,
-        plan_rule: None,
-        flowbox_via_strict: FlowboxVia::Shadow,
-        flowbox_via_release: FlowboxVia::Shadow,
-    };
-    route_standard(builder, ctx, outcome, env, &ENTRY)
-}
-
 pub(crate) fn route_loop_true_break_continue(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,

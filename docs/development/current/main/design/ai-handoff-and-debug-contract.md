@@ -121,9 +121,8 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_v0: recipe-only entry`
 - Retired in `COREPLAN-E1-003`: former collect_using_entries recipe-first tags.
   The focused fixture now stays on the existing `LoopSimpleWhile` route.
-- Recipe-first verification (dev/debug only, Phase C16): `[recipe:bundle_resolver] verified OK`
-- Recipe-first compose (dev/debug only, Phase C16): `[recipe:compose] route=bundle_resolver_v0 path=recipe_first`
-- Recipe-first entry (dev/debug only, Phase C16): `[recipe:entry] bundle_resolver_v0: recipe-only entry`
+- Retired in `COREPLAN-E1-004`: former bundle_resolver recipe-first tags.
+  The focused fixture now stays on the FlowBox adoption route.
 - Recipe-first verification (dev/debug only, Phase C16): `[recipe:loop_true] verified OK`
 - Recipe-first compose (dev/debug only, Phase C16): `[recipe:compose] route=loop_true_break_continue path=direct_pipeline`
 - Recipe-first entry (dev/debug only, Phase C16): `[recipe:entry] loop_true_break_continue: recipe-only entry`
@@ -298,7 +297,7 @@ Additional plan trace tags (SSOT):
   - Output fields (1 line): `strict_or_dev=<bool> planner_required=<bool> debug_enabled=<bool>`
 - `[plan/trace:facts_summary]`
   - Purpose: Record which loop facts candidates are Some/None before routing.
-  - Output fields (1 line): `ctx=<...> scan_methods=<0|1> loop_scan=<0|1> loop_scan_phi_vars=<0|1> bundle_resolver=<0|1>`
+  - Output fields (1 line): `ctx=<...> scan_methods=<0|1> loop_scan=<0|1> loop_scan_phi_vars=<0|1>`
 - `[plan/trace:entry_route]`
   - Purpose: Observe which loop entry route was taken (recipe_first / none).
   - Output fields (1 line): `ctx=<...> route=<...>`

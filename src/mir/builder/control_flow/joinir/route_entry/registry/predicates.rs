@@ -43,9 +43,7 @@ struct ScanFamilyPresence {
 impl ScanFamilyPresence {
     fn from_facts(facts: &CanonicalLoopFacts) -> Self {
         let methods = pred_loop_scan_methods_v0(facts);
-        let v0 = pred_loop_scan_v0(facts)
-            || pred_loop_scan_phi_vars_v0(facts)
-            || pred_loop_bundle_resolver_v0(facts);
+        let v0 = pred_loop_scan_v0(facts) || pred_loop_scan_phi_vars_v0(facts);
         let init = facts.facts.scan_with_init().is_some() || facts.facts.split_scan().is_some();
         let predicate = pred_bool_predicate_scan(facts) || pred_accum_const_loop(facts);
         Self {
@@ -76,9 +74,6 @@ pub(crate) fn pred_loop_scan_methods_v0(facts: &CanonicalLoopFacts) -> bool {
 pred_accessor!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
 pred_accessor!(pred_loop_scan_v0, loop_scan_v0);
 pred_accessor!(pred_nested_loop_minimal, nested_loop_minimal);
-pub(crate) fn pred_loop_bundle_resolver_v0(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_bundle_resolver_v0().is_some()
-}
 pub(crate) fn pred_loop_true_break_continue(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_true_break_continue.is_some() && !pred_loop_break_recipe(facts)
 }

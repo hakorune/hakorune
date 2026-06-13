@@ -166,7 +166,6 @@ run targeted planner/facts tests
   - `facts::extractors::if_phi_join`
   - `facts::extractors::loop_simple_while`
   - `facts::loop_scan_methods_v0`
-  - `facts::loop_bundle_resolver_v0`
   - `facts::loop_cond_continue_only`
   - `facts::loop_cond_continue_with_return`
   - `facts::loop_cond_return_in_body`
@@ -200,7 +199,6 @@ run targeted planner/facts tests
   - `recipes::RecipeBody`
   - `recipes::refs`
   - `recipes::scan_loop_segments`
-  - `recipes::loop_bundle_resolver_v0`
   - `recipes::loop_cond_continue_only`
   - `recipes::loop_cond_continue_with_return`
   - `recipes::loop_cond_shared`
@@ -283,7 +281,6 @@ run targeted planner/facts tests
 
 - `generic_loop`
 - `loop_break`
-- `loop_bundle_resolver_v0`
 - `loop_cond`
 - `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`
