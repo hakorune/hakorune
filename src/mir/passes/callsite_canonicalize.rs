@@ -26,5 +26,5 @@ mod pass;
 pub use pass::canonicalize_callsites;
 
 #[cfg(test)]
-#[path = "callsite_canonicalize/tests.rs"]
+#[path = "callsite_canonicalize/tests/mod.rs"]
 mod tests;

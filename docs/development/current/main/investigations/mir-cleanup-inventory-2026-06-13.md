@@ -809,6 +809,52 @@ module path stays crate::mir::builder::schedule::block
 no additional thin mod.rs files collapsed in the same pilot
 ```
 
+### MIR-CLEAN-014
+
+Split the next large MIR test file.
+
+Status: landed 2026-06-13.
+
+Target:
+
+```text
+src/mir/passes/callsite_canonicalize/tests.rs
+```
+
+Landed split:
+
+```text
+src/mir/passes/callsite_canonicalize/tests/mod.rs
+src/mir/passes/callsite_canonicalize/tests/mcl.rs
+src/mir/passes/callsite_canonicalize/tests/ncl.rs
+src/mir/passes/callsite_canonicalize/tests/ucm.rs
+```
+
+Decision:
+
+```text
+Keep common imports in tests/mod.rs.
+Group tests by callsite canonicalization family:
+  MCL / Stage1 global call compatibility
+  NCL closure canonicalization
+  UCM user-box method canonicalization
+```
+
+Verification:
+
+```bash
+cargo test --release --lib callsite_canonicalize -- --nocapture
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+test module split only
+no production behavior change
+callsite canonicalization tests stay green
+```
+
 ## Non-Goals
 
 ```text
@@ -825,9 +871,9 @@ do not move active perf lanes into cleanup cards
 Proceed with the next low-risk BoxShape cleanup in this order:
 
 ```text
-1. MIR-CLEAN-014: split the next large test file
-2. MIR-CLEAN-015: classify and collapse one more pure re-export thin mod.rs
-3. MIR-CLEAN-016: prepare JoinIR merge ownership docs before any deep path flatten
+1. MIR-CLEAN-015: classify and collapse one more pure re-export thin mod.rs
+2. MIR-CLEAN-016: prepare JoinIR merge ownership docs before any deep path flatten
+3. MIR-CLEAN-017: split another production-adjacent large test file
 ```
 
 Do not start another deep flatten pilot until the next owner seam is documented.
