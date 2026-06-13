@@ -18,6 +18,12 @@ Current status policy:
   implementation table and `CONC-*` vocabulary.
 - This file is the VM+LLVM execution ledger. Historical `Phase 242x` style
   labels below are provenance only; new status summaries should use `CONC-*`.
+- Runtime thread substrate status is owned by
+  `docs/reference/runtime/threading.md` and
+  `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`.
+  The current tree has `ThreadApi` spawn/join/detach and
+  `WorkerPoolScheduler` substrate. That substrate must still not be read as
+  source-level true parallel semantics.
 
 ---
 
@@ -30,6 +36,7 @@ Current status policy:
 Non-goals (この文書で今すぐやらない):
 - “真の並列性” の保証（スレッド/ワーカープールの意味論化）
 - `nowait` を OS thread spawn として再定義すること
+- source-level `worker_scope` / `parallel` / raw `thread {}` syntax
 - C pthread / std::thread benchmark を `.hako` source-level thread support
   の証拠として読むこと
 - 例外 + cleanup + async を統合した state-machine lowering（Phase 260 以降に委譲）
@@ -64,6 +71,37 @@ traceable.
 ### 1.2 Rust VM (MIR interpreter)
 - `FutureNew/FutureSet/Await` は実装済み（Phase-0: resolved FutureBox + `await` は同期ブロック）。
 - `nowait` は “spawn” の意味を持たず、式を順次評価して resolved future を作る（Phase-0 semantics）。
+
+### 1.2.1 Runtime thread substrate
+
+Current runtime substrate exists below the source surface:
+
+```text
+ThreadApi:
+  sleep / yield_now / current_thread_id / spawn / join / detach
+
+Scheduler:
+  SingleThreadScheduler
+  WorkerPoolScheduler
+
+Ownership boxes:
+  FutureBox
+  TaskGroupBox
+```
+
+Reading:
+
+```text
+ThreadApi substrate present=1
+WorkerPoolScheduler present=1
+nowait_os_thread_spawn=0
+source_level_thread_syntax=0
+worker_pool_source_route_enabled=0
+```
+
+Do not reopen `.hako` syntax from this fact. The next pre-selfhost work is
+inventory/report/check vocabulary and capability gaps, not source-level
+threading.
 
 Repro (VM):
 - `./target/release/hakorune --backend vm apps/tests/async-await-min/main.hako`

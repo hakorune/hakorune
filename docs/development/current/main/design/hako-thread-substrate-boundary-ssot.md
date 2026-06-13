@@ -36,6 +36,21 @@ type_abi_hot_path_thread_lookup=0
 promise to create one OS thread. A runtime may later execute eligible tasks on a
 worker pool, but that is an execution route, not source meaning.
 
+Current substrate reading:
+
+```text
+ThreadApi sleep/yield_now/current_thread_id/spawn/join/detach=implemented
+SingleThreadScheduler=implemented
+WorkerPoolScheduler=implemented
+ThreadRegistry v0=implemented
+source_level_thread_syntax=0
+worker_pool_source_route_enabled=0
+```
+
+The implemented worker pool is runtime substrate only. It is not evidence that
+`.hako` `nowait` means OS-thread spawn, and it is not a reason to add raw
+source-level thread syntax before send/share/root safety is pinned.
+
 C pthread allocator benchmarks are allocator execution evidence only. They do
 not prove `.hako` `nowait`, `co`, `task_scope`, `sync box`, `context`, or true
 parallel language semantics.
@@ -223,6 +238,23 @@ sync box:
 ```
 
 ## Implementation Task Order
+
+### Pre-selfhost substrate order
+
+Use this order if the concurrency substrate is reopened before selfhost:
+
+| Order | Row | Purpose | Stop line |
+| --- | --- | --- | --- |
+| 1 | `CONC-RUNTIME-INVENTORY-001` | Sync docs/report inventory with current ThreadApi, WorkerPoolScheduler, FutureBox, and TaskGroupBox reality. | docs/report-only |
+| 2 | `CONC-SCHED-ROUTE-001` | Pin runtime scheduler route vocabulary: `inline_resolved_future`, `cooperative_task`, `worker_pool_task`. | no default worker-pool activation |
+| 3 | `CONC-CAP-INVENTORY-001` | Inventory send/share/thread-root requirements before cross-worker `.hako` values move. | no enforcement; no value movement |
+| 4 | `CONC-SYNCBOX-003` | Add reference serialized entry behavior for canonical `sync box`. | no fairness/reentrancy guarantee |
+| 5 | `CONC-CHANNEL-002/003` | Implement the future `Channel<T>` queue runtime separately from legacy P2P `ChannelBox`. | no hidden blocking ordinary calls |
+| 6 | `CONC-SOURCE-PARALLEL-001` | Consider source-level worker/parallel surface only after substrate safety rows. | no raw thread syntax by default |
+
+Do not use `lock<T>` as the new canonical source surface. `sync box` is the
+canonical shared-mutable surface; locks remain runtime/internal or historical
+compatibility vocabulary.
 
 ### THREAD-BOUNDARY-001: docs/report-only boundary
 

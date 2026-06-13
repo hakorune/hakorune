@@ -9,6 +9,8 @@ Related:
 - `docs/reference/concurrency/lock_scoped_worker_local.md`
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 - `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
+- `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
+- `docs/reference/runtime/threading.md`
 
 ## Decision
 
@@ -31,6 +33,49 @@ source examples should use `co`.
 `lock<T>` must not be promoted to the canonical source surface. The canonical
 shared-mutable surface is `sync box`; raw locks remain implementation concepts,
 historical/provisional compatibility, or runtime/internal primitives.
+
+## Runtime Substrate Side Lane
+
+The runtime thread substrate already exists below the source surface:
+
+```text
+ThreadApi:
+  sleep / yield_now / current_thread_id / spawn / join / detach
+
+Scheduler:
+  SingleThreadScheduler
+  WorkerPoolScheduler
+
+Future ownership:
+  FutureBox
+  TaskGroupBox
+```
+
+This does not open source-level true parallel semantics.
+
+```text
+nowait_os_thread_spawn=0
+source_level_thread_syntax=0
+worker_pool_source_route_enabled=0
+lock_t_canonical_surface=0
+sync_box_canonical_surface=1
+```
+
+When concurrency is prioritized before selfhost, first close the substrate
+inventory and report/check vocabulary. Do not start with new `.hako` syntax.
+
+Recommended substrate rows:
+
+| Order | Row | Why now | Stop line |
+| --- | --- | --- | --- |
+| 1 | `CONC-RUNTIME-INVENTORY-001` | Sync docs with the implemented ThreadApi / WorkerPool / Future / TaskGroup substrate. | no behavior change |
+| 2 | `CONC-SCHED-ROUTE-001` | Expose scheduler route vocabulary for `inline_resolved_future` / `cooperative_task` / `worker_pool_task`. | no default worker-pool activation |
+| 3 | `CONC-CAP-INVENTORY-001` | Inventory send/share/thread-root safety before moving `.hako` values across workers. | report-only; no enforcement yet |
+| 4 | `CONC-SYNCBOX-003` | Add serialized method-entry reference behavior for the canonical shared-mutable surface. | no fairness/reentrancy guarantee |
+| 5 | `CONC-CHANNEL-002` / `003` | Implement the future `Channel<T>` queue runtime separately from legacy P2P `ChannelBox`. | no hidden blocking ordinary calls |
+
+Only after these rows should a source-level `worker_scope` / `parallel` /
+explicit worker surface be considered.
 
 ## Recommended Task Order
 
@@ -101,6 +146,9 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | Row | Status | Purpose | Output | Stop line |
 | --- | --- | --- | --- | --- |
 | `CONC-BOUNDARY-001` | landed-docs | Adopt Boundary model as design SSOT. | `docs/reference/concurrency/boundary-model.md` | no runtime change |
+| `CONC-RUNTIME-INVENTORY-001` | landed-docs | Sync current implementation inventory for ThreadApi, WorkerPoolScheduler, FutureBox, and TaskGroupBox before source-level thread design. | `293x-1000-CONC-RUNTIME-INVENTORY-001-THREAD-SUBSTRATE-REALITY.md` | no behavior change |
+| `CONC-SCHED-ROUTE-001` | pending | Pin scheduler route vocabulary and report/check fields for future worker-pool execution routes. | route vocabulary + report fields | no default worker-pool activation |
+| `CONC-CAP-INVENTORY-001` | pending | Inventory HakoSend/HakoShare/ThreadRoot gaps before cross-worker value movement. | report-only capability inventory | no source semantics change |
 | `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
 | `CONC-CHANNEL-001` | landed-api-docs | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | docs/reference + guard | no wait runtime rewrite |
