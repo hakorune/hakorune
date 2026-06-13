@@ -69,7 +69,6 @@ active_v0=(
   "loop_scan_v0"
   "loop_scan_methods_v0"
   "loop_scan_phi_vars_v0"
-  "loop_collect_using_entries_v0"
   "loop_bundle_resolver_v0"
 )
 
@@ -82,15 +81,15 @@ for name in "${active_v0[@]}"; do
 done
 
 if rg -n \
-  "loop_scan_methods_block_v0|LoopScanMethodsBlock|SCAN_METHODS_BLOCK|scan_methods_block" \
+  "loop_scan_methods_block_v0|LoopScanMethodsBlock|SCAN_METHODS_BLOCK|scan_methods_block|loop_collect_using_entries_v0|LoopCollectUsingEntries|LOOP_COLLECT_USING_ENTRIES|collect_using_entries_v0" \
   src/mir/builder/control_flow \
-  -g '*.rs' >/tmp/coreplan-active-v0-retired-block.refs 2>&1; then
-  echo "[$TAG] ERROR: retired loop_scan_methods_block_v0 code reference found" >&2
-  cat /tmp/coreplan-active-v0-retired-block.refs >&2
-  rm -f /tmp/coreplan-active-v0-retired-block.refs
+  -g '*.rs' >/tmp/coreplan-active-v0-retired.refs 2>&1; then
+  echo "[$TAG] ERROR: retired v0 code reference found" >&2
+  cat /tmp/coreplan-active-v0-retired.refs >&2
+  rm -f /tmp/coreplan-active-v0-retired.refs
   exit 1
 fi
-rm -f /tmp/coreplan-active-v0-retired-block.refs
+rm -f /tmp/coreplan-active-v0-retired.refs
 
 echo "[$TAG] active_v0_box_count=${#active_v0[@]}"
 echo "[$TAG] ok"

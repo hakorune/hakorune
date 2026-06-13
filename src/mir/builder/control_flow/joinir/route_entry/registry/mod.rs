@@ -90,11 +90,6 @@ pub(crate) const ENTRIES: &[Entry] = &[
         route: Some(route_loop_scan_v0),
     },
     Entry {
-        name: entry_keys::LOOP_COLLECT_USING_ENTRIES_V0,
-        predicate: pred_loop_collect_using_entries_v0,
-        route: Some(route_loop_collect_using_entries_v0),
-    },
-    Entry {
         name: entry_keys::NESTED_LOOP_MINIMAL,
         predicate: pred_nested_loop_minimal,
         route: Some(route_nested_loop_minimal),

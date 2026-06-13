@@ -174,12 +174,6 @@ impl RecipeMatcher {
         // Phase C15: LoopScanV0 verification (planner_required only)
         verify_route!(facts.facts.loop_scan_v0(), verify_loop_scan_v0_recipe);
 
-        // Phase C16: LoopCollectUsingEntriesV0 verification (planner_required only)
-        verify_route!(
-            facts.facts.loop_collect_using_entries_v0(),
-            verify_loop_collect_using_entries_v0_recipe
-        );
-
         // Phase C16: LoopBundleResolverV0 verification (planner_required only)
         verify_route!(
             facts.facts.loop_bundle_resolver_v0(),

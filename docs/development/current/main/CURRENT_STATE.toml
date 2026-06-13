@@ -15,21 +15,20 @@ foundation: make BoxCallableRegistry the callable truth owner, keep
 TypeAbiCatalog/BoxDescriptor as read-only projection. CorePlan foundation has a
 remaining-family inventory after the B1 boundary: C1 fail-fast guard first, then
 D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
-C1, D1, E1-001 inventory, and E1-002 first one-v0 retire guards are landed;
-next is selecting the next remaining active v0 box."""
+C1, D1, E1-001 inventory, E1-002 first retire, and E1-003
+collect_using_entries retire guards are landed; next is bundle_resolver v0."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1010-COREPLAN-E1-002-FIRST-V0-RETIRE-PILOT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1011-COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "293x-1010-COREPLAN-E1-002-FIRST-V0-RETIRE-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1010-COREPLAN-E1-002-FIRST-V0-RETIRE-PILOT.md"
-latest_card_summary = """293x-1010 retires loop_scan_methods_block_v0 by
-folding block-wrapped scan_methods observation into loop_scan_methods_v0. Active
-routed loop_*_v0 count is now five; next is E1-003 selection for the next
-remaining v0 box."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-E1-003-NEXT-293X-004"
+latest_card = "293x-1011-COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1011-COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE.md"
+latest_card_summary = """293x-1011 retires loop_collect_using_entries_v0
+after proving the focused Stage1UsingResolver fixture stays on LoopSimpleWhile.
+Active routed loop_*_v0 count is now four; next is E1-004 bundle_resolver."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-E1-004-NEXT-293X-005"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -2,24 +2,6 @@ use super::utils::*;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
-/// Recipe-first verification for loop_collect_using_entries_v0.
-pub(super) fn verify_loop_collect_using_entries_v0_recipe(
-    collect_using: &crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts,
-) -> Result<(), Freeze> {
-    verify_no_exit_block_recipe(
-        &collect_using.recipe.body_no_exit,
-        "loop_collect_using_entries_v0_body_no_exit",
-    )?;
-
-    if joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0
-            .log
-            .debug(&format!("[recipe:collect_using_entries] verified OK"));
-    }
-    Ok(())
-}
-
 /// Recipe-first verification for loop_bundle_resolver_v0.
 pub(super) fn verify_loop_bundle_resolver_v0_recipe(
     bundle_resolver: &crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts,

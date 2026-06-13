@@ -524,50 +524,65 @@ bash tools/checks/coreplan_first_v0_retire_guard.sh
 bash tools/checks/coreplan_active_v0_inventory_guard.sh
 ```
 
-### COREPLAN-E1-003: next one-v0 retire selection
+### COREPLAN-E1-003: collect_using_entries v0 retire
+
+Status: Landed.
+
+Landed by:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-1011-COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE.md
+tools/checks/coreplan_collect_using_entries_v0_retire_guard.sh
+```
+
+Retired:
+
+```text
+loop_collect_using_entries_v0
+```
+
+Replacement owner:
+
+```text
+loop_simple_while
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_collect_using_entries_v0_retire_guard.sh
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only selfhost_collect_using_entries_loop_min
+```
+
+### COREPLAN-E1-004: bundle_resolver v0 retire
 
 Next CorePlan task.
 
-Purpose:
+Target:
 
 ```text
-select the next remaining active v0 box for either retirement or explicit hold
+loop_bundle_resolver_v0
 ```
 
-Acceptance:
+Recommended remaining order:
 
 ```text
-remaining_active_v0_inventory_refreshed=1
-next_retire_candidate_selected=1
-one_box_only=1
-accepted_shape_added=0
-implementation_started=0
-```
-
-Recommended order from the remaining active-v0 inventory:
-
-```text
-1. COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE
-   target: loop_collect_using_entries_v0
-   risk: low
-   reason: thin NoExit wrapper around loop-v0 parts; best next retire proof
-
-2. COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE
+1. COREPLAN-E1-004-BUNDLE-RESOLVER-V0-RETIRE
    target: loop_bundle_resolver_v0
    risk: low-medium
    reason: thin route, but ExitAllowed / nested return makes it riskier than collect_using_entries
 
-3. COREPLAN-E1-005-SCAN-V0-SKELETON-PROMOTE-RETIRE
+2. COREPLAN-E1-005-SCAN-V0-SKELETON-PROMOTE-RETIRE
    target: loop_scan_v0
    risk: high
    reason: promote reusable scan skeleton / substring-step features before retiring
 
-4. COREPLAN-E1-006-SCAN-METHODS-V0-RETIRE
+3. COREPLAN-E1-006-SCAN-METHODS-V0-RETIRE
    target: loop_scan_methods_v0
    risk: medium-high
    reason: selfhost-pinned scan-methods route; wait until scan skeleton vocabulary exists
 
-5. COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE
+4. COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE
    target: loop_scan_phi_vars_v0
    risk: highest
    reason: PHI/carrier-sensitive collect shape with classic and EXT shape routes

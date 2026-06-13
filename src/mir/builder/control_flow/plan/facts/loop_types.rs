@@ -15,7 +15,6 @@ use super::skeleton_facts::SkeletonFacts;
 use super::string_is_integer_facts::StringIsIntegerFacts;
 use super::LoopContinueOnlyFacts;
 use crate::mir::builder::control_flow::facts::loop_bundle_resolver_v0::LoopBundleResolverV0Facts;
-use crate::mir::builder::control_flow::facts::loop_collect_using_entries_v0::LoopCollectUsingEntriesV0Facts;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts;
@@ -56,7 +55,6 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_scan_v0: Option<LoopScanV0Facts>,
     pub loop_scan_methods_v0: Option<LoopScanMethodsV0Facts>,
     pub loop_scan_phi_vars_v0: Option<LoopScanPhiVarsV0Facts>,
-    pub loop_collect_using_entries_v0: Option<LoopCollectUsingEntriesV0Facts>,
     pub loop_bundle_resolver_v0: Option<LoopBundleResolverV0Facts>,
     pub nested_loop_minimal: Option<NestedLoopMinimalFacts>,
     pub bool_predicate_scan: Option<BoolPredicateScanFacts>,
@@ -160,10 +158,6 @@ impl LoopFacts {
 
     pub fn loop_scan_v0(&self) -> Option<&LoopScanV0Facts> {
         self.loop_scan_v0.as_ref()
-    }
-
-    pub fn loop_collect_using_entries_v0(&self) -> Option<&LoopCollectUsingEntriesV0Facts> {
-        self.loop_collect_using_entries_v0.as_ref()
     }
 
     pub fn loop_bundle_resolver_v0(&self) -> Option<&LoopBundleResolverV0Facts> {

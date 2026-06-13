@@ -170,7 +170,6 @@ run targeted planner/facts tests
   - `facts::loop_cond_continue_only`
   - `facts::loop_cond_continue_with_return`
   - `facts::loop_cond_return_in_body`
-  - `facts::loop_collect_using_entries_v0`
   - `facts::expr_value`
   - `facts::expr_bool`
   - `facts::no_exit_block`
@@ -202,7 +201,6 @@ run targeted planner/facts tests
   - `recipes::refs`
   - `recipes::scan_loop_segments`
   - `recipes::loop_bundle_resolver_v0`
-  - `recipes::loop_collect_using_entries_v0`
   - `recipes::loop_cond_continue_only`
   - `recipes::loop_cond_continue_with_return`
   - `recipes::loop_cond_shared`
@@ -286,7 +284,6 @@ run targeted planner/facts tests
 - `generic_loop`
 - `loop_break`
 - `loop_bundle_resolver_v0`
-- `loop_collect_using_entries_v0`
 - `loop_cond`
 - `loop_scan_methods_v0`
 - `loop_scan_phi_vars_v0`

@@ -65,8 +65,6 @@ pub(in crate::mir::builder) mod loop_break;
 // 各ループタイプの固有処理
 // Phase 29bq+: bundle/using resolver loop(i<n) with i=next_i + nested return (BoxCount)
 mod loop_bundle_resolver_v0;
-// Phase 29bq+: Stage1UsingResolverBox._collect_using_entries loop (BoxCount)
-mod loop_collect_using_entries_v0;
 // Phase 29bq P2.x: unified loop_cond helpers (moved from loop_cond_unified/helpers.rs)
 pub(in crate::mir::builder) mod loop_cond_unified_helpers;
 // Phase 29bq P2.x: unified loop_cond facts (variants)

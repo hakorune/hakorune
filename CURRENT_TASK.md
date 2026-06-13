@@ -46,8 +46,8 @@ Scope: current lane / next lane / restart order only.
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0
-  inventory, and E1-002 first retire guards are landed; next is
-  `COREPLAN-E1-003` to select the next remaining active v0 box
+  inventory, E1-002 first retire, and E1-003 collect_using_entries retire guards
+  are landed; next is `COREPLAN-E1-004` bundle_resolver v0 retire
 - optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
@@ -95,6 +95,6 @@ Scope: current lane / next lane / restart order only.
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1010-COREPLAN-E1-002-FIRST-V0-RETIRE-PILOT.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1011-COREPLAN-E1-003-COLLECT-USING-ENTRIES-V0-RETIRE.md`
 9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
 10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

@@ -84,7 +84,7 @@ Note: Candidate keys follow current semantic fact accessors where available; his
 - LoopArrayJoin（facts: `loop_array_join`）が成立する場合、loop_cond_break_continue は候補にしない
 - scan_methods_* が候補に入った場合のみ、loop_cond_break_continue を候補にしない
 - loop_cond_return_in_body が成立する場合、loop_cond_break_continue は候補にしない
-- loop_scan_*（v0/phi_vars/collect_using_entries/bundle_resolver）が成立する場合、loop_cond_break_continue は候補にしない
+- remaining loop_scan_* / v0 families（v0/phi_vars/bundle_resolver）が成立する場合、loop_cond_break_continue は候補にしない
 - ScanWithInit / SplitScan / BoolPredicateScan（`bool_predicate_scan`）/ AccumConstLoop（`accum_const_loop`）が成立する場合、loop_cond_break_continue は候補にしない
 - 必要に応じて debug 時のみ `[plan/trace:entry_candidates]` で候補を可視化（任意・SSOTはこのポリシー）
 - 観測: debug 時に `[plan/trace:entry_route]` で entry が recipe_first / none のどれに落ちたかを 1 行で確認できる

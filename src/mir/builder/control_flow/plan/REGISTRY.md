@@ -26,7 +26,6 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 | `loop_scan_v0` | strict/dev + planner_required | loop(cond) scan: `ch=substring(i,i+1)` + comma-continue + close-break + tail `i=i+1` (one-shape) | `src/mir/builder/control_flow/plan/loop_scan_v0/` |
 | `loop_scan_methods_v0` | strict/dev + planner_required | FuncScannerBox._scan_methods outer loop(cond) with nested loops/ifs (one-shape) | `src/mir/builder/control_flow/plan/loop_scan_methods_v0/` |
 | `loop_scan_phi_vars_v0` | strict/dev + planner_required | loop(i<n) outer loop with nested break-search-loop + found-if + collect-loop (one-shape, selfhost _collect_phi_vars) | `src/mir/builder/control_flow/plan/loop_scan_phi_vars_v0/` |
-| `loop_collect_using_entries_v0` | strict/dev + planner_required | loop(pos<n) with var-to-var step (`pos = next_pos`) and if/else chain (one-shape, Stage1UsingResolverBox._collect_using_entries) | `src/mir/builder/control_flow/plan/loop_collect_using_entries_v0/` |
 | `loop_bundle_resolver_v0` | strict/dev + planner_required | loop(i<n) with loop-local step var `i = next_i` and nested return (one-shape, BundleResolver.resolve/4; generic_loop_v* can't match var-to-var step) | `src/mir/builder/control_flow/plan/loop_bundle_resolver_v0/` |
 | `loop_cond_continue_only` | strict/dev + planner_required | loop(cond) continue-only (nested if/continue) | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/continue_only/` |
 | `loop_cond_continue_with_return` | strict/dev + planner_required | loop(cond) continue-only with nested return | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/continue_with_return/` |
@@ -51,7 +50,6 @@ FLOWPLANNER-V0-001 rule:
 | `loop_scan_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C15 recipe-first active | retire when scan skeleton + substring/step features cover the focused fixture; promote common scan features if reused outside this shape |
 | `loop_scan_methods_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C15 recipe-first active | retire when scan-methods route composes from scan skeleton + nested-loop features; promote nested method-scan feature if a second route needs it |
 | `loop_scan_phi_vars_v0` | routed (`registry/mod.rs` + handlers + composer) | selfhost blocker path pinned | retire when generic nested search + collect-loop features cover `_collect_phi_vars`; promote if another PHI collection route shares the same structure |
-| `loop_collect_using_entries_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C16 recipe-first active | retire when var-to-var step + if/else chain become reusable features |
 | `loop_bundle_resolver_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C16 recipe-first active | retire when loop-local step var + nested return are represented as generic features |
 
 ### Retired
@@ -60,6 +58,7 @@ FLOWPLANNER-V0-001 rule:
 |---|---|---|
 | `loop_flag_exit_v0` | removed (no facts field / no module) | `CLEAN-PLAN-V0-REMOVE-1` で物理撤去（`plan/mod.rs` + `facts/loop_types.rs` + `loop_flag_exit_v0/*`） |
 | `loop_scan_methods_block_v0` | folded into `loop_scan_methods_v0` | `COREPLAN-E1-002` で block-wrapper observation を base scan-methods facts / recipe / lowering に移し、route/facts/module wiring を物理撤去 |
+| `loop_collect_using_entries_v0` | replaced by existing `loop_simple_while` route | `COREPLAN-E1-003` で focused fixture が `LoopSimpleWhile` route で通ることを確認し、route/facts/module wiring を物理撤去 |
 
 Audit rule (active運用):
 - routed が無い box は “活性箱” 扱いにしない。削除・縮退は別コミットで fixture/gate を固定して行う。
@@ -71,6 +70,8 @@ Audit rule (active運用):
 
 - `loop_flag_exit_v0` は `CLEAN-PLAN-V0-REMOVE-1` で物理撤去済み。
 - `loop_scan_methods_block_v0` は `COREPLAN-E1-002` で `loop_scan_methods_v0` に折り畳み済み。
+- `loop_collect_using_entries_v0` は `COREPLAN-E1-003` で既存
+  `loop_simple_while` route に置換済み。
 - removal boundary（`CLEAN-PLAN-V0-SHRINK-2`）の詳細ファイル群は、`CURRENT_TASK.md` の同名セッション記録を参照する。
 
 ## Entry SSOT (router→planner→composer→lower)
