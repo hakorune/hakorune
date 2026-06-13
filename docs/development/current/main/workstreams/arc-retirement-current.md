@@ -17,13 +17,14 @@ optimization lane.
 ## Current Decision
 
 ```text
-arc_retirement_mode=tasking_only
+arc_retirement_mode=contract_only
 arc_hot_path_retirement_started=0
 active_optimization_lane_changed=0
 ```
 
-Arc retirement is allowed as docs/inventory planning now. Implementation starts
-only after a concrete retirement seam has its own gate.
+Arc retirement is allowed as docs/inventory planning and contract-only runtime
+types now. Arc replacement starts only after a concrete retirement seam has its
+own gate.
 
 ## Task Order
 
@@ -50,6 +51,13 @@ summary=ok
 
 ### ARC-RETIRE-001: Arc role inventory
 
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md
+```
+
 Read-only inventory.
 
 ```text
@@ -73,14 +81,34 @@ classify:
 Output:
 
 ```text
-arc_role_inventory_count
-arc_identity_truth_count
-arc_plugin_boundary_count
-arc_hot_path_count
-arc_compat_count
+arc_role_inventory_count=717
+arc_identity_truth_count=nonzero
+arc_plugin_boundary_count=nonzero
+arc_hot_path_count=nonzero
+arc_compat_count=nonzero
+```
+
+Current count sample:
+
+```text
+Arc<dyn NyashBox=292
+Weak<dyn NyashBox=10
+SharedNyashBox=12
+Arc<PluginHandleInner=3
+Arc<Mutex<dyn NyashBox=4
+clone_arc=1
+clone_box=283
+share_box=112
 ```
 
 ### ARC-RETIRE-002: RC MIR coverage inventory
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md
+```
 
 Read-only inventory plus gap report.
 
@@ -101,11 +129,23 @@ rc_insertion_single_source_reported=1
 default_rc_insertion_active_reported=1
 retain_strong_gap_reported=1
 backend_noop_surface_reported=1
+rc_insertion_single_source=0
+default_rc_insertion_active=0
+retain_strong_mir_instruction_exists=0
+release_strong_backend_parity_complete=0
 ```
 
 ### ARC-RETIRE-003: ObjectHandle / BoxIdentity contract
 
-Docs-only design before code.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/object-handle-box-identity-contract-ssot.md
+  src/runtime/object_identity.rs
+```
+
+Contract-only design before Arc replacement.
 
 ```text
 define:
@@ -124,6 +164,7 @@ Acceptance:
 object_handle_contract_defined=1
 typeabi_identity_truth_count=0
 box_callable_dispatch_truth_count>0
+arc_hot_path_retirement_started=0
 ```
 
 ### ARC-RETIRE-004: Host handle table seam

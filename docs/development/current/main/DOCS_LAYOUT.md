@@ -107,6 +107,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - Arc retirement parent map; keeps RC insertion, ownership substrate,
     Box object model, TypeAbiCatalog, BoxCallableRegistry, and optional GC
     recipe responsibilities separated before any Arc replacement implementation
+- `design/object-handle-box-identity-contract-ssot.md`
+  - ARC-RETIRE-003 contract owner for `ObjectHandle`, `BoxIdentity`,
+    generation, weak handles, root visibility, plugin instance mapping, and
+    fini ownership
 - `design/mimalloc-replacement-front-fidelity-ssot.md`
   - mimalloc fidelity guard for replacement-front execution shape; prevents
     accepting a fast but non-mimalloc-shaped allocator route as keeper

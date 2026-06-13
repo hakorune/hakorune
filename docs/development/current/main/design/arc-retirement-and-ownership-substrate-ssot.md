@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29y/40-OPTIONAL-GC-LANE-ENTRY-SSOT.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
+  - docs/development/current/main/design/object-handle-box-identity-contract-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
 ---
 
@@ -308,11 +309,24 @@ clone_box / share_box / clone_arc
 Output:
 
 ```text
-arc_role_inventory_count
-arc_hot_path_count
-arc_compat_count
-arc_plugin_boundary_count
-arc_identity_truth_count
+arc_role_inventory_count=717
+arc_hot_path_count=nonzero
+arc_compat_count=nonzero
+arc_plugin_boundary_count=nonzero
+arc_identity_truth_count=nonzero
+```
+
+Current inventory sample:
+
+```text
+Arc<dyn NyashBox=292
+Weak<dyn NyashBox=10
+SharedNyashBox=12
+Arc<PluginHandleInner=3
+Arc<Mutex<dyn NyashBox=4
+clone_arc=1
+clone_box=283
+share_box=112
 ```
 
 ### ARC-RETIRE-002: RC MIR coverage inventory
@@ -331,24 +345,48 @@ rc-insertion-minimal feature gates
 Output:
 
 ```text
-rc_insertion_single_source=0|1
-default_rc_insertion_active=0|1
-retain_strong_mir_instruction_exists=0|1
-release_strong_backend_parity_complete=0|1
+rc_insertion_single_source=0
+default_rc_insertion_active=0
+retain_strong_mir_instruction_exists=0
+release_strong_backend_parity_complete=0
+```
+
+Current gap:
+
+```text
+ReleaseStrong_refs=62
+RetainStrong_refs=0
+builder_direct_release_strong=1
+feature_gate=rc-insertion-minimal
 ```
 
 ### ARC-RETIRE-003: ObjectHandle / BoxIdentity contract
 
-Define before changing code:
+Contract owner:
 
 ```text
-ObjectHandle layout
+docs/development/current/main/design/object-handle-box-identity-contract-ssot.md
+src/runtime/object_identity.rs
+```
+
+Defines:
+
+```text
+ObjectHandle
 generation
-weak handle behavior
-plugin type_id + instance_id mapping
-builtin stable identity
+WeakObjectHandle
+RootVisibility
+PluginInstanceIdentity
+BuiltinIdentity
 scope/fini ownership
-ThreadRoot/root visibility
+```
+
+Acceptance:
+
+```text
+object_handle_contract_defined=1
+typeabi_identity_truth_count=0
+arc_hot_path_retirement_started=0
 ```
 
 ### ARC-RETIRE-004: Host handle table as first seam

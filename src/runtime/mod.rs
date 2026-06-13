@@ -36,6 +36,7 @@ pub mod leak_tracker;
 pub mod mirbuilder_emit;
 pub mod modules_registry;
 pub mod nyash_runtime;
+pub mod object_identity;
 pub mod observe; // Lightweight observability flags (OOB etc.)
 pub mod plugin_config;
 pub mod plugin_ffi_common;
@@ -56,8 +57,11 @@ pub mod thread_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;
 pub mod type_registry;
-pub mod unified_registry; // Deprecation warnings with warn-once guards
-pub mod weak_handles; // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1） // Phase 12: TypeId→TypeBox 解決（雛形） // env.modules minimal registry
+// Deprecation warnings with warn-once guards.
+pub mod unified_registry;
+// Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1）
+// Phase 12: TypeId→TypeBox 解決（雛形） / env.modules minimal registry
+pub mod weak_handles;
 
 #[cfg(test)]
 mod tests;
@@ -89,6 +93,11 @@ pub use context_snapshot::{
 };
 pub use gc::{BarrierKind, GcHooks};
 pub use nyash_runtime::{NyashRuntime, NyashRuntimeBuilder};
+pub use object_identity::{
+    object_identity_contract_report_fields, BoxIdentity, BuiltinIdentity, FiniOwner,
+    ObjectGeneration, ObjectHandle, ObjectIdentityDescriptor, ObjectIdentityKind,
+    PluginInstanceIdentity, RootVisibility, WeakObjectHandle,
+};
 pub use scheduler::{Scheduler, SingleThreadScheduler, WorkerPoolScheduler};
 pub use scheduler_route::{
     scheduler_route_activation_report_fields, scheduler_route_descriptors,
