@@ -294,9 +294,9 @@ accepted_shape_added=0
 append_defs_loweronly_without_exec_route=1
 ```
 
-### JOINIR-TARGET-THIN-004: Candidate Shared Target Adapter
+### JOINIR-TARGET-THIN-004: Shared Target Adapter
 
-Status: partially landed for trim and Stage-B target-local generic Case-A hooks.
+Status: landed for the thin common subset.
 
 Only after `JOINIR-TARGET-THIN-003`, a shared adapter may cover the repeated
 target pattern:
@@ -360,6 +360,36 @@ stage1_using_resolver:
 skip_ws:
   has a target-local minimal LoopForm construction path.
 ```
+
+Closeout decision:
+
+```text
+JOINIR-TARGET-THIN-004 is complete when:
+  trim and Stage-B target-local generic Case-A hooks share the adapter
+  stage1_using_resolver remains route-local
+  skip_ws remains route-local
+
+do not extend the adapter with:
+  params_len guard policy
+  route-specific constructed-LoopForm dumps
+  not-simple debug branch policy
+  manually assembled LoopForm intake
+```
+
+Rationale:
+
+```text
+stage1_using_resolver:
+  moving it would require adapter options for params_len and diagnostics.
+  That makes the shared helper a policy shelf instead of a seam.
+
+skip_ws:
+  uses a target-local minimal LoopForm construction path.
+  Moving it would require a second intake mode and hide the canary route shape.
+```
+
+Next cleanup must start from `JOINIR-TARGET-THIN-005`, not by widening
+`target_adapter.rs`.
 
 ### JOINIR-TARGET-THIN-005: Route-Specific File Size Pass
 
