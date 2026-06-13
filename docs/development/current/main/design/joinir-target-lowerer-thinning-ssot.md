@@ -426,6 +426,12 @@ stage1_using_resolver.rs:
 
 stage1_using_resolver/builder.rs:
   route-local handwritten/shared JoinIR construction
+
+skip_ws.rs:
+  route entry, MIR probe, handwritten wrapper, and skip_ws-specific canary hook
+
+skip_ws/builder.rs:
+  route-local handwritten/shared JoinIR construction
 ```
 
 This split is physical packaging only. It does not change route selection,
