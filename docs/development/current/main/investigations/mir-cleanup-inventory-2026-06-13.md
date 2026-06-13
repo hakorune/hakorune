@@ -228,12 +228,25 @@ minimum gate per series is named
 
 Split large test files first.
 
+Status: landed 2026-06-13.
+
 Candidate first targets:
 
 ```text
-src/mir/passes/callsite_canonicalize/tests.rs
 src/mir/builder/control_flow/edgecfg/api/compose/tests.rs
+src/mir/passes/callsite_canonicalize/tests.rs
 src/mir/compiler/tests.rs
+```
+
+Landed first split:
+
+```text
+src/mir/builder/control_flow/edgecfg/api/compose/tests.rs
+  -> src/mir/builder/control_flow/edgecfg/api/compose/tests/mod.rs
+  -> src/mir/builder/control_flow/edgecfg/api/compose/tests/loop_.rs
+  -> src/mir/builder/control_flow/edgecfg/api/compose/tests/seq.rs
+  -> src/mir/builder/control_flow/edgecfg/api/compose/tests/if_.rs
+  -> src/mir/builder/control_flow/edgecfg/api/compose/tests/cleanup.rs
 ```
 
 Acceptance:
@@ -242,6 +255,13 @@ Acceptance:
 test module split only
 no production behavior change
 cargo test target for moved tests stays green
+```
+
+Verification:
+
+```bash
+cargo test --release --lib edgecfg::api::compose -- --nocapture
+cargo fmt --check
 ```
 
 ### MIR-CLEAN-002
