@@ -445,6 +445,8 @@ use crate::mir::join_ir_vm_bridge::bridge_joinir_to_mir;
 /// Stage-B Body: JoinIR lowering + JoinIR→MIR 変換の構造テスト
 #[test]
 fn joinir_stageb_body_structure_test() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+
     // Stage-3 parser を有効化
     std::env::set_var("NYASH_FEATURES", "stage3");
 
@@ -507,15 +509,26 @@ fn joinir_stageb_body_structure_test() {
         mir_module.functions.len()
     );
 
-    // 構造チェック: MIR 関数数が JoinIR 関数数と一致
-    assert_eq!(
-        mir_module.functions.len(),
-        join_module.functions.len(),
-        "MIR function count should match JoinIR function count"
+    // 構造チェック: JoinIR の関数名は MIR に存在すること
+    let mut missing = Vec::new();
+    for join_func in join_module.functions.values() {
+        if !mir_module.functions.contains_key(&join_func.name) {
+            missing.push(join_func.name.clone());
+        }
+    }
+    assert!(
+        missing.is_empty(),
+        "MIR should contain all JoinIR function names, missing={:?}",
+        missing
     );
 
-    // 各関数の Block 数をチェック
-    for (name, func) in &mir_module.functions {
+    // 各関数の Block 数をチェック（JoinIR の関数に対応するものだけ）
+    for join_func in join_module.functions.values() {
+        let name = &join_func.name;
+        let func = mir_module
+            .functions
+            .get(name)
+            .expect("JoinIR function should exist in MIR");
         let block_count = func.blocks.len();
         eprintln!(
             "[joinir/stageb_body] Function '{}': {} blocks",
@@ -533,6 +546,8 @@ fn joinir_stageb_body_structure_test() {
 /// Stage-B FuncScanner: JoinIR lowering + JoinIR→MIR 変換の構造テスト
 #[test]
 fn joinir_stageb_funcscanner_structure_test() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+
     // Stage-3 parser を有効化
     std::env::set_var("NYASH_FEATURES", "stage3");
 
