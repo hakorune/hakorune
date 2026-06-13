@@ -30,7 +30,9 @@ Long queue history lives in the archive note.
 ## Current Lane
 
 ```text
-| 651 | `HAKO-MIMALLOC-TYPED-OBJECT-EXACT-SLOT-ABI-SPLIT-296X-001` | Current |
+current_lane = read docs/development/current/main/CURRENT_STATE.toml
+current_blocker_token = read docs/development/current/main/CURRENT_STATE.toml
+latest_card_path = read docs/development/current/main/CURRENT_STATE.toml
 ```
 
 ## Archive Pointers
