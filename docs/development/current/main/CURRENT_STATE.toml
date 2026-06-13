@@ -8,24 +8,24 @@
 status = "Active"
 date = "2026-06-14"
 
-active_lane = "MIMALLOC-AOT-KERNEL-FRONT-SELECT-001 non-folded exact-front selection"
-active_lane_status = """296x-659 closes the startup optimization lane for
-folded micro kernels: counter_step_chain is a startup sentinel, minimal
-exact-AOT entry remains diagnostic-only, product default NyRT entry behavior is
-unchanged, and the next work is selecting a non-folded exact kernel front."""
+active_lane = "BOOL-SCALAR-LOWERING-001 exact inline-bool scalar lowering"
+active_lane_status = """296x-660 selects kilo_micro_userbox_flag_toggle as the
+next non-folded exact-AOT kernel front. Startup share is low, exact typed-object
+inline-bool slot routes are selected, and the next owner is the bool scalar
+lowering residue rather than startup, MIRBuilder, or runtime object shape."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-659-AOT-STARTUP-CLOSEOUT-001.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-660-MIMALLOC-AOT-KERNEL-FRONT-SELECT-001.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mimalloc-current.md"
 
-latest_card = "296x-659-AOT-STARTUP-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-659-AOT-STARTUP-CLOSEOUT-001.md"
-latest_card_summary = """296x-659 adopts A+B+C-lite from the startup rerun:
-startup optimization for folded micro kernels is closed, minimal exact-AOT
-entry/profile is diagnostic-only, default NyRT entry lazy-loading stops for
-this evidence, and the next row selects a non-folded exact kernel front."""
-current_blocker_token = "HAKO-MIMALLOC-AOT-KERNEL-FRONT-SELECT-296X-001"
+latest_card = "296x-660-MIMALLOC-AOT-KERNEL-FRONT-SELECT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-660-MIMALLOC-AOT-KERNEL-FRONT-SELECT-001.md"
+latest_card_summary = """296x-660 selects kilo_micro_userbox_flag_toggle as
+the next non-folded exact-AOT kernel front and classifies the next owner as
+typed-object inline-bool scalar lowering residue, with counter_step_chain kept
+as a startup sentinel and product NyRT startup unchanged."""
+current_blocker_token = "HAKO-BOOL-SCALAR-LOWERING-296X-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

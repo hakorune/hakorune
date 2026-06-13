@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-06-09
+Date: 2026-06-14
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -37,9 +37,10 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- current work is the non-folded exact-front selection lane named by
-  `CURRENT_STATE.toml`; `kilo_micro_userbox_counter_step_chain` is now a
-  startup sentinel, not the next kernel optimization front
+- current work is the exact inline-bool scalar lowering lane named by
+  `CURRENT_STATE.toml`; `kilo_micro_userbox_flag_toggle` is the selected
+  non-folded exact-AOT kernel front, and
+  `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row
 - adjacent array-text session route design is documented, and the selected-route session boundary is now landing
