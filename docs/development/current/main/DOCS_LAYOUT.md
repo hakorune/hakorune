@@ -82,6 +82,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/loop-update-analyzer-thinning-ssot.md`
   - BoxShape-only cleanup order for JoinIR carrier-update observation; keeps
     accepted update shapes unchanged while tests/helpers are split
+- `design/loop-body-local-init-thinning-ssot.md`
+  - BoxShape-only cleanup order for JoinIR body-local init lowering; keeps
+    expression support and receiver lookup order unchanged
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
