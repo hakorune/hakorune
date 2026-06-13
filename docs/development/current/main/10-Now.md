@@ -35,9 +35,9 @@ Related:
 - next BoxCallable task is reconciliation/proof, not first implementation:
   reconcile older TypeAbiBoxDomain rows with landed BoxCallable rows and name
   narrow proof commands
-- CorePlan remaining-family inventory is landed: next implementation starts at
-  C1 planner_required route-exhaustion inventory guard, then D1 normalizer
-  AST-boundary inventory, then E1 active-v0 inventory/retire work
+- CorePlan C1 planner_required route-exhaustion, D1 normalizer AST-boundary,
+  and E1 active-v0 inventory guards are landed; next implementation is
+  `COREPLAN-E1-002`, retiring exactly one v0 box with fixture/gate proof
 - exact-front optimization is paused; resume later through
   `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -59,8 +59,9 @@ Related:
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-9. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1009-COREPLAN-E1-001-ACTIVE-V0-INVENTORY.md`
+9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 

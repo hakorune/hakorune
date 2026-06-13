@@ -379,7 +379,13 @@ next_implementation_family=C1_planner_required_ambiguity_failfast
 
 ### COREPLAN-C1-001: planner_required route-exhaustion inventory guard
 
-Next CorePlan implementation task.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1007-COREPLAN-C1-001-PLANNER-REQUIRED-ROUTE-EXHAUSTION.md
+  tools/checks/coreplan_planner_required_route_exhaustion_guard.sh
+```
 
 Purpose:
 
@@ -398,6 +404,12 @@ accepted_shape_added=0
 release_default_changed=0
 ```
 
+Proof:
+
+```bash
+bash tools/checks/coreplan_planner_required_route_exhaustion_guard.sh
+```
+
 Stop line:
 
 ```text
@@ -408,7 +420,13 @@ do not duplicate route truth between single_planner and route_entry/registry
 
 ### COREPLAN-D1-001: normalizer AST-boundary inventory
 
-Run after C1 guard lands.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1008-COREPLAN-D1-001-NORMALIZER-AST-BOUNDARY-INVENTORY.md
+  tools/checks/coreplan_normalizer_ast_boundary_inventory_guard.sh
+```
 
 Purpose:
 
@@ -428,9 +446,21 @@ release_default_changed=0
 accepted_shape_added=0
 ```
 
+Proof:
+
+```bash
+bash tools/checks/coreplan_normalizer_ast_boundary_inventory_guard.sh
+```
+
 ### COREPLAN-E1-001: active-v0 inventory guard
 
-Run after D1 inventory guard lands.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1009-COREPLAN-E1-001-ACTIVE-V0-INVENTORY.md
+  tools/checks/coreplan_active_v0_inventory_guard.sh
+```
 
 Purpose:
 
@@ -448,9 +478,15 @@ legacy_normalizer_empty_and_active_v0_empty_are_separate=1
 one_v0_box_per_retire_slice=1
 ```
 
+Proof:
+
+```bash
+bash tools/checks/coreplan_active_v0_inventory_guard.sh
+```
+
 ### COREPLAN-E1-002: first one-v0 retire pilot
 
-Run after the active-v0 inventory guard proves the surface.
+Next CorePlan implementation task.
 
 Candidate:
 
