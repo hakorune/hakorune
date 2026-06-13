@@ -55,12 +55,40 @@ def contract_lines() -> list[str]:
     ]
 
 
+def plugin_catalog_sample_lines() -> list[str]:
+    return [
+        "plugin_catalog_sample_contract=hako-check-boxcall-plugin-catalog-sample-v0",
+        "plugin_catalog_tooling_example_count=1",
+        "plugin_catalog_sample_source=fixture_plugin_callable_exports",
+        "plugin_catalog_sample_chain=PluginCallableExport>BoxCallableRegistry>TypeAbiCatalog",
+        "plugin_catalog_sample_entry_count=3",
+        "plugin_catalog_sample_method_entry_count=1",
+        "plugin_catalog_sample_lifecycle_entry_count=2",
+        "plugin_catalog_sample_method_name=run",
+        "plugin_catalog_sample_lifecycle_names=birth,fini",
+        "plugin_catalog_sample_routeplan_consumer_count=0",
+        "plugin_catalog_sample_hot_path_consumer_count=0",
+        "plugin_catalog_sample_executes_plugin_loader_count=0",
+        "plugin_loader_to_typeabi_direct_truth_count=0",
+        "type_abi_catalog_as_plugin_route_truth_count=0",
+        "route_plan_type_abi_hot_lookup_count=0",
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path)
+    parser.add_argument(
+        "--include-plugin-catalog-sample",
+        action="store_true",
+        help="append an observation-only plugin catalog projection sample",
+    )
     args = parser.parse_args()
 
-    report = "\n".join(contract_lines()) + "\n"
+    lines = contract_lines()
+    if args.include_plugin_catalog_sample:
+        lines.extend(plugin_catalog_sample_lines())
+    report = "\n".join(lines) + "\n"
     if args.out is None:
         print(report, end="")
     else:

@@ -68,6 +68,18 @@ pub const PLUGIN_CATALOG_ROUTEPLAN_CONSUMER_COUNT: &str = "plugin_catalog_routep
 pub const PLUGIN_CATALOG_HOT_PATH_CONSUMER_COUNT: &str = "plugin_catalog_hot_path_consumer_count";
 pub const PLUGIN_CATALOG_TOOLING_CONSUMER_COUNT: &str = "plugin_catalog_tooling_consumer_count";
 pub const REGISTRY_SNAPSHOT_CACHE_DEFAULT_ENABLED: &str = "registry_snapshot_cache_default_enabled";
+pub const PLUGIN_CATALOG_TOOLING_EXAMPLE_COUNT: &str = "plugin_catalog_tooling_example_count";
+pub const PLUGIN_CATALOG_SAMPLE_ENTRY_COUNT: &str = "plugin_catalog_sample_entry_count";
+pub const PLUGIN_CATALOG_SAMPLE_METHOD_ENTRY_COUNT: &str =
+    "plugin_catalog_sample_method_entry_count";
+pub const PLUGIN_CATALOG_SAMPLE_LIFECYCLE_ENTRY_COUNT: &str =
+    "plugin_catalog_sample_lifecycle_entry_count";
+pub const PLUGIN_CATALOG_SAMPLE_ROUTEPLAN_CONSUMER_COUNT: &str =
+    "plugin_catalog_sample_routeplan_consumer_count";
+pub const PLUGIN_CATALOG_SAMPLE_HOT_PATH_CONSUMER_COUNT: &str =
+    "plugin_catalog_sample_hot_path_consumer_count";
+pub const PLUGIN_CATALOG_SAMPLE_EXECUTES_PLUGIN_LOADER_COUNT: &str =
+    "plugin_catalog_sample_executes_plugin_loader_count";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -186,6 +198,19 @@ pub const PLUGIN_CATALOG_000_005_ROWS: &[(&str, &str)] = &[
     (PLUGIN_CATALOG_HOT_PATH_CONSUMER_COUNT, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const PLUGIN_CATALOG_006_SAMPLE_ROWS: &[(&str, &str)] = &[
+    (PLUGIN_CATALOG_TOOLING_EXAMPLE_COUNT, "1"),
+    (PLUGIN_CATALOG_SAMPLE_ENTRY_COUNT, "3"),
+    (PLUGIN_CATALOG_SAMPLE_METHOD_ENTRY_COUNT, "1"),
+    (PLUGIN_CATALOG_SAMPLE_LIFECYCLE_ENTRY_COUNT, "2"),
+    (PLUGIN_CATALOG_SAMPLE_ROUTEPLAN_CONSUMER_COUNT, "0"),
+    (PLUGIN_CATALOG_SAMPLE_HOT_PATH_CONSUMER_COUNT, "0"),
+    (PLUGIN_CATALOG_SAMPLE_EXECUTES_PLUGIN_LOADER_COUNT, "0"),
+    (PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT, "0"),
+    (TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT, "0"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
 ];
 
 #[cfg(test)]
@@ -369,5 +394,27 @@ mod tests {
         assert_eq!(rows[PLUGIN_CATALOG_HOT_PATH_CONSUMER_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn plugin_catalog_006_rows_keep_sample_observation_only() {
+        let rows = PLUGIN_CATALOG_006_SAMPLE_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[PLUGIN_CATALOG_TOOLING_EXAMPLE_COUNT], "1");
+        assert_eq!(rows[PLUGIN_CATALOG_SAMPLE_ENTRY_COUNT], "3");
+        assert_eq!(rows[PLUGIN_CATALOG_SAMPLE_METHOD_ENTRY_COUNT], "1");
+        assert_eq!(rows[PLUGIN_CATALOG_SAMPLE_LIFECYCLE_ENTRY_COUNT], "2");
+        assert_eq!(rows[PLUGIN_CATALOG_SAMPLE_ROUTEPLAN_CONSUMER_COUNT], "0");
+        assert_eq!(rows[PLUGIN_CATALOG_SAMPLE_HOT_PATH_CONSUMER_COUNT], "0");
+        assert_eq!(
+            rows[PLUGIN_CATALOG_SAMPLE_EXECUTES_PLUGIN_LOADER_COUNT],
+            "0"
+        );
+        assert_eq!(rows[PLUGIN_LOADER_TO_TYPEABI_DIRECT_TRUTH_COUNT], "0");
+        assert_eq!(rows[TYPE_ABI_CATALOG_AS_PLUGIN_ROUTE_TRUTH_COUNT], "0");
+        assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
     }
 }

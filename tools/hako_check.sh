@@ -23,7 +23,7 @@ Usage:
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 inspect scope|route|mark|diff [options]
-  $0 boxcall-contract [--out report.kv]
+  $0 boxcall-contract [--out report.kv] [--include-plugin-catalog-sample]
 
 Tool surfaces:
   default             .hako lint/analyzer rules

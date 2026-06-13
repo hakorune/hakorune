@@ -822,6 +822,50 @@ plugin_catalog_routeplan_consumer_count=0
 plugin_catalog_hot_path_consumer_count=0
 ```
 
+### PLUGIN-CATALOG-006
+
+Add a concrete tooling usage example for plugin catalog projection.
+
+Status: landed 2026-06-13.
+
+Decision:
+
+```text
+The first usage example is an observation-only hako_check sample report.
+It demonstrates the projection shape with fixture rows, not live plugin loading.
+```
+
+Entry:
+
+```bash
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+Acceptance:
+
+```text
+plugin_catalog_tooling_example_count=1
+plugin_catalog_sample_entry_count=3
+plugin_catalog_sample_method_entry_count=1
+plugin_catalog_sample_lifecycle_entry_count=2
+plugin_catalog_sample_routeplan_consumer_count=0
+plugin_catalog_sample_hot_path_consumer_count=0
+plugin_catalog_sample_executes_plugin_loader_count=0
+```
+
+Boundary:
+
+```text
+sample may describe:
+  PluginCallableExport fixture -> BoxCallableRegistry -> TypeAbiCatalog
+
+sample must not:
+  execute PluginLoader
+  generate RoutePlan
+  call plugin methods
+  infer truth from Type ABI payload bytes
+```
+
 ## Non-Goals
 
 ```text

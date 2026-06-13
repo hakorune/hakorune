@@ -194,6 +194,16 @@ BoxCallable / TypeAbiCatalog Contract
 bash tools/hako_check.sh boxcall-contract
 ```
 
+- Optional plugin catalog projection sample:
+
+```bash
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+This sample uses fixture vocabulary only. It does not execute PluginLoader,
+generate RoutePlan, call plugin methods, or infer route truth from Type ABI
+payload bytes.
+
 - Contract:
 
 ```text
@@ -215,6 +225,18 @@ type_abi_catalog_as_plugin_route_truth_count=0
 plugin_catalog_routeplan_consumer_count=0
 plugin_catalog_hot_path_consumer_count=0
 summary=ok
+```
+
+- Sample rows added by `--include-plugin-catalog-sample`:
+
+```text
+plugin_catalog_sample_contract=hako-check-boxcall-plugin-catalog-sample-v0
+plugin_catalog_tooling_example_count=1
+plugin_catalog_sample_chain=PluginCallableExport>BoxCallableRegistry>TypeAbiCatalog
+plugin_catalog_sample_entry_count=3
+plugin_catalog_sample_routeplan_consumer_count=0
+plugin_catalog_sample_hot_path_consumer_count=0
+plugin_catalog_sample_executes_plugin_loader_count=0
 ```
 
 Replacement Front Report

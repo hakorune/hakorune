@@ -429,6 +429,16 @@ type_abi_catalog_as_plugin_route_truth_count=0
 plugin_catalog_routeplan_consumer_count=0
 ```
 
+`PLUGIN-CATALOG-006` adds the first concrete tooling example through:
+
+```bash
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+This example remains fixture-based and observation-only. It documents the
+catalog projection shape without executing PluginLoader or generating route
+plans.
+
 ## Report Vocabulary
 
 ```text
