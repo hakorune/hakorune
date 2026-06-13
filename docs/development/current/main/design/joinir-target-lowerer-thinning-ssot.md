@@ -296,7 +296,9 @@ append_defs_loweronly_without_exec_route=1
 
 ### JOINIR-TARGET-THIN-004: Candidate Shared Target Adapter
 
-Only after `JOINIR-TARGET-THIN-003`, consider a shared adapter for the repeated
+Status: partially landed for Stage-B target-local generic Case-A hooks.
+
+Only after `JOINIR-TARGET-THIN-003`, a shared adapter may cover the repeated
 target pattern:
 
 ```text
@@ -310,6 +312,51 @@ fallback to handwritten route
 
 This adapter must not own route policy. It may only orchestrate already-decided
 target-local steps.
+
+Landed seam:
+
+```text
+common/target_adapter.rs:
+  try_generic_case_a_route
+  owns:
+    lower_generic_enabled gate
+    simple LoopForm construction
+    Case-A guard call
+    generic-hook debug lines
+  does not own:
+    target selection
+    entry_is_preheader / has_break policy
+    route-specific LoopToJoinLowerer entrypoint
+    handwritten fallback
+    Exec / LowerOnly behavior
+```
+
+Current users:
+
+```text
+stageb_body:
+  entry_is_preheader=true
+  has_break=true
+  route entrypoint=lower_case_a_for_stageb_body
+
+stageb_funcscanner:
+  entry_is_preheader=true
+  has_break=true
+  route entrypoint=lower_case_a_for_stageb_funcscanner
+```
+
+Not yet moved:
+
+```text
+trim:
+  has string-pattern CFG checks and route-specific fallback shape.
+
+stage1_using_resolver:
+  has a params_len guard and a not-simple debug branch.
+
+skip_ws:
+  has a target-local minimal LoopForm construction path.
+```
 
 ### JOINIR-TARGET-THIN-005: Route-Specific File Size Pass
 

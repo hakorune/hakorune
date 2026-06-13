@@ -7,7 +7,7 @@
 //! - Exit: defs
 
 use crate::mir::join_ir::lowering::common::{
-    dispatch_lowering, ensure_entry_has_succs, log_fallback,
+    dispatch_lowering, ensure_entry_has_succs, log_fallback, try_generic_case_a_route,
 };
 use crate::mir::join_ir::lowering::value_id_ranges::stageb_funcscanner as vid;
 use crate::mir::join_ir::JoinModule;
@@ -178,43 +178,17 @@ fn lower_from_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
         return lower_handwritten(module);
     }
 
-    // Phase 32: LoopToJoinLowerer 統一箱経由に移行
-    // construct_simple_while_loopform 共通ヘルパーを使用
-    if crate::config::env::joinir_dev::lower_generic_enabled() {
-        use crate::mir::join_ir::lowering::common::construct_simple_while_loopform;
-        use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
-
-        // stageb_funcscanner: entry_is_preheader=true, has_break=true
-        let Some(loop_form) = construct_simple_while_loopform(entry, &query, true, true) else {
-            if crate::config::env::joinir_dev::debug_enabled() {
-                get_global_ring0().log.debug(
-                    "[joinir/stageb_funcscanner/generic-hook] failed to construct LoopForm from CFG",
-                );
-            }
-            return build_stageb_funcscanner_joinir(module);
-        };
-
-        if crate::mir::join_ir::lowering::common::case_a::is_simple_case_a_loop(&loop_form) {
-            if crate::config::env::joinir_dev::debug_enabled() {
-                get_global_ring0().log.debug(
-                    "[joinir/stageb_funcscanner/generic-hook] simple Case A loop detected (LoopToJoinLowerer)",
-                );
-            }
-            let lowerer = LoopToJoinLowerer::new();
-            if let Some(jm) = lowerer.lower_case_a_for_stageb_funcscanner(target_func, &loop_form) {
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    get_global_ring0().log.debug(
-                        "[joinir/stageb_funcscanner/generic-hook] LoopToJoinLowerer produced JoinIR, returning early",
-                    );
-                }
-                return Some(jm);
-            }
-            if crate::config::env::joinir_dev::debug_enabled() {
-                get_global_ring0().log.debug(
-                    "[joinir/stageb_funcscanner/generic-hook] LoopToJoinLowerer returned None, falling back to handwritten",
-                );
-            }
-        }
+    // stageb_funcscanner: entry_is_preheader=true, has_break=true
+    if let Some(jm) = try_generic_case_a_route(
+        "stageb_funcscanner",
+        target_func,
+        entry,
+        &query,
+        true,
+        true,
+        |lowerer, func, loop_form| lowerer.lower_case_a_for_stageb_funcscanner(func, loop_form),
+    ) {
+        return Some(jm);
     }
 
     build_stageb_funcscanner_joinir(module)

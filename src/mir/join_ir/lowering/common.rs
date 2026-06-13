@@ -7,6 +7,7 @@
 pub mod case_a;
 mod cfg_shape;
 mod dispatch;
+mod target_adapter;
 mod type_hint;
 
 pub use cfg_shape::{
@@ -14,4 +15,5 @@ pub use cfg_shape::{
     has_const_string, has_string_method,
 };
 pub use dispatch::{dispatch_lowering, log_fallback};
+pub use target_adapter::try_generic_case_a_route;
 pub use type_hint::infer_type_from_mir_pattern;
