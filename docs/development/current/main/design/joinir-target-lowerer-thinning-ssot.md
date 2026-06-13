@@ -453,6 +453,16 @@ stageb_funcscanner/builder.rs:
 
 stageb_funcscanner/dispatch.rs:
   MIR-vs-handwritten dispatch and route-local generic Case-A hook
+
+stageb_body.rs:
+  route facade only
+  owns public lower_stageb_body_to_joinir entry
+
+stageb_body/builder.rs:
+  route-local handwritten/shared JoinIR construction
+
+stageb_body/dispatch.rs:
+  MIR-vs-handwritten dispatch and route-local generic Case-A hook
 ```
 
 This split is physical packaging only. It does not change route selection,
