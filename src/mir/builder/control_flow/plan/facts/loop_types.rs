@@ -18,7 +18,6 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCond
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::LoopCondContinueWithReturnFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts;
-use crate::mir::builder::control_flow::facts::loop_scan_phi_vars_v0::LoopScanPhiVarsV0Facts;
 use crate::mir::builder::control_flow::facts::IfPhiJoinFacts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
@@ -49,7 +48,6 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_cond_continue_only: Option<LoopCondContinueOnlyFacts>,
     pub loop_cond_continue_with_return: Option<LoopCondContinueWithReturnFacts>,
     pub loop_cond_return_in_body: Option<LoopCondReturnInBodyFacts>,
-    pub loop_scan_phi_vars_v0: Option<LoopScanPhiVarsV0Facts>,
     pub nested_loop_minimal: Option<NestedLoopMinimalFacts>,
     pub bool_predicate_scan: Option<BoolPredicateScanFacts>,
     pub accum_const_loop: Option<AccumConstLoopFacts>,
@@ -140,10 +138,6 @@ impl LoopFacts {
 
     pub fn generic_loop_v1(&self) -> Option<&GenericLoopV1Facts> {
         self.generic_loop_v1.as_ref()
-    }
-
-    pub fn loop_scan_phi_vars_v0(&self) -> Option<&LoopScanPhiVarsV0Facts> {
-        self.loop_scan_phi_vars_v0.as_ref()
     }
 }
 

@@ -183,12 +183,6 @@ fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
         return true;
     }
 
-    // The remaining scan-phi family has a recipe-first pipeline and fast gates.
-    // Keep release nested-loop policy aligned with that migrated route.
-    if facts.facts.loop_scan_phi_vars_v0().is_some() {
-        return true;
-    }
-
     if facts.facts.loop_cond_continue_only().is_some() {
         return true;
     }

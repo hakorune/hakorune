@@ -80,7 +80,6 @@ mod tests {
             loop_cond_continue_only: None,
             loop_cond_continue_with_return: None,
             loop_cond_return_in_body: None,
-            loop_scan_phi_vars_v0: None,
             nested_loop_minimal: None,
             bool_predicate_scan: None,
             accum_const_loop: None,

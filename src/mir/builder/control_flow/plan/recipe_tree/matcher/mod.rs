@@ -9,12 +9,10 @@ use crate::mir::builder::control_flow::plan::facts::feature_facts::ExitKindFacts
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 mod loop_cond;
-mod loop_scan;
 mod patterns;
 mod utils;
 
 use loop_cond::*;
-use loop_scan::*;
 use patterns::*;
 
 /// Macro to simplify CondProfile-based route verification.
@@ -158,12 +156,6 @@ impl RecipeMatcher {
                 accept_via_cond_profile_accum_const_loop
             );
         }
-
-        // Phase C15: LoopScanPhiVarsV0 verification (planner_required only)
-        verify_route!(
-            facts.facts.loop_scan_phi_vars_v0(),
-            verify_loop_scan_phi_vars_v0_recipe
-        );
 
         // Phase C16: LoopTrueBreakContinue verification (planner_required only)
         verify_route!(

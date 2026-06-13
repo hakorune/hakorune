@@ -10,9 +10,7 @@ silent fallback behavior.
 
 ## Routed legacy-v0 modules (active)
 
-These modules are still part of the routed planner path (`registry`/handlers/composer wiring exists):
-
-- `loop_scan_phi_vars_v0`
+No routed legacy-v0 modules remain active after `COREPLAN-E1-007`.
 
 See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`loop_*_v0 audit snapshot` section).
 
@@ -32,6 +30,9 @@ See the evidence snapshot in `src/mir/builder/control_flow/plan/REGISTRY.md` (`l
 - `loop_scan_methods_v0` is physically removed and replaced by existing
   `LoopSimpleWhile` / `LoopCondBreak` / `flowbox/adopt` replacement owners for
   the focused scan-methods fixtures (`COREPLAN-E1-006`).
+- `loop_scan_phi_vars_v0` is physically removed and replaced by existing
+  `LoopSimpleWhile` / `LoopCondBreak` replacement owners for the focused
+  PhiInjector / `_collect_phi_vars` fixtures (`COREPLAN-E1-007`).
 
 No module is considered retired unless:
 

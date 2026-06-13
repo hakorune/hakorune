@@ -126,16 +126,6 @@ pub(super) fn verify_stmt_only_block_recipe(
     .map_err(|e| Freeze::contract("scan_segment_stmt_only_verification_failed").with_hint(&e))
 }
 
-pub(super) fn verify_nested_loop_stmt_only_if_available(
-    nested: &crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe,
-    context: &str,
-) -> Result<(), Freeze> {
-    let Some(body_stmt_only) = nested.body_stmt_only.as_ref() else {
-        return Ok(());
-    };
-    verify_stmt_only_block_recipe(body_stmt_only, context)
-}
-
 pub(super) fn verify_stmt_ref_in_bounds(
     stmt: crate::mir::builder::control_flow::recipes::refs::StmtRef,
     len: usize,

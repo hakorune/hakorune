@@ -47,8 +47,9 @@ Scope: current lane / next lane / restart order only.
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0
   inventory, E1-002 first retire, E1-003 collect_using_entries, E1-004
-  bundle_resolver, E1-005 scan_v0, and E1-006 scan_methods_v0 retire guards
-  are landed; next is `COREPLAN-E1-007` scan_phi_vars_v0 retire
+  bundle_resolver, E1-005 scan_v0, E1-006 scan_methods_v0, and E1-007
+  scan_phi_vars_v0 retire guards are landed; active routed loop_*_v0 count is
+  now zero
 - optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
@@ -96,6 +97,6 @@ Scope: current lane / next lane / restart order only.
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1013-COREPLAN-E1-005-SCAN-V0-RETIRE.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1015-COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE.md`
 9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
 10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

@@ -16,12 +16,7 @@ pub(crate) fn pred_loop_simple_while(facts: &CanonicalLoopFacts) -> bool {
     if facts.facts.loop_simple_while().is_none() {
         return false;
     }
-    if facts.nested_loop {
-        return false;
-    }
-    // Keep the remaining scan-phi family on its dedicated route.
-    let scan = ScanFamilyPresence::from_facts(facts);
-    !scan.blocks_simple_while()
+    !facts.nested_loop
 }
 pred_accessor!(pred_loop_char_map, loop_char_map);
 pred_accessor!(pred_loop_array_join, loop_array_join);
@@ -32,37 +27,26 @@ pred_accessor!(pred_accum_const_loop, accum_const_loop);
 
 #[derive(Debug, Clone, Copy)]
 struct ScanFamilyPresence {
-    v0: bool,
     init: bool,
     predicate: bool,
 }
 
 impl ScanFamilyPresence {
     fn from_facts(facts: &CanonicalLoopFacts) -> Self {
-        let v0 = pred_loop_scan_phi_vars_v0(facts);
         let init = facts.facts.scan_with_init().is_some() || facts.facts.split_scan().is_some();
         let predicate = pred_bool_predicate_scan(facts) || pred_accum_const_loop(facts);
-        Self {
-            v0,
-            init,
-            predicate,
-        }
-    }
-
-    fn blocks_simple_while(self) -> bool {
-        self.v0
+        Self { init, predicate }
     }
 
     fn blocks_loop_cond_break(self) -> bool {
-        self.v0 || self.init || self.predicate
+        self.init || self.predicate
     }
 
     fn blocks_return_or_generic(self) -> bool {
-        self.v0 || self.init || self.predicate
+        self.init || self.predicate
     }
 }
 
-pred_accessor!(pred_loop_scan_phi_vars_v0, loop_scan_phi_vars_v0);
 pred_accessor!(pred_nested_loop_minimal, nested_loop_minimal);
 pub(crate) fn pred_loop_true_break_continue(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_true_break_continue.is_some() && !pred_loop_break_recipe(facts)

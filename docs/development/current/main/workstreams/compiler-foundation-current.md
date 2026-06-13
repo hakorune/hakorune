@@ -651,15 +651,15 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --onl
 
 ### COREPLAN-E1-007: scan_phi_vars v0 retire
 
-Next CorePlan task.
+Landed.
 
 Recommended remaining order:
 
 ```text
 1. COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE
    target: loop_scan_phi_vars_v0
-   risk: highest
-   reason: PHI/carrier-sensitive collect shape with classic and EXT shape routes
+   replacement owners: LoopSimpleWhile / LoopCondBreak
+   result: active routed loop_*_v0 count is zero
 ```
 
 Common acceptance for each retire card:

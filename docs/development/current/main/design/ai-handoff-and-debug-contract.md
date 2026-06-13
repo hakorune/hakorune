@@ -112,9 +112,10 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
   (`[recipe:scan_methods]`, `[recipe:compose] route=scan_methods_v0`,
   `[recipe:entry] scan_methods_v0`). Block-wrapped scan-methods bodies now
   route through existing replacement owners.
-- Recipe-first verification (dev/debug only, Phase C15): `[recipe:scan_phi_vars] verified OK`
-- Recipe-first compose (dev/debug only, Phase C15): `[recipe:compose] route=scan_phi_vars_v0 path=recipe_first`
-- Recipe-first entry (dev/debug only, Phase C15): `[recipe:entry] scan_phi_vars_v0: recipe-only entry`
+- Retired in `COREPLAN-E1-007`: former scan_phi_vars_v0 recipe-first tags
+  (`[recipe:scan_phi_vars]`, `[recipe:compose] route=scan_phi_vars_v0`,
+  `[recipe:entry] scan_phi_vars_v0`). Focused PhiInjector / `_collect_phi_vars`
+  fixtures now route through existing replacement owners.
 - Retired in `COREPLAN-E1-005`: former scan_v0 recipe-first tags.
   Focused scan fixtures now stay on the existing `LoopCondBreak` route.
 - Retired in `COREPLAN-E1-003`: former collect_using_entries recipe-first tags.

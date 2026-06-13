@@ -56,12 +56,11 @@ AST
 | `if_phi_join` | `IfPhiJoin` | facts present | excludes `loop_cond_break_continue` |
 | `loop_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_cond_break_continue`, `loop_cond_continue_only` |
 | `loop_true_early_exit` | `LoopTrueEarlyExit` | facts present | excludes `loop_true_break_continue` |
-| `loop_scan_phi_vars_v0` | `LoopScanPhiVarsV0` | facts present | excludes `loop_cond_break_continue` |
 | `loop_cond_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_continue_only` |
 | `loop_cond_continue_with_return` | `LoopContinueWithReturn` | facts present | see bullet list |
 | `loop_cond_return_in_body` | `LoopReturnInBody` | facts present | excludes `loop_cond_break_continue` |
 | `loop_true_break_continue` | `LoopTrueBreakContinue` | facts present | excludes `loop_true_early_exit` |
-| `loop_cond_break_continue` | `LoopExitIfBreakContinue` | exit-signal / conditional_update / nested-only | excluded by scan_methods candidates and pattern-specific disjoints |
+| `loop_cond_break_continue` | `LoopExitIfBreakContinue` | exit-signal / conditional_update / nested-only | excluded by scan candidates and pattern-specific disjoints |
 | `scan_with_init` / `split_scan` / `bool_predicate_scan` / `accum_const_loop` | `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `AccumConstLoop` | facts present | excludes `loop_cond_break_continue` |
 | `generic_loop_v0` | `LoopGenericFallbackV0` | fallback facts | release-only routing |
 | `generic_loop_v1` | `LoopGenericRecipeV1` | general loop facts | excluded by loop_break (`loop_break`) / loop_char_map (`loop_char_map`) / loop_simple_while (`loop_simple_while`) / `loop_cond_break_continue` |

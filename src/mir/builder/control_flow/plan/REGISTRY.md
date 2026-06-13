@@ -23,7 +23,6 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 | `generic_loop_v1` | strict/dev + planner_required | loop body as CorePlan tree (If/Exit), minimal carriers | `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md` |
 | `loop_true_break_continue` | strict/dev + planner_required (exception slot; no silent fallback) | `loop(true)` with `break/continue/return(value)` in ExitIf, plus unconditional tail `return(value)` (return+prelude+else は禁止) | `src/mir/builder/control_flow/plan/loop_true_break_continue/README.md` |
 | `loop_cond_break_continue` | strict/dev + planner_required | loop(cond) with multi `ExitIf(break/continue)` and conditional update/join; cluster3/4/5 are selected via `facts/nested_loop_profile.rs` | `docs/development/current/main/design/loop-cond-break-continue-ssot.md` |
-| `loop_scan_phi_vars_v0` | strict/dev + planner_required | loop(i<n) outer loop with nested break-search-loop + found-if + collect-loop (one-shape, selfhost _collect_phi_vars) | `src/mir/builder/control_flow/plan/loop_scan_phi_vars_v0/` |
 | `loop_cond_continue_only` | strict/dev + planner_required | loop(cond) continue-only (nested if/continue) | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/continue_only/` |
 | `loop_cond_continue_with_return` | strict/dev + planner_required | loop(cond) continue-only with nested return | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/continue_with_return/` |
 | `loop_cond_return_in_body` | strict/dev + planner_required | loop(cond) with nested return and no break/continue (fixture-derived) | `src/mir/builder/control_flow/plan/loop_cond_unified/variants/return_in_body/` |
@@ -42,9 +41,7 @@ FLOWPLANNER-V0-001 rule:
 
 ### Active (routed)
 
-| Box | Route status | Hold reason | Retire / promote next |
-|---|---|---|---|
-| `loop_scan_phi_vars_v0` | routed (`registry/mod.rs` + handlers + composer) | selfhost blocker path pinned | retire when generic nested search + collect-loop features cover `_collect_phi_vars`; promote if another PHI collection route shares the same structure |
+No active routed `loop_*_v0` boxes remain after `COREPLAN-E1-007`.
 
 ### Retired
 
@@ -56,6 +53,7 @@ FLOWPLANNER-V0-001 rule:
 | `loop_bundle_resolver_v0` | replaced by `flowbox/adopt` route | `COREPLAN-E1-004` で focused BundleResolver fixture が `flowbox/adopt` route で通ることを確認し、route/facts/module wiring を物理撤去 |
 | `loop_scan_v0` | replaced by existing `LoopCondBreak` route | `COREPLAN-E1-005` で focused scan fixtures が `LoopCondBreak` route で通ることを確認し、route/facts/module wiring を物理撤去 |
 | `loop_scan_methods_v0` | replaced by existing scan-methods owners | `COREPLAN-E1-006` で focused scan-methods fixtures が `LoopSimpleWhile` / `LoopCondBreak` / `flowbox/adopt` replacement owners で通ることを確認し、route/facts/module wiring を物理撤去 |
+| `loop_scan_phi_vars_v0` | replaced by existing phi-vars fixture owners | `COREPLAN-E1-007` で focused PhiInjector / `_collect_phi_vars` fixtures が `LoopSimpleWhile` / `LoopCondBreak` replacement owners で通ることを確認し、route/facts/module wiring を物理撤去 |
 
 Audit rule (active運用):
 - routed が無い box は “活性箱” 扱いにしない。削除・縮退は別コミットで fixture/gate を固定して行う。
@@ -76,6 +74,8 @@ Audit rule (active運用):
 - `loop_scan_methods_v0` は `COREPLAN-E1-006` で既存
   `LoopSimpleWhile` / `LoopCondBreak` / `flowbox/adopt` replacement owners
   に置換済み。
+- `loop_scan_phi_vars_v0` は `COREPLAN-E1-007` で既存
+  `LoopSimpleWhile` / `LoopCondBreak` replacement owners に置換済み。
 - removal boundary（`CLEAN-PLAN-V0-SHRINK-2`）の詳細ファイル群は、`CURRENT_TASK.md` の同名セッション記録を参照する。
 
 ## Entry SSOT (router→planner→composer→lower)

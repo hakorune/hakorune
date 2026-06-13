@@ -4,10 +4,8 @@ use crate::mir::builder::control_flow::facts::stmt_view::StmtOnlyBlockRecipe;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
 use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
-use crate::mir::builder::control_flow::recipes::scan_loop_segments::NestedLoopRecipe;
 use crate::mir::builder::MirBuilder;
 use std::cell::Cell;
-use std::collections::BTreeMap;
 
 use super::super::verify;
 
@@ -95,39 +93,6 @@ pub(in crate::mir::builder) fn try_lower_nested_loop_depth1_stmt_only_fastpath(
     let _guard = StmtOnlyFastpathGuard::enter_if_outermost()?;
     let cond_view = CondBlockView::from_expr(condition);
     lower_nested_loop_depth1_stmt_only(builder, &cond_view, body_recipe, error_prefix).ok()
-}
-
-/// Lower a nested loop represented as `scan_loop_segments::NestedLoopRecipe` when the nested body
-/// is available as a stmt-only recipe payload.
-///
-/// This is a scan-pipeline SSOT entry: it prefers the nested-loop stmt-only fastpath and otherwise
-/// asks the caller to fall back to the single-planner route.
-pub(in crate::mir::builder) fn lower_nested_loop_recipe_stmt_only(
-    builder: &mut MirBuilder,
-    _current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    _carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    _break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    nested: &NestedLoopRecipe,
-    error_prefix: &str,
-) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    let Some(body_stmt_only) = nested.body_stmt_only.as_ref() else {
-        return Ok(None);
-    };
-
-    if !nested.cond_view.prelude_stmts.is_empty() {
-        return Err(format!(
-            "[freeze:contract][recipe] nested_loop_cond_prelude_unsupported: ctx={}",
-            error_prefix
-        ));
-    }
-
-    let plan = lower_nested_loop_depth1_stmt_only(
-        builder,
-        &nested.cond_view,
-        body_stmt_only,
-        error_prefix,
-    )?;
-    Ok(Some(vec![plan]))
 }
 
 #[cfg(test)]
