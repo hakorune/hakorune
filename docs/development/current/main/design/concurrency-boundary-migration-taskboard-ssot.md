@@ -156,7 +156,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
-| `CONC-SYNCBOX-003` | pending | Add VM/reference serialized method-entry behavior. | no-contention reference guard | no fairness/reentrancy guarantee |
+| `CONC-SYNCBOX-003` | landed-code | Add reference-only serialized method-entry behavior. | `src/runtime/sync_box.rs` + `293x-1003-CONC-SYNCBOX-003-REFERENCE-SERIALIZED-ENTRY.md` | Program JSON / MIR / LLVM fail-fast continue |
 | `CONC-CONTEXT-001` | landed-parser-json | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/AST JSON guard + scoped compat audit | no propagation runtime yet |
 | `CONC-CONTEXT-002` | pending | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | VM/reference guard | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |

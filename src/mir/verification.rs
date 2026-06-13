@@ -529,7 +529,6 @@ impl MirVerifier {
     fn verify_merge_uses(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
         cfg::check_merge_uses(function)
     }
-
 }
 
 impl Default for MirVerifier {

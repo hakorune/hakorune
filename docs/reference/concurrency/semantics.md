@@ -22,7 +22,7 @@ kept only as provenance in phase logs and execution ledgers.
 | `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
 | `Channel` | yes | scaffold | not active | Boundary model requires await-visible `send` / `recv` / `close`; runtime wait integration is later. |
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
-| `sync box` | yes | no | no | Parser/AST JSON capsule is active; verifier/runtime rows are later. |
+| `sync box` | yes | reference | no | Parser/AST JSON capsule and wait-forbidden verifier are active; CONC-SYNCBOX-003 adds reference-only serialized entry while Program JSON / MIR / LLVM stay fail-fast. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
 | `context` / `scoped` | yes | no | no | Parser/AST JSON capsule is active; `context` is preferred and `scoped` is compatibility spelling. |
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
@@ -136,13 +136,20 @@ Implementation naming note:
 ### Serialized Shared State (`sync box`, parser/verifier capsule)
 - `sync box` is the preferred shared-mutable source surface.
 - Current implementation accepts and preserves the `sync box` AST/AST-JSON
-  capsule, but serialized method entry is not runtime-active yet.
+  capsule, and CONC-SYNCBOX-003 provides reference-only serialized method-entry
+  support through runtime `SyncState`.
 - Sync methods reject `await` and `nowait` during parser-side declaration
   validation. Because canonical Channel waits are await-visible
   (`await ch.send`, `await ch.recv`, `await ch.close`), this also keeps channel
   waits out of sync methods in the current surface.
-- Program JSON and MIR lowering fail-fast rather than treating `sync box` as an
-  ordinary `box`.
+- Program JSON, MIR lowering, and LLVM lowering still fail-fast rather than
+  treating `sync box` as an ordinary `box`.
+- Reference runtime fields:
+  - `sync_box_reference_runtime_enabled=1`
+  - `sync_box_mir_lowering_enabled=0`
+  - `sync_box_program_json_enabled=0`
+  - `sync_box_llvm_enabled=0`
+  - `sync_box_reentrancy_guarantee=0`
 
 ### Future `await` (current VM contract)
 - This document is not the canonical owner for `await fut` failure/cancel semantics.

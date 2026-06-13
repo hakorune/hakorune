@@ -656,6 +656,51 @@ This row does not enforce send/share/root capabilities. It fixes the
 diagnostic vocabulary needed before a later row can move `.hako` values across
 workers or reject non-send/non-share values.
 
+### CONC-SYNCBOX-003: reference serialized entry
+
+Status: landed as reference runtime only.
+
+Scope:
+
+```text
+src/runtime/sync_box.rs
+SyncState per future sync object instance
+SyncState::enter(object_id, method_name)
+TLS nested-entry guard
+```
+
+Report fields:
+
+```text
+sync_box_reference_runtime_enabled=1
+sync_box_mir_lowering_enabled=0
+sync_box_program_json_enabled=0
+sync_box_llvm_enabled=0
+sync_box_fairness_guarantee=0
+sync_box_reentrancy_guarantee=0
+sync_box_lock_order_verifier_enabled=0
+sync_box_worker_pool_route_enabled=0
+```
+
+Reading:
+
+```text
+serialized_truth_owner=runtime_object_instance_side
+method_dispatch_role=enter_exit_only_later
+program_json_v0_sync_box_support=0
+mir_sync_box_lowering=0
+llvm_sync_box_lowering=0
+```
+
+Reentrant sync method entry is fail-fast in v0:
+
+```text
+[syncbox/reentrant-entry]
+```
+
+This row does not open normal MIR/Program JSON/LLVM lowering. It proves the
+reference runtime boundary and keeps backend fallback forbidden.
+
 ### THREAD-SOURCE-001: structured worker source surface
 
 Reserved future row. Prefer structured surfaces such as `worker_scope` /

@@ -35,9 +35,7 @@ impl HakoSchedulerRoute {
                 "Phase-0 future route; expression may run before FutureNew"
             }
             Self::CooperativeTask => "queued task route under cooperative scheduler polling",
-            Self::WorkerPoolTask => {
-                "runtime worker-pool route; source semantics remain unchanged"
-            }
+            Self::WorkerPoolTask => "runtime worker-pool route; source semantics remain unchanged",
         }
     }
 }

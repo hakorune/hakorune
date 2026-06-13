@@ -44,6 +44,5 @@ pub trait LoopBuilderApi {
     }
 }
 
-
 // Legacy wiring for `MirBuilder` lives in `src/mir/builder/loop_api_impl.rs`
 // so that emit/CFG mutations stay inside `src/mir/builder/**`.
