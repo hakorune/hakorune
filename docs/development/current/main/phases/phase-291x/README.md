@@ -38,9 +38,9 @@ checkpoint pointer.
   finalizer seam, route-shape helper residue, `loop_simple_while` extractor
   shelf, common helper residue, the unneeded broad allow in `cond_profile.rs`,
   and the obsolete standalone MIR hints scaffold).
-- Remaining cleanup in this audited MIR vocabulary set is no longer a dead
-  shelf, and the next step is selecting the next post-cleanup
-  compiler-cleanliness lane.
+- `291x-792` closes the post-burst compiler-cleanliness checkpoint as
+  clean-enough: broad cleanup should stop unless a new focused owner family is
+  selected by a separate card.
 
 ## Next Lane Candidates
 
@@ -50,7 +50,8 @@ allowance sweep.
 
 - Post-cleanup compiler-cleanliness lane:
   the dead-shelf subset of the MIR structural vocabulary inventory is closed
-  through `291x-791`. Do not reopen that burst unless a new owner-backed seam
+  through `291x-791`, and the broader clean-enough checkpoint is closed through
+  `291x-792`. Do not reopen compiler cleanup unless a new owner-backed seam
   appears.
 
 No-action inventory: moved-stub / traceability docs and `src/ring0/LAYER_GUARD.rs`
@@ -113,7 +114,7 @@ set.
 - Historical warning backlog baseline:
   `291x-691-warning-backlog-inventory-doc-sync-card.md`
 - Latest cleanup checkpoint:
-  `CURRENT_STATE.toml` `latest_card_path`
+  `291x-792-compiler-cleanliness-clean-enough-closeout-card.md`
 - Smoke selection:
   `291x-smoke-index.md`
 - CoreMethodContract / Hotline policy:
