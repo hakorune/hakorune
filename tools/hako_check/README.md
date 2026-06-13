@@ -207,6 +207,8 @@ plugin_loader_registry_snapshot_entrypoint_count=1
 runtime_invoke_boundary_module_count=1
 type_abi_catalog_is_truth=0
 type_abi_refresh_truth_trait_enabled=0
+type_abi_catalog_from_refreshed_world=1
+type_abi_catalog_refresh_owner_count=0
 summary=ok
 ```
 

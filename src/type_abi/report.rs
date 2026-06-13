@@ -18,6 +18,8 @@ pub const TYPE_ABI_CATALOG_ENABLED: &str = "type_abi_catalog_enabled";
 pub const TYPE_ABI_CATALOG_IS_TRUTH: &str = "type_abi_catalog_is_truth";
 pub const TYPE_ABI_EXISTING_REFRESH_PRESERVED: &str = "type_abi_existing_refresh_preserved";
 pub const TYPE_ABI_REFRESH_TRUTH_TRAIT_ENABLED: &str = "type_abi_refresh_truth_trait_enabled";
+pub const TYPE_ABI_CATALOG_FROM_REFRESHED_WORLD: &str = "type_abi_catalog_from_refreshed_world";
+pub const TYPE_ABI_CATALOG_REFRESH_OWNER_COUNT: &str = "type_abi_catalog_refresh_owner_count";
 pub const TYPE_ABI_CATALOG_ENTRY_COUNT: &str = "type_abi_catalog_entry_count";
 pub const TYPE_ABI_CATALOG_QUERY_COUNT: &str = "type_abi_catalog_query_count";
 pub const TYPE_ABI_CATALOG_CROSS_DOMAIN_QUERY_COUNT: &str =
@@ -118,6 +120,18 @@ pub const TYPEABI_CATALOG_CLEAN_000_ROWS: &[(&str, &str)] = &[
     (TYPE_ABI_CATALOG_IS_TRUTH, "0"),
     (TYPE_ABI_EXISTING_REFRESH_PRESERVED, "1"),
     (TYPE_ABI_REFRESH_TRUTH_TRAIT_ENABLED, "0"),
+    (TYPE_ABI_PACK_USED_BY_PLANNER_COUNT, "0"),
+    (GENERIC_TYPEABI_GENERATE_PLANS_COUNT, "0"),
+    (TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT, "0"),
+];
+
+pub const TYPEABI_CATALOG_CLEAN_001_ROWS: &[(&str, &str)] = &[
+    (TYPE_ABI_CATALOG_ENABLED, "1"),
+    (TYPE_ABI_CATALOG_IS_TRUTH, "0"),
+    (TYPE_ABI_EXISTING_REFRESH_PRESERVED, "1"),
+    (TYPE_ABI_REFRESH_TRUTH_TRAIT_ENABLED, "0"),
+    (TYPE_ABI_CATALOG_FROM_REFRESHED_WORLD, "1"),
+    (TYPE_ABI_CATALOG_REFRESH_OWNER_COUNT, "0"),
     (TYPE_ABI_PACK_USED_BY_PLANNER_COUNT, "0"),
     (GENERIC_TYPEABI_GENERATE_PLANS_COUNT, "0"),
     (TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT, "0"),
@@ -243,6 +257,24 @@ mod tests {
         assert_eq!(rows[TYPE_ABI_CATALOG_IS_TRUTH], "0");
         assert_eq!(rows[TYPE_ABI_EXISTING_REFRESH_PRESERVED], "1");
         assert_eq!(rows[TYPE_ABI_REFRESH_TRUTH_TRAIT_ENABLED], "0");
+        assert_eq!(rows[TYPE_ABI_PACK_USED_BY_PLANNER_COUNT], "0");
+        assert_eq!(rows[GENERIC_TYPEABI_GENERATE_PLANS_COUNT], "0");
+        assert_eq!(rows[TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT], "0");
+    }
+
+    #[test]
+    fn catalog_clean_001_rows_name_refreshed_world_boundary() {
+        let rows = TYPEABI_CATALOG_CLEAN_001_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[TYPE_ABI_CATALOG_ENABLED], "1");
+        assert_eq!(rows[TYPE_ABI_CATALOG_IS_TRUTH], "0");
+        assert_eq!(rows[TYPE_ABI_EXISTING_REFRESH_PRESERVED], "1");
+        assert_eq!(rows[TYPE_ABI_REFRESH_TRUTH_TRAIT_ENABLED], "0");
+        assert_eq!(rows[TYPE_ABI_CATALOG_FROM_REFRESHED_WORLD], "1");
+        assert_eq!(rows[TYPE_ABI_CATALOG_REFRESH_OWNER_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_PACK_USED_BY_PLANNER_COUNT], "0");
         assert_eq!(rows[GENERIC_TYPEABI_GENERATE_PLANS_COUNT], "0");
         assert_eq!(rows[TYPE_ABI_CATALOG_HOT_LOOKUP_COUNT], "0");

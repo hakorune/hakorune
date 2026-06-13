@@ -333,6 +333,23 @@ catalog is built from refreshed world
 type_abi_refresh_truth_trait_enabled=0
 ```
 
+### TYPEABI-CATALOG-CLEAN-001
+
+Add code-side catalog construction vocabulary for refreshed-world entry.
+
+Status: landed 2026-06-13.
+
+Acceptance:
+
+```text
+TypeAbiCatalog::builder_from_refreshed_world exists
+TypeAbiCatalog::from_refreshed_views exists
+catalog construction names the refreshed-world boundary
+type_abi_catalog_from_refreshed_world=1
+type_abi_catalog_refresh_owner_count=0
+TypeAbiCatalog still has no refresh_truth hook
+```
+
 ## Report Vocabulary
 
 ```text
@@ -340,6 +357,8 @@ type_abi_catalog_enabled=1
 type_abi_catalog_is_truth=0
 type_abi_existing_refresh_preserved=1
 type_abi_refresh_truth_trait_enabled=0
+type_abi_catalog_from_refreshed_world=1
+type_abi_catalog_refresh_owner_count=0
 type_abi_catalog_entry_count
 type_abi_catalog_query_count
 type_abi_catalog_cross_domain_query_count

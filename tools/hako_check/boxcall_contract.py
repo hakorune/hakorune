@@ -18,6 +18,8 @@ def contract_lines() -> list[str]:
         "type_abi_pack_is_truth=0",
         "type_abi_existing_refresh_preserved=1",
         "type_abi_refresh_truth_trait_enabled=0",
+        "type_abi_catalog_from_refreshed_world=1",
+        "type_abi_catalog_refresh_owner_count=0",
         "type_abi_catalog_hot_lookup_count=0",
         "type_abi_pack_used_by_planner_count=0",
         "generic_typeabi_generate_plans_count=0",

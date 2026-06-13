@@ -7,6 +7,34 @@ use std::collections::HashMap;
 
 use super::{TypeAbiEntryHeader, TypeAbiTag, TypeAbiView};
 
+/// Builder for a catalog assembled after existing domain refresh has run.
+///
+/// The builder is intentionally small: it only publishes read-only views into
+/// the catalog. It does not own MIR metadata refresh, canonicalization, or plan
+/// generation.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct TypeAbiCatalogBuilder {
+    catalog: TypeAbiCatalog,
+}
+
+impl TypeAbiCatalogBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn publish<V: TypeAbiView + ?Sized>(&mut self, view: &V) -> usize {
+        self.catalog.publish(view)
+    }
+
+    pub fn publish_header(&mut self, header: TypeAbiEntryHeader) -> usize {
+        self.catalog.publish_header(header)
+    }
+
+    pub fn finish(self) -> TypeAbiCatalog {
+        self.catalog
+    }
+}
+
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct TypeAbiCatalog {
     entries: Vec<TypeAbiEntryHeader>,
@@ -17,6 +45,18 @@ pub struct TypeAbiCatalog {
 impl TypeAbiCatalog {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn builder_from_refreshed_world() -> TypeAbiCatalogBuilder {
+        TypeAbiCatalogBuilder::new()
+    }
+
+    pub fn from_refreshed_views(views: &[&dyn TypeAbiView]) -> Self {
+        let mut builder = Self::builder_from_refreshed_world();
+        for view in views {
+            builder.publish(*view);
+        }
+        builder.finish()
     }
 
     pub fn publish<V: TypeAbiView + ?Sized>(&mut self, view: &V) -> usize {
@@ -119,5 +159,36 @@ mod tests {
         let methods = catalog.query_by_tag(TypeAbiTag::Method);
         assert_eq!(methods.len(), 1);
         assert_eq!(methods[0].name.as_deref(), Some("m"));
+    }
+
+    #[test]
+    fn catalog_builder_names_refreshed_world_boundary() {
+        let entry = MethodEntry {
+            name: "size",
+            arity: 0,
+            slot: 201,
+        };
+        let mut builder = TypeAbiCatalog::builder_from_refreshed_world();
+
+        let index = builder.publish(&entry);
+        let catalog = builder.finish();
+
+        assert_eq!(index, 0);
+        assert_eq!(catalog.len(), 1);
+        let got = catalog.get_by_tag_name(TypeAbiTag::Method, "size").unwrap();
+        assert_eq!(got.id, 201);
+    }
+
+    #[test]
+    fn catalog_from_refreshed_views_does_not_require_pack() {
+        let entry = MethodEntry {
+            name: "contains",
+            arity: 1,
+            slot: 309,
+        };
+        let catalog = TypeAbiCatalog::from_refreshed_views(&[&entry as &dyn TypeAbiView]);
+
+        assert_eq!(catalog.len(), 1);
+        assert!(catalog.get_by_tag_id(TypeAbiTag::Method, 309).is_some());
     }
 }
