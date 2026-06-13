@@ -393,6 +393,8 @@ Next cleanup must start from `JOINIR-TARGET-THIN-005`, not by widening
 
 ### JOINIR-TARGET-THIN-005: Route-Specific File Size Pass
 
+Status: started with route-local facade split.
+
 After adapter proof, reduce large files only where behavior remains readable.
 
 ```text
@@ -405,6 +407,23 @@ avoid:
   name-based target dispatch outside target registry
   helper internals that hide fallback policy
 ```
+
+Landed split:
+
+```text
+funcscanner_trim.rs:
+  route facade only
+  owns public lower_funcscanner_trim_to_joinir entry
+
+funcscanner_trim/builder.rs:
+  route-local handwritten/shared JoinIR construction
+
+funcscanner_trim/dispatch.rs:
+  MIR-vs-handwritten dispatch and route-local sanity checks
+```
+
+This split is physical packaging only. It does not change route selection,
+generic Case-A policy, or Exec bridge behavior.
 
 ## Guard Vocabulary
 

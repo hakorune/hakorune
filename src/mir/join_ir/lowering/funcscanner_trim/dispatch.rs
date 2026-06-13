@@ -1,4 +1,4 @@
-use super::build_funcscanner_trim_joinir;
+use super::builder::build_funcscanner_trim_joinir;
 use crate::mir::join_ir::JoinModule;
 use crate::runtime::get_global_ring0;
 
