@@ -69,6 +69,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - current docs update policy and mirror-thinning contract
 - `design/current-docs-archive-policy-ssot.md`
   - archive buckets, landed ledger, and current-doc slimming contract
+- `design/mir-cleanup-policy-ssot.md`
+  - BoxShape-only MIR cleanup policy; keeps cleanup work separate from
+    acceptance-shape, optimizer, and perf keeper changes
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
@@ -162,6 +165,8 @@ Rule:
     `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
   - Type ABI Box Domain:
     `docs/development/current/main/design/type-abi-box-domain-ssot.md`
+  - MIR Cleanup Policy:
+    `docs/development/current/main/design/mir-cleanup-policy-ssot.md`
   - Pure-First MIR Artifact / Diagnostics（selfhost/pure-first artifact exactness + preflight SSOT）: `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
   - Hakorune Provider Package ABI v1（future DLL/shared-library provider package SSOT）: `docs/development/current/main/design/hakorune-provider-package-abi-v1-future-ssot.md`
 
