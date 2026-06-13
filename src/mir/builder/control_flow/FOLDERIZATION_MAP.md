@@ -8,6 +8,67 @@ Status: working SSOT for the `plan/` -> owner-folder migration.
 - move shared infrastructure to top-level owner folders first
 - relocate owner-local route families only after they stop mixing facts/recipe/lower/ssa/cleanup responsibilities
 
+## MIR-CLEAN-004 Entry Map
+
+Decision: accepted 2026-06-13.
+
+This map is the control-flow cleanup entry for MIR-CLEAN tasks. Keep it aligned
+with `docs/development/current/main/design/mir-cleanup-policy-ssot.md`.
+
+```text
+facts:
+  owner of conservative observation and analysis-only views
+  no AST rewrite
+  no lowering
+  no route selection order
+
+plan:
+  temporary FlowPlanner implementation namespace
+  owns CorePlan vocabulary, recipe families, and route-local planning while
+  folderization is in progress
+
+lower:
+  consumer-facing lowering compatibility facade and lower-side ownership seam
+  may expose planner/lowerer compatibility wrappers
+  must not become route truth
+
+verify:
+  fail-fast diagnostics and contract validation
+  may render why a plan is rejected
+  must not select replacement routes
+
+joinir:
+  route entry, merge, and JoinIR glue
+  may call documented FlowPlanner facades
+  must not import route-specific loop_* implementation internals directly
+```
+
+Forbidden cross-layer dependencies:
+
+```text
+builder core -> plan/loop_* internals
+facts -> lower implementation
+facts -> route selection order
+lower -> Type/route truth not carried by a selected plan
+verify -> route selection / fallback
+joinir route_entry -> route-specific plan internals without a facade
+```
+
+Selected deep flatten pilot:
+
+```text
+generic_loop step placement
+```
+
+Pilot rule:
+
+```text
+move one semantic subtree only
+preserve facts vs plan roles
+add a local README or facade with the move
+run targeted planner/facts tests
+```
+
 ## Shared Infra Destination Map
 
 ### `facts/`

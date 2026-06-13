@@ -384,6 +384,39 @@ retire candidates have tests/gates named before deletion
 
 Create `builder/control_flow` entry map.
 
+Status: landed 2026-06-13.
+
+Entry:
+
+```text
+src/mir/builder/control_flow/FOLDERIZATION_MAP.md
+```
+
+Summary:
+
+```text
+facts:
+  conservative observation and analysis-only views
+
+plan:
+  temporary FlowPlanner implementation namespace
+
+lower:
+  lower-side compatibility facade and ownership seam
+
+verify:
+  fail-fast diagnostics and contract validation
+
+joinir:
+  route entry, merge, and JoinIR glue
+```
+
+Selected deep flatten pilot:
+
+```text
+generic_loop step placement
+```
+
 Acceptance:
 
 ```text
