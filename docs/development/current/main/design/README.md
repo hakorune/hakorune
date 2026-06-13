@@ -60,6 +60,7 @@
 - Loop update analyzer thinning（carrier update observation owner の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/loop-update-analyzer-thinning-ssot.md`
 - Loop body-local init thinning（body-local init lowering owner の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/loop-body-local-init-thinning-ssot.md`
 - Inline boundary builder thinning（JoinInlineBoundary construction owner の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/inline-boundary-builder-thinning-ssot.md`
+- Generic Case A trim thinning（FuncScanner trim JoinIR lowering の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/generic-case-a-trim-thinning-ssot.md`
 - EdgeCFG Flow Fragments（Structured→CFG lowering SSOT）: `docs/development/current/main/design/edgecfg-fragments.md`
 - Catch / Cleanup / Async（設計メモ）: `docs/development/current/main/design/exception-cleanup-async.md`
 - Loop Canonicalizer（設計 SSOT）: `docs/development/current/main/design/loop-canonicalizer.md`

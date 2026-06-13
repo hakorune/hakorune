@@ -88,6 +88,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - `design/inline-boundary-builder-thinning-ssot.md`
   - BoxShape-only cleanup order for JoinInlineBoundary construction; keeps
     builder defaults and ParamRole routing unchanged
+- `design/generic-case-a-trim-thinning-ssot.md`
+  - BoxShape-only cleanup order for FuncScanner trim JoinIR lowering; keeps
+    trim shape, ValueId ranges, and whitespace semantics unchanged
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
