@@ -25,9 +25,10 @@ active_optimization_lane_changed=0
 
 Arc retirement is allowed as docs/inventory planning, contract-only runtime
 types, host-handle identity seam work, and Box object model replacement-map
-work now. ARC-RETIRE-006..016 additionally defines the first family gate and
-cuts over host-handle text payloads from Arc-backed payloads to direct `String`
-payloads. Global Arc replacement has not started.
+work now. ARC-RETIRE-006..018 additionally defines the first family gate, cuts
+over host-handle text payloads from Arc-backed payloads to direct `String`
+payloads, and adopts that direct text carrier from the owned-text producer
+boundary. Global Arc replacement has not started.
 
 ## Task Order
 
@@ -524,6 +525,75 @@ first_family_carrier=stable_text_payload
 first_family_host_handle_text_arc_free=1
 first_family_box_trait_arc_replaced=0
 global_arc_replaced=0
+```
+
+### ARC-RETIRE-017: Text payload producer adoption audit
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
+```
+
+Acceptance:
+
+```text
+first_family_text_producer_audit=1
+producer_audit_target=string_handle_from_owned_with_site
+producer_audit_target=shared_empty_string_handle
+text_producer_need_stable_object_kept_object=1
+```
+
+Audit result:
+
+```text
+string_handle_from_owned_with_site:
+  safe producer target; owns String and does not require object identity
+
+shared_empty_string_handle:
+  safe producer target; singleton text payload has no fini owner
+
+PublishReason::NeedStableObject:
+  not a cutover target; remains object-backed
+```
+
+### ARC-RETIRE-018: Text payload producer cutover
+
+Status:
+
+```text
+landed_by=
+  crates/nyash_kernel/src/plugin/value_codec/string_materialize.rs
+  crates/nyash_kernel/src/exports/string_helpers/materialize.rs
+  crates/nyash_kernel/src/exports/string_helpers/concat.rs
+  src/runtime/arc_retirement.rs
+```
+
+Acceptance:
+
+```text
+first_family_text_producer_cutover=1
+text_producer_string_handle_from_owned_arc_free=1
+text_producer_shared_empty_arc_free=1
+text_producer_need_stable_object_kept_object=1
+text_producer_compat_get_materializes=1
+first_family_box_trait_arc_replaced=0
+global_arc_replaced=0
+```
+
+Cutover:
+
+```text
+string_handle_from_owned_with_site:
+  freezes owned bytes for existing accounting
+  publishes direct text payload with host_handles::to_handle_text
+
+shared_empty_string_handle:
+  uses host_handles::to_handle_text
+
+concat pair cache:
+  no longer calls host_handles::get on text payload handles just to seed an Arc cache
 ```
 
 ## Do Not Do Yet

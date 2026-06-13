@@ -204,7 +204,7 @@ pub fn first_family_arc_retirement_scaffold() -> FirstFamilyArcRetirementScaffol
     FirstFamilyArcRetirementScaffold::HOST_HANDLE_TEXT_PAYLOAD
 }
 
-/// Stable report fields for ARC-RETIRE-006..016.
+/// Stable report fields for ARC-RETIRE-006..018.
 pub fn arc_retirement_report_fields() -> &'static [(&'static str, &'static str)] {
     &[
         ("arc_retirement_mode", "first_real_family_cutover"),
@@ -232,6 +232,12 @@ pub fn arc_retirement_report_fields() -> &'static [(&'static str, &'static str)]
         ("first_family_arc_retirement_scaffold", "1"),
         ("first_family_carrier", "stable_text_payload"),
         ("host_handle_text_payload_arc_replaced", "1"),
+        ("first_family_text_producer_audit", "1"),
+        ("first_family_text_producer_cutover", "1"),
+        ("text_producer_string_handle_from_owned_arc_free", "1"),
+        ("text_producer_shared_empty_arc_free", "1"),
+        ("text_producer_need_stable_object_kept_object", "1"),
+        ("text_producer_compat_get_materializes", "1"),
         ("first_family_host_handle_text_arc_free", "1"),
         ("first_family_box_trait_arc_replaced", "0"),
         ("global_arc_replaced", "0"),
@@ -298,7 +304,7 @@ mod tests {
     }
 
     #[test]
-    fn report_fields_cover_006_to_016() {
+    fn report_fields_cover_006_to_018() {
         let fields = arc_retirement_report_fields();
 
         assert!(fields.contains(&("arc_retirement_family_gate_defined", "1")));
@@ -310,6 +316,11 @@ mod tests {
         assert!(fields.contains(&("first_family_arc_retirement_scaffold", "1")));
         assert!(fields.contains(&("first_family_carrier", "stable_text_payload")));
         assert!(fields.contains(&("host_handle_text_payload_arc_replaced", "1")));
+        assert!(fields.contains(&("first_family_text_producer_audit", "1")));
+        assert!(fields.contains(&("first_family_text_producer_cutover", "1")));
+        assert!(fields.contains(&("text_producer_string_handle_from_owned_arc_free", "1")));
+        assert!(fields.contains(&("text_producer_shared_empty_arc_free", "1")));
+        assert!(fields.contains(&("text_producer_need_stable_object_kept_object", "1")));
         assert!(fields.contains(&("global_arc_replaced", "0")));
     }
 }

@@ -33,7 +33,8 @@ pub use string_materialize::KernelTextSlot;
 pub(crate) use string_materialize::{
     freeze_owned_bytes_with_site, freeze_owned_string_into_slot, issue_fresh_handle,
     materialize_owned_string, publish_kernel_text_slot, publish_owned_bytes_with_reason_and_site,
-    with_kernel_text_slot_text, KernelTextSlotState, PublishReason, StringPublishSite,
+    publish_owned_text_handle_with_reason_and_site, with_kernel_text_slot_text,
+    KernelTextSlotState, PublishReason, StringPublishSite,
 };
 #[cfg(test)]
 pub(crate) use string_store::store_string_box_from_source;

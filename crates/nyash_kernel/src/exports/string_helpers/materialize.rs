@@ -7,8 +7,8 @@ use crate::exports::string_view::{
 };
 use crate::observe;
 use crate::plugin::{
-    freeze_owned_bytes_with_site, publish_owned_bytes_with_reason_and_site, PublishReason,
-    StringPublishSite,
+    freeze_owned_bytes_with_site, publish_owned_bytes_with_reason_and_site,
+    publish_owned_text_handle_with_reason_and_site, PublishReason, StringPublishSite,
 };
 use nyash_rust::box_trait::StringBox;
 use nyash_rust::runtime::host_handles as handles;
@@ -201,12 +201,12 @@ pub(crate) fn string_handle_from_owned_with_site(value: String, site: StringPubl
     }
     observe::record_birth_placement_fresh_handle();
     let handle = match site {
-        StringPublishSite::Generic => publish_owned_bytes_with_reason_and_site(
+        StringPublishSite::Generic => publish_owned_text_handle_with_reason_and_site(
             freeze_owned_bytes_with_site(value, StringPublishSite::Generic),
             PublishReason::GenericFallback,
             StringPublishSite::Generic,
         ),
-        _ => publish_owned_bytes_with_reason_and_site(
+        _ => publish_owned_text_handle_with_reason_and_site(
             freeze_owned_bytes_with_site(value, site),
             PublishReason::GenericFallback,
             site,
@@ -276,14 +276,13 @@ pub(crate) fn concat_two_str(a: &str, b: &str) -> String {
 pub(crate) fn shared_empty_string_handle() -> i64 {
     #[cfg(test)]
     {
-        string_handle_from_owned_with_site(String::new(), StringPublishSite::Generic)
+        static HANDLE: std::sync::OnceLock<i64> = std::sync::OnceLock::new();
+        *HANDLE.get_or_init(|| handles::to_handle_text(String::new()) as i64)
     }
     #[cfg(not(test))]
     {
         static HANDLE: std::sync::OnceLock<i64> = std::sync::OnceLock::new();
-        *HANDLE.get_or_init(|| {
-            handles::to_handle_arc(std::sync::Arc::new(StringBox::new(String::new()))) as i64
-        })
+        *HANDLE.get_or_init(|| handles::to_handle_text(String::new()) as i64)
     }
 }
 

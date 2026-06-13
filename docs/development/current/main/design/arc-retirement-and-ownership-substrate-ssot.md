@@ -610,6 +610,27 @@ first_family_box_trait_arc_replaced=0
 global_arc_replaced=0
 ```
 
+### ARC-RETIRE-017: Text payload producer adoption audit
+
+```text
+first_family_text_producer_audit=1
+producer_audit_target=string_handle_from_owned_with_site
+producer_audit_target=shared_empty_string_handle
+text_producer_need_stable_object_kept_object=1
+```
+
+### ARC-RETIRE-018: Text payload producer cutover
+
+```text
+first_family_text_producer_cutover=1
+text_producer_string_handle_from_owned_arc_free=1
+text_producer_shared_empty_arc_free=1
+text_producer_need_stable_object_kept_object=1
+text_producer_compat_get_materializes=1
+first_family_box_trait_arc_replaced=0
+global_arc_replaced=0
+```
+
 ## Stop Line
 
 ```text
@@ -677,6 +698,12 @@ free_symbol=hako_mem_free
 first_family_arc_retirement_scaffold=0|1
 first_family_carrier=stable_text_payload
 first_family_host_handle_text_arc_free=0|1
+first_family_text_producer_audit=0|1
+first_family_text_producer_cutover=0|1
+text_producer_string_handle_from_owned_arc_free=0|1
+text_producer_shared_empty_arc_free=0|1
+text_producer_need_stable_object_kept_object=0|1
+text_producer_compat_get_materializes=0|1
 first_family_box_trait_arc_replaced=0|1
 global_arc_replaced=0|1
 arc_hot_path_retirement_started=0|1

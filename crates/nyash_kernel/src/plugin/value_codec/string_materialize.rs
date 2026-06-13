@@ -205,6 +205,23 @@ pub(crate) fn issue_fresh_handle(arc: Arc<dyn NyashBox>) -> i64 {
 }
 
 #[inline(always)]
+fn issue_fresh_text_handle(text: String) -> i64 {
+    #[cfg(feature = "perf-observe")]
+    {
+        crate::observe::record_birth_backend_handle_issue();
+        crate::observe::record_birth_backend_issue_fresh_handle();
+        crate::observe::record_birth_backend_carrier_kind_handle();
+    }
+    let handle = handles::to_handle_text(text) as i64;
+    handles::perf_observe_mark_latest_fresh_handle(handle as u64);
+    #[cfg(feature = "perf-observe")]
+    {
+        crate::observe::mark_latest_fresh_handle(handle);
+    }
+    handle
+}
+
+#[inline(always)]
 pub(crate) fn freeze_owned_bytes(value: String) -> OwnedText {
     crate::observe::record_birth_backend_materialize_owned(value.len());
     crate::observe::record_birth_backend_carrier_kind_owned_bytes();
@@ -248,13 +265,8 @@ pub(crate) fn freeze_owned_bytes_with_site(value: String, site: StringPublishSit
     freeze_owned_bytes(value)
 }
 
-#[cold]
-#[inline(never)]
-pub(crate) fn publish_owned_bytes_with_reason_and_site(
-    bytes: OwnedText,
-    reason: PublishReason,
-    site: StringPublishSite,
-) -> i64 {
+#[inline(always)]
+fn record_publish_reason(reason: PublishReason) {
     let _demand = reason.demand();
     match reason {
         PublishReason::ExternalBoundary => {
@@ -270,6 +282,10 @@ pub(crate) fn publish_owned_bytes_with_reason_and_site(
             crate::observe::record_birth_backend_publish_reason_explicit_api();
         }
     }
+}
+
+#[inline(always)]
+fn record_publish_site_objectize(site: StringPublishSite) {
     match site {
         StringPublishSite::Generic => {}
         StringPublishSite::StringConcatHh => {
@@ -285,6 +301,36 @@ pub(crate) fn publish_owned_bytes_with_reason_and_site(
             crate::observe::record_birth_backend_site_freeze_text_plan_pieces3_objectize_box();
         }
     }
+}
+
+#[inline(always)]
+fn record_publish_site_handle(site: StringPublishSite) {
+    match site {
+        StringPublishSite::Generic => {}
+        StringPublishSite::StringConcatHh => {
+            crate::observe::record_birth_backend_site_string_concat_hh_publish_handle();
+        }
+        StringPublishSite::StringSubstringConcatHhii => {
+            crate::observe::record_birth_backend_site_string_substring_concat_hhii_publish_handle();
+        }
+        StringPublishSite::ConstSuffix => {
+            crate::observe::record_birth_backend_site_const_suffix_publish_handle();
+        }
+        StringPublishSite::FreezeTextPlanPieces3 => {
+            crate::observe::record_birth_backend_site_freeze_text_plan_pieces3_publish_handle();
+        }
+    }
+}
+
+#[cold]
+#[inline(never)]
+pub(crate) fn publish_owned_bytes_with_reason_and_site(
+    bytes: OwnedText,
+    reason: PublishReason,
+    site: StringPublishSite,
+) -> i64 {
+    record_publish_reason(reason);
+    record_publish_site_objectize(site);
     #[cfg(feature = "perf-observe")]
     {
         crate::observe::record_birth_backend_string_box_new(bytes.as_str().len());
@@ -308,22 +354,20 @@ pub(crate) fn publish_owned_bytes_with_reason_and_site(
         crate::observe::record_birth_backend_arc_wrap();
     }
     let arc: Arc<dyn NyashBox> = Arc::new(string_box);
-    match site {
-        StringPublishSite::Generic => {}
-        StringPublishSite::StringConcatHh => {
-            crate::observe::record_birth_backend_site_string_concat_hh_publish_handle();
-        }
-        StringPublishSite::StringSubstringConcatHhii => {
-            crate::observe::record_birth_backend_site_string_substring_concat_hhii_publish_handle();
-        }
-        StringPublishSite::ConstSuffix => {
-            crate::observe::record_birth_backend_site_const_suffix_publish_handle();
-        }
-        StringPublishSite::FreezeTextPlanPieces3 => {
-            crate::observe::record_birth_backend_site_freeze_text_plan_pieces3_publish_handle();
-        }
-    }
+    record_publish_site_handle(site);
     issue_fresh_handle(arc)
+}
+
+#[cold]
+#[inline(never)]
+pub(crate) fn publish_owned_text_handle_with_reason_and_site(
+    bytes: OwnedText,
+    reason: PublishReason,
+    site: StringPublishSite,
+) -> i64 {
+    record_publish_reason(reason);
+    record_publish_site_handle(site);
+    issue_fresh_text_handle(bytes.into_string())
 }
 
 #[inline(always)]

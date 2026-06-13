@@ -116,6 +116,19 @@ fn string_handle_from_owned_seeds_len_cache() {
 }
 
 #[test]
+fn string_handle_from_owned_uses_text_payload_without_arc_object() {
+    let _guard = handle_registry_test_lock();
+    let handle = string_handle_from_owned_with_site("abcd".to_string(), StringPublishSite::Generic);
+
+    let text = handles::with_str_handle(handle as u64, |text| text.to_string());
+    assert_eq!(text.as_deref(), Some("abcd"));
+    assert!(handles::with_handle(handle as u64, |obj| obj.is_none()));
+
+    let compat = handles::get(handle as u64).expect("compat string materialization");
+    assert_eq!(compat.as_str_fast(), Some("abcd"));
+}
+
+#[test]
 fn string_len_fast_export_reads_string_without_seeding_len_cache() {
     let handle = handles::to_handle_arc(Arc::new(StringBox::new("abcd".to_string()))) as i64;
 

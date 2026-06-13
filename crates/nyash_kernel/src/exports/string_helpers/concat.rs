@@ -58,7 +58,7 @@ pub(crate) fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
                 let handle =
                     string_handle_from_owned_with_site(text, StringPublishSite::StringConcatHh);
                 if handle > 0 {
-                    if let Some(result) = handles::get(handle as u64) {
+                    if let Some(result) = handles::with_handle(handle as u64, |obj| obj.cloned()) {
                         concat_pair_fast_cache_store(a_h, b_h, result);
                     }
                 }
