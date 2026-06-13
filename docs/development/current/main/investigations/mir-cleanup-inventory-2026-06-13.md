@@ -703,6 +703,112 @@ no acceptance shape added
 targeted generic-loop facts tests green
 ```
 
+### MIR-CLEAN-011
+
+Refresh the MIR cleanup next-task pointer after CURRENT-CLEAN-001 and
+MIR-CLEAN-010 landed.
+
+Status: landed 2026-06-13.
+
+Decision:
+
+```text
+CURRENT-CLEAN-001 is already landed.
+Next cleanup work starts with generic-loop facade quarantine closeout and one
+thin mod.rs collapse pilot.
+```
+
+Acceptance:
+
+```text
+recommended next task no longer points to a landed card
+next cleanup sequence is explicit
+docs-only stale pointer fix
+```
+
+Verification:
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+### MIR-CLEAN-012
+
+Document generic-loop old facade quarantine after consumer migration.
+
+Status: landed 2026-06-13.
+
+Scope:
+
+```text
+src/mir/builder/control_flow/facts/canon/generic_loop**
+src/mir/builder/control_flow/plan/canon/generic_loop**
+```
+
+Decision:
+
+```text
+Old facts/plan generic-loop canon paths are compatibility facades.
+They are allowed to re-export generic_loop_canon only.
+New consumers must import generic_loop_canon directly.
+Do not delete the facades until a separate retire card proves no external
+or legacy internal callers need the old paths.
+```
+
+Verification:
+
+```bash
+rg -n "control_flow::facts::canon::generic_loop|control_flow::plan::canon::generic_loop" src/mir
+rg -n "facts::canon::generic_loop|plan::canon::generic_loop" src/mir/builder/control_flow/generic_loop_canon
+cargo test --release --lib generic_loop::facts::extract -- --nocapture
+```
+
+Acceptance:
+
+```text
+facade quarantine rule is documented
+new-consumer import rule is documented
+old paths remain compatibility-only
+no acceptance shape added
+```
+
+### MIR-CLEAN-013
+
+Collapse one pure re-export thin `mod.rs` as the pilot.
+
+Status: landed 2026-06-13.
+
+Candidate selected:
+
+```text
+src/mir/builder/schedule/mod.rs
+  -> src/mir/builder/schedule.rs
+```
+
+Reason:
+
+```text
+single-child pure module declaration
+no layer boundary documentation in the mod.rs itself
+parent already owns the schedule boundary comment
+```
+
+Verification:
+
+```bash
+cargo check --release --lib
+cargo fmt --check
+```
+
+Acceptance:
+
+```text
+one thin mod.rs collapsed
+no production behavior change
+module path stays crate::mir::builder::schedule::block
+no additional thin mod.rs files collapsed in the same pilot
+```
+
 ## Non-Goals
 
 ```text
@@ -716,7 +822,12 @@ do not move active perf lanes into cleanup cards
 
 ## Recommended Next Task
 
-Proceed with `CURRENT-CLEAN-001`.
+Proceed with the next low-risk BoxShape cleanup in this order:
 
-This should be docs-only and should define the cleanup gate style before any
-file movement.
+```text
+1. MIR-CLEAN-014: split the next large test file
+2. MIR-CLEAN-015: classify and collapse one more pure re-export thin mod.rs
+3. MIR-CLEAN-016: prepare JoinIR merge ownership docs before any deep path flatten
+```
+
+Do not start another deep flatten pilot until the next owner seam is documented.

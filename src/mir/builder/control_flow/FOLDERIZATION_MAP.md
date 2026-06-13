@@ -113,6 +113,24 @@ facts/canon/generic_loop** and plan/canon/generic_loop** remain compatibility fa
 new generic-loop consumers should import generic_loop_canon directly
 ```
 
+Facade quarantine rule:
+
+```text
+landed 2026-06-13
+old generic-loop facts/plan canon paths may re-export generic_loop_canon only
+do not add new consumers of the old paths
+do not delete the old paths without a separate retire card and targeted gate
+```
+
+Thin mod.rs pilot:
+
+```text
+landed 2026-06-13
+src/mir/builder/schedule/mod.rs collapsed to src/mir/builder/schedule.rs
+module path remains crate::mir::builder::schedule::block
+collapse one pure re-export mod.rs per cleanup pilot
+```
+
 Pilot rule:
 
 ```text
