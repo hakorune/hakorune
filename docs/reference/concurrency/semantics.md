@@ -55,6 +55,7 @@ Mimalloc reading:
 | CONC-3 | LLVM harness parity for Phase-0 futures. | done |
 | CONC-4 | VM+LLVM smoke wiring. | done |
 | CONC-FUTURE-SEM-001 | MIRBuilder Future boundary for `nowait` / `await` is pinned, and MIR JSON producer/reader agree on Future opcodes before structured `co` ownership lowering. | landed-code |
+| CONC-CO-MIR-001 | MIRBuilder structured ownership lowering for `co` / compatibility `task_scope`. | pending-design |
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
@@ -187,6 +188,15 @@ Current reference runtime:
   inherit the active `context`/historical `scoped` bindings by snapshot at child
   creation time. The implicit root scope remains best-effort ownership only and
   is not a detached context propagation contract.
+
+Next MIRBuilder row:
+- `CONC-CO-MIR-001` opens `co` / compatibility `task_scope` lowering only as a
+  structured ownership boundary around the already-pinned Future operations.
+- Existing runtime truth is `push_task_scope()` / `pop_task_scope()` /
+  `register_future_to_current_group()` in `src/runtime/global_hooks.rs`.
+- Default design recommendation is runtime hook calls, not new MIR opcodes.
+- Code must wait until `pop_task_scope()` error surfacing is pinned as
+  fail-fast or explicit propagation. Silent ignore is forbidden.
 
 ### Reserved Structured Parallel Surface
 

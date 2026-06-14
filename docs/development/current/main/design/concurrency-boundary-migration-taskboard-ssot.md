@@ -153,6 +153,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-SCHED-ROUTE-001` | landed-code | Pin scheduler route vocabulary and report/check fields for future worker-pool execution routes. | `src/runtime/scheduler_route.rs` + `293x-1001-CONC-SCHED-ROUTE-001-SCHEDULER-ROUTE-VOCABULARY.md` | no default worker-pool activation |
 | `CONC-CAP-INVENTORY-001` | landed-code | Inventory HakoSend/HakoShare/ThreadRoot gaps before cross-worker value movement. | `thread_capability_inventory_report_fields()` + `293x-1002-CONC-CAP-INVENTORY-001-SEND-SHARE-THREAD-ROOT-GAPS.md` | no source semantics change |
 | `CONC-FUTURE-SEM-001` | landed-code | Pin existing MIRBuilder `nowait` / `await` / `Future<T>` boundary and align MIR JSON producer with the already-supported reader opcodes before opening structured ownership lowering. | `293x-1035-CONC-FUTURE-SEM-001-MIRBUILDER-FUTURE-BOUNDARY.md` + `src/mir/builder/stmts/async_stmt.rs` + `src/runner/mir_json_emit/emitters/basic.rs` | no OS thread spawn semantics; no `co` ownership lowering |
+| `CONC-CO-MIR-001` | pending-design | Lower `co` / compatibility `task_scope` as explicit TaskGroup ownership events after the Future boundary is pinned. | `293x-CONC-CO-MIR-001-TASKGROUP-OWNERSHIP-LOWERING.md` | decide runtime hook calls vs metadata-only vs dedicated MIR instructions before code |
 | `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
 | `CONC-CHANNEL-001` | landed-api-docs | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | docs/reference + guard | no wait runtime rewrite |
@@ -287,6 +288,53 @@ Next code-opening row:
 ```text
 CONC-CO-MIR-001
   lower co / compat task_scope as explicit TaskGroup ownership events
+  design choice required before code:
+    runtime hook calls vs metadata-only events vs dedicated MIR instructions
+```
+
+### CONC-CO-MIR-001
+
+This row opens structured `co` / compatibility `task_scope` ownership lowering
+after the Future boundary is pinned.
+
+Existing runtime truth:
+
+```text
+src/runtime/global_hooks.rs
+  push_task_scope()
+  pop_task_scope()
+  register_future_to_current_group(future)
+
+src/runtime/context_snapshot.rs
+  context snapshot value shape
+```
+
+The first executable slice should not create a second TaskGroup truth owner.
+The default recommendation is runtime hook calls:
+
+```text
+co/task_scope enter -> push_task_scope()
+body lowering
+co/task_scope exit -> pop_task_scope()
+```
+
+Design point before code:
+
+```text
+co_taskgroup_lowering_shape=runtime_hook_calls
+co_taskgroup_pop_error_policy=<fail_fast_or_explicit_propagation>
+co_taskgroup_future_registration_owner=runtime_global_hooks
+co_taskgroup_new_mir_opcode_count=0
+```
+
+Stop line:
+
+```text
+no OS thread spawn semantics
+no worker-pool activation
+no worker_scope / parallel parser or MIR lowering
+no Channel / sync-box / context widening
+no silent ignore of pop_task_scope() errors
 ```
 
 ### CONC-CHANNEL-001
