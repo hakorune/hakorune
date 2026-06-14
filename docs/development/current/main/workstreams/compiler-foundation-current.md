@@ -111,8 +111,10 @@ Immediate restart ladder:
    next foundation owner; pick one one-purpose row before implementation
 
 11. Concurrency semantics
-   co/Future/TaskGroup, sync box, Channel, context; worker_scope remains gated
-   on THREAD-SAFETY-001
+   `CONC-FUTURE-SEM-001` pins the existing MIRBuilder Future boundary first;
+   next rows should open co/TaskGroup ownership, context, Channel route facts,
+   and sync box metadata one at a time. `worker_scope` remains gated on
+   THREAD-SAFETY-001
 
 12. Arc retirement
    family-by-family only after callable truth and object identity seams are

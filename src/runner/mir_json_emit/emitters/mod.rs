@@ -107,6 +107,10 @@ fn emit_instruction(
             &func.metadata.value_types,
         )),
         I::Debug { value, message } => Ok(basic::emit_debug(value, message)),
+        I::Safepoint => Ok(basic::emit_safepoint()),
+        I::FutureNew { dst, value } => Ok(basic::emit_future_new(dst, value)),
+        I::FutureSet { future, value } => Ok(basic::emit_future_set(future, value)),
+        I::Await { dst, future } => Ok(basic::emit_await(dst, future)),
         I::FieldGet {
             dst,
             base,

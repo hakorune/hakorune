@@ -219,6 +219,10 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::WeakRef { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::ReleaseStrong { .. }
+            | MirInstruction::Safepoint
+            | MirInstruction::FutureNew { .. }
+            | MirInstruction::FutureSet { .. }
+            | MirInstruction::Await { .. }
             | MirInstruction::Phi { .. }
     )
 }

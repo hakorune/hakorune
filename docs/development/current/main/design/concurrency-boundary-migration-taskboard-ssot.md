@@ -152,6 +152,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-RUNTIME-INVENTORY-001` | landed-docs | Sync current implementation inventory for ThreadApi, WorkerPoolScheduler, FutureBox, and TaskGroupBox before source-level thread design. | `293x-1000-CONC-RUNTIME-INVENTORY-001-THREAD-SUBSTRATE-REALITY.md` | no behavior change |
 | `CONC-SCHED-ROUTE-001` | landed-code | Pin scheduler route vocabulary and report/check fields for future worker-pool execution routes. | `src/runtime/scheduler_route.rs` + `293x-1001-CONC-SCHED-ROUTE-001-SCHEDULER-ROUTE-VOCABULARY.md` | no default worker-pool activation |
 | `CONC-CAP-INVENTORY-001` | landed-code | Inventory HakoSend/HakoShare/ThreadRoot gaps before cross-worker value movement. | `thread_capability_inventory_report_fields()` + `293x-1002-CONC-CAP-INVENTORY-001-SEND-SHARE-THREAD-ROOT-GAPS.md` | no source semantics change |
+| `CONC-FUTURE-SEM-001` | landed-code | Pin existing MIRBuilder `nowait` / `await` / `Future<T>` boundary and align MIR JSON producer with the already-supported reader opcodes before opening structured ownership lowering. | `293x-1035-CONC-FUTURE-SEM-001-MIRBUILDER-FUTURE-BOUNDARY.md` + `src/mir/builder/stmts/async_stmt.rs` + `src/runner/mir_json_emit/emitters/basic.rs` | no OS thread spawn semantics; no `co` ownership lowering |
 | `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
 | `CONC-CHANNEL-001` | landed-api-docs | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | docs/reference + guard | no wait runtime rewrite |
@@ -239,6 +240,53 @@ task_scope remains accepted as compatibility spelling
 diagnostics prefer co for new source
 no runtime owner rename in this row
 runtime/MIR hook lowering stays fail-fast until CONC-CONTEXT-002 or a dedicated co-runtime row
+```
+
+### CONC-FUTURE-SEM-001
+
+This row pins the existing MIRBuilder Future boundary before `co` lowering is
+opened.
+
+Current owner:
+
+```text
+src/mir/builder/stmts/async_stmt.rs
+```
+
+Contract:
+
+```text
+nowait -> evaluate expression -> FutureNew -> Future<T> value type
+await -> evaluate future expression -> Safepoint -> Await -> Safepoint
+nowait_os_thread_spawn=0
+```
+
+MIR JSON bridge:
+
+```text
+producer emits: future_new / future_set / await / safepoint
+reader already accepts: future_new / future_set / await / safepoint
+```
+
+Stop line:
+
+```text
+no source-level thread syntax
+no worker-pool activation
+no reinterpretation of nowait as OS thread spawn
+no co/task_scope ownership lowering in this row
+```
+
+LLVM harness parity is not owned by this row. Current
+`async_min_harness.sh` reaches ny-llvmc and fails with
+`unsupported pure shape for current backend recipe`; track that under a
+dedicated LLVM/backend recipe row if needed.
+
+Next code-opening row:
+
+```text
+CONC-CO-MIR-001
+  lower co / compat task_scope as explicit TaskGroup ownership events
 ```
 
 ### CONC-CHANNEL-001

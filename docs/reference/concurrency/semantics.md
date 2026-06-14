@@ -54,6 +54,7 @@ Mimalloc reading:
 | CONC-2 | Method-call `nowait` lowering unified to Phase-0 future wrapping. | done |
 | CONC-3 | LLVM harness parity for Phase-0 futures. | done |
 | CONC-4 | VM+LLVM smoke wiring. | done |
+| CONC-FUTURE-SEM-001 | MIRBuilder Future boundary for `nowait` / `await` is pinned, and MIR JSON producer/reader agree on Future opcodes before structured `co` ownership lowering. | landed-code |
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
@@ -67,6 +68,40 @@ Terminology note:
   threads.
 - Raw `thread { ... }` is closed.
 - The current runtime scaffold behind that scope is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`.
+
+### MIRBuilder Future Boundary
+
+Current MIRBuilder ownership:
+
+```text
+nowait:
+  expression -> FutureNew -> Future<T> value registration
+
+await:
+  expression -> Safepoint -> Await -> Safepoint
+```
+
+Owner:
+
+```text
+src/mir/builder/stmts/async_stmt.rs
+```
+
+This boundary is `CONC-FUTURE-SEM-001`. Later `co` / `task_scope` lowering must
+add structured ownership events around child Future creation; it must not
+redefine `nowait` as thread spawn.
+
+MIR JSON v0 currently carries this boundary through:
+
+```text
+future_new
+future_set
+await
+safepoint
+```
+
+LLVM harness parity remains a backend recipe concern when it fails after MIR
+JSON emission; do not use that failure to reinterpret source `nowait`.
 - `RoutineScopeBox` is historical wording only; do not use it as the current code name.
 
 ### Blocking & Non-Blocking

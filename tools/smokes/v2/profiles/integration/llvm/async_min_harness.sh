@@ -17,7 +17,7 @@ STDOUT_LOG="$TMP_DIR/stdout.log"
 STDERR_LOG="$TMP_DIR/stderr.log"
 
 set +e
-NYASH_REWRITE_FUTURE=1 "$ROOT/tools/run_llvm_harness.sh" "$APP" >"$STDOUT_LOG" 2>"$STDERR_LOG"
+NYASH_REWRITE_FUTURE=1 bash "$ROOT/tools/run_llvm_harness.sh" "$APP" >"$STDOUT_LOG" 2>"$STDERR_LOG"
 RC=$?
 set -e
 

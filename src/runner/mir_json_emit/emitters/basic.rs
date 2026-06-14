@@ -193,3 +193,31 @@ pub(crate) fn emit_debug(value: &ValueId, message: &str) -> serde_json::Value {
         "message": message
     })
 }
+
+pub(crate) fn emit_safepoint() -> serde_json::Value {
+    json!({"op": "safepoint"})
+}
+
+pub(crate) fn emit_future_new(dst: &ValueId, value: &ValueId) -> serde_json::Value {
+    json!({
+        "op": "future_new",
+        "dst": dst.as_u32(),
+        "value": value.as_u32(),
+    })
+}
+
+pub(crate) fn emit_future_set(future: &ValueId, value: &ValueId) -> serde_json::Value {
+    json!({
+        "op": "future_set",
+        "future": future.as_u32(),
+        "value": value.as_u32(),
+    })
+}
+
+pub(crate) fn emit_await(dst: &ValueId, future: &ValueId) -> serde_json::Value {
+    json!({
+        "op": "await",
+        "dst": dst.as_u32(),
+        "future": future.as_u32(),
+    })
+}

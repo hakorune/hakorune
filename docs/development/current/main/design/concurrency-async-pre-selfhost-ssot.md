@@ -18,6 +18,11 @@ Current status policy:
   implementation table and `CONC-*` vocabulary.
 - This file is the VM+LLVM execution ledger. Historical `Phase 242x` style
   labels below are provenance only; new status summaries should use `CONC-*`.
+- `CONC-FUTURE-SEM-001` pins the MIRBuilder Future boundary:
+  `nowait` lowers to expression evaluation plus `FutureNew`, and `await`
+  lowers to `Safepoint -> Await -> Safepoint`. MIR JSON producer/reader now
+  agree on `future_new` / `future_set` / `await` / `safepoint`. It does not
+  open thread semantics or worker-pool execution.
 - Runtime thread substrate status is owned by
   `docs/reference/runtime/threading.md` and
   `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`.
@@ -118,6 +123,9 @@ Repro (VM):
 
 Repro (LLVM harness):
 - `tools/run_llvm_harness.sh apps/tests/async-await-min/main.hako`
+  - current follow-up: if this reaches ny-llvmc and fails with
+    `unsupported pure shape for current backend recipe`, handle it as a
+    backend recipe row, not as a Future source-semantics change.
 
 ---
 
