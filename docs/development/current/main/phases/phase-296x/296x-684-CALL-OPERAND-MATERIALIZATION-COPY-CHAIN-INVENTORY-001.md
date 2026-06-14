@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: CALL-OPERAND-MATERIALIZATION-COPY-CHAIN-INVENTORY-001
 Scope: Inventory remaining call-operand materialization Copy chains after the
@@ -69,15 +69,55 @@ do not change PHI lifecycle
 do not claim a winner
 ```
 
-## Acceptance
+## Result
 
 ```text
-call_operand_materialization_copy_chain_inventory_active=1
+output_contract=hako-mimalloc-call-operand-materialization-copy-chain-inventory-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-683
-inventory_run=0
-selected_next_owner=0
+copy_count=55
+call_operand_route_carrier_copy_count=29
+call_adjacent_copy_count=29
+call_operand_chain_count=26
+call_operand_unique_copy_count=29
+same_block_call_operand_chain_count=26
+cross_block_call_operand_chain_count=0
+same_block_root_call_operand_chain_count=9
+cross_block_root_call_operand_chain_count=14
+unknown_root_call_operand_chain_count=3
+receiver_operand_chain_count=17
+arg_operand_chain_count=9
+max_call_operand_chain_len=2
+safe_forwarding_candidate_count=9
+dominance_required_candidate_count=14
+selected_next_owner=call_operand_materialization_forwarding_design
+selected_owner_confidence=medium
+next_task=call_operand_materialization_forwarding_design
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
+```
+
+Interpretation:
+
+```text
+All call-operand Copy chains have same-block Copy definitions, but only nine
+chains have a same-block root. Fourteen chains need dominance/visibility design
+before forwarding, and three roots are unknown/parameter-like. Do not implement
+from inventory alone.
+```
+
+## Acceptance
+
+```text
+call_operand_materialization_copy_chain_inventory_landed=1
+source_evidence=296x-683
+inventory_run=1
+selected_next_owner=call_operand_materialization_forwarding_design
+selected_owner_confidence=medium
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
 ```
