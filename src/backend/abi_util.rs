@@ -7,12 +7,9 @@
 
 use crate::backend::runtime_type_tag::{tag_from_vmvalue, tag_to_str};
 use crate::backend::vm::VMValue;
-use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox};
+use crate::box_trait::{BoolBox, IntegerBox, StringBox};
 use crate::boxes::null_box::NullBox;
 use std::sync::Arc;
-
-/// Opaque handle type used by JIT/runtime bridges.
-pub type Handle = u64;
 
 /// Convert a VMValue to boolean using unified, fail-fast semantics (Phase 275 A1).
 /// SSOT: docs/reference/language/types.md (Section 3: Boolean Context)
@@ -106,22 +103,6 @@ pub fn eq_vm(a: &VMValue, b: &VMValue) -> bool {
 /// (Delegates to runtime_type_tag.rs for SSOT consolidation)
 pub fn tag_of_vm(v: &VMValue) -> &'static str {
     tag_to_str(tag_from_vmvalue(v))
-}
-
-/// Wrap a NyashBox object into a handle using runtime handle registry.
-/// This keeps a single handle mechanism across backends.
-/// ARCHIVED: JIT handle implementation moved to archive/jit-cranelift/ during Phase 15
-pub fn handle_of(_boxref: Arc<dyn NyashBox>) -> Handle {
-    // TODO: Implement handle registry for Phase 15 VM/LLVM backends
-    // For now, use a simple 0-handle placeholder
-    0
-}
-
-/// Try to resolve a handle back to a Box object.
-/// ARCHIVED: JIT handle implementation moved to archive/jit-cranelift/ during Phase 15
-pub fn handle_get(_h: Handle) -> Option<Arc<dyn NyashBox>> {
-    // TODO: Implement handle registry for Phase 15 VM/LLVM backends
-    None
 }
 
 #[cfg(test)]
