@@ -24,6 +24,14 @@ impl LocalKind {
     fn can_forward_same_block_copy_to_receiver(self) -> bool {
         matches!(self, LocalKind::Recv)
     }
+
+    #[inline]
+    fn can_forward_field_get_alias_to_consumer(self) -> bool {
+        matches!(
+            self,
+            LocalKind::Arg | LocalKind::CompareOperand | LocalKind::FieldBase
+        )
+    }
 }
 
 impl LocalKind {
@@ -124,6 +132,82 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Await { .. } => "Await",
         MirInstruction::Select { .. } => "Select",
     }
+}
+
+#[derive(Clone, Debug)]
+struct FieldGetAliasRoot {
+    value: ValueId,
+    block: crate::mir::BasicBlockId,
+    field: String,
+}
+
+fn find_value_def(
+    builder: &MirBuilder,
+    value: ValueId,
+) -> Option<(crate::mir::BasicBlockId, MirInstruction)> {
+    let func = builder.scope_ctx.current_function.as_ref()?;
+    for (bid, block) in func.blocks.iter() {
+        for inst in &block.instructions {
+            if inst.dst_value() == Some(value) {
+                return Some((*bid, inst.clone()));
+            }
+        }
+        if let Some(term) = &block.terminator {
+            if term.dst_value() == Some(value) {
+                return Some((*bid, term.clone()));
+            }
+        }
+    }
+    None
+}
+
+fn field_get_alias_root(builder: &MirBuilder, seed: ValueId) -> Option<FieldGetAliasRoot> {
+    let mut current = seed;
+    let mut seen = std::collections::BTreeSet::new();
+    for _ in 0..8 {
+        if !seen.insert(current) {
+            return None;
+        }
+        let (block, inst) = find_value_def(builder, current)?;
+        match inst {
+            MirInstruction::Copy { src, .. } => current = src,
+            MirInstruction::FieldGet { dst, field, .. } => {
+                return Some(FieldGetAliasRoot {
+                    value: dst,
+                    block,
+                    field,
+                });
+            }
+            _ => return None,
+        }
+    }
+    None
+}
+
+fn has_dominated_same_field_set_after_root(
+    builder: &MirBuilder,
+    root_block: crate::mir::BasicBlockId,
+    current_block: crate::mir::BasicBlockId,
+    field: &str,
+) -> bool {
+    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+        return true;
+    };
+    let dominators = crate::mir::verification::utils::compute_dominators(func);
+    if !dominators.dominates(root_block, current_block) {
+        return true;
+    }
+    for (bid, block) in func.blocks.iter() {
+        if !dominators.dominates(root_block, *bid) {
+            continue;
+        }
+        for inst in block.instructions.iter().chain(block.terminator.iter()) {
+            if matches!(inst, MirInstruction::FieldSet { field: f, .. } if f == field) {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 /// Ensure a value has an in-block definition and cache it per (bb, orig, kind).
@@ -360,6 +444,20 @@ fn ensure_inner(
             // coalescing.
             builder.local_ssa_map.insert(key, v);
             return Ok(v);
+        }
+
+        if kind.can_forward_field_get_alias_to_consumer() {
+            if let Some(root) = field_get_alias_root(builder, v) {
+                if !has_dominated_same_field_set_after_root(builder, root.block, bb, &root.field) {
+                    // 296x-672: Narrow dominance-aware alias forwarding for
+                    // FieldGet-origin copy chains. This is intentionally not
+                    // arbitrary copy coalescing: only direct expression
+                    // consumers may reuse a root FieldGet value, and any
+                    // visible same-field mutation blocks the forwarding.
+                    builder.local_ssa_map.insert(key, root.value);
+                    return Ok(root.value);
+                }
+            }
         }
 
         if kind.can_forward_same_block_copy_to_receiver()

@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-673-POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -52,9 +52,9 @@ Scope: current lane / next lane / restart order only.
   implementation did not reduce the target count, function-wide origin repair
   showed the current owner is field_get-origin copy chains, 296x-670 selected
   `cross_block_field_get_alias_copy_chain` with four candidates, and 296x-671
-  selected `keeper_shape=dominance_alias`; the next step is the narrow
-  dominance-aware field_get alias keeper with body-timing remeasurement before
-  any winner claim
+  selected `keeper_shape=dominance_alias`; 296x-672 removed that selected
+  candidate family but did not materially close the body-time gap, so the next
+  step is post-keeper owner refresh before any further code changes
 - compiler foundation is paused at
   `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
@@ -188,7 +188,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-673-POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`

@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001 dominance-aware field_get alias keeper"
+active_lane = "POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001 post-keeper owner refresh"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -33,7 +33,14 @@ covered_by_existing_rule_count=0. CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-
 selected keeper_shape=dominance_alias with safe_alias_candidate_count=4,
 root_dominates_candidate_count=4, and same_field_mutation_candidate_count=0.
 The active row implements only that narrow keeper and must remeasure body timing
-before any winner claim. The previous keeper is BOOL-SCALAR-LOWERING-001 for
+before any winner claim. CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001
+removed the selected candidate family: forwarding_candidate_copy_count_after=0,
+copy_count=69, expression_materialization_copy_count=3. Body timing was
+remeasured with hako_body_elapsed_ns=364000000, c_body_elapsed_ns=3922424, and
+body_elapsed_ratio=92.800, which is not enough for a winner claim. The active
+row refreshes the post-keeper owner because the dominant shape moved toward
+page_hotpath_helper_attribution / result_materialization. The previous keeper is
+BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
 a startup sentinel, not the kernel optimization front. Product NyRT startup,
 Type ABI / plugin ABI, MIRBuilder truth changes, Arc retirement, and object
@@ -42,15 +49,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-673-POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001.md"
 
-latest_card = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md"
-latest_card_summary = """CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001
-implements only the dominance-aware field_get alias keeper selected by 296x-671.
-It must keep arbitrary copy coalescing closed and remeasure body timing before
-any winner claim."""
-current_blocker_token = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001-ACTIVE"
+latest_card = "POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-673-POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001.md"
+latest_card_summary = """POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001
+refreshes the next MIR/body owner after 296x-672 removed the selected field_get
+alias candidate family but did not materially close the body timing gap."""
+current_blocker_token = "POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
