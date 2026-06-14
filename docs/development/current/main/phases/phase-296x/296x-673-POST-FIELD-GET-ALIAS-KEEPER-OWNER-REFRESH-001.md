@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001
 Scope: Refresh the MIR/body owner after 296x-672 removed the selected
@@ -51,6 +51,39 @@ winner_claim=0
 summary=ok
 ```
 
+## Result
+
+```text
+output_contract=hako-mimalloc-post-field-get-alias-keeper-owner-refresh-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+hako_body_elapsed_ns=364000000
+c_body_elapsed_ns=3922424
+body_elapsed_ratio=92.800
+gap_owner=compiler_lowering
+copy_count=69
+expression_materialization_copy_count=3
+dominant_copy_owner=result_materialization
+dominant_dynamic_owner=page_hotpath_helper_attribution
+dominant_position=call_adjacent
+dominant_route_carrier_role=call_operand
+page_hotpath_helpers_call_count=5
+page_hotpath_helpers_attributed_copy_count=22
+result_materialization_copy_count=21
+selected_next_owner=page_hotpath_helper_result_materialization_copy_chain
+selected_owner_confidence=medium
+next_task=page_hotpath_helper_result_materialization_inventory
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_post_field_get_alias_keeper_owner_refresh_guard.sh
+```
+
 ## Stop Line
 
 ```text
@@ -66,10 +99,10 @@ do not touch allocator provider activation
 ```text
 post_field_get_alias_keeper_owner_refresh_active=1
 source_evidence=296x-672
-owner_refresh_run=0
-selected_next_owner=0
+owner_refresh_run=1
+selected_next_owner=page_hotpath_helper_result_materialization_copy_chain
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
 ```
