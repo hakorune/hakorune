@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001 call operand cfg-stable receiver rewrite design"
+active_lane = "CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-GUARD-SURFACE-001 call operand cfg-stable receiver rewrite guard surface"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -117,8 +117,10 @@ post_call_operand_unique_copy_count<=14.
 CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001 rejected the
 LocalSSA emission-time seam before commit: the best narrow attempt left one
 candidate, while observed-CFG dominance perturbation regressed the target family
-to 12 candidates. The active row designs a CFG-stable receiver rewrite owner
-before another implementation attempt.
+to 12 candidates. CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001 selected
+mir_passes_callsite_canonicalize_receiver_operand_rewrite as the CFG-stable
+owner. The active row fixes the implementation guard surface before code
+changes.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -130,14 +132,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-694-CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-695-CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-GUARD-SURFACE-001.md"
 
-latest_card = "CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-694-CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001.md"
-latest_card_summary = """CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001
-designs the CFG-stable owner for dominance-required receiver operand rewriting
-after the LocalSSA emission-time seam was rejected."""
-current_blocker_token = "CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001-ACTIVE"
+latest_card = "CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-GUARD-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-695-CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-GUARD-SURFACE-001.md"
+latest_card_summary = """CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-GUARD-SURFACE-001
+fixes the post-implementation guard surface after 296x-694 selected the
+callsite canonicalization pass family as the CFG-stable owner."""
+current_blocker_token = "CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-GUARD-SURFACE-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

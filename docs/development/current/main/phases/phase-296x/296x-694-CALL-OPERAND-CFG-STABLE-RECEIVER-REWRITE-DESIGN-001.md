@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001
 Scope: Design the CFG-stable owner for dominance-required receiver operand
@@ -73,11 +73,49 @@ forbidden:
 ## Acceptance
 
 ```text
-call_operand_cfg_stable_receiver_rewrite_design_active=1
+call_operand_cfg_stable_receiver_rewrite_design_landed=1
 source_evidence=296x-693
-selected_owner=0
+selected_owner=mir_passes_callsite_canonicalize_receiver_operand_rewrite
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
+```
+
+## Result
+
+```text
+output_contract=hako-mimalloc-call-operand-cfg-stable-receiver-rewrite-design-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-693
+selected_owner=mir_passes_callsite_canonicalize_receiver_operand_rewrite
+selected_owner_reason=callsite_canonicalize_already_owns_cfg_stable_callsite_rewrites_in_late_call_and_inline
+selected_keeper_shape=cfg_stable_dominance_guarded_receiver_operand_rewrite
+pre_selected_keeper_candidate_count=13
+post_selected_keeper_candidate_count_target=0
+arg_forwarding_enabled=0
+requires_cfg_stable_dominance_guard=1
+dominance_source=final_mir_cfg_successors
+receiver_only_rewrite=1
+unknown_root_forwarding_enabled=0
+helper_name_special_case=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
+source_hako_changed=0
+startup_lane_reopened=0
+implementation_started=0
+optimization_open=0
+winner_claim=0
+next_task=call_operand_cfg_stable_receiver_rewrite_guard_surface
+summary=ok
+```
+
+Interpretation:
+
+```text
+The owner is the CFG-stable callsite canonicalization pass family, not
+LocalSSA emission. The implementation may rewrite only Method receiver
+operands whose Copy-chain root is known and dominates the call block in final
+MIR CFG. Arg operands, unknown-root chains, helper-name seams, variable_map,
+PHI lifecycle, source .hako, and startup remain closed.
 ```
