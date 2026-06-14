@@ -5,6 +5,7 @@ Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/20-Decisions.md
 - docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md
+- docs/development/current/main/design/local-patch-prevention-ssot.md
 - docs/development/current/main/phases/archive/phase-29br/README.md
 ---
 
@@ -96,6 +97,19 @@ CorePlan 周辺の表現力が足りない状態でパターンを増やすと�
 - 判定: `BoxCount` / `BoxShape`
 - 根拠: （1行で）`planner_required None→freeze` / `責務混線で修正が連鎖` など
 - 次の一手: （1つだけ）`最小箱Xを追加してgate固定` / `箱Yを分割してSSOT+入口集約` など
+
+### Local-patch two-strike rule
+
+同じ失敗クラスに局所パッチを 2 回入れたら、実装を止めて BoxShape audit に切り替える。
+
+```text
+same failure class + 2 local patches
+  -> stop the line
+  -> SSOT boundary first
+  -> guard / fixture before more code
+```
+
+詳細 SSOT: `docs/development/current/main/design/local-patch-prevention-ssot.md`
 
 ## Follow-up cleanup (planned)
 

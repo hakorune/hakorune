@@ -216,6 +216,12 @@ pub(super) fn lower_block_internal<'a>(
                         body_contract,
                         ..
                     } => {
+                        for (name, value_id) in current_bindings.iter() {
+                            builder
+                                .variable_ctx
+                                .variable_map
+                                .insert(name.clone(), *value_id);
+                        }
                         let plan = super::super::loop_::lower_loop_v0(
                             builder,
                             current_bindings,
@@ -421,8 +427,8 @@ pub(super) fn lower_exit_allowed_block(
     verify::debug_check_block_contract(arena, block, error_prefix)?;
 
     let mut plans = Vec::new();
-    for item in &block.items {
-        plans.extend(lower_exit_only_item(
+    for item in block.items.iter() {
+        let mut item_plans = lower_exit_only_item(
             builder,
             current_bindings,
             carrier_step_phis,
@@ -431,7 +437,8 @@ pub(super) fn lower_exit_allowed_block(
             block.body_id,
             item,
             error_prefix,
-        )?);
+        )?;
+        plans.append(&mut item_plans);
         if plans_exit_on_all_paths(&plans) {
             break;
         }

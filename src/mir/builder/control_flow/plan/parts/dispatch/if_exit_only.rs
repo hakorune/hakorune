@@ -59,6 +59,12 @@ pub(super) fn lower_exit_only_item(
             body_contract,
             ..
         } => {
+            for (name, value_id) in current_bindings.iter() {
+                builder
+                    .variable_ctx
+                    .variable_map
+                    .insert(name.clone(), *value_id);
+            }
             let plan = super::super::loop_::lower_loop_v0(
                 builder,
                 current_bindings,

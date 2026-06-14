@@ -82,6 +82,12 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
         ASTNode::Loop {
             condition, body, ..
         } => {
+            for (name, value_id) in current_bindings.iter() {
+                builder
+                    .variable_ctx
+                    .variable_map
+                    .insert(name.clone(), *value_id);
+            }
             // Prefer the recipe-first nested-loop lowering path when possible.
             // Keep the unified nested_loop_depth1 path as a fallback to avoid acceptance loss.
             let any_err =

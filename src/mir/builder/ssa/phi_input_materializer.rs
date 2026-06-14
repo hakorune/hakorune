@@ -171,6 +171,8 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
     func: &mut MirFunction,
     context: &str,
 ) -> Result<usize, String> {
+    let mut changed = prune_unused_phi_instructions(func);
+    changed += complete_missing_self_carried_phi_inputs(func);
     let mut work = Vec::new();
     for (block_id, block) in &func.blocks {
         for (inst_idx, inst) in block.instructions.iter().enumerate() {
@@ -182,7 +184,6 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
         }
     }
 
-    let mut changed = 0usize;
     for (block_id, inst_idx, input_idx, pred, incoming) in work {
         let materialized = for_pred(func, pred, incoming, context, "phi")?;
         if materialized == incoming {
@@ -212,4 +213,353 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
     }
 
     Ok(changed)
+}
+
+fn prune_unused_phi_instructions(func: &mut MirFunction) -> usize {
+    let mut used = HashSet::new();
+    for block in func.blocks.values() {
+        for inst in block.all_instructions() {
+            for value in inst.used_values() {
+                used.insert(value);
+            }
+        }
+    }
+
+    let mut changed = 0usize;
+    for block in func.blocks.values_mut() {
+        let mut remove_indices = Vec::new();
+        for (idx, inst) in block.instructions.iter().enumerate() {
+            let MirInstruction::Phi { dst, .. } = inst else {
+                continue;
+            };
+            if !used.contains(dst) {
+                remove_indices.push(idx);
+            }
+        }
+
+        for idx in remove_indices.into_iter().rev() {
+            block.instructions.remove(idx);
+            if idx < block.instruction_spans.len() {
+                block.instruction_spans.remove(idx);
+            }
+            changed += 1;
+        }
+    }
+    changed
+}
+
+fn complete_missing_self_carried_phi_inputs(func: &mut MirFunction) -> usize {
+    func.update_cfg();
+    let preds = crate::mir::verification::utils::compute_predecessors(func);
+    let reachable = crate::mir::verification::utils::compute_reachable_blocks(func);
+    let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
+    let dominators = crate::mir::verification::utils::compute_dominators(func);
+
+    let mut additions = Vec::new();
+    for (block_id, block) in &func.blocks {
+        if !reachable.contains(block_id) {
+            continue;
+        }
+        let Some(expected_preds) = preds.get(block_id) else {
+            continue;
+        };
+
+        for (inst_idx, inst) in block.instructions.iter().enumerate() {
+            let MirInstruction::Phi { dst, inputs, .. } = inst else {
+                continue;
+            };
+            let input_preds: HashSet<BasicBlockId> = inputs.iter().map(|(pred, _)| *pred).collect();
+
+            for pred in expected_preds {
+                if !reachable.contains(pred) || input_preds.contains(pred) {
+                    continue;
+                }
+                // A missing input can be completed as "unchanged on this edge"
+                // only when the PHI definition block dominates that predecessor.
+                // This covers loop-invariant / unchanged-carrier backedges while
+                // avoiding fabricated values for unrelated merge predecessors.
+                if dominators.dominates(*block_id, *pred) {
+                    additions.push((*block_id, inst_idx, *pred, *dst));
+                    continue;
+                }
+
+                let mut dominating_inputs = inputs
+                    .iter()
+                    .filter_map(|(_, incoming)| {
+                        let def_bb = def_blocks.get(incoming).copied()?;
+                        dominators.dominates(def_bb, *pred).then_some(*incoming)
+                    })
+                    .collect::<Vec<_>>();
+                dominating_inputs.sort_by_key(|value| value.0);
+                dominating_inputs.dedup();
+                if dominating_inputs.len() == 1 {
+                    additions.push((*block_id, inst_idx, *pred, dominating_inputs[0]));
+                }
+            }
+        }
+    }
+
+    let changed = additions.len();
+    for (block_id, inst_idx, pred, dst) in additions {
+        let Some(block) = func.get_block_mut(block_id) else {
+            continue;
+        };
+        let Some(MirInstruction::Phi { inputs, .. }) = block.instructions.get_mut(inst_idx) else {
+            continue;
+        };
+        if !inputs
+            .iter()
+            .any(|(existing_pred, _)| *existing_pred == pred)
+        {
+            inputs.push((pred, dst));
+        }
+    }
+    changed
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{BasicBlock, ConstValue, FunctionSignature, MirType};
+
+    fn test_signature(name: &str) -> FunctionSignature {
+        FunctionSignature {
+            name: name.to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: crate::mir::EffectMask::PURE,
+        }
+    }
+
+    #[test]
+    fn completes_self_carried_phi_input_for_dominated_backedge() {
+        let mut func = MirFunction::new(test_signature("self_carried"), BasicBlockId::new(0));
+        func.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(2)));
+
+        let seed = func.next_value_id();
+        let phi = func.next_value_id();
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: seed,
+                value: ConstValue::Integer(0),
+            });
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(1),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .add_instruction(MirInstruction::Phi {
+                dst: phi,
+                inputs: vec![(BasicBlockId::new(0), seed)],
+                type_hint: None,
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(2),
+                edge_args: None,
+            });
+        let body_use = func.next_value_id();
+        func.get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .add_instruction(MirInstruction::Copy {
+                dst: body_use,
+                src: phi,
+            });
+        func.get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(1),
+                edge_args: None,
+            });
+
+        let changed = materialize_all_phi_inputs(&mut func, "test").unwrap();
+        assert_eq!(changed, 1);
+
+        let header = func.get_block(BasicBlockId::new(1)).unwrap();
+        let MirInstruction::Phi { inputs, .. } = &header.instructions[0] else {
+            panic!("expected phi");
+        };
+        assert!(inputs.contains(&(BasicBlockId::new(2), phi)));
+    }
+
+    #[test]
+    fn does_not_complete_missing_input_for_undominated_merge_pred() {
+        let mut func = MirFunction::new(test_signature("merge"), BasicBlockId::new(0));
+        func.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(3)));
+
+        let cond = func.next_value_id();
+        let branch_local = func.next_value_id();
+        let phi = func.next_value_id();
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: cond,
+                value: ConstValue::Integer(0),
+            });
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: cond,
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: branch_local,
+                value: ConstValue::Integer(1),
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(3),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(3),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(3))
+            .unwrap()
+            .add_instruction(MirInstruction::Phi {
+                dst: phi,
+                inputs: vec![(BasicBlockId::new(1), branch_local)],
+                type_hint: None,
+            });
+
+        let changed = complete_missing_self_carried_phi_inputs(&mut func);
+        assert_eq!(changed, 0);
+
+        let merge = func.get_block(BasicBlockId::new(3)).unwrap();
+        let MirInstruction::Phi { inputs, .. } = &merge.instructions[0] else {
+            panic!("expected phi");
+        };
+        assert_eq!(inputs.len(), 1);
+    }
+
+    #[test]
+    fn completes_missing_input_with_single_dominating_existing_incoming() {
+        let mut func = MirFunction::new(test_signature("unchanged_edge"), BasicBlockId::new(0));
+        func.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(3)));
+
+        let seed = func.next_value_id();
+        let phi = func.next_value_id();
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: seed,
+                value: ConstValue::Integer(0),
+            });
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: seed,
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(3),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(3),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(3))
+            .unwrap()
+            .add_instruction(MirInstruction::Phi {
+                dst: phi,
+                inputs: vec![(BasicBlockId::new(1), seed)],
+                type_hint: None,
+            });
+
+        let changed = complete_missing_self_carried_phi_inputs(&mut func);
+        assert_eq!(changed, 1);
+
+        let merge = func.get_block(BasicBlockId::new(3)).unwrap();
+        let MirInstruction::Phi { inputs, .. } = &merge.instructions[0] else {
+            panic!("expected phi");
+        };
+        assert!(inputs.contains(&(BasicBlockId::new(2), seed)));
+    }
+
+    #[test]
+    fn prunes_unused_phi_before_missing_input_validation() {
+        let mut func = MirFunction::new(test_signature("unused_phi"), BasicBlockId::new(0));
+        func.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(3)));
+
+        let cond = func.next_value_id();
+        let branch_local = func.next_value_id();
+        let phi = func.next_value_id();
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: cond,
+                value: ConstValue::Integer(0),
+            });
+        func.get_block_mut(BasicBlockId::new(0))
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition: cond,
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: branch_local,
+                value: ConstValue::Integer(1),
+            });
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(3),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(3),
+                edge_args: None,
+            });
+        func.get_block_mut(BasicBlockId::new(3))
+            .unwrap()
+            .add_instruction(MirInstruction::Phi {
+                dst: phi,
+                inputs: vec![(BasicBlockId::new(1), branch_local)],
+                type_hint: None,
+            });
+
+        let changed = materialize_all_phi_inputs(&mut func, "test").unwrap();
+        assert_eq!(changed, 1);
+        assert!(func
+            .get_block(BasicBlockId::new(3))
+            .unwrap()
+            .instructions
+            .is_empty());
+    }
 }

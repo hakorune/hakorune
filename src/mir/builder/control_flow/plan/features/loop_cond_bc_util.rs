@@ -232,6 +232,7 @@ fn lower_value_stmt_with_blockexpr_loop_prelude(
         }
     }
 
+    let outer_binding_names: Vec<String> = current_bindings.keys().cloned().collect();
     let mut block_bindings = current_bindings.clone();
     let mut plans = Vec::new();
     for stmt in prelude_stmts {
@@ -251,6 +252,12 @@ fn lower_value_stmt_with_blockexpr_loop_prelude(
     let (tail_id, tail_effects) =
         PlanNormalizer::lower_value_ast(tail_expr.as_ref(), builder, &block_bindings)?;
     plans.extend(effects_to_plans(tail_effects));
+    for name in outer_binding_names {
+        if let Some(value_id) = block_bindings.get(&name).copied() {
+            current_bindings.insert(name.clone(), value_id);
+            builder.variable_ctx.variable_map.insert(name, value_id);
+        }
+    }
     Ok((tail_id, plans))
 }
 

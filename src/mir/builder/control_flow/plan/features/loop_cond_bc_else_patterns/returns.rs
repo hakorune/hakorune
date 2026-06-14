@@ -183,19 +183,20 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_ret
         &should_update_binding,
     )?;
 
-    let Some(fallthrough_end_map) = fallthrough_end_map else {
+    let Some(_fallthrough_end_map) = fallthrough_end_map else {
         return Err(format!(
             "{LOOP_COND_ERR}: ElseOnlyReturnIf missing fallthrough end map"
         ));
     };
-    let Some(fallthrough_end_bindings) = fallthrough_end_bindings else {
+    let Some(_fallthrough_end_bindings) = fallthrough_end_bindings else {
         return Err(format!(
             "{LOOP_COND_ERR}: ElseOnlyReturnIf missing fallthrough end bindings"
         ));
     };
 
-    builder.variable_ctx.variable_map = fallthrough_end_map;
-    *current_bindings = fallthrough_end_bindings;
+    // `if_join` owns continuation state application. The captured fallthrough
+    // snapshots only prove that the continuing branch lowered; applying them
+    // here would leak branch-local values outside their CFG dominance region.
 
     Ok(if_plans)
 }
@@ -368,19 +369,20 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_ret
         &should_update_binding,
     )?;
 
-    let Some(fallthrough_end_map) = fallthrough_end_map else {
+    let Some(_fallthrough_end_map) = fallthrough_end_map else {
         return Err(format!(
             "{LOOP_COND_ERR}: ThenOnlyReturnIf missing fallthrough end map"
         ));
     };
-    let Some(fallthrough_end_bindings) = fallthrough_end_bindings else {
+    let Some(_fallthrough_end_bindings) = fallthrough_end_bindings else {
         return Err(format!(
             "{LOOP_COND_ERR}: ThenOnlyReturnIf missing fallthrough end bindings"
         ));
     };
 
-    builder.variable_ctx.variable_map = fallthrough_end_map;
-    *current_bindings = fallthrough_end_bindings;
+    // `if_join` owns continuation state application. The captured fallthrough
+    // snapshots only prove that the continuing branch lowered; applying them
+    // here would leak branch-local values outside their CFG dominance region.
 
     Ok(if_plans)
 }

@@ -71,11 +71,20 @@ impl super::PlanLowerer {
                 builder.ensure_block_exists(frame.break_target)?;
                 let phi_args_len = phi_args.len();
                 for (dst, src) in phi_args {
+                    // Match ContinueWithPhiArgs: PHI incoming values are edge
+                    // values and must be valid at the emitting predecessor.
+                    // Localize here so branch-local/pure values are copied or
+                    // rematerialized before the break edge records them.
+                    let incoming = crate::mir::builder::ssa::local::try_ensure(
+                        builder,
+                        src,
+                        crate::mir::builder::ssa::local::LocalKind::Arg,
+                    )?;
                     frame
                         .break_phi_inputs
                         .entry(dst)
                         .or_default()
-                        .insert(current_bb, src);
+                        .insert(current_bb, incoming);
                 }
                 builder.emit_instruction(MirInstruction::Jump {
                     target: frame.break_target,

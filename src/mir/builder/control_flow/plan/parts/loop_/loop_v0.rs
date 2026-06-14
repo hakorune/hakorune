@@ -92,12 +92,8 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     let frame = build_coreloop_frame(builder, &carrier_vars, &carrier_inits, LOOP_V0_ERR)?;
 
     let mut break_phi_dsts = BTreeMap::new();
-    let mut after_phis: Vec<CorePhiInfo> = Vec::new();
     for var in &carrier_vars {
         let Some(&init_val) = carrier_inits.get(var) else {
-            continue;
-        };
-        let Some(&header_phi_dst) = frame.carrier_header_phis.get(var) else {
             continue;
         };
         let ty = builder
@@ -107,13 +103,6 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             .unwrap_or(MirType::Unknown);
         let after_phi_dst = builder.alloc_typed(ty);
         break_phi_dsts.insert(var.clone(), after_phi_dst);
-        after_phis.push(loop_carriers::build_after_merge_phi_info(
-            frame.after_bb,
-            after_phi_dst,
-            [frame.header_bb],
-            header_phi_dst,
-            format!("loop_v0_after_{}", var),
-        ));
     }
 
     // Bind carriers to header PHI values during condition + body lowering.
@@ -138,7 +127,39 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         empty_carriers_args(),
         LOOP_V0_ERR,
     )?;
+    // The loop header condition may lower into short-circuit helper blocks.
+    // Each concrete block that branches to after_bb is a real PHI predecessor,
+    // so after PHIs must seed all such normal-exit edges.
+    let mut after_cond_preds = header_result.preds_to(frame.after_bb);
+    if after_cond_preds.is_empty() {
+        after_cond_preds.insert(frame.header_bb);
+    }
+    let mut after_phis: Vec<CorePhiInfo> = Vec::new();
+    for var in &carrier_vars {
+        let Some(&header_phi_dst) = frame.carrier_header_phis.get(var) else {
+            continue;
+        };
+        let Some(&after_phi_dst) = break_phi_dsts.get(var) else {
+            continue;
+        };
+        after_phis.push(loop_carriers::build_after_merge_phi_info(
+            frame.after_bb,
+            after_phi_dst,
+            after_cond_preds.iter().copied(),
+            header_phi_dst,
+            format!("loop_v0_after_{}", var),
+        ));
+    }
 
+    // Header condition lowering may leave `variable_map` pointing at
+    // condition-local temporaries. The loop body starts from the header carrier
+    // PHIs, so re-seal carrier names before lowering body statements.
+    for (name, value_id) in &frame.carrier_header_phis {
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
+    }
     // Body lowering (Verifier-gated), in a fresh binding map.
     let mut body_bindings = loop_bindings;
     let mut pre_bindings_for_verify = body_bindings.clone();
@@ -227,7 +248,6 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             )?
         }
     };
-
     // Fallthrough: explicit backedge with carrier values (fills step-join PHIs).
     let mut body_plans = body_plans;
     let mut body_defined_values = BTreeSet::new();

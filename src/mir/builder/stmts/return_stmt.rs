@@ -130,7 +130,8 @@ pub(in crate::mir::builder) fn try_apply_match_return_optimization(
     if strict_or_dev {
         match try_extract_match_return_facts(expr, true) {
             Ok(Some(facts)) => {
-                if let Some(return_value) = adopt_match_return_coreplan(builder, &facts, emit_tag)?
+                if let Some(return_value) =
+                    adopt_match_return_coreplan(builder, &facts, emit_tag && strict_or_dev)?
                 {
                     return Ok(Some(return_value));
                 }
@@ -139,7 +140,9 @@ pub(in crate::mir::builder) fn try_apply_match_return_optimization(
             Err(freeze) => return Err(freeze.to_string()),
         }
     } else if let Ok(Some(facts)) = try_extract_match_return_facts(expr, false) {
-        if let Ok(Some(return_value)) = adopt_match_return_coreplan(builder, &facts, emit_tag) {
+        if let Ok(Some(return_value)) =
+            adopt_match_return_coreplan(builder, &facts, emit_tag && strict_or_dev)
+        {
             return Ok(Some(return_value));
         }
     }

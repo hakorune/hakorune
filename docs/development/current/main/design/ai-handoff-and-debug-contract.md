@@ -20,6 +20,9 @@ It is designed to prevent “works on my machine” drift, SSOT mismatches (Fact
 - `planner_required` must fail-fast: no silent fallback to legacy behavior.
 - 1 blocker = 1 accepted shape = 1 fixture + fast gate = 1 commit (no mixed fixes).
 - If a change expands an accepted shape, update observation SSOT in the same commit (StepTree / extractor / parity).
+- If the same failure class receives two local patches, stop implementation and
+  write/update the boundary SSOT plus guard first. SSOT:
+  `docs/development/current/main/design/local-patch-prevention-ssot.md`.
 
 ## Runtime identity (avoid “wrong binary”)
 

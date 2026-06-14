@@ -273,17 +273,22 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         .iter()
         .any(|item| matches!(item, LoopCondBreakContinueItem::ThenOnlyBreakIf { .. }));
     let is_parse_string2 = matches_parse_string2_shape(body);
-    let body_lowering_policy =
-        if !allow_extended || has_then_only_break || is_parse_string2 || program_block_seen {
-            // ProgramBlock items are lowered item-by-item via recipe path.
-            // Forcing ExitAllowed here can reject valid recipes when the whole-body
-            // exit_allowed block is unavailable (e.g. nested-if + break tail shapes).
-            BodyLoweringPolicy::RecipeOnly
-        } else {
-            BodyLoweringPolicy::ExitAllowed {
-                allow_join_if: false,
-            }
-        };
+    let body_lowering_policy = if !allow_extended
+        || has_then_only_break
+        || is_parse_string2
+        || program_block_seen
+        || nested_seen > 0
+    {
+        // ProgramBlock and nested-loop items are lowered item-by-item via recipe path.
+        // Forcing ExitAllowed here can reject valid recipes when the whole-body
+        // exit_allowed block is unavailable or when nested bodies depend on a
+        // preceding sibling statement's value.
+        BodyLoweringPolicy::RecipeOnly
+    } else {
+        BodyLoweringPolicy::ExitAllowed {
+            allow_join_if: false,
+        }
+    };
 
     let body_exit_allowed = match body_lowering_policy {
         BodyLoweringPolicy::ExitAllowed { .. } => body_exit_allowed_probe

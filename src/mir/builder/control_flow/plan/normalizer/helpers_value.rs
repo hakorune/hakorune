@@ -53,11 +53,21 @@ impl super::PlanNormalizer {
         }
     }
 
+    fn lookup_variable_value(
+        builder: &MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+        name: &str,
+    ) -> Option<ValueId> {
+        let from_map = builder.variable_ctx.variable_map.get(name).copied();
+        let from_bindings = phi_bindings.get(name).copied();
+        from_bindings.or(from_map)
+    }
+
     /// Helper: Lower value AST to (ValueId, const_effects)
     /// Returns the ValueId and any Const instructions needed to define literals
     ///
-    /// phi_bindings: PHI dst for loop variables (takes precedence over variable_map)
-    #[track_caller]
+    /// phi_bindings: current logical bindings for plan lowering. `variable_map`
+    /// is a fallback/cache and may temporarily contain branch-local values.
     pub(in crate::mir::builder) fn lower_value_ast(
         ast: &crate::ast::ASTNode,
         builder: &mut MirBuilder,
@@ -71,20 +81,14 @@ impl super::PlanNormalizer {
 
         match ast {
             ASTNode::Variable { name, .. } => {
-                if let Some(&phi_dst) = phi_bindings.get(name) {
-                    return Ok((phi_dst, vec![]));
-                }
-                if let Some(&value_id) = builder.variable_ctx.variable_map.get(name) {
+                if let Some(value_id) = Self::lookup_variable_value(builder, phi_bindings, name) {
                     Ok((value_id, vec![]))
                 } else {
                     Err(format!("[normalizer] Variable {} not found", name))
                 }
             }
             ASTNode::Me { .. } | ASTNode::This { .. } => {
-                let bound_me = phi_bindings
-                    .get("me")
-                    .copied()
-                    .or_else(|| builder.variable_ctx.variable_map.get("me").copied());
+                let bound_me = Self::lookup_variable_value(builder, phi_bindings, "me");
                 if let Some(value_id) = bound_me {
                     Ok((value_id, vec![]))
                 } else {
@@ -270,15 +274,8 @@ impl super::PlanNormalizer {
                         });
                     }
                     ASTNode::Variable { name, .. } => {
-                        if let Some(&phi_dst) = phi_bindings.get(name) {
-                            arg_effects.push(CoreEffectPlan::MethodCall {
-                                dst: Some(result_id),
-                                object: phi_dst,
-                                method: method.clone(),
-                                args: arg_ids,
-                                effects: EffectMask::PURE.add(Effect::Io),
-                            });
-                        } else if let Some(&value_id) = builder.variable_ctx.variable_map.get(name)
+                        if let Some(value_id) =
+                            Self::lookup_variable_value(builder, phi_bindings, name)
                         {
                             arg_effects.push(CoreEffectPlan::MethodCall {
                                 dst: Some(result_id),

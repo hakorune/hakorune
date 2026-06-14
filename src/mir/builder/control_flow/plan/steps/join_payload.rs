@@ -37,7 +37,6 @@ fn build_join_for_name(
         .unwrap_or(MirType::Unknown);
 
     let dst = builder.alloc_typed(ty);
-
     if joinir_dev::strict_planner_required_debug_enabled() {
         let fn_name = builder
             .scope_ctx

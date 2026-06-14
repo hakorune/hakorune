@@ -173,12 +173,16 @@ pub(super) fn check_phi_predecessors(
                     if reachable.contains(&expected_pred)
                         && !phi_input_preds.contains(&expected_pred)
                     {
+                        let input_pairs: Vec<String> = inputs
+                            .iter()
+                            .map(|(pred, value)| format!("bb{}:%{}", pred.0, value.0))
+                            .collect();
                         errors.push(VerificationError::InvalidPhi {
                             phi_value: *dst,
                             block: *block_id,
                             reason: format!(
-                                "PHI dst={:?} missing input from reachable predecessor bb{} (has inputs from: {:?})",
-                                dst, expected_pred.0, phi_input_preds
+                                "PHI dst={:?} missing input from reachable predecessor bb{} (has inputs from: {:?}; inputs=[{}])",
+                                dst, expected_pred.0, phi_input_preds, input_pairs.join(",")
                             ),
                         });
                     }

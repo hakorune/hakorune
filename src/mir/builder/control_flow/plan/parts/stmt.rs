@@ -131,6 +131,17 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
     stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
+    // `branch_bindings` is the logical state for this plan path. Some branch
+    // probes temporarily mutate `builder.variable_map`; re-seal the current
+    // path's bindings before lowering a statement so map-first value lookup
+    // cannot pick stale branch-local ids.
+    for (name, value_id) in branch_bindings.iter() {
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
+    }
+
     fn block_contains_break_or_continue(block: &RecipeBlock) -> bool {
         for item in &block.items {
             match item {
@@ -524,6 +535,7 @@ fn lower_value_with_blockexpr_loop_prelude_stmt(
         }
     }
 
+    let outer_binding_names: Vec<String> = branch_bindings.keys().cloned().collect();
     let mut block_bindings = branch_bindings.clone();
     let mut plans = Vec::new();
     for stmt in prelude_stmts {
@@ -541,6 +553,12 @@ fn lower_value_with_blockexpr_loop_prelude_stmt(
     let (tail_id, tail_effects) =
         PlanNormalizer::lower_value_ast(tail_expr.as_ref(), builder, &block_bindings)?;
     plans.extend(effects_to_plans(tail_effects));
+    for name in outer_binding_names {
+        if let Some(value_id) = block_bindings.get(&name).copied() {
+            branch_bindings.insert(name.clone(), value_id);
+            builder.variable_ctx.variable_map.insert(name, value_id);
+        }
+    }
     Ok((tail_id, plans))
 }
 

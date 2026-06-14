@@ -15,6 +15,15 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
     value: &ASTNode,
     error_prefix: &str,
 ) -> Result<Vec<CoreEffectPlan>, String> {
+    // `current_bindings` is the logical state for this loop body path. Re-seal
+    // the builder map before lowering the RHS so map-first value lookup cannot
+    // read a stale pre-loop value for carrier variables.
+    for (name, value_id) in current_bindings.iter() {
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
+    }
     let (binding, effects) = loop_body_lowering::lower_assignment_stmt(
         builder,
         current_bindings,

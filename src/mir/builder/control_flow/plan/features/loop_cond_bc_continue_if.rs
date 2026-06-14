@@ -182,24 +182,25 @@ pub(super) fn lower_continue_if_with_else(
         error_prefix,
         then_lowerer,
         Some(else_lowerer),
-        &|_name, _bindings| false,
+        &|name, bindings| carrier_phis.contains_key(name) || bindings.contains_key(name),
     )?;
 
-    let fallthrough_map = fallthrough_map.ok_or_else(|| {
+    let _fallthrough_map = fallthrough_map.ok_or_else(|| {
         format!(
             "[freeze:contract][recipe] continue_if_fallthrough_map_missing: ctx={}",
             error_prefix
         )
     })?;
-    let fallthrough_bindings = fallthrough_bindings.ok_or_else(|| {
+    let _fallthrough_bindings = fallthrough_bindings.ok_or_else(|| {
         format!(
             "[freeze:contract][recipe] continue_if_fallthrough_bindings_missing: ctx={}",
             error_prefix
         )
     })?;
 
-    builder.variable_ctx.variable_map = fallthrough_map;
-    *current_bindings = fallthrough_bindings;
+    // `if_join` owns continuation state application. The captured fallthrough
+    // snapshots only prove that the continuing branch lowered; applying them
+    // here would leak branch-local values outside their CFG dominance region.
 
     Ok(plans)
 }

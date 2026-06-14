@@ -10,7 +10,6 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
     LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
 };
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_cleanup::apply_loop_cond_break_continue_cleanup;
@@ -136,6 +135,18 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         after_cond_preds.insert(header_bb);
     }
 
+    // The loop body observes carrier values through the header PHIs. Route
+    // probes and condition lowering may leave the mutable builder map at a
+    // later path-local value, so re-seal both logical bindings and map before
+    // any body recipe is lowered.
+    for (name, value_id) in &carrier_phis {
+        current_bindings.insert(name.clone(), *value_id);
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
+    }
+
     let wires = vec![
         edgecfg_stubs::build_loop_back_edge(body_bb, step_bb),
         edgecfg_stubs::build_loop_back_edge(step_bb, header_bb),
@@ -186,45 +197,23 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
                 )
             })?
         }
-        BodyLoweringPolicy::RecipeOnly => lower_loop_cond_body_items(
-            builder,
-            &mut current_bindings,
-            &carrier_phis,
-            &carrier_step_phis,
-            &break_phi_dsts,
-            &facts.recipe.body,
-            &facts.recipe.items,
-            facts.propagate_nested_carriers,
-        )
-        .or_else(|err| {
-            if !err.contains("if body must be single-exit") {
-                return Err(err);
+        BodyLoweringPolicy::RecipeOnly => {
+            if facts.body_exit_allowed.is_some() {
+                return Err(format!(
+                    "[freeze:contract][loop_cond_break_continue] RecipeOnly with body_exit_allowed: ctx={LOOP_COND_ERR}"
+                ));
             }
-
-            let fallback = facts
-                .body_exit_allowed
-                .clone()
-                .or_else(|| try_build_exit_allowed_block_recipe(&facts.recipe.body.body, true))
-                .or_else(|| try_build_exit_allowed_block_recipe(&facts.recipe.body.body, false));
-            let Some(body_exit_allowed) = fallback else {
-                return Err(err);
-            };
-
-            let verified = parts::entry::verify_exit_allowed_block_with_pre(
-                &body_exit_allowed.arena,
-                &body_exit_allowed.block,
-                LOOP_COND_ERR,
-                Some(&builder.variable_ctx.variable_map),
-            )?;
-            parts::entry::lower_exit_allowed_block_verified(
+            lower_loop_cond_body_items(
                 builder,
                 &mut current_bindings,
+                &carrier_phis,
                 &carrier_step_phis,
                 &break_phi_dsts,
-                verified,
-                LOOP_COND_ERR,
-            )
-        })?,
+                &facts.recipe.body,
+                &facts.recipe.items,
+                facts.propagate_nested_carriers,
+            )?
+        }
     };
 
     let body_entry_bindings = current_bindings.clone();
@@ -237,7 +226,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         LOOP_COND_ERR,
     )?;
     let body_exits_all_paths = cleanup.body_exits_all_paths();
-
     let phi_closure = phi_materializer.close(
         preheader_bb,
         header_bb,

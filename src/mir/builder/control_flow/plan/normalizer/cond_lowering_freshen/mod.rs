@@ -66,7 +66,6 @@ pub(super) fn clone_plans_with_fresh_loops(
             }
         }
     }
-
     if strict_planner_required {
         let reserved: Vec<ValueId> = value_map.values().copied().collect();
         crate::mir::builder::emission::value_lifecycle::verify_reserved_values_not_exposed(

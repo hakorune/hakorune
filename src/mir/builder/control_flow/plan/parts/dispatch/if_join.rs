@@ -43,7 +43,6 @@ fn branch_is_terminal(plans: &[LoweredRecipe]) -> bool {
 
 #[derive(Clone, Copy)]
 struct BranchExitShape {
-    then_exits: bool,
     one_sided_exit: bool,
     both_sides_exit: bool,
     no_join_continuation: bool,
@@ -58,10 +57,9 @@ fn analyze_branch_exit_shape(
     let one_sided_exit = then_exits ^ else_exits;
     let both_sides_exit = then_exits && else_exits;
     BranchExitShape {
-        then_exits,
         one_sided_exit,
         both_sides_exit,
-        no_join_continuation: one_sided_exit || both_sides_exit,
+        no_join_continuation: both_sides_exit,
     }
 }
 
@@ -138,9 +136,9 @@ pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
     let (then_map, else_map) =
         filter_branch_locals_from_maps(&pre_if_map, &then_map, &else_map, &branch_locals);
 
-    // This path lowers branches under NoExit join contract, but keep the same
-    // exit-shape signal handling as the general join path to avoid binding
-    // join dsts that have no dominating definition.
+    // This path lowers branches under NoExit join contract. One-sided exits
+    // still need joins for values produced on the continuing branch so later
+    // plans reference merge-local values, not raw branch-local definitions.
     let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
     let joins = if exit_shape.no_join_continuation {
         Vec::new()
@@ -159,21 +157,10 @@ pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
     )?;
     debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
 
-    if exit_shape.one_sided_exit {
-        let continuing_map = if exit_shape.then_exits {
-            &else_map
-        } else {
-            &then_map
-        };
-        builder.variable_ctx.variable_map = continuing_map.clone();
-        for (name, value_id) in continuing_map {
-            if should_update_binding(name, current_bindings) {
-                current_bindings.insert(name.clone(), *value_id);
-            }
-        }
-    } else if exit_shape.both_sides_exit {
+    if exit_shape.both_sides_exit {
         // Both branches terminate: no continuation bindings to apply.
     } else {
+        builder.variable_ctx.variable_map = pre_if_map;
         for join in &joins {
             builder
                 .variable_ctx
@@ -389,12 +376,12 @@ where
     builder.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings;
 
-    // If exactly one branch exits, the `if` has no join point on that side.
-    // If both branches exit, there is no continuation join point either.
-    // In both cases, join payload must be empty (otherwise cond lowering may append
-    // join Copy plans after an Exit, violating V11).
+    // If both branches exit, there is no continuation join point.
+    // If exactly one branch exits, the continuing branch still reaches the
+    // merge block and changed values must be materialized there before later
+    // plans can reference them.
     //
-    // After lowering, bindings must reflect the *continuing* branch map.
+    // After lowering, bindings reflect merge-local join dsts.
     let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
     let branch_locals = collect_branch_local_vars_from_maps(&pre_if_map, &then_map, &else_map);
     let (then_map, else_map) =
@@ -417,21 +404,10 @@ where
 
     debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
 
-    if exit_shape.one_sided_exit {
-        let continuing_map = if exit_shape.then_exits {
-            &else_map
-        } else {
-            &then_map
-        };
-        builder.variable_ctx.variable_map = continuing_map.clone();
-        for (name, value_id) in continuing_map {
-            if should_update_binding(name, current_bindings) {
-                current_bindings.insert(name.clone(), *value_id);
-            }
-        }
-    } else if exit_shape.both_sides_exit {
+    if exit_shape.both_sides_exit {
         // Both branches terminate: no continuation bindings to apply.
     } else {
+        builder.variable_ctx.variable_map = pre_if_map.clone();
         for join in &joins {
             builder
                 .variable_ctx

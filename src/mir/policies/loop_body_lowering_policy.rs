@@ -2,7 +2,13 @@
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BodyLoweringPolicy {
+    /// Lower recipe items exactly once, in recipe order.
+    ///
+    /// This mode forbids route-level whole-body `ExitAllowed` fallback. Item
+    /// lowering may use item-local fallback only when it preserves the selected
+    /// item position and binding state.
     RecipeOnly,
+    /// Lower the verified whole body as an exit-allowed block.
     ExitAllowed { allow_join_if: bool },
 }
 

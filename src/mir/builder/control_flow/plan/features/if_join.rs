@@ -49,7 +49,6 @@ pub(in crate::mir::builder) fn apply_if_joins(
     let strict_planner_required_debug =
         crate::config::env::joinir_dev::strict_planner_required_debug_enabled();
 
-    let mut def_blocks = None;
     let mut dominators = None;
     let mut fn_name = None;
     let mut merge_bb = None;
@@ -62,7 +61,6 @@ pub(in crate::mir::builder) fn apply_if_joins(
             builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
                 "[if_join] No current function for join dominance check".to_string()
             })?;
-        def_blocks = Some(crate::mir::verification::utils::compute_def_blocks(func));
         dominators = Some(crate::mir::verification::utils::compute_dominators(func));
         fn_name = Some(func.signature.name.clone());
         merge_bb = builder.current_block;
@@ -191,11 +189,17 @@ pub(in crate::mir::builder) fn apply_if_joins(
         }
 
         if strict_planner_required_debug {
-            let def_blocks = def_blocks.as_ref().unwrap();
             let dominators = dominators.as_ref().unwrap();
             let fn_name = fn_name.as_ref().unwrap();
             let merge_bb = merge_bb;
             let caller = caller.as_ref().unwrap();
+            let debug_def_blocks = {
+                let func = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
+                    "[if_join] No current function for join dominance check".to_string()
+                })?;
+                crate::mir::verification::utils::compute_def_blocks(func)
+            };
+            let def_blocks = &debug_def_blocks;
 
             let then_def_bb = then_pred.and_then(|_| def_blocks.get(&then_in).copied());
             let else_def_bb = else_pred.and_then(|_| def_blocks.get(&else_in).copied());

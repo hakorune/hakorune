@@ -1,6 +1,7 @@
 //! LoopCondBreakContinueItem variant lowering.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt_with_break_phi_args;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
@@ -180,7 +181,35 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
             }
 
             let stmt = get_stmt(body, *stmt)?;
-            lower_loop_cond_stmt(
+            if let Some(recipe) =
+                try_build_exit_allowed_block_recipe(std::slice::from_ref(stmt), true).or_else(
+                    || try_build_exit_allowed_block_recipe(std::slice::from_ref(stmt), false),
+                )
+            {
+                let verified = parts::entry::verify_exit_allowed_block_with_pre(
+                    &recipe.arena,
+                    &recipe.block,
+                    LOOP_COND_ERR,
+                    Some(&builder.variable_ctx.variable_map),
+                )?;
+                let plans = parts::entry::lower_exit_allowed_block_verified(
+                    builder,
+                    current_bindings,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    verified,
+                    LOOP_COND_ERR,
+                )?;
+                return Ok(plans
+                    .into_iter()
+                    .map(|plan| {
+                        super::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness(
+                            builder, plan,
+                        )
+                    })
+                    .collect());
+            }
+            let plans = lower_loop_cond_stmt(
                 builder,
                 current_bindings,
                 carrier_phis,
@@ -189,7 +218,15 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 carrier_updates,
                 false,
                 stmt,
-            )
+            )?;
+            Ok(plans
+                .into_iter()
+                .map(|plan| {
+                    super::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness(
+                        builder, plan,
+                    )
+                })
+                .collect())
         }
         LoopCondBreakContinueItem::ContinueIfWithElse {
             if_stmt,
@@ -491,6 +528,13 @@ fn lower_nested_loop_depth1_item(
         (condition.as_ref(), inner_body.as_slice())
     };
 
+    for (name, value_id) in current_bindings.iter() {
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
+    }
+
     // Only propagate nested carriers for NestedLoopOnly patterns
     if propagate_nested_carriers {
         // Collect outer carriers (variables from outer scope that inner loop uses)
@@ -563,6 +607,7 @@ fn lower_nested_loop_depth1_item(
             body_recipe,
             LOOP_COND_ERR,
         )?;
+        apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
         super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
         return Ok(vec![plan]);
     }
@@ -572,6 +617,7 @@ fn lower_nested_loop_depth1_item(
     let any_err = match lower_nested_loop_depth1_any(builder, condition, inner_body, LOOP_COND_ERR)
     {
         Ok(plan) => {
+            apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
             super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
             return Ok(vec![plan]);
         }
@@ -581,6 +627,7 @@ fn lower_nested_loop_depth1_item(
     else {
         return Err(any_err);
     };
+    apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
     super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
     Ok(vec![plan])
 }

@@ -73,6 +73,7 @@
 - Condition observation（no rewrite SSOT）: `docs/development/current/main/design/condition-observation-ssot.md`
 - generic_loop_v1 acceptance by Recipe（ShapeId hint-only SSOT）: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`
 - Policy: compiler expressivity first（selfhost workaround を止める）: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+- Local patch prevention（同じ失敗クラス2回パッチで stop-the-line / docs-first audit）: `docs/development/current/main/design/local-patch-prevention-ssot.md`
 - Agent current-entry contract（`AGENTS.md` は local instruction entry、current-state は `CURRENT_STATE.toml` 優先）: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - Policy: lego composability first（完成品キット増殖を止める）: `docs/development/current/main/design/lego-composability-policy.md`
 - Selfhost parser/mirbuilder migration order（single-developer 進行順SSOT）: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`

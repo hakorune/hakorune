@@ -339,11 +339,16 @@ impl super::PlanLowerer {
                 let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;
                 builder.ensure_block_exists(frame.break_target)?;
                 for (dst, src) in phi_args {
+                    let incoming = crate::mir::builder::ssa::local::try_ensure(
+                        builder,
+                        *src,
+                        crate::mir::builder::ssa::local::LocalKind::Arg,
+                    )?;
                     frame
                         .break_phi_inputs
                         .entry(*dst)
                         .or_default()
-                        .insert(pre_bb, *src);
+                        .insert(pre_bb, incoming);
                 }
                 emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;
             }
@@ -360,8 +365,13 @@ impl super::PlanLowerer {
                 builder.ensure_block_exists(frame.continue_target)?;
                 let debug_ctx = debug_ctx::build(builder);
                 for (dst, src) in phi_args {
+                    let incoming = crate::mir::builder::ssa::local::try_ensure(
+                        builder,
+                        *src,
+                        crate::mir::builder::ssa::local::LocalKind::Arg,
+                    )?;
                     if let Some(debug_ctx) = &debug_ctx {
-                        let incoming_def_bb = debug_ctx.def_blocks.get(src).copied();
+                        let incoming_def_bb = debug_ctx.def_blocks.get(&incoming).copied();
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!(
                             "{} fn={} origin=effect_emission pred_bb={:?} dst=%{} incoming=%{} incoming_def_bb={:?}",
@@ -369,7 +379,7 @@ impl super::PlanLowerer {
                             debug_ctx.fn_name,
                             pre_bb,
                             dst.0,
-                            src.0,
+                            incoming.0,
                             incoming_def_bb
                         ));
                     }
@@ -377,7 +387,7 @@ impl super::PlanLowerer {
                         .step_phi_inputs
                         .entry(*dst)
                         .or_default()
-                        .insert(pre_bb, *src);
+                        .insert(pre_bb, incoming);
                 }
                 emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;
             }

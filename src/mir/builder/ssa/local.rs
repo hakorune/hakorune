@@ -46,6 +46,32 @@ fn strict_planner_required() -> bool {
         && crate::config::env::joinir_dev::planner_required_enabled()
 }
 
+fn value_defined_in_current_function(builder: &MirBuilder, v: ValueId) -> bool {
+    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+        return false;
+    };
+    if func.params.iter().any(|param| *param == v) {
+        return true;
+    }
+    for block in func.blocks.values() {
+        if block
+            .instructions
+            .iter()
+            .any(|inst| inst.dst_value() == Some(v))
+        {
+            return true;
+        }
+        if block
+            .terminator
+            .as_ref()
+            .is_some_and(|inst| inst.dst_value() == Some(v))
+        {
+            return true;
+        }
+    }
+    false
+}
+
 fn format_value_ids(values: &[ValueId]) -> String {
     let mut out = String::from("[");
     for (idx, v) in values.iter().enumerate() {
@@ -146,7 +172,17 @@ fn ensure_inner(
         }
         let key = (bb, v, kind.tag());
         if let Some(&loc) = builder.local_ssa_map.get(&key) {
-            return Ok(loc);
+            if !strict_planner_required() || value_defined_in_current_function(builder, loc) {
+                return Ok(loc);
+            }
+            builder.local_ssa_map.remove(&key);
+            if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[local-sa:ensure:stale_cache] fn={} entry={:?} bb={:?} kind={:?} v=%{} stale_loc=%{} action=rematerialize",
+                    fn_name, fn_entry, bb, kind, v.0, loc.0
+                ));
+            }
         }
 
         // Ensure the current basic block exists in the function before emitting a Copy.
@@ -269,6 +305,49 @@ fn ensure_inner(
             Some(MirInstruction::Select { .. }) => false,
             _ => true,
         };
+
+        if strict_planner_required() && def_inst.is_none() && def_kind == "NotFound" {
+            let mut varmap_hits: Vec<&str> = builder
+                .variable_ctx
+                .variable_map
+                .iter()
+                .filter_map(|(name, &vid)| if vid == v { Some(name.as_str()) } else { None })
+                .collect();
+            varmap_hits.sort_unstable();
+            if varmap_hits.len() > 3 {
+                varmap_hits.truncate(3);
+            }
+            let varmap_hits_str = if varmap_hits.is_empty() {
+                "[]".to_string()
+            } else {
+                format!("[{}]", varmap_hits.join(","))
+            };
+            let pin = builder
+                .pin_slot_names
+                .get(&v)
+                .map(|s| s.as_str())
+                .unwrap_or("none");
+            let has_type = builder.type_ctx.value_types.contains_key(&v);
+            let reserved = builder.comp_ctx.reserved_value_ids.contains(&v);
+            let next_value_id_hint = builder
+                .scope_ctx
+                .current_function
+                .as_ref()
+                .map(|f| f.next_value_id)
+                .unwrap_or(0);
+            return Err(format!(
+                "[freeze:contract][local_ssa/undefined_source] fn={} bb={:?} kind={:?} v=%{} varmap_hits={} pin={} has_type={} reserved={} next_value_id_hint={}",
+                fn_name,
+                bb,
+                kind,
+                v.0,
+                varmap_hits_str,
+                pin,
+                has_type,
+                reserved,
+                next_value_id_hint
+            ));
+        }
 
         if kind.can_forward_same_block_field_get_to_consumer()
             && def_block == Some(bb)
