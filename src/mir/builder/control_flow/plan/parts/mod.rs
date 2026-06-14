@@ -34,7 +34,7 @@ mod loop_;
 pub(super) mod stmt;
 mod stmt_debug;
 mod stmt_shape;
-mod var_map_scope;
+pub(in crate::mir::builder::control_flow::plan) mod var_map_scope;
 pub(super) mod verify;
 mod verify_refs;
 mod verify_shape;

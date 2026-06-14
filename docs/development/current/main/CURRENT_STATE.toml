@@ -42,21 +42,29 @@ lands the first post-closeout CorePlan row by routing the generic loop API PHI
 entry through phi_lifecycle, removing a legacy direct PHI fallback, and
 extending the PHI boundary guard to reject low-level lifecycle bypasses.
 COREPLAN-VARMAP-RESEAL-001 moves selected `parts/**` variable_map publication
-behind var_map_scope helpers and lowers the direct write inventory baseline."""
+behind var_map_scope helpers and lowers the direct write inventory baseline.
+COREPLAN-NEXT-ROW-SELECTION-001 is now active as a planning-only row and selects
+COREPLAN-VARMAP-RESEAL-002 as the next one-purpose BoxShape row; Arc global
+replacement and mimalloc optimization remain paused from this pointer.
+COREPLAN-VARMAP-RESEAL-002 moves generic_loop_body variable_map publication
+behind var_map_scope helpers and lowers the guarded baseline to 48.
+COREPLAN-PHI-TXN-001 defines a PhiTxn/PhiToken transaction boundary inside
+phi_lifecycle before any broader JoinIR merge PHI migration.
+COREPLAN-JOINIR-MERGE-PHI-001 migrates the JoinIR exit_phi_builder path through
+PhiTxn / phi_lifecycle. COREPLAN-NORMALIZER-COMPOSITION-001 moves
+statement-only prelude AST shape extraction behind a normalizer adapter."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "COREPLAN-VARMAP-RESEAL-001"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md"
-latest_card_summary = """COREPLAN-VARMAP-RESEAL-001 moves selected `parts/**`
-variable_map publication behind `var_map_scope` helpers. `branch_bindings`
-remains logical CorePlan path state; `variable_map` remains a defined-value
-emission cache. The no-growth guard now pins direct insert sites at 54 and
-selected parts direct insert sites at 0."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-VARMAP-RESEAL-001-LANDED-NEXT-ROW-SELECTION"
+latest_card = "COREPLAN-NORMALIZER-COMPOSITION-001"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md"
+latest_card_summary = """COREPLAN-NORMALIZER-COMPOSITION-001 moves
+statement-only prelude AST shape extraction into stmt_only_prelude_view, leaving
+cond_lowering_prelude to compose effects from the adapter."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-NORMALIZER-COMPOSITION-001-LANDED-CHECKPOINT-NEXT"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

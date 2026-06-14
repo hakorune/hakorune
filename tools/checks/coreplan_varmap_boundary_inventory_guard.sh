@@ -47,7 +47,7 @@ guard_expect_fixed_in_file "$TAG" \
   "$TASKBOARD" \
   "taskboard must restate variable_map role"
 guard_expect_fixed_in_file "$TAG" \
-  "variable_map_direct_insert_sites=54" \
+  "variable_map_direct_insert_sites=48" \
   "$CARD" \
   "phase card must record robust variable_map insert baseline"
 
@@ -85,8 +85,18 @@ parts_helper_bypass_sites = [
         "src/mir/builder/control_flow/plan/parts/loop_/final_values.rs",
     )
 ]
+generic_loop_body_bypass_sites = [
+    site
+    for site in insert_sites
+    if site[0]
+    in (
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/v0.rs",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs",
+    )
+]
 
-max_insert_count = 54
+max_insert_count = 48
 if len(insert_sites) > max_insert_count:
     print(
         f"[coreplan-varmap-boundary] ERROR: direct variable_map insert sites grew "
@@ -105,10 +115,16 @@ if parts_helper_bypass_sites:
     print("\n".join(f"{path}:{line}: variable_map.{op}" for path, line, op in parts_helper_bypass_sites))
     raise SystemExit(1)
 
+if generic_loop_body_bypass_sites:
+    print("[coreplan-varmap-boundary] ERROR: generic_loop_body files must publish through var_map_scope helpers")
+    print("\n".join(f"{path}:{line}: variable_map.{op}" for path, line, op in generic_loop_body_bypass_sites))
+    raise SystemExit(1)
+
 print(f"[coreplan-varmap-boundary] variable_map_direct_insert_sites={len(insert_sites)}")
 print("[coreplan-varmap-boundary] variable_map_remove_clear_sites=0")
 print("[coreplan-varmap-boundary] parts_stmt_direct_variable_map_insert_sites=0")
 print("[coreplan-varmap-boundary] selected_parts_direct_variable_map_insert_sites=0")
+print("[coreplan-varmap-boundary] generic_loop_body_direct_variable_map_insert_sites=0")
 PY
 
 echo "[$TAG] variable_map_no_growth_guard=1"

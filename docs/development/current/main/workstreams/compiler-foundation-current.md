@@ -2022,6 +2022,208 @@ COREPLAN-NEXT-ROW-SELECTION-001
   choose the next one-purpose CorePlan / JoinIR row.
 ```
 
+### COREPLAN-NEXT-ROW-SELECTION-001: post-reseal compiler row selection
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1035-COREPLAN-NEXT-ROW-SELECTION-001.md
+```
+
+This is a planning-only row. Compiler foundation remains the active lane.
+Arc retirement and mimalloc optimization stay outside this row.
+
+Selected next implementation row:
+
+```text
+COREPLAN-VARMAP-RESEAL-002
+```
+
+Candidate order:
+
+```text
+1. COREPLAN-VARMAP-RESEAL-002
+   reduce exactly one remaining variable_map direct-write family below the
+   54-site baseline
+
+2. COREPLAN-PHI-TXN-001
+   define a PhiTxn-style lifecycle wrapper before migrating broader PHI paths
+
+3. COREPLAN-JOINIR-MERGE-PHI-001
+   migrate exactly one JoinIR merge PHI construction path to phi_lifecycle
+
+4. COREPLAN-NORMALIZER-COMPOSITION-001
+   move one normalizer AST-owned decision behind an adapter / Recipe boundary
+```
+
+Acceptance:
+
+```text
+coreplan_next_row_selection_landed=1
+next_compiler_row_selected=COREPLAN-VARMAP-RESEAL-002
+arc_retirement_side_lane_preserved=1
+arc_global_replacement_started=0
+exact_front_optimization_resumed=0
+mimalloc_return_lane=MIMALLOC-AOT-KERNEL-FRONT-SELECT-002
+boxcount_boxshape_mixed=0
+implementation_started=0
+```
+
+### COREPLAN-VARMAP-RESEAL-002: generic_loop_body variable_map reseal helper
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1036-COREPLAN-VARMAP-RESEAL-002-GENERIC-LOOP-BODY.md
+```
+
+This is a BoxShape-only row. It continues the reseal pattern by moving the
+`generic_loop_body` family's direct `variable_map.insert` sites behind
+`var_map_scope::publish_emission_cache`.
+
+Result:
+
+```text
+coreplan_varmap_reseal_generic_loop_body=1
+generic_loop_body_direct_variable_map_insert_sites=0
+variable_map_direct_insert_sites=48
+variable_map_role=defined_value_emission_cache
+current_bindings_truth_owner_preserved=1
+accepted_shape_added=0
+fallback_route_added=0
+release_default_changed=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_varmap_boundary_inventory_guard.sh
+```
+
+Next:
+
+```text
+COREPLAN-PHI-TXN-001
+  define a PhiTxn-style lifecycle wrapper before migrating broader PHI paths.
+```
+
+### COREPLAN-PHI-TXN-001: PHI lifecycle transaction boundary
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1037-COREPLAN-PHI-TXN-001.md
+```
+
+This is a BoxShape-only row. It defines `PhiTxn` / `PhiToken` inside
+`phi_lifecycle` so provisional PHI operations have an explicit
+define/patch/commit or abort boundary before broader PHI migration.
+
+Result:
+
+```text
+phi_transaction_boundary_defined=1
+phi_txn_commit_failfast_on_unpatched=1
+phi_txn_abort_rollback_defined=1
+phi_low_level_callsite_owner=phi_lifecycle
+accepted_shape_added=0
+fallback_route_added=0
+release_default_changed=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_phi_binding_boundary_guard.sh
+```
+
+Next:
+
+```text
+COREPLAN-JOINIR-MERGE-PHI-001
+  migrate exactly one JoinIR merge PHI construction path to phi_lifecycle.
+```
+
+### COREPLAN-JOINIR-MERGE-PHI-001: exit PHI builder migration
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1038-COREPLAN-JOINIR-MERGE-PHI-001.md
+```
+
+This is a BoxShape-only row. It migrates the JoinIR `exit_phi_builder` path
+from direct `MirInstruction::Phi` construction to `PhiTxn` /
+`phi_lifecycle`.
+
+Result:
+
+```text
+one_joinir_merge_phi_path_migrated=1
+joinir_exit_phi_builder_direct_phi_construction=0
+phi_lifecycle_owner_preserved=1
+phi_transaction_boundary_used=1
+accepted_shape_added=0
+fallback_route_added=0
+release_default_changed=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_phi_binding_boundary_guard.sh
+```
+
+Next:
+
+```text
+COREPLAN-NORMALIZER-COMPOSITION-001
+  move one normalizer AST-owned decision behind an adapter / Recipe boundary.
+```
+
+### COREPLAN-NORMALIZER-COMPOSITION-001: stmt-only prelude view adapter
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md
+```
+
+This is a BoxShape-only row. It moves the statement-only condition /
+block-expression prelude AST shape extraction into `stmt_only_prelude_view`,
+leaving `cond_lowering_prelude` to compose effects from the view.
+
+Result:
+
+```text
+coreplan_normalizer_composition_stmt_only_prelude=1
+stmt_only_prelude_view_adapter=1
+one_normalizer_ast_decision_moved_to_adapter=1
+normalizer_composition_only_progress=1
+accepted_shape_added=0
+fallback_route_added=0
+release_default_changed=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_normalizer_ast_boundary_inventory_guard.sh
+```
+
+Next:
+
+```text
+compiler_foundation_checkpoint
+  decide whether to continue compiler-first or pause back to
+  MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.
+```
+
 ## Do Not Do Yet
 
 ```text

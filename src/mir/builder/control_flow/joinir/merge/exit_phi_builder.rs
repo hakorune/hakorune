@@ -6,7 +6,8 @@
 //! Phase 4 Extraction: Separated from merge_joinir_mir_blocks (lines 581-615)
 //! Phase 33-13: Extended to support carrier PHIs for multi-carrier loops
 
-use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
+use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
+use crate::mir::{BasicBlock, BasicBlockId, ValueId};
 use std::collections::BTreeMap;
 
 /// Phase 5: Create exit block with PHI for return values and carrier values
@@ -28,134 +29,136 @@ pub(super) fn build_exit_phi(
     let verbose = debug || crate::config::env::joinir_dev_enabled();
     let mut carrier_phis: BTreeMap<String, ValueId> = BTreeMap::new();
 
-    let exit_phi_result_id = if let Some(ref mut func) = builder.scope_ctx.current_function {
-        let mut exit_block = BasicBlock::new(exit_block_id);
+    if builder.scope_ctx.current_function.is_none() {
+        return Ok((None, carrier_phis));
+    }
 
-        // Phase 189-Fix: If we collected return values, create a PHI in exit block
-        // This merges all return values from JoinIR functions into a single value
-        let phi_result = if !exit_phi_inputs.is_empty() {
-            // Phase 132-P2: Use function-level next_value_id() to allocate
-            // Previously used builder.value_gen.next() which is module-level, causing ValueId collisions
-            // Note: We use func.next_value_id() directly since builder.current_function is already borrowed
-            let phi_dst = func.next_value_id();
-            if crate::config::env::joinir_dev::debug_enabled() {
-                let caller = std::panic::Location::caller();
-                builder.metadata_ctx.record_value_caller(phi_dst, caller);
-                if let Some(loc) = builder
-                    .metadata_ctx
-                    .value_origin_callers()
-                    .get(&phi_dst)
-                    .cloned()
-                {
-                    func.metadata.value_origin_callers.insert(phi_dst, loc);
-                }
-            }
-            let mut inputs = Vec::with_capacity(exit_phi_inputs.len());
-            for (pred, incoming) in exit_phi_inputs {
-                let incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-                    func,
-                    *pred,
-                    *incoming,
-                    "expr_result",
-                    "exit",
-                )?;
-                inputs.push((*pred, incoming));
-            }
+    if let Some(ref mut func) = builder.scope_ctx.current_function {
+        func.add_block(BasicBlock::new(exit_block_id));
+    }
 
-            exit_block.instructions.push(MirInstruction::Phi {
-                dst: phi_dst,
-                inputs,
-                type_hint: None,
-            });
-            exit_block
-                .instruction_spans
-                .push(crate::ast::Span::unknown());
+    let mut txn = PhiTxn::begin("joinir_exit_phi_builder");
+    let result = build_exit_phi_with_txn(
+        builder,
+        &mut txn,
+        exit_block_id,
+        exit_phi_inputs,
+        carrier_inputs,
+        debug,
+        verbose,
+        &trace,
+        &mut carrier_phis,
+    );
+
+    match result {
+        Ok(exit_phi_result_id) => {
+            txn.commit()?;
             if debug {
                 trace.stderr_if(
                     &format!(
-                        "[cf_loop/joinir]   Exit block PHI (expr result): {:?} = phi {:?}",
-                        phi_dst, exit_phi_inputs
+                        "[cf_loop/joinir]   Created exit block: {:?} with {} carrier PHIs",
+                        exit_block_id,
+                        carrier_phis.len()
                     ),
                     true,
                 );
             }
-            Some(phi_dst)
-        } else {
-            None
-        };
-
-        // Phase 33-13: Create PHI for each carrier variable
-        // This ensures that carrier exit values are properly merged when
-        // there are multiple paths to the exit block
-        for (carrier_name, inputs) in carrier_inputs {
-            if inputs.is_empty() {
-                continue;
-            }
-
-            // Phase 132-P2: Use function-level next_value_id() to allocate
-            // Previously used builder.value_gen.next() which is module-level, causing ValueId collisions
-            // Note: We use func.next_value_id() directly since builder.current_function is already borrowed
-            let phi_dst = func.next_value_id();
-            if crate::config::env::joinir_dev::debug_enabled() {
-                let caller = std::panic::Location::caller();
-                builder.metadata_ctx.record_value_caller(phi_dst, caller);
-                if let Some(loc) = builder
-                    .metadata_ctx
-                    .value_origin_callers()
-                    .get(&phi_dst)
-                    .cloned()
-                {
-                    func.metadata.value_origin_callers.insert(phi_dst, loc);
-                }
-            }
-            let mut materialized_inputs = Vec::with_capacity(inputs.len());
-            for (pred, incoming) in inputs {
-                let incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-                    func,
-                    *pred,
-                    *incoming,
-                    carrier_name,
-                    "exit",
-                )?;
-                materialized_inputs.push((*pred, incoming));
-            }
-
-            exit_block.instructions.push(MirInstruction::Phi {
-                dst: phi_dst,
-                inputs: materialized_inputs.clone(),
-                type_hint: None,
-            });
-            exit_block
-                .instruction_spans
-                .push(crate::ast::Span::unknown());
-
-            carrier_phis.insert(carrier_name.clone(), phi_dst);
-
-            // DEBUG-177: Exit block PHI creation for carrier debugging
-            trace.stderr_if(
-                &format!(
-                    "[DEBUG-177] Exit block PHI (carrier '{}'): {:?} = phi {:?}",
-                    carrier_name, phi_dst, materialized_inputs
-                ),
-                verbose,
-            );
+            Ok((exit_phi_result_id, carrier_phis))
         }
+        Err(err) => match txn.abort_on_err(builder, err) {
+            Err(abort_err) => Err(abort_err),
+            Ok(()) => unreachable!("PhiTxn::abort_on_err returns Err"),
+        },
+    }
+}
 
-        func.add_block(exit_block);
+#[allow(clippy::too_many_arguments)]
+fn build_exit_phi_with_txn(
+    builder: &mut crate::mir::builder::MirBuilder,
+    txn: &mut PhiTxn,
+    exit_block_id: BasicBlockId,
+    exit_phi_inputs: &[(BasicBlockId, ValueId)],
+    carrier_inputs: &BTreeMap<String, Vec<(BasicBlockId, ValueId)>>,
+    debug: bool,
+    verbose: bool,
+    trace: &crate::mir::builder::control_flow::joinir::trace::JoinLoopTrace,
+    carrier_phis: &mut BTreeMap<String, ValueId>,
+) -> Result<Option<ValueId>, String> {
+    // Phase 189-Fix: If we collected return values, create a PHI in exit block.
+    // This merges all return values from JoinIR functions into a single value.
+    let phi_result = if !exit_phi_inputs.is_empty() {
+        let phi_dst = next_exit_phi_dst(builder, "expr_result")?;
+        let token = txn.define_provisional_phi(
+            builder,
+            exit_block_id,
+            phi_dst,
+            "joinir_exit_phi:expr_result_define",
+        )?;
+        txn.patch_phi_inputs(
+            builder,
+            token,
+            exit_phi_inputs.to_vec(),
+            "joinir_exit_phi:expr_result_patch",
+        )?;
         if debug {
             trace.stderr_if(
                 &format!(
-                    "[cf_loop/joinir]   Created exit block: {:?} with {} carrier PHIs",
-                    exit_block_id,
-                    carrier_phis.len()
+                    "[cf_loop/joinir]   Exit block PHI (expr result): {:?} = phi {:?}",
+                    phi_dst, exit_phi_inputs
                 ),
                 true,
             );
         }
-        phi_result
+        Some(phi_dst)
     } else {
         None
     };
 
-    Ok((exit_phi_result_id, carrier_phis))
+    // Phase 33-13: Create PHI for each carrier variable.
+    // This ensures that carrier exit values are properly merged when
+    // there are multiple paths to the exit block.
+    for (carrier_name, inputs) in carrier_inputs {
+        if inputs.is_empty() {
+            continue;
+        }
+
+        let phi_dst = next_exit_phi_dst(builder, carrier_name)?;
+        let token = txn.define_provisional_phi(
+            builder,
+            exit_block_id,
+            phi_dst,
+            "joinir_exit_phi:carrier_define",
+        )?;
+        txn.patch_phi_inputs(
+            builder,
+            token,
+            inputs.clone(),
+            "joinir_exit_phi:carrier_patch",
+        )?;
+
+        carrier_phis.insert(carrier_name.clone(), phi_dst);
+
+        // DEBUG-177: Exit block PHI creation for carrier debugging.
+        trace.stderr_if(
+            &format!(
+                "[DEBUG-177] Exit block PHI (carrier '{}'): {:?} = phi {:?}",
+                carrier_name, phi_dst, inputs
+            ),
+            verbose,
+        );
+    }
+
+    Ok(phi_result)
+}
+
+fn next_exit_phi_dst(
+    builder: &mut crate::mir::builder::MirBuilder,
+    tag: &str,
+) -> Result<ValueId, String> {
+    let func = builder
+        .scope_ctx
+        .current_function
+        .as_mut()
+        .ok_or_else(|| format!("[freeze:contract][joinir_exit_phi/no_function] tag={tag}"))?;
+    Ok(func.next_value_id())
 }

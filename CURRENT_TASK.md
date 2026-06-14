@@ -133,8 +133,22 @@ Scope: current lane / next lane / restart order only.
 - Arc retirement is a side-lane taskboard, not the active optimization lane:
   `docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md`
   and `docs/development/current/main/workstreams/arc-retirement-current.md`
-  define the task order; do not start Arc replacement implementation from this
-  pointer alone
+  define the task order; first-family host-handle text payload cutover is
+  already tracked there, but global Arc / object substrate replacement is still
+  closed from the compiler-foundation pointer alone
+- current compiler-first next step is `COREPLAN-NEXT-ROW-SELECTION-001` in
+  `docs/development/current/main/phases/phase-293x/293x-1035-COREPLAN-NEXT-ROW-SELECTION-001.md`;
+  it selected `COREPLAN-VARMAP-RESEAL-002`; `COREPLAN-VARMAP-RESEAL-002`
+  is landed in
+  `docs/development/current/main/phases/phase-293x/293x-1036-COREPLAN-VARMAP-RESEAL-002-GENERIC-LOOP-BODY.md`;
+  `COREPLAN-PHI-TXN-001` is landed in
+  `docs/development/current/main/phases/phase-293x/293x-1037-COREPLAN-PHI-TXN-001.md`;
+  `COREPLAN-JOINIR-MERGE-PHI-001` is landed in
+  `docs/development/current/main/phases/phase-293x/293x-1038-COREPLAN-JOINIR-MERGE-PHI-001.md`;
+  `COREPLAN-NORMALIZER-COMPOSITION-001` is landed in
+  `docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md`;
+  next step is a compiler-foundation checkpoint before returning to
+  `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules
@@ -148,19 +162,24 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
-3. `docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md`
-4. `docs/development/current/main/phases/phase-293x/293x-1033-COREPLAN-ONE-ROW-IMPL-001-PHI-LIFECYCLE-GUARD.md`
-5. `docs/development/current/main/phases/phase-293x/293x-1032-COLL-VISIBLE-CLOSEOUT-001.md`
-6. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
-7. `docs/development/current/main/design/box-callable-registry-ssot.md`
-8. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
-9. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-10. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-11. `docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md`
-12. `docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md`
-13. `docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md`
-14. `docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md`
-15. `docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md`
-16. `docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md`
-17. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-18. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+3. `docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md`
+4. `docs/development/current/main/phases/phase-293x/293x-1038-COREPLAN-JOINIR-MERGE-PHI-001.md`
+5. `docs/development/current/main/phases/phase-293x/293x-1037-COREPLAN-PHI-TXN-001.md`
+6. `docs/development/current/main/phases/phase-293x/293x-1036-COREPLAN-VARMAP-RESEAL-002-GENERIC-LOOP-BODY.md`
+7. `docs/development/current/main/phases/phase-293x/293x-1035-COREPLAN-NEXT-ROW-SELECTION-001.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md`
+9. `docs/development/current/main/phases/phase-293x/293x-1033-COREPLAN-ONE-ROW-IMPL-001-PHI-LIFECYCLE-GUARD.md`
+10. `docs/development/current/main/phases/phase-293x/293x-1032-COLL-VISIBLE-CLOSEOUT-001.md`
+11. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
+12. `docs/development/current/main/design/box-callable-registry-ssot.md`
+13. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
+14. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+15. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
+16. `docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md`
+17. `docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md`
+18. `docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md`
+19. `docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md`
+20. `docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md`
+21. `docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md`
+22. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+23. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

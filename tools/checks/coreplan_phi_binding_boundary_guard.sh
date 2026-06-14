@@ -39,6 +39,18 @@ guard_expect_fixed_in_file "$TAG" \
   "$CARD" \
   "phase card must record PHI/BINDING stop-the-line row"
 guard_expect_fixed_in_file "$TAG" \
+  "pub(in crate::mir::builder) struct PhiTxn" \
+  "src/mir/builder/emission/phi_lifecycle.rs" \
+  "phi_lifecycle must expose a transaction wrapper"
+guard_expect_fixed_in_file "$TAG" \
+  "[freeze:contract][phi_lifecycle/provisional_left_unpatched]" \
+  "src/mir/builder/emission/phi_lifecycle.rs" \
+  "PhiTxn commit must fail-fast on unpatched provisional PHIs"
+guard_expect_fixed_in_file "$TAG" \
+  "[freeze:contract][phi_lifecycle/txn_abort]" \
+  "src/mir/builder/emission/phi_lifecycle.rs" \
+  "PhiTxn abort must fail-fast after rollback"
+guard_expect_fixed_in_file "$TAG" \
   "$SELF_SCRIPT" \
   "$INDEX" \
   "check index must list this guard"
@@ -58,6 +70,24 @@ guard_expect_fixed_in_file "$TAG" \
   "$LOCAL_PATCH_SSOT" \
   "docs/development/current/main/design/compiler-expressivity-first-policy.md" \
   "compiler expressivity policy must point to local patch prevention SSOT"
+
+python3 - <<'PY'
+from pathlib import Path
+
+path = Path("src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs")
+text = path.read_text()
+for forbidden in (
+    "instructions.push(MirInstruction::Phi",
+    "add_instruction(MirInstruction::Phi",
+    "emit_instruction(MirInstruction::Phi",
+    "MirInstruction::Phi {",
+):
+    if forbidden in text:
+        raise SystemExit(
+            "[coreplan-phi-binding-boundary] ERROR: exit_phi_builder must construct PHIs through phi_lifecycle/PhiTxn: "
+            f"{forbidden}"
+        )
+PY
 
 python3 - <<'PY'
 from pathlib import Path
@@ -208,5 +238,7 @@ PY
 echo "[$TAG] nested_loop_preheader_hidden_value_capture=0"
 echo "[$TAG] recipe_only_whole_body_fallback=0"
 echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
+echo "[$TAG] phi_transaction_boundary_defined=1"
+echo "[$TAG] joinir_exit_phi_builder_direct_phi_construction=0"
 echo "[$TAG] phi_direct_emit_no_growth=1"
 echo "[$TAG] ok"

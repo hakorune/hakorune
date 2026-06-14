@@ -92,6 +92,7 @@ transaction が Err で中断し、provisional PHI が残留した場合は、st
   - `define_provisional_phi`（Define-only, inputs empty）
   - `patch_phi_inputs`（Populate/patch）
   - `define_phi_final` / `define_phi_final_fn`（single-step）
+  - `PhiTxn` / `PhiToken`（provisional PHI transaction wrapper）
 - LoopLowerer: provisional insert / patch を SSOT入口経由に移行済み（Step 1.5 / Step 4）。
 - LoopBuilderApi: `insert_phi_at_block_start` is routed through
   `phi_lifecycle::define_phi_final`; generic builder facades must not call
@@ -102,6 +103,11 @@ transaction が Err で中断し、provisional PHI が残留した場合は、st
 - 直接呼び出しの抑制: `cf_common::insert_phi_at_head*` / `builder.update_phi_instruction` の直書きを減らし、SSOT入口へ寄せる。
 - Guard: `tools/checks/coreplan_phi_binding_boundary_guard.sh` rejects new
   low-level PHI lifecycle calls outside `phi_lifecycle`.
+- Transaction guard: `PhiTxn::commit()` fails fast with
+  `[freeze:contract][phi_lifecycle/provisional_left_unpatched]` if a
+  provisional PHI remains unpatched; `PhiTxn::abort_on_err()` rolls back
+  pending provisional PHIs and returns
+  `[freeze:contract][phi_lifecycle/txn_abort]`.
 
 ## 推奨リファクタ（BoxShape / 挙動不変）
 

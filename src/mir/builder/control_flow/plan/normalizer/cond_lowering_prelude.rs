@@ -2,10 +2,10 @@
 
 use super::cond_lowering_entry::lower_cond_value;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::{
-    classify_cond_prelude_stmt, CondPreludeStmtKind,
-};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::normalizer::stmt_only_prelude_view::{
+    stmt_only_prelude_view, StmtOnlyPreludeView,
+};
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
@@ -75,15 +75,12 @@ fn lower_stmt_only_prelude_stmts(
             return Err(contract.exit_error(error_prefix));
         }
 
-        let Some(kind) = classify_cond_prelude_stmt(stmt) else {
+        let Some(view) = stmt_only_prelude_view(stmt) else {
             return Err(contract.unsupported_stmt_error(error_prefix, stmt));
         };
 
-        match kind {
-            CondPreludeStmtKind::Assignment => {
-                let ASTNode::Assignment { target, value, .. } = stmt else {
-                    unreachable!()
-                };
+        match view {
+            StmtOnlyPreludeView::Assignment { target, value } => {
                 let (name, value_id, mut stmt_effects) =
                     loop_body_lowering::lower_assignment_value(
                         builder,
@@ -97,17 +94,11 @@ fn lower_stmt_only_prelude_stmts(
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
             }
-            CondPreludeStmtKind::If => {
-                let ASTNode::If {
-                    condition,
-                    then_body,
-                    else_body,
-                    ..
-                } = stmt
-                else {
-                    unreachable!()
-                };
-
+            StmtOnlyPreludeView::If {
+                condition,
+                then_body,
+                else_body,
+            } => {
                 let cond_view = CondBlockView::from_expr(condition);
                 let (cond_id, mut cond_effects) =
                     lower_cond_value(builder, &bindings, &cond_view, error_prefix)?;
@@ -123,7 +114,7 @@ fn lower_stmt_only_prelude_stmts(
                 )?;
                 builder.variable_ctx.variable_map = branch_base_var_map.clone();
                 let has_else = else_body.is_some();
-                let (else_bindings, else_effects) = if let Some(else_body) = else_body.as_ref() {
+                let (else_bindings, else_effects) = if let Some(else_body) = else_body {
                     let lowered = lower_stmt_only_prelude_stmts(
                         builder,
                         &bindings,
@@ -204,18 +195,13 @@ fn lower_stmt_only_prelude_stmts(
                 }
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
             }
-            CondPreludeStmtKind::Loop => {
+            StmtOnlyPreludeView::Loop => {
                 return Err(contract.loop_like_stmt_error(error_prefix));
             }
-            CondPreludeStmtKind::Local => {
-                let ASTNode::Local {
-                    variables,
-                    initial_values,
-                    ..
-                } = stmt
-                else {
-                    unreachable!()
-                };
+            StmtOnlyPreludeView::Local {
+                variables,
+                initial_values,
+            } => {
                 let (inits, mut stmt_effects) = loop_body_lowering::lower_local_init_values(
                     builder,
                     &bindings,
@@ -230,7 +216,7 @@ fn lower_stmt_only_prelude_stmts(
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
             }
-            CondPreludeStmtKind::MethodCall => {
+            StmtOnlyPreludeView::MethodCall(stmt) => {
                 let mut stmt_effects = loop_body_lowering::lower_method_call_stmt(
                     builder,
                     &bindings,
@@ -239,7 +225,7 @@ fn lower_stmt_only_prelude_stmts(
                 )?;
                 effects.append(&mut stmt_effects);
             }
-            CondPreludeStmtKind::FunctionCall => {
+            StmtOnlyPreludeView::FunctionCall(stmt) => {
                 let mut stmt_effects = loop_body_lowering::lower_function_call_stmt(
                     builder,
                     &bindings,
@@ -248,10 +234,7 @@ fn lower_stmt_only_prelude_stmts(
                 )?;
                 effects.append(&mut stmt_effects);
             }
-            CondPreludeStmtKind::Print => {
-                let ASTNode::Print { expression, .. } = stmt else {
-                    unreachable!()
-                };
+            StmtOnlyPreludeView::Print { expression } => {
                 let (value_id, mut stmt_effects) =
                     PlanNormalizer::lower_value_ast(expression, builder, &bindings)?;
                 stmt_effects.push(CoreEffectPlan::ExternCall {

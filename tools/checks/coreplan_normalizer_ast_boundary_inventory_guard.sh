@@ -13,6 +13,8 @@ SELF_SCRIPT="tools/checks/coreplan_normalizer_ast_boundary_inventory_guard.sh"
 NORMALIZER_DIR="src/mir/builder/control_flow/plan/normalizer"
 RECIPE_TREE_DIR="src/mir/builder/control_flow/plan/recipe_tree"
 NORMALIZER_README="src/mir/builder/control_flow/plan/normalizer/README.md"
+STMT_ONLY_PRELUDE_VIEW="src/mir/builder/control_flow/plan/normalizer/stmt_only_prelude_view.rs"
+COND_PRELUDE="src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs"
 
 echo "[$TAG] checking normalizer AST-boundary inventory"
 
@@ -22,7 +24,9 @@ guard_require_files \
   "$CARD" \
   "$INDEX" \
   "$SELF_SCRIPT" \
-  "$NORMALIZER_README"
+  "$NORMALIZER_README" \
+  "$STMT_ONLY_PRELUDE_VIEW" \
+  "$COND_PRELUDE"
 
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
@@ -50,6 +54,14 @@ guard_expect_fixed_in_file "$TAG" \
   "Composer/entry 経路では使わない" \
   "$NORMALIZER_README" \
   "normalizer README must keep legacy/analysis boundary"
+guard_expect_fixed_in_file "$TAG" \
+  "stmt_only_prelude_view" \
+  "$COND_PRELUDE" \
+  "cond prelude must consume the statement-only prelude adapter"
+guard_expect_fixed_in_file "$TAG" \
+  "pub(super) enum StmtOnlyPreludeView" \
+  "$STMT_ONLY_PRELUDE_VIEW" \
+  "statement-only prelude adapter must own AST shape extraction"
 
 normalizer_ast_hits="$(rg -n 'ASTNode::' "$NORMALIZER_DIR" -g '*.rs' | wc -l | tr -d ' ')"
 normalizer_ast_files="$(rg -l 'ASTNode::' "$NORMALIZER_DIR" -g '*.rs' | wc -l | tr -d ' ')"
@@ -58,4 +70,5 @@ synthetic_loop_hits="$(rg -n 'ASTNode::Loop' "$RECIPE_TREE_DIR" -g '*.rs' | wc -
 echo "[$TAG] normalizer_ast_hit_count=$normalizer_ast_hits"
 echo "[$TAG] normalizer_ast_file_count=$normalizer_ast_files"
 echo "[$TAG] recipe_tree_synthetic_ast_loop_count=$synthetic_loop_hits"
+echo "[$TAG] stmt_only_prelude_view_adapter=1"
 echo "[$TAG] ok"

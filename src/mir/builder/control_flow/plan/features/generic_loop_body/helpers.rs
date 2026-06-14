@@ -4,6 +4,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_value;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, LoweredRecipe};
@@ -134,7 +135,7 @@ pub(super) fn lower_effect_only_stmt(
                 GENERIC_LOOP_ERR,
             )?;
             if let Some((name, value_id)) = binding {
-                builder.variable_ctx.variable_map.insert(name, value_id);
+                publish_emission_cache(builder, name, value_id);
             }
             Ok(effects)
         }
@@ -151,7 +152,7 @@ pub(super) fn lower_effect_only_stmt(
                 GENERIC_LOOP_ERR,
             )?;
             for (name, value_id) in inits {
-                builder.variable_ctx.variable_map.insert(name, value_id);
+                publish_emission_cache(builder, name, value_id);
             }
             Ok(effects)
         }

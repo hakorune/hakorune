@@ -33,10 +33,11 @@ src/mir/builder/ssa/**
 Current count:
 
 ```text
-variable_map_direct_insert_sites=54
+variable_map_direct_insert_sites=48
 variable_map_remove_clear_sites=0
 parts_stmt_direct_variable_map_insert_sites=0
 selected_parts_direct_variable_map_insert_sites=0
+generic_loop_body_direct_variable_map_insert_sites=0
 ```
 
 Family split:
@@ -57,10 +58,11 @@ Family split:
 ```text
 logical_binding_truth_owner=current_bindings
 variable_map_role=defined_value_emission_cache
-variable_map_direct_insert_sites=54
+variable_map_direct_insert_sites=48
 variable_map_remove_clear_sites=0
 parts_stmt_direct_variable_map_insert_sites=0
 selected_parts_direct_variable_map_insert_sites=0
+generic_loop_body_direct_variable_map_insert_sites=0
 variable_map_no_growth_guard=1
 accepted_shape_added=0
 fallback_route_added=0
@@ -84,7 +86,8 @@ Do not rewrite all sites in one pass. Choose one family at a time:
    keep expression lowering compatibility separate from CorePlan logical truth.
 
 3. generic_loop_body:
-   legacy-route cleanup only after PORT07 owner is understood.
+   landed by `COREPLAN-VARMAP-RESEAL-002`; selected files now publish through
+   `var_map_scope::publish_emission_cache`.
 ```
 
 ## Stop Line

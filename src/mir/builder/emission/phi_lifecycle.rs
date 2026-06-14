@@ -36,6 +36,99 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ssot::cf_common::insert_phi_at_head_spanned;
 use crate::mir::{BasicBlockId, ValueId};
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(in crate::mir::builder) struct PhiToken {
+    block: BasicBlockId,
+    dst: ValueId,
+}
+
+/// Transaction wrapper for provisional PHI lifecycle operations.
+///
+/// This is a structural guard over the existing low-level lifecycle helpers.
+/// It does not change release routing or accepted source shapes; it only
+/// centralizes "define provisional, patch or rollback, then commit" ordering.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PhiTxn {
+    tag: String,
+    pending: Vec<PhiToken>,
+}
+
+impl PhiTxn {
+    pub(in crate::mir::builder) fn begin(tag: impl Into<String>) -> Self {
+        Self {
+            tag: tag.into(),
+            pending: Vec::new(),
+        }
+    }
+
+    pub(in crate::mir::builder) fn define_provisional_phi(
+        &mut self,
+        builder: &mut MirBuilder,
+        block: BasicBlockId,
+        dst: ValueId,
+        tag: &str,
+    ) -> Result<PhiToken, String> {
+        define_provisional_phi(builder, block, dst, tag)?;
+        let token = PhiToken { block, dst };
+        self.pending.push(token);
+        Ok(token)
+    }
+
+    pub(in crate::mir::builder) fn patch_phi_inputs(
+        &mut self,
+        builder: &mut MirBuilder,
+        token: PhiToken,
+        inputs: Vec<(BasicBlockId, ValueId)>,
+        tag: &str,
+    ) -> Result<(), String> {
+        patch_phi_inputs(builder, token.block, token.dst, inputs, tag)?;
+        self.pending
+            .retain(|pending| pending.block != token.block || pending.dst != token.dst);
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn commit(self) -> Result<(), String> {
+        if self.pending.is_empty() {
+            return Ok(());
+        }
+
+        let preview = self
+            .pending
+            .iter()
+            .take(3)
+            .map(|token| format!("bb={:?}:dst=%{}", token.block, token.dst.0))
+            .collect::<Vec<_>>()
+            .join(",");
+        Err(format!(
+            "[freeze:contract][phi_lifecycle/provisional_left_unpatched] tag={} pending_count={} pending={}",
+            self.tag,
+            self.pending.len(),
+            preview
+        ))
+    }
+
+    pub(in crate::mir::builder) fn abort_on_err(
+        self,
+        builder: &mut MirBuilder,
+        err: String,
+    ) -> Result<(), String> {
+        for token in &self.pending {
+            rollback_provisional_phi(
+                builder,
+                token.block,
+                token.dst,
+                &format!("{}:abort", self.tag),
+            )?;
+        }
+        Err(format!(
+            "[freeze:contract][phi_lifecycle/txn_abort] tag={} pending_count={} source_error={}",
+            self.tag,
+            self.pending.len(),
+            err
+        ))
+    }
+}
+
 /// Define a provisional PHI with empty inputs.
 ///
 /// **Purpose**: Define PHI dst early (before body emit) to ensure

@@ -61,7 +61,7 @@ where
 /// `branch_bindings` remains the logical path state for CorePlan lowering.
 /// `builder.variable_map` is only re-sealed so map-first value lookup observes
 /// the same already-defined value while emitting the current path.
-pub(in crate::mir::builder::control_flow::plan::parts) fn publish_emission_cache(
+pub(in crate::mir::builder::control_flow::plan) fn publish_emission_cache(
     builder: &mut MirBuilder,
     name: String,
     value_id: ValueId,
@@ -69,7 +69,7 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn publish_emission_cache
     builder.variable_ctx.variable_map.insert(name, value_id);
 }
 
-pub(in crate::mir::builder::control_flow::plan::parts) fn publish_defined_binding(
+pub(in crate::mir::builder::control_flow::plan) fn publish_defined_binding(
     builder: &mut MirBuilder,
     branch_bindings: &mut BTreeMap<String, ValueId>,
     name: String,
@@ -80,7 +80,7 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn publish_defined_bindin
 }
 
 /// Re-seal the builder emission cache from the logical branch bindings.
-pub(in crate::mir::builder::control_flow::plan::parts) fn reseal_branch_bindings(
+pub(in crate::mir::builder::control_flow::plan) fn reseal_branch_bindings(
     builder: &mut MirBuilder,
     branch_bindings: &BTreeMap<String, ValueId>,
 ) {

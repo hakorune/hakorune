@@ -31,6 +31,7 @@ pub(in crate::mir::builder) mod cond_lowering_prelude;
 pub(in crate::mir::builder) mod cond_lowering_value_expr;
 
 pub(in crate::mir::builder) mod loop_body_lowering;
+mod stmt_only_prelude_view;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]

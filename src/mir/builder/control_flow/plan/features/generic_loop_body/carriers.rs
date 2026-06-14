@@ -1,5 +1,6 @@
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePhiInfo};
 use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
@@ -121,12 +122,9 @@ pub(in crate::mir::builder) fn finalize_generic_loop_v1_carriers(
             ));
         }
         final_values.push((var.clone(), phi_dst));
-        builder.variable_ctx.variable_map.insert(var, phi_dst);
+        publish_emission_cache(builder, var, phi_dst);
     }
     loop_plan.phis = phis;
     loop_plan.final_values = final_values;
-    builder
-        .variable_ctx
-        .variable_map
-        .insert(loop_var.to_string(), loop_var_current);
+    publish_emission_cache(builder, loop_var.to_string(), loop_var_current);
 }
