@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-MEASUREMENT-001
 Scope: Remeasure product-route object-lifecycle body timing after the
@@ -55,14 +55,51 @@ do not claim winner from MIR shape alone
 do not select a new owner without measurement evidence
 ```
 
+## Result
+
+```text
+output_contract=hako-mimalloc-post-call-operand-materialization-forwarding-measurement-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-687
+post_selected_keeper_candidate_count=0
+post_call_operand_unique_copy_count=27
+hako_body_elapsed_ns=375000000
+c_body_elapsed_ns=3255360
+body_elapsed_ratio=115.195
+body_elapsed_gap_ns=371744640
+gap_owner=compiler_lowering
+copy_count=54
+call_operand_route_carrier_copy_count=27
+call_adjacent_copy_count=27
+dominant_copy_owner=local_ssa_copy_materialization
+dominant_dynamic_owner=local_ssa_copy_materialization
+dominant_position=call_adjacent
+dominant_route_carrier_role=call_operand
+winner_claim=0
+selected_next_owner=post_call_operand_materialization_forwarding_owner_refresh
+selected_owner_confidence=low
+next_task=post_call_operand_materialization_forwarding_owner_refresh
+optimization_open=0
+summary=ok
+```
+
+Interpretation:
+
+```text
+The MIR shape target landed, but body timing did not improve. Do not claim this
+as a performance keeper. Repeat owner selection from the post-implementation
+MIR/timing surface before another code change.
+```
+
 ## Acceptance
 
 ```text
-post_call_operand_materialization_forwarding_measurement_active=1
+post_call_operand_materialization_forwarding_measurement_landed=1
 source_evidence=296x-687
-measurement_run=0
+measurement_run=1
 winner_claim=0
-selected_next_owner=0
+selected_next_owner=post_call_operand_materialization_forwarding_owner_refresh
+selected_owner_confidence=low
 optimization_open=0
-summary=pending
+summary=ok
 ```
