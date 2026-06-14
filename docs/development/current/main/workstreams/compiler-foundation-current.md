@@ -751,7 +751,12 @@ accepted_shape_added=0
 
 ### COREPLAN-TIMEOUT-001: stageb bundle mod if timeout
 
-Next implementation task.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md
+```
 
 Purpose:
 
@@ -765,6 +770,28 @@ Acceptance:
 ```text
 focused_fixture_timeout=0
 focused_fixture_gate_green=1
+loop_v0_route_added=0
+fixture_expected_output_changed=0
+fallback_route_added=0
+accepted_shape_added=0
+```
+
+### COREPLAN-PORT04-TIMEOUT-001: phi exit invariant lock Hako timeout
+
+Next implementation task.
+
+Purpose:
+
+```text
+investigate phase29bq_joinir_port04_phi_exit_invariant_lock_vm timeout on the
+Hako-side run after the BQ list is green
+```
+
+Acceptance:
+
+```text
+port04_hako_timeout=0
+phase29bq_joinir_port04_phi_exit_invariant_lock_vm=PASS
 loop_v0_route_added=0
 fixture_expected_output_changed=0
 fallback_route_added=0
