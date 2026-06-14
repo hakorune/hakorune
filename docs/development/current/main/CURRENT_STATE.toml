@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001 post cfg-stable receiver rewrite measurement"
+active_lane = "POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001 post cfg-stable receiver rewrite stability measurement"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -126,6 +126,10 @@ post_call_operand_unique_copy_count<=14. CALL-OPERAND-CFG-STABLE-RECEIVER-REWRIT
 removed the selected receiver family with post_selected_keeper_candidate_count=0
 and post_call_operand_unique_copy_count=13. The active row remeasures body
 timing before winner or next-owner selection.
+POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001 measured
+measurement_repeat_count=4, median hako_body_elapsed_ns=6500000,
+median c_body_elapsed_ns=3962131, and body_elapsed_ratio=1.640. The active row
+repeats stability measurement before closeout or next-owner selection.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -137,14 +141,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-697-POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-698-POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001.md"
 
-latest_card = "POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-697-POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001.md"
-latest_card_summary = """POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001
-remeasures product-route object-lifecycle body timing after the CFG-stable
-receiver operand rewrite."""
-current_blocker_token = "POST-CFG-STABLE-RECEIVER-REWRITE-MEASUREMENT-001-ACTIVE"
+latest_card = "POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-698-POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001.md"
+latest_card_summary = """POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001
+confirms the post-rewrite body timing floor before closeout or next-owner
+selection."""
+current_blocker_token = "POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
