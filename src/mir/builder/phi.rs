@@ -1,6 +1,6 @@
 use super::MirBuilder;
 use crate::ast::ASTNode;
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, ValueId};
 use std::collections::{BTreeMap, BTreeSet}; // Phase 25.1: 決定性確保
 
 // Phase 84-5: if_phi.rs deleted, type inference now handled by GenericTypeResolver/PhiTypeResolver
@@ -89,12 +89,9 @@ impl MirBuilder {
                             "phi:merge_modified_vars",
                         )?;
                     } else {
-                        // Legacy path: no current block, use emit_instruction
-                        self.emit_instruction(MirInstruction::Phi {
-                            dst: merged,
-                            inputs,
-                            type_hint: None, // Phase 63-6: Legacy path, no type hint
-                        })?;
+                        return Err("[freeze:contract][phi_lifecycle/no_current_block] \
+                             tag=phi:merge_modified_vars"
+                            .to_string());
                     }
                     self.variable_ctx
                         .variable_map

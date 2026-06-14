@@ -56,6 +56,39 @@ where
     result
 }
 
+/// Publish a defined value into the MIR emission cache and branch bindings.
+///
+/// `branch_bindings` remains the logical path state for CorePlan lowering.
+/// `builder.variable_map` is only re-sealed so map-first value lookup observes
+/// the same already-defined value while emitting the current path.
+pub(in crate::mir::builder::control_flow::plan::parts) fn publish_emission_cache(
+    builder: &mut MirBuilder,
+    name: String,
+    value_id: ValueId,
+) {
+    builder.variable_ctx.variable_map.insert(name, value_id);
+}
+
+pub(in crate::mir::builder::control_flow::plan::parts) fn publish_defined_binding(
+    builder: &mut MirBuilder,
+    branch_bindings: &mut BTreeMap<String, ValueId>,
+    name: String,
+    value_id: ValueId,
+) {
+    branch_bindings.insert(name.clone(), value_id);
+    publish_emission_cache(builder, name, value_id);
+}
+
+/// Re-seal the builder emission cache from the logical branch bindings.
+pub(in crate::mir::builder::control_flow::plan::parts) fn reseal_branch_bindings(
+    builder: &mut MirBuilder,
+    branch_bindings: &BTreeMap<String, ValueId>,
+) {
+    for (name, value_id) in branch_bindings {
+        publish_emission_cache(builder, name.clone(), *value_id);
+    }
+}
+
 fn merge_scopebox_outer_updates(
     builder: &mut MirBuilder,
     branch_bindings: &mut BTreeMap<String, ValueId>,
@@ -69,8 +102,7 @@ fn merge_scopebox_outer_updates(
             continue;
         }
         if pre_bindings.contains_key(&name) || pre_builder_map.contains_key(&name) {
-            branch_bindings.insert(name.clone(), value_id);
-            builder.variable_ctx.variable_map.insert(name, value_id);
+            publish_defined_binding(builder, branch_bindings, name, value_id);
         }
     }
 }

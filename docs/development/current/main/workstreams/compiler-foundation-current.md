@@ -29,8 +29,8 @@ compiler_foundation_lane_active=1
 optimization_lane_paused=1
 optimization_resume_front_selection=MIMALLOC-AOT-KERNEL-FRONT-SELECT-002
 compiler_foundation_first_owner=box_callable_registry
-compiler_foundation_next_owner=collection_visible_semantics
-compiler_foundation_later_owner=coreplan_joinir_expressivity
+compiler_foundation_second_owner=collection_visible_semantics
+compiler_foundation_next_owner=coreplan_joinir_expressivity
 ```
 
 The goal is not to add broad language features. The goal is to make the
@@ -104,14 +104,17 @@ Immediate restart ladder:
    to pause or hand off before the next lane is selected
 
 9. Collection visible semantics
-   next selected lane; Buffer pilot first, then String policy, then Map /
-   Array contracts
+   landed through closeout; Buffer, String, Map, and Array now have modular
+   `.hako` visible owners while storage and VM dispatch remain substrate-owned
 
-10. Concurrency semantics
+10. CorePlan / JoinIR expressivity
+   next foundation owner; pick one one-purpose row before implementation
+
+11. Concurrency semantics
    co/Future/TaskGroup, sync box, Channel, context; worker_scope remains gated
    on THREAD-SAFETY-001
 
-11. Arc retirement
+12. Arc retirement
    family-by-family only after callable truth and object identity seams are
    stable
 ```
@@ -1928,9 +1931,89 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --ful
 Next:
 
 ```text
-COMPILER-FOUNDATION-PHASE29BQ-FULL-GREEN-NEXT-DECISION-001
-  choose whether the compiler foundation lane pauses here, returns to
-  BOXCALL-REG-011 reconciliation, or starts the next CorePlan family.
+COLL-VISIBLE-CLOSEOUT-001
+  landed and selects CorePlan / JoinIR expressivity as the next foundation
+  owner.
+
+COREPLAN-JOINIR-RESTART-001
+  choose the next one-purpose CorePlan / JoinIR row before implementation.
+```
+
+### COREPLAN-ONE-ROW-IMPL-001: PHI lifecycle low-level callsite guard
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1033-COREPLAN-ONE-ROW-IMPL-001-PHI-LIFECYCLE-GUARD.md
+```
+
+This is a BoxShape-only row. It does not add accepted source shapes or change
+release routing.
+
+Result:
+
+```text
+selected_row=phi_lifecycle_low_level_callsite_guard
+loop_api_phi_uses_phi_lifecycle=1
+merge_modified_vars_no_current_block_fail_fast=1
+phi_low_level_callsite_owner=phi_lifecycle
+accepted_shape_added=0
+fallback_route_added=0
+release_default_changed=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_phi_binding_boundary_guard.sh
+```
+
+Next:
+
+```text
+COREPLAN-NEXT-ROW-SELECTION-001
+  choose the next one-purpose CorePlan / JoinIR row.
+```
+
+### COREPLAN-VARMAP-RESEAL-001: selected parts variable_map reseal helper
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md
+```
+
+This is a BoxShape-only row. It reduces `variable_map` publication spread in
+selected `parts/**` owners without changing accepted source shapes or release
+routing.
+
+Result:
+
+```text
+coreplan_varmap_reseal_parts_stmt=1
+parts_stmt_direct_variable_map_insert_sites=0
+selected_parts_direct_variable_map_insert_sites=0
+variable_map_direct_insert_sites=54
+variable_map_role=defined_value_emission_cache
+current_bindings_truth_owner_preserved=1
+accepted_shape_added=0
+fallback_route_added=0
+release_default_changed=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_varmap_boundary_inventory_guard.sh
+```
+
+Next:
+
+```text
+COREPLAN-NEXT-ROW-SELECTION-001
+  choose the next one-purpose CorePlan / JoinIR row.
 ```
 
 ## Do Not Do Yet

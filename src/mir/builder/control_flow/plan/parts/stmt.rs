@@ -19,7 +19,9 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
 
-use super::var_map_scope::with_scopebox_binding_boundary;
+use super::var_map_scope::{
+    publish_defined_binding, reseal_branch_bindings, with_scopebox_binding_boundary,
+};
 
 fn tail_is_exit(body: &[ASTNode]) -> bool {
     matches!(
@@ -135,12 +137,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
     // probes temporarily mutate `builder.variable_map`; re-seal the current
     // path's bindings before lowering a statement so map-first value lookup
     // cannot pick stale branch-local ids.
-    for (name, value_id) in branch_bindings.iter() {
-        builder
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
-    }
+    reseal_branch_bindings(builder, branch_bindings);
 
     fn block_contains_break_or_continue(block: &RecipeBlock) -> bool {
         for item in &block.items {
@@ -267,11 +264,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                         value,
                         error_prefix,
                     )?;
-                    branch_bindings.insert(name.clone(), value_id);
-                    builder
-                        .variable_ctx
-                        .variable_map
-                        .insert(name.clone(), value_id);
+                    publish_defined_binding(builder, branch_bindings, name.clone(), value_id);
                     return Ok(plans);
                 }
             }
@@ -285,8 +278,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
             )?;
             debug_log_stmt_binop_lit3(builder, &effects, "assignment");
             if let Some((name, value_id)) = binding {
-                branch_bindings.insert(name.clone(), value_id);
-                builder.variable_ctx.variable_map.insert(name, value_id);
+                publish_defined_binding(builder, branch_bindings, name, value_id);
             }
             Ok(effects_to_plans(effects))
         }
@@ -315,11 +307,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                         error_prefix,
                     )?;
                     plans.append(&mut init_plans);
-                    branch_bindings.insert(name.clone(), value_id);
-                    builder
-                        .variable_ctx
-                        .variable_map
-                        .insert(name.clone(), value_id);
+                    publish_defined_binding(builder, branch_bindings, name.clone(), value_id);
                 }
                 return Ok(plans);
             }
@@ -333,8 +321,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
             )?;
             debug_log_stmt_binop_lit3(builder, &effects, "local");
             for (name, value_id) in inits {
-                branch_bindings.insert(name.clone(), value_id);
-                builder.variable_ctx.variable_map.insert(name, value_id);
+                publish_defined_binding(builder, branch_bindings, name, value_id);
             }
             Ok(effects_to_plans(effects))
         }
@@ -555,8 +542,7 @@ fn lower_value_with_blockexpr_loop_prelude_stmt(
     plans.extend(effects_to_plans(tail_effects));
     for name in outer_binding_names {
         if let Some(value_id) = block_bindings.get(&name).copied() {
-            branch_bindings.insert(name.clone(), value_id);
-            builder.variable_ctx.variable_map.insert(name, value_id);
+            publish_defined_binding(builder, branch_bindings, name, value_id);
         }
     }
     Ok((tail_id, plans))

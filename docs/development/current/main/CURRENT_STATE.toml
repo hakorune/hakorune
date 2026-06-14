@@ -12,9 +12,12 @@ active_lane = "COMPILER-FOUNDATION-001 BoxCallable / TypeAbiCatalog / CorePlan f
 active_lane_status = """Exact-front optimization is paused after the
 flag-toggle bool scalar lowering keeper. The current work is compiler
 foundation: make BoxCallableRegistry the callable truth owner, keep
-TypeAbiCatalog/BoxDescriptor as read-only projection. CorePlan foundation has a
-remaining-family inventory after the B1 boundary: C1 fail-fast guard first, then
-D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
+TypeAbiCatalog/BoxDescriptor as read-only projection. Collection visible
+semantics for Buffer/String/Map/Array are now closed out as modular `.hako`
+visible owners with storage and VM dispatch still substrate-owned. The next
+foundation lane returns to CorePlan / JoinIR expressivity. CorePlan foundation
+has a remaining-family inventory after the B1 boundary: C1 fail-fast guard first,
+then D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
 C1, D1, E1-001 inventory, E1-002 first retire, E1-003
 collect_using_entries retire, E1-004 bundle_resolver retire, E1-005
 scan_v0 retire, E1-006 scan_methods_v0 retire, E1-007 scan_phi_vars_v0
@@ -32,21 +35,28 @@ zero. `phase29bq_fast_gate_vm.sh --full` now passes BQ, Hako MIRBuilder pin
 rows, Program JSON contract pin, PORT04, PORT07, 29ae regression pack, and the
 29bp planner-required dev gate. Local-patch prevention is now active.
 BOXCALL-REG-011 reconciles the landed BoxCallableRegistry rows with older
-TypeAbi BoxDomain rows and names narrow proof commands."""
+TypeAbi BoxDomain rows and names narrow proof commands. COLL-VISIBLE-CLOSEOUT-001
+closes the collection visible semantics lane and selects CorePlan / JoinIR
+expressivity as the next compiler-foundation owner. COREPLAN-ONE-ROW-IMPL-001
+lands the first post-closeout CorePlan row by routing the generic loop API PHI
+entry through phi_lifecycle, removing a legacy direct PHI fallback, and
+extending the PHI boundary guard to reject low-level lifecycle bypasses.
+COREPLAN-VARMAP-RESEAL-001 moves selected `parts/**` variable_map publication
+behind var_map_scope helpers and lowers the direct write inventory baseline."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "BOXCALL-REG-011"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md"
-latest_card_summary = """BOXCALL-REG-011 reconciles landed BoxCallableRegistry
-implementation rows with older TypeAbi BoxDomain rows. BoxCallableRegistry
-remains callable truth; TypeAbiCatalog and BoxDescriptor remain read-only
-projection/tooling surfaces. Narrow proof commands replace the broad
-plugin_loader_v2 filter."""
-current_blocker_token = "COMPILER-FOUNDATION-BOXCALL-REG-011-LANDED-NEXT-DECISION-001-NEXT"
+latest_card = "COREPLAN-VARMAP-RESEAL-001"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md"
+latest_card_summary = """COREPLAN-VARMAP-RESEAL-001 moves selected `parts/**`
+variable_map publication behind `var_map_scope` helpers. `branch_bindings`
+remains logical CorePlan path state; `variable_map` remains a defined-value
+emission cache. The no-growth guard now pins direct insert sites at 54 and
+selected parts direct insert sites at 0."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-VARMAP-RESEAL-001-LANDED-NEXT-ROW-SELECTION"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -16,6 +16,7 @@ use std::collections::BTreeMap;
 
 use super::exit as parts_exit;
 use super::if_general as parts_if_general;
+use super::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 mod helpers;
 use helpers::{
@@ -334,7 +335,7 @@ fn lower_conditional_update_if_from_branches_with_cond_view(
         if carrier_phis.contains_key(&var) || current_bindings.contains_key(&var) {
             current_bindings.insert(var.clone(), dst);
         }
-        builder.variable_ctx.variable_map.insert(var, dst);
+        publish_emission_cache(builder, var, dst);
     }
 
     plans.extend(effects_to_plans(select_effects));

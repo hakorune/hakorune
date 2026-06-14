@@ -54,17 +54,12 @@ impl crate::mir::loop_api::LoopBuilderApi for MirBuilder {
         dst: ValueId,
         inputs: Vec<(BasicBlockId, ValueId)>,
     ) -> Result<(), String> {
-        if let Some(ref mut f) = self.scope_ctx.current_function {
-            crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
-                f,
-                block,
-                dst,
-                inputs,
-                self.metadata_ctx.current_span(),
-            )?;
-            Ok(())
-        } else {
-            Err("No current function".into())
-        }
+        crate::mir::builder::emission::phi_lifecycle::define_phi_final(
+            self,
+            block,
+            dst,
+            inputs,
+            "loop_api:insert_phi_at_block_start",
+        )
     }
 }

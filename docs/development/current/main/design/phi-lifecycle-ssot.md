@@ -93,7 +93,15 @@ transaction が Err で中断し、provisional PHI が残留した場合は、st
   - `patch_phi_inputs`（Populate/patch）
   - `define_phi_final` / `define_phi_final_fn`（single-step）
 - LoopLowerer: provisional insert / patch を SSOT入口経由に移行済み（Step 1.5 / Step 4）。
+- LoopBuilderApi: `insert_phi_at_block_start` is routed through
+  `phi_lifecycle::define_phi_final`; generic builder facades must not call
+  `cf_common::insert_phi_at_head*` directly.
+- Legacy no-current-block PHI fallback: removed. Missing current block
+  fail-fasts as `[freeze:contract][phi_lifecycle/no_current_block]` instead of
+  emitting a PHI through the generic instruction path.
 - 直接呼び出しの抑制: `cf_common::insert_phi_at_head*` / `builder.update_phi_instruction` の直書きを減らし、SSOT入口へ寄せる。
+- Guard: `tools/checks/coreplan_phi_binding_boundary_guard.sh` rejects new
+  low-level PHI lifecycle calls outside `phi_lifecycle`.
 
 ## 推奨リファクタ（BoxShape / 挙動不変）
 

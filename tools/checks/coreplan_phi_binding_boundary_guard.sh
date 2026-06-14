@@ -117,9 +117,43 @@ python3 - <<'PY'
 import subprocess
 from pathlib import Path
 
+allowed_low_level_phi_call_prefixes = (
+    "src/mir/builder/emission/phi_lifecycle.rs:",
+)
+
+low_level_patterns = (
+    r"cf_common::insert_phi_at_head",
+    r"insert_phi_at_head_spanned\(",
+    r"insert_phi_at_head\(",
+    r"\.update_phi_instruction\(",
+)
+
+cmd = [
+    "rg",
+    "-n",
+    "|".join(low_level_patterns),
+    "src/mir/builder",
+    "-g",
+    "*.rs",
+]
+result = subprocess.run(cmd, text=True, capture_output=True)
+lines = result.stdout.splitlines() if result.returncode in (0, 1) else []
+violations = []
+for line in lines:
+    if any(line.startswith(prefix) for prefix in allowed_low_level_phi_call_prefixes):
+        continue
+    # Comments documenting the old failure mode are not callsites.
+    if line.lstrip().startswith("//") or line.lstrip().startswith("//!"):
+        continue
+    violations.append(line)
+
+if violations:
+    print("[coreplan-phi-binding-boundary] ERROR: low-level PHI lifecycle calls outside phi_lifecycle")
+    print("\n".join(violations))
+    raise SystemExit(1)
+
 allowed_prefixes = (
     "src/mir/ssot/cf_common.rs:",
-    "src/mir/builder/phi.rs:",
     "src/mir/builder/emission/phi_lifecycle.rs:",
     "src/mir/builder/ssa/phi_input_materializer.rs:",
     "src/mir/builder/record_helper_args.rs:",
@@ -173,5 +207,6 @@ PY
 
 echo "[$TAG] nested_loop_preheader_hidden_value_capture=0"
 echo "[$TAG] recipe_only_whole_body_fallback=0"
+echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
 echo "[$TAG] phi_direct_emit_no_growth=1"
 echo "[$TAG] ok"

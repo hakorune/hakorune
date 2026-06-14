@@ -75,8 +75,16 @@ Scope: current lane / next lane / restart order only.
   contract with modular `.hako` owner ->
   `ARRAY-VISIBLE-CONTRACT-001` landed Array method / alias / slot / effect
   contract with modular `.hako` owner ->
-  `COLL-VISIBLE-CLOSEOUT-001` landed collection visible semantics closeout;
-  next foundation lane returns to CorePlan / JoinIR expressivity
+  `COLL-VISIBLE-CLOSEOUT-001` landed collection visible semantics closeout
+  in `docs/development/current/main/phases/phase-293x/293x-1032-COLL-VISIBLE-CLOSEOUT-001.md`;
+  next foundation lane returns to CorePlan / JoinIR expressivity ->
+  `COREPLAN-ONE-ROW-IMPL-001` landed the first post-closeout CorePlan row:
+  LoopBuilderApi PHI insertion routes through `phi_lifecycle`, missing current
+  block PHI fallback is fail-fast, and the PHI boundary guard rejects
+  low-level lifecycle bypasses ->
+  `COREPLAN-VARMAP-RESEAL-001` landed the next BoxShape row: selected
+  `parts/**` publishers use `var_map_scope` helpers and the variable_map
+  no-growth guard pins the direct insert baseline at 54
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0
@@ -140,16 +148,19 @@ Scope: current lane / next lane / restart order only.
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
 2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
-3. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
-4. `docs/development/current/main/design/box-callable-registry-ssot.md`
-5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
-6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md`
-9. `docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md`
-10. `docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md`
-11. `docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md`
-12. `docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md`
-13. `docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md`
-14. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-15. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+3. `docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md`
+4. `docs/development/current/main/phases/phase-293x/293x-1033-COREPLAN-ONE-ROW-IMPL-001-PHI-LIFECYCLE-GUARD.md`
+5. `docs/development/current/main/phases/phase-293x/293x-1032-COLL-VISIBLE-CLOSEOUT-001.md`
+6. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
+7. `docs/development/current/main/design/box-callable-registry-ssot.md`
+8. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
+9. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+10. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
+11. `docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md`
+12. `docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md`
+13. `docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md`
+14. `docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md`
+15. `docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md`
+16. `docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md`
+17. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+18. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

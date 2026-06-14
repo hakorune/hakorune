@@ -33,8 +33,10 @@ src/mir/builder/ssa/**
 Current count:
 
 ```text
-variable_map_direct_insert_sites=62
+variable_map_direct_insert_sites=54
 variable_map_remove_clear_sites=0
+parts_stmt_direct_variable_map_insert_sites=0
+selected_parts_direct_variable_map_insert_sites=0
 ```
 
 Family split:
@@ -44,7 +46,7 @@ Family split:
 | `features` | 16 | route-local reseal / route-local state publication |
 | `generic_loop_body` | 11 | legacy generic-loop body lowering and carrier reseal |
 | `normalizer` | 12 | expression/prelude lowering compatibility writes |
-| `parts` | 9 | common stmt / conditional update / var-map scope reseal |
+| `parts` | 1 | selected parts files use helper publication; remaining direct site is helper owner |
 | `parts_dispatch` | 5 | dispatch-level join/block state publication |
 | `parts_loop` | 4 | loop final-value and loop-v0 state publication |
 | `composer` | 4 | legacy nested-minimal composer compatibility writes |
@@ -55,8 +57,10 @@ Family split:
 ```text
 logical_binding_truth_owner=current_bindings
 variable_map_role=defined_value_emission_cache
-variable_map_direct_insert_sites=62
+variable_map_direct_insert_sites=54
 variable_map_remove_clear_sites=0
+parts_stmt_direct_variable_map_insert_sites=0
+selected_parts_direct_variable_map_insert_sites=0
 variable_map_no_growth_guard=1
 accepted_shape_added=0
 fallback_route_added=0
@@ -91,4 +95,3 @@ do not use variable_map as early PHI truth
 do not let LocalSSA repair logical binding freshness
 do not combine this boundary cleanup with a new accepted CorePlan shape
 ```
-
