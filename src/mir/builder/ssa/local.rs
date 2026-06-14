@@ -16,6 +16,11 @@ pub enum LocalKind {
 
 impl LocalKind {
     #[inline]
+    fn can_forward_same_block_call_result_to_compare_operand(self) -> bool {
+        matches!(self, LocalKind::CompareOperand)
+    }
+
+    #[inline]
     fn can_forward_same_block_field_get_to_consumer(self) -> bool {
         matches!(self, LocalKind::Arg | LocalKind::CompareOperand)
     }
@@ -178,6 +183,30 @@ fn field_get_alias_root(builder: &MirBuilder, seed: ValueId) -> Option<FieldGetA
                     field,
                 });
             }
+            _ => return None,
+        }
+    }
+    None
+}
+
+fn same_block_call_result_root(
+    builder: &MirBuilder,
+    seed: ValueId,
+    current_block: crate::mir::BasicBlockId,
+) -> Option<ValueId> {
+    let mut current = seed;
+    let mut seen = std::collections::BTreeSet::new();
+    for _ in 0..8 {
+        if !seen.insert(current) {
+            return None;
+        }
+        let (block, inst) = find_value_def(builder, current)?;
+        if block != current_block {
+            return None;
+        }
+        match inst {
+            MirInstruction::Copy { src, .. } => current = src,
+            MirInstruction::Call { .. } => return Some(current),
             _ => return None,
         }
     }
@@ -444,6 +473,18 @@ fn ensure_inner(
             // coalescing.
             builder.local_ssa_map.insert(key, v);
             return Ok(v);
+        }
+
+        if kind.can_forward_same_block_call_result_to_compare_operand() {
+            if let Some(root) = same_block_call_result_root(builder, v, bb) {
+                // 296x-681: Compare operands may consume an already-materialized
+                // same-block Call result directly. This avoids LocalSSA fallback
+                // Copy chains such as `call -> copy -> copy -> compare` without
+                // changing call execution, variable_map binding, PHI lifecycle,
+                // receiver materialization, or Arg forwarding.
+                builder.local_ssa_map.insert(key, root);
+                return Ok(root);
+            }
         }
 
         if kind.can_forward_field_get_alias_to_consumer() {

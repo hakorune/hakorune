@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-IMPLEMENTATION-001
 Scope: Implement the narrow LocalSSA same-block Call-root CompareOperand policy
@@ -65,6 +65,44 @@ winner_claim=0
 summary=ok
 ```
 
+## Result
+
+```text
+output_contract=hako-mimalloc-local-ssa-call-result-fallback-copy-policy-implementation-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-680
+pre_candidate_result_copy_count=14
+pre_terminal_compare_operand_count=4
+post_terminal_compare_operand_count=0
+post_candidate_result_copy_count=0
+post_candidate_result_copy_count_upper_bound=4
+allowed_use_kind=CompareOperand
+arg_forwarding_enabled=0
+helper_name_special_case=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
+implementation_started=1
+optimization_open=0
+winner_claim=0
+post_helper_selectSinglePageFastPath_candidate_count=0
+post_helper_selectPage_candidate_count=0
+post_helper_acquire_usize_candidate_count=0
+post_helper_reuse_candidate_count=0
+summary=ok
+```
+
+Implementation note:
+
+```text
+The keeper is generic over MIR shape, not helper names:
+  CompareOperand only
+  same-block Copy chain rooted at same-block Call
+  return the Call root ValueId
+
+It does not change Arg forwarding, receiver forwarding, variable_map, PHI
+lifecycle, helper lowering, source .hako, or provider activation.
+```
+
 ## Stop Line
 
 ```text
@@ -78,10 +116,10 @@ do not change helper lowering or source
 ## Acceptance
 
 ```text
-local_ssa_call_result_fallback_copy_policy_implementation_active=1
+local_ssa_call_result_fallback_copy_policy_implementation_landed=1
 source_evidence=296x-680
-implementation_started=0
-post_probe_run=0
+implementation_started=1
+post_probe_run=1
 winner_claim=0
-summary=pending
+summary=ok
 ```
