@@ -201,6 +201,7 @@ require_env() {
 # JoinIR strict lane helper (VM)
 # - strict=1
 # - clear debug/dev flags to avoid env contamination between smoke scripts
+# - pin strict/dev VM-Hako preference; planner-first route pins must not leak in
 # - default plugins=1 (can override via NYASH_DISABLE_PLUGINS)
 run_joinir_vm_strict() {
     local fixture="$1"
@@ -213,12 +214,14 @@ run_joinir_vm_strict() {
         -u HAKO_JOINIR_DEV \
         -u NYASH_JOINIR_DEV \
         NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+        NYASH_VM_HAKO_PREFER_STRICT_DEV=1 \
         HAKO_JOINIR_STRICT=1 \
         "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1
 }
 
 # JoinIR release lane helper (VM)
 # - strict/dev/debug flags are fully unset
+# - pin compat VM preference; release helpers must not inherit strict/dev route pins
 # - default plugins=1 (can override via NYASH_DISABLE_PLUGINS)
 run_joinir_vm_release() {
     local fixture="$1"
@@ -233,6 +236,7 @@ run_joinir_vm_release() {
         -u HAKO_JOINIR_DEV \
         -u NYASH_JOINIR_DEV \
         NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
+        NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
         "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1
 }
 

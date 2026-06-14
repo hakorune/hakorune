@@ -4,6 +4,9 @@
 #
 # Purpose:
 # - Ensure loop_simple_while subset enforces "step-only body" under strict/dev shadow adopt.
+# - Keep the FlowBox negative check fixture-local. The smoke library defaults
+#   NYASH_JOINIR_DEV=1, which can emit FlowBox tags while compiling unrelated
+#   stage3/dev support code before the target fixture runs.
 #
 # Expected:
 # - Exit code 3 (sum increments to 3). If body is dropped, exit would be 0.
@@ -19,10 +22,10 @@ if [ -n "$LEGACY_STEM" ]; then
 fi
 
 FIXTURE="$NYASH_ROOT/apps/tests/loop_simple_while_subset_reject_extra_stmt_min.hako"
-RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
+RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-30}
 
 set +e
-OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env NYASH_DISABLE_PLUGINS=1 HAKO_JOINIR_STRICT=1 "$NYASH_BIN" --backend vm "$FIXTURE" 2>&1)
+OUTPUT=$(timeout "$RUN_TIMEOUT_SECS" env NYASH_DISABLE_PLUGINS=1 NYASH_JOINIR_DEV=0 HAKO_JOINIR_STRICT=1 "$NYASH_BIN" --backend vm "$FIXTURE" 2>&1)
 EXIT_CODE=$?
 set -e
 

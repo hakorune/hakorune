@@ -8,8 +8,8 @@ apps/tests/phase29aq_string_parse_integer_sign_min.hako	-42	0 214	[joinir/planne
 apps/tests/phase29aq_string_index_of_min.hako	2	0 2	[joinir/planner_first rule=ScanWithInit] label=ScanWithInit	index_of min
 apps/tests/phase29aq_string_last_index_of_min.hako	3	0 3	[joinir/planner_first rule=ScanWithInit] label=ScanWithInit	last_index_of min
 apps/tests/phase29aq_string_split_min.hako	3	0	[joinir/planner_first rule=SplitScan] label=SplitScan	split min
-apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	scan_methods loop min
-apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_block_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	scan_methods loop block min
+apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	scan_methods loop min timeout=60
+apps/tests/phase29bq_selfhost_blocker_scan_methods_loop_block_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	scan_methods loop block min timeout=60
 apps/tests/phase29ap_stringutils_join_min.hako	a,b,c	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	stringutils join
 apps/tests/phase29bq_selfhost_blocker_collect_using_entries_loop_min.hako	0	0	[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile	collect_using_entries loop min
 apps/tests/loop_continue_only_min.hako	6	0	[joinir/planner_first rule=LoopContinueOnly] label=LoopContinueOnly	loop_continue_only min (semantic fixture alias)

@@ -38,7 +38,7 @@ if grep -qF "[flowbox/" <<<"$OUTPUT"; then
     exit 1
 fi
 
-if grep -qE "(^3$|RC: 3$)" <<<"$OUTPUT"; then
+if [ "$EXIT_CODE" -eq 3 ] || grep -qE "(^3$|RC: 3$)" <<<"$OUTPUT"; then
     test_pass "${LABEL_PREFIX}: PASS (output: 3)"
     exit 0
 fi

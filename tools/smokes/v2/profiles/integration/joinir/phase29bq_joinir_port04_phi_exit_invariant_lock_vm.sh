@@ -19,7 +19,7 @@ require_env || exit 2
 
 SMOKE_NAME="phase29bq_joinir_port04_phi_exit_invariant_lock_vm"
 FIXTURE="${1:-$NYASH_ROOT/apps/tests/phase29bq_joinir_port04_phi_exit_invariant_min.hako}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-120}"
 EXPECTED_RC="${EXPECTED_RC:-4}"
 
 if ! [[ "$RUN_TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then

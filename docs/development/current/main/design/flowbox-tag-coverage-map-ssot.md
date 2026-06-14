@@ -55,7 +55,14 @@ Note:
 These smoke stems are part of regression coverage and must **not** emit FlowBox adopt tags:
 
 - `loop_break` NotApplicable negative coverage（archived smoke stem; exact legacy stem is tracked in `joinir-smoke-legacy-stem-retirement-ssot.md`）
-- `string_is_integer_strict_reject_vm` (strict fail-fast reject; expects `[vm-hako/unimplemented] ... newbox(StringUtils)`)
+- `loop_simple_while_subset_reject_extra_stmt_vm` (fixture-local strict negative; the smoke pins `NYASH_JOINIR_DEV=0` and `HAKO_JOINIR_STRICT=1` so unrelated stage3/dev support compilation cannot contaminate the raw FlowBox stream)
+
+`string_is_integer_strict_reject_vm` is intentionally **not** a FlowBox
+negative-coverage row. Its strict/dev owner is the VM-Hako subset capability
+boundary, and the accepted marker is either the historical
+`newbox(StringUtils)` reject or the current
+`mir_call(global:StringUtils.is_integer/1)` reject. FlowBox tags may appear
+before subset validation rejects the unsupported global `mir_call`.
 
 ## Gate set (minimal)
 

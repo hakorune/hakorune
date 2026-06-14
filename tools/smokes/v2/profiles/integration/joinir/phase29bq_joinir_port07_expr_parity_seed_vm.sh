@@ -17,7 +17,10 @@ require_env || exit 2
 
 SMOKE_NAME="phase29bq_joinir_port07_expr_parity_seed_vm"
 FIXTURE="${1:-$NYASH_ROOT/apps/tests/phase29bq_joinir_port07_expr_unary_compare_logic_seed_min.hako}"
-RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-30}"
+# Stage-B selfhost-first route dominates this gate's wall time before the
+# Program(JSON)->MIR builder child starts. Keep this gate focused on
+# expression-shape acceptance rather than process startup/Stage-B cost.
+RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-180}"
 EXPECTED_RC="${EXPECTED_RC:-0}"
 
 if ! [[ "$RUN_TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then

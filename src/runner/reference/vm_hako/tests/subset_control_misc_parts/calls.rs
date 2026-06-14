@@ -70,6 +70,47 @@ fn subset_accepts_mir_call_extern_hako_osvm_reserve_bytes_i64() {
 }
 
 #[test]
+fn subset_rejects_unsupported_global_mir_call() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": { "box_type": "StringBox", "kind": "handle" }, "value": "123" }
+                    },
+                    {
+                        "op": "mir_call",
+                        "dst": 2,
+                        "mir_call": {
+                            "callee": { "type": "Global", "name": "StringUtils.is_integer/1" },
+                            "args": [1],
+                            "effects": ["IO"],
+                            "flags": {}
+                        }
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(
+        out,
+        Err((
+            "main".to_string(),
+            0,
+            "mir_call(global:StringUtils.is_integer/1)".to_string()
+        ))
+    );
+}
+
+#[test]
 fn subset_accepts_call_args2_dynamic_when_id1_model_exists() {
     let mir_json = json!({
         "functions": [

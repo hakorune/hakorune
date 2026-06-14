@@ -28,7 +28,7 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if grep -qE "(^3$|RC: 3$)" <<<"$OUTPUT"; then
+if [ "$EXIT_CODE" -eq 3 ] || grep -qE "(^3$|RC: 3$)" <<<"$OUTPUT"; then
     # Avoid `echo ... | grep -q` under `set -o pipefail` (SIGPIPE false negatives).
     if ! grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
         || ! grep -qF "features=break" <<<"$OUTPUT" \

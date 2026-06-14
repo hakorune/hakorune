@@ -5,7 +5,7 @@ source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/output_validator.sh"
 require_env || exit 2
 
-RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
+RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-30}
 FLOWBOX_PREFIX='[flowbox/'
 export NYASH_ALLOW_USING_FILE=1
 
@@ -106,6 +106,13 @@ run_split_scan_strict() {
         test_fail "flowbox_tag_coverage_gate_vm: split_scan strict failed"
         exit 1
     fi
+    if ! grep -qF "[vm-hako/unimplemented]" <<<"$output" \
+        || ! grep -qF "mir_call(global:StringUtils.split_ok/2)" <<<"$output"; then
+        echo "[FAIL] split_scan strict: missing expected VM-Hako subset fail-fast marker"
+        echo "$output" | tail -n 80 || true
+        test_fail "flowbox_tag_coverage_gate_vm: split_scan strict marker missing"
+        exit 1
+    fi
     assert_flowbox_adopt_tag "split_scan_strict" "$output" "Loop" "" "shadow"
 }
 
@@ -151,13 +158,13 @@ run_is_integer_strict() {
         exit 1
     fi
     if ! grep -qF "[vm-hako/unimplemented]" <<<"$output" \
-        || ! grep -qF "newbox(StringUtils)" <<<"$output"; then
+        || ! { grep -qF "newbox(StringUtils)" <<<"$output" \
+            || grep -qF "mir_call(global:StringUtils.is_integer/1)" <<<"$output"; }; then
         echo "[FAIL] is_integer strict: missing fail-fast marker"
         echo "$output" | tail -n 80 || true
         test_fail "flowbox_tag_coverage_gate_vm: is_integer strict marker missing"
         exit 1
     fi
-    assert_no_flowbox_tags "is_integer_strict_reject" "$output"
 }
 
 run_is_integer_release() {

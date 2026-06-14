@@ -25,17 +25,11 @@ if [ "$EXIT_CODE" -ne 1 ]; then
 fi
 
 if ! grep -qF "[vm-hako/unimplemented]" <<<"$OUTPUT" \
-    || ! grep -qF "newbox(StringUtils)" <<<"$OUTPUT"; then
+    || ! { grep -qF "newbox(StringUtils)" <<<"$OUTPUT" \
+        || grep -qF "mir_call(global:StringUtils.is_integer/1)" <<<"$OUTPUT"; }; then
     echo "[FAIL] Missing strict fail-fast marker for StringUtils"
     echo "$OUTPUT" | tail -n 40 || true
     test_fail "string_is_integer_strict_reject_vm: Missing fail-fast marker"
-    exit 1
-fi
-
-if grep -qF "[flowbox/" <<<"$OUTPUT"; then
-    echo "[FAIL] Unexpected FlowBox tag in strict reject output"
-    echo "$OUTPUT" | tail -n 40 || true
-    test_fail "string_is_integer_strict_reject_vm: Unexpected FlowBox tag"
     exit 1
 fi
 

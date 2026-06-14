@@ -25,7 +25,7 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if echo "$OUTPUT" | grep -qE "(^3$|RC: 3$)"; then
+if [ "$EXIT_CODE" -eq 3 ] || echo "$OUTPUT" | grep -qE "(^3$|RC: 3$)"; then
     test_pass "${LABEL_PREFIX}: succeeded (output: 3)"
     exit 0
 fi

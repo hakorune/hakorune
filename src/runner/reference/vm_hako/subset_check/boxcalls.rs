@@ -119,6 +119,9 @@ pub(super) fn validate_mir_call_shape(inst: &Value) -> Result<(), String> {
     if args.iter().any(|v| v.as_u64().is_none()) {
         return Err("mir_call(args:non-reg)".to_string());
     }
+    if callee_type == "Global" && callee_name != "print" && callee_name != "print/1" {
+        return Err(format!("mir_call(global:{})", callee_name));
+    }
 
     Ok(())
 }

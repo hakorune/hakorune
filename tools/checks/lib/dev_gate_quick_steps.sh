@@ -22,6 +22,8 @@ dev_gate_script_step ".inc codegen thin-shim guard" tools/checks/inc_codegen_thi
 dev_gate_script_step "generic-method Set policy mirror guard" tools/checks/generic_method_set_policy_mirror_guard.sh
 dev_gate_script_step "CoreMethodContract manifest guard" tools/checks/core_method_contract_manifest_guard.sh
 dev_gate_script_step "CoreMethodContract .inc no-growth guard" tools/checks/core_method_contract_inc_no_growth_guard.sh
+dev_gate_script_step "CorePlan PHI/Binding boundary guard" tools/checks/coreplan_phi_binding_boundary_guard.sh
+dev_gate_script_step "CorePlan variable_map boundary inventory guard" tools/checks/coreplan_varmap_boundary_inventory_guard.sh
 dev_gate_script_step "MIR root facade guard" tools/checks/mir_root_facade_guard.sh
 dev_gate_script_step "MIR root import hygiene guard" tools/checks/mir_root_import_hygiene_guard.sh
 dev_gate_script_step "MIR builder CallTarget owner guard" tools/checks/mir_builder_calltarget_owner_guard.sh

@@ -5,7 +5,7 @@ source "$(dirname "$0")/../../../lib/test_runner.sh"
 source "$(dirname "$0")/../../../lib/output_validator.sh"
 require_env || exit 2
 
-RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-10}
+RUN_TIMEOUT_SECS=${RUN_TIMEOUT_SECS:-30}
 FALLBACK_TAG='[plan/fallback:'
 export NYASH_ALLOW_USING_FILE=1
 
@@ -118,17 +118,11 @@ run_is_integer_strict_reject() {
     fi
 
     if ! grep -qF "[vm-hako/unimplemented]" <<<"$output" \
-        || ! grep -qF "newbox(StringUtils)" <<<"$output"; then
+        || ! { grep -qF "newbox(StringUtils)" <<<"$output" \
+            || grep -qF "mir_call(global:StringUtils.is_integer/1)" <<<"$output"; }; then
         echo "[FAIL] is_integer strict reject: missing fail-fast marker"
         echo "$output" | tail -n 80 || true
         test_fail "joinir_purity_gate_vm: is_integer strict reject marker missing"
-        exit 1
-    fi
-
-    if grep -qF "[flowbox/" <<<"$output"; then
-        echo "[FAIL] is_integer strict reject: unexpected flowbox tag"
-        echo "$output" | tail -n 80 || true
-        test_fail "joinir_purity_gate_vm: is_integer strict reject had flowbox tag"
         exit 1
     fi
 

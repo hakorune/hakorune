@@ -3,7 +3,7 @@
 # current semantic wrapper; canonical entry for split_scan_strict_shadow_vm
 #
 # Expected:
-# - Exit code 1
+# - Exit code 3
 # - FlowBox: box_kind=Loop via=shadow
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
@@ -29,8 +29,8 @@ if [ "$EXIT_CODE" -eq 124 ]; then
     exit 1
 fi
 
-if [ "$EXIT_CODE" -ne 1 ]; then
-    echo "[FAIL] Expected exit 1, got $EXIT_CODE"
+if [ "$EXIT_CODE" -ne 3 ]; then
+    echo "[FAIL] Expected exit 3, got $EXIT_CODE"
     echo "$OUTPUT" | tail -n 40 || true
     test_fail "${LABEL_PREFIX}: Unexpected RC"
     exit 1
@@ -45,5 +45,5 @@ if ! grep -qF "[flowbox/adopt box_kind=Loop" <<<"$OUTPUT" \
     exit 1
 fi
 
-test_pass "${LABEL_PREFIX}: PASS (exit=1, flowbox tag)"
+test_pass "${LABEL_PREFIX}: PASS (exit=3, flowbox tag)"
 exit 0

@@ -34,7 +34,7 @@ static box JsonFragNormalizerBox {
     local s = me._coerce_text_compat(arr_text)
     local n = s.length()
     local i = StringHelpers.to_i64("0")
-    local guard = StringHelpers.to_i64("0")
+    local loop_guard = StringHelpers.to_i64("0")
     local phi_list = new ArrayBox()
     local const_list = new ArrayBox()
     local others_list = new ArrayBox()
@@ -42,8 +42,8 @@ static box JsonFragNormalizerBox {
     // Dev-only: purify flag to drop builder-side allocations (e.g., newbox) from JSONFrag output
     local purify = false; if me._env_flag_is_one("HAKO_MIR_BUILDER_JSONFRAG_PURIFY") == 1 { purify = true }
     loop(i < n) {
-      guard = guard + 1
-      if guard > 4096 { break }
+      loop_guard = loop_guard + 1
+      if loop_guard > 4096 { break }
       // seek next object '{'
       local ob = JsonFragBox.index_of_from(s, me._lb(), i)
       if ob < 0 { break }
@@ -353,10 +353,10 @@ static box JsonFragNormalizerBox {
     local out = ""
     local pos = 0
     local n = src.length()
-    local guard = 0
+    local loop_guard = 0
     loop(pos < n) {
-      guard = guard + 1
-      if guard > 16384 { break }
+      loop_guard = loop_guard + 1
+      if loop_guard > 16384 { break }
       local k = src.indexOf(key, pos)
       if k < 0 {
         out = out + src.substring(pos, n)

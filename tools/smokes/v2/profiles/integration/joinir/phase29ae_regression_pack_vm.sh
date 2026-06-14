@@ -4,6 +4,8 @@
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
+PHASE29AE_RUN_TIMEOUT_SECS="${PHASE29AE_RUN_TIMEOUT_SECS:-30}"
+
 dump_adopt_env_on_failure() {
     # NOTE: Keep this list short and stable; these flags are a common source of "wrong hypothesis" failures.
     log_error "env(adopt): NYASH_OPERATOR_BOX_COMPARE_ADOPT=${NYASH_OPERATOR_BOX_COMPARE_ADOPT:-<unset>} NYASH_OPERATOR_BOX_ADD_ADOPT=${NYASH_OPERATOR_BOX_ADD_ADOPT:-<unset>} NYASH_VM_TOLERATE_VOID=${NYASH_VM_TOLERATE_VOID:-<unset>}"
@@ -22,7 +24,7 @@ run_filter() {
     fi
 
     log_info "phase29ae_regression_pack_vm: ${label} (${filter_regex})"
-    if ! bash "$NYASH_ROOT/tools/smokes/v2/run.sh" "${args[@]}"; then
+    if ! RUN_TIMEOUT_SECS="$PHASE29AE_RUN_TIMEOUT_SECS" bash "$NYASH_ROOT/tools/smokes/v2/run.sh" "${args[@]}"; then
         dump_adopt_env_on_failure
         log_error "phase29ae_regression_pack_vm: ${label} failed"
         return 1

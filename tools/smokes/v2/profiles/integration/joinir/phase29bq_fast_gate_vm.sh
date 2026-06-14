@@ -207,6 +207,7 @@ run_bq_gates() {
     "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port04_phi_exit_invariant_lock_vm.sh" || return 1
 
   run_step "phase29bq_joinir_port07_expr_parity_seed_vm" "$LOG_JOINIR_PORT07_EXPR_PARITY_SEED" \
+    env RUN_TIMEOUT_SECS="${PHASE29BQ_PORT07_TIMEOUT_SECS:-180}" \
     "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port07_expr_parity_seed_vm.sh" || return 1
   return 0
 }
