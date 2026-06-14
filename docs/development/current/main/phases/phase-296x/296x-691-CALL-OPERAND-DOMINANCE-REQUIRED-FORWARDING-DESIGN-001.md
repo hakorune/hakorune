@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-DESIGN-001
 Scope: Design the dominance/visibility contract for residual call-operand
@@ -62,15 +62,51 @@ do not change PHI lifecycle
 do not claim a winner
 ```
 
-## Acceptance
+## Result
 
 ```text
-call_operand_dominance_required_forwarding_design_active=1
+output_contract=hako-mimalloc-call-operand-dominance-required-forwarding-design-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-690
-design_run=0
-selected_keeper_shape=0
+selected_policy_family=dominance_required_call_operand_forwarding
+pre_candidate_count=14
+safe_dominance_candidate_count=14
+unsafe_candidate_count=0
+safe_receiver_candidate_count=13
+safe_arg_candidate_count=1
+selected_keeper_shape=dominance_guarded_receiver_operand_forwarding
+selected_keeper_candidate_count=13
+rejected_arg_forwarding_count=1
+arg_forwarding_enabled=0
+requires_dominance_guard=1
+helper_name_special_case=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+next_task=call_operand_dominance_required_forwarding_guard_surface
+summary=ok
+```
+
+Interpretation:
+
+```text
+All 14 cross-root candidates are dominance-safe, but the keeper stays
+receiver-only. Arg forwarding remains closed. The next row fixes the post
+target before implementation.
+```
+
+## Acceptance
+
+```text
+call_operand_dominance_required_forwarding_design_landed=1
+source_evidence=296x-690
+design_run=1
+selected_keeper_shape=dominance_guarded_receiver_operand_forwarding
+selected_keeper_candidate_count=13
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
 ```
