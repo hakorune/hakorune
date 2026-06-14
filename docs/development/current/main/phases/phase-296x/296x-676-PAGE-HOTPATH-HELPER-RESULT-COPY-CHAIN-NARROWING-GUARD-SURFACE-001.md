@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: PAGE-HOTPATH-HELPER-RESULT-COPY-CHAIN-NARROWING-GUARD-SURFACE-001
 Scope: Define the guard surface for the narrow page-hotpath helper result
@@ -26,6 +26,29 @@ unsafe_candidate_count=0
 ```
 
 This row defines the pre-implementation guard surface for that narrow keeper.
+
+## Result
+
+```text
+output_contract=hako-mimalloc-page-hotpath-helper-result-copy-chain-guard-surface-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-675
+pre_candidate_result_copy_count=14
+pre_terminal_consumer_rewrite_candidate_count=4
+pre_unsafe_candidate_count=0
+post_terminal_consumer_target=0
+post_candidate_result_copy_count_upper_bound=10
+selected_keeper_owner=LocalSSA::ensure_call_result_alias_to_consumer
+next_task=page_hotpath_helper_result_copy_chain_narrowing_implementation
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
+```
+
+The first keeper should be judged by the terminal consumer rewrite target. Full
+14-copy removal is not required for the first keeper because 10 candidates are
+internal copy-only chain members that depend on later dead-copy cleanup.
 
 ## Guard Shape
 
@@ -80,9 +103,9 @@ do not claim a performance win
 ```text
 page_hotpath_helper_result_copy_chain_guard_surface_active=1
 source_evidence=296x-675
-guard_surface_defined=0
+guard_surface_defined=1
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
 ```
