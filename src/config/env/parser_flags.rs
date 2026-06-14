@@ -112,11 +112,6 @@ pub fn parser_try_compat_enabled() -> bool {
     true
 }
 
-#[deprecated(note = "Use parser_stage3_enabled() instead")]
-pub fn parser_stage3() -> bool {
-    parser_stage3_enabled()
-}
-
 /// Parser gate for Block‑Postfix Catch acceptance
 /// Enabled when either NYASH_BLOCK_CATCH=1 or Stage‑3 gate is on.
 /// Phase 15.5 allows parsing a standalone `{ ... }` block optionally followed by

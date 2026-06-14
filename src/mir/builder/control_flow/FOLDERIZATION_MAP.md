@@ -281,7 +281,6 @@ run targeted planner/facts tests
 - `generic_loop`
 - `loop_break`
 - `loop_cond`
-- `loop_scan_phi_vars_v0`
 - `loop_true_break_continue`
 - `nested_loop_depth1`
 

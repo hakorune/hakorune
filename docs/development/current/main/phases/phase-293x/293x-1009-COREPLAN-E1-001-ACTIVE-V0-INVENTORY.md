@@ -63,6 +63,12 @@ retired by COREPLAN-E1-002. The guard intentionally tracks the current active
 set, and later retire cards shrink that set one box at a time.
 ```
 
+```text
+The full active set above was subsequently retired by COREPLAN-E1-002..E1-007;
+the guard now reports active_v0_box_count=0. This card remains as the inventory
+origin record (see closeout card 293x-1016).
+```
+
 ## Stop Lines
 
 ```text

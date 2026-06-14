@@ -91,7 +91,7 @@ The following keywords require `NYASH_PARSER_STAGE3=1`:
 ### 1. Builder Error Message Enhancement
 **File**: `src/mir/builder.rs:382-406`
 
-Added Stage-3 keyword detection with helpful hints when `parser_stage3()` is disabled.
+Added Stage-3 keyword detection with helpful hints when `parser_stage3_enabled()` is disabled.
 
 ### 2. Documentation Update
 **File**: `lang/src/llvm_ir/boxes/aot_prep/README.md`
