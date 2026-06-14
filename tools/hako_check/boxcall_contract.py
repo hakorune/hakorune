@@ -88,6 +88,7 @@ def contract_lines() -> list[str]:
         "boxcall_foundation_closeout_ready=1",
         "provider_rows_cover_builtin_plugin_surface=1",
         "boxcall_next_lane_requires_selection=1",
+        "boxcall_next_lane_selected=collection_visible_semantics",
         "summary=ok",
     ]
 

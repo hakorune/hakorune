@@ -134,6 +134,7 @@ pub const BOXCALL_FOUNDATION_CLOSEOUT_READY: &str = "boxcall_foundation_closeout
 pub const PROVIDER_ROWS_COVER_BUILTIN_PLUGIN_SURFACE: &str =
     "provider_rows_cover_builtin_plugin_surface";
 pub const BOXCALL_NEXT_LANE_REQUIRES_SELECTION: &str = "boxcall_next_lane_requires_selection";
+pub const BOXCALL_NEXT_LANE_SELECTED: &str = "boxcall_next_lane_selected";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
@@ -261,6 +262,7 @@ pub const BOXCALL_FOUNDATION_CLOSEOUT_001_ROWS: &[(&str, &str)] = &[
     (PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY, "1"),
     (TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY, "1"),
     (BOXCALL_NEXT_LANE_REQUIRES_SELECTION, "1"),
+    (BOXCALL_NEXT_LANE_SELECTED, "collection_visible_semantics"),
 ];
 
 pub const BOXCALL_006_ROWS: &[(&str, &str)] = &[
@@ -532,6 +534,10 @@ mod tests {
         assert_eq!(rows[PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY], "1");
         assert_eq!(rows[TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY], "1");
         assert_eq!(rows[BOXCALL_NEXT_LANE_REQUIRES_SELECTION], "1");
+        assert_eq!(
+            rows[BOXCALL_NEXT_LANE_SELECTED],
+            "collection_visible_semantics"
+        );
     }
 
     #[test]

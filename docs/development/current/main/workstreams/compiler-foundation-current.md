@@ -29,7 +29,8 @@ compiler_foundation_lane_active=1
 optimization_lane_paused=1
 optimization_resume_front_selection=MIMALLOC-AOT-KERNEL-FRONT-SELECT-002
 compiler_foundation_first_owner=box_callable_registry
-compiler_foundation_second_owner=coreplan_joinir_expressivity
+compiler_foundation_next_owner=collection_visible_semantics
+compiler_foundation_later_owner=coreplan_joinir_expressivity
 ```
 
 The goal is not to add broad language features. The goal is to make the
@@ -103,7 +104,8 @@ Immediate restart ladder:
    to pause or hand off before the next lane is selected
 
 9. Collection visible semantics
-   Buffer first, then String policy, then Map / Array contracts
+   next selected lane; Buffer pilot first, then String policy, then Map /
+   Array contracts
 
 10. Concurrency semantics
    co/Future/TaskGroup, sync box, Channel, context; worker_scope remains gated
@@ -495,7 +497,7 @@ Stop line:
 ```text
 do not implement Buffer visible semantics in the catalog row
 do not move Vec / byte storage mechanics into .hako
-do not combine this with BUFFER-VISIBLE-001
+do not combine this with BUFFER-VISIBLE-INVENTORY-001
 ```
 
 ### BUFFER-PROVIDER-ROWS-001: Buffer catalog as provider rows
@@ -644,8 +646,7 @@ Purpose:
 ```text
 close the BoxCallable / provider / RoutePlan foundation lane
 verify the landed rows as one coherent boundary
-choose whether the active lane moves to collection visible semantics or
-CorePlan / JoinIR expressivity
+hand off to collection visible semantics as the next compiler-foundation lane
 ```
 
 Acceptance:
@@ -659,6 +660,7 @@ typeabi_catalog_execution_route_count=0
 plugin_loader_provider_snapshot_only=1
 type_registry_callable_provider_only=1
 boxcall_next_lane_requires_selection=1
+boxcall_next_lane_selected=collection_visible_semantics
 summary=ok
 ```
 
@@ -669,6 +671,286 @@ cargo test -q --lib box_callable
 cargo test -q --lib type_abi
 cargo test -q --lib plugin_loader_snapshot
 bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+### COLL-VISIBLE-000: collection visible semantics lane card
+
+Status:
+
+```text
+next
+```
+
+Purpose:
+
+```text
+start the post-BoxCallable collection lane
+define visible semantics as user-observable policy above Rust storage
+choose Buffer as the first pilot
+```
+
+Non-goals:
+
+```text
+do not rewrite collection storage
+do not move Vec / HashMap / RwLock / Arc mechanics into .hako
+do not change VM handler dispatch in this docs-only row
+```
+
+Acceptance:
+
+```text
+collection_visible_semantics_lane_active=1
+collection_visible_first_pilot=Buffer
+collection_storage_substrate_owner_preserved=1
+buffer_pilot_task_order_named=1
+summary=ok
+```
+
+### BUFFER-VISIBLE-INVENTORY-001: Buffer visible semantics inventory
+
+Status:
+
+```text
+planned_after=COLL-VISIBLE-000
+```
+
+Purpose:
+
+```text
+inventory Buffer visible methods and aliases
+separate visible policy from storage mechanics
+name the first fixtures and hako_check fields before code migration
+```
+
+Scope:
+
+```text
+methods:
+  write/1
+  read/1
+  readAll/0
+  clear/0
+  length/0
+  len/0
+  size/0
+  append/1
+  slice/2
+
+policy:
+  return values
+  mutation effects
+  bounds behavior
+  byte ordering for future numeric helpers
+```
+
+Acceptance:
+
+```text
+buffer_visible_method_inventory_exists=1
+buffer_alias_policy_named=1
+buffer_storage_substrate_owner=1
+buffer_visible_fixture_plan_exists=1
+summary=ok
+```
+
+### BUFFER-VISIBLE-CONTRACT-002: Buffer behavior fixtures / report
+
+Status:
+
+```text
+planned_after=BUFFER-VISIBLE-INVENTORY-001
+```
+
+Purpose:
+
+```text
+pin Buffer visible behavior before moving policy into .hako
+make hako_check report the policy boundary
+keep byte storage and allocation in Rust substrate
+```
+
+Acceptance:
+
+```text
+buffer_visible_contract_fixtures_green=1
+buffer_length_read_write_contract=1
+buffer_clear_append_slice_contract=1
+buffer_storage_layout_changed=0
+summary=ok
+```
+
+### BUFFER-HAKO-CORE-003: first .hako Buffer visible owner
+
+Status:
+
+```text
+planned_after=BUFFER-VISIBLE-CONTRACT-002
+```
+
+Purpose:
+
+```text
+move the first Buffer visible policy owner above Rust
+keep substrate calls narrow and mechanical
+prove VM dispatch still routes through the existing handler boundary
+```
+
+Acceptance:
+
+```text
+buffer_hako_visible_owner_exists=1
+buffer_substrate_byte_storage_preserved=1
+buffer_vm_handler_dispatch_owner=1
+buffer_visible_semantics_changed=0
+summary=ok
+```
+
+### BUFFER-NUMERIC-LE-004: Buffer typed numeric policy
+
+Status:
+
+```text
+planned_after=BUFFER-HAKO-CORE-003
+```
+
+Purpose:
+
+```text
+pin little-endian typed read/write policy
+pin bounds and failure behavior
+do not widen storage layout or allocation mechanics
+```
+
+Acceptance:
+
+```text
+buffer_numeric_le_policy_owner=1
+buffer_numeric_bounds_policy_owner=1
+buffer_numeric_storage_layout_changed=0
+summary=ok
+```
+
+### STRING-VISIBLE-INVENTORY-001: String visible policy inventory
+
+Status:
+
+```text
+planned_after=BUFFER-NUMERIC-LE-004
+```
+
+Purpose:
+
+```text
+split String visible policy from byte storage and runtime representation
+prepare the first .hako-owned String policy row
+```
+
+Acceptance:
+
+```text
+string_visible_policy_inventory_exists=1
+string_byte_codepoint_policy_named=1
+string_index_policy_named=1
+string_storage_substrate_owner=1
+summary=ok
+```
+
+### STRING-HAKO-POLICY-002: first .hako String policy owner
+
+Status:
+
+```text
+planned_after=STRING-VISIBLE-INVENTORY-001
+```
+
+Purpose:
+
+```text
+move one String visible policy above Rust with fixtures
+keep low-level byte storage and allocation in substrate
+```
+
+Acceptance:
+
+```text
+string_hako_policy_owner_exists=1
+string_storage_substrate_owner=1
+string_visible_semantics_changed=0
+summary=ok
+```
+
+### MAP-VISIBLE-CONTRACT-001: Map visible contract
+
+Status:
+
+```text
+planned_after=STRING-HAKO-POLICY-002
+```
+
+Purpose:
+
+```text
+pin missing-key, key normalization, delete/clear return, and iteration policy
+before any .hako ownership claim
+```
+
+Acceptance:
+
+```text
+map_visible_contract_exists=1
+map_storage_substrate_owner=1
+map_visible_semantics_changed=0
+summary=ok
+```
+
+### ARRAY-VISIBLE-CONTRACT-001: Array visible contract
+
+Status:
+
+```text
+planned_after=MAP-VISIBLE-CONTRACT-001
+```
+
+Purpose:
+
+```text
+pin OOB/null/append-at-end set behavior and visible length semantics
+without changing inline lane representation
+```
+
+Acceptance:
+
+```text
+array_visible_contract_exists=1
+array_inline_lane_representation_changed=0
+array_storage_substrate_owner=1
+summary=ok
+```
+
+### COLL-VISIBLE-CLOSEOUT-001: collection visible semantics closeout
+
+Status:
+
+```text
+planned_after=ARRAY-VISIBLE-CONTRACT-001
+```
+
+Purpose:
+
+```text
+summarize which collection semantics moved upward
+summarize which storage mechanics intentionally remain substrate-owned
+select the next compiler-foundation lane
+```
+
+Acceptance:
+
+```text
+collection_visible_semantics_closeout_ready=1
+collection_storage_substrate_owner_preserved=1
+next_foundation_lane_selected=1
+summary=ok
 ```
 
 ### COREPLAN-FOUND-000: next expressivity family selection

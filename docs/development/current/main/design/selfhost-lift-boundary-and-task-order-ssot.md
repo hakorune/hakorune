@@ -168,35 +168,66 @@ do not route hot execution through TypeAbiPack / TypeAbiCatalog
 Do next because this removes high-value Rust semantic ownership while leaving
 storage mechanics below the boundary.
 
+The lane is not a broad rewrite of collection storage. It is a visible
+semantics lift. Each collection must first expose what users can observe, then
+move that policy into `.hako` or `.hako`-owned tests, while Rust keeps raw
+storage mechanics until a separate substrate row replaces them.
+
+Task ladder:
+
 ```text
-BUFFER-VISIBLE-001:
-  add lang/src/runtime/collections/buffer_core_box.hako as visible owner for
-  length/read/readAll/write/clear/slice/append
+COLL-VISIBLE-000:
+  docs-only lane card
+  define collection visible semantics as the next lane after BoxCallable
+  choose Buffer as first pilot
 
-BUFFER-NUMERIC-LE-001:
-  pin typed read/write little-endian and bounds policy as .hako contract;
-  Rust remains byte storage substrate
+BUFFER-VISIBLE-INVENTORY-001:
+  list Buffer visible methods, aliases, return policy, mutation policy, and
+  substrate-owned storage mechanics
 
-STRING-INDEX-POLICY-001:
-  make byte/codepoint mode, substring clamp, indexOf, and lastIndexOf one
-  string policy owner
+BUFFER-VISIBLE-CONTRACT-002:
+  pin length/read/readAll/write/clear/slice/append behavior with fixtures and
+  hako_check report fields
+
+BUFFER-HAKO-CORE-003:
+  add the first `.hako` visible owner for Buffer policy
+  keep byte storage and allocation in substrate
+
+BUFFER-NUMERIC-LE-004:
+  pin typed read/write little-endian, bounds, and failure policy
+  do not widen Buffer storage layout in the same row
+
+STRING-VISIBLE-INVENTORY-001:
+  split String visible policy from storage: byte/codepoint mode, substring
+  clamp, indexOf, lastIndexOf, concat length policy
+
+STRING-HAKO-POLICY-002:
+  move the first String visible policy into `.hako` ownership with fixtures
+  and keep low-level byte storage in substrate
 
 MAP-VISIBLE-CONTRACT-001:
-  pin missing-key, key normalization, delete/clear return, and sorted
-  keys/values visible behavior in .hako
+  pin missing-key, key normalization, delete/clear return, insertion order or
+  sorted keys/values behavior
 
-ARRAY-OOB-CONTRACT-001:
-  lift OOB/null/append-at-end set visible contract into .hako / MIRBuilder
-  tests while leaving inline storage and slot helpers in substrate
+ARRAY-VISIBLE-CONTRACT-001:
+  pin OOB/null/append-at-end set behavior and visible length semantics
+  without changing inline lane representation
+
+COLL-VISIBLE-CLOSEOUT-001:
+  report which collection policies moved upward and which substrate mechanics
+  intentionally remain below
 ```
 
 Stop line:
 
 ```text
+do not begin with String/Array/Map before the Buffer pilot card exists
 do not move Vec / HashMap / RwLock / Arc mechanics into .hako
 do not move Array inline lane representation as a semantics task
 do not turn method-shaped compat exports into final substrate names
 do not widen Array / Map work without a concrete blocker or selected front
+do not claim de-Rust progress unless visible semantics are owned above Rust
+and raw storage remains explicitly substrate-owned
 ```
 
 ### C. Concurrency Semantics

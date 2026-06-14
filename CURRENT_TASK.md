@@ -59,9 +59,20 @@ Scope: current lane / next lane / restart order only.
   `BOXCALL-ROUTEPLAN-001` landed slice ->
   `TYPE-REGISTRY-PROVIDER-001` landed slice ->
   `PLUGIN-PROVIDER-SNAPSHOT-001` landed slice ->
-  `BOXCALL-FOUNDATION-CLOSEOUT-001` landed slice; next lane requires explicit
-  selection between collection visible semantics and CorePlan / JoinIR
-  expressivity before moving on
+  `BOXCALL-FOUNDATION-CLOSEOUT-001` landed slice
+- selected next lane: collection visible semantics
+- next implementation order:
+  `COLL-VISIBLE-000` docs-only lane card ->
+  `BUFFER-VISIBLE-INVENTORY-001` Buffer visible method / alias / policy
+  inventory ->
+  `BUFFER-VISIBLE-CONTRACT-002` fixtures and hako_check report fields ->
+  `BUFFER-HAKO-CORE-003` first `.hako` Buffer visible owner ->
+  `BUFFER-NUMERIC-LE-004` typed little-endian numeric policy ->
+  `STRING-VISIBLE-INVENTORY-001` ->
+  `STRING-HAKO-POLICY-002` ->
+  `MAP-VISIBLE-CONTRACT-001` ->
+  `ARRAY-VISIBLE-CONTRACT-001` ->
+  `COLL-VISIBLE-CLOSEOUT-001`
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0
