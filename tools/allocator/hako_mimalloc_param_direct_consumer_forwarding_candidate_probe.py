@@ -93,6 +93,12 @@ def main() -> int:
     origin = load_origin_module()
     function = origin.find_function(origin.load_json(args.mir_json), args.method)
     blocks = origin.block_instructions(function)
+    all_producers = {
+        inst.get("dst"): inst
+        for _, insts in blocks
+        for inst in insts
+        if inst.get("dst") is not None
+    }
 
     phi_dsts: set[Any] = set()
     for _, insts in blocks:
@@ -111,7 +117,6 @@ def main() -> int:
 
     for block_id, insts in blocks:
         call_attributed = origin.collect_call_attributed_copy_dsts(insts)
-        producers = {inst.get("dst"): inst for inst in insts if inst.get("dst") is not None}
         consumers: dict[Any, list[dict[str, Any]]] = defaultdict(list)
         for inst in insts:
             for value in origin.value_uses(inst):
@@ -130,7 +135,9 @@ def main() -> int:
             )
             if category != "expression_materialization":
                 continue
-            origin_kind, origin_detail, chain_len = origin.origin_label(inst.get("src"), producers)
+            origin_kind, origin_detail, chain_len = origin.origin_label(
+                inst.get("src"), all_producers
+            )
             if origin_kind != "param":
                 continue
 

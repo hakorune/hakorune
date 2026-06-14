@@ -1,9 +1,10 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: PARAM-ALIAS-COPY-OWNER-REFRESH-001
-Scope: Re-select the owner for param-origin copy chains after direct-consumer
-  LocalSSA forwarding did not reduce the target candidate count.
+Scope: Repair block-local copy-origin misclassification and re-select the
+  owner after apparent param-origin copies resolved to function-wide field_get
+  chains.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/phases/phase-296x/296x-668-PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001.md
@@ -18,8 +19,11 @@ Related:
 consumer-side LocalSSA implementation because the target param candidate count
 did not decrease.
 
-This row reselects the actual owner for the `%param -> copy -> copy -> direct
-consumer` chains.
+This row reselects the actual owner for the apparent `%param -> copy -> copy ->
+direct consumer` chains. The root cause was diagnostic, not product code:
+`hako_mimalloc_expression_materialization_copy_origin_probe.py` used
+block-local producers, so cross-block field_get roots were misclassified as
+`param`.
 
 ```text
 row_kind=owner_refresh
@@ -27,6 +31,7 @@ implementation_started=0
 optimization_open=0
 previous_attempt=local_ssa_param_direct_consumer_forwarding
 previous_attempt_keeper=0
+origin_probe_scope_repaired=function_wide_producers
 ```
 
 ## Evidence
@@ -40,7 +45,7 @@ after_expression_materialization_copy_count=10
 after_unsafe_forward_count=0
 ```
 
-Representative current MIR shape:
+Representative MIR shape before origin repair:
 
 ```text
 field_set base chain:
@@ -60,41 +65,56 @@ compare operand chain:
   compare lhs=%153
 ```
 
-This suggests the owner is upstream from direct consumer finalization:
+After repairing the probe to use function-wide producers, the selected owner
+returned to field_get-origin chains:
 
 ```text
-candidate_owner=param_alias_local_binding_copy_chain
-candidate_owner=variable_or_local_binding_materialization
-candidate_owner=copy_chain_cleanup_after_variable_access
-```
-
-## Required First Step
-
-Add or run an owner-refresh probe that classifies each param candidate by:
-
-```text
-chain_origin_param_id
-chain_first_copy_block
-chain_first_copy_position
-chain_second_copy_position
-final_consumer_family
-whether_first_copy_is_variable_binding
-whether_second_copy_is_local_ssa_or_expression_materialization
-```
-
-Required output shape:
-
-```text
-output_contract=hako-mimalloc-param-alias-copy-owner-refresh-v0
-target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
-param_candidate_copy_count=7
-dominant_chain_shape=<shape>
-selected_owner=<owner>
-selected_owner_confidence=<low|medium|high>
-next_task=<next>
-optimization_open=0
-winner_claim=0
+expression_materialization_copy_count=10
+dominant_expression_origin=field_get
+field_get_origin_copy_count=7
+mir_call_origin_copy_count=2
+param_origin_copy_count=0
+selected_origin_policy=field_get_expression_value_copy_chain
+next_diagnostic=field_get_expression_copy_chain_policy_selection
 summary=ok
+```
+
+Refreshed field-get policy:
+
+```text
+field_get_origin_copy_count=7
+expression_materialization_copy_count=10
+field_get_origin_ratio_bp=7000
+selected_chain_policy=field_get_direct_consumer_value_forwarding
+selected_chain_policy_confidence=medium
+summary=ok
+```
+
+Refreshed field-get candidate probe:
+
+```text
+field_get_expression_copy_count=7
+consumer_reachable_copy_count=7
+forwarding_candidate_copy_count=4
+max_forwarding_chain_len=1
+dominant_candidate_sink=field_get
+dominant_candidate_field=object_lifecycle_queue
+selected_optimization_owner=mir_builder_expression_materialization_forwarding
+next_diagnostic=field_get_direct_consumer_forwarding_keeper_design
+summary=ok
+```
+
+## Repaired Tools
+
+```text
+tools/allocator/hako_mimalloc_expression_materialization_copy_origin_probe.py:
+  origin_label uses function-wide producers
+
+tools/allocator/hako_mimalloc_field_get_direct_consumer_forwarding_candidate_probe.py:
+  origin_label uses function-wide producers
+
+tools/allocator/hako_mimalloc_param_direct_consumer_forwarding_candidate_probe.py:
+  origin_label uses function-wide producers
 ```
 
 ## Stop Line
@@ -102,7 +122,8 @@ summary=ok
 ```text
 do not reapply local_ssa_param_direct_consumer_forwarding
 do not broaden Arg forwarding for all calls
-do not remove variable/local copies without identifying their semantic owner
+do not use block-local producer origin attribution for cross-block chains
+do not reuse historical row181/182 counts without current-MIR refresh
 do not change source .hako
 do not touch allocator provider activation
 ```
@@ -110,11 +131,16 @@ do not touch allocator provider activation
 ## Acceptance
 
 ```text
-param_alias_copy_owner_refresh_001_active=1
+param_alias_copy_owner_refresh_001_landed=1
 previous_attempt_keeper=0
-owner_refresh_probe_run=0
-selected_owner=0
+origin_probe_scope_repaired=function_wide_producers
+dominant_expression_origin=field_get
+param_origin_copy_count=0
+selected_origin_policy=field_get_expression_value_copy_chain
+field_get_forwarding_candidate_copy_count=4
+selected_owner=mir_builder_expression_materialization_forwarding
+next_task=FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002
 implementation_started=0
 optimization_open=0
-summary=pending
+summary=ok
 ```
