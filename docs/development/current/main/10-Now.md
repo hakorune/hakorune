@@ -36,9 +36,10 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
   moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002`
-- current step is refreshing field_get direct-consumer forwarding on current
-  MIR after repairing origin attribution to function-wide producers;
+  `CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001`
+- current step is designing the safe keeper boundary for current-MIR
+  cross-block field_get-origin copy chains after repaired function-wide origin
+  attribution selected `cross_block_field_get_alias_copy_chain`;
   process-total boot cost is diagnostic, and provider/replacement/startup seams
   stay closed
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -54,7 +55,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-670-FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`

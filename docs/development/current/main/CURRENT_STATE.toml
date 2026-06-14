@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002 repaired field_get owner refresh"
+active_lane = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001 keeper boundary design"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -20,19 +20,18 @@ harness link path for runtime/string kernels. MIMALLOC-BODY-TIMING-FRONT-SELECT-
 then selected the product-route object-lifecycle body-timing surface:
 body_elapsed_ratio=112.969, gap_owner=compiler_lowering, and MIR body owner
 local_ssa_copy_materialization. EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002
-refreshed current-MIR origin attribution and found param-origin expression
-copies now dominate, not the historical field_get owner. PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001
-selected param_direct_consumer_value_forwarding with medium confidence.
-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001 found seven safe direct
-consumer candidates and zero unsafe candidates.
-PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001 landed the guard that pins
-those counts and rejects broad LocalSSA coalescing. The narrow direct-consumer
-LocalSSA implementation attempt was rejected because the target param candidate
-count stayed at seven. PARAM-ALIAS-COPY-OWNER-REFRESH-001 repaired the
-diagnostic attribution to use function-wide producers and showed the current
-owner is field_get-origin expression chains, not param-origin chains. The active
-row refreshes current-MIR field_get direct-consumer forwarding before
-implementation. The previous keeper is BOOL-SCALAR-LOWERING-001 for
+initially selected a param-origin copy-chain path, but the narrow
+direct-consumer LocalSSA implementation attempt was rejected because the target
+candidate count stayed at seven. PARAM-ALIAS-COPY-OWNER-REFRESH-001 repaired
+the diagnostic attribution to use function-wide producers and showed the
+current owner is field_get-origin expression chains, not param-origin chains.
+The active
+row refreshed current-MIR field_get direct-consumer forwarding and selected
+cross_block_field_get_alias_copy_chain: forwarding_candidate_copy_count=4,
+same_block_candidate_count=1, cross_block_candidate_count=3, and
+covered_by_existing_rule_count=0. The active row designs the safe keeper
+boundary before implementation, including dominance, same-field mutation, and
+SSA visibility guards. The previous keeper is BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
 a startup sentinel, not the kernel optimization front. Product NyRT startup,
 Type ABI / plugin ABI, MIRBuilder truth changes, Arc retirement, and object
@@ -41,16 +40,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-670-FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md"
 
-latest_card = "FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-670-FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002.md"
-latest_card_summary = """FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002
-refreshes the field_get direct-consumer forwarding owner on current MIR after
-repairing copy-origin attribution from block-local to function-wide producers.
-It keeps implementation closed until same-block/cross-block coverage is
-classified."""
-current_blocker_token = "FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002-ACTIVE"
+latest_card = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md"
+latest_card_summary = """CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001
+designs the safe keeper boundary for the field_get-origin copy chains selected
+by 296x-670. It keeps implementation closed until dominance, same-field
+mutation, SSA visibility, and row182 relation are pinned."""
+current_blocker_token = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

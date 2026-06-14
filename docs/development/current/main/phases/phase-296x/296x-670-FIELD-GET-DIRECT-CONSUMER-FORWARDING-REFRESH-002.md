@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002
 Scope: Refresh the field_get direct-consumer forwarding owner on current MIR
@@ -91,6 +91,46 @@ winner_claim=0
 summary=ok
 ```
 
+## Refreshed Result
+
+```text
+output_contract=hako-mimalloc-field-get-direct-consumer-refresh-v2
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+field_get_expression_copy_count=7
+forwarding_candidate_copy_count=4
+same_block_candidate_count=1
+cross_block_candidate_count=3
+covered_by_existing_rule_count=0
+dominant_candidate_sink=field_get
+dominant_candidate_field=object_lifecycle_queue
+selected_owner=cross_block_field_get_alias_copy_chain
+selected_owner_confidence=medium
+next_task=cross_block_field_get_alias_forwarding_design
+optimization_open=0
+winner_claim=0
+summary=ok
+```
+
+Interpretation:
+
+```text
+row182_existing_same_block_field_get_rule_coverage=0
+same_block_gap_exists=1
+cross_block_gap_dominates=1
+param_forwarding_reopen=0
+```
+
+The remaining candidates are not direct `FieldGet -> consumer` cases. They are
+`FieldGet -> Copy -> Copy -> consumer` chains, with most roots crossing from an
+earlier block into a later consumer block. Therefore this row closes as a
+selection refresh, not an implementation row.
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_field_get_direct_consumer_refresh_guard.sh
+```
+
 ## Stop Line
 
 ```text
@@ -106,9 +146,11 @@ do not touch allocator provider activation
 ```text
 field_get_direct_consumer_forwarding_refresh_002_active=1
 origin_probe_scope=function_wide_producers
-refreshed_candidate_probe_run=0
-selected_owner=0
+refreshed_candidate_probe_run=1
+selected_owner=cross_block_field_get_alias_copy_chain
+selected_owner_confidence=medium
+next_task=cross_block_field_get_alias_forwarding_design
 implementation_started=0
 optimization_open=0
-summary=pending
+summary=ok
 ```

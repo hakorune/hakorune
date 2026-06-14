@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-670-FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -45,15 +45,15 @@ Scope: current lane / next lane / restart order only.
   `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`,
   `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`,
   `PARAM-ALIAS-COPY-OWNER-REFRESH-001`, and now to
-  `FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002`; exact resident kernels no
+  `CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001`; exact resident kernels no
   longer expose a meaningful Hako-slower owner, the product-route
   object-lifecycle body timing surface selected `local_ssa_copy_materialization`,
-  current MIR origin attribution selected `param_expression_value_copy_chain`,
-  param-chain selection selected `param_direct_consumer_value_forwarding`, and
-  the candidate probe found seven apparent param direct-consumer candidates,
-  the direct-consumer LocalSSA attempt was rejected because the target count
-  stayed at seven, function-wide origin repair showed those were field_get
-  chains, and the next step is current-MIR field_get direct-consumer refresh
+  the apparent param direct-consumer path was rejected as a nonkeeper after
+  implementation did not reduce the target count, function-wide origin repair
+  showed the current owner is field_get-origin copy chains, and 296x-670 selected
+  `cross_block_field_get_alias_copy_chain` with four candidates before
+  implementation; the next step is current-MIR cross-block field_get alias
+  forwarding design
 - compiler foundation is paused at
   `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
@@ -130,7 +130,7 @@ Scope: current lane / next lane / restart order only.
   `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`,
   `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`,
   `PARAM-ALIAS-COPY-OWNER-REFRESH-001`, and now continues at
-  `FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002`;
+  `CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
   process-total boot cost is diagnostic rather than the primary owner selector
@@ -187,7 +187,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-670-FIELD-GET-DIRECT-CONSUMER-FORWARDING-REFRESH-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
