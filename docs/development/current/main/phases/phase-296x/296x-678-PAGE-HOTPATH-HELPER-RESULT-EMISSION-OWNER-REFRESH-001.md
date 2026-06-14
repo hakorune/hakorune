@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: PAGE-HOTPATH-HELPER-RESULT-EMISSION-OWNER-REFRESH-001
 Scope: Refresh the actual MIR emission owner for page-hotpath helper result
@@ -55,7 +55,7 @@ target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-677
 candidate_result_copy_count=14
 terminal_consumer_rewrite_candidate_count=4
-local_ssa_owner_rejected=1
+local_ssa_terminal_rewrite_owner_rejected=1
 dominant_emission_owner=<owner>
 selected_next_owner=<owner>
 selected_owner_confidence=<low|medium|high>
@@ -76,15 +76,60 @@ do not change helper lowering
 do not claim a performance win
 ```
 
-## Acceptance
+## Result
 
 ```text
-page_hotpath_helper_result_emission_owner_refresh_active=1
+output_contract=hako-mimalloc-page-hotpath-helper-result-emission-owner-refresh-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-677
-owner_refresh_run=0
-selected_next_owner=0
+candidate_result_copy_count=14
+terminal_consumer_rewrite_candidate_count=4
+local_ssa_terminal_rewrite_owner_rejected=1
+first_hop_call_result_copy_count=4
+chain_internal_copy_count=10
+terminal_compare_operand_count=4
+terminal_compare_first_hop_root_count=4
+dominant_emission_owner=LocalSSA::ensure_fallback_copy
+selected_next_owner=local_ssa_call_result_fallback_copy_policy
+selected_owner_confidence=medium
+next_task=local_ssa_call_result_fallback_copy_policy_design
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+helper_acquire_usize_candidate_count=8
+helper_selectSinglePageFastPath_candidate_count=3
+helper_reuse_candidate_count=3
+terminal_helper_acquire_usize_count=2
+terminal_helper_selectSinglePageFastPath_count=1
+terminal_helper_reuse_count=1
+summary=ok
+```
+
+Interpretation:
+
+```text
+296x-677 rejected the proposed terminal-consumer rewrite seam, not the whole
+LocalSSA materialization owner. The current MIR shape shows the target family
+as LocalSSA fallback Copy materialization:
+
+  first-hop helper call-result copies = 4
+  chain-internal copies               = 10
+  terminal compare operands           = 4
+
+The next row must design the fallback Copy policy directly. Do not revive the
+same terminal-consumer rewrite patch without new evidence, and do not broaden
+this into arbitrary copy coalescing.
+```
+
+## Acceptance
+
+```text
+page_hotpath_helper_result_emission_owner_refresh_landed=1
+source_evidence=296x-677
+owner_refresh_run=1
+selected_next_owner=local_ssa_call_result_fallback_copy_policy
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
 ```
