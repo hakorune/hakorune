@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001
 Scope: Define the post-implementation guard surface for the narrow LocalSSA
@@ -80,14 +80,35 @@ winner_claim=0
 summary=ok
 ```
 
-## Acceptance
+## Result
 
 ```text
-local_ssa_call_result_fallback_copy_policy_guard_surface_active=1
+output_contract=hako-mimalloc-local-ssa-call-result-fallback-copy-policy-guard-surface-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-679
-post_target_defined=0
+pre_candidate_result_copy_count=14
+pre_terminal_compare_operand_count=4
+post_terminal_compare_operand_target=0
+post_candidate_result_copy_count_upper_bound=4
+allowed_use_kind=CompareOperand
+arg_forwarding_enabled=0
+helper_name_special_case=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
+```
+
+## Acceptance
+
+```text
+local_ssa_call_result_fallback_copy_policy_guard_surface_landed=1
+source_evidence=296x-679
+post_target_defined=1
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
 ```
