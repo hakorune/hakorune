@@ -362,6 +362,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_field_get_expression_copy_chain_policy_selection_guard.sh` | 296x-180 の field_get expression copy chain policy selection guard。field_get direct-consumer forwarding 候補へ絞る。 |
 | `tools/checks/k2_wide_phase296x_field_get_direct_consumer_forwarding_candidate_probe_guard.sh` | 296x-181 の field_get direct-consumer forwarding candidate probe guard。実際に forward できそうな expression copy chain を数える。 |
 | `tools/checks/k2_wide_phase296x_field_get_direct_consumer_forwarding_keeper_guard.sh` | 296x-182 の field_get direct-consumer forwarding keeper guard。同一 block の FieldGet → Arg/CompareOperand copy を狭く削る。 |
+| `tools/checks/k2_wide_phase296x_param_direct_consumer_forwarding_guard_surface_guard.sh` | 296x-667 の refreshed param direct-consumer forwarding guard surface。current MIR の param-origin expression copy 7件と unsafe=0、selected owner を固定する。 |
 | `tools/checks/k2_wide_phase296x_receiver_materialization_attribution_probe_guard.sh` | 296x-183 の receiver materialization attribution probe guard。receiver copy chain を family / unique copy / duplicate attribution に分解する。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_policy_selection_guard.sh` | 296x-184 の receiver pin chain policy selection guard。same-receiver cache ではなく pin-chain narrowing を選ぶ。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_narrowing_keeper_guard.sh` | 296x-185 の receiver pin chain narrowing keeper guard。同一 block Copy 定義の receiver を再 copy しない。 |

@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001 param direct-consumer forwarding probe"
+active_lane = "PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001 narrow MIRBuilder param direct-consumer forwarding"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -22,27 +22,30 @@ body_elapsed_ratio=112.969, gap_owner=compiler_lowering, and MIR body owner
 local_ssa_copy_materialization. EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002
 refreshed current-MIR origin attribution and found param-origin expression
 copies now dominate, not the historical field_get owner. PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001
-selected param_direct_consumer_value_forwarding with medium confidence. The
-active row probes exact param direct-consumer forwarding candidates before any
-MIRBuilder implementation. The previous keeper is BOOL-SCALAR-LOWERING-001 for
+selected param_direct_consumer_value_forwarding with medium confidence.
+PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001 found seven safe direct
+consumer candidates and zero unsafe candidates.
+PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001 landed the guard that pins
+those counts and rejects broad LocalSSA coalescing. The active row is the narrow
+MIRBuilder implementation for param direct-consumer forwarding. The previous
+keeper is BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
 a startup sentinel, not the kernel optimization front. Product NyRT startup,
 Type ABI / plugin ABI, MIRBuilder truth changes, Arc retirement, and object
-substrate replacement remain out of scope until the candidate probe selects a
-safe narrow implementation owner."""
+substrate replacement remain out of scope for this keeper."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-668-PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001.md"
 
-latest_card = "PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md"
-latest_card_summary = """PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001
-probes whether the selected param-origin expression copies can be forwarded
-directly to field_get, field_set, and compare consumers. It remains diagnostic
-and keeps MIRBuilder implementation closed until candidate safety is classified."""
-current_blocker_token = "PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001-ACTIVE"
+latest_card = "PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-668-PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001.md"
+latest_card_summary = """PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001
+implements the narrow MIRBuilder keeper selected by the current object-lifecycle
+body-timing evidence. It may only remove proven param-origin expression copies
+feeding direct consumers and must keep startup/provider/replacement seams closed."""
+current_blocker_token = "PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
