@@ -46,6 +46,22 @@ Scope: current lane / next lane / restart order only.
   read-only projection/tooling surfaces; `BOXCALL-REG-011` reconciles the
   landed BoxCallableRegistry rows with older TypeAbi BoxDomain rows and names
   narrow proof commands
+- selfhost/de-Rust lift decisions are owned by
+  `docs/development/current/main/design/selfhost-lift-boundary-and-task-order-ssot.md`:
+  meaning goes to `.hako`, route shape / ownership events go to MIRBuilder,
+  machine boundaries stay substrate
+- immediate selfhost lift order is:
+  `BOXCALL-PROVIDER-SOURCE-001` landed slice ->
+  `BOXCALL-CATALOG-001` landed slice for existing String / Array / Map
+  catalogs ->
+  `BUFFER-CATALOG-001` landed slice before Buffer provider rows ->
+  `BUFFER-PROVIDER-ROWS-001` landed slice ->
+  `BOXCALL-ROUTEPLAN-001` landed slice ->
+  `TYPE-REGISTRY-PROVIDER-001` landed slice ->
+  `PLUGIN-PROVIDER-SNAPSHOT-001` landed slice ->
+  `BOXCALL-FOUNDATION-CLOSEOUT-001` landed slice; next lane requires explicit
+  selection between collection visible semantics and CorePlan / JoinIR
+  expressivity before moving on
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0

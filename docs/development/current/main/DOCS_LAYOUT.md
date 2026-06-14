@@ -105,6 +105,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
   - allocator / collection / runtime substrate capability ladder owner
+- `design/selfhost-lift-boundary-and-task-order-ssot.md`
+  - parent decision for what moves upward into `.hako` or MIRBuilder versus
+    what stays substrate; orders BoxCallable, collection visible semantics,
+    concurrency semantics, and Arc retirement work
 - `design/hako-alloc-policy-state-contract-ssot.md`
   - allocator policy/state owner vs native metal keep stop-line owner
 - `design/hako-thread-substrate-boundary-ssot.md`
@@ -198,6 +202,7 @@ Rule:
   - Type ABI Naming / BoxDescriptor:
     `docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md`
   - Substrate Capability Ladder（allocator/collection/runtime substrate parent SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+  - Selfhost Lift Boundary / Task Order（`.hako` / MIRBuilder / substrate 仕分け親SSOT）: `docs/development/current/main/design/selfhost-lift-boundary-and-task-order-ssot.md`
   - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - Hako Thread Substrate Boundary（source concurrency / ThreadApi substrate / pthread benchmark claim boundary）: `docs/development/current/main/design/hako-thread-substrate-boundary-ssot.md`
   - Hako Inspect Scope Dump（source anchors / MIR / LLVM IR / assembly inspect artifact boundary）: `docs/development/current/main/design/hako-inspect-scope-dump-ssot.md`

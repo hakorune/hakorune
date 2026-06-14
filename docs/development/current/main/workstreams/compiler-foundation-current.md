@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/design/type-abi-naming-and-box-descriptor-ssot.md
+  - docs/development/current/main/design/selfhost-lift-boundary-and-task-order-ssot.md
   - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
   - docs/development/current/main/design/coreplan-flowbox-interface-ssot.md
   - docs/development/current/main/design/compiler-expressivity-first-policy.md
@@ -57,9 +58,61 @@ CorePlan / FlowBox:
 JoinIR:
   lowering bridge / observation / legacy route surface
   not a place to add new semantic truth
+
+Selfhost lift boundary:
+  meaning moves to .hako
+  route shape / ownership events move to MIRBuilder/CorePlan
+  raw machine boundaries stay substrate
 ```
 
 ## Task Order
+
+Immediate restart ladder:
+
+```text
+1. BOXCALL-PROVIDER-SOURCE-001
+   landed in this slice; registry entries carry provider provenance and
+   RoutePlan construction reads the entry target only
+
+2. BOXCALL-CATALOG-001
+   landed in this slice; existing String / Array / Map surface catalogs seed
+   BoxCallableRegistry provider rows
+
+3. BUFFER-CATALOG-001
+   landed in this slice; Buffer now has a visible surface catalog before
+   provider-row reconciliation
+
+4. BUFFER-PROVIDER-ROWS-001
+   landed in this slice; Buffer provider rows are seeded from the Buffer
+   surface catalog without changing VM handler dispatch
+
+5. BOXCALL-ROUTEPLAN-001
+   landed in this slice; route plans are semantic and target-derived, and
+   executable function pointers stay in runtime invoke boundaries
+
+6. TYPE-REGISTRY-PROVIDER-001
+   landed in this slice; type_registry is documented as builtin slot
+   vocabulary/provider, while behavior stays in dispatch_by_slot / surfaces
+
+7. PLUGIN-PROVIDER-SNAPSHOT-001
+   landed in this slice; PluginLoader exports are provider snapshots and
+   TypeBox ABI v2 remains unchanged
+
+8. BOXCALL-FOUNDATION-CLOSEOUT-001
+   landed in this slice; BoxCallable/provider/RoutePlan foundation is ready
+   to pause or hand off before the next lane is selected
+
+9. Collection visible semantics
+   Buffer first, then String policy, then Map / Array contracts
+
+10. Concurrency semantics
+   co/Future/TaskGroup, sync box, Channel, context; worker_scope remains gated
+   on THREAD-SAFETY-001
+
+11. Arc retirement
+   family-by-family only after callable truth and object identity seams are
+   stable
+```
 
 ## Inventory Findings 2026-06-14
 
@@ -88,6 +141,16 @@ B1: remaining compatibility normalizers toward skeleton+feature
 C1: planner_required strict/dev uniqueness and no silent Ok(None)
 D1: Recipe/VerifiedRecipe -> CorePlan as composition-only
 E1: compatibility fallback zero closeout
+```
+
+Selfhost / de-Rust lift work must follow the task order in
+`selfhost-lift-boundary-and-task-order-ssot.md`:
+
+```text
+1. BoxCallable provider/catalog cleanup
+2. Buffer/String/Map/Array visible semantics
+3. co/Future/TaskGroup, sync box, Channel, context semantics
+4. Arc family retirement after object identity and callable seams are stable
 ```
 
 ### COMPILER-FOUNDATION-001: lane selection and restart pointers
@@ -210,7 +273,7 @@ typeabi_pack_is_truth=0
 box_descriptor_naming_bridge_documented=1
 ```
 
-### BOXCALL-REG-005: route plan vocabulary
+### BOXCALL-REG-005 / BOXCALL-ROUTEPLAN-001: route plan vocabulary
 
 Status:
 
@@ -224,7 +287,17 @@ Define the plan vocabulary before changing execution.
 MethodCallRoutePlan_vocabulary=1
 NewBoxRoutePlan_vocabulary=1
 DropBoxRoutePlan_vocabulary=1
+route_plan_semantic_data_only=1
+route_plan_executable_pointer_count=0
+runtime_invoke_boundary_executable_pointer_owner=1
 hot_path_typeabi_lookup_count=0
+```
+
+Proof:
+
+```bash
+cargo test -q --lib box_callable
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
 ```
 
 ### BOXCALL-REG-011: SSOT ladder reconciliation and proof commands
@@ -301,6 +374,301 @@ plan_envelope_type_defined=1
 plan_stamp_mode=compile_session_epoch
 plan_stamp_hot_loop_check_count=0
 type_abi_hot_lookup_count=0
+```
+
+### BOXCALL-PROVIDER-SOURCE-001: provider source stored, route plan target-only
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+store provider source next to each BoxCallableRegistry entry
+keep provider source as provenance, not execution route
+let RoutePlan derive from registry entry target
+```
+
+Acceptance:
+
+```text
+box_callable_provider_source_stored=1
+route_plan_uses_registry_entry_target=1
+route_plan_uses_provider_source_as_execution_route=0
+typeabi_catalog_execution_route_count=0
+id_space_mixed_count=0
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib box_callable
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+### BOXCALL-CATALOG-001: existing surface catalogs as provider rows
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+reconcile existing String / Array / Map surface catalogs into
+BoxCallableRegistry provider rows
+keep type_registry as a seed/provider surface, not final execution truth
+do not include Buffer until Buffer has its own surface catalog
+```
+
+Acceptance:
+
+```text
+string_surface_catalog_provider_rows=1
+array_surface_catalog_provider_rows=1
+map_surface_catalog_provider_rows=1
+buffer_surface_catalog_required_before_provider_rows=1
+box_callable_registry_truth_owner=1
+type_registry_execution_truth_owner=0
+typeabi_catalog_execution_route_count=0
+id_space_mixed_count=0
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib box_callable
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+Stop line:
+
+```text
+do not create duplicate method descriptors
+do not bypass BoxCallableRegistry through TypeAbiCatalog
+do not add Buffer provider rows without a Buffer surface catalog
+do not change method dispatch execution
+```
+
+### BUFFER-CATALOG-001: Buffer surface catalog before provider rows
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+add a Buffer surface catalog that names visible Buffer methods before Buffer is
+reconciled into BoxCallableRegistry provider rows
+keep byte storage mechanics in substrate
+```
+
+Acceptance:
+
+```text
+buffer_surface_catalog_exists=1
+buffer_surface_catalog_visible_methods_named=1
+buffer_provider_rows_not_added_before_catalog=1
+buffer_storage_mechanics_owner=substrate
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib buffer_surface_catalog
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+Stop line:
+
+```text
+do not implement Buffer visible semantics in the catalog row
+do not move Vec / byte storage mechanics into .hako
+do not combine this with BUFFER-VISIBLE-001
+```
+
+### BUFFER-PROVIDER-ROWS-001: Buffer catalog as provider rows
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+seed BufferBox provider rows from BUFFER_SURFACE_METHODS
+keep VM handler dispatch as the current execution owner
+keep Buffer visible semantics work separate
+```
+
+Acceptance:
+
+```text
+buffer_surface_catalog_provider_rows=1
+buffer_vm_handler_dispatch_owner=1
+buffer_visible_semantics_changed=0
+typeabi_catalog_execution_route_count=0
+id_space_mixed_count=0
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib box_callable
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+Stop line:
+
+```text
+do not implement Buffer read/write semantics here
+do not make Buffer catalog slots executable function pointers
+do not move Buffer storage mechanics out of substrate
+```
+
+### TYPE-REGISTRY-PROVIDER-001: type_registry as provider vocabulary
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+make type_registry a builtin seed/provider vocabulary
+keep BoxCallableRegistry as callable truth
+keep execution truth in route plans / runtime boundaries
+```
+
+Acceptance:
+
+```text
+type_registry_callable_provider_only=1
+type_registry_slot_vocabulary_provider=1
+type_registry_execution_truth_owner=0
+type_registry_dispatch_behavior_owner=0
+vm_dispatch_by_slot_behavior_owner=1
+wasm_dispatch_by_slot_behavior_owner=1
+box_callable_registry_truth_owner=1
+route_plan_semantic_data_only=1
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib type_registry
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+Stop line:
+
+```text
+do not delete type_registry before all builtin consumers are inventoried
+do not route execution through TypeAbiCatalog
+do not mix slot vocabulary cleanup with behavior changes
+```
+
+### PLUGIN-PROVIDER-SNAPSHOT-001: PluginLoader snapshot provider
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+keep PluginLoader exports as pure provider snapshots into BoxCallableRegistry
+keep TypeBox ABI v2 unchanged
+keep runtime invoke function pointers behind runtime_invoke_boundary
+```
+
+Acceptance:
+
+```text
+plugin_loader_callable_provider_only=1
+plugin_loader_provider_snapshot_only=1
+plugin_loader_registry_snapshot_entrypoint_count=1
+plugin_snapshot_catalog_projection_helper_count=1
+plugin_snapshot_catalog_reads_loader_directly=0
+plugin_callable_export_contains_fn_pointer_count=0
+typebox_abi_v2_changed=0
+plugin_lifecycle_snapshot_filtered_count=1
+runtime_invoke_boundary_executable_pointer_owner=1
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib plugin_loader_snapshot
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
+```
+
+Stop line:
+
+```text
+do not broaden PluginLoader internals as public API
+do not change TypeBox ABI v2
+do not make TypeAbiCatalog plugin route truth
+```
+
+### BOXCALL-FOUNDATION-CLOSEOUT-001: BoxCallable foundation closeout
+
+Status:
+
+```text
+landed
+```
+
+Purpose:
+
+```text
+close the BoxCallable / provider / RoutePlan foundation lane
+verify the landed rows as one coherent boundary
+choose whether the active lane moves to collection visible semantics or
+CorePlan / JoinIR expressivity
+```
+
+Acceptance:
+
+```text
+boxcall_foundation_closeout_ready=1
+box_callable_registry_truth_owner=1
+provider_rows_cover_builtin_plugin_surface=1
+route_plan_semantic_data_only=1
+typeabi_catalog_execution_route_count=0
+plugin_loader_provider_snapshot_only=1
+type_registry_callable_provider_only=1
+boxcall_next_lane_requires_selection=1
+summary=ok
+```
+
+Proof:
+
+```bash
+cargo test -q --lib box_callable
+cargo test -q --lib type_abi
+cargo test -q --lib plugin_loader_snapshot
+bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
 ```
 
 ### COREPLAN-FOUND-000: next expressivity family selection
@@ -568,7 +936,8 @@ Proof:
 
 ```bash
 bash tools/checks/coreplan_collect_using_entries_v0_retire_guard.sh
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only selfhost_collect_using_entries_loop_min
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh \
+  --only selfhost_collect_using_entries_loop_min
 ```
 
 ### COREPLAN-E1-004: bundle_resolver v0 retire
@@ -661,9 +1030,12 @@ Proof:
 
 ```bash
 bash tools/checks/coreplan_scan_methods_v0_retire_guard.sh
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only selfhost_blocker_scan_methods_loop_min
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only selfhost_scan_methods_program_block_min
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only selfhost_scan_methods_nested_loop_depth1_methodcall_min
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh \
+  --only selfhost_blocker_scan_methods_loop_min
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh \
+  --only selfhost_scan_methods_program_block_min
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh \
+  --only selfhost_scan_methods_nested_loop_depth1_methodcall_min
 ```
 
 ### COREPLAN-E1-007: scan_phi_vars v0 retire
@@ -772,7 +1144,8 @@ Status:
 
 ```text
 landed_by=
-  docs/development/current/main/phases/phase-293x/293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md
+  docs/development/current/main/phases/phase-293x/
+  293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md
 ```
 
 Purpose:

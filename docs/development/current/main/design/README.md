@@ -90,6 +90,7 @@
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - Stage2 selfhost and hako-alloc（stage軸 + `hako_core/alloc/std` layering SSOT）: `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
 - Substrate capability ladder（allocator/collection/runtime substrate の親SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+- Selfhost lift boundary / task order（`.hako` / MIRBuilder / substrate の仕分けと実装順SSOT）: `docs/development/current/main/design/selfhost-lift-boundary-and-task-order-ssot.md`
 - Minimal capability modules（`hako.mem` / `hako.buf` / `hako.ptr` の最小責務SSOT）: `docs/development/current/main/design/minimal-capability-modules-ssot.md`
 - Minimum verifier（bounds / initialized range / ownership fail-fast の最小SSOT）: `docs/development/current/main/design/minimum-verifier-ssot.md`
 - RawArray substrate（最初の concrete substrate consumer SSOT）: `docs/development/current/main/design/raw-array-substrate-ssot.md`
