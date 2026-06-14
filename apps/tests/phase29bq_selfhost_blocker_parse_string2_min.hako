@@ -10,12 +10,12 @@ static box ParserExprBox {
     local n = src.length()
     local j = i + 1
     local out = ""
-    local guard = 0
+    local fuel = 0
     local max = 200000
 
     loop(j < n) {
-      if guard > max { break }
-      guard = guard + 1
+      if fuel > max { break }
+      fuel = fuel + 1
       local ch = src.substring(j, j+1)
 
       if ch == "\"" {

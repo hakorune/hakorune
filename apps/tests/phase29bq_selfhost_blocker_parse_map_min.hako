@@ -13,9 +13,9 @@ static box ParserLiteralBox {
     local j = i + 2
     local out = "["
     local pair_count = 0
-    local guard = 0
+    local fuel = 0
     local max = 200000
-    loop(guard < max) {
+    loop(fuel < max) {
       j = ctx.skip_ws(src, j)
 
       if j >= n { break }
@@ -46,7 +46,7 @@ static box ParserLiteralBox {
 
       j = ctx.skip_ws(src, j)
       if j < n && src.substring(j, j+1) == "," { j = j + 1 }
-      guard = guard + 1
+      fuel = fuel + 1
     }
 
     if j < n && src.substring(j, j+1) == "}" { j = j + 1 }

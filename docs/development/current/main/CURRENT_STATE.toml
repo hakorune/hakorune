@@ -17,20 +17,22 @@ remaining-family inventory after the B1 boundary: C1 fail-fast guard first, then
 D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
 C1, D1, E1-001 inventory, E1-002 first retire, E1-003
 collect_using_entries retire, E1-004 bundle_resolver retire, E1-005
-scan_v0 retire, E1-006 scan_methods_v0 retire, and E1-007 scan_phi_vars_v0
-retire guards are landed. Active routed loop_*_v0 count is now zero."""
+scan_v0 retire, E1-006 scan_methods_v0 retire, E1-007 scan_phi_vars_v0
+retire, and E1 closeout are landed. Active routed loop_*_v0 count is zero.
+Next selected compiler blocker is selfhost_parse_loop_min: Main.parse_loop_min/3
+fails MIR verification with a PHI input dominator violation."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1015-COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1017-COREPLAN-LOOP-WIRING-001-FAILING-FIXTURE-SELECTION.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "293x-1015-COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1015-COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE.md"
-latest_card_summary = """293x-1015 retires loop_scan_phi_vars_v0 after proving
-focused PhiInjector / _collect_phi_vars fixtures stay on LoopSimpleWhile or
-LoopCondBreak replacement owners. Active routed loop_*_v0 count is now zero."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-E1-CLOSEOUT-NEXT"
+latest_card = "293x-1017-COREPLAN-LOOP-WIRING-001-FAILING-FIXTURE-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1017-COREPLAN-LOOP-WIRING-001-FAILING-FIXTURE-SELECTION.md"
+latest_card_summary = """293x-1017 selects selfhost_parse_loop_min as the next
+compiler expressivity blocker: Main.parse_loop_min/3 reaches MIR verification
+and fails with a PHI input dominator violation."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-LOOP-WIRING-002-NEXT"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

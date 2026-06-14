@@ -37,9 +37,10 @@ Related:
   narrow proof commands
 - CorePlan C1 planner_required route-exhaustion, D1 normalizer AST-boundary,
   E1 active-v0 inventory, E1-002 first retire, E1-003 collect_using_entries,
-  E1-004 bundle_resolver, E1-005 scan_v0, E1-006 scan_methods_v0, and E1-007
-  scan_phi_vars_v0 retire guards are landed; active routed loop_*_v0 count is
-  now zero
+  E1-004 bundle_resolver, E1-005 scan_v0, E1-006 scan_methods_v0, E1-007
+  scan_phi_vars_v0 retire, and E1 closeout are landed; active routed
+  loop_*_v0 count is zero; next selected blocker is `selfhost_parse_loop_min`
+  / `Main.parse_loop_min/3` PHI input dominator violation
 - exact-front optimization is paused; resume later through
   `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -61,7 +62,7 @@ Related:
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1015-COREPLAN-E1-007-SCAN-PHI-VARS-V0-RETIRE.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1017-COREPLAN-LOOP-WIRING-001-FAILING-FIXTURE-SELECTION.md`
 9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
 10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 

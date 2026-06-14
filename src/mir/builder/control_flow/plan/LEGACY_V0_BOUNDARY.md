@@ -8,7 +8,7 @@ Scope: `src/mir/builder/control_flow/plan/**` only.
 It is not an acceptance policy, and it must not be used as a reason to add
 silent fallback behavior.
 
-## Routed legacy-v0 modules (active)
+## Routed legacy-v0 modules
 
 No routed legacy-v0 modules remain active after `COREPLAN-E1-007`.
 

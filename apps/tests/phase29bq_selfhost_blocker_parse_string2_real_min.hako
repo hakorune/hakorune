@@ -5,12 +5,12 @@ static box Main {
     local j = 0
     local n = 3
     local out = ""
-    local guard = 0
+    local fuel = 0
     local max = 10
 
     loop (j < n) {
-      if guard > max { break }
-      guard = guard + 1
+      if fuel > max { break }
+      fuel = fuel + 1
 
       if j == 0 {
         out = out + "A"

@@ -24,9 +24,9 @@ static box ParserPeekBox {
     local arm_count = 0
     local else_json = null
 
-    local guard = 0
+    local fuel = 0
     local max = 200000
-    loop(guard < max) {
+    loop(fuel < max) {
       j = ctx.skip_ws(src, j)
       if j >= n { break }
       if src.substring(j, j+1) == "}" { break }
@@ -79,7 +79,7 @@ static box ParserPeekBox {
         }
       }
 
-      guard = guard + 1
+      fuel = fuel + 1
     }
 
     if j < n && src.substring(j, j+1) == "}" { j = j + 1 }

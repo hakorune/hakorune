@@ -14,9 +14,9 @@ static box ParserLiteralBox {
     local prelude = "["
     local stmts_count = 0
     local last_stmt = ""
-    local guard = 0
+    local fuel = 0
     local max = 200000
-    loop(guard < max) {
+    loop(fuel < max) {
       j = ctx.skip_ws(src, j)
       if j >= n { break }
       if src.substring(j, j+1) == "}" { break }
@@ -33,7 +33,7 @@ static box ParserLiteralBox {
       stmts_count = stmts_count + 1
 
       if j <= before && j < n { j = j + 1 }
-      guard = guard + 1
+      fuel = fuel + 1
     }
     prelude = prelude + "]"
 

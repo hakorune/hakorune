@@ -675,7 +675,7 @@ focused_fixture_gate_green=1
 
 ### COREPLAN-LOOP-WIRING-001: failing-fixture selection only
 
-Do not implement from inventory alone.
+Landed. Do not implement from inventory alone.
 
 Purpose:
 
@@ -688,8 +688,22 @@ Acceptance:
 
 ```text
 failing_fixture_selected=1
-existing_nested_loop_gates_checked=1
+case_id=selfhost_parse_loop_min
+fixture=apps/tests/phase29bq_selfhost_blocker_parse_loop_min.hako
+failure_kind=dominator_violation
+selected_owner_family=loop_wiring_phi_inputs
 implementation_started=0
+```
+
+### COREPLAN-LOOP-WIRING-002: parse_loop_min PHI input dominator fix
+
+Next implementation task.
+
+Purpose:
+
+```text
+fix the selected Main.parse_loop_min/3 dominator violation without adding a
+new loop_*_v0 route or changing the fixture expected output
 ```
 
 ## Do Not Do Yet

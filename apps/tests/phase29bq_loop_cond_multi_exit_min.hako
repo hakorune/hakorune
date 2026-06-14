@@ -9,18 +9,18 @@
 static box Main {
     main() {
         local i = 0
-        local guard = 0
+        local fuel = 0
         local max = 5
         local sum = 0
 
-        loop(guard < max) {
+        loop(fuel < max) {
             if i >= 3 { break }
 
             if i == 1 { sum = sum + 10 }
 
             sum = sum + i
             i = i + 1
-            guard = guard + 1
+            fuel = fuel + 1
         }
 
         print(sum)
