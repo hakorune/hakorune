@@ -18,25 +18,25 @@ D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
 C1, D1, E1-001 inventory, E1-002 first retire, E1-003
 collect_using_entries retire, E1-004 bundle_resolver retire, E1-005
 scan_v0 retire, E1-006 scan_methods_v0 retire, E1-007 scan_phi_vars_v0
-retire, E1 closeout, and COREPLAN-LOOP-WIRING-002 PHI input materialization are
-landed. Active routed loop_*_v0 count is zero. Full phase29bq fast gate now
-passes the previous Main.parse_loop_min/3 dominator blocker and stops at the
-next independent blocker: scan_all_boxes_return_in_debug_guard_min is missing
-the planner-first flowbox/adopt Loop tag."""
+retire, E1 closeout, COREPLAN-LOOP-WIRING-002 PHI input materialization, and
+COREPLAN-PLANNER-TAG-001 generic-loop FlowBox evidence are landed. Active routed
+loop_*_v0 count is zero. Full phase29bq fast gate now passes the previous
+Main.parse_loop_min/3 dominator blocker and scan_all_boxes FlowBox evidence
+blocker, then stops at the next independent blocker:
+stageb_bundle_mod_if_min times out."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1018-COREPLAN-LOOP-WIRING-002-PHI-INPUT-MATERIALIZATION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1019-COREPLAN-PLANNER-TAG-001-GENERIC-LOOP-FLOWBOX-EVIDENCE.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "293x-1018-COREPLAN-LOOP-WIRING-002-PHI-INPUT-MATERIALIZATION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1018-COREPLAN-LOOP-WIRING-002-PHI-INPUT-MATERIALIZATION.md"
-latest_card_summary = """293x-1018 fixes the selected
-Main.parse_loop_min/3 PHI input dominator blocker by adding the SSA-owned PHI
-input materialization seam and module-wide builder seal. The next independent
-blocker is scan_all_boxes_return_in_debug_guard_min missing the planner-first
-flowbox/adopt Loop tag."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-PLANNER-TAG-001-NEXT"
+latest_card = "293x-1019-COREPLAN-PLANNER-TAG-001-GENERIC-LOOP-FLOWBOX-EVIDENCE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1019-COREPLAN-PLANNER-TAG-001-GENERIC-LOOP-FLOWBOX-EVIDENCE.md"
+latest_card_summary = """293x-1019 fixes the selected
+scan_all_boxes_return_in_debug_guard_min FlowBox evidence blocker by routing
+strict/dev generic-loop verified lowering through lower_verified_core_plan. The
+next independent blocker is stageb_bundle_mod_if_min timing out."""
+current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-TIMEOUT-001-NEXT"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

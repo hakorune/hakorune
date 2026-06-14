@@ -29,7 +29,7 @@ pub(crate) fn route_generic_loop_v1(
         Err(_err) if !env.strict_or_dev => return Ok(None),
         Err(err) => return Err(err.to_string()),
     };
-    if env.strict_or_dev && facts.nested_loop {
+    if env.strict_or_dev {
         return lower_verified_core_plan(
             builder,
             ctx,
@@ -39,17 +39,13 @@ pub(crate) fn route_generic_loop_v1(
             FlowboxVia::Shadow,
         );
     }
-    if !env.strict_or_dev {
-        if PlanVerifier::verify(&core_plan).is_err() {
-            return Ok(None);
-        }
-        return match PlanLowerer::lower(builder, core_plan, ctx) {
-            Ok(value) => Ok(value),
-            Err(_) => Ok(None),
-        };
+    if PlanVerifier::verify(&core_plan).is_err() {
+        return Ok(None);
     }
-    PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-    PlanLowerer::lower(builder, core_plan, ctx)
+    match PlanLowerer::lower(builder, core_plan, ctx) {
+        Ok(value) => Ok(value),
+        Err(_) => Ok(None),
+    }
 }
 
 pub(crate) fn route_generic_loop_v0(
@@ -70,7 +66,7 @@ pub(crate) fn route_generic_loop_v0(
         Err(_err) if !env.strict_or_dev => return Ok(None),
         Err(err) => return Err(err.to_string()),
     };
-    if env.strict_or_dev && facts.nested_loop {
+    if env.strict_or_dev {
         return lower_verified_core_plan(
             builder,
             ctx,
@@ -80,15 +76,11 @@ pub(crate) fn route_generic_loop_v0(
             FlowboxVia::Shadow,
         );
     }
-    if !env.strict_or_dev {
-        if PlanVerifier::verify(&core_plan).is_err() {
-            return Ok(None);
-        }
-        return match PlanLowerer::lower(builder, core_plan, ctx) {
-            Ok(value) => Ok(value),
-            Err(_) => Ok(None),
-        };
+    if PlanVerifier::verify(&core_plan).is_err() {
+        return Ok(None);
     }
-    PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-    PlanLowerer::lower(builder, core_plan, ctx)
+    match PlanLowerer::lower(builder, core_plan, ctx) {
+        Ok(value) => Ok(value),
+        Err(_) => Ok(None),
+    }
 }
