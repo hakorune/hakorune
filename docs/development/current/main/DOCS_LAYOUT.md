@@ -109,6 +109,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - parent decision for what moves upward into `.hako` or MIRBuilder versus
     what stays substrate; orders BoxCallable, collection visible semantics,
     concurrency semantics, and Arc retirement work
+- `design/selfhost-program-json-boundary-vocabulary-ssot.md`
+  - daily selfhost vocabulary owner; keeps Program(JSON v0) as the single
+    current boundary, reads stage0/stage1 through that boundary, and quarantines
+    stage2 / K-axis wording as roadmap or historical vocabulary for daily work
 - `design/hako-alloc-policy-state-contract-ssot.md`
   - allocator policy/state owner vs native metal keep stop-line owner
 - `design/hako-thread-substrate-boundary-ssot.md`

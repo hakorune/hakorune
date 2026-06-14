@@ -17,7 +17,8 @@ pass() { echo "✅ $1" >&2; }
 fail() { echo "❌ $1" >&2; echo "$2" | sed -n '1,160p' >&2; exit 1; }
 
 run_bridge() {
-  # Use Stage-2 Python MVP parser → JSON v0 → bridge pipe
+  # Use the historical Python MVP parser bridge: Ny -> JSON v0 -> bridge pipe.
+  # The script name keeps its legacy stage2 label for compatibility only.
   local src="$1"
   local out code
   printf '%s\n' "$src" > "$TMP_DIR/stage2_tmp.ny"
@@ -42,7 +43,7 @@ echo "$OUT" | rg -q '^__EXIT_CODE__=1$' \
   && ! echo "$OUT" | rg -q '^rhs$' \
   && pass "shortcircuit: OR skips RHS" || fail "shortcircuit: OR skips RHS" "$OUT"
 
-echo "All Stage-2 short-circuit (skip RHS) smokes PASS" >&2
+echo "All historical parser-bridge short-circuit (skip RHS) smokes PASS" >&2
 
 # Nested short-circuit (no side effects) via pipe bridge
 SRC=$'return (1 < 2) && ((1 > 2) || (2 < 3))'

@@ -19,13 +19,14 @@ fail() { echo "❌ $1" >&2; echo "$2" >&2; exit 1; }
 compile_json() {
   local src_text="$1"
   printf "%s\n" "$src_text" > "$TMP/ny_parser_input.ny"
-  # Primary: Python MVP parser (fast, stable vectors)
+  # Primary: historical Python MVP parser bridge (fast, stable vectors).
+  # The script and route-id keep legacy stage2 labels for compatibility only.
   if command -v python3 >/dev/null 2>&1; then
     local pyjson
     pyjson=$(python3 "$ROOT_DIR/tools/ny_parser_mvp.py" "$TMP/ny_parser_input.ny" 2>/dev/null | sed -n '1p')
     if [[ -n "$pyjson" ]]; then printf '%s\n' "$pyjson"; return 0; fi
   fi
-  # Fallback-2: unified selfhost direct route.
+  # Compatibility fallback: unified selfhost direct route.
   local json
   json=$("$SELFHOST_RUN" --direct --source-file "$TMP/ny_parser_input.ny" --timeout-secs "${SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS:-20}" --route-id "SH-SMOKE-STAGE2-BRIDGE" 2>/dev/null | awk 'BEGIN{found=0} /^[ \t]*\{/{ if ($0 ~ /"version"/ && $0 ~ /"kind"/) { print; found=1; exit } } END{ if(found==0){} }')
   if [[ -n "$json" ]]; then printf '%s\n' "$json"; return 0; fi
@@ -106,5 +107,5 @@ NY
 )
 run_case_bridge "map literal (bridge)" "$SRC_MLIT" 2
 
-echo "All selfhost Stage-2 bridge smokes PASS" >&2
+echo "All selfhost historical parser-bridge smokes PASS" >&2
 exit 0

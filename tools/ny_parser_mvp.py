@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-Ny parser MVP (Stage 2): Ny -> JSON v0
+Ny parser MVP (historical parser-bridge tool): Ny -> JSON v0
+
+This tool predates the current selfhost vocabulary cleanup. Older docs and
+scripts may call it "Stage 2"; treat that as historical MVP bridge vocabulary,
+not as current stage2-mainline authority.
 
 Grammar (subset):
   program  := stmt* EOF

@@ -1,6 +1,14 @@
 Hybrid Selfhost Build (80/20)
 
 Purpose
+- Daily selfhost vocabulary is owned by
+  `docs/development/current/main/design/selfhost-program-json-boundary-vocabulary-ssot.md`.
+  Read the current compiler vocabulary boundary as `Program(JSON v0)`:
+  `stage0` is the Rust authority side and `stage1` is the `.hako` frontier
+  crossing that boundary. This does not make Program(JSON v0) the preferred
+  day-to-day runner route; MIR-first routes below remain the operational path.
+  `stage2-mainline`, `stage2+`, and K-axis terms are roadmap/historical
+  vocabulary unless a task explicitly names an artifact route.
 - Provide a minimal, fast path to compile Hako source through direct MIR.
 - Program(JSON v0) artifact capture is explicit diagnostic/probe surface, not a `selfhost_build.sh` facade route.
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
@@ -22,10 +30,12 @@ Purpose
   - `tools/selfhost/mainline/build_stage1.sh` = strategy shell
   - `tools/selfhost/lib/stage1_contract.sh` = contract shell
 - Stage/lane vocabulary note:
-  - canonical stage/route/backend/lane/kernel reading lives in `docs/development/architecture/selfhost_execution_ssot.md`
+  - daily selfhost vocabulary lives in
+    `docs/development/current/main/design/selfhost-program-json-boundary-vocabulary-ssot.md`
+  - historical stage/route/backend/lane/kernel reading lives in `docs/development/architecture/selfhost_execution_ssot.md`
   - `stage0` = bootstrap keep
   - `stage1` = current bootstrap artifacts / proof line
-  - `stage2-mainline` = daily mainline lane
+  - `stage2-mainline` = roadmap / historical mainline reading, not daily owner selection
   - `stage2+` = future mainline / distribution umbrella
   - `stage3` in this README is only the same-result compare/sanity label, not a standalone build-conduit family
   - new docs should prefer role-first labels such as `bridge-cli`, `proof-runner`, and `mainline-bundle`; historical stage-numbered artifact names remain compat labels
@@ -250,7 +260,9 @@ Notes
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
 - `selfhost_build.sh` is direct source->MIR(JSON) for `--mir`, `--run`, and `--exe`. The old Stage-B Program(JSON v0) artifact diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
-- current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
+- current same-result sanity closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`.
+  These stage-numbered labels are bootstrap comparison labels, not daily
+  selfhost stage-axis owners.
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.
 

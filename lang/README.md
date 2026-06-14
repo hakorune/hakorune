@@ -66,6 +66,13 @@ Non‑Goals
 
 Notes
 - `lang/` 以下は「最終的に 1 つの Stage1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
+- Daily selfhost vocabulary is owned by
+  `docs/development/current/main/design/selfhost-program-json-boundary-vocabulary-ssot.md`.
+  Read the current compiler vocabulary boundary as `Program(JSON v0)`:
+  `stage0` is the Rust authority side and `stage1` is the `.hako` side crossing
+  that boundary one shape at a time. This is not a claim that Program(JSON v0)
+  is the preferred day-to-day runner route; MIR-first routes remain owned by
+  the selfhost route-map docs.
 - `hako_core / hako_alloc / hako_std` are logical library layers; the physical roots today are `lang/src/runtime/kernel/`, `lang/src/runtime/substrate/`, and `lang/src/hako_alloc/`.
 - compat/proof payloads live under `lang/src/compat/` so owner-looking paths can stay thin.
 - `hako_kernel` / `hako_substrate` are logical owner nouns; do not read them as same-named physical directories.
@@ -74,7 +81,8 @@ Notes
 - stage/artifact/lane の親SSOTは `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`。
 - artifact-role detail と future interpreter reservation は `docs/development/current/main/design/artifact-policy-ssot.md` を正本にする。
 - `Stage1` / `Stage2+` は artifact / proof / mainline の stage 軸であって、kernel owner/substrate 軸とは別だよ。
-- `K-axis` is a separate build/runtime stage axis:
+- The following K-axis terms are roadmap / historical distribution vocabulary,
+  not the daily bug-owner selection model:
   - `K0 = all-Rust hakorune`
   - `K1 = .hako kernel migration stage`
   - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
@@ -94,7 +102,9 @@ Notes
   - `artifacts/k0/hakorune`
   - `artifacts/k1/hakorune`
   - `dist/k2/<channel>/<triple>/bundle/`
-- read `K0/K1` primarily as binaries and `K2` primarily as a bundle.
-- stage1 may complete domain phases and still remain bridge/proof; stage2+ is the final mainline.
-- stage2+ は mostly `.hako` authority / thin native shim / native metal keep の読みで進める。
+- roadmap reading only: read `K0/K1` primarily as binaries and `K2`
+  primarily as a bundle.
+- roadmap reading only: stage1 may complete domain phases and still remain
+  bridge/proof; stage2+ is an end-state/mainline distribution reading, not the
+  daily bug-owner vocabulary.
 - `.hako` complete は authority completion を意味し、kernel substrate や native keep の wholesale removal は意味しない。

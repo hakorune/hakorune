@@ -36,6 +36,11 @@ bash tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surfa
 bash tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh
 ```
 
+Note: `k2_wide_*` is a historical guard-family label. It is kept in script
+names and row inventories for compatibility, but it is not the daily selfhost
+stage or kernel-axis vocabulary; use the current lane and owner docs for bug
+routing.
+
 Avoid `k2_wide_phase296x_symbol_presence_probe_guard.sh` in daily loops; it
 performs a release build and should stay a targeted archaeology/probe guard.
 
