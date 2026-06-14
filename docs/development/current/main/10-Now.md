@@ -1,5 +1,5 @@
 Status: SSOT
-Date: 2026-06-09
+Date: 2026-06-15
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -13,8 +13,9 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
+- active task card: read `latest_card_path` in `CURRENT_STATE.toml`
+- compiler foundation checkpoint: `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - compiler foundation taskboard: `docs/development/current/main/workstreams/compiler-foundation-current.md`
-- active selection card: `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
 - BoxCallable registry SSOT: `docs/development/current/main/design/box-callable-registry-ssot.md`
 - TypeAbiCatalog planning spine SSOT: `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 - CorePlan migration roadmap SSOT: `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
@@ -32,20 +33,14 @@ Related:
   `latest_card_path` in `CURRENT_STATE.toml`
 - current day-to-day tasks live in `latest_workstream_card` from
   `CURRENT_STATE.toml`
-- next BoxCallable task is reconciliation/proof, not first implementation:
-  reconcile older TypeAbiBoxDomain rows with landed BoxCallable rows and name
-  narrow proof commands
-- CorePlan C1 planner_required route-exhaustion, D1 normalizer AST-boundary,
-  E1 active-v0 inventory, E1-002 first retire, E1-003 collect_using_entries,
-  E1-004 bundle_resolver, E1-005 scan_v0, E1-006 scan_methods_v0, E1-007
-  scan_phi_vars_v0 retire, E1 closeout, COREPLAN-LOOP-WIRING-002 PHI input
-  materialization, COREPLAN-PLANNER-TAG-001 generic-loop FlowBox evidence, and
-  COREPLAN-TIMEOUT-001 StageB bundle-mod timeout metadata are landed; active
-  routed loop_*_v0 count is zero; full phase29bq fast gate now passes the BQ
-  list and stops at the Hako-side timeout in
-  `phase29bq_joinir_port04_phi_exit_invariant_lock_vm`
-- exact-front optimization is paused; resume later through
-  `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`, not from historical perf notes
+- compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
+- exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
+  moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
+  `PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001`
+- current step is classifying whether the selected param-origin expression
+  copies can be forwarded directly to field_get / field_set / compare
+  consumers; process-total boot cost is diagnostic, and code must not be edited
+  before candidate safety is selected
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - use the active method anchor from `CURRENT_STATE.toml` instead of stale
   historical lane notes
@@ -59,15 +54,13 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
-3. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
-4. `docs/development/current/main/design/box-callable-registry-ssot.md`
-5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
-6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md`
-9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md`
+3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
+5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
+6. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
+7. `docs/development/current/main/workstreams/compiler-foundation-current.md`
+8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 

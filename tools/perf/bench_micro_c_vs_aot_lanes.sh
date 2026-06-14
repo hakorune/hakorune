@@ -193,7 +193,10 @@ int main(int argc, char** argv) {
 }
 EOF
 
-  cc -O2 -no-pie -o "${out_bin}" "${runner_src}" "${link_obj}" \
+  # Some runtime-using exact kernels pull the archive member that also contains
+  # the product `main`. Keep this resident measurement runner's `main` first and
+  # allow the duplicate archive entry instead of rejecting string/runtime fronts.
+  cc -O2 -no-pie -Wl,--allow-multiple-definition -o "${out_bin}" "${runner_src}" "${link_obj}" \
     "${root_dir}/target/release/libnyash_kernel.a" -ldl -lpthread -lm
 }
 

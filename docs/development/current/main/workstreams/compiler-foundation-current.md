@@ -2219,9 +2219,38 @@ bash tools/checks/coreplan_normalizer_ast_boundary_inventory_guard.sh
 Next:
 
 ```text
-compiler_foundation_checkpoint
-  decide whether to continue compiler-first or pause back to
-  MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.
+COMPILER-FOUNDATION-CHECKPOINT-001
+  landed; compiler-foundation slice is paused and the active pointer returns
+  to MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.
+```
+
+### COMPILER-FOUNDATION-CHECKPOINT-001: pause compiler foundation
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md
+```
+
+This is a checkpoint row. It does not add code or accepted shapes. It records
+that the current compiler-foundation slice is safe to pause before returning to
+exact-AOT front selection.
+
+Result:
+
+```text
+compiler_foundation_checkpoint_landed=1
+compiler_foundation_slice_paused=1
+mimalloc_return_lane=MIMALLOC-AOT-KERNEL-FRONT-SELECT-002
+counter_step_chain_role=startup_sentinel
+```
+
+Next:
+
+```text
+MIMALLOC-AOT-KERNEL-FRONT-SELECT-002
+  select the next non-folded exact-AOT kernel front with perf/asm evidence.
 ```
 
 ## Do Not Do Yet

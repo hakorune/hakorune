@@ -6,65 +6,43 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-14"
+date = "2026-06-15"
 
-active_lane = "COMPILER-FOUNDATION-001 BoxCallable / TypeAbiCatalog / CorePlan foundation"
-active_lane_status = """Exact-front optimization is paused after the
-flag-toggle bool scalar lowering keeper. The current work is compiler
-foundation: make BoxCallableRegistry the callable truth owner, keep
-TypeAbiCatalog/BoxDescriptor as read-only projection. Collection visible
-semantics for Buffer/String/Map/Array are now closed out as modular `.hako`
-visible owners with storage and VM dispatch still substrate-owned. The next
-foundation lane returns to CorePlan / JoinIR expressivity. CorePlan foundation
-has a remaining-family inventory after the B1 boundary: C1 fail-fast guard first,
-then D1 normalizer AST-boundary inventory, then E1 active-v0 inventory/retire. The
-C1, D1, E1-001 inventory, E1-002 first retire, E1-003
-collect_using_entries retire, E1-004 bundle_resolver retire, E1-005
-scan_v0 retire, E1-006 scan_methods_v0 retire, E1-007 scan_phi_vars_v0
-retire, E1 closeout, COREPLAN-LOOP-WIRING-002 PHI input materialization,
-COREPLAN-PLANNER-TAG-001 generic-loop FlowBox evidence, COREPLAN-TIMEOUT-001
-StageB bundle-mod timeout metadata, COREPLAN-PHI-BINDING-SSOT-001,
-COREPLAN-VARMAP-BOUNDARY-001, COREPLAN-PORT07-TIMEOUT-001,
-COREPLAN-FULL-GATE-DRIFT-001, COREPLAN-ISINTEGER-STRICT-DRIFT-001,
-COREPLAN-LOOP-SIMPLE-WHILE-SUBSET-REJECT-OVERACCEPT-001,
-COREPLAN-MATCH-RETURN-RELEASE-TAG-001,
-COREPLAN-LOOP-TRUE-EARLY-EXIT-ROUTE-SMOKE-001,
-COREPLAN-SPLIT-SCAN-STRICT-RC-DRIFT-001, and
-JOINIR-STRICT-HELPER-ROUTE-PIN-001 are landed. Active routed loop_*_v0 count is
-zero. `phase29bq_fast_gate_vm.sh --full` now passes BQ, Hako MIRBuilder pin
-rows, Program JSON contract pin, PORT04, PORT07, 29ae regression pack, and the
-29bp planner-required dev gate. Local-patch prevention is now active.
-BOXCALL-REG-011 reconciles the landed BoxCallableRegistry rows with older
-TypeAbi BoxDomain rows and names narrow proof commands. COLL-VISIBLE-CLOSEOUT-001
-closes the collection visible semantics lane and selects CorePlan / JoinIR
-expressivity as the next compiler-foundation owner. COREPLAN-ONE-ROW-IMPL-001
-lands the first post-closeout CorePlan row by routing the generic loop API PHI
-entry through phi_lifecycle, removing a legacy direct PHI fallback, and
-extending the PHI boundary guard to reject low-level lifecycle bypasses.
-COREPLAN-VARMAP-RESEAL-001 moves selected `parts/**` variable_map publication
-behind var_map_scope helpers and lowers the direct write inventory baseline.
-COREPLAN-NEXT-ROW-SELECTION-001 is now active as a planning-only row and selects
-COREPLAN-VARMAP-RESEAL-002 as the next one-purpose BoxShape row; Arc global
-replacement and mimalloc optimization remain paused from this pointer.
-COREPLAN-VARMAP-RESEAL-002 moves generic_loop_body variable_map publication
-behind var_map_scope helpers and lowers the guarded baseline to 48.
-COREPLAN-PHI-TXN-001 defines a PhiTxn/PhiToken transaction boundary inside
-phi_lifecycle before any broader JoinIR merge PHI migration.
-COREPLAN-JOINIR-MERGE-PHI-001 migrates the JoinIR exit_phi_builder path through
-PhiTxn / phi_lifecycle. COREPLAN-NORMALIZER-COMPOSITION-001 moves
-statement-only prelude AST shape extraction behind a normalizer adapter."""
-active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/workstreams/compiler-foundation-current.md"
-method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
-taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
-latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
+active_lane = "PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001 param direct-consumer forwarding probe"
+active_lane_status = """Compiler foundation is paused at
+COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
+reconciliation, collection visible semantics closeout, CorePlan variable_map
+reseal, PhiTxn, JoinIR exit PHI migration, and normalizer statement-only
+prelude adapter. Exact-AOT optimization resumed through
+MIMALLOC-AOT-KERNEL-FRONT-SELECT-002. That row found no meaningful Hako-slower
+resident exact-kernel owner after boot amortization and fixed the measurement
+harness link path for runtime/string kernels. MIMALLOC-BODY-TIMING-FRONT-SELECT-001
+then selected the product-route object-lifecycle body-timing surface:
+body_elapsed_ratio=112.969, gap_owner=compiler_lowering, and MIR body owner
+local_ssa_copy_materialization. EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002
+refreshed current-MIR origin attribution and found param-origin expression
+copies now dominate, not the historical field_get owner. PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001
+selected param_direct_consumer_value_forwarding with medium confidence. The
+active row probes exact param direct-consumer forwarding candidates before any
+MIRBuilder implementation. The previous keeper is BOOL-SCALAR-LOWERING-001 for
+kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
+a startup sentinel, not the kernel optimization front. Product NyRT startup,
+Type ABI / plugin ABI, MIRBuilder truth changes, Arc retirement, and object
+substrate replacement remain out of scope until the candidate probe selects a
+safe narrow implementation owner."""
+active_phase = "docs/development/current/main/phases/phase-296x/README.md"
+phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
+method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
+taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md"
 
-latest_card = "COREPLAN-NORMALIZER-COMPOSITION-001"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md"
-latest_card_summary = """COREPLAN-NORMALIZER-COMPOSITION-001 moves
-statement-only prelude AST shape extraction into stmt_only_prelude_view, leaving
-cond_lowering_prelude to compose effects from the adapter."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-NORMALIZER-COMPOSITION-001-LANDED-CHECKPOINT-NEXT"
+latest_card = "PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md"
+latest_card_summary = """PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001
+probes whether the selected param-origin expression copies can be forwarded
+directly to field_get, field_set, and compare consumers. It remains diagnostic
+and keeps MIRBuilder implementation closed until candidate safety is classified."""
+current_blocker_token = "PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

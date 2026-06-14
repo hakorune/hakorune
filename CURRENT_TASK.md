@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-06-14
+Date: 2026-06-15
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -13,18 +13,17 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
-3. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
-4. `docs/development/current/main/design/box-callable-registry-ssot.md`
-5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
-6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
+2. `docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md`
+3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
+5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
+6. `docs/development/current/main/workstreams/compiler-foundation-current.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-8. `docs/development/current/main/design/local-patch-prevention-ssot.md`
-9. `docs/development/current/main/05-Restart-Quick-Resume.md`
-10. `docs/development/current/main/10-Now.md`
-11. `git status -sb`
-12. `bash tools/checks/current_state_pointer_guard.sh`
-13. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+8. `docs/development/current/main/05-Restart-Quick-Resume.md`
+9. `docs/development/current/main/10-Now.md`
+10. `git status -sb`
+11. `bash tools/checks/current_state_pointer_guard.sh`
+12. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -38,9 +37,18 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- current work is the compiler foundation lane named by `CURRENT_STATE.toml`;
-  exact-front optimization is paused until this lane reaches a closeout or an
-  explicit pause point
+- active work has moved from boot-amortized exact-kernel selection through
+  `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
+  `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
+  `PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001`, and now to
+  `PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001`; exact resident kernels no
+  longer expose a meaningful Hako-slower owner, the product-route
+  object-lifecycle body timing surface selected `local_ssa_copy_materialization`,
+  current MIR origin attribution selected `param_expression_value_copy_chain`,
+  param-chain selection selected `param_direct_consumer_value_forwarding`, and
+  the next step is candidate safety classification before implementation
+- compiler foundation is paused at
+  `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
   BoxCallableRegistry is callable truth, TypeAbiCatalog and BoxDescriptor are
   read-only projection/tooling surfaces; `BOXCALL-REG-011` reconciles the
@@ -106,9 +114,15 @@ Scope: current lane / next lane / restart order only.
   and guard/fixture before more implementation; `COREPLAN-VARMAP-BOUNDARY-001`
   inventories 62 direct `variable_map` writes under CorePlan/plan/SSA and pins
   a no-growth guard
-- optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
+- optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
+  selected the product-route body timing front in
+  `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
+  `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
+  `PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001`, and now continues at
+  `PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
-  and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
+  `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
+  process-total boot cost is diagnostic rather than the primary owner selector
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row
 - adjacent array-text session route design is documented, and the selected-route session boundary is now landing
@@ -136,7 +150,8 @@ Scope: current lane / next lane / restart order only.
   define the task order; first-family host-handle text payload cutover is
   already tracked there, but global Arc / object substrate replacement is still
   closed from the compiler-foundation pointer alone
-- current compiler-first next step is `COREPLAN-NEXT-ROW-SELECTION-001` in
+- compiler-first checkpoint is landed; the previous compiler-first sequence was
+  `COREPLAN-NEXT-ROW-SELECTION-001` in
   `docs/development/current/main/phases/phase-293x/293x-1035-COREPLAN-NEXT-ROW-SELECTION-001.md`;
   it selected `COREPLAN-VARMAP-RESEAL-002`; `COREPLAN-VARMAP-RESEAL-002`
   is landed in
@@ -147,8 +162,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-293x/293x-1038-COREPLAN-JOINIR-MERGE-PHI-001.md`;
   `COREPLAN-NORMALIZER-COMPOSITION-001` is landed in
   `docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md`;
-  next step is a compiler-foundation checkpoint before returning to
-  `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`
+  `COMPILER-FOUNDATION-CHECKPOINT-001` is landed in
+  `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - treat stale Active labels in phase history as historical unless the current_state says otherwise
 
 ## Rules
@@ -161,25 +176,10 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/workstreams/compiler-foundation-current.md`
-3. `docs/development/current/main/phases/phase-293x/293x-1039-COREPLAN-NORMALIZER-COMPOSITION-001.md`
-4. `docs/development/current/main/phases/phase-293x/293x-1038-COREPLAN-JOINIR-MERGE-PHI-001.md`
-5. `docs/development/current/main/phases/phase-293x/293x-1037-COREPLAN-PHI-TXN-001.md`
-6. `docs/development/current/main/phases/phase-293x/293x-1036-COREPLAN-VARMAP-RESEAL-002-GENERIC-LOOP-BODY.md`
-7. `docs/development/current/main/phases/phase-293x/293x-1035-COREPLAN-NEXT-ROW-SELECTION-001.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1034-COREPLAN-VARMAP-RESEAL-001-PARTS-STMT.md`
-9. `docs/development/current/main/phases/phase-293x/293x-1033-COREPLAN-ONE-ROW-IMPL-001-PHI-LIFECYCLE-GUARD.md`
-10. `docs/development/current/main/phases/phase-293x/293x-1032-COLL-VISIBLE-CLOSEOUT-001.md`
-11. `docs/development/current/main/phases/phase-293x/293x-1004-COMPILER-FOUNDATION-SELECTION-001.md`
-12. `docs/development/current/main/design/box-callable-registry-ssot.md`
-13. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
-14. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-15. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-16. `docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md`
-17. `docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md`
-18. `docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md`
-19. `docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md`
-20. `docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md`
-21. `docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md`
-22. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-23. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/phases/phase-296x/296x-666-PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001.md`
+3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
+5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
+6. `docs/development/current/main/workstreams/compiler-foundation-current.md`
+7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
