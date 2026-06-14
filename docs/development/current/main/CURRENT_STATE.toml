@@ -158,8 +158,8 @@ latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-7
 latest_card = "MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-701-MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001.md"
 latest_card_summary = """MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001
-checkpoints the mimalloc compiler-lowering optimization run after no fresh
-high-confidence compiler owner remains."""
+landed a clean pause checkpoint for the mimalloc compiler-lowering optimization
+run after no fresh high-confidence compiler owner remained."""
 current_blocker_token = "MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
