@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001
 Scope: Design the safe keeper boundary for cross-block field_get-origin copy
@@ -80,15 +80,61 @@ winner_claim=0
 summary=ok
 ```
 
+## Design Result
+
+```text
+output_contract=hako-mimalloc-cross-block-field-get-alias-forwarding-design-v0
+forwarding_candidate_copy_count=4
+same_block_candidate_count=1
+cross_block_candidate_count=3
+root_dominates_candidate_count=4
+same_field_mutation_candidate_count=0
+same_field_mutation_path_count=0
+safe_alias_candidate_count=4
+keeper_shape=dominance_alias
+selected_owner=cross_block_field_get_alias_copy_chain
+selected_owner_confidence=medium
+dominance_required=1
+same_field_mutation_guard_required=1
+same_receiver_alias_guard_required=1
+ssa_visibility_guard_required=1
+arbitrary_copy_coalescing_allowed=0
+next_task=cross_block_field_get_alias_forwarding_keeper
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
+```
+
+Guard:
+
+```bash
+bash tools/checks/k2_wide_phase296x_cross_block_field_get_alias_design_guard.sh
+```
+
+## Keeper Boundary
+
+The next implementation row may add only a dominance-aware field_get alias
+keeper. It must reject or ignore any candidate that lacks dominance, has a
+possible same receiver/field mutation, or requires arbitrary copy coalescing.
+
+```text
+allowed_shape=FieldGet root -> Copy chain -> direct expression consumer
+dominance_required=1
+same_receiver_alias_guard_required=1
+same_field_mutation_guard_required=1
+arbitrary_copy_coalescing_allowed=0
+```
+
 ## Acceptance
 
 ```text
 cross_block_field_get_alias_forwarding_design_active=1
 source_evidence=296x-670
-keeper_shape=0
+keeper_shape=dominance_alias
 dominance_required=1
 same_field_mutation_guard_required=1
 implementation_started=0
 optimization_open=0
-summary=pending
+summary=ok
 ```

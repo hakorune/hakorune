@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001 keeper boundary design"
+active_lane = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001 dominance-aware field_get alias keeper"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -29,9 +29,11 @@ The active
 row refreshed current-MIR field_get direct-consumer forwarding and selected
 cross_block_field_get_alias_copy_chain: forwarding_candidate_copy_count=4,
 same_block_candidate_count=1, cross_block_candidate_count=3, and
-covered_by_existing_rule_count=0. The active row designs the safe keeper
-boundary before implementation, including dominance, same-field mutation, and
-SSA visibility guards. The previous keeper is BOOL-SCALAR-LOWERING-001 for
+covered_by_existing_rule_count=0. CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001
+selected keeper_shape=dominance_alias with safe_alias_candidate_count=4,
+root_dominates_candidate_count=4, and same_field_mutation_candidate_count=0.
+The active row implements only that narrow keeper and must remeasure body timing
+before any winner claim. The previous keeper is BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
 a startup sentinel, not the kernel optimization front. Product NyRT startup,
 Type ABI / plugin ABI, MIRBuilder truth changes, Arc retirement, and object
@@ -40,15 +42,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md"
 
-latest_card = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md"
-latest_card_summary = """CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001
-designs the safe keeper boundary for the field_get-origin copy chains selected
-by 296x-670. It keeps implementation closed until dominance, same-field
-mutation, SSA visibility, and row182 relation are pinned."""
-current_blocker_token = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001-ACTIVE"
+latest_card = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md"
+latest_card_summary = """CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001
+implements only the dominance-aware field_get alias keeper selected by 296x-671.
+It must keep arbitrary copy coalescing closed and remeasure body timing before
+any winner claim."""
+current_blocker_token = "CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

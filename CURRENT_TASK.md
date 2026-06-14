@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -50,10 +50,11 @@ Scope: current lane / next lane / restart order only.
   object-lifecycle body timing surface selected `local_ssa_copy_materialization`,
   the apparent param direct-consumer path was rejected as a nonkeeper after
   implementation did not reduce the target count, function-wide origin repair
-  showed the current owner is field_get-origin copy chains, and 296x-670 selected
-  `cross_block_field_get_alias_copy_chain` with four candidates before
-  implementation; the next step is current-MIR cross-block field_get alias
-  forwarding design
+  showed the current owner is field_get-origin copy chains, 296x-670 selected
+  `cross_block_field_get_alias_copy_chain` with four candidates, and 296x-671
+  selected `keeper_shape=dominance_alias`; the next step is the narrow
+  dominance-aware field_get alias keeper with body-timing remeasurement before
+  any winner claim
 - compiler foundation is paused at
   `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
@@ -187,7 +188,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-671-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-672-CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
