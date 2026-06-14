@@ -75,24 +75,6 @@ pub(crate) fn flag_default_on_cached(_cell: &'static OnceLock<bool>, key: &str) 
     }
 }
 
-#[cfg(not(test))]
-#[inline(always)]
-pub(crate) fn flag_default_on(key: &str) -> bool {
-    !matches!(
-        std::env::var(key).ok().as_deref(),
-        Some("0" | "false" | "off" | "FALSE" | "OFF")
-    )
-}
-
-#[cfg(not(test))]
-#[inline(always)]
-pub(crate) fn u64_or(key: &str, default: u64) -> u64 {
-    std::env::var(key)
-        .ok()
-        .and_then(|s| s.parse::<u64>().ok())
-        .unwrap_or(default)
-}
-
 #[cfg(feature = "perf-observe")]
 #[inline(always)]
 pub(crate) fn flag_parsed_cached(
