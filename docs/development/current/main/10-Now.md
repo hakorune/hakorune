@@ -36,9 +36,9 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
   moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `POST-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-MEASUREMENT-001`
-- current step is remeasuring product-route body timing after 296x-681 removed
-  the selected helper result Copy family;
+  `POST-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-OWNER-REFRESH-REPEAT-001`
+- current step is repeating owner refresh after 296x-682 measured a remaining
+  large body gap with low-confidence next-owner selection;
   process-total boot cost is diagnostic, and provider/replacement/startup seams
   stay closed
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -54,7 +54,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-682-POST-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-MEASUREMENT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-683-POST-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-OWNER-REFRESH-REPEAT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
