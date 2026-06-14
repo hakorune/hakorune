@@ -161,7 +161,6 @@ P2 landed:
 - `finalization.rs` -> `src/core/finalization.rs`
 - `instance_v2.rs` -> `src/core/instance_v2.rs`
 - `method_box.rs` -> `src/core/method_box.rs`
-- `scope_tracker.rs` -> `src/core/scope_tracker.rs`
 - `type_box.rs` -> `src/core/type_box.rs`
 - `value.rs` -> `src/core/value.rs`
 - `ast.rs` -> `src/ast/mod.rs`
