@@ -11,6 +11,7 @@ use super::helpers::{
     canonicalize_legacy_global_name, collect_const_string_literals, collect_known_user_boxes,
     known_user_box_name_from_value, parse_user_box_method_global_name,
 };
+use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 
 /// Canonicalize call-site instructions.
 ///
@@ -50,6 +51,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                 );
             }
         }
+        rewritten += rewrite_cfg_stable_receiver_operands(func);
     }
 
     module.metadata.closure_bodies = closure_bodies;

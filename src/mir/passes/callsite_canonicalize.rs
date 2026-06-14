@@ -22,6 +22,8 @@
 mod helpers;
 #[path = "callsite_canonicalize/pass.rs"]
 mod pass;
+#[path = "callsite_canonicalize/receiver_operand.rs"]
+mod receiver_operand;
 
 pub use pass::canonicalize_callsites;
 

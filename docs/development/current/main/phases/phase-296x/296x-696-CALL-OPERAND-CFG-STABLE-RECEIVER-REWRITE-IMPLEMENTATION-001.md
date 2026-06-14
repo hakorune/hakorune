@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-IMPLEMENTATION-001
 Scope: Implement the CFG-stable dominance guarded receiver operand rewrite in
@@ -75,11 +75,46 @@ forbidden:
 ## Acceptance
 
 ```text
-call_operand_cfg_stable_receiver_rewrite_implementation_active=1
+call_operand_cfg_stable_receiver_rewrite_implementation_landed=1
 source_evidence=296x-695
 post_selected_keeper_candidate_count_target=0
 implementation_started=1
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
+```
+
+## Result
+
+```text
+output_contract=hako-mimalloc-call-operand-cfg-stable-receiver-rewrite-implementation-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-695
+selected_owner=mir_passes_callsite_canonicalize_receiver_operand_rewrite
+selected_keeper_shape=cfg_stable_dominance_guarded_receiver_operand_rewrite
+pre_selected_keeper_candidate_count=13
+post_selected_keeper_candidate_count=0
+post_call_operand_unique_copy_count=13
+arg_forwarding_enabled=0
+requires_cfg_stable_dominance_guard=1
+dominance_source=final_mir_cfg_successors
+receiver_only_rewrite=1
+unknown_root_forwarding_enabled=0
+helper_name_special_case=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
+source_hako_changed=0
+startup_lane_reopened=0
+optimization_open=0
+winner_claim=0
+next_task=post_cfg_stable_receiver_rewrite_measurement
+summary=ok
+```
+
+Interpretation:
+
+```text
+The CFG-stable receiver rewrite removed the selected receiver family:
+safe_receiver_candidate_count=0. The remaining dominance-required call operand
+candidate is the explicitly rejected Arg surface, so it stays closed.
 ```
