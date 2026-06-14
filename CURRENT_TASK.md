@@ -19,11 +19,12 @@ Scope: current lane / next lane / restart order only.
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-8. `docs/development/current/main/05-Restart-Quick-Resume.md`
-9. `docs/development/current/main/10-Now.md`
-10. `git status -sb`
-11. `bash tools/checks/current_state_pointer_guard.sh`
-12. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+8. `docs/development/current/main/design/local-patch-prevention-ssot.md`
+9. `docs/development/current/main/05-Restart-Quick-Resume.md`
+10. `docs/development/current/main/10-Now.md`
+11. `git status -sb`
+12. `bash tools/checks/current_state_pointer_guard.sh`
+13. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -42,7 +43,9 @@ Scope: current lane / next lane / restart order only.
   explicit pause point
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
   BoxCallableRegistry is callable truth, TypeAbiCatalog and BoxDescriptor are
-  read-only projection/tooling surfaces
+  read-only projection/tooling surfaces; `BOXCALL-REG-011` reconciles the
+  landed BoxCallableRegistry rows with older TypeAbi BoxDomain rows and names
+  narrow proof commands
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0
@@ -50,10 +53,20 @@ Scope: current lane / next lane / restart order only.
   bundle_resolver, E1-005 scan_v0, E1-006 scan_methods_v0, E1-007
   scan_phi_vars_v0 retire, E1 closeout, COREPLAN-LOOP-WIRING-002 PHI input
   materialization, COREPLAN-PLANNER-TAG-001 generic-loop FlowBox evidence, and
-  COREPLAN-TIMEOUT-001 StageB bundle-mod timeout metadata are landed; active
-  routed loop_*_v0 count is zero; the full phase29bq fast gate now passes the
-  BQ list and stops at the Hako-side timeout in
-  `phase29bq_joinir_port04_phi_exit_invariant_lock_vm`
+  COREPLAN-TIMEOUT-001 StageB bundle-mod timeout metadata,
+  `COREPLAN-PHI-BINDING-SSOT-001`, `COREPLAN-VARMAP-BOUNDARY-001`,
+  `COREPLAN-PORT07-TIMEOUT-001`, `COREPLAN-FULL-GATE-DRIFT-001`,
+  `COREPLAN-ISINTEGER-STRICT-DRIFT-001`, and the 1026..1030 29ae/full-gate
+  drift closeouts and `BOXCALL-REG-011` are landed; active routed loop_*_v0
+  count is zero;
+  `phase29bq_fast_gate_vm.sh --full` now passes BQ, Hako MIRBuilder pin rows,
+  Program JSON contract pin, PORT04, PORT07, the 29ae regression pack, and the
+  29bp planner-required dev gate
+- local-patch prevention is now an active compiler hygiene rule: same failure
+  class plus two local patches means stop-the-line, docs-first boundary audit,
+  and guard/fixture before more implementation; `COREPLAN-VARMAP-BOUNDARY-001`
+  inventories 62 direct `variable_map` writes under CorePlan/plan/SSA and pins
+  a no-growth guard
 - optimization resumes later at `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   and `kilo_micro_userbox_counter_step_chain` remains a startup sentinel
@@ -101,6 +114,11 @@ Scope: current lane / next lane / restart order only.
 5. `docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md`
 6. `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 7. `docs/development/current/main/phases/phase-293x/293x-1006-COREPLAN-FOUND-002-REMAINING-FAMILY-INVENTORY.md`
-8. `docs/development/current/main/phases/phase-293x/293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md`
-9. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
-10. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+8. `docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md`
+9. `docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md`
+10. `docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md`
+11. `docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md`
+12. `docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md`
+13. `docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md`
+14. `docs/development/current/main/design/coreplan-compat-normalizer-legoization-ssot.md`
+15. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

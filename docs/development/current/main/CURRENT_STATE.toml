@@ -19,24 +19,34 @@ C1, D1, E1-001 inventory, E1-002 first retire, E1-003
 collect_using_entries retire, E1-004 bundle_resolver retire, E1-005
 scan_v0 retire, E1-006 scan_methods_v0 retire, E1-007 scan_phi_vars_v0
 retire, E1 closeout, COREPLAN-LOOP-WIRING-002 PHI input materialization,
-COREPLAN-PLANNER-TAG-001 generic-loop FlowBox evidence, and
-COREPLAN-TIMEOUT-001 StageB bundle-mod timeout metadata are landed. Active
-routed loop_*_v0 count is zero. Full phase29bq fast gate now passes the BQ list
-and stops at the next independent blocker: the Hako side of
-phase29bq_joinir_port04_phi_exit_invariant_lock_vm times out."""
+COREPLAN-PLANNER-TAG-001 generic-loop FlowBox evidence, COREPLAN-TIMEOUT-001
+StageB bundle-mod timeout metadata, COREPLAN-PHI-BINDING-SSOT-001,
+COREPLAN-VARMAP-BOUNDARY-001, COREPLAN-PORT07-TIMEOUT-001,
+COREPLAN-FULL-GATE-DRIFT-001, COREPLAN-ISINTEGER-STRICT-DRIFT-001,
+COREPLAN-LOOP-SIMPLE-WHILE-SUBSET-REJECT-OVERACCEPT-001,
+COREPLAN-MATCH-RETURN-RELEASE-TAG-001,
+COREPLAN-LOOP-TRUE-EARLY-EXIT-ROUTE-SMOKE-001,
+COREPLAN-SPLIT-SCAN-STRICT-RC-DRIFT-001, and
+JOINIR-STRICT-HELPER-ROUTE-PIN-001 are landed. Active routed loop_*_v0 count is
+zero. `phase29bq_fast_gate_vm.sh --full` now passes BQ, Hako MIRBuilder pin
+rows, Program JSON contract pin, PORT04, PORT07, 29ae regression pack, and the
+29bp planner-required dev gate. Local-patch prevention is now active.
+BOXCALL-REG-011 reconciles the landed BoxCallableRegistry rows with older
+TypeAbi BoxDomain rows and names narrow proof commands."""
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md"
+phase_status = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 method_anchor = "docs/development/current/main/design/compiler-expressivity-first-policy.md"
 taskboard = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/compiler-foundation-current.md"
 
-latest_card = "293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1020-COREPLAN-TIMEOUT-001-STAGEB-BUNDLE-MOD-IF-TIMEOUT-METADATA.md"
-latest_card_summary = """293x-1020 keeps the compile-heavy
-stageb_bundle_mod_if_min row in the fast gate by adding explicit timeout=60
-metadata. The BQ list now passes; the next independent blocker is the Hako-side
-timeout in phase29bq_joinir_port04_phi_exit_invariant_lock_vm."""
-current_blocker_token = "COMPILER-FOUNDATION-COREPLAN-PORT04-TIMEOUT-001-NEXT"
+latest_card = "BOXCALL-REG-011"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md"
+latest_card_summary = """BOXCALL-REG-011 reconciles landed BoxCallableRegistry
+implementation rows with older TypeAbi BoxDomain rows. BoxCallableRegistry
+remains callable truth; TypeAbiCatalog and BoxDescriptor remain read-only
+projection/tooling surfaces. Narrow proof commands replace the broad
+plugin_loader_v2 filter."""
+current_blocker_token = "COMPILER-FOUNDATION-BOXCALL-REG-011-LANDED-NEXT-DECISION-001-NEXT"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

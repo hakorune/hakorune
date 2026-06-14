@@ -52,6 +52,22 @@ spaces and does not create a third canonical ABI.
 Long-term callable route truth moves to `BoxCallableRegistry`. This document
 remains the Type ABI / report boundary for Box callable projections.
 
+Update 2026-06-14:
+
+`BOXCALL-REG-011` reconciled the older TypeAbi BoxDomain implementation rows
+with the landed BoxCallableRegistry implementation. Callable truth and
+route-plan vocabulary now live under the `BOXCALL-REG` ladder; this document
+remains the Box Domain projection / report umbrella.
+
+```text
+TYPEABI-BOXDOMAIN-002..005:
+  superseded as implementation rows for callable truth by BOXCALL-REG rows
+
+TYPEABI-BOXDOMAIN SSOT:
+  retained for descriptor/view naming, projection boundaries, and report
+  vocabulary
+```
+
 ## Canonical ABI Boundary
 
 The external ABI matrix remains unchanged:
@@ -297,6 +313,10 @@ id_space_mixed_count=0
 
 Add plugin route view exporter inside plugin loader domain.
 
+Status: superseded by `BOXCALL-REG-011` for callable-truth implementation.
+Plugin loader callable exports are now reconciled through the
+BoxCallableRegistry provider / snapshot path.
+
 Acceptance:
 
 ```text
@@ -308,6 +328,9 @@ PluginLoader remains route truth
 ### TYPEABI-BOXDOMAIN-003
 
 Add `TypeAbiView` adapters for plugin route contracts or exported route views.
+
+Status: superseded by `BOXCALL-REG-011` for callable-truth implementation.
+Type ABI remains a projection surface over BoxCallableRegistry entries.
 
 Acceptance:
 
@@ -322,6 +345,9 @@ Type ABI pack remains snapshot
 
 Add `NewBoxRoutePlan` / `DropBoxRoutePlan` vocabulary.
 
+Status: superseded by `BOXCALL-REG-011` for callable-truth implementation.
+Route-plan vocabulary is now owned by the BoxCallable route-plan layer.
+
 Acceptance:
 
 ```text
@@ -333,6 +359,9 @@ birth/fini are not treated as MethodSlot
 ### TYPEABI-BOXDOMAIN-005
 
 Cut NewBox / DropBox execution to selected plans when the planner is ready.
+
+Status: not implemented here. Future execution cutover must consume selected
+plans from the BoxCallable route-plan layer and keep Type ABI projection-only.
 
 Acceptance:
 

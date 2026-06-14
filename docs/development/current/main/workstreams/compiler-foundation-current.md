@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
   - docs/development/current/main/design/coreplan-flowbox-interface-ssot.md
   - docs/development/current/main/design/compiler-expressivity-first-policy.md
+  - docs/development/current/main/design/local-patch-prevention-ssot.md
 ---
 
 # Compiler Foundation Current Taskboard
@@ -228,7 +229,12 @@ hot_path_typeabi_lookup_count=0
 
 ### BOXCALL-REG-011: SSOT ladder reconciliation and proof commands
 
-Next BoxCallable task.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1031-BOXCALL-REG-011-SSOT-LADDER-RECONCILIATION.md
+```
 
 Purpose:
 
@@ -252,9 +258,20 @@ summary=ok
 Suggested proof commands:
 
 ```bash
-cargo test -q box_callable type_abi plugin_loader_v2
+cargo test -q --lib box_callable
+cargo test -q --lib type_abi
+cargo test -q --lib export_box_callable_contracts_from_specs
+cargo test -q --lib empty_loader_snapshot_is_empty_registry
+cargo test -q --lib seeds_plugin_method_export_as_plugin_method_target
+cargo test -q --lib seeds_plugin_lifecycle_export_as_birth_and_fini_targets
+cargo test -q --lib plugin_callable_exports_project_to_catalog_through_registry
+cargo test -q --lib plugin_snapshot_registry_projects_to_empty_catalog
+cargo test -q --lib descriptor_aliases_cover_box_callable_projection
 bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
 ```
+
+Do not use broad `cargo test -q --lib plugin_loader_v2` as this row's proof.
+That filter also runs unrelated Future/Ring0 tests.
 
 Stop line:
 
@@ -778,7 +795,7 @@ accepted_shape_added=0
 
 ### COREPLAN-PORT04-TIMEOUT-001: phi exit invariant lock Hako timeout
 
-Next implementation task.
+Superseded by `COREPLAN-PHI-BINDING-SSOT-001` before implementation resumes.
 
 Purpose:
 
@@ -796,6 +813,372 @@ loop_v0_route_added=0
 fixture_expected_output_changed=0
 fallback_route_added=0
 accepted_shape_added=0
+```
+
+### COREPLAN-PHI-BINDING-SSOT-001: PHI / binding responsibility stop-the-line
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md
+```
+
+Purpose:
+
+```text
+stop the PORT04 patch chain and restore BoxShape ownership before adding any
+new CorePlan acceptance shape:
+  PHI lifecycle owns Reserve/Define/Populate
+  BindingState/current_bindings owns CorePlan logical values
+  variable_map is a defined-value emission cache only
+  LocalSSA only materializes block-local operands
+  RecipeOnly lowers recipe items exactly once, in order
+```
+
+Scope:
+
+```text
+docs first
+remove hidden generic value-capture from nested_loop_depth1 preheader freshness
+remove route-level whole-body fallback from RecipeOnly loop-cond lowering
+keep item-local fallback only when it preserves item position and bindings
+```
+
+Acceptance:
+
+```text
+phi_binding_responsibility_ssot_updated=1
+coreplan_phi_binding_boundary_guard=PASS
+local_patch_prevention_ssot_updated=1
+nested_loop_preheader_hidden_value_capture=0
+recipe_only_whole_body_fallback=0
+phase29bq_joinir_port04_phi_exit_invariant_lock_vm=PASS
+phase29bq_fast_gate_vm_advances_to_next_independent_blocker=1
+next_independent_blocker=phase29bq_joinir_port07_expr_parity_seed_vm_timeout
+loop_v0_route_added=0
+fixture_expected_output_changed=0
+fallback_route_added=0
+accepted_shape_added=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_phi_binding_boundary_guard.sh
+```
+
+Stop line:
+
+```text
+do not add a new loop route while this row is active
+do not let preheader freshness allocate/copy arbitrary external values
+do not let LocalSSA repair CorePlan logical binding freshness
+do not make variable_map the early PHI truth
+```
+
+### COREPLAN-VARMAP-BOUNDARY-001: variable_map write boundary inventory
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md
+```
+
+BoxShape sidecar before more timeout-driven local patches.
+
+Purpose:
+
+```text
+inventory direct variable_map writes under CorePlan / plan / LocalSSA and
+separate logical binding truth from emission-cache reseal sites before PORT07
+implementation resumes
+```
+
+Scope:
+
+```text
+docs/inventory first
+no accepted shape added
+no fixture output changed
+no route fallback added
+no broad variable_map API rewrite in this row
+```
+
+Known initial inventory:
+
+```text
+direct_variable_map_write_sites_under_plan_or_ssa=62
+logical_binding_truth_owner=current_bindings
+variable_map_role=defined_value_emission_cache
+```
+
+Acceptance:
+
+```text
+variable_map_direct_write_inventory_exists=1
+variable_map_write_owner_classification_exists=1
+variable_map_no_growth_guard_selected=1
+current_bindings_truth_owner_restated=1
+accepted_shape_added=0
+fallback_route_added=0
+```
+
+Proof:
+
+```bash
+bash tools/checks/coreplan_varmap_boundary_inventory_guard.sh
+```
+
+### COREPLAN-PORT07-TIMEOUT-001: expr parity seed Hako timeout
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1023-COREPLAN-PORT07-TIMEOUT-001.md
+```
+
+Timeout budget correction, not a CorePlan accepted-shape expansion.
+
+Purpose:
+
+```text
+investigate phase29bq_joinir_port07_expr_parity_seed_vm timeout after BQ,
+Hako MIRBuilder pin rows, Program JSON contract pin, and PORT04 all pass
+```
+
+Acceptance:
+
+```text
+port07_hako_timeout=0
+phase29bq_joinir_port07_expr_parity_seed_vm=PASS
+port07_timeout_budget_secs=180
+loop_v0_route_added=0
+fixture_expected_output_changed=0
+fallback_route_added=0
+accepted_shape_added=0
+```
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port07_expr_parity_seed_vm.sh
+```
+
+### COREPLAN-FULL-GATE-DRIFT-001: full gate reaches 29ae is_integer strict drift
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1024-COREPLAN-FULL-GATE-DRIFT-001.md
+```
+
+After the PORT07 timeout closeout, the default BQ gate passes through PORT07.
+The full gate next reaches 29ae and fails on the `StringUtils.is_integer`
+strict-reject contract.
+
+This row also restores the documented `timeout=60` metadata on the
+scan-methods rows in `planner_required_cases.tsv`.
+
+Acceptance:
+
+```text
+scan_methods_timeout_metadata_restored=1
+scan_methods_timeout_budget_secs=60
+phase29bq_fast_gate_vm_bq=PASS
+phase29bq_fast_gate_vm_full_reaches_29ae=1
+next_full_blocker=joinir_purity_gate_is_integer_strict_drift
+accepted_shape_added=0
+fallback_route_added=0
+```
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only selfhost_blocker_scan_methods_loop_min
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --full
+```
+
+Next:
+
+```text
+COREPLAN-ISINTEGER-STRICT-DRIFT-001
+  decide whether the strict lane should remain a VM-Hako subset reject or be
+  reclassified as a standard VM strict route, then update gate/code on that
+  decision. Do not change expectations silently.
+```
+
+### COREPLAN-ISINTEGER-STRICT-DRIFT-001: VM-Hako global mir_call capability guard
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1025-COREPLAN-ISINTEGER-STRICT-DRIFT-001.md
+```
+
+Decision:
+
+```text
+is_integer_strict_reject_owner=vm_hako_subset_capability
+flowbox_negative_evidence_for_is_integer=0
+unsupported_global_mir_call_reject=1
+```
+
+CorePlan / FlowBox may observe and lower the loop structure before VM-Hako
+subset validation runs. The unsupported part is the VM-Hako driver capability
+for non-`print` global `mir_call` targets such as
+`StringUtils.is_integer/1`, not the loop shape.
+
+Acceptance:
+
+```text
+vm_hako_global_mir_call_capability_guard=1
+strict_is_integer_fail_fast=1
+strict_is_integer_exit_code=1
+release_is_integer_exit_code=0
+accepted_shape_added=0
+fallback_route_added=0
+```
+
+Proof:
+
+```bash
+cargo test -p nyash-rust --lib subset_rejects_unsupported_global_mir_call
+bash tools/smokes/v2/profiles/integration/joinir/string_is_integer_strict_reject_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/string_is_integer_release_adopt_vm.sh
+RUN_TIMEOUT_SECS=30 bash tools/smokes/v2/profiles/integration/joinir/joinir_purity_gate_vm.sh
+```
+
+Next:
+
+```text
+COREPLAN-LOOP-SIMPLE-WHILE-SUBSET-REJECT-OVERACCEPT-001
+  landed as a fixture-local negative FlowBox gate correction.
+```
+
+### COREPLAN-LOOP-SIMPLE-WHILE-SUBSET-REJECT-OVERACCEPT-001: fixture-local negative gate
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1026-COREPLAN-LOOP-SIMPLE-WHILE-SUBSET-REJECT-OVERACCEPT-001.md
+```
+
+The fixture still returns `3`; the observed failure was unrelated
+stage3/dev support compilation emitting FlowBox tags into the raw stream.
+The smoke now pins `NYASH_JOINIR_DEV=0` for the target run and keeps the
+strict negative FlowBox gate fixture-local.
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh
+```
+
+### COREPLAN-MATCH-RETURN-RELEASE-TAG-001: release FlowBox silence
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1027-COREPLAN-MATCH-RETURN-RELEASE-TAG-001.md
+```
+
+`match_return` may use CorePlan/Seq lowering in release, but FlowBox
+observability tags remain strict/dev-only.
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/match_return_release_adopt_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/match_return_strict_shadow_vm.sh
+```
+
+### COREPLAN-LOOP-TRUE-EARLY-EXIT-ROUTE-SMOKE-001: route smoke output owner
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1028-COREPLAN-LOOP-TRUE-EARLY-EXIT-ROUTE-SMOKE-001.md
+```
+
+`loop_true_early_exit_vm` owns route behavior and accepts VM exit code `3`.
+Strict/release wrappers own their own tag contracts.
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_release_adopt_vm.sh
+```
+
+### COREPLAN-SPLIT-SCAN-STRICT-RC-DRIFT-001: split_scan strict wrapper result
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1029-COREPLAN-SPLIT-SCAN-STRICT-RC-DRIFT-001.md
+```
+
+The standalone strict/release split-scan wrappers expect the accepted fixture
+result `3`. The FlowBox coverage gate remains tag-only for the strict VM-Hako
+subset path and accepts its subset fail-fast marker.
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/split_scan_strict_shadow_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/split_scan_release_adopt_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/flowbox_tag_coverage_gate_vm.sh
+```
+
+### JOINIR-STRICT-HELPER-ROUTE-PIN-001: strict/release helper hermetic route pins
+
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1030-JOINIR-STRICT-HELPER-ROUTE-PIN-001.md
+```
+
+`run_joinir_vm_strict` and `run_joinir_vm_release` now pin their VM route
+preference explicitly so planner-first compat route pins cannot leak into
+later JoinIR strict/release gates.
+
+Acceptance:
+
+```text
+phase29bq_fast_gate_vm_full=PASS
+phase29ae_regression_pack_vm=PASS
+phase29bp_planner_required_dev_gate_v4_vm=PASS
+accepted_shape_added=0
+fallback_route_added=0
+```
+
+Proof:
+
+```bash
+bash tools/smokes/v2/profiles/integration/joinir/joinir_purity_gate_vm.sh
+env NYASH_VM_HAKO_PREFER_STRICT_DEV=0 bash tools/smokes/v2/profiles/integration/joinir/joinir_purity_gate_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --full
+```
+
+Next:
+
+```text
+COMPILER-FOUNDATION-PHASE29BQ-FULL-GREEN-NEXT-DECISION-001
+  choose whether the compiler foundation lane pauses here, returns to
+  BOXCALL-REG-011 reconciliation, or starts the next CorePlan family.
 ```
 
 ## Do Not Do Yet
