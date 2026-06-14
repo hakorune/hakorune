@@ -20,6 +20,7 @@ mod cli_directives;
 mod demos;
 mod dispatch;
 mod emit;
+mod lint_fields_top;
 pub mod json_v0_bridge;
 mod json_v1_bridge;
 pub mod mir_json {

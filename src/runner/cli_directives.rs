@@ -8,7 +8,7 @@
  *  - // @jit-debug            → enable common JIT debug flags (no-op if JIT unused)
  *  - // @jit-strict           → strict JIT flags (no VM fallback) for experiments
  *
- * Also runs the "fields-at-top" lint delegated to pipeline::lint_fields_top.
+ * Also runs the "fields-at-top" lint delegated to lint_fields_top::lint_fields_top.
  */
 
 pub(super) fn apply_cli_directives_from_source(
@@ -55,7 +55,7 @@ pub(super) fn apply_cli_directives_from_source(
     }
 
     // Lint: enforce fields at top-of-box (delegated)
-    super::pipeline::lint_fields_top(code, strict_fields, verbose)?;
+    super::lint_fields_top::lint_fields_top(code, strict_fields, verbose)?;
 
     // Dev-only guards (strict but opt-in via env)
     // 1) ASI strict: disallow binary operator at end-of-line (line continuation)
