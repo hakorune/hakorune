@@ -36,9 +36,9 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
   moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-OWNER-REFRESH-001`
-- current step refreshes owner selection after the selected call-operand
-  forwarding keeper did not improve body timing;
+  `CALL-OPERAND-RESIDUAL-POLICY-SELECTION-001`
+- current step selects the next residual call-operand policy family after the
+  previous tiny keeper did not improve body timing;
   process-total boot cost is diagnostic, and provider/replacement/startup seams
   stay closed
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -54,7 +54,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-689-POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-OWNER-REFRESH-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-690-CALL-OPERAND-RESIDUAL-POLICY-SELECTION-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
