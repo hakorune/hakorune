@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-668-PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-669-PARAM-ALIAS-COPY-OWNER-REFRESH-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -42,14 +42,17 @@ Scope: current lane / next lane / restart order only.
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
   `PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001`,
   `PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001`,
-  `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`, and now to
-  `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`; exact resident kernels no
+  `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`,
+  `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`, and now to
+  `PARAM-ALIAS-COPY-OWNER-REFRESH-001`; exact resident kernels no
   longer expose a meaningful Hako-slower owner, the product-route
   object-lifecycle body timing surface selected `local_ssa_copy_materialization`,
   current MIR origin attribution selected `param_expression_value_copy_chain`,
   param-chain selection selected `param_direct_consumer_value_forwarding`, and
   the candidate probe found seven safe direct-consumer candidates, the guard
-  surface is pinned, and the next step is the narrow MIRBuilder implementation
+  surface is pinned, the direct-consumer LocalSSA implementation attempt was
+  rejected because the target count stayed at seven, and the next step is owner
+  refresh for the param alias/local binding copy chain
 - compiler foundation is paused at
   `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
@@ -123,8 +126,9 @@ Scope: current lane / next lane / restart order only.
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
   `PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001`,
   `PARAM-DIRECT-CONSUMER-FORWARDING-CANDIDATE-PROBE-001`,
-  `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`, and now continues at
-  `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`;
+  `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`,
+  `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`, and now continues at
+  `PARAM-ALIAS-COPY-OWNER-REFRESH-001`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
   process-total boot cost is diagnostic rather than the primary owner selector
@@ -181,7 +185,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-668-PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-669-PARAM-ALIAS-COPY-OWNER-REFRESH-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`

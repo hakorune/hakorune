@@ -36,9 +36,10 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
   moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`
-- current step is the narrow MIRBuilder implementation for proven param-origin
-  direct-consumer forwarding; process-total boot cost is diagnostic, and
+  `PARAM-ALIAS-COPY-OWNER-REFRESH-001`
+- current step is reselecting the owner for `%param -> copy -> copy -> direct
+  consumer` chains after the direct-consumer LocalSSA attempt did not reduce
+  the target count; process-total boot cost is diagnostic, and
   provider/replacement/startup seams stay closed
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - use the active method anchor from `CURRENT_STATE.toml` instead of stale
@@ -53,7 +54,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-668-PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-669-PARAM-ALIAS-COPY-OWNER-REFRESH-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
