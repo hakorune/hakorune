@@ -31,6 +31,11 @@ impl LocalKind {
     }
 
     #[inline]
+    fn can_forward_same_block_copy_root_to_receiver(self) -> bool {
+        matches!(self, LocalKind::Recv)
+    }
+
+    #[inline]
     fn can_forward_field_get_alias_to_consumer(self) -> bool {
         matches!(
             self,
@@ -207,6 +212,34 @@ fn same_block_call_result_root(
         match inst {
             MirInstruction::Copy { src, .. } => current = src,
             MirInstruction::Call { .. } => return Some(current),
+            _ => return None,
+        }
+    }
+    None
+}
+
+fn same_block_copy_root(
+    builder: &MirBuilder,
+    seed: ValueId,
+    current_block: crate::mir::BasicBlockId,
+) -> Option<ValueId> {
+    let mut current = seed;
+    let mut seen = std::collections::BTreeSet::new();
+    let mut saw_copy = false;
+    for _ in 0..8 {
+        if !seen.insert(current) {
+            return None;
+        }
+        let (block, inst) = find_value_def(builder, current)?;
+        if block != current_block {
+            return None;
+        }
+        match inst {
+            MirInstruction::Copy { src, .. } => {
+                saw_copy = true;
+                current = src;
+            }
+            _ if saw_copy => return Some(current),
             _ => return None,
         }
     }
@@ -498,6 +531,18 @@ fn ensure_inner(
                     builder.local_ssa_map.insert(key, root.value);
                     return Ok(root.value);
                 }
+            }
+        }
+
+        if kind.can_forward_same_block_copy_root_to_receiver() {
+            if let Some(root) = same_block_copy_root(builder, v, bb) {
+                // 296x-687: Receiver operands may consume a same-block Copy
+                // root directly when both the Copy chain and root are already
+                // local to this block. Keep Arg forwarding, cross-block/root
+                // chains, helper-name special-cases, variable_map, and PHI
+                // lifecycle closed.
+                builder.local_ssa_map.insert(key, root);
+                return Ok(root);
             }
         }
 

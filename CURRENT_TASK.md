@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-687-CALL-OPERAND-MATERIALIZATION-FORWARDING-IMPLEMENTATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-688-POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-MEASUREMENT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -49,7 +49,7 @@ Scope: current lane / next lane / restart order only.
   `CROSS-BLOCK-FIELD-GET-ALIAS-FORWARDING-KEEPER-001`,
   `POST-FIELD-GET-ALIAS-KEEPER-OWNER-REFRESH-001`,
   `PAGE-HOTPATH-HELPER-RESULT-MATERIALIZATION-INVENTORY-001`, and now to
-  `CALL-OPERAND-MATERIALIZATION-FORWARDING-IMPLEMENTATION-001`; exact resident kernels no
+  `POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-MEASUREMENT-001`; exact resident kernels no
   longer expose a meaningful Hako-slower owner, the product-route
   object-lifecycle body timing surface selected `local_ssa_copy_materialization`,
   the apparent param direct-consumer path was rejected as a nonkeeper after
@@ -71,8 +71,9 @@ Scope: current lane / next lane / restart order only.
   296x-683 selected `call_operand_materialization_copy_chain_inventory`;
   296x-684 inventoried 26 chains / 29 unique copies; 296x-685 selected the
   tiny `same_block_root_receiver_operand_forwarding` keeper; 296x-686 fixed
-  the post-implementation guard surface; the next step implements only that
-  narrow keeper
+  the post-implementation guard surface; 296x-687 removed the selected carrier
+  family; the next step remeasures body timing before winner or next-owner
+  selection
 - compiler foundation is paused at
   `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 - first foundation owner is BoxCallableRegistry / TypeAbiCatalog reconciliation:
@@ -149,7 +150,7 @@ Scope: current lane / next lane / restart order only.
   `PARAM-DIRECT-CONSUMER-FORWARDING-GUARD-SURFACE-001`,
   `PARAM-DIRECT-CONSUMER-FORWARDING-IMPLEMENTATION-001`,
   `PARAM-ALIAS-COPY-OWNER-REFRESH-001`, and now continues at
-  `CALL-OPERAND-MATERIALIZATION-FORWARDING-IMPLEMENTATION-001`;
+  `POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-MEASUREMENT-001`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
   process-total boot cost is diagnostic rather than the primary owner selector
@@ -206,7 +207,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-687-CALL-OPERAND-MATERIALIZATION-FORWARDING-IMPLEMENTATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-688-POST-CALL-OPERAND-MATERIALIZATION-FORWARDING-MEASUREMENT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`

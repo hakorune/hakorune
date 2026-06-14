@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: CALL-OPERAND-MATERIALIZATION-FORWARDING-IMPLEMENTATION-001
 Scope: Implement only the selected same-block-root receiver operand forwarding
@@ -65,14 +65,44 @@ do not change PHI lifecycle
 do not claim a winner from MIR shape alone
 ```
 
+## Result
+
+```text
+output_contract=hako-mimalloc-call-operand-materialization-forwarding-implementation-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-686
+selected_keeper_shape=same_block_root_receiver_operand_forwarding
+pre_selected_keeper_candidate_count=2
+post_selected_keeper_candidate_count=0
+post_call_operand_unique_copy_count=27
+post_call_operand_unique_copy_count_upper_bound=27
+arg_forwarding_enabled=0
+helper_name_special_case=0
+requires_dominance_guard=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
+implementation_started=1
+optimization_open=0
+winner_claim=0
+summary=ok
+```
+
+Interpretation:
+
+```text
+The selected receiver-only same-block-root keeper landed and removed the target
+call-operand carrier family. Measure body timing next before any winner or
+next-owner claim.
+```
+
 ## Acceptance
 
 ```text
-call_operand_materialization_forwarding_implementation_active=1
+call_operand_materialization_forwarding_implementation_landed=1
 source_evidence=296x-686
-implementation_started=0
+implementation_started=1
 post_selected_keeper_candidate_count=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
 ```
