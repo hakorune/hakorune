@@ -11,8 +11,8 @@ pub mod report;
 pub mod route_plan;
 
 pub use model::{
-    BoxCallableKey, BoxCallableRole, BoxCallableTarget, BoxKey, CallableName, FunctionId,
-    IntrinsicId,
+    BoxCallableEntry, BoxCallableKey, BoxCallableRole, BoxCallableSource, BoxCallableTarget,
+    BoxKey, CallableName, FunctionId, IntrinsicId,
 };
 pub use registry::BoxCallableRegistry;
 pub use route_plan::{DropBoxRoutePlan, InvokeRoutePlan, MethodCallRoutePlan, NewBoxRoutePlan};

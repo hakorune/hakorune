@@ -37,6 +37,29 @@ pub enum BoxCallableRole {
     Operator,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BoxCallableSource {
+    TypeRegistry,
+    SurfaceCatalog,
+    PluginLoaderProvider,
+    UserBoxProvider,
+    IntrinsicProvider,
+    Manual,
+}
+
+impl BoxCallableSource {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            BoxCallableSource::TypeRegistry => "type_registry",
+            BoxCallableSource::SurfaceCatalog => "surface_catalog",
+            BoxCallableSource::PluginLoaderProvider => "plugin_loader_provider",
+            BoxCallableSource::UserBoxProvider => "user_box_provider",
+            BoxCallableSource::IntrinsicProvider => "intrinsic_provider",
+            BoxCallableSource::Manual => "manual",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct BoxCallableKey {
     pub box_key: BoxKey,
@@ -88,6 +111,18 @@ pub enum BoxCallableTarget {
     Intrinsic {
         intrinsic_id: IntrinsicId,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BoxCallableEntry {
+    pub source: BoxCallableSource,
+    pub target: BoxCallableTarget,
+}
+
+impl BoxCallableEntry {
+    pub fn new(source: BoxCallableSource, target: BoxCallableTarget) -> Self {
+        Self { source, target }
+    }
 }
 
 impl BoxCallableTarget {

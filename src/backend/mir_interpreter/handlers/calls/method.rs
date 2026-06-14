@@ -560,7 +560,8 @@ impl MirInterpreter {
             return Ok(VMValue::String(receiver.to_string()));
         }
 
-        // 2. Lookup type in TypeRegistry and get slot
+        // 2. Lookup the builtin slot vocabulary. TypeRegistry does not own
+        // method behavior; dispatch_by_slot / surface handlers do.
         let slot = crate::runtime::type_registry::resolve_slot_by_name(
             type_name,
             method,

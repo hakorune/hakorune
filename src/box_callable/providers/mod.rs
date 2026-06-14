@@ -5,3 +5,4 @@
 
 pub mod builtin_type_registry;
 pub mod plugin_loader;
+pub mod surface_catalogs;

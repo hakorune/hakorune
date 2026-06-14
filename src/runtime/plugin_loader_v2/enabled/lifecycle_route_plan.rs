@@ -57,18 +57,19 @@ fn resolve_newbox_lifecycle_plan_from_registry(
     box_type: &str,
 ) -> BidResult<PluginNewBoxExecutionPlan> {
     let key = BoxCallableKey::new(box_type, BoxCallableRole::Birth, "birth", 0);
-    let target = registry.get(&key).ok_or(BidError::InvalidMethod)?;
-    let BoxCallableTarget::PluginLifecycle { type_id, .. } = target else {
+    let entry = registry.get_entry(&key).ok_or(BidError::InvalidMethod)?;
+    let BoxCallableTarget::PluginLifecycle { type_id, .. } = &entry.target else {
         return Err(BidError::InvalidMethod);
     };
+    let type_id = *type_id;
 
-    let runtime_route = super::runtime_invoke_boundary::resolve(loader, *type_id);
+    let runtime_route = super::runtime_invoke_boundary::resolve(loader, type_id);
     let semantic_route = InvokeRoutePlan::PluginV2 {
-        type_id: *type_id,
+        type_id,
         invoke_box_available: runtime_route.invoke_box_fn.is_some(),
         allow_compat_shim: runtime_route.allow_compat_shim,
     };
-    let semantic_plan = NewBoxRoutePlan::plugin_birth_from_target(target, semantic_route)
+    let semantic_plan = NewBoxRoutePlan::plugin_birth_from_entry(entry, semantic_route)
         .ok_or(BidError::InvalidMethod)?;
 
     let NewBoxRoutePlan::PluginBirth {

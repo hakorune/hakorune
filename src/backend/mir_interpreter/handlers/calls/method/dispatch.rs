@@ -1,8 +1,8 @@
 use super::*;
 
 impl MirInterpreter {
-    /// Phase 124: Unified dispatch using TypeRegistry slot numbers
-    /// This function replaces the old pattern-matching dispatch with a slot-based approach
+    /// Phase 124: Unified dispatch using TypeRegistry slot vocabulary.
+    /// Behavior ownership stays here and in the surface invoke handlers.
     pub(super) fn dispatch_by_slot(
         &mut self,
         receiver: &VMValue,

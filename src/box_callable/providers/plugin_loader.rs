@@ -3,7 +3,9 @@
 use crate::bid::BidResult;
 use crate::runtime::plugin_loader_v2::{PluginCallableExport, PluginLoaderV2};
 
-use super::super::{BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableTarget};
+use super::super::{
+    BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableSource, BoxCallableTarget,
+};
 
 pub const TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER: &str = "plugin_loader_provider";
 
@@ -45,7 +47,7 @@ pub fn seed_plugin_export(
                 method_id: *method_id,
                 returns_result: *returns_result,
             };
-            registry.insert(key, target);
+            registry.insert_with_source(key, BoxCallableSource::PluginLoaderProvider, target);
             1
         }
         PluginCallableExport::Lifecycle {
@@ -63,7 +65,7 @@ pub fn seed_plugin_export(
                     birth_id: *birth_id,
                     fini_id: *fini_id,
                 };
-                registry.insert(key, target);
+                registry.insert_with_source(key, BoxCallableSource::PluginLoaderProvider, target);
                 seeded += 1;
             }
             if fini_id.is_some() {
@@ -73,7 +75,7 @@ pub fn seed_plugin_export(
                     birth_id: None,
                     fini_id: *fini_id,
                 };
-                registry.insert(key, target);
+                registry.insert_with_source(key, BoxCallableSource::PluginLoaderProvider, target);
                 seeded += 1;
             }
             seeded
@@ -114,6 +116,10 @@ mod tests {
             registry.get(&key).unwrap().id_space(),
             "plugin_typebox_method_id"
         );
+        assert_eq!(
+            registry.get_source(&key).unwrap().as_str(),
+            TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER
+        );
     }
 
     #[test]
@@ -147,6 +153,14 @@ mod tests {
                 birth_id: None,
                 fini_id: Some(999),
             })
+        );
+        assert_eq!(
+            registry.get_source(&birth).unwrap().as_str(),
+            TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER
+        );
+        assert_eq!(
+            registry.get_source(&fini).unwrap().as_str(),
+            TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER
         );
     }
 }

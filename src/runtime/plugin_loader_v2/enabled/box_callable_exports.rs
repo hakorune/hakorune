@@ -2,6 +2,8 @@
 //!
 //! This is a provider boundary, not the callable truth. PluginLoader keeps
 //! resolving plugin metadata, then BoxCallableRegistry consumes these snapshots.
+//! Exports carry ids and route facts only; runtime function pointers stay behind
+//! `runtime_invoke_boundary`.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PluginCallableExport {

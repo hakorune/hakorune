@@ -1,6 +1,7 @@
 //! Box callable registry report vocabulary.
 
 pub const BOX_CALLABLE_REGISTRY_ENABLED: &str = "box_callable_registry_enabled";
+pub const BOX_CALLABLE_REGISTRY_TRUTH_OWNER: &str = "box_callable_registry_truth_owner";
 pub const BOX_CALLABLE_COMMON_KEY_ENABLED: &str = "box_callable_common_key_enabled";
 pub const METHOD_SLOT_ID_SPACE: &str = "method_slot_id_space";
 pub const PLUGIN_METHOD_ID_SPACE: &str = "plugin_method_id_space";
@@ -18,6 +19,35 @@ pub const BOX_CALLABLE_TRUTH_SOURCE_PLUGIN_METHOD: &str =
 pub const BOX_CALLABLE_TRUTH_SOURCE_LIFECYCLE: &str = "box_callable_truth_source[lifecycle]";
 pub const BOX_CALLABLE_BUILTIN_SEED_SOURCE: &str = "box_callable_builtin_seed_source";
 pub const BOX_CALLABLE_PLUGIN_SEED_SOURCE: &str = "box_callable_plugin_seed_source";
+pub const BOX_CALLABLE_PROVIDER_SOURCE_STORED: &str = "box_callable_provider_source_stored";
+pub const STRING_SURFACE_CATALOG_PROVIDER_ROWS: &str = "string_surface_catalog_provider_rows";
+pub const ARRAY_SURFACE_CATALOG_PROVIDER_ROWS: &str = "array_surface_catalog_provider_rows";
+pub const MAP_SURFACE_CATALOG_PROVIDER_ROWS: &str = "map_surface_catalog_provider_rows";
+pub const BUFFER_SURFACE_CATALOG_REQUIRED_BEFORE_PROVIDER_ROWS: &str =
+    "buffer_surface_catalog_required_before_provider_rows";
+pub const BUFFER_SURFACE_CATALOG_EXISTS: &str = "buffer_surface_catalog_exists";
+pub const BUFFER_SURFACE_CATALOG_VISIBLE_METHODS_NAMED: &str =
+    "buffer_surface_catalog_visible_methods_named";
+pub const BUFFER_PROVIDER_ROWS_NOT_ADDED_BEFORE_CATALOG: &str =
+    "buffer_provider_rows_not_added_before_catalog";
+pub const BUFFER_STORAGE_MECHANICS_OWNER: &str = "buffer_storage_mechanics_owner";
+pub const BUFFER_SURFACE_CATALOG_PROVIDER_ROWS: &str = "buffer_surface_catalog_provider_rows";
+pub const BUFFER_VM_HANDLER_DISPATCH_OWNER: &str = "buffer_vm_handler_dispatch_owner";
+pub const BUFFER_VISIBLE_SEMANTICS_CHANGED: &str = "buffer_visible_semantics_changed";
+pub const TYPE_REGISTRY_EXECUTION_TRUTH_OWNER: &str = "type_registry_execution_truth_owner";
+pub const TYPE_REGISTRY_SLOT_VOCABULARY_PROVIDER: &str = "type_registry_slot_vocabulary_provider";
+pub const TYPE_REGISTRY_DISPATCH_BEHAVIOR_OWNER: &str = "type_registry_dispatch_behavior_owner";
+pub const VM_DISPATCH_BY_SLOT_BEHAVIOR_OWNER: &str = "vm_dispatch_by_slot_behavior_owner";
+pub const WASM_DISPATCH_BY_SLOT_BEHAVIOR_OWNER: &str = "wasm_dispatch_by_slot_behavior_owner";
+pub const ROUTE_PLAN_USES_REGISTRY_ENTRY_TARGET: &str = "route_plan_uses_registry_entry_target";
+pub const ROUTE_PLAN_USES_PROVIDER_SOURCE_AS_EXECUTION_ROUTE: &str =
+    "route_plan_uses_provider_source_as_execution_route";
+pub const ROUTE_PLAN_SEMANTIC_DATA_ONLY: &str = "route_plan_semantic_data_only";
+pub const ROUTE_PLAN_EXECUTABLE_POINTER_COUNT: &str = "route_plan_executable_pointer_count";
+pub const RUNTIME_INVOKE_BOUNDARY_EXECUTABLE_POINTER_OWNER: &str =
+    "runtime_invoke_boundary_executable_pointer_owner";
+pub const PROVIDER_EXECUTABLE_POINTER_COUNT: &str = "provider_executable_pointer_count";
+pub const CATALOG_EXECUTABLE_POINTER_COUNT: &str = "catalog_executable_pointer_count";
 pub const METHOD_CALL_ROUTE_PLAN_EXISTS: &str = "method_call_route_plan_exists";
 pub const NEWBOX_ROUTE_PLAN_EXISTS: &str = "newbox_route_plan_exists";
 pub const DROPBOX_ROUTE_PLAN_EXISTS: &str = "dropbox_route_plan_exists";
@@ -38,12 +68,19 @@ pub const DUPLICATE_CALLABLE_TRUTH_COUNT: &str = "duplicate_callable_truth_count
 pub const PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY: &str = "plugin_loader_callable_provider_only";
 pub const TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY: &str = "type_registry_callable_provider_only";
 pub const TYPE_ABI_CATALOG_PROJECTION_ONLY: &str = "type_abi_catalog_projection_only";
+pub const TYPEABI_CATALOG_EXECUTION_ROUTE_COUNT: &str = "typeabi_catalog_execution_route_count";
 pub const METHOD_RESOLVER_DERIVES_FROM_ROUTE_PLAN_COUNT: &str =
     "method_resolver_derives_from_route_plan_count";
 pub const SINGLETON_BIRTH_DERIVES_FROM_LIFECYCLE_PLAN_COUNT: &str =
     "singleton_birth_derives_from_lifecycle_plan_count";
 pub const PLUGIN_LOADER_REGISTRY_SNAPSHOT_ENTRYPOINT_COUNT: &str =
     "plugin_loader_registry_snapshot_entrypoint_count";
+pub const PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY: &str = "plugin_loader_provider_snapshot_only";
+pub const PLUGIN_CALLABLE_EXPORT_CONTAINS_FN_POINTER_COUNT: &str =
+    "plugin_callable_export_contains_fn_pointer_count";
+pub const TYPEBOX_ABI_V2_CHANGED: &str = "typebox_abi_v2_changed";
+pub const PLUGIN_LIFECYCLE_SNAPSHOT_FILTERED_COUNT: &str =
+    "plugin_lifecycle_snapshot_filtered_count";
 pub const METHOD_PLAN_DIRECT_PROVIDER_SEED_COUNT: &str = "method_plan_direct_provider_seed_count";
 pub const LIFECYCLE_PLAN_DIRECT_PROVIDER_SEED_COUNT: &str =
     "lifecycle_plan_direct_provider_seed_count";
@@ -93,11 +130,16 @@ pub const BOXCALL_SAMPLE_SUBCOMMAND_REQUIRED_COUNT: &str =
     "boxcall_sample_subcommand_required_count";
 pub const BOXCALL_CONTRACT_OPTIONAL_SAMPLE_FLAG_COUNT: &str =
     "boxcall_contract_optional_sample_flag_count";
+pub const BOXCALL_FOUNDATION_CLOSEOUT_READY: &str = "boxcall_foundation_closeout_ready";
+pub const PROVIDER_ROWS_COVER_BUILTIN_PLUGIN_SURFACE: &str =
+    "provider_rows_cover_builtin_plugin_surface";
+pub const BOXCALL_NEXT_LANE_REQUIRES_SELECTION: &str = "boxcall_next_lane_requires_selection";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
 pub const ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID: &str = "plugin_typebox_method_id";
 pub const ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID: &str = "plugin_lifecycle_method_id";
 pub const TRUTH_SOURCE_TYPE_REGISTRY: &str = "type_registry";
+pub const TRUTH_SOURCE_SURFACE_CATALOG: &str = "surface_catalog";
 pub const TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER: &str = "plugin_loader_provider";
 
 pub const BOXCALL_001_ROWS: &[(&str, &str)] = &[
@@ -135,6 +177,7 @@ pub const BOXCALL_003_ROWS: &[(&str, &str)] = &[
         BOX_CALLABLE_PLUGIN_SEED_SOURCE,
         TRUTH_SOURCE_PLUGIN_LOADER_PROVIDER,
     ),
+    (BOX_CALLABLE_PROVIDER_SOURCE_STORED, "1"),
     (PLUGIN_METHOD_ID_SPACE, ID_SPACE_PLUGIN_TYPEBOX_METHOD_ID),
     (LIFECYCLE_ID_SPACE, ID_SPACE_PLUGIN_LIFECYCLE_METHOD_ID),
     (ID_SPACE_MIXED_COUNT, "0"),
@@ -144,8 +187,80 @@ pub const BOXCALL_005_ROWS: &[(&str, &str)] = &[
     (METHOD_CALL_ROUTE_PLAN_EXISTS, "1"),
     (NEWBOX_ROUTE_PLAN_EXISTS, "1"),
     (DROPBOX_ROUTE_PLAN_EXISTS, "1"),
+    (ROUTE_PLAN_SEMANTIC_DATA_ONLY, "1"),
+    (ROUTE_PLAN_EXECUTABLE_POINTER_COUNT, "0"),
+    (RUNTIME_INVOKE_BOUNDARY_EXECUTABLE_POINTER_OWNER, "1"),
+    (PROVIDER_EXECUTABLE_POINTER_COUNT, "0"),
+    (CATALOG_EXECUTABLE_POINTER_COUNT, "0"),
+    (ROUTE_PLAN_USES_REGISTRY_ENTRY_TARGET, "1"),
+    (ROUTE_PLAN_USES_PROVIDER_SOURCE_AS_EXECUTION_ROUTE, "0"),
     (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
     (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BOXCALL_CATALOG_001_ROWS: &[(&str, &str)] = &[
+    (STRING_SURFACE_CATALOG_PROVIDER_ROWS, "1"),
+    (ARRAY_SURFACE_CATALOG_PROVIDER_ROWS, "1"),
+    (MAP_SURFACE_CATALOG_PROVIDER_ROWS, "1"),
+    (BUFFER_SURFACE_CATALOG_REQUIRED_BEFORE_PROVIDER_ROWS, "1"),
+    (BOX_CALLABLE_REGISTRY_ENABLED, "1"),
+    (TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY, "1"),
+    (TYPE_REGISTRY_EXECUTION_TRUTH_OWNER, "0"),
+    (TYPE_ABI_CATALOG_PROJECTION_ONLY, "1"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const BUFFER_CATALOG_001_ROWS: &[(&str, &str)] = &[
+    (BUFFER_SURFACE_CATALOG_EXISTS, "1"),
+    (BUFFER_SURFACE_CATALOG_VISIBLE_METHODS_NAMED, "1"),
+    (BUFFER_PROVIDER_ROWS_NOT_ADDED_BEFORE_CATALOG, "1"),
+    (BUFFER_STORAGE_MECHANICS_OWNER, "substrate"),
+];
+
+pub const BUFFER_PROVIDER_ROWS_001_ROWS: &[(&str, &str)] = &[
+    (BUFFER_SURFACE_CATALOG_PROVIDER_ROWS, "1"),
+    (BUFFER_VM_HANDLER_DISPATCH_OWNER, "1"),
+    (BUFFER_VISIBLE_SEMANTICS_CHANGED, "0"),
+    (TYPE_ABI_CATALOG_PROJECTION_ONLY, "1"),
+    (ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT, "0"),
+    (ID_SPACE_MIXED_COUNT, "0"),
+];
+
+pub const TYPE_REGISTRY_PROVIDER_001_ROWS: &[(&str, &str)] = &[
+    (TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY, "1"),
+    (TYPE_REGISTRY_SLOT_VOCABULARY_PROVIDER, "1"),
+    (TYPE_REGISTRY_EXECUTION_TRUTH_OWNER, "0"),
+    (TYPE_REGISTRY_DISPATCH_BEHAVIOR_OWNER, "0"),
+    (VM_DISPATCH_BY_SLOT_BEHAVIOR_OWNER, "1"),
+    (WASM_DISPATCH_BY_SLOT_BEHAVIOR_OWNER, "1"),
+    (BOX_CALLABLE_REGISTRY_ENABLED, "1"),
+    (ROUTE_PLAN_SEMANTIC_DATA_ONLY, "1"),
+];
+
+pub const PLUGIN_PROVIDER_SNAPSHOT_001_ROWS: &[(&str, &str)] = &[
+    (PLUGIN_LOADER_CALLABLE_PROVIDER_ONLY, "1"),
+    (PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY, "1"),
+    (PLUGIN_LOADER_REGISTRY_SNAPSHOT_ENTRYPOINT_COUNT, "1"),
+    (PLUGIN_SNAPSHOT_CATALOG_PROJECTION_HELPER_COUNT, "1"),
+    (PLUGIN_SNAPSHOT_CATALOG_READS_LOADER_DIRECTLY, "0"),
+    (PLUGIN_CALLABLE_EXPORT_CONTAINS_FN_POINTER_COUNT, "0"),
+    (TYPEBOX_ABI_V2_CHANGED, "0"),
+    (PLUGIN_LIFECYCLE_SNAPSHOT_FILTERED_COUNT, "1"),
+    (RUNTIME_INVOKE_BOUNDARY_EXECUTABLE_POINTER_OWNER, "1"),
+];
+
+pub const BOXCALL_FOUNDATION_CLOSEOUT_001_ROWS: &[(&str, &str)] = &[
+    (BOXCALL_FOUNDATION_CLOSEOUT_READY, "1"),
+    (BOX_CALLABLE_REGISTRY_ENABLED, "1"),
+    (BOX_CALLABLE_REGISTRY_TRUTH_OWNER, "1"),
+    (PROVIDER_ROWS_COVER_BUILTIN_PLUGIN_SURFACE, "1"),
+    (ROUTE_PLAN_SEMANTIC_DATA_ONLY, "1"),
+    (TYPEABI_CATALOG_EXECUTION_ROUTE_COUNT, "0"),
+    (TYPE_ABI_CATALOG_PROJECTION_ONLY, "1"),
+    (PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY, "1"),
+    (TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY, "1"),
+    (BOXCALL_NEXT_LANE_REQUIRES_SELECTION, "1"),
 ];
 
 pub const BOXCALL_006_ROWS: &[(&str, &str)] = &[
@@ -400,6 +515,23 @@ mod tests {
         assert_eq!(rows[DUPLICATE_CALLABLE_TRUTH_COUNT], "0");
         assert_eq!(rows[ROUTE_PLAN_TYPE_ABI_HOT_LOOKUP_COUNT], "0");
         assert_eq!(rows[ID_SPACE_MIXED_COUNT], "0");
+    }
+
+    #[test]
+    fn boxcall_foundation_closeout_rows_match_taskboard_acceptance() {
+        let rows = BOXCALL_FOUNDATION_CLOSEOUT_001_ROWS
+            .iter()
+            .copied()
+            .collect::<std::collections::BTreeMap<_, _>>();
+
+        assert_eq!(rows[BOXCALL_FOUNDATION_CLOSEOUT_READY], "1");
+        assert_eq!(rows[BOX_CALLABLE_REGISTRY_TRUTH_OWNER], "1");
+        assert_eq!(rows[PROVIDER_ROWS_COVER_BUILTIN_PLUGIN_SURFACE], "1");
+        assert_eq!(rows[ROUTE_PLAN_SEMANTIC_DATA_ONLY], "1");
+        assert_eq!(rows[TYPEABI_CATALOG_EXECUTION_ROUTE_COUNT], "0");
+        assert_eq!(rows[PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY], "1");
+        assert_eq!(rows[TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY], "1");
+        assert_eq!(rows[BOXCALL_NEXT_LANE_REQUIRES_SELECTION], "1");
     }
 
     #[test]

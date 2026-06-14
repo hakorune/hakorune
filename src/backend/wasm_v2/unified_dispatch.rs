@@ -1,7 +1,8 @@
 //! Unified dispatch (WASM v2)
 //!
-//! - TypeRegistryのスロット表と一致させた呼び出し分岐の雛形
+//! - TypeRegistryのスロット語彙と一致させた呼び出し分岐の雛形
 //! - env.console.log とArray/Map統一ディスパッチの最小実装
+//! - TypeRegistry は語彙提供だけで、実際の分岐 behavior はこの層が持つ
 
 #![cfg(feature = "wasm-backend")]
 

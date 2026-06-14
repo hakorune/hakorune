@@ -2,8 +2,10 @@
  * Type Registry (Tier-0 雛形)
  *
  * 目的:
- * - TypeId → TypeBox 参照の最小インターフェースを用意（現時点では未実装・常に未登録）。
- * - VM/JIT 実装が存在を前提に呼び出しても no-op/fallback できる状態にする。
+ * - Builtin Box の callable slot vocabulary を提供する。
+ * - BoxCallableRegistry の builtin provider seed と、VM/WASM dispatch 前の
+ *   slot lookup だけを担当する。
+ * - 実際の method behavior / executable route / plugin function pointer は所有しない。
  *
  * スロット番号の方針（注釈）
  * - ここで定義する `slot` は「VTable 用の仮想メソッドID」です。VM/JIT の内部ディスパッチ最適化
@@ -17,12 +19,17 @@
  *   - 200..: Map 系（size/len/has/get/set/delete ほか拡張）
  *   - 300..: String 系（len/substring/concat/indexOf/replace/trim/toUpper/toLower）
  *   - 400..: Console 系（log/warn/error/clear）
- *   - 500..: Buffer 系（typed binary I/O。現在は VM handler dispatch を SSOT とし、slot は未固定）
+ *   - 500..: Buffer 系（visible surface catalog vocabulary。現在は VM handler dispatch を SSOT とする）
  *   - 600..: File 系（readBytes/writeBytes。現在は VM handler dispatch を SSOT とし、slot は未固定）
  *
  * Phase 124: Primitive type support
  * - Primitive types (String, Integer, Array) are now registered with same slot numbers as their Box variants
  * - This enables unified dispatch for both VMValue::String and VMValue::BoxRef(StringBox)
+ *
+ * Boundary:
+ * - provider vocabulary owner: this module
+ * - callable truth owner: BoxCallableRegistry
+ * - behavior owner: dispatch_by_slot / surface invoke handlers
  */
 
 use super::core_box_ids::{CoreBoxId, CoreMethodId};

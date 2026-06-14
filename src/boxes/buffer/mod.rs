@@ -34,6 +34,13 @@ use std::any::Any;
 use std::fmt::Display;
 use std::sync::{Arc, RwLock}; // Arc追加
 
+mod surface_catalog;
+
+pub use surface_catalog::{
+    BufferExposureState, BufferMethodId, BufferMethodSpec, BufferSurfaceEffect,
+    BufferSurfaceReturn, BUFFER_SURFACE_METHODS,
+};
+
 pub struct BufferBox {
     data: Arc<RwLock<Vec<u8>>>, // Arc追加
     base: BoxBase,

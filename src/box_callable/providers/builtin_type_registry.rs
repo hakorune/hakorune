@@ -3,7 +3,9 @@
 use crate::runtime::type_box_abi::{MethodEntry, TypeBox};
 use crate::runtime::type_registry;
 
-use super::super::{BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableTarget};
+use super::super::{
+    BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableSource, BoxCallableTarget,
+};
 
 pub const TRUTH_SOURCE_TYPE_REGISTRY: &str = "type_registry";
 
@@ -44,7 +46,7 @@ fn seed_method_entry(
 ) -> usize {
     let key = BoxCallableKey::new(type_name, BoxCallableRole::Method, entry.name, entry.arity);
     let target = BoxCallableTarget::InternalSlot { slot: entry.slot };
-    registry.insert(key, target);
+    registry.insert_with_source(key, BoxCallableSource::TypeRegistry, target);
     1
 }
 
@@ -67,6 +69,10 @@ mod tests {
         assert_eq!(
             registry.get(&key).unwrap().id_space(),
             "internal_vtable_slot"
+        );
+        assert_eq!(
+            registry.get_source(&key).unwrap().as_str(),
+            TRUTH_SOURCE_TYPE_REGISTRY
         );
     }
 

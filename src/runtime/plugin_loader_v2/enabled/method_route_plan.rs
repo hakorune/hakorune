@@ -2,8 +2,8 @@
 
 use crate::bid::{BidError, BidResult};
 use crate::box_callable::{
-    BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableTarget, InvokeRoutePlan,
-    MethodCallRoutePlan,
+    BoxCallableEntry, BoxCallableKey, BoxCallableRegistry, BoxCallableRole, BoxCallableTarget,
+    InvokeRoutePlan, MethodCallRoutePlan,
 };
 
 use super::host_bridge::{BoxInvokeFn, InvokeFn};
@@ -25,10 +25,11 @@ pub(super) fn resolve_method_call_plan(
     method_name: &str,
     arity: u8,
 ) -> BidResult<PluginMethodExecutionPlan> {
-    let target = resolve_method_target(loader, box_type, method_name, arity)?;
-    let BoxCallableTarget::PluginMethod { type_id, .. } = target else {
+    let entry = resolve_method_entry(loader, box_type, method_name, arity)?;
+    let BoxCallableTarget::PluginMethod { type_id, .. } = &entry.target else {
         return Err(BidError::InvalidMethod);
     };
+    let type_id = *type_id;
 
     let runtime_route = super::runtime_invoke_boundary::resolve(loader, type_id);
     let semantic_route = InvokeRoutePlan::PluginV2 {
@@ -36,7 +37,7 @@ pub(super) fn resolve_method_call_plan(
         invoke_box_available: runtime_route.invoke_box_fn.is_some(),
         allow_compat_shim: runtime_route.allow_compat_shim,
     };
-    let semantic_plan = MethodCallRoutePlan::from_target(&target, Some(semantic_route))
+    let semantic_plan = MethodCallRoutePlan::from_entry(&entry, Some(semantic_route))
         .ok_or(BidError::InvalidMethod)?;
 
     let MethodCallRoutePlan::PluginInvoke {
@@ -59,33 +60,33 @@ pub(super) fn resolve_method_call_plan(
     })
 }
 
-pub(super) fn resolve_method_target(
+fn resolve_method_entry(
     loader: &PluginLoaderV2,
     box_type: &str,
     method_name: &str,
     arity: u8,
-) -> BidResult<BoxCallableTarget> {
+) -> BidResult<BoxCallableEntry> {
     let registry = loader.box_callable_registry_snapshot()?;
-    find_method_target(&registry, box_type, method_name, arity)
+    find_method_entry(&registry, box_type, method_name, arity)
         .cloned()
         .ok_or(BidError::InvalidMethod)
 }
 
-fn find_method_target<'a>(
+fn find_method_entry<'a>(
     registry: &'a BoxCallableRegistry,
     box_type: &str,
     method_name: &str,
     arity: u8,
-) -> Option<&'a BoxCallableTarget> {
+) -> Option<&'a BoxCallableEntry> {
     let exact = BoxCallableKey::new(box_type, BoxCallableRole::Method, method_name, arity);
-    if let Some(target) = registry.get(&exact) {
-        return Some(target);
+    if let Some(entry) = registry.get_entry(&exact) {
+        return Some(entry);
     }
 
     // Legacy plugin specs do not carry argument declarations, so they seed
     // arity 0 compatibility keys.
     let legacy = BoxCallableKey::new(box_type, BoxCallableRole::Method, method_name, 0);
-    registry.get(&legacy)
+    registry.get_entry(&legacy)
 }
 
 pub(super) fn invoke_plugin_method(

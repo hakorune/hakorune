@@ -1,9 +1,10 @@
-//! Route plan vocabulary derived from BoxCallableRegistry entries.
+//! Semantic route plan vocabulary derived from BoxCallableRegistry entries.
 //!
-//! These plans are the execution-facing shape. Type ABI / BoxDescriptor
-//! projections must not be queried from hot paths.
+//! These plans carry stable ids and route shape only. Executable function
+//! pointers belong to runtime invoke boundaries, not to BoxCallableRegistry,
+//! providers, TypeAbiCatalog, or these semantic plans.
 
-use super::{BoxCallableTarget, FunctionId, IntrinsicId};
+use super::{BoxCallableEntry, BoxCallableTarget, FunctionId, IntrinsicId};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InvokeRoutePlan {
@@ -66,6 +67,13 @@ pub enum DropBoxRoutePlan {
 }
 
 impl MethodCallRoutePlan {
+    pub fn from_entry(
+        entry: &BoxCallableEntry,
+        invoke_route: Option<InvokeRoutePlan>,
+    ) -> Option<Self> {
+        Self::from_target(&entry.target, invoke_route)
+    }
+
     pub fn from_target(
         target: &BoxCallableTarget,
         invoke_route: Option<InvokeRoutePlan>,
@@ -98,6 +106,13 @@ impl MethodCallRoutePlan {
 }
 
 impl NewBoxRoutePlan {
+    pub fn plugin_birth_from_entry(
+        entry: &BoxCallableEntry,
+        invoke_route: InvokeRoutePlan,
+    ) -> Option<Self> {
+        Self::plugin_birth_from_target(&entry.target, invoke_route)
+    }
+
     pub fn plugin_birth_from_target(
         target: &BoxCallableTarget,
         invoke_route: InvokeRoutePlan,
@@ -120,6 +135,13 @@ impl NewBoxRoutePlan {
 }
 
 impl DropBoxRoutePlan {
+    pub fn plugin_fini_from_entry(
+        entry: &BoxCallableEntry,
+        invoke_route: InvokeRoutePlan,
+    ) -> Option<Self> {
+        Self::plugin_fini_from_target(&entry.target, invoke_route)
+    }
+
     pub fn plugin_fini_from_target(
         target: &BoxCallableTarget,
         invoke_route: InvokeRoutePlan,
@@ -143,6 +165,7 @@ impl DropBoxRoutePlan {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::box_callable::BoxCallableSource;
 
     fn invoke_route() -> InvokeRoutePlan {
         InvokeRoutePlan::PluginV2 {
@@ -196,6 +219,30 @@ mod tests {
     }
 
     #[test]
+    fn method_call_plan_uses_registry_entry_target_not_provider_source() {
+        let entry = BoxCallableEntry::new(
+            BoxCallableSource::PluginLoaderProvider,
+            BoxCallableTarget::PluginMethod {
+                type_id: 42,
+                method_id: 7,
+                returns_result: true,
+            },
+        );
+
+        let plan = MethodCallRoutePlan::from_entry(&entry, Some(invoke_route()));
+
+        assert_eq!(
+            plan,
+            Some(MethodCallRoutePlan::PluginInvoke {
+                type_id: 42,
+                method_id: 7,
+                returns_result: true,
+                invoke_route: invoke_route(),
+            })
+        );
+    }
+
+    #[test]
     fn lifecycle_target_can_build_newbox_and_dropbox_plans() {
         let target = BoxCallableTarget::PluginLifecycle {
             type_id: 42,
@@ -217,6 +264,36 @@ mod tests {
         );
         assert_eq!(
             drop_plan,
+            Some(DropBoxRoutePlan::PluginFini {
+                type_id: 42,
+                fini_id: 999,
+                invoke_route: invoke_route(),
+            })
+        );
+    }
+
+    #[test]
+    fn lifecycle_plans_can_derive_from_registry_entry() {
+        let entry = BoxCallableEntry::new(
+            BoxCallableSource::PluginLoaderProvider,
+            BoxCallableTarget::PluginLifecycle {
+                type_id: 42,
+                birth_id: Some(1),
+                fini_id: Some(999),
+            },
+        );
+
+        assert_eq!(
+            NewBoxRoutePlan::plugin_birth_from_entry(&entry, invoke_route()),
+            Some(NewBoxRoutePlan::PluginBirth {
+                type_id: 42,
+                birth_id: 1,
+                fini_id: Some(999),
+                invoke_route: invoke_route(),
+            })
+        );
+        assert_eq!(
+            DropBoxRoutePlan::plugin_fini_from_entry(&entry, invoke_route()),
             Some(DropBoxRoutePlan::PluginFini {
                 type_id: 42,
                 fini_id: 999,
