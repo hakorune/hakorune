@@ -36,10 +36,9 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
   moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001`
-- current step is designing the narrow LocalSSA fallback Copy policy after the
-  terminal-consumer rewrite trial was rejected and 296x-678 selected
-  `LocalSSA::ensure_fallback_copy` as the actual emission owner;
+  `LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001`
+- current step is fixing the guard surface after 296x-679 selected the narrow
+  `same_block_call_result_root_for_compare_operand` LocalSSA policy;
   process-total boot cost is diagnostic, and provider/replacement/startup seams
   stay closed
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -55,7 +54,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-679-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-680-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`

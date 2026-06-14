@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001
 Scope: Design the narrow LocalSSA fallback Copy policy for page-hotpath helper
@@ -97,15 +97,65 @@ do not patch source .hako
 do not claim a performance win
 ```
 
-## Acceptance
+## Result
 
 ```text
-local_ssa_call_result_fallback_copy_policy_design_active=1
+output_contract=hako-mimalloc-local-ssa-call-result-fallback-copy-policy-design-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-678
-design_probe_run=0
-selected_policy_shape=0
+candidate_result_copy_count=14
+first_hop_call_result_copy_count=4
+chain_internal_copy_count=10
+terminal_compare_operand_count=4
+terminal_compare_covered_by_same_block_call_root_count=4
+uncovered_terminal_compare_operand_count=0
+residual_first_hop_copy_after_policy_count=4
+post_candidate_result_copy_count_upper_bound=4
+selected_policy_shape=same_block_call_result_root_for_compare_operand
+selected_policy_owner=LocalSSA::ensure_fallback_copy
+selected_owner_confidence=medium
+next_task=local_ssa_call_result_fallback_copy_policy_guard_surface
+allowed_use_kind=CompareOperand
+arg_forwarding_enabled=0
+helper_name_special_case=0
+variable_map_semantics_changed=0
+phi_lifecycle_changed=0
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+helper_acquire_usize_candidate_count=8
+helper_selectSinglePageFastPath_candidate_count=3
+helper_reuse_candidate_count=3
+covered_helper_acquire_usize_count=2
+covered_helper_selectSinglePageFastPath_count=1
+covered_helper_reuse_count=1
+summary=ok
+```
+
+Interpretation:
+
+```text
+The narrow policy is not helper-name based. It is a LocalSSA materialization
+rule:
+
+  when use_kind == CompareOperand
+  and the operand is a same-block Copy chain rooted at a same-block Call result
+  return the Call root instead of emitting another fallback Copy.
+
+This removes the terminal compare materialization family first. It does not
+authorize Arg forwarding, receiver forwarding, source rewrites, variable_map
+changes, PHI lifecycle changes, or generic copy coalescing.
+```
+
+## Acceptance
+
+```text
+local_ssa_call_result_fallback_copy_policy_design_landed=1
+source_evidence=296x-678
+design_probe_run=1
+selected_policy_shape=same_block_call_result_root_for_compare_operand
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
 ```

@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001 LocalSSA call-result fallback Copy policy design"
+active_lane = "LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001 LocalSSA call-result fallback Copy policy guard surface"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -63,7 +63,12 @@ PAGE-HOTPATH-HELPER-RESULT-EMISSION-OWNER-REFRESH-001 then refreshed the actual
 emission owner as LocalSSA::ensure_fallback_copy with
 first_hop_call_result_copy_count=4, chain_internal_copy_count=10, and
 terminal_compare_operand_count=4. The active row designs the narrow fallback
-Copy policy before another implementation attempt. The
+Copy policy before another implementation attempt.
+LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001 selected
+same_block_call_result_root_for_compare_operand with
+post_candidate_result_copy_count_upper_bound=4, allowed_use_kind=CompareOperand,
+arg_forwarding_enabled=0, and helper_name_special_case=0. The active row fixes
+the post-implementation guard surface before code changes. The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
@@ -74,14 +79,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-679-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-680-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001.md"
 
-latest_card = "LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-679-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001.md"
-latest_card_summary = """LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001
-designs the narrow LocalSSA fallback Copy policy after 296x-678 selected
-LocalSSA::ensure_fallback_copy as the actual emission owner."""
-current_blocker_token = "LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-DESIGN-001-ACTIVE"
+latest_card = "LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-680-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001.md"
+latest_card_summary = """LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001
+fixes the post-implementation guard surface for the narrow same-block
+call-result root CompareOperand policy before code changes."""
+current_blocker_token = "LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-GUARD-SURFACE-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
