@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001 call operand dominance-required forwarding guard surface"
+active_lane = "CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001 call operand dominance-required forwarding implementation"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -110,8 +110,11 @@ CALL-OPERAND-RESIDUAL-POLICY-SELECTION-001 selected
 dominance_required_call_operand_forwarding with selected_policy_candidate_count=14.
 CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-DESIGN-001 selected
 dominance_guarded_receiver_operand_forwarding with selected_keeper_candidate_count=13,
-rejected_arg_forwarding_count=1, and requires_dominance_guard=1. The active
-row fixes the post-implementation guard surface before code changes.
+rejected_arg_forwarding_count=1, and requires_dominance_guard=1.
+CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001 fixed the post
+target as post_selected_keeper_candidate_count=0 and
+post_call_operand_unique_copy_count<=14. The active row implements only that
+narrow receiver-only dominance-guarded keeper.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -123,14 +126,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-692-CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-693-CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001.md"
 
-latest_card = "CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-692-CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001.md"
-latest_card_summary = """CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001
-fixes the post-implementation guard surface for dominance-guarded receiver
-operand forwarding before any implementation."""
-current_blocker_token = "CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-GUARD-SURFACE-001-ACTIVE"
+latest_card = "CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-693-CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001.md"
+latest_card_summary = """CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001
+implements only dominance-guarded receiver operand forwarding for the residual
+call-operand Copy chains."""
+current_blocker_token = "CALL-OPERAND-DOMINANCE-REQUIRED-FORWARDING-IMPLEMENTATION-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
