@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001 mimalloc body timing next owner selection"
+active_lane = "MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001 mimalloc compiler lowering optimization checkpoint"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -138,6 +138,10 @@ implementation family.
 MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001 closed the
 receiver operand copy-chain owner with winner_claim=1. The active row selects a
 fresh next owner or pauses from the current body-timing evidence.
+MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001 found current_body_elapsed_ratio=1.865
+and fresh_gap_owner=hako_runtime_baseline with low confidence, so no fresh
+compiler implementation owner is selected. The active row checkpoints the
+compiler-lowering optimization run.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -149,14 +153,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-700-MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-701-MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001.md"
 
-latest_card = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-700-MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001.md"
-latest_card_summary = """MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001
-selects the next owner from fresh body-timing evidence after the receiver
-operand copy-chain keeper closed."""
-current_blocker_token = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001-ACTIVE"
+latest_card = "MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-701-MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001.md"
+latest_card_summary = """MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001
+checkpoints the mimalloc compiler-lowering optimization run after no fresh
+high-confidence compiler owner remains."""
+current_blocker_token = "MIMALLOC-COMPILER-LOWERING-OPTIMIZATION-CHECKPOINT-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
