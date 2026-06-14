@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001
 Scope: Close out the CFG-stable receiver operand rewrite keeper and decide
@@ -62,8 +62,38 @@ do not choose another implementation family without explicit next-owner row
 ## Acceptance
 
 ```text
-mimalloc_body_timing_cfg_stable_receiver_rewrite_closeout_active=1
+mimalloc_body_timing_cfg_stable_receiver_rewrite_closeout_landed=1
 source_evidence=296x-698
 winner_claim=1
-summary=pending
+summary=ok
+```
+
+## Result
+
+```text
+output_contract=hako-mimalloc-body-timing-cfg-stable-receiver-rewrite-closeout-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-698
+keeper=cfg_stable_dominance_guarded_receiver_operand_rewrite
+keeper_owner=mir_passes_callsite_canonicalize_receiver_operand_rewrite
+pre_selected_keeper_candidate_count=13
+post_selected_keeper_candidate_count=0
+post_call_operand_unique_copy_count=13
+stable_hako_body_elapsed_ns=6000000
+stable_c_body_elapsed_ns=3352143
+stable_body_elapsed_ratio=1.790
+winner_claim=1
+receiver_operand_copy_chain_owner_closed=1
+startup_lane_reopened=0
+source_hako_changed=0
+next_task=mimalloc_body_timing_next_owner_selection
+summary=ok
+```
+
+Interpretation:
+
+```text
+The receiver operand copy-chain owner is closed. The next optimization row must
+start from fresh evidence on the current body-timing surface rather than
+continuing to patch the same owner.
 ```

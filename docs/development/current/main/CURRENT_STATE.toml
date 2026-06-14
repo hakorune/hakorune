@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001 mimalloc body timing cfg-stable receiver rewrite closeout"
+active_lane = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001 mimalloc body timing next owner selection"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -135,6 +135,9 @@ POST-CFG-STABLE-RECEIVER-REWRITE-STABILITY-MEASUREMENT-001 confirmed a stable
 c_body_elapsed_ns=3352143, body_elapsed_ratio=1.790, and winner_claim=1. The
 active row closes the receiver operand copy-chain owner before any new
 implementation family.
+MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001 closed the
+receiver operand copy-chain owner with winner_claim=1. The active row selects a
+fresh next owner or pauses from the current body-timing evidence.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -146,14 +149,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-699-MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-700-MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001.md"
 
-latest_card = "MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-699-MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001.md"
-latest_card_summary = """MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001
-closes the receiver operand copy-chain keeper before selecting any further
-optimization family."""
-current_blocker_token = "MIMALLOC-BODY-TIMING-CFG-STABLE-RECEIVER-REWRITE-CLOSEOUT-001-ACTIVE"
+latest_card = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-700-MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001.md"
+latest_card_summary = """MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001
+selects the next owner from fresh body-timing evidence after the receiver
+operand copy-chain keeper closed."""
+current_blocker_token = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
