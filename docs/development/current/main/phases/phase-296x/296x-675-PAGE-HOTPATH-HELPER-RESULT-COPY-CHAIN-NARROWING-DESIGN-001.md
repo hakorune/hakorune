@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: PAGE-HOTPATH-HELPER-RESULT-COPY-CHAIN-NARROWING-DESIGN-001
 Scope: Design the narrow page-hotpath helper result copy-chain narrowing rule
@@ -29,6 +29,51 @@ dominant_result_sink=copy_only
 
 This row designs the safe keeper boundary for page-hotpath helper call-result
 copy chains. It must not change code until the rule is pinned.
+
+## Result
+
+```text
+output_contract=hako-mimalloc-page-hotpath-helper-result-copy-chain-narrowing-design-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
+source_evidence=296x-674
+candidate_result_copy_count=14
+safe_candidate_count=14
+unsafe_candidate_count=0
+same_block_candidate_count=14
+cross_block_candidate_count=0
+terminal_consumer_rewrite_candidate_count=4
+dependent_dead_copy_candidate_count=10
+allowed_terminal_sink_count=4
+disallowed_terminal_sink_count=0
+dominant_safe_shape=same_block_call_result_copy_chain
+selected_keeper_shape=same_block_call_result_terminal_consumer_rewrite
+selected_keeper_owner=LocalSSA::ensure_call_result_alias_to_consumer
+selected_owner_confidence=medium
+next_task=page_hotpath_helper_result_copy_chain_narrowing_guard_surface
+implementation_started=0
+optimization_open=0
+winner_claim=0
+helper_acquire_usize_candidate_count=8
+helper_selectSinglePageFastPath_candidate_count=3
+helper_reuse_candidate_count=3
+terminal_sink_compare_lt_count=2
+terminal_sink_compare_ne_count=1
+terminal_sink_compare_eq_count=1
+summary=ok
+```
+
+Interpretation:
+
+```text
+direct keeper:
+  rewrite terminal same-block compare consumers to reuse the helper call result
+  alias path instead of materializing another LocalSSA copy.
+
+dependent cleanup:
+  the 10 copy-only candidates are internal chain copies. They are not a separate
+  broad coalescing license; they are expected to become dead only if the
+  terminal rewrite and existing cleanup make them unused.
+```
 
 ## Candidate Family
 
@@ -109,10 +154,10 @@ do not claim a performance win
 ```text
 page_hotpath_helper_result_copy_chain_narrowing_design_active=1
 source_evidence=296x-674
-design_probe_run=0
-selected_keeper_shape=0
+design_probe_run=1
+selected_keeper_shape=same_block_call_result_terminal_consumer_rewrite
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+summary=ok
 ```
