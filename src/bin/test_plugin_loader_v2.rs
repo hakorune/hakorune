@@ -2,6 +2,7 @@
 
 use nyash_rust::config::NyashConfigV2;
 use nyash_rust::runtime::{get_global_loader_v2, init_global_loader_v2};
+use std::sync::Arc;
 
 fn main() {
     env_logger::init();
@@ -64,7 +65,7 @@ fn main() {
     let mut arr = nyash_rust::boxes::ArrayBox::new();
     arr.push(Box::new(nyash_rust::box_trait::StringBox::new("init"))
         as Box<dyn nyash_rust::box_trait::NyashBox>);
-    let handle = nyash_rust::runtime::host_handles::to_handle_box(Box::new(arr));
+    let handle = nyash_rust::runtime::host_handles::to_handle_arc(Arc::new(arr));
     // Call Array.set(0, "hello") via slot=101
     let mut tlv = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(2);
     nyash_rust::runtime::plugin_ffi_common::encode::i64(&mut tlv, 0);
@@ -121,7 +122,7 @@ fn main() {
     // MapBox slots test: set/get/has/size
     println!("\nReverse host-call (by-slot) MapBox test:");
     let map = nyash_rust::boxes::map_box::MapBox::new();
-    let map_h = nyash_rust::runtime::host_handles::to_handle_box(Box::new(map));
+    let map_h = nyash_rust::runtime::host_handles::to_handle_arc(Arc::new(map));
     // set("k","v") → slot=204
     let mut tlv_set = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(2);
     nyash_rust::runtime::plugin_ffi_common::encode::string(&mut tlv_set, "k");

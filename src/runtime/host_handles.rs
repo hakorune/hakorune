@@ -430,11 +430,6 @@ fn remember_latest_fresh_stable_box(handle: u64, object: Arc<dyn NyashBox>) {
     });
 }
 
-/// Box<dyn NyashBox> → HostHandle (u64)
-#[inline(always)]
-pub fn to_handle_box(bx: Box<dyn NyashBox>) -> u64 {
-    to_handle_arc(Arc::from(bx))
-}
 /// Arc<dyn NyashBox> → HostHandle (u64)
 #[inline(always)]
 pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
