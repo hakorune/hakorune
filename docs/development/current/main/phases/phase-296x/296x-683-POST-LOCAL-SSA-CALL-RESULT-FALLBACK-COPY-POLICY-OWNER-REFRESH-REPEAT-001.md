@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: POST-LOCAL-SSA-CALL-RESULT-FALLBACK-COPY-POLICY-OWNER-REFRESH-REPEAT-001
 Scope: Repeat owner refresh after 296x-682 because the first post-keeper owner
@@ -57,15 +57,63 @@ do not broaden LocalSSA without a selected owner
 do not claim a winner
 ```
 
-## Acceptance
+## Result
 
 ```text
-post_local_ssa_call_result_fallback_copy_policy_owner_refresh_repeat_active=1
+output_contract=hako-mimalloc-post-local-ssa-call-result-fallback-copy-policy-owner-refresh-repeat-v0
+target_method=HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1
 source_evidence=296x-682
-owner_refresh_repeat_run=0
-selected_next_owner=0
+hako_body_elapsed_ns=367000000
+c_body_elapsed_ns=4132840
+body_elapsed_ratio=88.801
+copy_count=55
+local_ssa_copy_materialization_copy_count=20
+call_adjacent_copy_count=29
+call_operand_route_carrier_copy_count=29
+backend_route_carrier_copy_count=33
+route_aware_candidate_copy_count=19
+page_hotpath_helpers_attributed_copy_count=8
+result_materialization_copy_count=7
+dominant_copy_owner=local_ssa_copy_materialization
+dominant_dynamic_owner=local_ssa_copy_materialization
+dominant_position=call_adjacent
+dominant_route_carrier_role=call_operand
+selected_next_owner=call_operand_materialization_copy_chain_inventory
+selected_owner_confidence=medium
+selected_reason=same_current_mir_run_shows_call_operand_route_carrier_dominates_remaining_copy_surface
+next_task=call_operand_materialization_copy_chain_inventory
 implementation_started=0
 optimization_open=0
 winner_claim=0
-summary=pending
+provider_active=0
+replacement_active=0
+hook_installed=0
+global_allocator=0
+summary=ok
+```
+
+Interpretation:
+
+```text
+The prior owner refresh was too narrow for the post-681 MIR shape. Current MIR
+still has copy_count=55, with dominant copy/dynamic owner
+local_ssa_copy_materialization, dominant position call_adjacent, and dominant
+route carrier call_operand.
+
+Do not implement from this row. Open an inventory row for call operand
+materialization copy chains first.
+```
+
+## Acceptance
+
+```text
+post_local_ssa_call_result_fallback_copy_policy_owner_refresh_repeat_landed=1
+source_evidence=296x-682
+owner_refresh_repeat_run=1
+selected_next_owner=call_operand_materialization_copy_chain_inventory
+selected_owner_confidence=medium
+implementation_started=0
+optimization_open=0
+winner_claim=0
+summary=ok
 ```
