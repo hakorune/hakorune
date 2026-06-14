@@ -1,0 +1,13 @@
+// CONC-CO-MIR-001D positive fixture:
+// co/task_scope lowers to runtime task-scope hooks, while nowait/await remains
+// the existing FutureNew/Await boundary.
+
+static box Main {
+    main() {
+        co {
+            nowait fut = 41 + 1
+            await fut
+        }
+        return 42
+    }
+}

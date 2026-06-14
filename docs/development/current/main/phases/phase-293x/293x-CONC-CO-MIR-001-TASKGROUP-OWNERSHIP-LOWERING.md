@@ -1,6 +1,6 @@
 # CONC-CO-MIR-001 TaskGroup Ownership Lowering
 
-Status: Pending-design
+Status: Implemented
 Date: 2026-06-15
 Scope: lower `co` / compatibility `task_scope` into explicit structured
 TaskGroup ownership events after the Future MIRBuilder boundary is pinned.
@@ -12,8 +12,10 @@ Related:
 - `docs/development/current/main/phases/phase-293x/293x-1035-CONC-FUTURE-SEM-001-MIRBUILDER-FUTURE-BOUNDARY.md`
 - `src/mir/builder/exprs.rs`
 - `src/mir/builder/stmts/async_stmt.rs`
+- `src/mir/builder/stmts/task_scope_stmt.rs`
 - `src/runtime/global_hooks.rs`
 - `src/runtime/context_snapshot.rs`
+- `tools/smokes/v2/profiles/integration/async/co_task_scope_vm.sh`
 
 ## Purpose
 
@@ -70,9 +72,49 @@ register_future_to_current_group(future) outside explicit scope
 Therefore `CONC-CO-MIR-001` should not create a second TaskGroup truth owner.
 MIRBuilder should only materialize the boundary that calls the existing owner.
 
-## Design Question
+## Decision
 
-The next implementation must choose the MIR shape for the structured boundary.
+`CONC-CO-MIR-001` v0 uses runtime hook calls.
+
+```text
+co_taskgroup_lowering_shape=runtime_hook_calls
+co_taskgroup_pop_error_policy=fail_fast
+co_taskgroup_future_registration_owner=runtime_global_hooks
+co_taskgroup_new_mir_opcode_count=0
+co_early_exit_policy=normal_completion_only
+program_json_co_lowering_enabled=0
+llvm_co_lowering_enabled=0
+```
+
+Responsibility split:
+
+```text
+runtime::global_hooks:
+  owns TaskGroup stack, future registration, context snapshot binding,
+  scope-exit cancellation/join, and first-failure surfacing
+
+MIRBuilder:
+  owns lexical placement of enter/exit calls only
+
+VM:
+  dispatches the existing Call/Extern shape to runtime hooks
+
+Program JSON / LLVM:
+  stay fail-fast / unsupported in this row
+```
+
+MIR shape:
+
+```text
+Call { callee: Extern("env.task_scope.push") }
+body
+Call { callee: Extern("env.task_scope.pop") }
+```
+
+This row intentionally does not add `TaskScopeEnter` / `TaskScopeExit` MIR
+opcodes. It proves executable ownership first.
+
+## Alternatives Considered
 
 ### Option A: runtime hook calls
 
@@ -103,6 +145,14 @@ Risk:
 ```text
 needs a clean error propagation shape for pop_task_scope() failures
 needs finally-like cleanup if body lowering can return/throw early
+```
+
+Decision:
+
+```text
+selected for v0
+pop_task_scope() Err -> fail-fast
+early exit -> unsupported / fail-fast until CONC-CO-MIR-002
 ```
 
 ### Option B: metadata-only event
@@ -161,34 +211,69 @@ requires VM and backend policy immediately
 too large for the first ownership-lowering row
 ```
 
-## Recommended Decision
+## Error And Exit Policy
 
-Use Option A for the first implementation slice.
+`pop_task_scope()` errors are v0 fail-fast.
+
+```text
+co_taskgroup_pop_error_policy=fail_fast
+co_taskgroup_pop_error_silent_ignore_count=0
+```
+
+Rationale:
+
+```text
+pop_task_scope() Err represents structured ownership failure:
+  first child failure
+  timeout-like scope exit failure
+  runtime task-group ownership error
+
+Ignoring it would make co/task_scope silently lose failure ownership.
+```
+
+Diagnostic tag:
+
+```text
+[freeze:contract][co/pop_task_scope_failed]
+```
+
+`CONC-CO-MIR-001` v0 is normal-completion-only.
+
+```text
+supported:
+  co body lowers and reaches normal completion
+
+unsupported in v0:
+  function-level return crossing a co/task_scope boundary
+  throw crossing a co/task_scope boundary
+  break/continue escaping a co/task_scope boundary
+```
 
 Reason:
 
 ```text
-The runtime already owns TaskGroup state and context snapshot registration.
-The first compiler row should only make lexical ownership executable.
-Adding MIR instructions now would force every backend surface to participate
-before the ownership contract itself is proven.
+push
+body
+pop
 ```
 
-This recommendation still requires one design decision before code:
+is only correct when `body` reaches the post-body `pop`. Early exits need
+finally-like scope-exit lowering and are a later row.
+
+Diagnostic tag:
 
 ```text
-How should pop_task_scope() failure surface through MIRBuilder lowering?
+[freeze:contract][co/early-exit-unsupported]
 ```
 
-Acceptable answers are:
+Later row:
 
 ```text
-fail-fast freeze in this row
-or
-explicit Result/throw propagation if a compatible existing MIR shape exists
+CONC-CO-MIR-002:
+  scope-exit cleanup lowering for early exits
+  all exits route through pop
+  explicit pop Err propagation policy
 ```
-
-Do not silently ignore `pop_task_scope()` errors.
 
 ## Stop Lines
 
@@ -201,6 +286,8 @@ raw_thread_parser_enabled=0
 channel_route_mir_lowering_enabled=0
 sync_box_mir_lowering_enabled=0
 context_snapshot_mir_lowering_enabled=0
+program_json_co_lowering_enabled=0
+llvm_co_lowering_enabled=0
 ```
 
 Do not add:
@@ -213,20 +300,61 @@ hidden blocking Channel calls
 sync-box method-entry lowering
 context scope lowering
 dedicated TaskScope MIR opcodes in the first slice
+Program JSON task-scope lowering
+LLVM co/task_scope lowering
+early-exit cleanup lowering
 ```
 
-## Acceptance
+## Task Breakdown
 
-Before landing code for this row, pin:
+### CONC-CO-MIR-001A: decision pin
+
+Status: implemented.
 
 ```text
+scope=docs only
 co_taskgroup_lowering_shape=runtime_hook_calls
-co_taskgroup_pop_error_policy=<fail_fast_or_explicit_propagation>
+co_taskgroup_pop_error_policy=fail_fast
 co_taskgroup_future_registration_owner=runtime_global_hooks
 co_taskgroup_new_mir_opcode_count=0
+co_early_exit_policy=normal_completion_only
+program_json_co_lowering_enabled=0
+llvm_co_lowering_enabled=0
 ```
 
-Code acceptance for the eventual implementation:
+### CONC-CO-MIR-001B: VM extern hooks
+
+Status: implemented.
+
+Add VM extern dispatch for:
+
+```text
+env.task_scope.push -> runtime::global_hooks::push_task_scope()
+env.task_scope.pop  -> runtime::global_hooks::pop_task_scope()
+```
+
+Acceptance:
+
+```text
+push returns Void
+pop success returns Void
+pop Err becomes fail-fast VM error
+pop Err is not ignored
+```
+
+### CONC-CO-MIR-001C: MIRBuilder lexical lowering
+
+Status: implemented.
+
+Lower `co` / compatibility `task_scope` as:
+
+```text
+emit env.task_scope.push
+lower body
+emit env.task_scope.pop
+```
+
+Acceptance:
 
 ```text
 co/task_scope lowers enter before the body
@@ -237,6 +365,42 @@ Future registration remains owned by runtime hooks
 nowait outside explicit co/task_scope keeps implicit root behavior
 context snapshot propagation remains explicit-scope only
 Program JSON / LLVM route widening remains closed unless separately owned
+return/throw/break/continue escaping co/task_scope fail-fast in v0
+```
+
+### CONC-CO-MIR-001D: fixtures and guards
+
+Status: implemented.
+
+Positive fixture:
+
+```hako
+co {
+    local fut = nowait { 41 + 1 }
+    local v = await fut
+}
+```
+
+Expected:
+
+```text
+FutureNew remains the child Future creation shape
+registered child belongs to explicit TaskGroup scope
+pop_task_scope executes on normal completion
+```
+
+Negative fixture:
+
+```hako
+co {
+    return 1
+}
+```
+
+Expected:
+
+```text
+fail-fast [freeze:contract][co/early-exit-unsupported]
 ```
 
 Suggested proof commands:
@@ -245,18 +409,57 @@ Suggested proof commands:
 cargo test -q --lib runtime::global_hooks
 cargo test -q --lib backend::mir_interpreter::handlers::async_contract_tests
 bash tools/smokes/v2/profiles/integration/async/async_min_vm.sh
+bash tools/smokes/v2/profiles/integration/async/co_task_scope_vm.sh
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+Implemented proof commands:
+
+```text
+cargo check -q
+cargo test -q --lib runtime::global_hooks
+cargo test -q --lib backend::mir_interpreter::handlers::async_contract_tests
+cargo build --release -q
+bash tools/smokes/v2/profiles/integration/async/async_min_vm.sh
+bash tools/smokes/v2/profiles/integration/async/co_task_scope_vm.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Report Vocabulary
+
+```text
+co_taskgroup_lowering_shape=runtime_hook_calls
+co_taskgroup_push_call_count=<n>
+co_taskgroup_pop_call_count=<n>
+co_taskgroup_pop_error_policy=fail_fast
+co_taskgroup_pop_error_silent_ignore_count=0
+co_taskgroup_future_registration_owner=runtime_global_hooks
+co_taskgroup_new_mir_opcode_count=0
+
+co_early_exit_policy=normal_completion_only
+co_return_inside_scope_enabled=0
+co_throw_inside_scope_enabled=0
+co_break_continue_escape_enabled=0
+
+nowait_os_thread_spawn=0
+worker_pool_source_route_enabled=0
+worker_scope_parser_enabled=0
+worker_scope_mir_lowering_enabled=0
+channel_route_mir_lowering_enabled=0
+sync_box_mir_lowering_enabled=0
+context_snapshot_mir_lowering_enabled=0
+program_json_co_lowering_enabled=0
+llvm_co_lowering_enabled=0
 ```
 
 ## Next Step
 
-Stop for design consultation before code:
+Next implementation row:
 
 ```text
-Question:
-  Should CONC-CO-MIR-001 use runtime hook calls with fail-fast
-  pop_task_scope() error handling as the first executable ownership slice?
-
-Default recommendation:
-  yes; use runtime hook calls and fail-fast pop errors for v0.
+CONC-CO-MIR-002:
+  scope-exit cleanup lowering for early exits
+  all exits route through pop
+  explicit pop Err propagation policy
 ```

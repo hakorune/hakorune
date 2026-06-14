@@ -238,8 +238,14 @@ safety-gated.
 
 ```text
 CONC-FUTURE-SEM-001:
-  make co / nowait / await / TaskGroup ownership, cancellation, and failure
-  taxonomy the language-level owner
+  landed Future boundary pin for nowait / await / Future<T>
+
+CONC-CO-MIR-001:
+  make co / compatibility task_scope executable as explicit TaskGroup
+  ownership events via runtime hook calls
+  v0 = normal-completion-only
+  pop_task_scope Err = fail-fast
+  Program JSON / LLVM remain closed
 
 CONC-SCHED-ROUTE-VOCAB-001:
   keep inline_resolved_future / cooperative_task / worker_pool_task as route

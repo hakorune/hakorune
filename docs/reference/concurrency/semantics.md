@@ -55,7 +55,7 @@ Mimalloc reading:
 | CONC-3 | LLVM harness parity for Phase-0 futures. | done |
 | CONC-4 | VM+LLVM smoke wiring. | done |
 | CONC-FUTURE-SEM-001 | MIRBuilder Future boundary for `nowait` / `await` is pinned, and MIR JSON producer/reader agree on Future opcodes before structured `co` ownership lowering. | landed-code |
-| CONC-CO-MIR-001 | MIRBuilder structured ownership lowering for `co` / compatibility `task_scope`. | pending-design |
+| CONC-CO-MIR-001 | MIRBuilder structured ownership lowering for `co` / compatibility `task_scope`. | implemented |
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
@@ -194,9 +194,16 @@ Next MIRBuilder row:
   structured ownership boundary around the already-pinned Future operations.
 - Existing runtime truth is `push_task_scope()` / `pop_task_scope()` /
   `register_future_to_current_group()` in `src/runtime/global_hooks.rs`.
-- Default design recommendation is runtime hook calls, not new MIR opcodes.
-- Code must wait until `pop_task_scope()` error surfacing is pinned as
-  fail-fast or explicit propagation. Silent ignore is forbidden.
+- Decision: use runtime hook calls, not new MIR opcodes.
+- MIRBuilder owns lexical placement only:
+  `env.task_scope.push -> body -> env.task_scope.pop`.
+- Runtime hooks own TaskGroup state, future registration, context snapshot
+  binding, cancellation/join, and first-failure surfacing.
+- `pop_task_scope()` Err is v0 fail-fast. Silent ignore is forbidden.
+- v0 is normal-completion-only: `return` / `throw` / escaping
+  `break`/`continue` across `co` / compatibility `task_scope` fail-fast until
+  a later scope-exit cleanup lowering row.
+- Program JSON and LLVM route widening remain closed in this row.
 
 ### Reserved Structured Parallel Surface
 

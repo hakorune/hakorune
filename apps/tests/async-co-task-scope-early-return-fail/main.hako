@@ -1,0 +1,12 @@
+// CONC-CO-MIR-001D negative fixture:
+// v0 is normal-completion-only. Returning across a co boundary needs
+// CONC-CO-MIR-002 scope-exit cleanup lowering and must fail-fast for now.
+
+static box Main {
+    main() {
+        co {
+            return 1
+        }
+        return 0
+    }
+}

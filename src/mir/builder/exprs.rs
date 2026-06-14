@@ -32,10 +32,15 @@ impl super::MirBuilder {
                     self.cf_block(body)
                 }
             }
-            ASTNode::TaskScope { source_keyword, .. } => Err(format!(
-                "[freeze:contract][mir_builder/task_scope_lowering_missing] spelling={} task scope lowering must be owned by CONC-CO runtime hooks",
-                source_keyword
-            )),
+            ASTNode::TaskScope {
+                body,
+                source_keyword,
+                ..
+            } => super::stmts::task_scope_stmt::build_task_scope_statement(
+                self,
+                body.clone(),
+                source_keyword.clone(),
+            ),
             ASTNode::ContextScope {
                 source_keyword,
                 name,

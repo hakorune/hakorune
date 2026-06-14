@@ -171,6 +171,27 @@ impl MirInterpreter {
                 }
                 Ok(())
             }
+            ("env.task_scope", "push") => {
+                if !args.is_empty() {
+                    return Err(self.err_arg_count("env.task_scope.push", 0, args.len()));
+                }
+                crate::runtime::global_hooks::push_task_scope();
+                self.write_void(dst);
+                Ok(())
+            }
+            ("env.task_scope", "pop") => {
+                if !args.is_empty() {
+                    return Err(self.err_arg_count("env.task_scope.pop", 0, args.len()));
+                }
+                crate::runtime::global_hooks::pop_task_scope().map_err(|err| {
+                    VMError::TaskFailed(format!(
+                        "[freeze:contract][co/pop_task_scope_failed] {}",
+                        err.to_string_box().value
+                    ))
+                })?;
+                self.write_void(dst);
+                Ok(())
+            }
             ("env.runtime", "checkpoint") => {
                 crate::runtime::global_hooks::safepoint_and_poll();
                 self.write_void(dst);
