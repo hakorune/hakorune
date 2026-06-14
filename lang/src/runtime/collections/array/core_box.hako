@@ -1,0 +1,72 @@
+// ArrayVisibleCoreBox — visible ArrayBox semantics owner facade.
+// Responsibility:
+// - combine Array visible policy with the narrow substrate bridge
+// - provide a stable `.hako` owner seam before VM dispatch cutover
+// Non-responsibility:
+// - raw array storage
+// - executable VM dispatch selection
+
+using selfhost.runtime.collections.array.visible_policy_box as ArrayVisiblePolicyBox
+using selfhost.runtime.collections.array.substrate_bridge_box as ArraySubstrateBridgeBox
+
+static box ArrayVisibleCoreBox {
+  canonical_method(name, arity) {
+    return ArrayVisiblePolicyBox.canonical_method(name, arity)
+  }
+
+  method_id(name, arity) {
+    return ArrayVisiblePolicyBox.method_id(name, arity)
+  }
+
+  is_visible_method(name, arity) {
+    return ArrayVisiblePolicyBox.is_visible_method(name, arity)
+  }
+
+  expected_arity(name, arity) {
+    return ArrayVisiblePolicyBox.expected_arity(name, arity)
+  }
+
+  slot(name, arity) {
+    return ArrayVisiblePolicyBox.slot(name, arity)
+  }
+
+  effect_tag(name, arity) {
+    return ArrayVisiblePolicyBox.effect_tag(name, arity)
+  }
+
+  mutates_receiver(name, arity) {
+    return ArrayVisiblePolicyBox.mutates_receiver(name, arity)
+  }
+
+  reads_receiver(name, arity) {
+    return ArrayVisiblePolicyBox.reads_receiver(name, arity)
+  }
+
+  return_tag(name, arity) {
+    return ArrayVisiblePolicyBox.return_tag(name, arity)
+  }
+
+  bounds_policy() {
+    return ArrayVisiblePolicyBox.bounds_policy()
+  }
+
+  empty_pop_policy() {
+    return ArrayVisiblePolicyBox.empty_pop_policy()
+  }
+
+  storage_owner() {
+    return ArraySubstrateBridgeBox.storage_owner()
+  }
+
+  visible_owner() {
+    return ArrayVisiblePolicyBox.visible_owner()
+  }
+
+  len_i64(handle) {
+    return ArraySubstrateBridgeBox.len_i64(handle)
+  }
+
+  vm_wrapper_cutover_status() {
+    return ArraySubstrateBridgeBox.vm_wrapper_cutover_status()
+  }
+}

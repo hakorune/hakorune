@@ -1,0 +1,132 @@
+// StringVisiblePolicyBox — user-visible StringBox policy vocabulary.
+// Responsibility:
+// - own method aliases, arity, slot vocabulary, read classification, and return tags
+// - keep this policy separate from UTF-8 storage and VM dispatch mechanics
+// Non-responsibility:
+// - raw string storage
+// - byte/codepoint execution policy
+// - VM dispatch integration
+
+static box StringVisiblePolicyBox {
+  canonical_method(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return "length" }
+    if id == "substring_1" { return "substring" }
+    if id == "substring_2" { return "substring" }
+    if id == "concat_1" { return "concat" }
+    if id == "indexOf_1" { return "indexOf" }
+    if id == "indexOf_2" { return "indexOf" }
+    if id == "replace_2" { return "replace" }
+    if id == "trim_0" { return "trim" }
+    if id == "toUpper_0" { return "toUpper" }
+    if id == "toLower_0" { return "toLower" }
+    if id == "lastIndexOf_1" { return "lastIndexOf" }
+    if id == "lastIndexOf_2" { return "lastIndexOf" }
+    if id == "contains_1" { return "contains" }
+    if id == "startsWith_1" { return "startsWith" }
+    return name
+  }
+
+  method_id(name, arity) {
+    if name == "length" && arity == 0 { return "length_0" }
+    if name == "len" && arity == 0 { return "length_0" }
+    if name == "size" && arity == 0 { return "length_0" }
+    if name == "substring" && arity == 1 { return "substring_1" }
+    if name == "substr" && arity == 1 { return "substring_1" }
+    if name == "substring" && arity == 2 { return "substring_2" }
+    if name == "substr" && arity == 2 { return "substring_2" }
+    if name == "concat" && arity == 1 { return "concat_1" }
+    if name == "indexOf" && arity == 1 { return "indexOf_1" }
+    if name == "find" && arity == 1 { return "indexOf_1" }
+    if name == "indexOf" && arity == 2 { return "indexOf_2" }
+    if name == "find" && arity == 2 { return "indexOf_2" }
+    if name == "replace" && arity == 2 { return "replace_2" }
+    if name == "trim" && arity == 0 { return "trim_0" }
+    if name == "toUpper" && arity == 0 { return "toUpper_0" }
+    if name == "toUpperCase" && arity == 0 { return "toUpper_0" }
+    if name == "toLower" && arity == 0 { return "toLower_0" }
+    if name == "toLowerCase" && arity == 0 { return "toLower_0" }
+    if name == "lastIndexOf" && arity == 1 { return "lastIndexOf_1" }
+    if name == "lastIndexOf" && arity == 2 { return "lastIndexOf_2" }
+    if name == "contains" && arity == 1 { return "contains_1" }
+    if name == "startsWith" && arity == 1 { return "startsWith_1" }
+    return "unsupported"
+  }
+
+  is_visible_method(name, arity) {
+    if me.method_id(name, arity) == "unsupported" { return 0 }
+    return 1
+  }
+
+  expected_arity(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return 0 }
+    if id == "substring_1" { return 1 }
+    if id == "substring_2" { return 2 }
+    if id == "concat_1" { return 1 }
+    if id == "indexOf_1" { return 1 }
+    if id == "indexOf_2" { return 2 }
+    if id == "replace_2" { return 2 }
+    if id == "trim_0" { return 0 }
+    if id == "toUpper_0" { return 0 }
+    if id == "toLower_0" { return 0 }
+    if id == "lastIndexOf_1" { return 1 }
+    if id == "lastIndexOf_2" { return 2 }
+    if id == "contains_1" { return 1 }
+    if id == "startsWith_1" { return 1 }
+    return -1
+  }
+
+  slot(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return 300 }
+    if id == "substring_1" { return 301 }
+    if id == "substring_2" { return 301 }
+    if id == "concat_1" { return 302 }
+    if id == "indexOf_1" { return 303 }
+    if id == "indexOf_2" { return 303 }
+    if id == "replace_2" { return 304 }
+    if id == "trim_0" { return 305 }
+    if id == "toUpper_0" { return 306 }
+    if id == "toLower_0" { return 307 }
+    if id == "lastIndexOf_1" { return 308 }
+    if id == "lastIndexOf_2" { return 308 }
+    if id == "contains_1" { return 309 }
+    if id == "startsWith_1" { return 310 }
+    return -1
+  }
+
+  reads_receiver(name, arity) {
+    if me.is_visible_method(name, arity) == 1 { return 1 }
+    return 0
+  }
+
+  mutates_receiver(name, arity) {
+    return 0
+  }
+
+  return_tag(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return "integer_i64" }
+    if id == "indexOf_1" { return "integer_i64" }
+    if id == "indexOf_2" { return "integer_i64" }
+    if id == "lastIndexOf_1" { return "integer_i64" }
+    if id == "lastIndexOf_2" { return "integer_i64" }
+    if id == "contains_1" { return "bool" }
+    if id == "startsWith_1" { return "bool" }
+    if id == "unsupported" { return "unsupported" }
+    return "string"
+  }
+
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  pilot_signature_count() {
+    return 22
+  }
+}

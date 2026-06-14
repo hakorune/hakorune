@@ -24,6 +24,7 @@ Usage:
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 inspect scope|route|mark|diff [options]
   $0 boxcall-contract [--out report.kv] [--include-plugin-catalog-sample]
+  $0 collection-visible-contract [--out report.kv]
   $0 optimizer-schedule [--format kv|summary] [--out report.kv]
   $0 semantic-refresh-inventory [--out report.kv]
 
@@ -51,6 +52,8 @@ Tool surfaces:
   state-explain       read-only state bucket / direct-state metadata explanation
   inspect             read-only scope/route/mark/diff artifact query surface
   boxcall-contract    read-only BoxCallable / TypeAbiCatalog boundary contract
+  collection-visible-contract
+                      read-only collection visible semantics boundary contract
   optimizer-schedule  read-only MIR optimizer visible schedule explanation
   semantic-refresh-inventory
                       read-only semantic refresh duplicate entry inventory
@@ -91,6 +94,11 @@ fi
 if [ "${1:-}" = "boxcall-contract" ]; then
   shift
   exec python3 "$ROOT/tools/hako_check/boxcall_contract.py" "$@"
+fi
+
+if [ "${1:-}" = "collection-visible-contract" ]; then
+  shift
+  exec python3 "$ROOT/tools/hako_check/collection_visible_contract.py" "$@"
 fi
 
 if [ "${1:-}" = "optimizer-schedule" ]; then

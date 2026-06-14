@@ -189,6 +189,8 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/hako_check/inspect_scope_dump.py` | hako_check inspect adapter。scope/route/mark/diff bundle を生成し、source slice・manifest・report.kv・diff.json を出す read-only surface。 |
 | `tools/hako_check.sh boxcall-contract` | hako_check root wrapper の BoxCallable / TypeAbiCatalog contract subcommand。registry snapshot / invoke boundary / Type ABI projection の read-only vocabulary を出す。 |
 | `tools/hako_check/boxcall_contract.py` | hako_check BoxCallable contract tool。BOXCALL-001..010 と TypeAbiCatalog cleanup の stable report vocabulary を observation-only で出す。 |
+| `tools/hako_check.sh collection-visible-contract` | hako_check root wrapper の collection visible semantics contract subcommand。Buffer/String/Map/Array の `.hako` visible owner / substrate split を read-only vocabulary で固定する。 |
+| `tools/hako_check/collection_visible_contract.py` | hako_check collection visible contract tool。Buffer/String/Map/Array visible policy / substrate bridge / core facade の存在と境界を observation-only で出す。 |
 | `tools/checks/k2_wide_compiler_thin_optimizer_schedule_hako_check_guard.sh` | Compiler thinning の optimizer schedule hako_check guard。visible optimizer schedule が read-only report surface として説明でき、hako_check が optimizer truth を所有しないことを固定する。 |
 | `tools/hako_check.sh optimizer-schedule` | hako_check root wrapper の optimizer schedule subcommand。`src/mir/optimizer/core.rs::MIR_OPT_PIPELINE_GROUPS` を read-only report として説明する。 |
 | `tools/hako_check/optimizer_schedule.py` | hako_check optimizer schedule tool。visible optimizer facade schedule の stable report vocabulary を出し、optimizer behavior / physical pass merge / keeper selection を閉じる。 |

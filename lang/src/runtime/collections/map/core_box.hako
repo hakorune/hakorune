@@ -1,0 +1,72 @@
+// MapVisibleCoreBox — visible MapBox semantics owner facade.
+// Responsibility:
+// - combine Map visible policy with the narrow substrate bridge
+// - provide a stable `.hako` owner seam before VM dispatch cutover
+// Non-responsibility:
+// - raw hash-table storage
+// - executable VM dispatch selection
+
+using selfhost.runtime.collections.map.visible_policy_box as MapVisiblePolicyBox
+using selfhost.runtime.collections.map.substrate_bridge_box as MapSubstrateBridgeBox
+
+static box MapVisibleCoreBox {
+  canonical_method(name, arity) {
+    return MapVisiblePolicyBox.canonical_method(name, arity)
+  }
+
+  method_id(name, arity) {
+    return MapVisiblePolicyBox.method_id(name, arity)
+  }
+
+  is_visible_method(name, arity) {
+    return MapVisiblePolicyBox.is_visible_method(name, arity)
+  }
+
+  expected_arity(name, arity) {
+    return MapVisiblePolicyBox.expected_arity(name, arity)
+  }
+
+  slot(name, arity) {
+    return MapVisiblePolicyBox.slot(name, arity)
+  }
+
+  effect_tag(name, arity) {
+    return MapVisiblePolicyBox.effect_tag(name, arity)
+  }
+
+  mutates_receiver(name, arity) {
+    return MapVisiblePolicyBox.mutates_receiver(name, arity)
+  }
+
+  reads_receiver(name, arity) {
+    return MapVisiblePolicyBox.reads_receiver(name, arity)
+  }
+
+  return_tag(name, arity) {
+    return MapVisiblePolicyBox.return_tag(name, arity)
+  }
+
+  key_normalization_policy() {
+    return MapVisiblePolicyBox.key_normalization_policy()
+  }
+
+  missing_key_policy() {
+    return MapVisiblePolicyBox.missing_key_policy()
+  }
+
+  storage_owner() {
+    return MapSubstrateBridgeBox.storage_owner()
+  }
+
+  visible_owner() {
+    return MapVisiblePolicyBox.visible_owner()
+  }
+
+  size_i64(handle) {
+    return MapSubstrateBridgeBox.size_i64(handle)
+  }
+
+  vm_wrapper_cutover_status() {
+    return MapSubstrateBridgeBox.vm_wrapper_cutover_status()
+  }
+}

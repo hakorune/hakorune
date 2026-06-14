@@ -252,6 +252,125 @@ The plugin catalog sample remains an optional flag while it only demonstrates
 the same BoxCallable contract surface. Split it into a separate subcommand only
 when live artifact inputs or non-fixture report readers are added.
 
+Collection Visible Semantics Contract
+- `hako_check collection-visible-contract` is a read-only contract surface for
+  the collection visible semantics lift.
+- It currently pins the Buffer/String pilots: `.hako` owns visible policy,
+  while byte/string storage and mutation mechanics remain substrate-owned.
+- Stable entry:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
+```
+
+- Contract:
+
+```text
+output_contract=hako-check-collection-visible-contract-v0
+tool_surface=hako_check_collection_visible_contract
+observation_only=1
+collection_visible_semantics_lane_active=1
+collection_visible_first_pilot=Buffer
+buffer_visible_policy_module_exists=1
+buffer_substrate_bridge_module_exists=1
+buffer_visible_core_module_exists=1
+buffer_visible_method_inventory_exists=1
+buffer_storage_substrate_owner=1
+buffer_visible_contract_fixture_exists=1
+buffer_visible_contract_matches_hako_policy=1
+buffer_length_read_write_contract=1
+buffer_clear_append_slice_contract=1
+buffer_numeric_le_policy_module_exists=1
+buffer_numeric_le_contract_fixture_exists=1
+buffer_numeric_le_contract_matches_hako_policy=1
+buffer_numeric_le_policy_owner=1
+buffer_numeric_bounds_policy_owner=1
+buffer_numeric_storage_layout_changed=0
+buffer_hako_visible_owner_exists=1
+buffer_core_uses_policy_module=1
+buffer_core_uses_substrate_bridge=1
+buffer_substrate_byte_storage_preserved=1
+buffer_data_mutation_cutover_status_pending=1
+buffer_vm_handler_dispatch_owner=1
+buffer_visible_semantics_changed=0
+buffer_raw_storage_moved_to_hako=0
+buffer_vm_dispatch_cutover=0
+string_visible_policy_module_exists=1
+string_substrate_bridge_module_exists=1
+string_visible_core_module_exists=1
+string_visible_contract_fixture_exists=1
+string_visible_contract_matches_hako_policy=1
+string_visible_method_inventory_exists=1
+string_alias_policy_named=1
+string_slot_policy_named=1
+string_return_policy_named=1
+string_mutation_policy_named=1
+string_storage_substrate_owner=1
+string_visible_owner_hako=1
+string_index_mode_substrate_owner=1
+string_hako_visible_owner_exists=1
+string_core_uses_policy_module=1
+string_core_uses_substrate_bridge=1
+string_substrate_storage_preserved=1
+string_vm_wrapper_cutover_status_pending=1
+string_vm_handler_dispatch_owner=1
+string_visible_semantics_changed=0
+string_raw_storage_moved_to_hako=0
+string_vm_dispatch_cutover=0
+map_visible_policy_module_exists=1
+map_substrate_bridge_module_exists=1
+map_visible_core_module_exists=1
+map_visible_contract_fixture_exists=1
+map_visible_contract_matches_hako_policy=1
+map_visible_method_inventory_exists=1
+map_alias_policy_named=1
+map_slot_policy_named=1
+map_effect_policy_named=1
+map_return_policy_named=1
+map_mutation_policy_named=1
+map_key_normalization_policy_named=1
+map_missing_key_policy_named=1
+map_storage_substrate_owner=1
+map_visible_owner_hako=1
+map_hako_visible_owner_exists=1
+map_core_uses_policy_module=1
+map_core_uses_substrate_bridge=1
+map_substrate_storage_preserved=1
+map_vm_wrapper_cutover_status_pending=1
+map_vm_handler_dispatch_owner=1
+map_visible_semantics_changed=0
+map_raw_storage_moved_to_hako=0
+map_vm_dispatch_cutover=0
+array_visible_policy_module_exists=1
+array_substrate_bridge_module_exists=1
+array_visible_core_module_exists=1
+array_visible_contract_fixture_exists=1
+array_visible_contract_matches_hako_policy=1
+array_visible_method_inventory_exists=1
+array_alias_policy_named=1
+array_slot_policy_named=1
+array_effect_policy_named=1
+array_return_policy_named=1
+array_mutation_policy_named=1
+array_bounds_policy_named=1
+array_empty_pop_policy_named=1
+array_storage_substrate_owner=1
+array_visible_owner_hako=1
+array_hako_visible_owner_exists=1
+array_core_uses_policy_module=1
+array_core_uses_substrate_bridge=1
+array_substrate_storage_preserved=1
+array_vm_wrapper_cutover_status_pending=1
+array_vm_handler_dispatch_owner=1
+array_visible_semantics_changed=0
+array_raw_storage_moved_to_hako=0
+array_vm_dispatch_cutover=0
+collection_visible_semantics_closeout_ready=1
+collection_storage_substrate_owner_preserved=1
+next_foundation_lane_selected=coreplan_joinir_expressivity
+summary=ok
+```
+
 Optimizer Schedule
 - `hako_check optimizer-schedule` is a read-only report surface for the visible
   MIR optimizer facade schedule.

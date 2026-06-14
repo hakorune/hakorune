@@ -62,7 +62,6 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `join_value_space.rs`
 - `lowering` condition cluster
   - `condition_env.rs`
-  - `condition_var_extractor.rs`
   - `scope_manager.rs`
 - `lowering` loop-route cluster
   - `loop_form_intake.rs`

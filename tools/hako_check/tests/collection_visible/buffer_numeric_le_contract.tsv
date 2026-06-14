@@ -1,0 +1,14 @@
+method	kind	width	endian	min	max_tag	return_policy
+writeU8	write	1	little	0	u8_max	length_i64
+writeU16	write	2	little	0	u16_max	length_i64
+writeU32	write	4	little	0	u32_max	length_i64
+writeU64	write	8	little	0	u64_max	length_i64
+writeF32	write	4	little		float_or_unbounded	length_i64
+writeF64	write	8	little		float_or_unbounded	length_i64
+readU8	read	1	little			integer_i64
+readU16	read	2	little			integer_i64
+readU32	read	4	little			integer_i64
+readU64	read	8	little			fail_if_gt_i64_max
+readF32	read	4	little			float
+readF64	read	8	little			float
+

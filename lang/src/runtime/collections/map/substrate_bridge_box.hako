@@ -1,0 +1,40 @@
+// MapSubstrateBridgeBox — narrow bridge to substrate-owned raw map storage.
+// Responsibility:
+// - make the substrate boundary explicit for Map visible semantics
+// - expose only mechanical storage facts needed by current `.hako` policy
+// Non-responsibility:
+// - Map method policy
+// - key normalization decisions
+// - hash-table implementation
+
+using selfhost.runtime.substrate.raw_map.raw_map_core_box as RawMapCoreBox
+
+static box MapSubstrateBridgeBox {
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  size_i64(handle) {
+    return RawMapCoreBox.entry_count_i64(handle)
+  }
+
+  get_hh(handle, key_any) {
+    return RawMapCoreBox.slot_load_any(handle, key_any)
+  }
+
+  set_hhh(handle, key_any, val_any) {
+    return RawMapCoreBox.slot_store_any(handle, key_any, val_any)
+  }
+
+  has_hh(handle, key_any) {
+    return RawMapCoreBox.probe_any(handle, key_any)
+  }
+
+  vm_wrapper_cutover_status() {
+    return "pending"
+  }
+}

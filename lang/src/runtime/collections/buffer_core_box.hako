@@ -1,0 +1,19 @@
+// BufferCoreBox — compatibility facade for Buffer visible semantics.
+// New code should import `runtime.collections.buffer.core_box`.
+
+using selfhost.runtime.collections.buffer.core_box as BufferVisibleCoreBox
+
+static box BufferCoreBox {
+  canonical_method(name) { return BufferVisibleCoreBox.canonical_method(name) }
+  is_visible_method(name) { return BufferVisibleCoreBox.is_visible_method(name) }
+  expected_arity(name) { return BufferVisibleCoreBox.expected_arity(name) }
+  matches_signature(name, arity) { return BufferVisibleCoreBox.matches_signature(name, arity) }
+  mutates_receiver(name) { return BufferVisibleCoreBox.mutates_receiver(name) }
+  reads_receiver(name) { return BufferVisibleCoreBox.reads_receiver(name) }
+  return_tag(name) { return BufferVisibleCoreBox.return_tag(name) }
+  storage_owner() { return BufferVisibleCoreBox.storage_owner() }
+  visible_owner() { return BufferVisibleCoreBox.visible_owner() }
+  length_i64(handle) { return BufferVisibleCoreBox.length_i64(handle) }
+  data_mutation_cutover_status() { return BufferVisibleCoreBox.data_mutation_cutover_status() }
+}
+

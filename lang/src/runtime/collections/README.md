@@ -47,6 +47,60 @@ Rule:
 
 ## Current modules
 
+- `buffer/core_box.hako`
+  - modular visible owner for `BufferBox` method vocabulary:
+    `write/read/readAll/clear/length/len/size/append/slice`
+  - reads policy from `buffer/visible_policy_box.hako`
+  - calls only narrow storage facts through `buffer/substrate_bridge_box.hako`
+  - does not replace Rust `BufferBox` method bodies yet
+- `buffer/visible_policy_box.hako`
+  - Buffer method aliases, arity, mutation/read classification, and return tags
+- `buffer/numeric_le_policy_box.hako`
+  - Buffer typed numeric read/write little-endian and bounds policy
+- `buffer/substrate_bridge_box.hako`
+  - explicit substrate bridge for Buffer byte storage facts
+- `buffer_core_box.hako`
+  - compatibility facade; new code should import `runtime.collections.buffer.core_box`
+- `string/core_box.hako`
+  - modular visible owner for `StringBox` method vocabulary:
+    `length/len/size/substring/substr/concat/indexOf/find/replace/trim`
+  - also owns visible policy for:
+    `toUpper/toUpperCase/toLower/toLowerCase/lastIndexOf/contains/startsWith`
+  - reads policy from `string/visible_policy_box.hako`
+  - calls only narrow storage facts through `string/substrate_bridge_box.hako`
+  - does not replace Rust `StringBox` method bodies or VM dispatch yet
+- `string/visible_policy_box.hako`
+  - String method aliases, arity, slot vocabulary, read/mutation
+    classification, and return tags
+- `string/substrate_bridge_box.hako`
+  - explicit substrate bridge for String storage facts and index-mode owner
+- `string_core_box.hako`
+  - existing VM-facing wrapper; new visible policy code should import
+    `runtime.collections.string.core_box`
+- `map/core_box.hako`
+  - modular visible owner for `MapBox` method vocabulary:
+    `size/length/len/has/get/set/delete/remove/keys/values/clear`
+  - reads policy from `map/visible_policy_box.hako`
+  - calls only narrow storage facts through `map/substrate_bridge_box.hako`
+  - does not replace Rust `MapBox` method bodies or VM dispatch yet
+- `map/visible_policy_box.hako`
+  - Map method aliases, arity, slot vocabulary, effect classification,
+    key-normalization policy, missing-key policy, and return tags
+- `map/substrate_bridge_box.hako`
+  - explicit substrate bridge for raw map storage facts
+- `array/core_box.hako`
+  - modular visible owner for `ArrayBox` method vocabulary:
+    `length/size/len/get/set/push/pop/clear/contains/indexOf/join`
+  - also owns visible policy for:
+    `sort/reverse/slice/remove/insert`
+  - reads policy from `array/visible_policy_box.hako`
+  - calls only narrow storage facts through `array/substrate_bridge_box.hako`
+  - does not replace Rust `ArrayBox` method bodies or VM dispatch yet
+- `array/visible_policy_box.hako`
+  - Array method aliases, arity, slot vocabulary, effect classification,
+    bounds policy, empty-pop policy, and return tags
+- `array/substrate_bridge_box.hako`
+  - explicit substrate bridge for raw array storage facts
 - `array_core_box.hako`
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `set_string_handle(handle, idx, value_h)` / `len_i64(handle)` / `push_hh(handle, value_any)`
     -> `runtime/substrate/raw_array/raw_array_core_box.hako`

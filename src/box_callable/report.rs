@@ -133,7 +133,7 @@ pub const BOXCALL_CONTRACT_OPTIONAL_SAMPLE_FLAG_COUNT: &str =
 pub const BOXCALL_FOUNDATION_CLOSEOUT_READY: &str = "boxcall_foundation_closeout_ready";
 pub const PROVIDER_ROWS_COVER_BUILTIN_PLUGIN_SURFACE: &str =
     "provider_rows_cover_builtin_plugin_surface";
-pub const BOXCALL_NEXT_LANE_REQUIRES_SELECTION: &str = "boxcall_next_lane_requires_selection";
+pub const BOXCALL_NEXT_LANE_SELECTION_RESOLVED: &str = "boxcall_next_lane_selection_resolved";
 pub const BOXCALL_NEXT_LANE_SELECTED: &str = "boxcall_next_lane_selected";
 
 pub const ID_SPACE_INTERNAL_VTABLE_SLOT: &str = "internal_vtable_slot";
@@ -261,7 +261,7 @@ pub const BOXCALL_FOUNDATION_CLOSEOUT_001_ROWS: &[(&str, &str)] = &[
     (TYPE_ABI_CATALOG_PROJECTION_ONLY, "1"),
     (PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY, "1"),
     (TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY, "1"),
-    (BOXCALL_NEXT_LANE_REQUIRES_SELECTION, "1"),
+    (BOXCALL_NEXT_LANE_SELECTION_RESOLVED, "1"),
     (BOXCALL_NEXT_LANE_SELECTED, "collection_visible_semantics"),
 ];
 
@@ -533,7 +533,7 @@ mod tests {
         assert_eq!(rows[TYPEABI_CATALOG_EXECUTION_ROUTE_COUNT], "0");
         assert_eq!(rows[PLUGIN_LOADER_PROVIDER_SNAPSHOT_ONLY], "1");
         assert_eq!(rows[TYPE_REGISTRY_CALLABLE_PROVIDER_ONLY], "1");
-        assert_eq!(rows[BOXCALL_NEXT_LANE_REQUIRES_SELECTION], "1");
+        assert_eq!(rows[BOXCALL_NEXT_LANE_SELECTION_RESOLVED], "1");
         assert_eq!(
             rows[BOXCALL_NEXT_LANE_SELECTED],
             "collection_visible_semantics"

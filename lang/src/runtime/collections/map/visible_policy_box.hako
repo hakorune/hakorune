@@ -1,0 +1,126 @@
+// MapVisiblePolicyBox — user-visible MapBox policy vocabulary.
+// Responsibility:
+// - own method aliases, arity, slot vocabulary, effect classification, and return tags
+// - keep this policy separate from raw map storage mechanics
+// Non-responsibility:
+// - hash-table layout
+// - raw key/value handle transport
+// - VM dispatch integration
+
+static box MapVisiblePolicyBox {
+  canonical_method(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "size_0" { return "size" }
+    if id == "len_0" { return "len" }
+    if id == "has_1" { return "has" }
+    if id == "get_1" { return "get" }
+    if id == "set_2" { return "set" }
+    if id == "delete_1" { return "delete" }
+    if id == "keys_0" { return "keys" }
+    if id == "values_0" { return "values" }
+    if id == "clear_0" { return "clear" }
+    return name
+  }
+
+  method_id(name, arity) {
+    if name == "size" && arity == 0 { return "size_0" }
+    if name == "length" && arity == 0 { return "size_0" }
+    if name == "len" && arity == 0 { return "len_0" }
+    if name == "has" && arity == 1 { return "has_1" }
+    if name == "get" && arity == 1 { return "get_1" }
+    if name == "set" && arity == 2 { return "set_2" }
+    if name == "delete" && arity == 1 { return "delete_1" }
+    if name == "remove" && arity == 1 { return "delete_1" }
+    if name == "keys" && arity == 0 { return "keys_0" }
+    if name == "values" && arity == 0 { return "values_0" }
+    if name == "clear" && arity == 0 { return "clear_0" }
+    return "unsupported"
+  }
+
+  is_visible_method(name, arity) {
+    if me.method_id(name, arity) == "unsupported" { return 0 }
+    return 1
+  }
+
+  expected_arity(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "size_0" { return 0 }
+    if id == "len_0" { return 0 }
+    if id == "has_1" { return 1 }
+    if id == "get_1" { return 1 }
+    if id == "set_2" { return 2 }
+    if id == "delete_1" { return 1 }
+    if id == "keys_0" { return 0 }
+    if id == "values_0" { return 0 }
+    if id == "clear_0" { return 0 }
+    return -1
+  }
+
+  slot(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "size_0" { return 200 }
+    if id == "len_0" { return 201 }
+    if id == "has_1" { return 202 }
+    if id == "get_1" { return 203 }
+    if id == "set_2" { return 204 }
+    if id == "delete_1" { return 205 }
+    if id == "keys_0" { return 206 }
+    if id == "values_0" { return 207 }
+    if id == "clear_0" { return 208 }
+    return -1
+  }
+
+  effect_tag(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "set_2" { return "write_heap" }
+    if id == "delete_1" { return "write_heap" }
+    if id == "clear_0" { return "write_heap" }
+    if id == "unsupported" { return "unsupported" }
+    return "read"
+  }
+
+  reads_receiver(name, arity) {
+    if me.is_visible_method(name, arity) == 1 { return 1 }
+    return 0
+  }
+
+  mutates_receiver(name, arity) {
+    local effect = me.effect_tag(name, arity)
+    if effect == "write_heap" { return 1 }
+    return 0
+  }
+
+  return_tag(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "size_0" { return "integer_i64" }
+    if id == "len_0" { return "integer_i64" }
+    if id == "has_1" { return "bool" }
+    if id == "get_1" { return "any_or_missing_string" }
+    if id == "set_2" { return "set_receipt_string" }
+    if id == "delete_1" { return "delete_receipt_string" }
+    if id == "keys_0" { return "array_string" }
+    if id == "values_0" { return "array_any" }
+    if id == "clear_0" { return "clear_receipt_string" }
+    return "unsupported"
+  }
+
+  key_normalization_policy() {
+    return "to_string_box_then_quote_strip"
+  }
+
+  missing_key_policy() {
+    return "map_missing_string"
+  }
+
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  pilot_signature_count() {
+    return 11
+  }
+}

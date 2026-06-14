@@ -1,0 +1,156 @@
+// ArrayVisiblePolicyBox — user-visible ArrayBox policy vocabulary.
+// Responsibility:
+// - own method aliases, arity, slot vocabulary, effect classification, and return tags
+// - keep this policy separate from raw array storage mechanics
+// Non-responsibility:
+// - raw array layout / capacity / cache
+// - sort / reverse / join algorithm cutover
+// - VM dispatch integration
+
+static box ArrayVisiblePolicyBox {
+  canonical_method(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return "length" }
+    if id == "get_1" { return "get" }
+    if id == "set_2" { return "set" }
+    if id == "push_1" { return "push" }
+    if id == "pop_0" { return "pop" }
+    if id == "clear_0" { return "clear" }
+    if id == "contains_1" { return "contains" }
+    if id == "indexOf_1" { return "indexOf" }
+    if id == "join_1" { return "join" }
+    if id == "sort_0" { return "sort" }
+    if id == "reverse_0" { return "reverse" }
+    if id == "slice_2" { return "slice" }
+    if id == "remove_1" { return "remove" }
+    if id == "insert_2" { return "insert" }
+    return name
+  }
+
+  method_id(name, arity) {
+    if name == "length" && arity == 0 { return "length_0" }
+    if name == "size" && arity == 0 { return "length_0" }
+    if name == "len" && arity == 0 { return "length_0" }
+    if name == "get" && arity == 1 { return "get_1" }
+    if name == "set" && arity == 2 { return "set_2" }
+    if name == "push" && arity == 1 { return "push_1" }
+    if name == "pop" && arity == 0 { return "pop_0" }
+    if name == "clear" && arity == 0 { return "clear_0" }
+    if name == "contains" && arity == 1 { return "contains_1" }
+    if name == "indexOf" && arity == 1 { return "indexOf_1" }
+    if name == "join" && arity == 1 { return "join_1" }
+    if name == "sort" && arity == 0 { return "sort_0" }
+    if name == "reverse" && arity == 0 { return "reverse_0" }
+    if name == "slice" && arity == 2 { return "slice_2" }
+    if name == "remove" && arity == 1 { return "remove_1" }
+    if name == "insert" && arity == 2 { return "insert_2" }
+    return "unsupported"
+  }
+
+  is_visible_method(name, arity) {
+    if me.method_id(name, arity) == "unsupported" { return 0 }
+    return 1
+  }
+
+  expected_arity(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return 0 }
+    if id == "get_1" { return 1 }
+    if id == "set_2" { return 2 }
+    if id == "push_1" { return 1 }
+    if id == "pop_0" { return 0 }
+    if id == "clear_0" { return 0 }
+    if id == "contains_1" { return 1 }
+    if id == "indexOf_1" { return 1 }
+    if id == "join_1" { return 1 }
+    if id == "sort_0" { return 0 }
+    if id == "reverse_0" { return 0 }
+    if id == "slice_2" { return 2 }
+    if id == "remove_1" { return 1 }
+    if id == "insert_2" { return 2 }
+    return -1
+  }
+
+  slot(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "get_1" { return 100 }
+    if id == "set_2" { return 101 }
+    if id == "length_0" { return 102 }
+    if id == "push_1" { return 103 }
+    if id == "pop_0" { return 104 }
+    if id == "clear_0" { return 105 }
+    if id == "contains_1" { return 106 }
+    if id == "indexOf_1" { return 107 }
+    if id == "join_1" { return 108 }
+    if id == "sort_0" { return 109 }
+    if id == "reverse_0" { return 110 }
+    if id == "slice_2" { return 111 }
+    if id == "remove_1" { return 112 }
+    if id == "insert_2" { return 113 }
+    return -1
+  }
+
+  effect_tag(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "set_2" { return "write_heap" }
+    if id == "push_1" { return "write_heap" }
+    if id == "pop_0" { return "write_heap" }
+    if id == "clear_0" { return "write_heap" }
+    if id == "sort_0" { return "write_heap" }
+    if id == "reverse_0" { return "write_heap" }
+    if id == "remove_1" { return "write_heap" }
+    if id == "insert_2" { return "write_heap" }
+    if id == "unsupported" { return "unsupported" }
+    return "read"
+  }
+
+  reads_receiver(name, arity) {
+    if me.is_visible_method(name, arity) == 1 { return 1 }
+    return 0
+  }
+
+  mutates_receiver(name, arity) {
+    local effect = me.effect_tag(name, arity)
+    if effect == "write_heap" { return 1 }
+    return 0
+  }
+
+  return_tag(name, arity) {
+    local id = me.method_id(name, arity)
+    if id == "length_0" { return "integer_i64" }
+    if id == "get_1" { return "any_or_oob_string" }
+    if id == "set_2" { return "void" }
+    if id == "push_1" { return "void" }
+    if id == "pop_0" { return "any_or_empty_string" }
+    if id == "clear_0" { return "void" }
+    if id == "contains_1" { return "bool" }
+    if id == "indexOf_1" { return "integer_i64" }
+    if id == "join_1" { return "string" }
+    if id == "sort_0" { return "array" }
+    if id == "reverse_0" { return "array" }
+    if id == "slice_2" { return "array" }
+    if id == "remove_1" { return "any_or_oob_string" }
+    if id == "insert_2" { return "void" }
+    return "unsupported"
+  }
+
+  bounds_policy() {
+    return "index_must_be_in_range_or_visible_oob_contract"
+  }
+
+  empty_pop_policy() {
+    return "empty_array_returns_visible_empty_string"
+  }
+
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  pilot_signature_count() {
+    return 16
+  }
+}

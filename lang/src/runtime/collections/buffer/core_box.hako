@@ -1,0 +1,57 @@
+// BufferVisibleCoreBox — visible BufferBox semantics owner facade.
+// Responsibility:
+// - combine Buffer visible policy with the narrow substrate bridge
+// - provide a stable `.hako` owner seam before VM dispatch cutover
+// Non-responsibility:
+// - raw byte storage
+// - executable VM dispatch selection
+
+using selfhost.runtime.collections.buffer.visible_policy_box as BufferVisiblePolicyBox
+using selfhost.runtime.collections.buffer.substrate_bridge_box as BufferSubstrateBridgeBox
+
+static box BufferVisibleCoreBox {
+  canonical_method(name) {
+    return BufferVisiblePolicyBox.canonical_method(name)
+  }
+
+  is_visible_method(name) {
+    return BufferVisiblePolicyBox.is_visible_method(name)
+  }
+
+  expected_arity(name) {
+    return BufferVisiblePolicyBox.expected_arity(name)
+  }
+
+  matches_signature(name, arity) {
+    return BufferVisiblePolicyBox.matches_signature(name, arity)
+  }
+
+  mutates_receiver(name) {
+    return BufferVisiblePolicyBox.mutates_receiver(name)
+  }
+
+  reads_receiver(name) {
+    return BufferVisiblePolicyBox.reads_receiver(name)
+  }
+
+  return_tag(name) {
+    return BufferVisiblePolicyBox.return_tag(name)
+  }
+
+  storage_owner() {
+    return BufferSubstrateBridgeBox.storage_owner()
+  }
+
+  visible_owner() {
+    return BufferVisiblePolicyBox.visible_owner()
+  }
+
+  length_i64(handle) {
+    return BufferSubstrateBridgeBox.length_i64(handle)
+  }
+
+  data_mutation_cutover_status() {
+    return BufferSubstrateBridgeBox.mutation_cutover_status()
+  }
+}
+

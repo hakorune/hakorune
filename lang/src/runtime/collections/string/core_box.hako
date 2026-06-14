@@ -1,0 +1,65 @@
+// StringVisibleCoreBox — visible StringBox semantics owner facade.
+// Responsibility:
+// - combine String visible policy with the narrow substrate bridge
+// - provide a stable `.hako` owner seam before VM dispatch cutover
+// Non-responsibility:
+// - raw UTF-8 storage
+// - byte/codepoint execution policy
+// - executable VM dispatch selection
+
+using selfhost.runtime.collections.string.visible_policy_box as StringVisiblePolicyBox
+using selfhost.runtime.collections.string.substrate_bridge_box as StringSubstrateBridgeBox
+
+static box StringVisibleCoreBox {
+  canonical_method(name, arity) {
+    return StringVisiblePolicyBox.canonical_method(name, arity)
+  }
+
+  method_id(name, arity) {
+    return StringVisiblePolicyBox.method_id(name, arity)
+  }
+
+  is_visible_method(name, arity) {
+    return StringVisiblePolicyBox.is_visible_method(name, arity)
+  }
+
+  expected_arity(name, arity) {
+    return StringVisiblePolicyBox.expected_arity(name, arity)
+  }
+
+  slot(name, arity) {
+    return StringVisiblePolicyBox.slot(name, arity)
+  }
+
+  mutates_receiver(name, arity) {
+    return StringVisiblePolicyBox.mutates_receiver(name, arity)
+  }
+
+  reads_receiver(name, arity) {
+    return StringVisiblePolicyBox.reads_receiver(name, arity)
+  }
+
+  return_tag(name, arity) {
+    return StringVisiblePolicyBox.return_tag(name, arity)
+  }
+
+  storage_owner() {
+    return StringSubstrateBridgeBox.storage_owner()
+  }
+
+  visible_owner() {
+    return StringVisiblePolicyBox.visible_owner()
+  }
+
+  length_i64(handle) {
+    return StringSubstrateBridgeBox.length_i64(handle)
+  }
+
+  index_mode_owner() {
+    return StringSubstrateBridgeBox.index_mode_owner()
+  }
+
+  vm_wrapper_cutover_status() {
+    return StringSubstrateBridgeBox.vm_wrapper_cutover_status()
+  }
+}

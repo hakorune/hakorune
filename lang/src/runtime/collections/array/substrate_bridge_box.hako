@@ -1,0 +1,40 @@
+// ArraySubstrateBridgeBox — narrow bridge to substrate-owned raw array storage.
+// Responsibility:
+// - make the substrate boundary explicit for Array visible semantics
+// - expose only mechanical storage facts needed by current `.hako` policy
+// Non-responsibility:
+// - Array method policy
+// - bounds / empty-pop visible contract decisions
+// - raw array layout implementation
+
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+
+static box ArraySubstrateBridgeBox {
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  len_i64(handle) {
+    return RawArrayCoreBox.slot_len_i64(handle)
+  }
+
+  get_i64(handle, idx) {
+    return RawArrayCoreBox.slot_load_i64(handle, idx)
+  }
+
+  set_i64(handle, idx, value) {
+    return RawArrayCoreBox.slot_store_i64(handle, idx, value)
+  }
+
+  push_hh(handle, value_any) {
+    return RawArrayCoreBox.slot_append_any(handle, value_any)
+  }
+
+  vm_wrapper_cutover_status() {
+    return "pending"
+  }
+}

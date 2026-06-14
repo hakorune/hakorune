@@ -1,0 +1,89 @@
+// BufferVisiblePolicyBox — user-visible BufferBox policy vocabulary.
+// Responsibility:
+// - own method aliases, arity, mutation/read classification, and return tags
+// - keep this policy separate from byte storage mechanics
+// Non-responsibility:
+// - raw byte storage
+// - allocation / locking / Arc / RwLock
+// - VM dispatch integration
+
+static box BufferVisiblePolicyBox {
+  canonical_method(name) {
+    if name == "len" { return "length" }
+    if name == "size" { return "length" }
+    return name
+  }
+
+  is_visible_method(name) {
+    local m = me.canonical_method(name)
+    if m == "write" { return 1 }
+    if m == "read" { return 1 }
+    if m == "readAll" { return 1 }
+    if m == "clear" { return 1 }
+    if m == "length" { return 1 }
+    if m == "append" { return 1 }
+    if m == "slice" { return 1 }
+    return 0
+  }
+
+  expected_arity(name) {
+    local m = me.canonical_method(name)
+    if m == "write" { return 1 }
+    if m == "read" { return 1 }
+    if m == "readAll" { return 0 }
+    if m == "clear" { return 0 }
+    if m == "length" { return 0 }
+    if m == "append" { return 1 }
+    if m == "slice" { return 2 }
+    return -1
+  }
+
+  matches_signature(name, arity) {
+    if me.expected_arity(name) == arity { return 1 }
+    return 0
+  }
+
+  mutates_receiver(name) {
+    local m = me.canonical_method(name)
+    if m == "write" { return 1 }
+    if m == "read" { return 1 }
+    if m == "clear" { return 1 }
+    if m == "append" { return 1 }
+    return 0
+  }
+
+  reads_receiver(name) {
+    local m = me.canonical_method(name)
+    if m == "read" { return 1 }
+    if m == "readAll" { return 1 }
+    if m == "length" { return 1 }
+    if m == "append" { return 1 }
+    if m == "slice" { return 1 }
+    return 0
+  }
+
+  return_tag(name) {
+    local m = me.canonical_method(name)
+    if m == "write" { return "length_i64" }
+    if m == "read" { return "array_bytes" }
+    if m == "readAll" { return "array_bytes" }
+    if m == "clear" { return "ok_string" }
+    if m == "length" { return "length_i64" }
+    if m == "append" { return "length_i64" }
+    if m == "slice" { return "buffer" }
+    return "unsupported"
+  }
+
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  pilot_method_count() {
+    return 9
+  }
+}
+

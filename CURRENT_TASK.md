@@ -62,17 +62,21 @@ Scope: current lane / next lane / restart order only.
   `BOXCALL-FOUNDATION-CLOSEOUT-001` landed slice
 - selected next lane: collection visible semantics
 - next implementation order:
-  `COLL-VISIBLE-000` docs-only lane card ->
-  `BUFFER-VISIBLE-INVENTORY-001` Buffer visible method / alias / policy
-  inventory ->
-  `BUFFER-VISIBLE-CONTRACT-002` fixtures and hako_check report fields ->
-  `BUFFER-HAKO-CORE-003` first `.hako` Buffer visible owner ->
-  `BUFFER-NUMERIC-LE-004` typed little-endian numeric policy ->
-  `STRING-VISIBLE-INVENTORY-001` ->
-  `STRING-HAKO-POLICY-002` ->
-  `MAP-VISIBLE-CONTRACT-001` ->
-  `ARRAY-VISIBLE-CONTRACT-001` ->
-  `COLL-VISIBLE-CLOSEOUT-001`
+  `COLL-VISIBLE-000` landed lane card ->
+  `BUFFER-VISIBLE-INVENTORY-001` landed Buffer visible method / alias / policy
+  inventory with modular `.hako` owner ->
+  `BUFFER-VISIBLE-CONTRACT-002` landed fixtures and hako_check report fields ->
+  `BUFFER-HAKO-CORE-003` landed first `.hako` Buffer visible owner ->
+  `BUFFER-NUMERIC-LE-004` landed typed little-endian numeric policy ->
+  `STRING-VISIBLE-INVENTORY-001` landed String method / alias / slot
+  inventory with modular `.hako` owner ->
+  `STRING-HAKO-POLICY-002` landed first `.hako` String policy owner ->
+  `MAP-VISIBLE-CONTRACT-001` landed Map method / alias / slot / effect
+  contract with modular `.hako` owner ->
+  `ARRAY-VISIBLE-CONTRACT-001` landed Array method / alias / slot / effect
+  contract with modular `.hako` owner ->
+  `COLL-VISIBLE-CLOSEOUT-001` landed collection visible semantics closeout;
+  next foundation lane returns to CorePlan / JoinIR expressivity
 - second foundation owner is CorePlan / JoinIR expressivity: B1 remaining
   compatibility normalizer lego-ization has its first SSOT/guard boundary, and
   the C1 planner_required fail-fast, D1 normalizer AST-boundary, E1 active-v0

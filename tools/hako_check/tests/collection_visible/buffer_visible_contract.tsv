@@ -1,0 +1,11 @@
+method	canonical	arity	mutates	reads	return_tag
+write	write	1	1	0	length_i64
+read	read	1	1	1	array_bytes
+readAll	readAll	0	0	1	array_bytes
+clear	clear	0	1	0	ok_string
+length	length	0	0	1	length_i64
+len	length	0	0	1	length_i64
+size	length	0	0	1	length_i64
+append	append	1	1	1	length_i64
+slice	slice	2	0	1	buffer
+

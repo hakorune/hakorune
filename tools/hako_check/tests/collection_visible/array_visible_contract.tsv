@@ -1,0 +1,17 @@
+method	canonical	arity	slot	effect	mutates	reads	return_tag	method_id
+length	length	0	102	read	0	1	integer_i64	length_0
+size	length	0	102	read	0	1	integer_i64	length_0
+len	length	0	102	read	0	1	integer_i64	length_0
+get	get	1	100	read	0	1	any_or_oob_string	get_1
+set	set	2	101	write_heap	1	1	void	set_2
+push	push	1	103	write_heap	1	1	void	push_1
+pop	pop	0	104	write_heap	1	1	any_or_empty_string	pop_0
+clear	clear	0	105	write_heap	1	1	void	clear_0
+contains	contains	1	106	read	0	1	bool	contains_1
+indexOf	indexOf	1	107	read	0	1	integer_i64	indexOf_1
+join	join	1	108	read	0	1	string	join_1
+sort	sort	0	109	write_heap	1	1	array	sort_0
+reverse	reverse	0	110	write_heap	1	1	array	reverse_0
+slice	slice	2	111	read	0	1	array	slice_2
+remove	remove	1	112	write_heap	1	1	any_or_oob_string	remove_1
+insert	insert	2	113	write_heap	1	1	void	insert_2

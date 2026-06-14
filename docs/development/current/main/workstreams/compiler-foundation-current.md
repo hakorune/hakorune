@@ -659,7 +659,7 @@ route_plan_semantic_data_only=1
 typeabi_catalog_execution_route_count=0
 plugin_loader_provider_snapshot_only=1
 type_registry_callable_provider_only=1
-boxcall_next_lane_requires_selection=1
+boxcall_next_lane_selection_resolved=1
 boxcall_next_lane_selected=collection_visible_semantics
 summary=ok
 ```
@@ -678,7 +678,7 @@ bash tools/hako_check.sh boxcall-contract --include-plugin-catalog-sample
 Status:
 
 ```text
-next
+landed
 ```
 
 Purpose:
@@ -707,12 +707,18 @@ buffer_pilot_task_order_named=1
 summary=ok
 ```
 
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
+```
+
 ### BUFFER-VISIBLE-INVENTORY-001: Buffer visible semantics inventory
 
 Status:
 
 ```text
-planned_after=COLL-VISIBLE-000
+landed
 ```
 
 Purpose:
@@ -749,9 +755,19 @@ Acceptance:
 ```text
 buffer_visible_method_inventory_exists=1
 buffer_alias_policy_named=1
+buffer_return_policy_named=1
+buffer_mutation_policy_named=1
 buffer_storage_substrate_owner=1
-buffer_visible_fixture_plan_exists=1
+buffer_visible_owner_hako=1
+buffer_raw_storage_moved_to_hako=0
+buffer_vm_dispatch_cutover=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### BUFFER-VISIBLE-CONTRACT-002: Buffer behavior fixtures / report
@@ -759,7 +775,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=BUFFER-VISIBLE-INVENTORY-001
+landed
 ```
 
 Purpose:
@@ -773,11 +789,20 @@ keep byte storage and allocation in Rust substrate
 Acceptance:
 
 ```text
-buffer_visible_contract_fixtures_green=1
+buffer_visible_contract_fixture_exists=1
+buffer_visible_contract_matches_hako_policy=1
 buffer_length_read_write_contract=1
 buffer_clear_append_slice_contract=1
 buffer_storage_layout_changed=0
+buffer_raw_storage_moved_to_hako=0
+buffer_vm_dispatch_cutover=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### BUFFER-HAKO-CORE-003: first .hako Buffer visible owner
@@ -785,7 +810,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=BUFFER-VISIBLE-CONTRACT-002
+landed
 ```
 
 Purpose:
@@ -800,10 +825,19 @@ Acceptance:
 
 ```text
 buffer_hako_visible_owner_exists=1
+buffer_core_uses_policy_module=1
+buffer_core_uses_substrate_bridge=1
 buffer_substrate_byte_storage_preserved=1
+buffer_data_mutation_cutover_status_pending=1
 buffer_vm_handler_dispatch_owner=1
 buffer_visible_semantics_changed=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### BUFFER-NUMERIC-LE-004: Buffer typed numeric policy
@@ -811,7 +845,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=BUFFER-HAKO-CORE-003
+landed
 ```
 
 Purpose:
@@ -825,10 +859,19 @@ do not widen storage layout or allocation mechanics
 Acceptance:
 
 ```text
+buffer_numeric_le_policy_module_exists=1
+buffer_numeric_le_contract_fixture_exists=1
+buffer_numeric_le_contract_matches_hako_policy=1
 buffer_numeric_le_policy_owner=1
 buffer_numeric_bounds_policy_owner=1
 buffer_numeric_storage_layout_changed=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### STRING-VISIBLE-INVENTORY-001: String visible policy inventory
@@ -836,7 +879,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=BUFFER-NUMERIC-LE-004
+landed
 ```
 
 Purpose:
@@ -849,11 +892,22 @@ prepare the first .hako-owned String policy row
 Acceptance:
 
 ```text
-string_visible_policy_inventory_exists=1
-string_byte_codepoint_policy_named=1
-string_index_policy_named=1
+string_visible_policy_module_exists=1
+string_visible_contract_fixture_exists=1
+string_visible_contract_matches_hako_policy=1
+string_visible_method_inventory_exists=1
+string_slot_policy_named=1
+string_index_mode_substrate_owner=1
 string_storage_substrate_owner=1
+string_raw_storage_moved_to_hako=0
+string_vm_dispatch_cutover=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### STRING-HAKO-POLICY-002: first .hako String policy owner
@@ -861,7 +915,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=STRING-VISIBLE-INVENTORY-001
+landed
 ```
 
 Purpose:
@@ -874,10 +928,19 @@ keep low-level byte storage and allocation in substrate
 Acceptance:
 
 ```text
-string_hako_policy_owner_exists=1
+string_hako_visible_owner_exists=1
+string_core_uses_policy_module=1
+string_core_uses_substrate_bridge=1
 string_storage_substrate_owner=1
+string_vm_wrapper_cutover_status_pending=1
 string_visible_semantics_changed=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### MAP-VISIBLE-CONTRACT-001: Map visible contract
@@ -885,7 +948,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=STRING-HAKO-POLICY-002
+landed
 ```
 
 Purpose:
@@ -898,10 +961,24 @@ before any .hako ownership claim
 Acceptance:
 
 ```text
+map_visible_policy_module_exists=1
+map_visible_contract_fixture_exists=1
+map_visible_contract_matches_hako_policy=1
+map_visible_method_inventory_exists=1
+map_key_normalization_policy_named=1
+map_missing_key_policy_named=1
 map_visible_contract_exists=1
 map_storage_substrate_owner=1
 map_visible_semantics_changed=0
+map_raw_storage_moved_to_hako=0
+map_vm_dispatch_cutover=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### ARRAY-VISIBLE-CONTRACT-001: Array visible contract
@@ -909,7 +986,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=MAP-VISIBLE-CONTRACT-001
+landed
 ```
 
 Purpose:
@@ -922,10 +999,24 @@ without changing inline lane representation
 Acceptance:
 
 ```text
+array_visible_policy_module_exists=1
+array_visible_contract_fixture_exists=1
+array_visible_contract_matches_hako_policy=1
+array_visible_method_inventory_exists=1
+array_bounds_policy_named=1
+array_empty_pop_policy_named=1
 array_visible_contract_exists=1
 array_inline_lane_representation_changed=0
 array_storage_substrate_owner=1
+array_raw_storage_moved_to_hako=0
+array_vm_dispatch_cutover=0
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### COLL-VISIBLE-CLOSEOUT-001: collection visible semantics closeout
@@ -933,7 +1024,7 @@ summary=ok
 Status:
 
 ```text
-planned_after=ARRAY-VISIBLE-CONTRACT-001
+landed
 ```
 
 Purpose:
@@ -949,8 +1040,14 @@ Acceptance:
 ```text
 collection_visible_semantics_closeout_ready=1
 collection_storage_substrate_owner_preserved=1
-next_foundation_lane_selected=1
+next_foundation_lane_selected=coreplan_joinir_expressivity
 summary=ok
+```
+
+Proof:
+
+```bash
+bash tools/hako_check.sh collection-visible-contract
 ```
 
 ### COREPLAN-FOUND-000: next expressivity family selection

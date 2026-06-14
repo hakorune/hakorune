@@ -9,7 +9,6 @@
 //! **Single Responsibility**: This module ONLY performs AST → JoinIR lowering.
 //! It does NOT:
 //! - Manage variable environments (that's condition_env.rs)
-//! - Extract variables from AST (that's condition_var_extractor.rs)
 //! - Manage HOST ↔ JoinIR bindings (that's inline_boundary.rs)
 
 mod api;

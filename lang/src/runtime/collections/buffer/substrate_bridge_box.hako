@@ -1,0 +1,33 @@
+// BufferSubstrateBridgeBox — narrow bridge to substrate-owned byte storage.
+// Responsibility:
+// - make the substrate boundary explicit for Buffer visible semantics
+// - expose only mechanical storage facts needed by current `.hako` policy
+// Non-responsibility:
+// - Buffer method policy
+// - alias / arity decisions
+// - byte storage implementation
+
+using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
+
+static box BufferSubstrateBridgeBox {
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  length_i64(handle) {
+    return BufCoreBox.len_i64(handle)
+  }
+
+  can_execute_data_mutation() {
+    return 0
+  }
+
+  mutation_cutover_status() {
+    return "pending"
+  }
+}
+

@@ -1,0 +1,32 @@
+// StringSubstrateBridgeBox — narrow bridge to substrate-owned string storage.
+// Responsibility:
+// - make the substrate boundary explicit for String visible semantics
+// - expose only mechanical storage facts needed by current `.hako` policy
+// Non-responsibility:
+// - String method policy
+// - alias / arity / slot decisions
+// - UTF-8 storage implementation
+
+using selfhost.runtime.collections.string_core_box as StringVmCoreBox
+
+static box StringSubstrateBridgeBox {
+  storage_owner() {
+    return "substrate"
+  }
+
+  visible_owner() {
+    return "hako"
+  }
+
+  length_i64(handle) {
+    return StringVmCoreBox.len_i64(handle)
+  }
+
+  index_mode_owner() {
+    return "substrate"
+  }
+
+  vm_wrapper_cutover_status() {
+    return "pending"
+  }
+}

@@ -1,0 +1,78 @@
+// BufferNumericLePolicyBox — typed Buffer numeric read/write policy.
+// Responsibility:
+// - own little-endian typed read/write vocabulary and bounds policy
+// - keep numeric policy separate from raw byte storage
+// Non-responsibility:
+// - actual byte encoding/decoding implementation
+// - VM result boxing
+
+static box BufferNumericLePolicyBox {
+  endian() {
+    return "little"
+  }
+
+  is_write_method(name) {
+    if name == "writeU8" { return 1 }
+    if name == "writeU16" { return 1 }
+    if name == "writeU32" { return 1 }
+    if name == "writeU64" { return 1 }
+    if name == "writeF32" { return 1 }
+    if name == "writeF64" { return 1 }
+    return 0
+  }
+
+  is_read_method(name) {
+    if name == "readU8" { return 1 }
+    if name == "readU16" { return 1 }
+    if name == "readU32" { return 1 }
+    if name == "readU64" { return 1 }
+    if name == "readF32" { return 1 }
+    if name == "readF64" { return 1 }
+    return 0
+  }
+
+  width_bytes(name) {
+    if name == "writeU8" { return 1 }
+    if name == "readU8" { return 1 }
+    if name == "writeU16" { return 2 }
+    if name == "readU16" { return 2 }
+    if name == "writeU32" { return 4 }
+    if name == "readU32" { return 4 }
+    if name == "writeF32" { return 4 }
+    if name == "readF32" { return 4 }
+    if name == "writeU64" { return 8 }
+    if name == "readU64" { return 8 }
+    if name == "writeF64" { return 8 }
+    if name == "readF64" { return 8 }
+    return 0
+  }
+
+  min_value(name) {
+    if name == "writeU8" { return 0 }
+    if name == "writeU16" { return 0 }
+    if name == "writeU32" { return 0 }
+    if name == "writeU64" { return 0 }
+    return null
+  }
+
+  max_value_tag(name) {
+    if name == "writeU8" { return "u8_max" }
+    if name == "writeU16" { return "u16_max" }
+    if name == "writeU32" { return "u32_max" }
+    if name == "writeU64" { return "u64_max" }
+    return "float_or_unbounded"
+  }
+
+  read_bounds_policy() {
+    return "offset_plus_width_must_fit_buffer"
+  }
+
+  write_return_tag() {
+    return "length_i64"
+  }
+
+  read_u64_return_policy() {
+    return "fail_if_gt_i64_max"
+  }
+}
+

@@ -1,0 +1,12 @@
+method	canonical	arity	slot	effect	mutates	reads	return_tag	method_id
+size	size	0	200	read	0	1	integer_i64	size_0
+length	size	0	200	read	0	1	integer_i64	size_0
+len	len	0	201	read	0	1	integer_i64	len_0
+has	has	1	202	read	0	1	bool	has_1
+get	get	1	203	read	0	1	any_or_missing_string	get_1
+set	set	2	204	write_heap	1	1	set_receipt_string	set_2
+delete	delete	1	205	write_heap	1	1	delete_receipt_string	delete_1
+remove	delete	1	205	write_heap	1	1	delete_receipt_string	delete_1
+keys	keys	0	206	read	0	1	array_string	keys_0
+values	values	0	207	read	0	1	array_any	values_0
+clear	clear	0	208	write_heap	1	1	clear_receipt_string	clear_0

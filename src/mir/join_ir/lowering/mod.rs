@@ -20,7 +20,6 @@ pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod common; // Internal lowering utilities
 pub mod condition_env; // Phase 171-fix: Condition expression environment
 pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logic
-pub(crate) mod condition_var_extractor; // Phase 171-fix: Variable extraction from condition AST
 pub mod debug_output_box; // Phase 85: Centralized debug output management
 pub mod error_tags; // Phase 86: Centralized error message formatting
 pub(crate) mod exit_args_resolver; // Internal exit argument resolution
