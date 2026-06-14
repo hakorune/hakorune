@@ -8,6 +8,7 @@
 //! - if_exit_only.rs: Exit-only if lowering (exit-focused handling)
 
 mod block;
+mod block_exit;
 mod if_exit_only;
 mod if_join;
 

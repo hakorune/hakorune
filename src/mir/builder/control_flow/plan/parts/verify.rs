@@ -10,9 +10,11 @@
 use crate::ast::ASTNode;
 use crate::config::env::joinir_dev;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, ExitKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
+    BlockContractKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
-use crate::mir::builder::control_flow::recipes::RecipeBody;
+
+use super::verify_refs::verify_item_refs_in_range;
+use super::verify_shape::{is_block_exit_only_item, is_exit_only_block};
 
 // ============================================================================
 // RecipeBlock verifier (M5m-3)
@@ -365,146 +367,4 @@ fn verify_block_contract(
     }
 
     Ok(())
-}
-
-fn verify_item_refs_in_range(
-    body: &RecipeBody,
-    item: &RecipeItem,
-    context: &str,
-) -> Result<(), String> {
-    #[allow(unreachable_patterns)]
-    match item {
-        RecipeItem::Stmt(r) => {
-            if body.get_ref(*r).is_none() {
-                return Err(format!(
-                    "[freeze:contract][recipe] stmt_ref_out_of_range: idx={} ctx={context}",
-                    r.index()
-                ));
-            }
-            Ok(())
-        }
-        RecipeItem::Exit { kind, stmt } => {
-            if body.get_ref(*stmt).is_none() {
-                return Err(format!(
-                    "[freeze:contract][recipe] stmt_ref_out_of_range: idx={} ctx={context}",
-                    stmt.index()
-                ));
-            }
-            // M25: depth!=1 is unsupported
-            match kind {
-                ExitKind::Break { depth } | ExitKind::Continue { depth } if *depth != 1 => {
-                    return Err(format!(
-                        "[freeze:contract][recipe][exit_depth] depth={} unsupported (only depth=1): ctx={context}",
-                        depth
-                    ));
-                }
-                _ => {}
-            }
-            Ok(())
-        }
-        RecipeItem::IfV2 { contract, .. } if matches!(contract, IfContractKind::Join) => Err(
-            format!("[freeze:contract][recipe] exit_only_verifier_saw_if_join: ctx={context}"),
-        ),
-        RecipeItem::IfV2 {
-            if_stmt,
-            cond_view: _cond_view,
-            contract,
-            then_block,
-            else_block,
-        } => {
-            // Accept both ExitOnly and ExitAllowed (Phase 29bq: else-only-exit pattern)
-            match contract {
-                IfContractKind::ExitOnly { .. } | IfContractKind::ExitAllowed { .. } => {}
-                _ => {
-                    return Err(format!(
-                        "[freeze:contract][recipe] verifier_saw_unsupported_item: ctx={context}"
-                    ));
-                }
-            }
-
-            if body.get_ref(*if_stmt).is_none() {
-                return Err(format!(
-                    "[freeze:contract][recipe] if_stmt_ref_out_of_range: idx={} ctx={context}",
-                    if_stmt.index()
-                ));
-            }
-            if let Some(node) = body.get_ref(*if_stmt) {
-                if !matches!(node, ASTNode::If { .. }) {
-                    return Err(format!(
-                        "[freeze:contract][recipe] if_stmt_is_not_if_node: idx={} ctx={context}",
-                        if_stmt.index()
-                    ));
-                }
-            }
-            let _ = then_block;
-            let _ = else_block;
-            Ok(())
-        }
-        RecipeItem::LoopV0 {
-            loop_stmt,
-            cond_view: _cond_view,
-            body_block: _body_block,
-            body_contract: _body_contract,
-            kind: _kind,
-            features: _features,
-        } => {
-            if body.get_ref(*loop_stmt).is_none() {
-                return Err(format!(
-                    "[freeze:contract][recipe] stmt_ref_out_of_range: idx={} ctx={context}",
-                    loop_stmt.index()
-                ));
-            }
-            if let Some(node) = body.get_ref(*loop_stmt) {
-                if !matches!(node, ASTNode::Loop { .. }) {
-                    return Err(format!(
-                        "[freeze:contract][recipe] loop_stmt_is_not_loop_node: idx={} ctx={context}",
-                        loop_stmt.index()
-                    ));
-                }
-            }
-            Ok(())
-        }
-        _ => Err(format!(
-            "[freeze:contract][recipe] verifier_saw_unsupported_item: ctx={context}"
-        )),
-    }
-}
-
-fn is_block_exit_only_item(item: &RecipeItem) -> bool {
-    #[allow(unreachable_patterns)]
-    match item {
-        RecipeItem::Exit { .. } => true,
-        RecipeItem::Stmt(_) => false,
-        RecipeItem::IfV2 { contract, .. } if matches!(contract, IfContractKind::Join) => false,
-        RecipeItem::IfV2 {
-            contract,
-            then_block,
-            else_block,
-            ..
-        } => {
-            let IfContractKind::ExitOnly { mode } = contract else {
-                return false;
-            };
-            match mode {
-                // ExitIf exits only on the `then` path; it must not be treated as a
-                // block-exit item (trailing items are allowed).
-                IfMode::ExitIf => false,
-                IfMode::ExitAll => else_block
-                    .as_deref()
-                    .is_some_and(|eb| is_exit_only_block(then_block) && is_exit_only_block(eb)),
-                // ElseOnlyExit: then falls through, so not a block-exit item
-                IfMode::ElseOnlyExit => false,
-            }
-        }
-        _ => false,
-    }
-}
-
-fn is_exit_only_block(block: &RecipeBlock) -> bool {
-    block.items.last().is_some_and(is_block_exit_only_item)
-        && block
-            .items
-            .iter()
-            .enumerate()
-            .all(|(i, it)| !(is_block_exit_only_item(it) && i + 1 < block.items.len()))
 }
