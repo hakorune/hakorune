@@ -365,6 +365,12 @@ impl super::MirBuilder {
         {
             function.signature.return_type = inferred_type;
         }
+        // Final builder seal: PHI inputs are edge values, so every incoming value
+        // must be valid in the predecessor block recorded on that edge.
+        crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+            &mut function,
+            "finalize_module",
+        )?;
         // ===== Step 4: Module Sealing (metadata, birth verification) =====
         // Dev-only verify: NewBox → birth() invariant (warn if missing)
         //
@@ -514,6 +520,12 @@ impl super::MirBuilder {
         crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
         crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
+        for function in module.functions.values_mut() {
+            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+                function,
+                "finalize_module_all_functions",
+            )?;
+        }
 
         Ok(module)
     }

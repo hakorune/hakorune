@@ -50,9 +50,21 @@ pub(super) fn build_exit_phi(
                     func.metadata.value_origin_callers.insert(phi_dst, loc);
                 }
             }
+            let mut inputs = Vec::with_capacity(exit_phi_inputs.len());
+            for (pred, incoming) in exit_phi_inputs {
+                let incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    func,
+                    *pred,
+                    *incoming,
+                    "expr_result",
+                    "exit",
+                )?;
+                inputs.push((*pred, incoming));
+            }
+
             exit_block.instructions.push(MirInstruction::Phi {
                 dst: phi_dst,
-                inputs: exit_phi_inputs.to_vec(),
+                inputs,
                 type_hint: None,
             });
             exit_block
@@ -96,9 +108,21 @@ pub(super) fn build_exit_phi(
                     func.metadata.value_origin_callers.insert(phi_dst, loc);
                 }
             }
+            let mut materialized_inputs = Vec::with_capacity(inputs.len());
+            for (pred, incoming) in inputs {
+                let incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    func,
+                    *pred,
+                    *incoming,
+                    carrier_name,
+                    "exit",
+                )?;
+                materialized_inputs.push((*pred, incoming));
+            }
+
             exit_block.instructions.push(MirInstruction::Phi {
                 dst: phi_dst,
-                inputs: inputs.clone(),
+                inputs: materialized_inputs.clone(),
                 type_hint: None,
             });
             exit_block
@@ -111,7 +135,7 @@ pub(super) fn build_exit_phi(
             trace.stderr_if(
                 &format!(
                     "[DEBUG-177] Exit block PHI (carrier '{}'): {:?} = phi {:?}",
-                    carrier_name, phi_dst, inputs
+                    carrier_name, phi_dst, materialized_inputs
                 ),
                 verbose,
             );

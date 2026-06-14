@@ -135,12 +135,28 @@ pub(in crate::mir::builder) fn apply_if_joins(
             let pred = then_end_bb
                 .ok_or_else(|| "[lowerer] Missing then end block for CorePlan::If".to_string())?;
             then_pred = Some(pred);
+            then_in = {
+                let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                    "[if_join] No current function for PHI input materialization".to_string()
+                })?;
+                crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    func, pred, then_in, &join.name, "then",
+                )?
+            };
             inputs.push((pred, then_in));
         }
         if else_reaches_merge_local {
             let pred = else_end_bb
                 .ok_or_else(|| "[lowerer] Missing else end block for CorePlan::If".to_string())?;
             else_pred = Some(pred);
+            else_in = {
+                let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                    "[if_join] No current function for PHI input materialization".to_string()
+                })?;
+                crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    func, pred, else_in, &join.name, "else",
+                )?
+            };
             inputs.push((pred, else_in));
         }
         if inputs.is_empty() {

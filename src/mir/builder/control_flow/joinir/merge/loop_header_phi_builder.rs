@@ -489,15 +489,12 @@ impl LoopHeaderPhiBuilder {
             }
         }
 
-        let header_block = current_func
-            .blocks
-            .get_mut(&info.header_block)
-            .ok_or_else(|| {
-                format!(
-                    "Phase 33-16: Header block {:?} not found in current function",
-                    info.header_block
-                )
-            })?;
+        if !current_func.blocks.contains_key(&info.header_block) {
+            return Err(format!(
+                "Phase 33-16: Header block {:?} not found in current function",
+                info.header_block
+            ));
+        }
 
         // Insert PHIs at the beginning of the header block (before other instructions)
         // Sorted by carrier name for determinism
@@ -512,9 +509,23 @@ impl LoopHeaderPhiBuilder {
             // Build PHI inputs: entry preds use init value, latch preds use next value
             let mut phi_inputs = Vec::new();
             for &entry_pred in &entry_preds {
+                let entry_val = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    current_func,
+                    entry_pred,
+                    entry_val,
+                    name,
+                    "entry",
+                )?;
                 phi_inputs.push((entry_pred, entry_val));
             }
             for &latch_pred in &latch_preds {
+                let latch_val = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    current_func,
+                    latch_pred,
+                    latch_val,
+                    name,
+                    "latch",
+                )?;
                 phi_inputs.push((latch_pred, latch_val));
             }
 
@@ -561,6 +572,15 @@ impl LoopHeaderPhiBuilder {
         }
 
         // Prepend PHIs to existing instructions
+        let header_block = current_func
+            .blocks
+            .get_mut(&info.header_block)
+            .ok_or_else(|| {
+                format!(
+                    "Phase 33-16: Header block {:?} not found in current function",
+                    info.header_block
+                )
+            })?;
         let mut new_instructions = phi_instructions;
         new_instructions.append(&mut header_block.instructions);
         header_block.instructions = new_instructions;

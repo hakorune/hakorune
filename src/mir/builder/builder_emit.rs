@@ -34,6 +34,22 @@ impl MirBuilder {
                 .field("err", e)
                 .build());
         }
+        if let MirInstruction::Phi { inputs, .. } = &mut instruction {
+            let func = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                FreezeContract::new("builder/phi_without_function")
+                    .field("bb", format!("{:?}", block_id))
+                    .build()
+            })?;
+            for (pred, incoming) in inputs.iter_mut() {
+                *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                    func,
+                    *pred,
+                    *incoming,
+                    "builder_emit_phi",
+                    "phi",
+                )?;
+            }
+        }
         // P0: PHI の軽量補強と観測は、関数ブロック取得前に実施して借用競合を避ける
         if let MirInstruction::Phi { dst, inputs, .. } = &instruction {
             origin::phi::propagate_phi_meta(self, *dst, inputs);

@@ -162,6 +162,12 @@ pub(in crate::mir::builder) fn define_phi_final(
 
     let span = builder.metadata_ctx.current_span();
 
+    for (pred, incoming) in &mut inputs {
+        *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+            func, *pred, *incoming, tag, "phi",
+        )?;
+    }
+
     if crate::config::env::joinir_dev::debug_enabled() {
         builder
             .metadata_ctx
@@ -235,6 +241,16 @@ pub(in crate::mir::builder) fn define_phi_final_fn(
     mut inputs: Vec<(BasicBlockId, ValueId)>,
     span: crate::ast::Span,
 ) -> Result<(), String> {
+    for (pred, incoming) in &mut inputs {
+        *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+            function,
+            *pred,
+            *incoming,
+            "edgecfg_block_params",
+            "phi",
+        )?;
+    }
+
     // Sort inputs by block ID (SSA invariant)
     inputs.sort_by_key(|(bb, _)| bb.0);
 

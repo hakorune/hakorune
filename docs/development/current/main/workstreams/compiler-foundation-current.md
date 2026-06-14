@@ -697,13 +697,51 @@ implementation_started=0
 
 ### COREPLAN-LOOP-WIRING-002: parse_loop_min PHI input dominator fix
 
-Next implementation task.
+Status:
+
+```text
+landed_by=
+  docs/development/current/main/phases/phase-293x/293x-1018-COREPLAN-LOOP-WIRING-002-PHI-INPUT-MATERIALIZATION.md
+```
 
 Purpose:
 
 ```text
 fix the selected Main.parse_loop_min/3 dominator violation without adding a
 new loop_*_v0 route or changing the fixture expected output
+```
+
+Acceptance:
+
+```text
+selfhost_parse_loop_min=PASS
+loop_v0_route_added=0
+fixture_expected_output_changed=0
+fallback_route_added=0
+accepted_shape_added=0
+```
+
+### COREPLAN-PLANNER-TAG-001: scan_all_boxes planner-first tag
+
+Next implementation task.
+
+Purpose:
+
+```text
+fix phase29bq_selfhost_blocker_scan_all_boxes_return_in_debug_guard_min.hako
+missing planner-first evidence:
+  [flowbox/adopt box_kind=Loop features= via=shadow]
+```
+
+Acceptance:
+
+```text
+focused_fixture_gate_green=1
+missing_planner_first_tag=0
+loop_v0_route_added=0
+fixture_expected_output_changed=0
+fallback_route_added=0
+accepted_shape_added=0
 ```
 
 ## Do Not Do Yet

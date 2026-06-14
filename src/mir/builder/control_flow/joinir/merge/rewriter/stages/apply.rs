@@ -72,6 +72,10 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
             }
             current_func.add_block(new_block);
         }
+        crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+            current_func,
+            "joinir_apply_rewrites",
+        )?;
     }
 
     // Inject boundary copies (if boundary provided)
