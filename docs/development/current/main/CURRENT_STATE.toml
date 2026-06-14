@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001 call operand materialization forwarding design"
+active_lane = "CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001 call operand materialization forwarding guard surface"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -86,7 +86,12 @@ and selected_owner_confidence=medium. CALL-OPERAND-MATERIALIZATION-COPY-CHAIN-IN
 found call_operand_chain_count=26, call_operand_unique_copy_count=29,
 safe_forwarding_candidate_count=9, dominance_required_candidate_count=14, and
 unknown_root_call_operand_chain_count=3. The active row designs a narrow
-forwarding policy before another implementation attempt. The
+forwarding policy before another implementation attempt.
+CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001 selected the tiny
+same_block_root_receiver_operand_forwarding keeper with
+selected_keeper_candidate_count=2, arg_forwarding_enabled=0,
+requires_dominance_guard=0, and helper_name_special_case=0. The active row
+fixes the post-implementation guard surface before code changes. The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
@@ -97,14 +102,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-685-CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-686-CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001.md"
 
-latest_card = "CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-685-CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001.md"
-latest_card_summary = """CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001
-designs a narrow keeper for the call-operand materialization Copy chains
-inventoried by 296x-684 before any LocalSSA or call-lowering implementation."""
-current_blocker_token = "CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001-ACTIVE"
+latest_card = "CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-686-CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001.md"
+latest_card_summary = """CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001
+fixes the post target and closed seams for the selected same-block-root
+receiver operand forwarding keeper before implementation."""
+current_blocker_token = "CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

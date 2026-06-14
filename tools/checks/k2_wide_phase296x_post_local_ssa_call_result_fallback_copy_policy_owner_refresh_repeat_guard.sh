@@ -19,7 +19,7 @@ APP="apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block
 
 grep -q '^Status: Landed$' "$CARD" || { echo "[post-local-ssa-owner-repeat] row683 card must be Landed" >&2; exit 1; }
 grep -q '^Status: Landed$' "$PREV_CARD" || { echo "[post-local-ssa-owner-repeat] row682 card must be Landed" >&2; exit 1; }
-grep -q '^Status: Active$' "$NEXT_CARD" || { echo "[post-local-ssa-owner-repeat] row684 card must be Active" >&2; exit 1; }
+grep -Eq '^Status: (Active|Landed)$' "$NEXT_CARD" || { echo "[post-local-ssa-owner-repeat] row684 card must be Active or Landed" >&2; exit 1; }
 grep -q "$SELF_SCRIPT" "$INDEX" || { echo "[post-local-ssa-owner-repeat] check index missing guard entry" >&2; exit 1; }
 
 tmp_dir="$(mktemp -d /tmp/hakorune_post_local_ssa_owner_repeat.XXXXXX)"

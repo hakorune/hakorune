@@ -146,6 +146,7 @@ def main() -> int:
                 copy_dst_to_src[dst] = inst.get("src")
 
     role_counts: Counter[str] = Counter()
+    role_root_counts: Counter[str] = Counter()
     callee_counts: Counter[str] = Counter()
     unique_copy_values: set[Any] = set()
     same_block_chain_count = 0
@@ -177,10 +178,13 @@ def main() -> int:
                 root_block = defs.get(root, (None,))[0]
                 if root_block == block_id:
                     same_block_root_count += 1
+                    role_root_counts[f"{role}_same_block_root"] += 1
                 elif root_block is None:
                     root_unknown_count += 1
+                    role_root_counts[f"{role}_unknown_root"] += 1
                 else:
                     cross_block_root_count += 1
+                    role_root_counts[f"{role}_cross_block_root"] += 1
                 samples.append(
                     {
                         "block": block_id,
@@ -223,6 +227,12 @@ def main() -> int:
         f"unknown_root_call_operand_chain_count={root_unknown_count}",
         f"receiver_operand_chain_count={role_counts['receiver']}",
         f"arg_operand_chain_count={role_counts['arg']}",
+        f"receiver_same_block_root_call_operand_chain_count={role_root_counts['receiver_same_block_root']}",
+        f"arg_same_block_root_call_operand_chain_count={role_root_counts['arg_same_block_root']}",
+        f"receiver_cross_block_root_call_operand_chain_count={role_root_counts['receiver_cross_block_root']}",
+        f"arg_cross_block_root_call_operand_chain_count={role_root_counts['arg_cross_block_root']}",
+        f"receiver_unknown_root_call_operand_chain_count={role_root_counts['receiver_unknown_root']}",
+        f"arg_unknown_root_call_operand_chain_count={role_root_counts['arg_unknown_root']}",
         f"max_call_operand_chain_len={max_chain_len}",
         f"safe_forwarding_candidate_count={safe_forwarding_candidate_count}",
         f"dominance_required_candidate_count={dominance_required_candidate_count}",

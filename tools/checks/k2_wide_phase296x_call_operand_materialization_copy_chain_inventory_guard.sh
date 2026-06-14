@@ -19,7 +19,7 @@ APP="apps/hako-alloc-mimalloc-comparison-in-process-object-lifecycle-small-block
 
 grep -q '^Status: Landed$' "$CARD" || { echo "[call-operand-inventory] row684 card must be Landed" >&2; exit 1; }
 grep -q '^Status: Landed$' "$PREV_CARD" || { echo "[call-operand-inventory] row683 card must be Landed" >&2; exit 1; }
-grep -q '^Status: Active$' "$NEXT_CARD" || { echo "[call-operand-inventory] row685 card must be Active" >&2; exit 1; }
+grep -Eq '^Status: (Active|Landed)$' "$NEXT_CARD" || { echo "[call-operand-inventory] row685 card must be Active or Landed" >&2; exit 1; }
 grep -q "$SELF_SCRIPT" "$INDEX" || { echo "[call-operand-inventory] check index missing guard entry" >&2; exit 1; }
 
 tmp_dir="$(mktemp -d /tmp/hakorune_call_operand_inventory.XXXXXX)"
@@ -62,6 +62,12 @@ for file in "$report" "$CARD"; do
   require_line_in_file "$file" "unknown_root_call_operand_chain_count=3"
   require_line_in_file "$file" "receiver_operand_chain_count=17"
   require_line_in_file "$file" "arg_operand_chain_count=9"
+  require_line_in_file "$file" "receiver_same_block_root_call_operand_chain_count=2"
+  require_line_in_file "$file" "arg_same_block_root_call_operand_chain_count=7"
+  require_line_in_file "$file" "receiver_cross_block_root_call_operand_chain_count=13"
+  require_line_in_file "$file" "arg_cross_block_root_call_operand_chain_count=1"
+  require_line_in_file "$file" "receiver_unknown_root_call_operand_chain_count=2"
+  require_line_in_file "$file" "arg_unknown_root_call_operand_chain_count=1"
   require_line_in_file "$file" "safe_forwarding_candidate_count=9"
   require_line_in_file "$file" "dominance_required_candidate_count=14"
   require_line_in_file "$file" "selected_next_owner=call_operand_materialization_forwarding_design"

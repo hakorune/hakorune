@@ -36,9 +36,9 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
   moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001`
-- current step designs a narrow keeper for the call-operand materialization
-  Copy chains inventoried by 296x-684 before any implementation;
+  `CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001`
+- current step fixes the post target for the selected same-block-root receiver
+  operand forwarding keeper before any implementation;
   process-total boot cost is diagnostic, and provider/replacement/startup seams
   stay closed
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
@@ -54,7 +54,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-685-CALL-OPERAND-MATERIALIZATION-FORWARDING-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-686-CALL-OPERAND-MATERIALIZATION-FORWARDING-GUARD-SURFACE-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
