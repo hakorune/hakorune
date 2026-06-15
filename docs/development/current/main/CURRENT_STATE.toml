@@ -656,19 +656,23 @@ retirement as investigation tasks without risky code changes.
 BACKEND-METHOD-NAME-PROOF-AUDIT-001 classified the existing flattened-nested
 method-name tables as guarded semantic maps inside an ObjectPlan consumer, not
 generic backend route inference; the next residue is legacy array receiver
-proof-chain retire inventory."""
+proof-chain retire inventory.
+ARRAY-RECEIVER-RESIDENCE-PROOF-CHAIN-RETIRE-INVENTORY-001 classified the legacy
+array receiver proof-chain module and references, kept live
+src/mir/array_receiver_proof.rs untouched, and parked deletion behind a retire
+gate project."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-834-BACKEND-METHOD-NAME-PROOF-AUDIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-835-ARRAY-RECEIVER-RESIDENCE-PROOF-CHAIN-RETIRE-INVENTORY-001.md"
 
-latest_card = "BACKEND-METHOD-NAME-PROOF-AUDIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-834-BACKEND-METHOD-NAME-PROOF-AUDIT-001.md"
-latest_card_summary = """Backend method-name proof audit:
-flattened-nested method-name tables are guarded semantic maps inside an existing
-ObjectPlan consumer, not generic backend route inference."""
-current_blocker_token = "ARRAY-RECEIVER-RESIDENCE-PROOF-CHAIN-RETIRE-INVENTORY-001"
+latest_card = "ARRAY-RECEIVER-RESIDENCE-PROOF-CHAIN-RETIRE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-835-ARRAY-RECEIVER-RESIDENCE-PROOF-CHAIN-RETIRE-INVENTORY-001.md"
+latest_card_summary = """Array receiver proof-chain retire inventory:
+legacy array receiver proof-chain residue is classified, no code is deleted,
+and live src/mir/array_receiver_proof.rs remains out of scope."""
+current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
