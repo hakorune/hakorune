@@ -640,19 +640,24 @@ combines direct call with representation bypass.
 PUBLICATION-SITE-INVENTORY-GENERIC-001 fixed the generic
 ObjectPublicationReason vocabulary from code: eight publication reasons are
 present, Unknown remains conservative, and backend ObjectPlan consumption stays
-disabled."""
+disabled.
+BACKEND-PLAN-CONSUMER-GUARD-001 fixed the backend consumer guard: existing
+flattened-nested ObjectPlan consumer remains allowed, no new lowering is added,
+and future direct/bypass lowering must consume RoutePlan/ObjectPlan rather than
+helper, method, or variable-name inference."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-830-PUBLICATION-SITE-INVENTORY-GENERIC-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-831-BACKEND-PLAN-CONSUMER-GUARD-001.md"
 
-latest_card = "PUBLICATION-SITE-INVENTORY-GENERIC-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-830-PUBLICATION-SITE-INVENTORY-GENERIC-001.md"
-latest_card_summary = """Publication-site generic inventory:
-ObjectPublicationReason has eight generic reasons, Unknown forces generic
-fallback, and standalone PublicationPlan/backend consumption remain disabled."""
-current_blocker_token = "BACKEND-PLAN-CONSUMER-GUARD-001"
+latest_card = "BACKEND-PLAN-CONSUMER-GUARD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-831-BACKEND-PLAN-CONSUMER-GUARD-001.md"
+latest_card_summary = """Backend plan consumer guard:
+existing flattened-nested ObjectPlan consumer is allowed, no new lowering is
+added, and future direct/bypass lowering requires RoutePlan/ObjectPlan instead
+of name inference."""
+current_blocker_token = "COMPILER-OBJECT-SHAPE-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

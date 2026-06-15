@@ -196,6 +196,13 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("objectplan_owns_representation_not_execution", "1"),
         ("backend_requires_routeplan_for_direct_call", "1"),
         ("backend_requires_objectplan_for_representation_bypass", "1"),
+        ("backend_plan_consumer_guard_enabled", "1"),
+        (
+            "backend_plan_consumer_requires_routeplan_and_objectplan",
+            "1",
+        ),
+        ("backend_existing_flattened_nested_consumer_allowed", "1"),
+        ("backend_new_lowering_enabled", "0"),
         ("backend_helper_symbol_inference_enabled", "0"),
         ("backend_method_name_special_case_enabled", "0"),
         ("backend_variable_name_special_case_enabled", "0"),
@@ -274,6 +281,13 @@ mod tests {
         assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
         assert!(fields.contains(&("backend_requires_routeplan_for_direct_call", "1")));
         assert!(fields.contains(&("backend_requires_objectplan_for_representation_bypass", "1")));
+        assert!(fields.contains(&("backend_plan_consumer_guard_enabled", "1")));
+        assert!(fields.contains(&(
+            "backend_plan_consumer_requires_routeplan_and_objectplan",
+            "1"
+        )));
+        assert!(fields.contains(&("backend_existing_flattened_nested_consumer_allowed", "1")));
+        assert!(fields.contains(&("backend_new_lowering_enabled", "0")));
         assert!(fields.contains(&("backend_helper_symbol_inference_enabled", "0")));
         assert!(fields.contains(&("backend_method_name_special_case_enabled", "0")));
         assert!(fields.contains(&("backend_variable_name_special_case_enabled", "0")));
