@@ -134,6 +134,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - exact-AOT object boundary owner; keeps MIRBuilder as source-semantics
     emitter only, RoutePlan as call execution truth, ObjectStoragePlan as
     representation truth, and backend lowering as the C-like consumer
+- `design/compiler-object-final-shape-ssot.md`
+  - selfhost-before-object-shape map; keeps MIRBuilder as meaning owner,
+    SemanticRefresh as fact owner, RoutePlan as execution truth, ObjectPlan as
+    representation/publication truth, backend as plan consumer, and runtime as
+    generic fallback world
 - `design/record-box-two-surface-one-substrate-ssot.md`
   - user-facing `record` / `box` boundary owner; keeps `record` as
     identity-free value aggregate, `box` as identity/behavior/lifecycle

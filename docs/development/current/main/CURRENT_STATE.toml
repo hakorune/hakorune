@@ -618,19 +618,24 @@ hako_slower_current_front=0, selected_next_owner=none_current_front_not_hako_slo
 and next_task=MIMALLOC-CURRENT-FRONT-OPTIMIZATION-PAUSE-CHECKPOINT-001.
 MIMALLOC-CURRENT-FRONT-OPTIMIZATION-PAUSE-CHECKPOINT-001 paused this front:
 current_front_paused=1, implementation_owner_selected=0, and
-selected_next=MIMALLOC-FRESH-FRONT-SELECTION-001."""
+selected_next=MIMALLOC-FRESH-FRONT-SELECTION-001. The active goal now moves to
+compiler object-shape cleanup before selfhost MIRBuilder growth:
+COMPILER-OBJECT-FINAL-SHAPE-001 fixed MIRBuilder=meaning,
+SemanticRefresh=facts, RoutePlan=execution, ObjectPlan=representation/publication,
+Backend=plan consumer, Runtime=generic fallback."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-824-MIMALLOC-CURRENT-FRONT-OPTIMIZATION-PAUSE-CHECKPOINT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-825-COMPILER-OBJECT-FINAL-SHAPE-001.md"
 
-latest_card = "MIMALLOC-CURRENT-FRONT-OPTIMIZATION-PAUSE-CHECKPOINT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-824-MIMALLOC-CURRENT-FRONT-OPTIMIZATION-PAUSE-CHECKPOINT-001.md"
-latest_card_summary = """Current object-lifecycle front pause checkpoint:
-body_elapsed_ratio=0.836, current_front_paused=1,
-implementation_owner_selected=0, and selected_next=MIMALLOC-FRESH-FRONT-SELECTION-001."""
-current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-001"
+latest_card = "COMPILER-OBJECT-FINAL-SHAPE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-825-COMPILER-OBJECT-FINAL-SHAPE-001.md"
+latest_card_summary = """Compiler object final shape:
+MIRBuilder records meaning only, SemanticRefresh owns facts, RoutePlan owns
+execution truth, ObjectPlan owns representation/publication truth, Backend
+consumes plans, and Runtime keeps the generic fallback world."""
+current_blocker_token = "MIRBUILDER-OBJECT-BOUNDARY-GUARD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
