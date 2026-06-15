@@ -392,6 +392,8 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_mimalloc_body_timing_cfg_stable_receiver_rewrite_closeout_guard.sh` | 296x-699 の CFG-stable receiver rewrite closeout guard。receiver operand copy-chain owner を閉じ、次は fresh evidence による owner selection へ送る。 |
 | `tools/checks/k2_wide_phase296x_mimalloc_body_timing_next_owner_selection_guard.sh` | 296x-700 の mimalloc body timing next-owner selection guard。body gap が小さいため compiler-lowering 実装をpauseし、checkpointへ送る。 |
 | `tools/checks/k2_wide_phase296x_mimalloc_compiler_lowering_optimization_checkpoint_guard.sh` | 296x-701 の mimalloc compiler-lowering optimization checkpoint guard。receiver rewrite keeper後に新しい高信頼 compiler owner がないためpauseを固定する。 |
+| `tools/checks/k2_wide_phase296x_mimalloc_body_timing_precision_guard.sh` | 296x-702 の mimalloc body timing precision guard。Hako/C body timer family mismatch を固定し、runtime boundary inventory へ送る。 |
+| `tools/checks/k2_wide_phase296x_mimalloc_runtime_boundary_inventory_guard.sh` | 296x-703 の mimalloc runtime boundary inventory guard。runtime/object/generated-runtime seam は見えるが単一 owner は低信頼のため実装を閉じる。 |
 | `tools/checks/k2_wide_phase296x_receiver_materialization_attribution_probe_guard.sh` | 296x-183 の receiver materialization attribution probe guard。receiver copy chain を family / unique copy / duplicate attribution に分解する。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_policy_selection_guard.sh` | 296x-184 の receiver pin chain policy selection guard。same-receiver cache ではなく pin-chain narrowing を選ぶ。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_narrowing_keeper_guard.sh` | 296x-185 の receiver pin chain narrowing keeper guard。同一 block Copy 定義の receiver を再 copy しない。 |
