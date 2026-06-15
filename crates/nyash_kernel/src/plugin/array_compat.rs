@@ -1,4 +1,4 @@
-use super::array_handle_cache::with_array_box;
+use super::array_handle_cache::{with_array_box, with_array_box_ready};
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
 use super::handle_cache::valid_handle;
@@ -61,7 +61,7 @@ pub extern "C" fn nyash_array_push_h(handle: i64, val: i64) -> i64 {
 // Exported as: nyash_array_length_h(i64 handle) -> i64
 #[no_mangle]
 pub extern "C" fn nyash_array_length_h(handle: i64) -> i64 {
-    with_array_box(handle, |arr| arr.len() as i64).unwrap_or(0)
+    with_array_box_ready(handle, |arr| arr.len() as i64).unwrap_or(0)
 }
 
 // AOT ObjectModule dotted-name aliases (Array).

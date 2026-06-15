@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001 mimalloc direct array length boundary design"
+active_lane = "MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001 mimalloc post array length helper owner refresh"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -156,8 +156,17 @@ therefore remains gated. MIMALLOC-BODY-TIMER-ALIGNMENT-PROBE-001 scaled the
 in-process repeat to 65536 and reduced Hako timer resolution to 1.887% of the
 measured body window; scaled_body_elapsed_ratio=2.039.
 MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001 then found top_symbol=nyash_array_length_h
-with top_symbol_percent=70.61 in a scaled perf run. The active row designs the
-direct Array length boundary owner before implementation.
+with top_symbol_percent=70.61 in a scaled perf run.
+MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001 selected
+direct_array_length_route_cache, because MIR already publishes
+generic_method.len/array_slot_len but the helper remains a runtime boundary.
+MIMALLOC-ARRAY-LEN-HELPER-FASTPATH-PROBE-001 selected host_handle_lookup as
+the helper-internal owner and allowed one narrow implementation.
+MIMALLOC-ARRAY-LEN-HELPER-BORROWED-READY-IMPLEMENTATION-001 switched only
+`nyash_array_length_h` to the existing borrowed-ready path and kept a small
+win: body_elapsed_ns 54ms -> 53ms and top_symbol_percent 72.06 -> 68.13. The
+active row refreshes the remaining handle registry / typed handle owner before
+any further implementation.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -169,14 +178,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-706-MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-709-MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001.md"
 
-latest_card = "MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-706-MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001.md"
-latest_card_summary = """MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001
-selects a narrow design for the `nyash_array_length_h` generated runtime helper
-boundary before implementation."""
-current_blocker_token = "MIMALLOC-DIRECT-ARRAY-LENGTH-BOUNDARY-DESIGN-001-ACTIVE"
+latest_card = "MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-709-MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001.md"
+latest_card_summary = """MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001
+classifies the remaining `nyash_array_length_h` handle registry / typed handle
+residue after the borrowed-ready keeper."""
+current_blocker_token = "MIMALLOC-POST-ARRAY-LEN-HELPER-OWNER-REFRESH-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
