@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: OBJECT-STORAGE-PLAN-SSOT-001
 Scope: Add the code-facing ObjectStoragePlan vocabulary and guard surface after
@@ -66,4 +66,32 @@ do not change product defaults
 
 ```text
 next_task=EXACT-OBJECT-PLAN-SHADOW-001
+```
+
+## Result
+
+```text
+output_contract=hako-object-storage-plan-ssot-v0
+source_evidence=296x-710
+mirbuilder_object_management_enabled=0
+box_callable_registry_is_callable_truth=1
+routeplan_is_call_execution_truth=1
+object_storage_plan_is_representation_truth=1
+object_storage_plan_vocabulary_defined=1
+object_storage_plan_execution_enabled=0
+exact_object_shadow_ready=1
+product_default_changed=0
+source_hako_changed=0
+compiler_lowering_changed=0
+runtime_object_changed=0
+next_task=EXACT-OBJECT-PLAN-SHADOW-001
+summary=ok
+```
+
+Evidence:
+
+```text
+code_vocabulary=src/object_storage_plan.rs
+report_fields=object_storage_plan_report_fields
+lib_export=pub mod object_storage_plan
 ```

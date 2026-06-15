@@ -40,6 +40,7 @@ pub mod finalization;
 pub mod instance_v2; // simplified InstanceBox implementation
 #[path = "core/method_box.rs"]
 pub mod method_box;
+pub mod object_storage_plan;
 #[path = "boxes/operator_traits.rs"]
 pub mod operator_traits; // trait-based operator overloading
 pub mod parser; // using historical parser.rs
