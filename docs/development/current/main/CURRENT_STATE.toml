@@ -591,20 +591,32 @@ front Array.length pilot is closed, and the next pilot is
 local_known_receiver_direct_call with first target page.acquire_usize/reuse.
 The selected scope is direct_call_only; page-specific branches, method-name
 special cases, storage direct, HostHandle bypass, Arc retirement, and product
-runtime changes remain closed."""
+runtime changes remain closed.
+LOCAL-PAGE-RECEIVER-CANDIDATE-PROBE-001 confirmed that page is a queue-selected
+receiver, not a body-local birth. It has three pre-publication calls and two
+publication sites, with storage direct and HostHandle bypass still closed. The
+next row is the known receiver direct-call guard surface.
+LOCAL-KNOWN-RECEIVER-DIRECT-CALL-GUARD-SURFACE-001 opened shadowing only:
+pre-publication receiver, known type, known method surface, no dynamic/plugin/task
+escape, and no after-publication calls are required; implementation, storage
+direct, HostHandle bypass, Arc retirement, and product runtime changes remain
+closed.
+LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001 produced a report-only shadow with
+three guarded candidates for page acquire_usize/reuse. It authorizes the pilot
+row to look for a generic ObjectPlan + RoutePlan backend seam, but direct
+lowering from shadow alone remains forbidden."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-816-LOCAL-FIRST-DIRECT-PILOT-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-819-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md"
 
-latest_card = "LOCAL-FIRST-DIRECT-PILOT-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-816-LOCAL-FIRST-DIRECT-PILOT-SELECTION-001.md"
-latest_card_summary = """Close Array.length pilot for the current front and
-select local_known_receiver_direct_call as the next pilot: first target page
-acquire_usize/reuse, direct-call only, no storage direct, no HostHandle bypass,
-and no product default runtime change."""
-current_blocker_token = "LOCAL-PAGE-RECEIVER-CANDIDATE-PROBE-001"
+latest_card = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-819-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md"
+latest_card_summary = """Report-only shadow for local known receiver direct
+calls: three page acquire_usize/reuse candidates are classified, but lowering
+requires a generic ObjectPlan + RoutePlan backend seam in the pilot row."""
+current_blocker_token = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
