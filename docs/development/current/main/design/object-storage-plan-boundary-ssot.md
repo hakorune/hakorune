@@ -205,7 +205,7 @@ Those are plan/backend outcomes.
 
 ## ObjectStoragePlan Vocabulary
 
-Initial vocabulary may be narrower in code, but the design boundary is:
+Code and design vocabulary are aligned as:
 
 ```rust
 enum ObjectStoragePlan {
@@ -226,6 +226,10 @@ enum ObjectStoragePlan {
     },
     Scalarized {
         fields: Vec<FieldScalarPlan>,
+    },
+    FlattenedNestedFields {
+        owner_layout_id: LayoutId,
+        fields: Vec<FlattenedNestedFieldPlan>,
     },
 }
 ```

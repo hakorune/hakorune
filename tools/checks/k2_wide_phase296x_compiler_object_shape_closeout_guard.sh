@@ -66,6 +66,7 @@ for script in \
     echo "[compiler-object-shape-closeout] check index missing source guard: $script" >&2
     exit 1
   }
+  bash "$script"
 done
 
 for expected in \
