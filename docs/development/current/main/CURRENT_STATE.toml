@@ -636,20 +636,23 @@ representation + publication-site vocabulary while preserving
 ROUTEPLAN-OBJECTPLAN-HANDOFF-001 fixed the backend handoff contract:
 RoutePlan proves direct call/new/drop execution, ObjectPlan proves
 representation/publication, and C-like exact-AOT lowering needs both when it
-combines direct call with representation bypass."""
+combines direct call with representation bypass.
+PUBLICATION-SITE-INVENTORY-GENERIC-001 fixed the generic
+ObjectPublicationReason vocabulary from code: eight publication reasons are
+present, Unknown remains conservative, and backend ObjectPlan consumption stays
+disabled."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-829-ROUTEPLAN-OBJECTPLAN-HANDOFF-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-830-PUBLICATION-SITE-INVENTORY-GENERIC-001.md"
 
-latest_card = "ROUTEPLAN-OBJECTPLAN-HANDOFF-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-829-ROUTEPLAN-OBJECTPLAN-HANDOFF-001.md"
-latest_card_summary = """RoutePlan/ObjectPlan handoff:
-direct call requires RoutePlan, representation/HostHandle bypass requires
-ObjectPlan, and exact-AOT C-like lowering may combine them only when both
-proofs are present."""
-current_blocker_token = "PUBLICATION-SITE-INVENTORY-GENERIC-001"
+latest_card = "PUBLICATION-SITE-INVENTORY-GENERIC-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-830-PUBLICATION-SITE-INVENTORY-GENERIC-001.md"
+latest_card_summary = """Publication-site generic inventory:
+ObjectPublicationReason has eight generic reasons, Unknown forces generic
+fallback, and standalone PublicationPlan/backend consumption remain disabled."""
+current_blocker_token = "BACKEND-PLAN-CONSUMER-GUARD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
