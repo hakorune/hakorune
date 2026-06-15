@@ -632,20 +632,24 @@ call_site_id, and newbox_origin are allowed; representation/publication/backend
 route truth stays out.
 OBJECTPLAN-PASSIVE-UNIFY-001 made `ObjectPlan` the canonical passive
 representation + publication-site vocabulary while preserving
-`LocalFirstObjectPlan` as a compatibility alias."""
+`LocalFirstObjectPlan` as a compatibility alias.
+ROUTEPLAN-OBJECTPLAN-HANDOFF-001 fixed the backend handoff contract:
+RoutePlan proves direct call/new/drop execution, ObjectPlan proves
+representation/publication, and C-like exact-AOT lowering needs both when it
+combines direct call with representation bypass."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-828-OBJECTPLAN-PASSIVE-UNIFY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-829-ROUTEPLAN-OBJECTPLAN-HANDOFF-001.md"
 
-latest_card = "OBJECTPLAN-PASSIVE-UNIFY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-828-OBJECTPLAN-PASSIVE-UNIFY-001.md"
-latest_card_summary = """ObjectPlan passive unify:
-ObjectPlan is the canonical passive representation + publication-site
-vocabulary; LocalFirstObjectPlan remains as a compatibility alias and execution
-stays disabled."""
-current_blocker_token = "ROUTEPLAN-OBJECTPLAN-HANDOFF-001"
+latest_card = "ROUTEPLAN-OBJECTPLAN-HANDOFF-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-829-ROUTEPLAN-OBJECTPLAN-HANDOFF-001.md"
+latest_card_summary = """RoutePlan/ObjectPlan handoff:
+direct call requires RoutePlan, representation/HostHandle bypass requires
+ObjectPlan, and exact-AOT C-like lowering may combine them only when both
+proofs are present."""
+current_blocker_token = "PUBLICATION-SITE-INVENTORY-GENERIC-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -188,6 +188,14 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("objectplan_is_representation_truth", "1"),
         ("objectplan_is_publication_site_truth", "1"),
         ("local_first_object_plan_compat_alias_enabled", "1"),
+        ("routeplan_objectplan_handoff_contract_defined", "1"),
+        ("routeplan_owns_execution_not_representation", "1"),
+        ("objectplan_owns_representation_not_execution", "1"),
+        ("backend_requires_routeplan_for_direct_call", "1"),
+        ("backend_requires_objectplan_for_representation_bypass", "1"),
+        ("backend_helper_symbol_inference_enabled", "0"),
+        ("backend_method_name_special_case_enabled", "0"),
+        ("backend_variable_name_special_case_enabled", "0"),
         ("object_plan_local_first_vocabulary_defined", "1"),
         ("object_plan_publication_sites_defined", "1"),
         ("standalone_publication_plan_enabled", "0"),
@@ -258,6 +266,14 @@ mod tests {
         assert!(fields.contains(&("objectplan_is_representation_truth", "1")));
         assert!(fields.contains(&("objectplan_is_publication_site_truth", "1")));
         assert!(fields.contains(&("local_first_object_plan_compat_alias_enabled", "1")));
+        assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
+        assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
+        assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
+        assert!(fields.contains(&("backend_requires_routeplan_for_direct_call", "1")));
+        assert!(fields.contains(&("backend_requires_objectplan_for_representation_bypass", "1")));
+        assert!(fields.contains(&("backend_helper_symbol_inference_enabled", "0")));
+        assert!(fields.contains(&("backend_method_name_special_case_enabled", "0")));
+        assert!(fields.contains(&("backend_variable_name_special_case_enabled", "0")));
         assert!(fields.contains(&("object_plan_local_first_vocabulary_defined", "1")));
         assert!(fields.contains(&("object_plan_publication_sites_defined", "1")));
         assert!(fields.contains(&("standalone_publication_plan_enabled", "0")));

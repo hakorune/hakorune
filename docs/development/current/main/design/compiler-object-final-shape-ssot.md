@@ -62,6 +62,11 @@ objectplan_is_representation_truth=1
 objectplan_is_publication_site_truth=1
 standalone_publication_plan_enabled=0
 backend_consumes_routeplan_and_objectplan=1
+routeplan_objectplan_handoff_contract_defined=1
+routeplan_owns_execution_not_representation=1
+objectplan_owns_representation_not_execution=1
+backend_requires_routeplan_for_direct_call=1
+backend_requires_objectplan_for_representation_bypass=1
 backend_helper_symbol_inference_enabled=0
 backend_method_name_special_case_enabled=0
 backend_variable_name_special_case_enabled=0
@@ -186,6 +191,22 @@ variable-name special casing
 benchmark-source branching
 direct lowering without RoutePlan
 direct lowering without ObjectPlan when representation matters
+```
+
+Handoff rule:
+
+```text
+RoutePlan alone:
+  may prove direct call target
+  may not prove receiver storage or publication state
+
+ObjectPlan alone:
+  may prove representation / publication state
+  may not prove callable target
+
+RoutePlan + ObjectPlan:
+  required for C-like exact-AOT lowering that combines direct call with direct
+  representation or HostHandle bypass
 ```
 
 ### Runtime
