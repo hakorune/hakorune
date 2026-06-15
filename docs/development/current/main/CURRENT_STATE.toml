@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "EXACT-OBJECT-PLAN-SHADOW-001 exact object storage plan shadow report"
+active_lane = "EXACT-OBJECT-PILOT-001 first exact object storage pilot"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -174,9 +174,11 @@ exact_native_struct_candidate_count=9, scalarized_object_candidate_count=5,
 and selected_object_boundary_owner=object_handle_boundary_inventory. The active
 row adds the ObjectStoragePlan vocabulary/guard surface before shadow planning.
 OBJECT-STORAGE-PLAN-SSOT-001 added the passive
-`src/object_storage_plan.rs` vocabulary with execution disabled and shadow
-planning ready. The active row generates exact-object shadow candidates without
-changing execution.
+`src/object_storage_plan.rs` vocabulary with execution disabled.  The shadow row
+selected `HakoAllocObjectLifecycleAlignmentResult` as the first medium
+confidence primitive-only exact-object pilot candidate.  The active row may
+implement one guarded pilot without changing product defaults or moving object
+management into MIRBuilder.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -188,13 +190,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-712-EXACT-OBJECT-PLAN-SHADOW-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-713-EXACT-OBJECT-PILOT-001.md"
 
-latest_card = "EXACT-OBJECT-PLAN-SHADOW-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-712-EXACT-OBJECT-PLAN-SHADOW-001.md"
-latest_card_summary = """EXACT-OBJECT-PLAN-SHADOW-001 generates exact-object
-storage plan candidates as a report-only shadow before any pilot lowering."""
-current_blocker_token = "EXACT-OBJECT-PLAN-SHADOW-001-ACTIVE"
+latest_card = "EXACT-OBJECT-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-713-EXACT-OBJECT-PILOT-001.md"
+latest_card_summary = """EXACT-OBJECT-PILOT-001 implements at most one guarded
+exact-object pilot for HakoAllocObjectLifecycleAlignmentResult, consuming
+RoutePlan/ObjectStoragePlan evidence rather than MIRBuilder object management."""
+current_blocker_token = "EXACT-OBJECT-PILOT-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
