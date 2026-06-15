@@ -1,5 +1,5 @@
 ---
-Status: Planned
+Status: Landed
 Date: 2026-06-15
 Task: OBJECT-BOUNDARY-INVENTORY-001
 Scope: Inventory Arc / HostHandle / runtime helper / Box method / dynamic route
@@ -54,6 +54,62 @@ compiler_lowering_changed=0
 runtime_object_changed=0
 summary=ok
 ```
+
+## Result
+
+```text
+output_contract=hako-object-boundary-inventory-v0
+source_evidence=296x-709
+target_front=object_lifecycle_body
+perf_top_symbol=nyash_array_length_h
+perf_top_symbol_percent=69.72
+body_elapsed_ns=53000000
+mirbuilder_object_management_enabled=0
+box_callable_registry_is_callable_truth=1
+routeplan_is_call_execution_truth=1
+object_storage_plan_is_representation_truth=1
+arc_dynbox_boundary_count=2
+host_handle_boundary_count=3
+runtime_helper_boundary_count=1
+dynamic_box_method_route_count=1
+box_callable_routeplan_dynamic_count=1
+closed_world_direct_method_candidate_count=31
+exact_stack_object_candidate_count=5
+exact_native_struct_candidate_count=9
+scalarized_object_candidate_count=5
+object_escape_count=4
+plugin_or_extern_escape_count=0
+array_or_map_escape_count=1
+return_escape_count=0
+selected_object_boundary_owner=object_handle_boundary_inventory
+selected_owner_confidence=medium
+implementation_started=0
+product_default_changed=0
+source_hako_changed=0
+compiler_lowering_changed=0
+runtime_object_changed=0
+summary=ok
+```
+
+Evidence:
+
+```text
+tool=tools/allocator/hako_object_boundary_inventory.py
+report=/tmp/hakorune_710_object_boundary_inventory.report
+source_perf_report=/tmp/hakorune_709_post_array_len_owner.1781488363.report
+source_mir_json=/tmp/hakorune_709_post_array_len_owner.1781488363.report.artifacts.d/app.mir.json
+```
+
+Decision:
+
+```text
+next_task=OBJECT-STORAGE-PLAN-SSOT-001
+implementation_allowed=0
+```
+
+The inventory finds enough closed-world and exact-object candidates to justify a
+plan vocabulary row, but it does not authorize backend/object representation
+changes yet.
 
 ## Stop Line
 
