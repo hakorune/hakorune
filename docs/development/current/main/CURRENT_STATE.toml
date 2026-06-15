@@ -625,20 +625,24 @@ SemanticRefresh=facts, RoutePlan=execution, ObjectPlan=representation/publicatio
 Backend=plan consumer, Runtime=generic fallback.
 MIRBUILDER-OBJECT-BOUNDARY-GUARD-001 fixed a lightweight guard over
 src/mir/builder so ObjectPlan/ObjectStoragePlan/publication/HostHandle bypass/
-Arc retirement truth cannot enter MIRBuilder silently."""
+Arc retirement truth cannot enter MIRBuilder silently.
+SELFHOST-MIR-OBJECT-METADATA-001 fixed the matching .hako MIRBuilder metadata
+contract: source_span, receiver_origin, known_type_hint, field_key,
+call_site_id, and newbox_origin are allowed; representation/publication/backend
+route truth stays out."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-826-MIRBUILDER-OBJECT-BOUNDARY-GUARD-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-827-SELFHOST-MIR-OBJECT-METADATA-001.md"
 
-latest_card = "MIRBUILDER-OBJECT-BOUNDARY-GUARD-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-826-MIRBUILDER-OBJECT-BOUNDARY-GUARD-001.md"
-latest_card_summary = """MIRBuilder object boundary guard:
-src/mir/builder has zero references to ObjectStoragePlan, LocalFirstObjectPlan,
-ObjectPublication, HostHandle bypass, Arc retirement, or name-based direct
-lowering truth."""
-current_blocker_token = "SELFHOST-MIR-OBJECT-METADATA-001"
+latest_card = "SELFHOST-MIR-OBJECT-METADATA-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-827-SELFHOST-MIR-OBJECT-METADATA-001.md"
+latest_card_summary = """Selfhost MIR object metadata:
+.hako MIRBuilder may emit only source_span, receiver_origin, known_type_hint,
+field_key, call_site_id, and newbox_origin; representation, publication, and
+backend route truth remain disabled."""
+current_blocker_token = "OBJECTPLAN-PASSIVE-UNIFY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -139,6 +139,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     SemanticRefresh as fact owner, RoutePlan as execution truth, ObjectPlan as
     representation/publication truth, backend as plan consumer, and runtime as
     generic fallback world
+- `design/selfhost-mir-object-metadata-ssot.md`
+  - selfhost `.hako` MIRBuilder object metadata boundary; allows only
+    source_span / receiver_origin / known_type_hint / field_key / call_site_id /
+    newbox_origin and keeps representation/publication/backend route truth out
+    of selfhost MIRBuilder
 - `design/record-box-two-surface-one-substrate-ssot.md`
   - user-facing `record` / `box` boundary owner; keeps `record` as
     identity-free value aggregate, `box` as identity/behavior/lifecycle

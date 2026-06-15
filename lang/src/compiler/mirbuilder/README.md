@@ -7,6 +7,8 @@ Pointers:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - migration order SSOT:
   - `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
+- object metadata boundary:
+  - `docs/development/current/main/design/selfhost-mir-object-metadata-ssot.md`
 
 Responsibility (Phase-0):
 - Convert **Stage-B Program(JSON v0)** → **MIR JSON v0**.
@@ -15,6 +17,9 @@ Responsibility (Phase-0):
 Non-goals (Phase-0):
 - SSA / AST rewrite / optimization. Do not add “workaround rewrites”.
 - Silent fallback. Fail-fast with a stable tag.
+- Object representation / publication / backend route truth. This layer may
+  emit object meaning metadata only; representation and publication belong to
+  later facts/plans.
 
 Fail-fast tag (SSOT):
 - All failures in this directory must start with: `[freeze:contract][hako_mirbuilder]`
