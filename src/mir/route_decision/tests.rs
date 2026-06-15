@@ -7,8 +7,8 @@ use crate::mir::function::{
 };
 use crate::mir::generic_method_route_plan::refresh_function_generic_method_routes;
 use crate::mir::{
-    BasicBlock, Callee, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
-    MirType, ValueId,
+    BasicBlock, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
+    MirModule, MirType, ValueId,
 };
 
 fn method_call(
@@ -204,6 +204,54 @@ fn route_decision_reports_map_lookup_selected_route() {
     assert_eq!(has_decision.source_plan_kind, "MapLookupFusionRoute");
     assert_eq!(has_decision.selected_i64_const, None);
     assert_eq!(has_decision.selected_bool_const, Some(true));
+}
+
+#[test]
+fn route_decision_reports_map_missing_empty_selected_route() {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let mut block = BasicBlock::new(BasicBlockId::new(0));
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "MapBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(0),
+    });
+    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "get", 1, vec![2]));
+    function.add_block(block);
+
+    refresh_function_generic_method_routes(&mut function);
+    refresh_function_route_decisions(&mut function);
+
+    assert_eq!(function.metadata.route_decisions.len(), 1);
+    let decision = &function.metadata.route_decisions[0];
+    assert_eq!(decision.site_id, "b0.i2");
+    assert_eq!(decision.semantic_op, "MapGet");
+    assert_eq!(decision.access_kind, "map_missing_empty_get");
+    assert_eq!(decision.preferred_route, "map_get_missing_empty_const_zero");
+    assert_eq!(decision.selected_route, "map_get_missing_empty_const_zero");
+    assert_eq!(decision.fallback_route, "generic_map_runtime_data_load_any");
+    assert_eq!(decision.fallback_policy, "opportunistic");
+    assert_eq!(decision.miss_reason, None);
+    assert_eq!(decision.source_plan_kind, "MapMissingEmptyRoute");
+    assert_eq!(decision.selected_i64_const, Some(0));
+    assert_eq!(decision.selected_bool_const, None);
+    assert_eq!(decision.receiver_box_name.as_deref(), Some("MapBox"));
+    assert!(decision.proof_ids.contains(&"receiver_birth_is_new_mapbox"));
+    assert!(decision.proof_ids.contains(&"i64_const_key"));
+    assert!(decision
+        .proof_ids
+        .contains(&"runtime_data_facade_missing_shape"));
 }
 
 #[test]

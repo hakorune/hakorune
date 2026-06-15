@@ -685,20 +685,31 @@ selected RouteDecision/LoweringPlan, not helper or literal-key inference.
 MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001 fixed the post target for a
 narrow implementation row: one MapMissingEmptyRoute for MapGet bb19.i3, all
 birth/publication/escape/mutation proof fields present, backend consumption via
-RouteDecision, and no MapBox storage/semantics/product-default changes."""
+RouteDecision, and no MapBox storage/semantics/product-default changes.
+MIMALLOC-MAP-MISSING-EMPTY-ROUTE-IMPLEMENTATION-001 added the narrow
+MapMissingEmptyRoute -> RouteDecision -> backend selected-route consumer:
+selected_route=map_get_missing_empty_const_zero, source_plan_kind=MapMissingEmptyRoute,
+selected_i64_const=0, and target MIR JSON now reports one route at b19.i3
+without MapBox storage/semantics/product-default changes. The active row
+measured the route in the product AOT path. MIMALLOC-MAP-MISSING-EMPTY-ROUTE-MEASUREMENT-001
+reduced ny_aot_instr from 896474449 to 472935, removed the target
+nyash.runtime_data.get_hh call from ny_main, and produced route_winner_claim=1
+with product_default_changed=0. The active row closes the front before any new
+owner selection."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-840-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-842-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-MEASUREMENT-001.md"
 
-latest_card = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-840-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001.md"
-latest_card_summary = """Map missing-empty route guard surface:
-fixed the post target for one proof-bearing get-only missing-empty route at
-MapGet bb19.i3, with no helper-name, literal-key, benchmark-name, or MapBox
-storage/semantics changes."""
-current_blocker_token = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-IMPLEMENTATION-001"
+latest_card = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-MEASUREMENT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-842-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-MEASUREMENT-001.md"
+latest_card_summary = """Map missing-empty route measurement:
+the selected MapMissingEmptyRoute now reaches the product AOT boundary emitter.
+ny_aot_instr dropped from 896474449 to 472935, ny_main no longer calls
+nyash.runtime_data.get_hh for the target site, and route_winner_claim=1 with
+product_default_changed=0."""
+current_blocker_token = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

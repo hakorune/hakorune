@@ -147,6 +147,21 @@ def _seed_map_lookup_route_decision(
     ]
 
 
+def _seed_map_missing_empty_route_decision(resolver, *, selected_i64_const=0):
+    resolver.route_decisions_by_site[
+        (resolver.current_block_id, resolver.current_instruction_index)
+    ] = [
+        {
+            "selected_route": "map_get_missing_empty_const_zero",
+            "fallback_policy": "opportunistic",
+            "source_plan_kind": "MapMissingEmptyRoute",
+            "semantic_op": "MapGet",
+            "selected_i64_const": selected_i64_const,
+            "selected_bool_const": None,
+        }
+    ]
+
+
 def _seed_non_map_route_decision(resolver, *, selected_route="map_lookup_const_fold"):
     resolver.route_decisions_by_site[
         (resolver.current_block_id, resolver.current_instruction_index)
@@ -637,6 +652,78 @@ class TestCollectionMethodCall(unittest.TestCase):
         ir_text = str(module)
         self.assertIn("ret i64 7", ir_text)
         self.assertNotIn("nyash.map.slot_load_hh", ir_text)
+
+    def test_mapbox_missing_empty_route_decision_folds_to_zero(self):
+        i64, module, builder = _new_builder_named("MapMissing.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_map_missing_empty_route_decision(resolver, selected_i64_const=0)
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("ret i64 0", ir_text)
+        self.assertNotIn("nyash.map.slot_load_hh", ir_text)
+
+    def test_runtime_data_map_missing_empty_route_decision_folds_before_dispatch(self):
+        i64, module, builder = _new_builder_named("MapMissing.runtimeDataGet/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_map_missing_empty_route_decision(resolver, selected_i64_const=0)
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="RuntimeDataBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("ret i64 0", ir_text)
+        self.assertNotIn("nyash.runtime_data.get_hh", ir_text)
+        self.assertNotIn("nyash.map.slot_load_hh", ir_text)
+
+    def test_mapbox_missing_empty_ignores_non_map_source_plan_kind(self):
+        i64, module, builder = _new_builder_named("MapMissing.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_non_map_route_decision(
+            resolver, selected_route="map_get_missing_empty_const_zero"
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("ret i64 0", ir_text)
 
     def test_mapbox_same_key_fusion_get_without_route_decision_keeps_helper_path(self):
         i64, module, builder = _new_builder_named("MapFusion.get/0")

@@ -23,6 +23,7 @@ DIRECT_ARRAY_DATA_OFFSET_BYTES = 32
 DIRECT_ARRAY_ELEMENT_BYTES = 8
 
 BOX_MAP = "MapBox"
+BOX_RUNTIME_DATA = "RuntimeDataBox"
 MAP_METHOD_CLEAR = "clear"
 MAP_METHOD_DELETE = "delete"
 MAP_METHOD_GET = "get"
@@ -31,6 +32,8 @@ MAP_METHOD_PUSH = "push"
 MAP_METHOD_SET = "set"
 MAP_LOOKUP_CONST_FOLD_ROUTE = "map_lookup_const_fold"
 MAP_LOOKUP_FUSION_SOURCE_PLAN = "MapLookupFusionRoute"
+MAP_MISSING_EMPTY_CONST_ZERO_ROUTE = "map_get_missing_empty_const_zero"
+MAP_MISSING_EMPTY_SOURCE_PLAN = "MapMissingEmptyRoute"
 MAP_LOOKUP_GET_SEMANTIC_OP = "MapGet"
 MAP_LOOKUP_HAS_SEMANTIC_OP = "MapHas"
 
@@ -110,7 +113,7 @@ def _current_map_lookup_fusion_decision(
     receiver_vid,
     arg_ids: List[int],
 ):
-    if str(box_name or "") != BOX_MAP:
+    if str(box_name or "") not in (BOX_MAP, BOX_RUNTIME_DATA):
         return None
     if resolver is None or receiver_vid is None or not arg_ids:
         return None
@@ -125,11 +128,11 @@ def _current_map_lookup_fusion_decision(
     if expected_semantic_op is None:
         return None
 
-    decision = _selected_map_lookup_fusion_decision(
+    decision = _selected_map_lookup_decision(
         resolver=resolver,
         block_id=block_id,
         instruction_index=instruction_index,
-        expected_route=MAP_LOOKUP_CONST_FOLD_ROUTE,
+        expected_routes=_map_lookup_expected_routes(expected_semantic_op),
         expected_semantic_op=expected_semantic_op,
     )
     if not isinstance(decision, dict):
@@ -149,6 +152,52 @@ def _map_lookup_semantic_op(method_name: str) -> Optional[str]:
     return None
 
 
+def _map_lookup_expected_routes(semantic_op: str):
+    if semantic_op == MAP_LOOKUP_GET_SEMANTIC_OP:
+        return (MAP_LOOKUP_CONST_FOLD_ROUTE, MAP_MISSING_EMPTY_CONST_ZERO_ROUTE)
+    if semantic_op == MAP_LOOKUP_HAS_SEMANTIC_OP:
+        return (MAP_LOOKUP_CONST_FOLD_ROUTE,)
+    return ()
+
+
+def _selected_map_lookup_decision(
+    *,
+    resolver,
+    block_id: int,
+    instruction_index: int,
+    expected_routes,
+    expected_semantic_op: str,
+):
+    decisions_by_site = getattr(resolver, "route_decisions_by_site", None)
+    if not isinstance(decisions_by_site, dict):
+        return None
+    expected_routes = set(expected_routes or ())
+    if not expected_routes:
+        return None
+    for decision in decisions_by_site.get((block_id, instruction_index), []):
+        if not isinstance(decision, dict):
+            continue
+        selected_route = decision.get("selected_route")
+        if selected_route not in expected_routes:
+            continue
+        if decision.get("semantic_op") != expected_semantic_op:
+            continue
+        source_plan_kind = decision.get("source_plan_kind")
+        if selected_route == MAP_LOOKUP_CONST_FOLD_ROUTE:
+            if source_plan_kind != MAP_LOOKUP_FUSION_SOURCE_PLAN:
+                continue
+        elif selected_route == MAP_MISSING_EMPTY_CONST_ZERO_ROUTE:
+            if (
+                source_plan_kind != MAP_MISSING_EMPTY_SOURCE_PLAN
+                or expected_semantic_op != MAP_LOOKUP_GET_SEMANTIC_OP
+            ):
+                continue
+        else:
+            continue
+        return decision
+    return None
+
+
 def _as_optional_int(value) -> Optional[int]:
     if value is None:
         return None
@@ -156,6 +205,35 @@ def _as_optional_int(value) -> Optional[int]:
         return int(value)
     except _SAFE_COLLECTION_METHOD_EXC:
         return None
+
+
+def _lower_map_route_decision_constant(
+    *,
+    resolver,
+    box_name,
+    method_name: str,
+    receiver_vid,
+    arg_ids: List[int],
+):
+    i64 = ir.IntType(64)
+    decision = _current_map_lookup_fusion_decision(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+    )
+    if decision is None:
+        return None
+    if method_name == MAP_METHOD_GET:
+        selected_i64_const = decision.get("selected_i64_const")
+        if selected_i64_const is not None:
+            return ir.Constant(i64, int(selected_i64_const))
+    if method_name == MAP_METHOD_HAS:
+        selected_bool_const = decision.get("selected_bool_const")
+        if selected_bool_const is not None:
+            return ir.Constant(i64, 1 if bool(selected_bool_const) else 0)
+    return None
 
 
 def _lower_map_clear_collection_method_call(
@@ -203,17 +281,15 @@ def _lower_map_get_collection_method_call(
 ):
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
-    decision = _current_map_lookup_fusion_decision(
+    route_decision_constant = _lower_map_route_decision_constant(
         resolver=resolver,
         box_name=box_name,
         method_name=method_name,
         receiver_vid=receiver_vid,
         arg_ids=arg_ids,
     )
-    if decision is not None:
-        selected_i64_const = decision.get("selected_i64_const")
-        if selected_i64_const is not None:
-            return ir.Constant(i64, int(selected_i64_const))
+    if route_decision_constant is not None:
+        return route_decision_constant
     key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
     if not arg_ids:
         return zero
@@ -235,17 +311,15 @@ def _lower_map_has_collection_method_call(
 ):
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
-    decision = _current_map_lookup_fusion_decision(
+    route_decision_constant = _lower_map_route_decision_constant(
         resolver=resolver,
         box_name=box_name,
         method_name=method_name,
         receiver_vid=receiver_vid,
         arg_ids=arg_ids,
     )
-    if decision is not None:
-        selected_bool_const = decision.get("selected_bool_const")
-        if selected_bool_const is not None:
-            return ir.Constant(i64, 1 if bool(selected_bool_const) else 0)
+    if route_decision_constant is not None:
+        return route_decision_constant
     key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
     if not arg_ids:
         return zero
@@ -409,6 +483,16 @@ def lower_collection_method_call(
     dst_vid=None,
     prefer_array_mono_route=None,
 ):
+    route_decision_constant = _lower_map_route_decision_constant(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+    )
+    if route_decision_constant is not None:
+        return route_decision_constant
+
     runtime_result = lower_runtime_data_method_call(
         builder=builder,
         declare=declare,

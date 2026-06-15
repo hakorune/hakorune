@@ -347,6 +347,68 @@
         return 0;
       }
 
+      auto int match_map_missing_empty_route_decision(
+          long long bid,
+          size_t ii,
+          const char* bname,
+          long long selected_const) {
+        yyjson_val* decisions = NULL;
+        size_t ri = 0;
+        if (!fn_metadata) return 0;
+        decisions = yyjson_obj_get(fn_metadata, "route_decisions");
+        if (!(decisions && yyjson_is_arr(decisions))) {
+          return 0;
+        }
+        for (ri = 0; ri < yyjson_arr_size(decisions); ri++) {
+          yyjson_val* decision = yyjson_arr_get(decisions, ri);
+          const char* route_id = decision ? read_str(decision, "route_id") : NULL;
+          const char* semantic_op = decision ? read_str(decision, "semantic_op") : NULL;
+          const char* access_kind = decision ? read_str(decision, "access_kind") : NULL;
+          const char* selected_route = decision ? read_str(decision, "selected_route") : NULL;
+          const char* fallback_route = decision ? read_str(decision, "fallback_route") : NULL;
+          const char* source_plan_kind =
+              decision ? read_str(decision, "source_plan_kind") : NULL;
+          const char* receiver_box_name =
+              decision ? read_str(decision, "receiver_box_name") : NULL;
+          long long block = 0;
+          long long inst = 0;
+          long long value = 0;
+          if (!hako_llvmc_json_read_i64_field(decision, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(
+                  decision,
+                  "instruction_index",
+                  &inst) ||
+              block != bid ||
+              (size_t)inst != ii) {
+            continue;
+          }
+          if (route_id &&
+              !strcmp(route_id, "route.decision") &&
+              semantic_op &&
+              !strcmp(semantic_op, "MapGet") &&
+              access_kind &&
+              !strcmp(access_kind, "map_missing_empty_get") &&
+              selected_route &&
+              !strcmp(selected_route, "map_get_missing_empty_const_zero") &&
+              fallback_route &&
+              !strcmp(fallback_route, "generic_map_runtime_data_load_any") &&
+              source_plan_kind &&
+              !strcmp(source_plan_kind, "MapMissingEmptyRoute") &&
+              receiver_box_name &&
+              bname &&
+              !strcmp(receiver_box_name, "MapBox") &&
+              hako_llvmc_json_read_i64_field(
+                  decision,
+                  "selected_i64_const",
+                  &value) &&
+              value == selected_const) {
+            return 1;
+          }
+          return 0;
+        }
+        return 0;
+      }
+
       auto enum GenericMethodGetRouteKind classify_generic_method_get_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
@@ -370,7 +432,31 @@
         struct GenericMethodGetRouteMetadata metadata;
         struct MapLookupFusionRouteMetadata fusion;
         int metadata_result = 0;
-        int fusion_result = match_map_lookup_fusion_route_metadata(
+        int fusion_result = 0;
+        if (match_map_missing_empty_route_decision(bid, ii, bname, 0)) {
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[160];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "bid=%lld ii=%zu recv=%lld key=%lld selected_i64_const=0",
+                bid,
+                ii,
+                recv,
+                a0);
+            hako_llvmc_emit_route_trace(
+                "map_missing_empty_route",
+                "hit",
+                "route_decision",
+                extra);
+          }
+          if (dst) {
+            fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+            set_type(dst, T_I64);
+          }
+          return 1;
+        }
+        fusion_result = match_map_lookup_fusion_route_metadata(
             bid,
             ii,
             HAKO_LLVMC_MAP_LOOKUP_FUSION_ROLE_GET,

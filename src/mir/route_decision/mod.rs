@@ -15,6 +15,9 @@ pub use typed_object::refresh_module_typed_object_exact_slot_route_decisions;
 use crate::mir::direct_array_access_plan::{DirectArrayAccessOp, DirectArrayAccessPlan};
 use crate::mir::direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan;
 use crate::mir::map_lookup_fusion_plan::MapLookupFusionRoute;
+use crate::mir::map_missing_empty_route_plan::{
+    collect_function_map_missing_empty_routes, MapMissingEmptyRoute,
+};
 use crate::mir::{BasicBlockId, MirFunction};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -176,6 +179,31 @@ impl RouteDecision {
             field_id: None,
         }
     }
+
+    fn from_map_missing_empty_route(plan: &MapMissingEmptyRoute) -> Self {
+        Self {
+            site_id: format!("b{}.i{}", plan.block().as_u32(), plan.instruction_index()),
+            block: plan.block(),
+            instruction_index: plan.instruction_index(),
+            semantic_op: "MapGet",
+            access_kind: "map_missing_empty_get",
+            preferred_route: "map_get_missing_empty_const_zero",
+            selected_route: "map_get_missing_empty_const_zero",
+            fallback_route: "generic_map_runtime_data_load_any",
+            fallback_policy: "opportunistic",
+            proof_ids: plan.proof_ids().to_vec(),
+            miss_reason: None,
+            source_plan_kind: "MapMissingEmptyRoute",
+            selected_i64_const: Some(0),
+            selected_bool_const: None,
+            selected_lowering_form: None,
+            selected_bridge_symbol: None,
+            selected_slot: None,
+            selected_storage: None,
+            receiver_box_name: Some("MapBox".to_string()),
+            field_id: None,
+        }
+    }
 }
 
 pub fn refresh_function_route_decisions(function: &mut MirFunction) {
@@ -213,6 +241,12 @@ pub fn refresh_function_route_decisions(function: &mut MirFunction) {
             ]
         });
     decisions.extend(map_lookup_decisions);
+    let map_missing_empty_routes = collect_function_map_missing_empty_routes(function);
+    decisions.extend(
+        map_missing_empty_routes
+            .iter()
+            .map(RouteDecision::from_map_missing_empty_route),
+    );
     decisions.sort_by_key(|decision| {
         (
             decision.block.as_u32(),
