@@ -25,6 +25,21 @@ pilot_candidate=HakoAllocObjectLifecycleAlignmentResult
 selected_pilot_confidence=medium
 ```
 
+## Preflight Note
+
+The candidate object is primitive-only, but the object-lifecycle facade stores it
+through the `HakoAllocObjectLifecycleFacade.alignment_result` handle field. The
+pilot must therefore prove the publication boundary before enabling lowering.
+
+```text
+observed_publication_boundary=Facade.alignment_result handle field
+do_not_assume_stack_object_from_primitive_fields_only=1
+```
+
+If this boundary cannot be removed through a closed-world ObjectStoragePlan, the
+row should close as `summary=blocked` and select a narrower nested-object storage
+planning row instead of adding backend special cases.
+
 ## Required Output
 
 ```text
