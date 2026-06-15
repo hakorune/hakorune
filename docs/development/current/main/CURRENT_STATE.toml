@@ -671,20 +671,25 @@ Arc<RwLock<HashMap<...>>>, the Hako path converts i64 key zero through
 to_string_box, the C pair is not a cost-equivalent HashMap/RwLock/string
 implementation, and the existing MapLookupFusionRoute scope is same-key
 MapGet/MapHas rather than get-only missing-key. The active row probes whether a
-missing-empty-map route can be proven before any MapBox or backend patch."""
+missing-empty-map route can be proven before any MapBox or backend patch.
+MIMALLOC-MAP-MISSING-EMPTY-ROUTE-TRIGGER-PROBE-001 found generic_method_routes=1
+for MapGet, map_lookup_fusion_routes=0, route_decisions=0, and
+map_repr_plans=1 generic_hash_runtime. The selected front has no MapHas pair and
+no backend-active missing route, so the next row designs the proof fields for a
+get-only missing-empty-map route."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-837-MIMALLOC-MAP-MISSING-KEY-OWNER-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-838-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-TRIGGER-PROBE-001.md"
 
-latest_card = "MIMALLOC-MAP-MISSING-KEY-OWNER-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-837-MIMALLOC-MAP-MISSING-KEY-OWNER-INVENTORY-001.md"
-latest_card_summary = """Map missing-key owner inventory:
-the selected front is a runtime-boundary diagnostic with String-key MapBox
-lookup and i64-to-string conversion; existing MapLookupFusionRoute covers
-same-key MapGet/MapHas pairs, not this get-only missing-key front."""
-current_blocker_token = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-TRIGGER-PROBE-001"
+latest_card = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-TRIGGER-PROBE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-838-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-TRIGGER-PROBE-001.md"
+latest_card_summary = """Map missing-empty route trigger probe:
+direct MIR metadata shows one RuntimeDataBox MapGet route, zero
+map_lookup_fusion_routes, zero route_decisions, and one generic_hash_runtime
+MapReprPlan; a get-only missing-empty route needs a new proof design."""
+current_blocker_token = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
