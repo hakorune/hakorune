@@ -117,11 +117,18 @@ pub enum ObjectStoragePlan {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LocalFirstObjectPlan {
+pub struct ObjectPlan {
     pub value_id: ObjectValueId,
     pub storage: ObjectStoragePlan,
     pub publication_sites: Vec<ObjectPublicationSite>,
 }
+
+/// Compatibility alias for older local-first rows.
+///
+/// The canonical vocabulary is `ObjectPlan`: representation and publication
+/// sites are one passive planning artifact.  Older phase cards still mention
+/// `LocalFirstObjectPlan`, so keep the alias until those rows are retired.
+pub type LocalFirstObjectPlan = ObjectPlan;
 
 impl ObjectStoragePlan {
     #[inline]
@@ -144,7 +151,7 @@ impl ObjectStoragePlan {
     }
 }
 
-impl LocalFirstObjectPlan {
+impl ObjectPlan {
     pub fn new(
         value_id: ObjectValueId,
         storage: ObjectStoragePlan,
@@ -177,6 +184,10 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("routeplan_is_call_execution_truth", "1"),
         ("object_storage_plan_is_representation_truth", "1"),
         ("object_storage_plan_vocabulary_defined", "1"),
+        ("objectplan_canonical_vocabulary_defined", "1"),
+        ("objectplan_is_representation_truth", "1"),
+        ("objectplan_is_publication_site_truth", "1"),
+        ("local_first_object_plan_compat_alias_enabled", "1"),
         ("object_plan_local_first_vocabulary_defined", "1"),
         ("object_plan_publication_sites_defined", "1"),
         ("standalone_publication_plan_enabled", "0"),
@@ -243,6 +254,10 @@ mod tests {
         assert!(fields.contains(&("mirbuilder_object_management_enabled", "0")));
         assert!(fields.contains(&("object_storage_plan_is_representation_truth", "1")));
         assert!(fields.contains(&("object_storage_plan_vocabulary_defined", "1")));
+        assert!(fields.contains(&("objectplan_canonical_vocabulary_defined", "1")));
+        assert!(fields.contains(&("objectplan_is_representation_truth", "1")));
+        assert!(fields.contains(&("objectplan_is_publication_site_truth", "1")));
+        assert!(fields.contains(&("local_first_object_plan_compat_alias_enabled", "1")));
         assert!(fields.contains(&("object_plan_local_first_vocabulary_defined", "1")));
         assert!(fields.contains(&("object_plan_publication_sites_defined", "1")));
         assert!(fields.contains(&("standalone_publication_plan_enabled", "0")));
@@ -254,7 +269,7 @@ mod tests {
 
     #[test]
     fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
-        let unpublished = LocalFirstObjectPlan::new(
+        let unpublished = ObjectPlan::new(
             ObjectValueId(1),
             ObjectStoragePlan::ExactNativeStruct {
                 layout_id: LayoutId(7),

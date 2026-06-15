@@ -56,6 +56,11 @@ ObjectStoragePlan:
   decides generic Box / HostHandle / ArcDynBox / exact stack object /
   exact native struct / scalarized fields
 
+ObjectPlan:
+  passive owner that pairs ObjectStoragePlan with publication sites
+  canonical name for representation + publication-site truth
+  LocalFirstObjectPlan is a compatibility alias for older local-first rows
+
 Backend / exact-AOT lowering:
   emits direct calls, direct fields, native structs, stack objects, or runtime
   calls by consuming RoutePlan and ObjectStoragePlan
@@ -102,6 +107,10 @@ ObjectStoragePlan:
   owns representation route
   decides GenericBox / HostHandleEscaped / ArcDynBox / ExactNativeStruct /
   ExactStackObject / Scalarized / FlattenedNestedFields
+
+ObjectPlan:
+  owns the passive combination of representation route and publication sites
+  does not execute, mutate MIR, or replace RoutePlan
 
 exact-AOT backend:
   consumes RoutePlan + ObjectStoragePlan

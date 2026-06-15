@@ -69,7 +69,6 @@ done
 for token in \
   "pub enum ObjectPublicationReason" \
   "pub struct ObjectPublicationSite" \
-  "pub struct LocalFirstObjectPlan" \
   "pub fn is_unpublished_local" \
   "pub fn requires_publication" \
   "(\"object_plan_execution_enabled\", \"0\")" \
@@ -79,6 +78,12 @@ for token in \
     exit 1
   }
 done
+
+if ! grep -F -q "pub struct LocalFirstObjectPlan" "$SRC" \
+  && ! grep -F -q "pub type LocalFirstObjectPlan = ObjectPlan" "$SRC"; then
+  echo "[object-plan-local-first] missing LocalFirstObjectPlan struct or compat alias" >&2
+  exit 1
+fi
 
 for expected in \
   "do not add standalone PublicationPlan from this row" \
