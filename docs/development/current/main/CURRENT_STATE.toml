@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001 mimalloc runtime boundary inventory"
+active_lane = "MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001 mimalloc runtime boundary direct probe"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -152,7 +152,10 @@ implementation. MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001 found visible
 BoxCallable/RoutePlan, Arc/ObjectHandle, host handle, runtime helper, and
 generated-runtime seams, but selected_owner=none with selected_owner_confidence=low
 because measurement_boundary_confidence=low. Closed-world route specialization
-therefore remains gated.
+therefore remains gated. MIMALLOC-BODY-TIMER-ALIGNMENT-PROBE-001 scaled the
+in-process repeat to 65536 and reduced Hako timer resolution to 1.887% of the
+measured body window; scaled_body_elapsed_ratio=2.039, so the active row designs
+a direct runtime boundary probe.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -164,14 +167,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-703-MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-705-MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001.md"
 
-latest_card = "MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-703-MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001.md"
-latest_card_summary = """MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001
-inventories runtime/object/generated-runtime boundaries and keeps
-implementation closed because no high-confidence single owner was selected."""
-current_blocker_token = "MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-001-LANDED"
+latest_card = "MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-705-MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001.md"
+latest_card_summary = """MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001
+designs a direct runtime boundary probe after timer scaling showed the body gap
+is not only Hako timer granularity."""
+current_blocker_token = "MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
