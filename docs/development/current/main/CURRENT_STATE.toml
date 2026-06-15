@@ -585,19 +585,26 @@ array_length_direct_candidate_count=0 and local_direct_array_len_pilot_open=0.
 LOCAL-DIRECT-ARRAY-LEN-PILOT-001 preflight therefore did not implement the pilot:
 the target facade body has no pre-publication Array.length candidate. The lane
 is now at a design consultation point: retarget to the actual page local
-candidate, find a new Array.length front, or pause local-first implementation."""
+candidate, find a new Array.length front, or pause local-first implementation.
+LOCAL-FIRST-DIRECT-PILOT-SELECTION-001 resolved that consultation: the current
+front Array.length pilot is closed, and the next pilot is
+local_known_receiver_direct_call with first target page.acquire_usize/reuse.
+The selected scope is direct_call_only; page-specific branches, method-name
+special cases, storage direct, HostHandle bypass, Arc retirement, and product
+runtime changes remain closed."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-815-LOCAL-DIRECT-ARRAY-LEN-PILOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-816-LOCAL-FIRST-DIRECT-PILOT-SELECTION-001.md"
 
-latest_card = "LOCAL-DIRECT-ARRAY-LEN-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-815-LOCAL-DIRECT-ARRAY-LEN-PILOT-001.md"
-latest_card_summary = """Preflight LOCAL-DIRECT-ARRAY-LEN-PILOT and stop:
-array_length_direct_candidate_count=0 in the target facade body, so
-implementation_allowed=0 and design consultation is required."""
-current_blocker_token = "LOCAL-FIRST-DIRECT-PILOT-DESIGN-CONSULTATION-001"
+latest_card = "LOCAL-FIRST-DIRECT-PILOT-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-816-LOCAL-FIRST-DIRECT-PILOT-SELECTION-001.md"
+latest_card_summary = """Close Array.length pilot for the current front and
+select local_known_receiver_direct_call as the next pilot: first target page
+acquire_usize/reuse, direct-call only, no storage direct, no HostHandle bypass,
+and no product default runtime change."""
+current_blocker_token = "LOCAL-PAGE-RECEIVER-CANDIDATE-PROBE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
