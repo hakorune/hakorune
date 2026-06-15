@@ -404,6 +404,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_object_storage_plan_ssot_guard.sh` | 296x-711 の ObjectStoragePlan SSOT guard。code-facing vocabulary を追加しつつ execution/lowering 接続を閉じ、exact-object shadow row へ渡す。 |
 | `tools/checks/k2_wide_phase296x_exact_object_plan_shadow_guard.sh` | 296x-712 の exact-object plan shadow guard。ObjectStoragePlan 語彙で primitive-only pilot 候補を report-only 固定し、single-object pilot row へ渡す。 |
 | `tools/checks/k2_wide_phase296x_exact_object_pilot_guard.sh` | 296x-713 の exact-object pilot preflight guard。選択候補が facade handle field として公開されていることを固定し、nested publication plan row へ渡す。 |
+| `tools/checks/k2_wide_phase296x_exact_object_nested_publication_plan_guard.sh` | 296x-714 の nested exact-object publication plan guard。`Facade.alignment_result` が handle escape せず flatten_nested_fields で扱えることを固定し、pilot retry row へ渡す。 |
 | `tools/checks/k2_wide_phase296x_receiver_materialization_attribution_probe_guard.sh` | 296x-183 の receiver materialization attribution probe guard。receiver copy chain を family / unique copy / duplicate attribution に分解する。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_policy_selection_guard.sh` | 296x-184 の receiver pin chain policy selection guard。same-receiver cache ではなく pin-chain narrowing を選ぶ。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_narrowing_keeper_guard.sh` | 296x-185 の receiver pin chain narrowing keeper guard。同一 block Copy 定義の receiver を再 copy しない。 |

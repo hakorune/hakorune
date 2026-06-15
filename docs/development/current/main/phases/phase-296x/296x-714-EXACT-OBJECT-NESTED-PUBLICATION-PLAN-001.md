@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-15
 Task: EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001
 Scope: Design the nested-object publication plan needed before the first
@@ -54,4 +54,42 @@ do not move representation decisions into MIRBuilder
 
 ```text
 next_task=EXACT-OBJECT-PILOT-001R
+```
+
+## Result
+
+```text
+output_contract=hako-exact-object-nested-publication-plan-v0
+source_evidence=296x-713
+target_front=object_lifecycle_body
+nested_owner=HakoAllocObjectLifecycleFacade.alignment_result
+nested_object=HakoAllocObjectLifecycleAlignmentResult
+publication_boundary_count=8
+facade_nested_field_set_count=1
+facade_nested_field_get_count=7
+nested_receiver_call_count=7
+nested_handle_escape_count=0
+representation_choice=flatten_nested_fields
+mirbuilder_object_management_enabled=0
+benchmark_name_branch_count=0
+helper_name_branch_count=0
+product_default_changed=0
+fallback_to_generic_box_supported=1
+summary=ok
+```
+
+Evidence:
+
+```text
+tool=tools/allocator/hako_exact_object_nested_publication_plan.py
+report=/tmp/hakorune_714_exact_object_nested_publication_plan.report
+source_mir_json=/tmp/hakorune_709_post_array_len_owner.1781488363.report.artifacts.d/app.mir.json
+```
+
+Decision:
+
+```text
+next_task=EXACT-OBJECT-PILOT-001R
+representation_choice=flatten_nested_fields
+implementation_allowed=1
 ```

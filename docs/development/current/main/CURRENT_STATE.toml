@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001 nested exact object publication plan"
+active_lane = "EXACT-OBJECT-PILOT-001R nested exact object pilot retry"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -179,8 +179,10 @@ selected `HakoAllocObjectLifecycleAlignmentResult` as the first medium
 confidence primitive-only exact-object pilot candidate.  EXACT-OBJECT-PILOT-001
 then blocked implementation because the candidate is published through
 `HakoAllocObjectLifecycleFacade.alignment_result`: publication_boundary_count=8
-with one set, seven gets, and eight candidate method calls.  The active row
-designs the nested publication representation before reopening the pilot.
+with one set, seven gets, and eight candidate method calls.
+EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001 selected
+representation_choice=flatten_nested_fields after proving nested_handle_escape_count=0.
+The active row retries the pilot with that nested publication plan.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
@@ -192,15 +194,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-714-EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md"
 
-latest_card = "EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-714-EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001.md"
-latest_card_summary = """EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001 designs the
-nested representation needed before HakoAllocObjectLifecycleAlignmentResult can
-cross the Facade.alignment_result publication boundary without backend special
-cases."""
-current_blocker_token = "EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001-ACTIVE"
+latest_card = "EXACT-OBJECT-PILOT-001R"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md"
+latest_card_summary = """EXACT-OBJECT-PILOT-001R retries the first exact-object
+pilot using the flattened nested field plan for
+HakoAllocObjectLifecycleFacade.alignment_result."""
+current_blocker_token = "EXACT-OBJECT-PILOT-001R-ACTIVE"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-714-EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -172,7 +172,7 @@ Scope: current lane / next lane / restart order only.
   `MIMALLOC-BODY-TIMER-ALIGNMENT-PROBE-001`,
   `MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001`,
   `MIMALLOC-ARRAY-LEN-HELPER-BORROWED-READY-IMPLEMENTATION-001`, and now
-  continues at `EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001`;
+  continues at `EXACT-OBJECT-PILOT-001R`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
   process-total boot cost is diagnostic rather than the primary owner selector
@@ -229,7 +229,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-714-EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
