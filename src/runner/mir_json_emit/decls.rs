@@ -136,6 +136,95 @@ pub(super) fn collect_typed_object_plan_values(
         .collect()
 }
 
+pub(super) fn collect_object_storage_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    let Some(plan) = collect_hako_alloc_alignment_result_flattened_nested_plan(module) else {
+        return Vec::new();
+    };
+    vec![plan]
+}
+
+fn collect_hako_alloc_alignment_result_flattened_nested_plan(
+    module: &crate::mir::MirModule,
+) -> Option<serde_json::Value> {
+    const OWNER_BOX: &str = "HakoAllocObjectLifecycleFacade";
+    const OWNER_FIELD: &str = "alignment_result";
+    const NESTED_BOX: &str = "HakoAllocObjectLifecycleAlignmentResult";
+    const REQUIRED_FIELDS: [&str; 4] = [
+        "last_requested",
+        "last_normalized",
+        "last_reason",
+        "last_supported",
+    ];
+
+    let owner_plan = module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .find(|plan| plan.box_name == OWNER_BOX)?;
+    let owner_field = owner_plan
+        .fields
+        .iter()
+        .find(|field| field.name == OWNER_FIELD)?;
+    if owner_field.declared_type_name.as_deref() != Some(NESTED_BOX) {
+        return None;
+    }
+    if owner_field.storage != crate::mir::function::TypedObjectFieldStorage::Handle {
+        return None;
+    }
+    if owner_field.is_weak {
+        return None;
+    }
+
+    let nested_plan = module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .find(|plan| plan.box_name == NESTED_BOX)?;
+
+    let mut flattened_fields = Vec::new();
+    for nested_name in REQUIRED_FIELDS {
+        let nested_field = nested_plan
+            .fields
+            .iter()
+            .find(|field| field.name == nested_name)?;
+        if nested_field.storage != crate::mir::function::TypedObjectFieldStorage::I64 {
+            return None;
+        }
+        if nested_field.is_weak {
+            return None;
+        }
+        flattened_fields.push(json!({
+            "owner_field": OWNER_FIELD,
+            "nested_field": nested_field.name,
+            "flattened_field": format!("{}.{}", OWNER_FIELD, nested_field.name),
+            "owner_field_slot": owner_field.slot,
+            "nested_field_slot": nested_field.slot,
+            "owner_layout_id": owner_plan.type_id,
+            "nested_layout_id": nested_plan.type_id,
+            "scalar_type": nested_field.storage.as_str(),
+        }));
+    }
+
+    Some(json!({
+        "representation": "flattened_nested_fields",
+        "source_evidence": "296x-726",
+        "owner_box": OWNER_BOX,
+        "owner_field": OWNER_FIELD,
+        "owner_layout_id": owner_plan.type_id,
+        "nested_box": NESTED_BOX,
+        "nested_layout_id": nested_plan.type_id,
+        "flattened_field_count": flattened_fields.len(),
+        "fields": flattened_fields,
+        "fallback_policy": "generic_box_when_proof_missing",
+        "backend_lowering_enabled": false,
+        "boundary_driver_flattened_nested_consumer": false,
+        "mirbuilder_object_management_enabled": false,
+        "product_default_changed": false,
+    }))
+}
+
 pub(super) fn collect_direct_state_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

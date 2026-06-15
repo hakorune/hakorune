@@ -1,10 +1,12 @@
+use super::super::root::build_mir_json_root;
 use super::super::{
     collect_array_record_autouse_eligibility_plan_values,
     collect_array_record_materialization_boundary_plan_values,
     collect_array_record_packed_autouse_pilot_plan_values,
     collect_array_record_storage_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
-    collect_hako_alloc_huge_page_packed_store_pilot_plan_values, collect_record_layout_plan_values,
+    collect_hako_alloc_huge_page_packed_store_pilot_plan_values,
+    collect_object_storage_plan_values, collect_record_layout_plan_values,
     collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
     collect_sorted_user_box_decl_values, collect_source_packed_array_autouse_pilot_plan_values,
     collect_static_data_plan_values, collect_typed_object_plan_values,
@@ -257,6 +259,180 @@ fn collect_typed_object_plan_values_preserves_backend_layout_truth() {
     assert_eq!(plans[0]["fields"][0]["storage"], "usize");
     assert_eq!(plans[0]["fields"][0]["weak"], false);
     assert_eq!(plans[0]["fields"][1]["storage"], "handle");
+}
+
+#[test]
+fn collect_object_storage_plan_values_exports_flattened_nested_alignment_result() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "HakoAllocObjectLifecycleFacade".to_string(),
+        type_id: 3,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 1,
+        fields: vec![TypedObjectFieldPlan {
+            name: "alignment_result".to_string(),
+            slot: 3,
+            declared_type_name: Some("HakoAllocObjectLifecycleAlignmentResult".to_string()),
+            storage: TypedObjectFieldStorage::Handle,
+            is_weak: false,
+        }],
+    });
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "HakoAllocObjectLifecycleAlignmentResult".to_string(),
+        type_id: 1,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 4,
+        fields: vec![
+            TypedObjectFieldPlan {
+                name: "last_requested".to_string(),
+                slot: 0,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "last_normalized".to_string(),
+                slot: 1,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "last_reason".to_string(),
+                slot: 2,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "last_supported".to_string(),
+                slot: 3,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+        ],
+    });
+
+    let plans = collect_object_storage_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["representation"], "flattened_nested_fields");
+    assert_eq!(plans[0]["source_evidence"], "296x-726");
+    assert_eq!(plans[0]["owner_box"], "HakoAllocObjectLifecycleFacade");
+    assert_eq!(plans[0]["owner_field"], "alignment_result");
+    assert_eq!(
+        plans[0]["nested_box"],
+        "HakoAllocObjectLifecycleAlignmentResult"
+    );
+    assert_eq!(plans[0]["flattened_field_count"], 4);
+    assert_eq!(plans[0]["backend_lowering_enabled"], false);
+    assert_eq!(plans[0]["boundary_driver_flattened_nested_consumer"], false);
+    assert_eq!(plans[0]["mirbuilder_object_management_enabled"], false);
+    assert_eq!(plans[0]["product_default_changed"], false);
+
+    let fields = plans[0]["fields"].as_array().expect("fields");
+    let flattened_names: Vec<_> = fields
+        .iter()
+        .map(|field| field["flattened_field"].as_str().unwrap_or(""))
+        .collect();
+    assert_eq!(
+        flattened_names,
+        vec![
+            "alignment_result.last_requested",
+            "alignment_result.last_normalized",
+            "alignment_result.last_reason",
+            "alignment_result.last_supported",
+        ]
+    );
+    assert!(fields
+        .iter()
+        .all(|field| field["scalar_type"].as_str() == Some("i64")));
+}
+
+#[test]
+fn collect_object_storage_plan_values_is_empty_when_nested_proof_is_missing() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "HakoAllocObjectLifecycleFacade".to_string(),
+        type_id: 3,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 1,
+        fields: vec![TypedObjectFieldPlan {
+            name: "alignment_result".to_string(),
+            slot: 3,
+            declared_type_name: Some("OtherBox".to_string()),
+            storage: TypedObjectFieldStorage::Handle,
+            is_weak: false,
+        }],
+    });
+
+    let plans = collect_object_storage_plan_values(&module);
+
+    assert!(plans.is_empty());
+}
+
+#[test]
+fn build_mir_json_root_includes_object_storage_plans_surface() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "HakoAllocObjectLifecycleFacade".to_string(),
+        type_id: 3,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 1,
+        fields: vec![TypedObjectFieldPlan {
+            name: "alignment_result".to_string(),
+            slot: 3,
+            declared_type_name: Some("HakoAllocObjectLifecycleAlignmentResult".to_string()),
+            storage: TypedObjectFieldStorage::Handle,
+            is_weak: false,
+        }],
+    });
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "HakoAllocObjectLifecycleAlignmentResult".to_string(),
+        type_id: 1,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 4,
+        fields: vec![
+            TypedObjectFieldPlan {
+                name: "last_requested".to_string(),
+                slot: 0,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "last_normalized".to_string(),
+                slot: 1,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "last_reason".to_string(),
+                slot: 2,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "last_supported".to_string(),
+                slot: 3,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+        ],
+    });
+
+    let root = build_mir_json_root(&module).expect("MIR JSON root");
+    let plans = root["object_storage_plans"]
+        .as_array()
+        .expect("object_storage_plans array");
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["representation"], "flattened_nested_fields");
+    assert_eq!(plans[0]["flattened_field_count"], 4);
 }
 
 #[test]

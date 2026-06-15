@@ -2,6 +2,7 @@ from typing import Any, Dict, Optional
 
 import llvmlite.ir as ir
 
+from instructions import flattened_nested_fields as _flattened_nested_fields
 from instructions.field_access_helpers import (
     _boxed_field_key,
     _canonical_bool_i64,
@@ -70,6 +71,57 @@ _EXACT_NUMERIC_RUNTIME_RANGES = {
     "u64": (0, None),
     "usize": (0, None),
 }
+
+
+def _flattened_nested_field_access_route_enabled() -> bool:
+    """Enabled route hook for flattened nested field state.
+
+    The passive seam rows kept lowering disabled.  Once the guarded pilot flips
+    the backend lowering flag, field access must route through the shared
+    flattened state; otherwise the enabled pilot cannot reach generated code.
+    """
+
+    return (
+        _flattened_nested_fields.FLATTENED_NESTED_FIELD_STATE_SEAM_DEFINED
+        and _flattened_nested_fields.FLATTENED_NESTED_FIELD_LOWERING_ENABLED
+    )
+
+
+def _flattened_nested_owner_box_name(resolver, box_vid: Optional[int], field_name: str) -> Optional[str]:
+    """Resolve the owner box for the guarded flattened-nested-field route.
+
+    The normal receiver type helper only reads the direct value type.  The
+    selected object-lifecycle front often reaches field access through a Copy,
+    while the canonical receiver type is still available in the current route
+    decision.  Use that metadata only for this ObjectStoragePlan consumer so the
+    broader typed exact-slot route remains unchanged.
+    """
+
+    owner_box_name = _receiver_box_type(resolver, box_vid)
+    if owner_box_name is not None:
+        return owner_box_name
+    if resolver is None:
+        return None
+    try:
+        block_id = int(getattr(resolver, "current_block_id"))
+        instruction_index = int(getattr(resolver, "current_instruction_index"))
+    except (AttributeError, TypeError, ValueError):
+        return None
+    decisions_by_site = getattr(resolver, "route_decisions_by_site", None)
+    if not isinstance(decisions_by_site, dict):
+        return None
+    decisions = decisions_by_site.get((block_id, instruction_index), [])
+    if not isinstance(decisions, list):
+        return None
+    for decision in decisions:
+        if not isinstance(decision, dict):
+            continue
+        if decision.get("field_id") not in (None, field_name):
+            continue
+        candidate = decision.get("receiver_box_name")
+        if isinstance(candidate, str) and candidate:
+            return candidate
+    return None
 
 
 def _emit_exact_numeric_runtime_range_check(
@@ -153,6 +205,21 @@ def lower_field_get(
     block_end_values,
     bb_map,
 ) -> ir.Value:
+    owner_box_name = _flattened_nested_owner_box_name(resolver, box_vid, field_name)
+    if _flattened_nested_field_access_route_enabled():
+        owner_val = _resolve_receiver(
+            builder, box_vid, vmap, resolver, preds, block_end_values, bb_map
+        )
+        owner_h = _ensure_handle(builder, module, owner_val)
+        flattened_result = _flattened_nested_fields.try_lower_owner_field_get(
+            owner_box_name=owner_box_name,
+            field_name=field_name,
+            owner_handle=owner_h,
+        )
+        if flattened_result is not None:
+            if dst_vid is not None:
+                vmap[int(dst_vid)] = flattened_result
+            return flattened_result
     local_result = lower_local_user_box_field_get(
         builder,
         box_vid,
@@ -296,6 +363,21 @@ def lower_field_set(
         block_end_values,
         bb_map,
     )
+    owner_box_name = _flattened_nested_owner_box_name(resolver, box_vid, field_name)
+    if _flattened_nested_field_access_route_enabled():
+        owner_val = _resolve_receiver(
+            builder, box_vid, vmap, resolver, preds, block_end_values, bb_map
+        )
+        owner_h = _ensure_handle(builder, module, owner_val)
+        flattened_result = _flattened_nested_fields.try_lower_owner_field_set(
+            builder=builder,
+            module=module,
+            owner_box_name=owner_box_name,
+            field_name=field_name,
+            owner_handle=owner_h,
+        )
+        if flattened_result is not None:
+            return flattened_result
     if lower_local_user_box_field_set(
         builder,
         box_vid,

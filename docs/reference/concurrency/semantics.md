@@ -189,9 +189,10 @@ Current reference runtime:
   creation time. The implicit root scope remains best-effort ownership only and
   is not a detached context propagation contract.
 
-Next MIRBuilder row:
-- `CONC-CO-MIR-001` opens `co` / compatibility `task_scope` lowering only as a
-  structured ownership boundary around the already-pinned Future operations.
+Current MIRBuilder v0:
+- `CONC-CO-MIR-001` implements `co` / compatibility `task_scope` lowering only
+  as a structured ownership boundary around the already-pinned Future
+  operations.
 - Existing runtime truth is `push_task_scope()` / `pop_task_scope()` /
   `register_future_to_current_group()` in `src/runtime/global_hooks.rs`.
 - Decision: use runtime hook calls, not new MIR opcodes.

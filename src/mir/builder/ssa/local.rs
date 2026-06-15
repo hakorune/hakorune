@@ -62,12 +62,8 @@ impl LocalKind {
 mod analysis;
 pub(crate) use analysis::strict_planner_required;
 use analysis::{
-    dominated_call_result_root,
-    def_inst_kind,
-    field_get_alias_root,
-    format_value_ids,
-    has_dominated_same_field_set_after_root,
-    same_block_copy_root,
+    def_inst_kind, dominated_call_result_root, field_get_alias_root, format_value_ids,
+    has_dominated_same_field_set_after_root, same_block_copy_root,
     value_defined_in_current_function,
 };
 

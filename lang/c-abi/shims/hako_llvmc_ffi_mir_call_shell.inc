@@ -326,6 +326,24 @@
         if (!(args && yyjson_is_arr(args))) return -1;
         argc = yyjson_arr_size(args);
         if ((long long)argc != view.arity || argc > 63) return -1;
+        {
+          int flattened_nested_emit =
+              emit_flattened_nested_alignment_result_method_call(
+                  f,
+                  bid,
+                  ii,
+                  dst,
+                  recv,
+                  view.method,
+                  args);
+          if (flattened_nested_emit < 0) return -1;
+          if (flattened_nested_emit > 0) {
+            trace_lowering_plan_entry_hit(
+                entry,
+                "object_storage_plan_flattened_nested_method_emit");
+            return 1;
+          }
+        }
         if (!user_box_method_definition_target_is_ready(&view)) return -1;
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);

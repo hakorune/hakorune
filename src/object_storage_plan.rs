@@ -18,6 +18,15 @@ pub struct FieldScalarPlan {
     pub scalar_type: ScalarStorageType,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FlattenedNestedFieldPlan {
+    pub owner_field_id: FieldId,
+    pub nested_field_id: FieldId,
+    pub flattened_field_id: FieldId,
+    pub nested_layout_id: LayoutId,
+    pub scalar_type: ScalarStorageType,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ScalarStorageType {
     I64,
@@ -54,12 +63,28 @@ pub enum DynamicReason {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ObjectStoragePlan {
-    GenericBox { reason: GenericBoxReason },
-    HostHandleEscaped { reason: EscapeReason },
-    ArcDynBox { reason: DynamicReason },
-    ExactStackObject { layout_id: LayoutId },
-    ExactNativeStruct { layout_id: LayoutId },
-    Scalarized { fields: Vec<FieldScalarPlan> },
+    GenericBox {
+        reason: GenericBoxReason,
+    },
+    HostHandleEscaped {
+        reason: EscapeReason,
+    },
+    ArcDynBox {
+        reason: DynamicReason,
+    },
+    ExactStackObject {
+        layout_id: LayoutId,
+    },
+    ExactNativeStruct {
+        layout_id: LayoutId,
+    },
+    Scalarized {
+        fields: Vec<FieldScalarPlan>,
+    },
+    FlattenedNestedFields {
+        owner_layout_id: LayoutId,
+        fields: Vec<FlattenedNestedFieldPlan>,
+    },
 }
 
 impl ObjectStoragePlan {
@@ -70,6 +95,7 @@ impl ObjectStoragePlan {
             Self::ExactStackObject { .. }
                 | Self::ExactNativeStruct { .. }
                 | Self::Scalarized { .. }
+                | Self::FlattenedNestedFields { .. }
         )
     }
 
@@ -91,6 +117,7 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("routeplan_is_call_execution_truth", "1"),
         ("object_storage_plan_is_representation_truth", "1"),
         ("object_storage_plan_vocabulary_defined", "1"),
+        ("flattened_nested_field_layout_vocabulary_defined", "1"),
         ("object_storage_plan_execution_enabled", "0"),
         ("exact_object_shadow_ready", "1"),
         ("product_default_changed", "0"),
@@ -119,6 +146,17 @@ mod tests {
             }],
         }
         .is_exact_candidate());
+        assert!(ObjectStoragePlan::FlattenedNestedFields {
+            owner_layout_id: LayoutId(8),
+            fields: vec![FlattenedNestedFieldPlan {
+                owner_field_id: FieldId(1),
+                nested_field_id: FieldId(2),
+                flattened_field_id: FieldId(3),
+                nested_layout_id: LayoutId(7),
+                scalar_type: ScalarStorageType::I64,
+            }],
+        }
+        .is_exact_candidate());
 
         assert!(ObjectStoragePlan::GenericBox {
             reason: GenericBoxReason::MissingTypeProof,
@@ -140,6 +178,7 @@ mod tests {
         assert!(fields.contains(&("mirbuilder_object_management_enabled", "0")));
         assert!(fields.contains(&("object_storage_plan_is_representation_truth", "1")));
         assert!(fields.contains(&("object_storage_plan_vocabulary_defined", "1")));
+        assert!(fields.contains(&("flattened_nested_field_layout_vocabulary_defined", "1")));
         assert!(fields.contains(&("object_storage_plan_execution_enabled", "0")));
         assert!(fields.contains(&("exact_object_shadow_ready", "1")));
     }

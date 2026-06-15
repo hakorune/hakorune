@@ -34,13 +34,12 @@ Related:
 - current day-to-day tasks live in `latest_workstream_card` from
   `CURRENT_STATE.toml`
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
-- exact-front optimization resumed through `MIMALLOC-AOT-KERNEL-FRONT-SELECT-002`,
-  moved through `MIMALLOC-BODY-TIMING-FRONT-SELECT-001`, and now continues at
-  `CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001`
-- current step designs the CFG-stable owner for dominance-required receiver
-  operand rewriting after the LocalSSA emission-time seam was rejected;
-  process-total boot cost is diagnostic, and provider/replacement/startup seams
-  stay closed
+- exact-front optimization and representation rows remain governed by
+  `CURRENT_STATE.toml`; the active row is
+  `MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001`
+- current manual entry points now route through current record/box,
+  concurrency/thread, and object-storage SSOTs instead of stale historical
+  Box-only or thread-spawn readings
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - use the active method anchor from `CURRENT_STATE.toml` instead of stale
   historical lane notes
@@ -54,9 +53,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-694-CALL-OPERAND-CFG-STABLE-RECEIVER-REWRITE-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-4. `docs/development/current/main/phases/phase-296x/296x-662-MIMALLOC-AOT-KERNEL-FRONT-SELECT-002.md`
+4. `docs/development/current/main/phases/phase-296x/296x-738-SIMPLE-BOX-EXACT-OBJECT-CANDIDATE-001.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 6. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
 7. `docs/development/current/main/workstreams/compiler-foundation-current.md`

@@ -134,9 +134,11 @@ def collect_route_carrier_roles(
             callee = mir_call.get("callee")
             if isinstance(callee, dict) and callee.get("receiver") in aliases:
                 roles.add("call_operand")
+                roles.add("call_operand_receiver")
             args = mir_call.get("args", [])
             if isinstance(args, list) and any(arg in aliases for arg in args):
                 roles.add("call_operand")
+                roles.add("call_operand_arg")
             call_result_aliases = alias_values(inst.get("dst"), src_to_dsts)
             if aliases & call_result_aliases:
                 roles.add("call_result")
@@ -213,6 +215,8 @@ def main() -> int:
     local_like_count = 0
     backend_route_carrier_copy_count = 0
     route_aware_candidate_count = 0
+    call_operand_receiver_samples: list[dict[str, Any]] = []
+    call_operand_arg_samples: list[dict[str, Any]] = []
     samples: list[dict[str, Any]] = []
     local_like_samples: list[dict[str, Any]] = []
     route_carrier_samples: list[dict[str, Any]] = []
@@ -266,6 +270,10 @@ def main() -> int:
                 local_like_samples.append(samples[-1])
             if carrier_roles:
                 route_carrier_samples.append(samples[-1])
+            if "call_operand_receiver" in carrier_roles:
+                call_operand_receiver_samples.append(samples[-1])
+            if "call_operand_arg" in carrier_roles:
+                call_operand_arg_samples.append(samples[-1])
 
     local_like_samples.sort(
         key=lambda sample: (
@@ -309,6 +317,8 @@ def main() -> int:
     for key in (
         "field_base",
         "call_operand",
+        "call_operand_receiver",
+        "call_operand_arg",
         "call_result",
         "branch_condition",
         "compare_operand",
@@ -316,6 +326,10 @@ def main() -> int:
         "return_value",
     ):
         lines.append(f"{key}_route_carrier_copy_count={route_carrier_counts[key]}")
+    lines.append(
+        f"call_operand_receiver_route_carrier_sample_count={len(call_operand_receiver_samples)}"
+    )
+    lines.append(f"call_operand_arg_route_carrier_sample_count={len(call_operand_arg_samples)}")
     for idx, (block_id, count) in enumerate(block_counts.most_common(8)):
         lines.append(f"top_block_{idx}_id=block_{block_id}")
         lines.append(f"top_block_{idx}_copy_count={count}")

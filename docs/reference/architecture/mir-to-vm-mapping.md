@@ -42,7 +42,8 @@
   - Builtinの簡易ディスパッチ: `StringBox.length/substr/concat`, `IntegerBox.toString/abs` 等の最小対応。
   - birth 特例: user-definedの `birth` はMIR関数へ直呼。
 - NewBox: Implemented
-  - `runtime.box_registry` から生成。`scope_tracker` に登録。クラス名マップ更新。
+  - `runtime.box_registry` から生成。クラス名マップ更新。
+  - プラグインBoxの lifecycle は `PluginHandleInner` / `shutdown_plugins_v2()` が owner です。
 - TypeCheck: No-op (常にtrue)
   - TODO: 正式な型チェックに置換。
 - Cast: No-op (コピー)

@@ -107,6 +107,10 @@ Current partitions:
 - `hako_llvmc_ffi_typed_object_plan.inc`
   - reader for MIR-owned `typed_object_plans`; field access must go through
     this seam instead of raw declaration scans
+- `hako_llvmc_ffi_object_storage_plan.inc`
+  - reader for MIR-owned `object_storage_plans`; exact-AOT object
+    representation consumers must read this seam instead of inferring
+    flattened object routes from benchmark/helper/source names
 - `hako_llvmc_ffi_lowering_plan_metadata.inc`
   - typed LoweringPlan row readers for extern/global/generic/user-box calls;
     row predicates validate route facts but must not invent new legality

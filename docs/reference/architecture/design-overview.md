@@ -10,14 +10,14 @@
 - モデル層: `core::model`（BoxDeclaration等の純粋データ）
 - ランタイム層: `runtime`（UnifiedBoxRegistry, PluginLoader, NyashRuntime）
 - 実行戦略層: `interpreter`（AST実行）/ `mir`+`backend::vm`（MIR実行）/ 将来 `wasm`/`llvm`
-- 付帯基盤: `box_factory`, `instance_v2`, `scope_tracker`, `boxes/*`, `stdlib`
+- 付帯基盤: `box_factory`, `instance_v2`, `boxes/*`, `stdlib`, `plugin_loader_v2`
 
 ## コア概念
 
 - Everything is Box: すべての値はBox（ビルトイン、ユーザー定義、プラグイン）
 - 統一コンストラクタ: `birth(args)`（packはビルトイン継承内部用に透過化）
 - 明示デリゲーション: `box Child from Parent` と `from Parent.method()`
-- 厳密変数宣言/スコープ安全: `local`, `outbox`、スコープ退出時の`fini`一元化
+- 厳密変数宣言/スコープ安全: `local`, `outbox`、明示 `fini` / object-owned lifecycle / plugin shutdown による資源解放
 
 ## モデル層（core::model）
 
@@ -47,7 +47,7 @@
 
 - VM (MIR実行)
   - `VM::with_runtime(runtime)` でDI、`NewBox`は`runtime.box_registry.create_box`へ
-  - `ScopeTracker`でスコープ退出時に`fini`（InstanceBox/PluginBox）
+  - プラグインBoxの `fini` は `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()` が担う
   - birth/メソッドのMIR関数化（Phase 2/3）：
     - Builderが `new` を `NewBox` + `BoxCall("birth")` に展開
     - Box宣言の `birth/N` と通常メソッド(`method/N`)を `"{Box}.{name}/{N}"` のMIR関数へ関数化
@@ -72,8 +72,9 @@
 
 ## ライフサイクル統一（fini）
 
-- Interpreter: スコープ復帰時に`InstanceBox.fini()`等を呼ぶ
-- VM: `ScopeTracker`で関数入退出時に登録Boxを`fini`
+- `fini()` は論理終了と外部資源解放の明示境界。
+- プラグインBox: `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()` が owner。
+- ユーザー/ビルトインBox: strong 参照の寿命と明示 `fini` / cleanup に従う。
 
 ## プラグイン（BID-FFI）
 
@@ -105,4 +106,3 @@
 - `src/mir/*`（builder/instruction/function/etc.）
 - `src/backend/vm.rs`（VM実行）
 - `src/interpreter/*`（AST実行）
-

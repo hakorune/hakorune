@@ -109,6 +109,7 @@ Nyash 時代の “Everything is Box” は歴史的な合言葉として残り�
 - reference/architecture/TECHNICAL_ARCHITECTURE_2025.md
 - reference/architecture/execution-backends.md
 - reference/runtime/gc.md
+- reference/runtime/threading.md（ThreadApi / WorkerPool substrate。source-level thread syntax ではない）
 - reference/plugin-system/
 - tools/cli-options.md（CLI早見表）
  
@@ -120,8 +121,9 @@ Nyash 時代の “Everything is Box” は歴史的な合言葉として残り�
 - guides/dev-local-alias.md（開発向け: 行頭 @name = expr → local 宣言糖衣）
  - guides/box-patterns.md（Boxパターン集：Ownership/Lease/Cancel/Capability/Affinity/Observable）
  - guides/box-design-checklist.md（Box 設計チェックリスト）
- - proposals/concurrency/boxes.md（並行モデルのBox設計：Routine/Channel/Select/Scope）
- - reference/concurrency/semantics.md（ブロッキング/close/select/観測の規約）
+ - proposals/concurrency/boxes.md（historical proposal。current SSOT ではない）
+ - reference/concurrency/semantics.md（`co` / `nowait` / `await` / Channel / sync box / context の current semantics）
+ - reference/concurrency/boundary-model.md（並行境界モデル。`worker_scope` は design-only、raw thread は closed）
 - design/（設計ノート入口）
   - development/design/legacy/flow-blocks.md（矢印フロー／匿名ブロック・設計草案）
   - development/proposals/scope-reuse.md（スコープ再利用ブロック・MVP提案）

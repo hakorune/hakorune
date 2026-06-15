@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md`
+2. `docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -171,8 +171,31 @@ Scope: current lane / next lane / restart order only.
   `PARAM-ALIAS-COPY-OWNER-REFRESH-001`, through
   `MIMALLOC-BODY-TIMER-ALIGNMENT-PROBE-001`,
   `MIMALLOC-RUNTIME-BOUNDARY-DIRECT-PROBE-001`,
-  `MIMALLOC-ARRAY-LEN-HELPER-BORROWED-READY-IMPLEMENTATION-001`, and now
-  continues at `EXACT-OBJECT-PILOT-001R`;
+  `MIMALLOC-ARRAY-LEN-HELPER-BORROWED-READY-IMPLEMENTATION-001`,
+  `EXACT-OBJECT-PILOT-001R`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-LAYOUT-SSOT-001`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-SHADOW-001`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-BACKEND-SEAM-001`,
+  `EXACT-OBJECT-PILOT-001S`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-STATE-SEAM-001`,
+  `EXACT-OBJECT-PILOT-CLOSEOUT-001`,
+  `RECORD-BOX-SURFACE-000`,
+  `RECORD-BOX-DOCS-001`,
+  `AGG-STORAGE-PLAN-000`,
+  `AGG-OBJECT-STORAGE-BRIDGE-001`,
+  `RECORD-METHODS-GATE-000`,
+  `RECORD-WITH-BOX-GATE-000`,
+  `SIMPLE-BOX-EXACT-OBJECT-CANDIDATE-001`,
+  `EXACT-OBJECT-PILOT-001T`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-ROUTE-WIRING-001`,
+  `EXACT-OBJECT-PILOT-001U`,
+  `EXACT-OBJECT-PILOT-MEASUREMENT-001`,
+  `EXACT-OBJECT-PILOT-EFFECT-ATTRIBUTION-001`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-BACKEND-REACHABILITY-001`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-PLAN-EXPORT-001`,
+  `EXACT-OBJECT-FLATTENED-NESTED-FIELD-BOUNDARY-CONSUMER-001`,
+  `EXACT-OBJECT-PILOT-001V`, `EXACT-OBJECT-PILOT-MEASUREMENT-002`, and
+  `EXACT-OBJECT-PILOT-CLOSEOUT-001`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
   process-total boot cost is diagnostic rather than the primary owner selector
@@ -229,7 +252,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md`
+2. `docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`

@@ -46,7 +46,7 @@ Canonical surface direction:
 
 ```text
 co { ... }
-nowait { ... }
+nowait expr
 await expr
 Channel<T>
 sync box
@@ -94,8 +94,8 @@ Example:
 
 ```hako
 co {
-    local a = nowait { workA() }
-    local b = nowait { workB() }
+    local a = nowait workA()
+    local b = nowait workB()
 
     local x = await a
     local y = await b
@@ -189,7 +189,7 @@ surface.
 
 ## Future Boundary
 
-`nowait { ... }` creates a `Future<T>`. In the current Phase-0 line it may be
+`nowait expr` creates a `Future<T>`. In the current Phase-0 line it may be
 implemented as sequential evaluation wrapped in a resolved future; it is not a
 thread creation promise.
 
@@ -293,9 +293,7 @@ Example:
 ```hako
 context request_id: RequestId = rid {
     co {
-        local fut = nowait {
-            handle(request_id)
-        }
+        local fut = nowait handle(request_id)
         await fut
     }
 }

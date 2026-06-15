@@ -1,9 +1,16 @@
 # 📦 Nyash Boxシステム設計ドキュメント
 
+> Historical note: this folder preserves older Box-system reference material.
+> Current Hakorune does not use “Everything is Box” as the whole language
+> model. The current user-facing split is `record` for identity-free value
+> aggregates and `box` for identity / behavior / lifecycle boundaries. See
+> `docs/reference/language/types.md` and
+> `docs/development/current/main/design/record-box-two-surface-one-substrate-ssot.md`.
+
 ## 🎯 概要
 
-Nyashの核心哲学「**Everything is Box**」に関する完全な設計ドキュメント集。
-言語設計の根幹から実装詳細まで、Boxシステムのすべてを網羅しています。
+Nyash時代の「**Everything is Box**」に関する歴史的な設計ドキュメント集。
+現在の Hakorune では Box は重要な境界の一つだが、唯一の境界ではありません。
 
 注（`init { ... }` について）:
 - `init { a, b, c }` は legacy のフィールド宣言（slot）です（互換のために残っています）。
@@ -14,7 +21,7 @@ Nyashの核心哲学「**Everything is Box**」に関する完全な設計ドキ
 ### 🌟 コア哲学
 
 #### [everything-is-box.md](everything-is-box.md)
-Nyashの核心哲学「Everything is Box」の解説。なぜすべてをBoxにするのか、その設計思想と利点。
+Nyash時代の「Everything is Box」の解説。現在読む場合は historical note を優先し、record/box 二面モデルと矛盾する箇所は historical として扱います。
 
 ### 📖 完全リファレンス
 
@@ -37,10 +44,10 @@ Nyashの核心哲学「Everything is Box」の解説。なぜすべてをBoxに�
 
 ## 🎨 設計原則
 
-### Everything is Box
-- すべての値がBoxオブジェクト
-- 統一的なメソッド呼び出し
-- プリミティブ型と参照型の区別なし
+### Box Boundary
+- `box` は identity / behavior / lifecycle boundary
+- `record` は identity-free value aggregate
+- 内部最適化は AggregateStoragePlan / ObjectStoragePlan で共有できるが、source surface は統合しない
 
 ### メモリ安全性
 - Arc<Mutex>による統一管理

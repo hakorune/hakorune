@@ -118,6 +118,21 @@
             struct GenericPureTypedObjectFieldSlotView field_slot;
             long long value_base = resolve_copy_source_reg(value_reg);
             long long value_const = 0;
+            if (field &&
+                !strcmp(field, "alignment_result") &&
+                object_storage_plan_alignment_result_owner_receiver_ready(box_reg)) {
+              if (!emit_flattened_nested_alignment_result_reset(f, bid, ii, box_reg)) {
+                note_pure_unsupported_shape(
+                    bid,
+                    ii,
+                    op,
+                    "flattened_nested_field_set_lowering_failed",
+                    NULL);
+                yyjson_doc_free(d);
+                goto GEN_ABORT;
+              }
+              continue;
+            }
             if (value_reg &&
                 generic_pure_read_typed_object_field_slot(
                     box_reg,
@@ -248,6 +263,17 @@
             const char* field = read_str(ins, "field");
             struct GenericPureTypedObjectFieldSlotView field_slot;
             if (dst &&
+                field &&
+                !strcmp(field, "alignment_result") &&
+                object_storage_plan_alignment_result_owner_receiver_ready(box_reg)) {
+              EMIT("  %%r%lld = add i64 %%r%lld, 0\n",
+                   dst,
+                   resolve_copy_source_reg(box_reg));
+              set_flattened_nested_binding(dst, box_reg);
+              set_type(dst, T_I64);
+              continue;
+            }
+            if (dst &&
                 generic_pure_read_typed_object_field_slot(
                     box_reg,
                     field,
@@ -326,6 +352,12 @@
               int typed_plan_index = -1;
               if (get_typed_object_binding(src, &typed_plan_index)) {
                 set_typed_object_binding(dst, typed_plan_index);
+              }
+              {
+                long long flattened_owner_reg = 0;
+                if (get_flattened_nested_binding(src, &flattened_owner_reg)) {
+                  set_flattened_nested_binding(dst, flattened_owner_reg);
+                }
               }
               generic_pure_publish_reg_metadata(dst);
             }

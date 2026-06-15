@@ -557,22 +557,15 @@ src/runner/
 
 ### 4.2 配置が不適切なモジュール
 
-#### 🟡 `src/scope_tracker.rs`
+#### ✅ 旧スコープ追跡モジュール（削除済み / historical）
 
-**現状**: トップレベルに配置
+**現状**: 現行コードには存在しない。旧VM lifecycle案の dead module として削除済み。
 
-**問題点**:
-- VMバックエンド専用のコード（コメント: "Box lifecycle tracking for VM"）
-- backend/mir_interpreter/と密結合
+**現在の owner**:
+- プラグイン lifecycle: `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()`
+- object lifecycle / Arc retirement vocabulary: `src/runtime/box_object_model.rs`
 
-**改善提案**:
-```
-src/backend/mir_interpreter/
-└── scope_tracker.rs
-```
-
-**影響範囲**: 小（backend内部のみ）
-**優先度**: 低（機能的には問題なし）
+**判断**: 移動タスクではなく完了済み。復活させない。
 
 ---
 
@@ -716,9 +709,9 @@ parser/
     - 影響範囲: 小
     - 見積もり: 1日
 
-12. **`scope_tracker.rs`等の配置最適化**
-    - 専用モジュールへ移動
-    - 影響範囲: 小
+12. **legacy lifecycle module references の整理**
+    - 旧スコープ追跡モジュールは削除済み。残る参照は historical docs に限定し、reference docs では現行 owner を示す。
+    - 影響範囲: docs-only
     - 見積もり: 0.5日
 
 ---
@@ -770,8 +763,7 @@ src/
 ├── backend/           # バックエンド
 │   ├── vm/            # Rust VM
 │   │   ├── core/
-│   │   ├── handlers/  # 命令ハンドラ
-│   │   └── scope_tracker.rs
+│   │   └── handlers/  # 命令ハンドラ
 │   ├── llvm/          # LLVM（Rust側）
 │   ├── wasm/          # WASM
 │   └── abi/           # C-ABI

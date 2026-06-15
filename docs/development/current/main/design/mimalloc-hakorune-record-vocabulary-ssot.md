@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/mimalloc-hakorune-brand-type-vocabulary-ssot.md
   - docs/development/current/main/design/mimalloc-lifecycle-rewrite-blueprint-ssot.md
   - docs/development/current/main/design/mimalloc-substrate-representation-gap-ledger-ssot.md
+  - docs/development/current/main/design/record-box-two-surface-one-substrate-ssot.md
   - docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
 ---
 
@@ -17,6 +18,20 @@ Related:
 Records are identity-free allocator facts. They describe references, table rows,
 state snapshots, and counter snapshots. They do not own behavior, raw memory, or
 lifecycle transitions.
+
+This follows the repository-wide two-surface / one-substrate decision:
+
+```text
+record:
+  identity-free value aggregate
+
+box:
+  identity object / behavior / lifecycle boundary
+
+internal optimization:
+  record and simple proven boxes may share AggregateStoragePlan /
+  ObjectStoragePlan backend substrate, but source semantics stay separate
+```
 
 ```text
 record:

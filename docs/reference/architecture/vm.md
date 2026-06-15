@@ -44,7 +44,7 @@ NYASH_VM_STATS=1 NYASH_VM_STATS_JSON=1 ./target/debug/nyash --backend vm program
   - `close()` は `Ok(Void)`。`match Ok(_)` で受けるか、戻り値を無視してよい。
 - Handle（BoxRef）戻り
   - TLV tag=8（type_id:u32, instance_id:u32）。Loaderが返り値typeに対応する `fini_method_id` を設定し `PluginBoxV2` を構築。
-  - `scope_tracker` がスコープ終了時に `fini()` を呼ぶ（メモリ安全）。
+  - プラグインBoxの `fini` は `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()` が owner です。
 - 大きいボディ/多ヘッダー/タイムアウト
   - 逐次拡張中。異常時の挙動は上記Result規約に従う。実行ログと `--vm-stats` を併用して診断。
 - 反復タイムアウト: `local_tests/socket_repeated_timeouts.hako` で `acceptTimeout/recvTimeout` の連続ケース確認

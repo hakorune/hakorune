@@ -9,6 +9,7 @@ from functools import partial
 from typing import Dict, Any, Optional
 from llvmlite import ir
 import os
+from instructions import flattened_nested_fields as _flattened_nested_fields
 from instructions.direct_box_method import try_lower_known_box_method_call
 from instructions.llvm_decl import declare_function
 from instructions.stringbox import emit_stringbox_call
@@ -41,6 +42,20 @@ from instructions.string_result_policy import mark_string_result_if_needed
 
 
 _SAFE_METHOD_CALL_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
+
+
+def _flattened_nested_method_call_route_enabled() -> bool:
+    """Enabled route hook for flattened nested field method calls.
+
+    Passive seam rows kept lowering disabled.  Once the guarded pilot flips the
+    backend lowering flag, method calls on the flattened nested view may bypass
+    the generic handle route and use the shared flattened state.
+    """
+
+    return (
+        _flattened_nested_fields.FLATTENED_NESTED_FIELD_STATE_SEAM_DEFINED
+        and _flattened_nested_fields.FLATTENED_NESTED_FIELD_LOWERING_ENABLED
+    )
 
 
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
@@ -163,6 +178,23 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     recv_val = _resolve_arg(receiver)
     if recv_val is None:
         recv_val = ir.Constant(i64, 0)
+    if _flattened_nested_fields.is_flattened_nested_view(recv_val):
+        result = _flattened_nested_fields.try_lower_nested_method_call(
+            builder=builder,
+            module=module,
+            receiver=recv_val,
+            method_name=method,
+            args=args,
+            resolve_arg=_resolve_arg,
+            dst_vid=dst_vid,
+            vmap=vmap,
+            resolver=resolver,
+        )
+        if result is not None:
+            if dst_vid is not None:
+                vmap[dst_vid] = result
+                mark_string_result_if_needed(resolver, dst_vid, method)
+            return
     recv_h = _ensure_handle(recv_val)
 
     # TRUE UNIFIED METHOD DISPATCH - Everything is Box philosophy

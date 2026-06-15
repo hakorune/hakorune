@@ -8,7 +8,7 @@
 status = "Active"
 date = "2026-06-15"
 
-active_lane = "EXACT-OBJECT-PILOT-001R nested exact object pilot retry"
+active_lane = "CURRENT-ENTRY-MANUAL-SYNC-001 manual/current-entry synchronization"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -182,26 +182,394 @@ then blocked implementation because the candidate is published through
 with one set, seven gets, and eight candidate method calls.
 EXACT-OBJECT-NESTED-PUBLICATION-PLAN-001 selected
 representation_choice=flatten_nested_fields after proving nested_handle_escape_count=0.
-The active row retries the pilot with that nested publication plan.
+EXACT-OBJECT-PILOT-001R then blocked the direct pilot retry because the backend
+has no explicit flattened nested field consumer:
+backend_flattened_nested_field_consumer=0 and
+existing_known_receiver_direct_call_requires_handle=1.
+EXACT-OBJECT-FLATTENED-NESTED-FIELD-LAYOUT-SSOT-001 defined the passive layout:
+four flattened fields named alignment_result.last_requested,
+alignment_result.last_normalized, alignment_result.last_reason, and
+alignment_result.last_supported, with backend_lowering_enabled=0.
+EXACT-OBJECT-FLATTENED-NESTED-FIELD-SHADOW-001 found seven get candidates, one
+set candidate, seven nested method candidates, and fallback_reason_count=0.
+EXACT-OBJECT-FLATTENED-NESTED-FIELD-BACKEND-SEAM-001 added a passive exact-AOT
+backend seam with backend_flattened_nested_field_consumer=1 while keeping
+backend_lowering_enabled=0.  EXACT-OBJECT-PILOT-001S blocked enablement because
+state_sharing_seam_ready=0: field_access_flattened_nested_route_enabled=0,
+method_call_flattened_nested_route_enabled=0, and the typed newbox path still
+preempts local aggregate state.  EXACT-OBJECT-FLATTENED-NESTED-FIELD-STATE-SEAM-001
+defined the passive backend state-sharing seam with state_sharing_seam_defined=1
+while keeping field access routes, method-call routes, and backend lowering
+disabled.  The active row re-runs the guarded pilot preflight and selects the
+next route-wiring row if consumers still cannot use the shared state seam.
+EXACT-OBJECT-PILOT-001T confirmed state_sharing_seam_defined=1 but
+route_wiring_ready=0 because field_access_flattened_nested_route_enabled=0 and
+method_call_flattened_nested_route_enabled=0.  The active row wires those
+consumers to the passive state seam while keeping backend_lowering_enabled=0.
+EXACT-OBJECT-FLATTENED-NESTED-FIELD-ROUTE-WIRING-001 added disabled passive
+hooks in field_access.py and method_call.py, yielding route_wiring_ready=1 with
+backend_lowering_enabled=0.  EXACT-OBJECT-PILOT-001U enabled the first guarded
+exact-object pilot for this single closed-world front:
+state_sharing_seam_defined=1, route_wiring_ready=1, backend_lowering_enabled=1,
+object_storage_plan_execution_enabled=1, and pilot_exact_object_enabled=1 while
+keeping MIRBuilder object management, benchmark/helper-name branches, product
+default changes, and global Arc retirement claims at zero.
+EXACT-OBJECT-PILOT-MEASUREMENT-001 measured the enabled pilot with
+body_elapsed_ratio_before=112.969 and body_elapsed_ratio_after=114.326, so
+winner_claim=0.  EXACT-OBJECT-PILOT-EFFECT-ATTRIBUTION-001 found
+flattened_nested_route_reached=0:
+alignment_result.last_requested/last_normalized/last_reason/last_supported
+synthetic owner-field evidence is absent from generated artifacts.  The active
+row found that the measured exact-EXE route uses ny-llvmc's boundary C ABI
+shim, not the Python llvmlite seam, and that MIR JSON has no ObjectStoragePlan
+metadata for the boundary driver to consume. The active row exports the selected
+flattened nested ObjectStoragePlan into MIR JSON. The boundary consumer row
+teaches the measured ny-llvmc boundary C ABI route to consume that exported
+plan, EXACT-OBJECT-PILOT-001V confirmed the guarded pilot is enabled through
+the measured route, and EXACT-OBJECT-PILOT-MEASUREMENT-002 measured no
+performance win. The active row closes this first exact-object pilot as a
+no-keeper boundary experiment and returns the lane to fresh owner selection.
+RECORD-BOX-SURFACE-000 then fixed the user-facing language split as
+two-surface / one-substrate: record is identity-free value aggregate, box is
+identity / behavior / lifecycle boundary, and the compiler may share
+AggregateStoragePlan / ObjectStoragePlan only where proof permits.
+RECORD-BOX-DOCS-001 updated the reference docs with data/value -> record and
+thing/owner/behavior/lifecycle -> box wording. AGG-STORAGE-PLAN-000 added the
+passive `src/aggregate_storage_plan.rs` vocabulary with execution disabled.
+AGG-OBJECT-STORAGE-BRIDGE-001 documented the shared backend lowering concepts
+without merging source semantics. RECORD-METHODS-GATE-000 and
+RECORD-WITH-BOX-GATE-000 kept record methods disabled and `with` record-only.
+SIMPLE-BOX-EXACT-OBJECT-CANDIDATE-001 parked simple-box exact-object
+implementation because fresh_high_confidence_owner_evidence=0; simple boxes may
+later use the same backend substrate only through ObjectStoragePlan / RoutePlan,
+not by treating record semantics as proof for boxes.
+MANUAL-SYNC-RECORD-BOX-001 synchronized README and boxes-system manual entry
+points with the current two-surface / one-substrate model, while keeping older
+Everything-is-Box pages as historical references. MANUAL-SYNC-CONCURRENCY-001
+synchronized the manual concurrency entry points: co is the canonical
+structured Future ownership surface, nowait is not an OS-thread spawn promise,
+worker_scope remains design-only, workers=N is an upper-bound hint, raw thread
+syntax remains closed, and ThreadApi / WorkerPoolScheduler remain runtime
+substrate. CURRENT-ENTRY-MANUAL-SYNC-001 aligned root/current restart pointers
+and docs navigation with those manual sync rows.
 The
 previous keeper is
 BOOL-SCALAR-LOWERING-001 for
 kilo_micro_userbox_flag_toggle. `kilo_micro_userbox_counter_step_chain` remains
 a startup sentinel, not the kernel optimization front. Product NyRT startup,
 Type ABI / plugin ABI, MIRBuilder truth changes, Arc retirement, and object
-substrate replacement remain out of scope."""
+substrate replacement remain out of scope. MIMALLOC-BODY-TIMING-FRESH-OWNER-SELECTION-002
+remeasured the object-lifecycle body surface, selected
+mir_call_selectPage_compare_eq_expression_copy_chain as the fresh narrow owner,
+and keeps implementation closed until MIR-CALL-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001
+pins the policy. MIR-CALL-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001 selected
+mir_call_compare_operand_value_forwarding_candidate_probe with medium
+confidence and keeps implementation closed until a candidate probe fixes the
+safe set. MIR-CALL-COMPARE-OPERAND-FORWARDING-CANDIDATE-PROBE-001 found two
+dominance-required compare_eq candidates and unsafe_candidate_count=0; the next row
+must pin the guard surface before implementation. MIR-CALL-COMPARE-OPERAND-FORWARDING-GUARD-SURFACE-001
+opened exactly one narrow seam: dominance-guarded MIR-call-result compare
+operand forwarding, with post candidate count 0 required. MIR-CALL-COMPARE-OPERAND-FORWARDING-IMPLEMENTATION-001
+implemented only that seam and reduced post_compare_operand_forwarding_candidate_count
+to 0. MIR-CALL-COMPARE-OPERAND-FORWARDING-MEASUREMENT-001 fixed the stale
+LLVM C shim declaration surface that blocked remeasurement, then measured
+hako_body_elapsed_ns=365000000, c_body_elapsed_ns=3727908, and
+body_elapsed_ratio=97.910. The MIR shape cleanup is not a body-time winner.
+POST-MIR-CALL-COMPARE-OPERAND-FORWARDING-OWNER-REFRESH-001 selected
+local_ssa_block_entry_phi_edge_copy_family with medium confidence:
+local_ssa_copy_materialization_copy_count=20, phi_edge_copy_count=18,
+block_entry_copy_count=10, and compare_operand_route_carrier_copy_count=0.
+LOCAL-SSA-BLOCK-ENTRY-PHI-EDGE-COPY-DESIGN-001 kept implementation closed:
+PHI-edge copies require PHI lifecycle ownership, block-entry copies require a
+split candidate probe, and broad LocalSSA coalescing remains forbidden.
+LOCAL-SSA-BLOCK-ENTRY-PHI-EDGE-COPY-CANDIDATE-PROBE-001 found
+safe_candidate_count=0: phi_edge_copy_count=18, block_entry_copy_count=10,
+block_entry_route_none_count=7, and block_entry_route_carrier_count=3. This
+family is a no-safe-candidate non-keeper until a separate freshness/PHI
+lifecycle owner exists.
+LOCAL-SSA-BLOCK-ENTRY-PHI-EDGE-NO-SAFE-CANDIDATE-CLOSEOUT-001 closed that
+family as a non-keeper and returns the lane to owner-first selection before any
+new implementation. FRESH-OWNER-SELECTION-AFTER-LOCAL-SSA-NO-SAFE-CANDIDATE-001
+selected body_timing_rebaseline_after_local_ssa_nonkeeper, because the last
+measurement predates the no-safe-candidate closeout and no fresh high-confidence
+implementation owner is open.
+MIMALLOC-BODY-TIMING-REBASELINE-AFTER-LOCAL-SSA-NONKEEPER-001 remeasured
+body_elapsed_ratio=79.586 and confirmed compiler_lowering remains visible, but
+the dominant residue is PHI-edge / block-entry copy materialization requiring
+PHI lifecycle and freshness design before any further implementation.
+PHI-LIFECYCLE-FRESHNESS-DESIGN-001 fixed that boundary: PHI lifecycle owns
+Reserve/Define/Populate/Finalize, variable_map is only a defined-value emission
+cache, LocalSSA remains block-local operand materialization, and PHI-edge /
+block-entry copy optimization cannot reopen without freshness / PHI lifecycle
+proof. PHI-LIFECYCLE-FRESHNESS-GUARD-SURFACE-001 fixed the guard vocabulary and
+keeps implementation closed until a future inventory proves exactly one owner.
+PHI-LIFECYCLE-FRESHNESS-INVENTORY-001 applied that guard surface and found no
+proven owner: phi_edge requires PHI lifecycle proof, route-none block-entry
+requires freshness proof, and route-carrier block-entry requires route-specific
+operand policy. Implementation remains closed and the lane returns to fresh
+owner selection. MIMALLOC-BODY-TIMING-FRESH-OWNER-SELECTION-AFTER-PHI-FRESHNESS-NO-OWNER-001
+kept the PHI freshness family closed and selected route_carrier_residual_inventory
+as the next non-implementation row. ROUTE-CARRIER-RESIDUAL-INVENTORY-001
+classified the remaining route-carrier residue as call_operand-only and selected
+call_operand_route_carrier_policy_selection next, with implementation still
+closed. CALL-OPERAND-ROUTE-CARRIER-POLICY-SELECTION-001 selected
+cfg_stable_call_operand_route_carrier_revalidation because the residual count
+matches the previously selected receiver-only CFG-stable family; implementation
+remains closed until a revalidation guard surface fixes the current post target.
+CALL-OPERAND-ROUTE-CARRIER-REVALIDATION-GUARD-SURFACE-001 fixed that the
+current coarse call_operand role is insufficient and selected a receiver/arg
+split probe before any implementation owner can reopen.
+CALL-OPERAND-ROUTE-CARRIER-RECEIVER-ARG-SPLIT-PROBE-001 extended the observation
+probe and measured receiver=2 / arg=11; arg remains closed and the next row
+classifies the two receiver residue samples. CALL-OPERAND-RECEIVER-RESIDUE-CLASSIFICATION-001
+classified both receiver samples as same_block_self_receiver_materialization and
+selected a narrow design row; the prior CFG-stable receiver keeper and arg
+forwarding remain closed. CALL-OPERAND-SAME-BLOCK-SELF-RECEIVER-MATERIALIZATION-DESIGN-001
+found that the same-block receiver seam already landed, selected no new
+receiver owner, and moved the lane to explicit arg residue policy selection.
+CALL-OPERAND-ARG-RESIDUE-POLICY-SELECTION-001 found no safe narrow arg owner,
+kept arg forwarding closed, and selected call-operand route-carrier closeout
+plus fresh owner selection.
+CALL-OPERAND-ROUTE-CARRIER-CLOSEOUT-AND-FRESH-OWNER-SELECTION-001 closed
+receiver and arg route-carrier lanes, selected no implementation owner, and
+selected body timing rebaseline after call-operand closeout.
+MIMALLOC-BODY-TIMING-REBASELINE-AFTER-CALL-OPERAND-CLOSEOUT-001 reran the
+canonical direct-exact Hako/C pair and current MIR copy-position probe, found
+body_elapsed_ratio=2.138 with gap_owner=measurement_harness, and kept
+implementation closed pending measurement hygiene refresh.
+MIMALLOC-MEASUREMENT-HYGIENE-REFRESH-001 repeated the canonical direct-exact
+pair five times, found ratio median 2.119 / max 2.363, did not reproduce the
+old 79.586x body gap, and selected measurement state provenance inventory
+before any implementation can reopen.
+MIMALLOC-MEASUREMENT-STATE-PROVENANCE-INVENTORY-001 compared row753 and current
+provenance, found current root/empty reprobes do not reproduce 79.586x, and
+closed the old large gap as stale/transient measurement evidence before moving
+to current 2x runtime boundary inventory.
+MIMALLOC-RUNTIME-BOUNDARY-INVENTORY-FOR-CURRENT-2X-GAP-001 found visible
+BoxCallable/RoutePlan, Arc/ObjectHandle, HostHandle, runtime helper, and
+generated-runtime seams under the current ~2x gap, but selected no
+implementation owner because no single hot owner is proven yet. The active row
+must attribute the current ~2x gap with asm/perf boundary evidence before any
+implementation can reopen.
+MIMALLOC-CURRENT-2X-ASM-BOUNDARY-ATTRIBUTION-001 measured the current direct-exact
+route with helper-symbol annotation: top_symbol=nyash_array_length_h at 70.71%,
+with the helper already on the borrowed-ready path. The remaining owner is
+handle_registry_typed_handle_boundary with high confidence, but implementation
+stays closed because the next step is a design row for the clean
+RoutePlan/ObjectStoragePlan boundary.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-DESIGN-001 selected
+closed_world_handle_resolution_plan as the design-only seam: RoutePlan proves
+the callable route, ObjectStoragePlan proves the receiver representation, and
+the exact-AOT backend consumes both plans. Helper patching, global
+HostHandle/Arc retirement, MIRBuilder object management, and product default
+changes remain closed until a proof surface exists.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-PROOF-SURFACE-001 defined the
+required report surface for that plan: route proof, storage proof, escape /
+publication rejection fields, and explicit fallback requirements. Backend
+direct handle bypass remains disabled and the next row is a read-only candidate
+inventory, not implementation.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-CANDIDATE-INVENTORY-001 found
+the route proof is present for ArrayBox.length / array_slot_len, but the hot
+Array receiver lacks an ObjectStoragePlan proof. The candidate is rejected with
+eligible_site_count=0 and selected_blocker=receiver_storage_plan_missing, so
+implementation remains closed and the next row is storage proof design.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-STORAGE-PROOF-DESIGN-001 selected
+array_receiver_storage_proof_via_object_storage_plan: storage proof must come
+from ObjectStoragePlan / ArrayRepr residence, not public ArrayBox handle
+reinterpretation or backend raw layout inference. Implementation remains
+closed; next row defines the concrete storage proof report surface.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-STORAGE-PROOF-SURFACE-001 fixed
+the concrete Array receiver storage proof fields: owner, residence, direct
+facts, materialization route, public-handle reinterpretation ban, raw-layout
+inference ban, and fallback to public ArrayBox. Backend direct handle bypass
+remains disabled; next row inventories those fields.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-STORAGE-PROOF-INVENTORY-001
+filled the inventory and rejected the current bypass candidate: route proof is
+available for ArrayBox.length / array_slot_len, but the hot receiver has
+array_receiver_storage_owner=none, array_receiver_storage_residence=none,
+array_receiver_direct_facts_proven=0, and
+array_receiver_host_handle_publication_before_read=1. Implementation remains
+closed; next row designs an explicit Array residence proof.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-DESIGN-001
+selected array_receiver_residence_proof_via_arrayrepr: RoutePlan proves the
+array_slot_len callable route, while ArrayRepr / ObjectStoragePlan must prove
+the receiver residence and materialization route. Public ArrayBox handle
+reinterpretation, backend raw layout inference, route-proof-as-storage-proof,
+MIRBuilder object management, and backend direct handle bypass remain closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-SURFACE-001
+fixed the concrete Array residence proof fields: owner, residence, direct facts
+source, materialization route, public-handle ban, raw-layout ban,
+route-proof-as-storage-proof ban, and public ArrayBox fallback. Implementation
+remains closed; next row inventories those fields.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-INVENTORY-001
+filled the residence inventory and rejected the current direct bypass:
+array_receiver_residence_owner=none, array_receiver_residence=none,
+array_receiver_direct_facts_source=none, direct facts/materialization are not
+proven, and HostHandle publication still occurs before the read. Implementation
+remains closed; next row designs the producer for explicit Array residence
+evidence.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-DESIGN-001
+selected array_receiver_residence_fact_producer owned by RepresentationPlanner /
+ArrayReprFactProducer. The producer emits analysis facts from RoutePlan,
+DirectArrayAccessPlan, ObjectStoragePlan, and escape facts before backend
+lowering; MIRBuilder, backend layout inference, helper-name inference, and
+public ArrayBox handle reinterpretation remain rejected.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-SURFACE-001
+fixed ArrayReceiverResidenceFact producer report fields: owner, input
+availability, output, ordering, rejection of runtime/backend/MIRBuilder/helper
+inference, fallback preservation, and materialization route requirements.
+Producer implementation and backend direct handle bypass remain closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INVENTORY-001
+filled the producer inventory: RoutePlan input is available, but DirectArrayPlan
+and ObjectStoragePlan inputs are not available for the hot receiver, so no
+ArrayReceiverResidenceFact producer can be implemented yet. Implementation
+remains closed; next row designs the required producer input.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-DESIGN-001
+selected array_receiver_residence_input_surface as the missing representation
+input. The input may reference DirectArrayAccessPlan but is not
+DirectArrayAccessPlan alone; it must support length receiver residence, preserve
+public ArrayBox fallback, and reject backend layout inference, helper-name
+inference, public handle reinterpretation, and MIRBuilder ownership.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SURFACE-001
+fixed ArrayReceiverResidenceInput report fields and the open gate. Input
+implementation, producer implementation, and backend direct handle bypass remain
+closed until an inventory proves a high-confidence input candidate.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-INVENTORY-001
+filled the input inventory: RoutePlan and escape facts are available, but
+DirectArrayAccessPlan, ObjectStoragePlan, and ArrayRepr input sources are not
+available for the hot receiver, so ArrayReceiverResidenceInput implementation
+remains closed. Next row designs the missing input source.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SOURCE-DESIGN-001
+selected ArrayReceiverResidenceInputSource as a representation-planner source
+record consumed by ArrayReceiverResidenceInput. It may reference
+DirectArrayAccessPlan but must also include ArrayRepr or ObjectStoragePlan
+evidence, escape/publication evidence, and a materialization route.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SOURCE-SURFACE-001
+fixed ArrayReceiverResidenceInputSource report fields and the open gate. Source
+implementation, input implementation, producer implementation, and backend
+direct handle bypass remain closed until source inventory proves a
+high-confidence candidate.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SOURCE-INVENTORY-001
+filled the source inventory: route, publication, and materialization evidence
+exist, but no ArrayRepr or ObjectStoragePlan source reaches the hot receiver
+before the length read. Source implementation remains closed; next row designs
+the construction seam.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SOURCE-CONSTRUCTION-DESIGN-001
+selected ArrayReceiverResidenceSourceConstructor as an analysis-only
+RepresentationPlanner / ArrayReprSourcePlanner seam that joins RoutePlan,
+escape/publication facts, materialization route, ArrayRepr, ObjectStoragePlan,
+and optional DirectArrayAccessPlan input.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SOURCE-CONSTRUCTION-SURFACE-001
+fixed ArrayReceiverResidenceSourceConstructor report fields and the open gate.
+Constructor implementation, source implementation, input implementation,
+producer implementation, and backend direct handle bypass remain closed until
+constructor inventory proves a high-confidence candidate.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-RESIDENCE-PRODUCER-INPUT-SOURCE-CONSTRUCTION-INVENTORY-001
+filled the constructor inventory: RoutePlan, escape/publication, and
+materialization inputs are present, but the required ArrayRepr or
+ObjectStoragePlan input is missing. Constructor implementation remains closed;
+next row designs the upstream representation source.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-DESIGN-001
+selected ArrayReceiverRepresentationSource as the upstream representation
+source consumed by the constructor. It is owned by RepresentationPlanner /
+ObjectStoragePlan / ArrayRepr and may provide fallback or direct representation
+evidence without backend layout inference.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-SURFACE-001
+fixed the ArrayReceiverRepresentationSource report surface and open gate:
+owner/output/scope/route kind, ArrayRepr/ObjectStoragePlan/DirectArrayAccessPlan
+fields, materialization route, public ArrayBox fallback preservation, and
+backend/MIRBuilder/helper/public-handle inference bans. Source implementation
+remains closed until inventory proves a high-confidence candidate.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-INVENTORY-001
+selected the high-confidence fallback-only representation source:
+ArrayRepr::PublicArrayBoxFallback. DirectI64 / ObjectStoragePlan direct proof
+is still absent, so backend direct handle bypass stays closed; the next row may
+implement only the passive fallback source.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-IMPLEMENTATION-001
+implemented the passive fallback-only ArrayReceiverRepresentationSource
+vocabulary in src/array_receiver_representation_source.rs. It reports
+PublicArrayBoxFallback and explicitly proves no direct storage or backend
+bypass; constructor, MIR JSON, and backend consumers remain closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-CONSTRUCTOR-HANDOFF-DESIGN-001
+designed the next constructor handoff: PublicArrayBoxFallback may flow as a
+fallback residence candidate, but it still proves no direct storage and
+authorizes no backend direct handle bypass.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-CONSTRUCTOR-HANDOFF-IMPLEMENTATION-001
+implemented passive fallback handoff vocabulary in
+src/array_receiver_representation_source.rs. It keeps source_connected_to_constructor=0,
+source_consumed_by_backend=0, and backend direct handle bypass disabled.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-CONSTRUCTOR-HANDOFF-CONSUMER-INVENTORY-001
+inventoried the consumer surface: the only candidate is the design-only
+ArrayReceiverResidenceSourceConstructor. The handoff is safe only as a
+fallback residence candidate; direct residence proof, MIR JSON export, backend
+consumption, and direct handle bypass remain closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-CONSTRUCTOR-HANDOFF-CONSUMER-IMPLEMENTATION-DESIGN-001
+selected the fallback-only consumer implementation shape: the constructor may
+accept ArrayReceiverConstructorHandoff only as fallback residence evidence and
+may emit ArrayReceiverResidenceInputSource|none, while direct input, MIR JSON
+export, backend consumption, and direct handle bypass stay closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-CONSTRUCTOR-HANDOFF-CONSUMER-IMPLEMENTATION-001
+implemented passive fallback-only constructor vocabulary in
+src/array_receiver_representation_source.rs. It connects the handoff to
+ArrayReceiverResidenceSourceConstructor as fallback input-source vocabulary
+only; MIR JSON export, backend consumption, direct proof, and direct handle
+bypass remain closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-CONSTRUCTOR-HANDOFF-INPUT-SOURCE-CONSUMER-INVENTORY-001
+inventoried the next consumer as ArrayReceiverResidenceInput, but classified
+the proof chain as controlled_but_long. Before implementing the next stage, the
+lane should add a thin facade / naming map that preserves the proof gates while
+reducing patch-surface ambiguity.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-CHAIN-THINNING-DESIGN-001
+selected ArrayReceiverResidenceProofChain as the developer-facing facade and
+kept the existing staged reports as internal proof gates. ConstructorHandoff is
+kept as compatibility vocabulary but is no longer the primary mental model.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-CHAIN-THINNING-SURFACE-001
+fixed the facade report surface and open gate. The next implementation may add
+construct_input_source_from_representation_source, but must preserve stage
+reports and keep direct proof, MIR JSON export, backend consumption, and direct
+handle bypass closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-CHAIN-THINNING-IMPLEMENTATION-001
+implemented ArrayReceiverResidenceProofChain as the developer-facing facade and
+added a short navigation note. It preserves the compatibility handoff path and
+keeps direct proof, MIR JSON export, backend consumption, and direct handle
+bypass closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-CHAIN-THINNING-CLOSEOUT-001
+closed the BoxShape thinning detour: ArrayReceiverResidenceProofChain is the
+developer-facing entry, ConstructorHandoff is compat vocabulary, proof gates
+stay preserved, and the next row returns to ArrayReceiverResidenceInput
+consumer design with backend/direct routes closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-DESIGN-001
+reconnected the existing ArrayReceiverResidenceInput surface to the current
+ProofChain entry. The selected mode remains fallback-only:
+ArrayReceiverResidenceInputSource -> ArrayReceiverResidenceInput, with no
+direct storage proof, MIR JSON export, backend consumption, or direct handle
+bypass.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-SURFACE-001
+defined the concrete passive ArrayReceiverResidenceInput surface and open gate:
+fallback public ArrayBox evidence may become a fallback residence input, while
+direct storage proof, MIR JSON export, backend consumption, and direct handle
+bypass remain closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-IMPLEMENTATION-001
+implemented passive ArrayReceiverResidenceInput vocabulary and
+ArrayReceiverResidenceInput::from_input_source. The implementation records only
+fallback public ArrayBox residence evidence and keeps direct proof, MIR JSON
+export, backend consumption, and direct handle bypass closed.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001
+closed the passive residence input stage. The next stage would be
+ArrayReceiverResidenceFact / backend-consumable proof, so the active blocker is
+a design consultation rather than another automatic implementation row."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md"
 
-latest_card = "EXACT-OBJECT-PILOT-001R"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-715-EXACT-OBJECT-PILOT-001R.md"
-latest_card_summary = """EXACT-OBJECT-PILOT-001R retries the first exact-object
-pilot using the flattened nested field plan for
-HakoAllocObjectLifecycleFacade.alignment_result."""
-current_blocker_token = "EXACT-OBJECT-PILOT-001R-ACTIVE"
+latest_card = "MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md"
+latest_card_summary = """Close passive ArrayReceiverResidenceInput stage.
+Next stage is ResidenceFact / backend-consumable proof and requires design
+consultation before more implementation."""
+current_blocker_token = "MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-FACT-PRODUCER-DESIGN-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

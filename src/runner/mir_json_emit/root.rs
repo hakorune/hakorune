@@ -4,7 +4,8 @@ use super::decls::{
     collect_array_record_packed_autouse_pilot_plan_values,
     collect_array_record_storage_plan_values, collect_direct_state_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
-    collect_hako_alloc_huge_page_packed_store_pilot_plan_values, collect_record_layout_plan_values,
+    collect_hako_alloc_huge_page_packed_store_pilot_plan_values,
+    collect_object_storage_plan_values, collect_record_layout_plan_values,
     collect_record_state_residence_plan_values, collect_sorted_enum_decl_values,
     collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
     collect_source_packed_array_autouse_pilot_plan_values,
@@ -107,6 +108,10 @@ pub(super) fn build_mir_json_root(
         (
             "typed_object_plans",
             json!(collect_typed_object_plan_values(module)),
+        ),
+        (
+            "object_storage_plans",
+            json!(collect_object_storage_plan_values(module)),
         ),
         (
             "direct_state_plans",

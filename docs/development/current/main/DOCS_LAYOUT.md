@@ -134,6 +134,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - exact-AOT object boundary owner; keeps MIRBuilder as source-semantics
     emitter only, RoutePlan as call execution truth, ObjectStoragePlan as
     representation truth, and backend lowering as the C-like consumer
+- `design/record-box-two-surface-one-substrate-ssot.md`
+  - user-facing `record` / `box` boundary owner; keeps `record` as
+    identity-free value aggregate, `box` as identity/behavior/lifecycle
+    boundary, and allows both to share aggregate/object storage planning
+    substrate internally
 - `design/arc-retirement-family-gate-and-first-family-ssot.md`
   - ARC-RETIRE-006..018 contract owner for family retirement gates, first
     candidate selection, refcount storage prototype, atomic retain/release
@@ -171,6 +176,8 @@ Rule:
 - current execution work stays in three buckets:
   - mimalloc migration and optimization
   - Array / representation fast paths only when selected by mimalloc perf evidence
+  - manual/current-entry synchronization when current source semantics or
+    reference navigation drift from landed SSOTs
   - docs and shell hygiene
 - do not add a new phase row or one-off `.sh` for every inventory note; use the
   active working card and reusable lane guards first.

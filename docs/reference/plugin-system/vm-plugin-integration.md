@@ -4,6 +4,8 @@
 
 NyashのVMバックエンドとプラグインシステム（BID-FFI v1）の統合に関する技術仕様。Everything is Box哲学に基づき、**すべてのBox型（ビルトイン、ユーザー定義、プラグイン）**をVMで統一的に扱えるようにする。
 
+> Status note: 初期案にあったスコープ終了専用の lifecycle tracker は現行実装から削除済みです。現在のプラグイン lifecycle owner は `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()` です。
+
 ## ⚠️ **現在のVM実装の重大な問題**
 
 1. **ユーザー定義Box未対応** - NewBoxで文字列を返すだけ
@@ -28,7 +30,7 @@ NyashのVMバックエンドとプラグインシステム（BID-FFI v1）の統
 ├─────────────────────────────────────────────────┤
 │  統一Box管理層                                  │
 │  ├─ BoxFactory       : 統一Box作成             │
-│  ├─ ScopeTracker     : ライフサイクル管理      │
+│  ├─ PluginHandleInner: プラグインfini管理      │
 │  └─ MethodDispatcher : 統一メソッド呼び出し    │
 ├─────────────────────────────────────────────────┤
 │  変換レイヤー                                   │
@@ -51,7 +53,6 @@ pub struct VM {
     // 統一Box管理（新規）
     box_factory: Arc<BoxFactory>,           // 統一Box作成
     plugin_loader: Option<Arc<PluginLoaderV2>>, // プラグイン
-    scope_tracker: ScopeTracker,            // finiライフサイクル
     box_declarations: Arc<RwLock<HashMap<String, BoxDeclaration>>>, // ユーザー定義Box
 }
 ```
@@ -140,8 +141,9 @@ MirInstruction::NewBox { dst, box_type, args } => {
         // プラグインのbirthは既にcreate_box内で実行済み
     }
     
-    // Step 5: スコープ追跡に登録（fini用）
-    self.scope_tracker.register_box(new_box.clone());
+    // Step 5: fini owner
+    // PluginBoxV2 の fini は PluginHandleInner Drop / finalize_now() /
+    // shutdown_plugins_v2() が担当する。
     
     // Step 6: VMValueに変換して格納
     let vm_value = VMValue::from_nyash_box(new_box);
@@ -383,88 +385,35 @@ if cfg!(debug_assertions) {
 
 ## 🔄 ライフサイクル管理
 
-### スコープ管理とfini呼び出し
+### fini owner（現行実装）
 
 ```rust
-pub struct ScopeTracker {
-    scopes: Vec<Scope>,
+impl Drop for PluginHandleInner {
+    fn drop(&mut self) {
+        // If fini_method_id exists and this handle has not already been
+        // finalized, invoke plugin lifecycle fini through the resolved route.
+    }
 }
 
-pub struct Scope {
-    boxes: Vec<(u64, Arc<dyn NyashBox>)>,  // (id, box)
-    variables: HashMap<String, VMValue>,     // ローカル変数
+impl PluginHandleInner {
+    pub fn finalize_now(&self) {
+        // Used by singleton shutdown / explicit loader shutdown paths.
+    }
 }
 
-impl VM {
-    /// スコープ開始
-    fn push_scope(&mut self) {
-        self.scope_tracker.scopes.push(Scope::new());
-    }
-    
-    /// スコープ終了時の自動fini呼び出し
-    fn pop_scope(&mut self) -> Result<(), VMError> {
-        if let Some(scope) = self.scope_tracker.scopes.pop() {
-            // 逆順でfiniを呼ぶ（作成順と逆）
-            for (_, box_ref) in scope.boxes.iter().rev() {
-                self.call_fini_if_needed(box_ref)?;
-            }
-        }
-        Ok(())
-    }
-    
-    /// 統一fini呼び出し
-    fn call_fini_if_needed(&mut self, box_ref: &Arc<dyn NyashBox>) -> Result<(), VMError> {
-        match box_ref.type_name() {
-            // ユーザー定義Box
-            name if self.box_declarations.read().unwrap().contains_key(name) => {
-                if let Some(instance) = box_ref.as_any().downcast_ref::<InstanceBox>() {
-                    // finiメソッドが定義されているか確認
-                    if let Some(box_decl) = self.box_declarations.read().unwrap().get(name) {
-                        if let Some(fini_method) = box_decl.methods.get("fini") {
-                            // finiを実行
-                            self.set_variable("me", box_ref.clone_box());
-                            self.execute_method(fini_method.clone())?;
-                        }
-                    }
-                }
-            },
-            
-            // プラグインBox
-            #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
-            _ if box_ref.as_any().downcast_ref::<PluginBoxV2>().is_some() => {
-                if let Some(plugin) = box_ref.as_any().downcast_ref::<PluginBoxV2>() {
-                    plugin.call_fini();
-                }
-            },
-            
-            // ビルトインBox（将来finiサポート予定）
-            _ => {
-                // 現在ビルトインBoxはfiniなし
-                // 将来的にはStringBox等もfini対応
-            }
-        }
-        Ok(())
-    }
+pub fn shutdown_plugins_v2() {
+    // Drains singleton handles and calls finalize_now().
 }
 ```
 
 ### ライフサイクルの完全性
 
 ```nyash
-// 🌟 すべてのBoxが同じライフサイクル
+// Plugin/native resources should be closed by their owner boundary.
 
-{  // スコープ開始
-    local str = new StringBox("hello")      // birth（引数1つ）
-    local user = new UserBox("Alice", 25)   // birth（引数2つ）
-    local file = new FileBox("test.txt")    // birth（引数1つ）
-    
-    // 使用
-    str.length()
-    user.greet()
-    file.write("data")
-    
-}  // スコープ終了 → 自動的にfini呼び出し
-   // file.fini() → user.fini() → str.fini() の順
+local file = new FileBox("test.txt")
+file.write("data")
+file.fini()  // explicit resource boundary
 ```
 
 ## 🎯 統一の利点

@@ -694,7 +694,9 @@
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_handle_hii\"(i64, i64)\n");
         fprintf(f, "declare void @llvm.trap()\n");
       }
-      if (needs.string_const_box || module_has_planned_same_module_function_definition())
+      if (needs.string_const_box ||
+          module_has_planned_same_module_function_definition() ||
+          object_storage_plan_selected_alignment_result_ready())
         fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.string.len_fast_h\"(i64)\n");
@@ -799,6 +801,12 @@
         fprintf(f, "@.str_reg_%lld = private unnamed_addr constant [%zu x i8] c\"", str_consts[sci].reg, slen + 1);
         hako_llvmc_emit_llvm_byte_string(f, str_consts[sci].val, (long long)slen);
         fprintf(f, "\\00\", align 1\n");
+      }
+      if (object_storage_plan_selected_alignment_result_ready()) {
+        fprintf(f, "@.objstore_alignment_result_last_requested = private unnamed_addr constant [32 x i8] c\"alignment_result.last_requested\\00\", align 1\n");
+        fprintf(f, "@.objstore_alignment_result_last_normalized = private unnamed_addr constant [33 x i8] c\"alignment_result.last_normalized\\00\", align 1\n");
+        fprintf(f, "@.objstore_alignment_result_last_reason = private unnamed_addr constant [29 x i8] c\"alignment_result.last_reason\\00\", align 1\n");
+        fprintf(f, "@.objstore_alignment_result_last_supported = private unnamed_addr constant [32 x i8] c\"alignment_result.last_supported\\00\", align 1\n");
       }
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");

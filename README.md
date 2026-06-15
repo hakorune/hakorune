@@ -477,16 +477,18 @@ hero.learnSkill("Fire Magic").learnSkill("Healing")
 
 ### Modern Async/Await
 ```nyash
-// Concurrent operations made simple
-nowait task1 = fetchDataFromAPI()
-nowait task2 = processLocalFiles()
+// Structured Future ownership. This is not an OS-thread spawn promise.
+co {
+    local task1 = nowait fetchDataFromAPI()
+    local task2 = nowait processLocalFiles()
 
-// Do other work while waiting
-updateUI()
+    // Do other work while waiting
+    updateUI()
 
-// Collect results
-local apiData = await task1
-local files = await task2
+    // Collect results
+    local apiData = await task1
+    local files = await task2
+}
 ```
 
 ### Delegation Pattern
@@ -644,11 +646,13 @@ powershell -ExecutionPolicy Bypass -File tools\build_aot.ps1 -Input examples\aot
 - 20-day journey from concept to native compilation
 - Proves AI can accelerate language development by 30x
 
-### 2. **Box-First Architecture**
-- Every optimization preserves the Box abstraction
-- Plugins are Boxes, JIT preserves Boxes, even native code respects Boxes
-- TypeBox: Even type information is a Box!
-- Unprecedented consistency across all execution modes
+### 2. **Boundary-First Architecture**
+- `record` preserves identity-free value semantics
+- `box` preserves identity, behavior, and lifecycle boundaries
+- `sync box`, `co`, `Channel<T>`, `Result<T,E>`, `brand`, and capability routes
+  keep ownership, waiting, failure, and substrate crossings explicit
+- Exact-AOT may optimize through proven plans, but source boundaries stay
+  visible and documented
 
 ### 3. **Observable by Design**
 - Built-in debugging and profiling
@@ -738,6 +742,6 @@ MIT License - Use freely in your projects!
 
 ---
 
-**🚀 Hakorune - Where Everything is a Box, and Boxes Compile to Native Code!**
+**🚀 Hakorune - Small surface, strong boundaries, native code!**
 
 *Built with ❤️, 🤖 AI collaboration, and the belief that programming languages can be created at the speed of thought*

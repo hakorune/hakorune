@@ -23,6 +23,69 @@ Coercion SSOT status:
 - `local` declares a variable; **re-assignment is allowed** (single keyword policy).
 - There is currently no static type checker. Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics.
 
+### Record vs Box
+
+Hakorune keeps `record` and `box` as separate source surfaces.
+
+```text
+record:
+  identity-free value aggregate
+  fixed typed data
+  replacement via `with`
+  no lifecycle / behavior boundary in v0
+  no methods / fini / dynamic dispatch in v0
+
+box:
+  identity object
+  behavior / methods
+  mutable state / ownership / lifecycle boundary
+```
+
+Use the short rule:
+
+```text
+data/value:
+  record
+
+thing/owner/behavior/lifecycle:
+  box
+```
+
+Do not read `record` as a faster `box`.  `record` is the source-level word for
+identity-free named data.  Optimization is handled by the compiler's aggregate
+and object storage plans where proofs allow it.
+
+Examples:
+
+```hako
+record Point {
+    x: i64
+    y: i64
+}
+
+box Counter {
+    value: i64 = 0
+
+    inc(delta: i64): void {
+        me.value = me.value + delta
+    }
+}
+```
+
+`with` is record-only:
+
+```hako
+local moved = point with { x: point.x + 1 }
+```
+
+Ordinary boxes do not support `with` copy/update semantics.
+
+Design SSOT:
+
+- `docs/development/current/main/design/record-box-two-surface-one-substrate-ssot.md`
+- `docs/development/current/main/design/object-storage-plan-boundary-ssot.md`
+- `docs/development/current/main/phases/phase-296x/296x-734-AGG-STORAGE-PLAN-000.md`
+
 ### Numeric Substrate Vocabulary (M0)
 
 Decision: accepted for the type-name/storage lock only.

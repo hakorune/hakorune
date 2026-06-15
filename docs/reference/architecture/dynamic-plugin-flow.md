@@ -48,7 +48,7 @@ Nyash Source ──▶ MIR (Builder)
 2) VM: `runtime.box_registry` に `box_type` を問い合わせ
 3) PluginBoxの場合、Loader v2が `birth(method_id=0)` を TLV で呼び出し
 4) Pluginは `type_id` と新規 `instance_id` を返却 → Loader は `PluginBoxV2` を構築
-5) VMは `ScopeTracker` に登録（スコープ終了で `fini` を呼ぶ）
+5) Loader は `fini_method_id` を `PluginHandleInner` に保持する
 
 ## BoxCall（メソッド呼び出し）
 - InstanceBox: Lowered関数 `{Class}.{method}/{argc}` を MIR/VM内で実行
@@ -80,7 +80,7 @@ Nyash Source ──▶ MIR (Builder)
 ## Handle（BoxRef）のライフサイクル
 - Loaderは `(type_id, instance_id)` を `PluginBoxV2` としてラップ
 - `share_box()` は同一インスタンス共有、`clone_box()` はプラグインの birth を呼ぶ（設計意図による）
-- `fini` は `ScopeTracker` または Drop で保証（プラグインの `fini_method_id` を参照）
+- `fini` は `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()` が owner（プラグインの `fini_method_id` を参照）
 
 ## 具体例（HttpClientBox.get）
 1) Nyash: `r = cli.get(url)`

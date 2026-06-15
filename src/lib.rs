@@ -24,6 +24,8 @@ pub mod box_factory; // unified Box Factory
 pub mod box_operators {
     pub use crate::boxes::operators::*;
 }
+pub mod aggregate_storage_plan;
+pub mod array_receiver_representation_source;
 #[path = "boxes/box_trait.rs"]
 pub mod box_trait;
 pub mod boxes;

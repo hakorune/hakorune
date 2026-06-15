@@ -9,10 +9,15 @@ Current canonical surface:
 - Stage0 / Stage1 usable surface profiles: reference/language/stage-profiles.md
 - Practical syntax summary: reference/language/quick-reference.md
 - Type and enum surface: reference/language/types.md
+- Record vs Box / Object Storage: reference/language/types.md “Record vs Box”,
+  development/current/main/design/record-box-two-surface-one-substrate-ssot.md,
+  and development/current/main/design/object-storage-plan-boundary-ssot.md
 - Option / Result enum prelude: reference/language/option.md
 - Rune declaration metadata: reference/language/runes.md
 - Build conditional `gate`: reference/language/build-conditional-gate.md
 - Low-level language surface: reference/language/low-level-capabilities.md
+- Concurrency / Thread Boundary: reference/concurrency/semantics.md,
+  reference/concurrency/boundary-model.md, and reference/runtime/threading.md
 - Delegation and no-inheritance rule: reference/language/field-visibility-and-delegation.md
 
 Historical references:

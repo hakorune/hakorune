@@ -114,7 +114,10 @@ pub(crate) fn find_value_def(
     None
 }
 
-pub(crate) fn field_get_alias_root(builder: &MirBuilder, seed: ValueId) -> Option<FieldGetAliasRoot> {
+pub(crate) fn field_get_alias_root(
+    builder: &MirBuilder,
+    seed: ValueId,
+) -> Option<FieldGetAliasRoot> {
     let mut current = seed;
     let mut seen = std::collections::BTreeSet::new();
     for _ in 0..8 {

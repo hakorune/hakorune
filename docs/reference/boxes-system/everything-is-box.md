@@ -1,4 +1,12 @@
-# 🌟 Everything is Box - Nyashの核心哲学
+# 🌟 Everything is Box - Nyash historical philosophy
+
+> Historical note: this page preserves the older Nyash “Everything is Box”
+> reading. Current Hakorune uses a broader boundary model: `record` is the
+> identity-free value aggregate surface, `box` is the identity / behavior /
+> lifecycle boundary, and other explicit boundaries include `sync box`, `co`,
+> `Channel<T>`, `Result<T,E>`, `brand`, and capability routes. Current SSOT:
+> `docs/reference/language/types.md` and
+> `docs/development/current/main/design/record-box-two-surface-one-substrate-ssot.md`.
 
 ## 📦 すべては箱である
 

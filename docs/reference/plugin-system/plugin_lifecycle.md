@@ -50,5 +50,5 @@ singleton = true
   - 終了前に `shutdown_plugins_v2()` を呼ぶと単一箇所で確実に `fini` を実行可能
 
 ## 実装参照
-- スコープ追跡: `src/scope_tracker.rs`（スコープ終了時の `fini` 呼出し、プラグインBox自動 `fini` 回避）
-- プラグインローダ: `src/runtime/plugin_loader_v2.rs`（シングルトン生成・保持・シャットダウン、`PluginHandleInner::drop` の `fini`）
+- スコープ終了専用 owner としての自動 `fini` は持たない設計です。
+- プラグインローダ: `src/runtime/plugin_loader_v2.rs`（シングルトン生成・保持・シャットダウン、`PluginHandleInner::drop` / `finalize_now()` の `fini`）

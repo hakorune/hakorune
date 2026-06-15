@@ -54,8 +54,8 @@ Related:
 - `src/finalization.rs`
   - finalizer の存在（あれば: 登録、呼び出しタイミング、順序）
   - 禁止事項（再入/例外/I/O/alloc）をどこでガードするか
-- `src/box_trait.rs` / `src/scope_tracker.rs`
-  - Box の所有モデル（Arc/Weakの境界、roots の形成点）
+- `src/value.rs` / `src/finalization.rs` / `src/runtime/host_handles.rs` / `src/runtime/leak_tracker.rs`
+  - Box の所有モデル（Arc/Weakの境界、roots の形成点と観測点）
 
 ### LLVM harness（差分を SSOT 化）
 

@@ -10,10 +10,25 @@ Related:
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/box-identity-view-allocation-design-note.md
   - docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md
+  - docs/development/current/main/design/record-box-two-surface-one-substrate-ssot.md
   - lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako
 ---
 
 # Record And Packed Array Lowering SSOT
+
+## Parent Decision
+
+The source model is fixed by
+`record-box-two-surface-one-substrate-ssot.md`:
+
+```text
+record = identity-free value aggregate
+box    = identity object / behavior / lifecycle boundary
+```
+
+This document owns the packed/local lowering lane under that source decision.
+It must not reinterpret `record` as a fast `box`, and it must not collapse
+ordinary `box` into the record surface.
 
 ## Goal
 
