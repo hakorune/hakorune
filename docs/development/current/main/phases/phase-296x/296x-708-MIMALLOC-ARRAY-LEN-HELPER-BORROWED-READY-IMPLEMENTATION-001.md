@@ -51,7 +51,7 @@ source_hako_changed=0
 compiler_lowering_changed=0
 runtime_object_changed=0
 array_length_helper_uses_borrowed_ready=1
-nyash_array_length_h_tests_green=1
+nyash_array_length_h_validation_green=1
 body_timing_remeasured=1
 winner_claim=<0|1>
 summary=ok
@@ -80,7 +80,7 @@ source_hako_changed=0
 compiler_lowering_changed=0
 runtime_object_changed=0
 array_length_helper_uses_borrowed_ready=1
-nyash_array_length_h_tests_green=1
+nyash_array_length_h_validation_green=1
 body_timing_remeasured=1
 perf_runs=10
 in_process_operation_repeat=65536
@@ -107,7 +107,7 @@ source_hako_changed=0
 compiler_lowering_changed=0
 runtime_object_changed=0
 array_length_helper_uses_borrowed_ready=1
-nyash_array_length_h_tests_green=1
+nyash_array_length_h_validation_green=1
 body_timing_remeasured=1
 perf_runs=10
 in_process_operation_repeat=65536
@@ -126,6 +126,18 @@ Evidence:
 artifact_dir=/tmp/hakorune_708_array_len_impl.1781487334.report.artifacts.d
 perf_report=/tmp/hakorune_708_array_len_impl.1781487334.report.artifacts.d/perf-report.txt
 perf_annotate=/tmp/hakorune_708_array_len_impl.1781487334.report.artifacts.d/perf-annotate.txt
+```
+
+Validation:
+
+```text
+cargo_fmt_check=ok
+current_state_pointer_guard=ok
+row706_guard=ok
+row707_guard=ok
+row708_guard=ok
+hakorune_release_build=ok
+ny_llvmc_release_build=ok
 ```
 
 The result is a small keeper, not a new broad optimization direction. Remaining
