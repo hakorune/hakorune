@@ -609,20 +609,22 @@ LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001 measured the current
 direct-exact body timing with in_process_repeat=65536 and found
 hako_body_elapsed_ns=24000000, c_body_elapsed_ns=28710275,
 body_elapsed_ratio=0.836, winner_claim=1. The row does not attribute this to a
-new lowering change; closeout is next."""
+new lowering change. LOCAL-KNOWN-RECEIVER-DIRECT-CALL-CLOSEOUT-001 closed the
+lane with lane_closed=1, new_speedup_claim=0, and selected the next row as
+fresh owner selection after closeout."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-821-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-822-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-CLOSEOUT-001.md"
 
-latest_card = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-821-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001.md"
-latest_card_summary = """Local known receiver direct-call measurement:
-in_process_repeat=65536 measured hako_body_elapsed_ns=24000000,
-c_body_elapsed_ns=28710275, body_elapsed_ratio=0.836, winner_claim=1, with no
-new lowering code or product default change."""
-current_blocker_token = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-CLOSEOUT-001"
+latest_card = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-822-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-CLOSEOUT-001.md"
+latest_card_summary = """Local known receiver direct-call closeout:
+lane_closed=1 after body_elapsed_ratio=0.836 / winner_claim=1, while
+new_speedup_claim=0, new_backend_lowering_code_added=0, and product default
+changed=0 remain fixed."""
+current_blocker_token = "MIMALLOC-BODY-TIMING-NEXT-OWNER-SELECTION-AFTER-LOCAL-KNOWN-RECEIVER-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
