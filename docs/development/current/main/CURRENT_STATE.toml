@@ -557,19 +557,47 @@ export, backend consumption, and direct handle bypass closed.
 MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001
 closed the passive residence input stage. The next stage would be
 ArrayReceiverResidenceFact / backend-consumable proof, so the active blocker is
-a design consultation rather than another automatic implementation row."""
+a design consultation rather than another automatic implementation row.
+MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-FACT-BOUNDARY-DESIGN-001
+resolved that consultation as B_plus_C_lite: fallback-only public ArrayBox
+evidence stops at ArrayReceiverResidenceInput and does not produce
+ResidenceFact. Fact names are reserved for direct/backend-consumable proof, so
+the next row selects the direct residence proof owner instead of implementing a
+fallback fact producer.
+LOCAL-FIRST-OBJECT-MODEL-SSOT-001 then reset the design direction: exact-AOT
+starts with local unpublished objects and publishes to public Box / HostHandle /
+Arc only at explicit public boundaries. ObjectPlan owns representation plus
+publication sites for now; a standalone PublicationPlan is deferred until
+ObjectPlan proves too large. The ArrayReceiver residence chain is not extended
+into fallback facts.
+OBJECT-PLAN-LOCAL-FIRST-000 added passive ObjectPlan vocabulary to
+src/object_storage_plan.rs: LocalFirstObjectPlan carries ObjectStoragePlan plus
+ObjectPublicationSite entries, while standalone PublicationPlan, MIR JSON
+export, backend consumption, and lowering remain disabled.
+OBJECT-PUBLICATION-INVENTORY-001 inventoried the target facade body
+conservatively: page is the only local object candidate, it has three
+pre-publication direct calls, and it publishes through two recordLastAllocPage
+sites. The facade body has no Array length direct candidate, so the next shadow
+row must not claim an Array length pilot from this inventory alone.
+LOCAL-OBJECT-SHADOW-001 built the report-only shadow plan from that inventory:
+page is a local identity candidate and published fallback exists, but
+array_length_direct_candidate_count=0 and local_direct_array_len_pilot_open=0.
+LOCAL-DIRECT-ARRAY-LEN-PILOT-001 preflight therefore did not implement the pilot:
+the target facade body has no pre-publication Array.length candidate. The lane
+is now at a design consultation point: retarget to the actual page local
+candidate, find a new Array.length front, or pause local-first implementation."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-815-LOCAL-DIRECT-ARRAY-LEN-PILOT-001.md"
 
-latest_card = "MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-809-MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-INPUT-CONSUMER-CLOSEOUT-001.md"
-latest_card_summary = """Close passive ArrayReceiverResidenceInput stage.
-Next stage is ResidenceFact / backend-consumable proof and requires design
-consultation before more implementation."""
-current_blocker_token = "MIMALLOC-HANDLE-REGISTRY-TYPED-HANDLE-BOUNDARY-ARRAY-REPR-OBJECT-STORAGE-SOURCE-RESIDENCE-FACT-PRODUCER-DESIGN-CONSULTATION-001"
+latest_card = "LOCAL-DIRECT-ARRAY-LEN-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-815-LOCAL-DIRECT-ARRAY-LEN-PILOT-001.md"
+latest_card_summary = """Preflight LOCAL-DIRECT-ARRAY-LEN-PILOT and stop:
+array_length_direct_candidate_count=0 in the target facade body, so
+implementation_allowed=0 and design consultation is required."""
+current_blocker_token = "LOCAL-FIRST-DIRECT-PILOT-DESIGN-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

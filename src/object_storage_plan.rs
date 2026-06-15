@@ -18,6 +18,15 @@ pub struct FieldScalarPlan {
     pub scalar_type: ScalarStorageType,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ObjectValueId(pub u32);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ObjectBasicBlockId(pub u32);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ObjectInstructionIndex(pub u32);
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FlattenedNestedFieldPlan {
     pub owner_field_id: FieldId,
@@ -61,6 +70,26 @@ pub enum DynamicReason {
     PluginLifecycleRequired,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ObjectPublicationReason {
+    PluginOrExternBoundary,
+    HostHandleRequired,
+    DynamicArrayOrMapStorage,
+    DynamicNyashBoxApi,
+    ReturnAsDynamicBox,
+    TaskFutureChannelBoundary,
+    UnknownFiniOrDrop,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ObjectPublicationSite {
+    pub value_id: ObjectValueId,
+    pub reason: ObjectPublicationReason,
+    pub block_id: ObjectBasicBlockId,
+    pub instruction_index: ObjectInstructionIndex,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ObjectStoragePlan {
     GenericBox {
@@ -87,6 +116,13 @@ pub enum ObjectStoragePlan {
     },
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalFirstObjectPlan {
+    pub value_id: ObjectValueId,
+    pub storage: ObjectStoragePlan,
+    pub publication_sites: Vec<ObjectPublicationSite>,
+}
+
 impl ObjectStoragePlan {
     #[inline]
     pub fn is_exact_candidate(&self) -> bool {
@@ -108,6 +144,30 @@ impl ObjectStoragePlan {
     }
 }
 
+impl LocalFirstObjectPlan {
+    pub fn new(
+        value_id: ObjectValueId,
+        storage: ObjectStoragePlan,
+        publication_sites: Vec<ObjectPublicationSite>,
+    ) -> Self {
+        Self {
+            value_id,
+            storage,
+            publication_sites,
+        }
+    }
+
+    #[inline]
+    pub fn is_unpublished_local(&self) -> bool {
+        self.publication_sites.is_empty() && self.storage.is_exact_candidate()
+    }
+
+    #[inline]
+    pub fn requires_publication(&self) -> bool {
+        !self.publication_sites.is_empty() || self.storage.is_generic_or_escaped()
+    }
+}
+
 pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static str)] {
     &[
         ("output_contract", "hako-object-storage-plan-ssot-v0"),
@@ -117,8 +177,13 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("routeplan_is_call_execution_truth", "1"),
         ("object_storage_plan_is_representation_truth", "1"),
         ("object_storage_plan_vocabulary_defined", "1"),
+        ("object_plan_local_first_vocabulary_defined", "1"),
+        ("object_plan_publication_sites_defined", "1"),
+        ("standalone_publication_plan_enabled", "0"),
+        ("unknown_publication_forces_generic_fallback", "1"),
         ("flattened_nested_field_layout_vocabulary_defined", "1"),
         ("object_storage_plan_execution_enabled", "0"),
+        ("object_plan_execution_enabled", "0"),
         ("exact_object_shadow_ready", "1"),
         ("product_default_changed", "0"),
     ]
@@ -178,8 +243,40 @@ mod tests {
         assert!(fields.contains(&("mirbuilder_object_management_enabled", "0")));
         assert!(fields.contains(&("object_storage_plan_is_representation_truth", "1")));
         assert!(fields.contains(&("object_storage_plan_vocabulary_defined", "1")));
+        assert!(fields.contains(&("object_plan_local_first_vocabulary_defined", "1")));
+        assert!(fields.contains(&("object_plan_publication_sites_defined", "1")));
+        assert!(fields.contains(&("standalone_publication_plan_enabled", "0")));
         assert!(fields.contains(&("flattened_nested_field_layout_vocabulary_defined", "1")));
         assert!(fields.contains(&("object_storage_plan_execution_enabled", "0")));
+        assert!(fields.contains(&("object_plan_execution_enabled", "0")));
         assert!(fields.contains(&("exact_object_shadow_ready", "1")));
+    }
+
+    #[test]
+    fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
+        let unpublished = LocalFirstObjectPlan::new(
+            ObjectValueId(1),
+            ObjectStoragePlan::ExactNativeStruct {
+                layout_id: LayoutId(7),
+            },
+            vec![],
+        );
+        assert!(unpublished.is_unpublished_local());
+        assert!(!unpublished.requires_publication());
+
+        let published = LocalFirstObjectPlan::new(
+            ObjectValueId(2),
+            ObjectStoragePlan::ExactNativeStruct {
+                layout_id: LayoutId(7),
+            },
+            vec![ObjectPublicationSite {
+                value_id: ObjectValueId(2),
+                reason: ObjectPublicationReason::PluginOrExternBoundary,
+                block_id: ObjectBasicBlockId(3),
+                instruction_index: ObjectInstructionIndex(4),
+            }],
+        );
+        assert!(!published.is_unpublished_local());
+        assert!(published.requires_publication());
     }
 }
