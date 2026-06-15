@@ -652,20 +652,23 @@ consumer guard are fixed with product default unchanged.
 COMPILER-OBJECT-SHAPE-CLOSEOUT-FOLLOWUP-001 aligned the ObjectStoragePlan SSOT
 enum with code, tightened the closeout guard to execute source sub-guards, and
 parked backend method-name proof drift / legacy array receiver proof-chain
-retirement as investigation tasks without risky code changes."""
+retirement as investigation tasks without risky code changes.
+BACKEND-METHOD-NAME-PROOF-AUDIT-001 classified the existing flattened-nested
+method-name tables as guarded semantic maps inside an ObjectPlan consumer, not
+generic backend route inference; the next residue is legacy array receiver
+proof-chain retire inventory."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-833-COMPILER-OBJECT-SHAPE-CLOSEOUT-FOLLOWUP-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-834-BACKEND-METHOD-NAME-PROOF-AUDIT-001.md"
 
-latest_card = "COMPILER-OBJECT-SHAPE-CLOSEOUT-FOLLOWUP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-833-COMPILER-OBJECT-SHAPE-CLOSEOUT-FOLLOWUP-001.md"
-latest_card_summary = """Compiler object-shape closeout follow-up:
-ObjectStoragePlan SSOT enum is aligned with code, closeout guard executes its
-source sub-guards, and risky backend/proof-chain residue is parked as
-investigation work."""
-current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-001"
+latest_card = "BACKEND-METHOD-NAME-PROOF-AUDIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-834-BACKEND-METHOD-NAME-PROOF-AUDIT-001.md"
+latest_card_summary = """Backend method-name proof audit:
+flattened-nested method-name tables are guarded semantic maps inside an existing
+ObjectPlan consumer, not generic backend route inference."""
+current_blocker_token = "ARRAY-RECEIVER-RESIDENCE-PROOF-CHAIN-RETIRE-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
