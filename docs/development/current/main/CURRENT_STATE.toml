@@ -622,20 +622,23 @@ selected_next=MIMALLOC-FRESH-FRONT-SELECTION-001. The active goal now moves to
 compiler object-shape cleanup before selfhost MIRBuilder growth:
 COMPILER-OBJECT-FINAL-SHAPE-001 fixed MIRBuilder=meaning,
 SemanticRefresh=facts, RoutePlan=execution, ObjectPlan=representation/publication,
-Backend=plan consumer, Runtime=generic fallback."""
+Backend=plan consumer, Runtime=generic fallback.
+MIRBUILDER-OBJECT-BOUNDARY-GUARD-001 fixed a lightweight guard over
+src/mir/builder so ObjectPlan/ObjectStoragePlan/publication/HostHandle bypass/
+Arc retirement truth cannot enter MIRBuilder silently."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-825-COMPILER-OBJECT-FINAL-SHAPE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-826-MIRBUILDER-OBJECT-BOUNDARY-GUARD-001.md"
 
-latest_card = "COMPILER-OBJECT-FINAL-SHAPE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-825-COMPILER-OBJECT-FINAL-SHAPE-001.md"
-latest_card_summary = """Compiler object final shape:
-MIRBuilder records meaning only, SemanticRefresh owns facts, RoutePlan owns
-execution truth, ObjectPlan owns representation/publication truth, Backend
-consumes plans, and Runtime keeps the generic fallback world."""
-current_blocker_token = "MIRBUILDER-OBJECT-BOUNDARY-GUARD-001"
+latest_card = "MIRBUILDER-OBJECT-BOUNDARY-GUARD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-826-MIRBUILDER-OBJECT-BOUNDARY-GUARD-001.md"
+latest_card_summary = """MIRBuilder object boundary guard:
+src/mir/builder has zero references to ObjectStoragePlan, LocalFirstObjectPlan,
+ObjectPublication, HostHandle bypass, Arc retirement, or name-based direct
+lowering truth."""
+current_blocker_token = "SELFHOST-MIR-OBJECT-METADATA-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
