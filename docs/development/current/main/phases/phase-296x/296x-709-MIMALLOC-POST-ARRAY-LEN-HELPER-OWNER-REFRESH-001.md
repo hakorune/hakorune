@@ -6,6 +6,7 @@ Scope: Classify the remaining `nyash_array_length_h` residue after the
   borrowed-ready helper keeper.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/design/object-storage-plan-boundary-ssot.md
   - docs/development/current/main/phases/phase-296x/296x-708-MIMALLOC-ARRAY-LEN-HELPER-BORROWED-READY-IMPLEMENTATION-001.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
 ---
@@ -58,6 +59,16 @@ compiler_lowering_changed=0
 runtime_object_changed=0
 winner_claim=0
 summary=ok
+```
+
+## Handoff
+
+If the remaining owner is broader than the array length helper itself, hand off
+to the object boundary inventory lane:
+
+```text
+next_task=OBJECT-BOUNDARY-INVENTORY-001
+design_ssot=docs/development/current/main/design/object-storage-plan-boundary-ssot.md
 ```
 
 ## Stop Line

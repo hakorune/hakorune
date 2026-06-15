@@ -130,6 +130,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - ARC-RETIRE-005 contract owner for clone/share semantics, dyn dispatch and
     downcast surfaces, plugin lifecycle ownership, and `VMValue::BoxRef`
     carrier migration planning before any family Arc retirement gate
+- `design/object-storage-plan-boundary-ssot.md`
+  - exact-AOT object boundary owner; keeps MIRBuilder as source-semantics
+    emitter only, RoutePlan as call execution truth, ObjectStoragePlan as
+    representation truth, and backend lowering as the C-like consumer
 - `design/arc-retirement-family-gate-and-first-family-ssot.md`
   - ARC-RETIRE-006..018 contract owner for family retirement gates, first
     candidate selection, refcount storage prototype, atomic retain/release
