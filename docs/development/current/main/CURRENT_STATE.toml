@@ -602,21 +602,27 @@ escape, and no after-publication calls are required; implementation, storage
 direct, HostHandle bypass, Arc retirement, and product runtime changes remain
 closed.
 LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001 produced a report-only shadow with
-three guarded candidates for page acquire_usize/reuse. It authorizes the pilot
-row to look for a generic ObjectPlan + RoutePlan backend seam, but direct
-lowering from shadow alone remains forbidden."""
+three guarded candidates for page acquire_usize/reuse. LOCAL-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001
+found that the existing `user_box_method_routes` C shim consumer already
+provides the generic RoutePlan backend seam, so no new lowering code was added;
+LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001 measured the current
+direct-exact body timing with in_process_repeat=65536 and found
+hako_body_elapsed_ns=24000000, c_body_elapsed_ns=28710275,
+body_elapsed_ratio=0.836, winner_claim=1. The row does not attribute this to a
+new lowering change; closeout is next."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-819-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-821-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001.md"
 
-latest_card = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-819-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md"
-latest_card_summary = """Report-only shadow for local known receiver direct
-calls: three page acquire_usize/reuse candidates are classified, but lowering
-requires a generic ObjectPlan + RoutePlan backend seam in the pilot row."""
-current_blocker_token = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001"
+latest_card = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-821-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-MEASUREMENT-001.md"
+latest_card_summary = """Local known receiver direct-call measurement:
+in_process_repeat=65536 measured hako_body_elapsed_ns=24000000,
+c_body_elapsed_ns=28710275, body_elapsed_ratio=0.836, winner_claim=1, with no
+new lowering code or product default change."""
+current_blocker_token = "LOCAL-KNOWN-RECEIVER-DIRECT-CALL-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
