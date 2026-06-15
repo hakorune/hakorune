@@ -395,6 +395,7 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_mimalloc_body_timing_precision_guard.sh` | 296x-702 の mimalloc body timing precision guard。Hako/C body timer family mismatch を固定し、runtime boundary inventory へ送る。 |
 | `tools/checks/k2_wide_phase296x_mimalloc_runtime_boundary_inventory_guard.sh` | 296x-703 の mimalloc runtime boundary inventory guard。runtime/object/generated-runtime seam は見えるが単一 owner は低信頼のため実装を閉じる。 |
 | `tools/checks/k2_wide_phase296x_mimalloc_body_timer_alignment_probe_guard.sh` | 296x-704 の mimalloc body timer alignment probe guard。repeat scale 後も body gap が残るため runtime boundary direct probe へ送る。 |
+| `tools/checks/k2_wide_phase296x_mimalloc_runtime_boundary_direct_probe_guard.sh` | 296x-705 の mimalloc runtime boundary direct probe guard。scaled perf で `nyash_array_length_h` を次 design owner に選ぶ。 |
 | `tools/checks/k2_wide_phase296x_receiver_materialization_attribution_probe_guard.sh` | 296x-183 の receiver materialization attribution probe guard。receiver copy chain を family / unique copy / duplicate attribution に分解する。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_policy_selection_guard.sh` | 296x-184 の receiver pin chain policy selection guard。same-receiver cache ではなく pin-chain narrowing を選ぶ。 |
 | `tools/checks/k2_wide_phase296x_receiver_pin_chain_narrowing_keeper_guard.sh` | 296x-185 の receiver pin chain narrowing keeper guard。同一 block Copy 定義の receiver を再 copy しない。 |
