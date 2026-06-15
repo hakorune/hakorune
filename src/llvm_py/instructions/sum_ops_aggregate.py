@@ -25,6 +25,30 @@ from utils.values import safe_vmap_write
 _SAFE_SUM_OPS_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
 
 
+
+from instructions.sum_ops_payload import (
+    _new_runtime_sum_handle,
+    _payload_kind,
+    _payload_handle_value,
+    _resolve_payload_value,
+    _payload_fact_store,
+    _record_sum_payload_fact,
+    _sum_payload_fact,
+    _resolved_payload_fact,
+    _project_payload_fact,
+    _declared_payload_fact,
+    _runtime_payload_fact,
+    _storage_kind_from_fact,
+    _apply_payload_fact_to_result,
+    _set_i64_field,
+    _set_bool_field,
+    _set_float_field,
+    _set_handle_field,
+    _get_i64_field,
+    _get_bool_field,
+    _get_float_field,
+    _get_handle_field,
+)
 def _is_local_sum_aggregate(value: Any) -> bool:
     return isinstance(value, dict) and value.get("kind") == "local_sum_aggregate"
 
@@ -528,126 +552,4 @@ def _try_build_local_sum_aggregate(
     }
 
 
-def _new_runtime_sum_handle(
-    builder: ir.IRBuilder,
-    module: ir.Module,
-    enum_name: str,
-    *,
-    name_hint: str,
-):
-    box_type = runtime_box_name(enum_name)
-    i64 = ir.IntType(64)
-    i8p = ir.IntType(8).as_pointer()
-    new_i64x = _declare(
-        module,
-        "nyash.env.box.new_i64x",
-        i64,
-        [i8p, i64, i64, i64, i64, i64],
-    )
 
-    sbytes = (box_type + "\0").encode("utf-8")
-    arr_ty = ir.ArrayType(ir.IntType(8), len(sbytes))
-    try:
-        fn = builder.block.parent
-        fn_name = getattr(fn, "name", "fn")
-    except _SAFE_SUM_OPS_EXC:
-        fn_name = "fn"
-    base = f".sum_box_ty_{fn_name}_{name_hint}"
-    existing = {g.name for g in module.global_values}
-    name = base
-    suffix = 1
-    while name in existing:
-        name = f"{base}.{suffix}"
-        suffix += 1
-
-    g = ir.GlobalVariable(module, arr_ty, name=name)
-    g.linkage = "private"
-    g.global_constant = True
-    g.initializer = ir.Constant(arr_ty, bytearray(sbytes))
-    c0 = ir.Constant(ir.IntType(32), 0)
-    ptr = builder.gep(g, [c0, c0], inbounds=True)
-    zero = ir.Constant(i64, 0)
-    return builder.call(
-        new_i64x,
-        [ptr, zero, zero, zero, zero, zero],
-        name=f"new_{box_type}_{name_hint}",
-    )
-
-
-
-from instructions.sum_ops_aggregate import (
-    _is_local_sum_aggregate,
-    _sum_local_aggregate_paths,
-    _sum_local_aggregate_layouts,
-    _sum_uses_local_aggregate,
-    _sum_local_aggregate_layout_name,
-    _resolve_local_sum_aggregate,
-    _copy_local_sum_metadata_alias,
-    materialize_local_sum_aggregate,
-    lower_variant_make,
-    lower_variant_tag,
-    lower_variant_project,
-    _try_build_local_sum_aggregate,
-)
-from instructions.sum_ops_payload import (
-    _new_runtime_sum_handle,
-    _payload_kind,
-    _payload_handle_value,
-    _resolve_payload_value,
-    _payload_fact_store,
-    _record_sum_payload_fact,
-    _sum_payload_fact,
-    _resolved_payload_fact,
-    _project_payload_fact,
-    _declared_payload_fact,
-    _runtime_payload_fact,
-    _storage_kind_from_fact,
-    _apply_payload_fact_to_result,
-    _set_i64_field,
-    _set_bool_field,
-    _set_float_field,
-    _set_handle_field,
-    _get_i64_field,
-    _get_bool_field,
-    _get_float_field,
-    _get_handle_field,
-)
-
-
-from instructions.sum_ops_aggregate import (
-    _is_local_sum_aggregate,
-    _sum_local_aggregate_paths,
-    _sum_local_aggregate_layouts,
-    _sum_uses_local_aggregate,
-    _sum_local_aggregate_layout_name,
-    _resolve_local_sum_aggregate,
-    _copy_local_sum_metadata_alias,
-    materialize_local_sum_aggregate,
-    lower_variant_make,
-    lower_variant_tag,
-    lower_variant_project,
-    _try_build_local_sum_aggregate,
-)
-from instructions.sum_ops_payload import (
-    _new_runtime_sum_handle,
-    _payload_kind,
-    _payload_handle_value,
-    _resolve_payload_value,
-    _payload_fact_store,
-    _record_sum_payload_fact,
-    _sum_payload_fact,
-    _resolved_payload_fact,
-    _project_payload_fact,
-    _declared_payload_fact,
-    _runtime_payload_fact,
-    _storage_kind_from_fact,
-    _apply_payload_fact_to_result,
-    _set_i64_field,
-    _set_bool_field,
-    _set_float_field,
-    _set_handle_field,
-    _get_i64_field,
-    _get_bool_field,
-    _get_float_field,
-    _get_handle_field,
-)
