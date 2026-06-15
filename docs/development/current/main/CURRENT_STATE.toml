@@ -681,20 +681,24 @@ MIMALLOC-MAP-MISSING-EMPTY-ROUTE-DESIGN-001 selected a proof-bearing
 MapMissingEmptyRoute design: only a new local MapBox with no publication,
 escape, set, delete, clear, or unknown receiver mutation before get may fold to
 the runtime-data zero/null missing result; backend consumption must come from a
-selected RouteDecision/LoweringPlan, not helper or literal-key inference."""
+selected RouteDecision/LoweringPlan, not helper or literal-key inference.
+MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001 fixed the post target for a
+narrow implementation row: one MapMissingEmptyRoute for MapGet bb19.i3, all
+birth/publication/escape/mutation proof fields present, backend consumption via
+RouteDecision, and no MapBox storage/semantics/product-default changes."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-839-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-840-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001.md"
 
-latest_card = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-839-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-DESIGN-001.md"
-latest_card_summary = """Map missing-empty route design:
-selected a proof-bearing get-only route that may fold to zero/null only for a
-new local MapBox before publication, escape, mutation, set/delete/clear, and
-requires RouteDecision/LoweringPlan backend consumption."""
-current_blocker_token = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001"
+latest_card = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-840-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-GUARD-SURFACE-001.md"
+latest_card_summary = """Map missing-empty route guard surface:
+fixed the post target for one proof-bearing get-only missing-empty route at
+MapGet bb19.i3, with no helper-name, literal-key, benchmark-name, or MapBox
+storage/semantics changes."""
+current_blocker_token = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
