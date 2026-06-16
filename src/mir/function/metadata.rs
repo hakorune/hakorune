@@ -53,6 +53,7 @@ use crate::mir::{
     string_corridor::StringCorridorFact,
     string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
+    string_dead_text_region_plan::StringDeadTextRegionPlan,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
     substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute,
@@ -319,6 +320,13 @@ pub struct FunctionMetadata {
     /// direct-set legality proof in MIR so backend shims can only consume
     /// metadata and record the deferred piecewise route.
     pub string_direct_set_window_routes: Vec<StringDirectSetWindowRoute>,
+
+    /// Passive dead text-region plans for substring/concat rotation loops.
+    ///
+    /// These prove a loop-local length-only replacement opportunity for
+    /// inspection. They do not authorize backend lowering or mutate the String
+    /// runtime/product route.
+    pub string_dead_text_region_plans: Vec<StringDeadTextRegionPlan>,
 
     /// Backend-consumable generic method route plans.
     /// These own narrow method-surface policy decisions in MIR so backend

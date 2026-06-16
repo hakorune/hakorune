@@ -60,6 +60,7 @@ use super::{
     },
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
+    refresh_function_string_dead_text_region_plans,
     refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
     refresh_function_sum_placement_facts, refresh_function_sum_placement_layouts,
     refresh_function_sum_placement_selections, refresh_function_sum_variant_project_seed_route,
@@ -128,6 +129,7 @@ fn refresh_function_pre_fixpoint_routes(
 ) {
     refresh_function_string_kernel_plans(function);
     refresh_function_string_direct_set_window_routes(function);
+    refresh_function_string_dead_text_region_plans(function);
     refresh_function_generic_method_routes(function);
     refresh_function_map_repr_plans(function);
     refresh_function_range_index_facts(function);
