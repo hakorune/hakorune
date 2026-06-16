@@ -54,6 +54,8 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("objectplan_is_representation_truth", "1")));
     assert!(fields.contains(&("objectplan_is_publication_site_truth", "1")));
     assert!(fields.contains(&("local_first_object_plan_alias_retired", "1")));
+    assert!(fields.contains(&("object_site_location_vocabulary_defined", "1")));
+    assert!(fields.contains(&("object_site_location_field_migration_enabled", "0")));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -142,6 +144,10 @@ fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
     );
     assert!(!published.is_unpublished_local());
     assert!(published.requires_publication());
+    assert_eq!(
+        published.publication_sites[0].location(),
+        ObjectSiteLocation::new(ObjectBasicBlockId(3), ObjectInstructionIndex(4))
+    );
 }
 
 #[test]
@@ -177,6 +183,10 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
     assert_eq!(fact.site_id, LocalFastPathSiteId(10));
     assert_eq!(fact.block_id, ObjectBasicBlockId(11));
     assert_eq!(fact.instruction_index, ObjectInstructionIndex(12));
+    assert_eq!(
+        fact.location(),
+        ObjectSiteLocation::new(ObjectBasicBlockId(11), ObjectInstructionIndex(12))
+    );
     assert_eq!(fact.object_id, ObjectValueId(20));
     assert_eq!(fact.alias_class, AliasClassId(30));
     assert_eq!(fact.route_plan, RoutePlanId(40));
@@ -222,6 +232,10 @@ fn local_publication_inventory_row_is_report_only_gate_input() {
     );
     assert!(eligible.can_feed_fastpath_eligibility());
     assert_eq!(eligible.fallback_reason, None);
+    assert_eq!(
+        eligible.location(),
+        ObjectSiteLocation::new(ObjectBasicBlockId(10), ObjectInstructionIndex(11))
+    );
 
     let unknown_alias = LocalPublicationInventoryRow::new(
         LocalFastPathSiteId(4),

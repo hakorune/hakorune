@@ -1,5 +1,7 @@
 use super::fastpath::LocalFastPathFallbackReason;
-use super::ids::{ObjectBasicBlockId, ObjectInstructionIndex, ObjectValueId};
+use super::ids::{
+    ObjectBasicBlockId, ObjectInstructionIndex, ObjectSiteLocation, ObjectValueId,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ObjectPublicationReason {
@@ -26,6 +28,13 @@ pub struct ObjectPublicationSite {
     pub reason: ObjectPublicationReason,
     pub block_id: ObjectBasicBlockId,
     pub instruction_index: ObjectInstructionIndex,
+}
+
+impl ObjectPublicationSite {
+    #[inline]
+    pub const fn location(&self) -> ObjectSiteLocation {
+        ObjectSiteLocation::new(self.block_id, self.instruction_index)
+    }
 }
 
 impl PublicationState {

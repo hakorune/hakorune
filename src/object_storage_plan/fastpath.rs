@@ -1,6 +1,6 @@
 use super::ids::{
     AliasClassId, LocalFastPathSiteId, ObjectBasicBlockId, ObjectInstructionIndex,
-    ObjectStoragePlanId, ObjectValueId, RoutePlanId,
+    ObjectSiteLocation, ObjectStoragePlanId, ObjectValueId, RoutePlanId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -36,6 +36,11 @@ pub struct LocalFastPathFact {
 }
 
 impl LocalFastPathFact {
+    #[inline]
+    pub const fn location(&self) -> ObjectSiteLocation {
+        ObjectSiteLocation::new(self.block_id, self.instruction_index)
+    }
+
     pub fn known_receiver_direct_call(
         site_id: LocalFastPathSiteId,
         block_id: ObjectBasicBlockId,

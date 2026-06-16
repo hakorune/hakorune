@@ -845,16 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-995-OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-996-OBJECT-SITE-LOCATION-VOCABULARY-001.md"
 
-latest_card = "OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-995-OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001.md"
-latest_card_summary = """ObjectStoragePlan next vocabulary candidate selection
-chooses site_location_fields as the next thin cleanup seam. Reason enum merging
-and scalar field descriptor merging are deferred because they blur distinct
-semantic owners. No field migration, MIR JSON metadata, backend lowering, or
-MIRBuilder object management changed."""
-current_blocker_token = "OBJECT-SITE-LOCATION-VOCABULARY-001"
+latest_card = "OBJECT-SITE-LOCATION-VOCABULARY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-996-OBJECT-SITE-LOCATION-VOCABULARY-001.md"
+latest_card_summary = """ObjectSiteLocation vocabulary adds a tiny shared
+location value and accessors for publication sites, fast-path facts, and local
+publication inventory rows. Existing public block_id / instruction_index fields
+remain in place; MIR JSON metadata, backend lowering, and MIRBuilder object
+management are unchanged."""
+current_blocker_token = "OBJECT-SITE-LOCATION-FIELD-MIGRATION-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

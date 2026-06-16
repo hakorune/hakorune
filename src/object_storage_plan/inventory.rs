@@ -1,7 +1,7 @@
 use super::fastpath::{LocalFastPathFact, LocalFastPathFallbackReason};
 use super::ids::{
     AliasClassId, LocalFastPathSiteId, ObjectBasicBlockId, ObjectInstructionIndex,
-    ObjectStoragePlanId, ObjectValueId, RoutePlanId,
+    ObjectSiteLocation, ObjectStoragePlanId, ObjectValueId, RoutePlanId,
 };
 use super::publication::PublicationState;
 
@@ -26,6 +26,11 @@ pub struct LocalKnownReceiverDirectCallShadowRow {
 }
 
 impl LocalPublicationInventoryRow {
+    #[inline]
+    pub const fn location(&self) -> ObjectSiteLocation {
+        ObjectSiteLocation::new(self.block_id, self.instruction_index)
+    }
+
     pub fn new(
         site_id: LocalFastPathSiteId,
         block_id: ObjectBasicBlockId,
