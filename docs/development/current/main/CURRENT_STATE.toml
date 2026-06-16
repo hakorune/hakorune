@@ -843,16 +843,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-929-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-930-CABI-GET-POLICY-SPLIT-001.md"
 
-latest_card = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-929-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001.md"
-latest_card_summary = """The fresh front selection after LocalI64Map entry-table
-closeout reselects `kilo_leaf_array_string_len`: it is still Hako-slower
-against the current C pair and already has the parked
-`ArrayTextLoopSessionPlan` surface from 296x-851. The next step is
-`MIMALLOC-ARRAY-TEXT-LOOP-SESSION-PLAN-INVENTORY-001`; map entry-table work
-stays closed."""
+latest_card = "CABI-GET-POLICY-SPLIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-930-CABI-GET-POLICY-SPLIT-001.md"
+latest_card_summary = """The C ABI get-policy split extracts LocalI64Map
+entry-table metadata reading and select-chain emission into two dedicated shim
+includes, shrinking `hako_llvmc_ffi_generic_method_get_policy.inc` from 715 to
+609 lines. Behavior stays unchanged: the exact-AOT LocalI64Map front still
+prints Result 4000001 and imports only `nyash.map.slot_load_hh` outside
+`ny_main`."""
 current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-PLAN-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
