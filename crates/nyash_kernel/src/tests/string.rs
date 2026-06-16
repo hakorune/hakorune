@@ -1,7 +1,5 @@
 use super::*;
 use crate::c_string::cstring;
-#[path = "string/common.rs"]
-mod common;
 #[path = "string/kernel_slot.rs"]
 mod kernel_slot;
 #[path = "string/runtime_data.rs"]
@@ -10,7 +8,6 @@ mod runtime_data;
 mod stage1;
 #[path = "string/string_ops.rs"]
 mod string_ops;
-use common::*;
 
 #[test]
 fn string_substring_concat3_publish_explicit_api_owned_materializes_string_box() {

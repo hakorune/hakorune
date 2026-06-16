@@ -60,7 +60,7 @@ fn direct_slot_cell_v0_preserves_tagged_payloads() {
 
 #[test]
 fn direct_slot_object_snapshot_preserves_usize_storage() {
-    let mut object = DirectSlotObjectV0Box::new(
+    let object = DirectSlotObjectV0Box::new(
         7,
         1,
         &[

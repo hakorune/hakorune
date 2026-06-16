@@ -1,5 +1,4 @@
 use super::super::*;
-use super::common::*;
 use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{IntegerBox, NyashBox, StringBox},

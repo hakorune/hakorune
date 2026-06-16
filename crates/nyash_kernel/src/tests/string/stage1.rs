@@ -1,5 +1,4 @@
 use super::super::*;
-use super::common::*;
 use crate::c_string::cstring;
 use nyash_rust::{box_trait::StringBox, runtime::host_handles as handles};
 use std::sync::Arc;
@@ -26,7 +25,7 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
     let result_handle = dispatch_stage1_module(
         "lang.mir.builder.MirBuilderBox",
         "emit_from_source_v0",
-        include_str!("../../../../lang/src/runner/stage1_cli_env.hako"),
+        include_str!("../../../../../lang/src/runner/stage1_cli_env.hako"),
     );
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
 
@@ -72,7 +71,7 @@ fn invoke_by_name_export_accepts_stage1_mir_builder_source_route_for_stage1_cli_
             ))) as i64;
             let method = cstring("emit_from_source_v0");
             let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(
-                include_str!("../../../../lang/src/runner/stage1_cli_env.hako").to_string(),
+                include_str!("../../../../../lang/src/runner/stage1_cli_env.hako").to_string(),
             ))) as i64;
 
             let result_handle =
@@ -117,7 +116,7 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm(
     let result_handle = dispatch_stage1_module(
         "lang.mir.builder.MirBuilderBox",
         "emit_from_source_v0",
-        include_str!("../../../../apps/tests/hello_simple_llvm.hako"),
+        include_str!("../../../../../apps/tests/hello_simple_llvm.hako"),
     );
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
 
@@ -137,7 +136,7 @@ fn invoke_by_name_stage1_mir_builder_source_route_accepts_decode_escapes_nested_
         "lang.mir.builder.MirBuilderBox",
         "emit_from_source_v0",
         include_str!(
-            "../../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"
+            "../../../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"
         ),
     );
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
@@ -156,7 +155,7 @@ fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatc
     let result_handle = dispatch_stage1_module(
         "lang.compiler.entry.using_resolver_box",
         "resolve_for_source",
-        include_str!("../../../../lang/src/runner/stage1_cli_env.hako"),
+        include_str!("../../../../../lang/src/runner/stage1_cli_env.hako"),
     );
     assert!(result_handle > 0, "expected stub StringBox handle");
 

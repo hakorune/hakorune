@@ -1,11 +1,7 @@
 use super::super::*;
-use super::common::*;
+use crate::c_string::cstring;
 use crate::test_support::{handle_registry_test_lock, with_env_var};
-use nyash_rust::{
-    box_trait::{NyashBox, StringBox},
-    boxes::array::ArrayBox,
-    runtime::host_handles as handles,
-};
+use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
 use std::sync::Arc;
 
 #[test]

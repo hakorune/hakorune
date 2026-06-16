@@ -1,3 +1,6 @@
+use super::types::{
+    STORAGE_HANDLE, STORAGE_I32, STORAGE_I64, STORAGE_U64, STORAGE_U8, STORAGE_USIZE,
+};
 use super::*;
 
 #[test]

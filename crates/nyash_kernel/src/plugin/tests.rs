@@ -1,4 +1,3 @@
-use super::array_handle_cache::with_array_box;
 use super::*;
 use crate::c_string::cstring;
 use nyash_rust::box_trait::{NyashBox, StringBox};
@@ -43,5 +42,5 @@ fn array_string_suffix_store_updates_text_lane() {
         1
     );
     assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 11);
-    assert_eq!(with_array_box(handle, |arr| arr.slot_len()), Some(1));
+    assert_eq!(with_array_box(handle, |arr| arr.len()), Some(1));
 }
