@@ -845,17 +845,17 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-964-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ARRAY-TEXT-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-965-MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-OWNER-INVENTORY-001.md"
 
-latest_card = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ARRAY-TEXT-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-964-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ARRAY-TEXT-CLOSEOUT-001.md"
-latest_card_summary = """Fresh front selection after array text closeout
-selects `kilo_leaf_array_string_indexof_const`: paired microstat reports
-ratio_cycles=0.17 with ny_aot_cycles=33,004,811 versus C cycles=5,773,338.
-The front is a leaf read-only array text indexOf shape with a visible
-`hako.array_text.session_indexof_const_utf8` loop in ny_main. The broad meso
-indexOf+append+set front is rejected for now as a work-explosion surface."""
-current_blocker_token = "MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-OWNER-INVENTORY-001"
+latest_card = "MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-OWNER-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-965-MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-OWNER-INVENTORY-001.md"
+latest_card_summary = """Array text indexOf const owner inventory finds one
+precise `array_text_observer_route` for the read-only leaf front but no
+`array_text_loop_session_plan`. The current hot loop already calls
+`hako.array_text.session_indexof_const_utf8` per iteration, so the next owner is
+the MIR-owned region payload/plan producer for a constant-needle indexOf
+found-predicate region, not backend lowering yet."""
+current_blocker_token = "MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-REGION-PAYLOAD-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
