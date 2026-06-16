@@ -68,12 +68,12 @@ fn try_emit_select_as_phi_for_merge(
         _ => return Ok(false),
     };
 
-    let type_hint = builder.type_ctx.get_type(dst).cloned();
-    builder.emit_instruction(MirInstruction::Phi {
+    builder.define_current_block_phi_final_with_type_hint(
         dst,
         inputs,
-        type_hint,
-    })?;
+        builder.type_ctx.get_type(dst).cloned(),
+        "effect_emission:select_as_phi",
+    )?;
     Ok(true)
 }
 

@@ -369,11 +369,12 @@ pub(in crate::mir::builder) fn apply_if_joins(
             }
         }
 
-        builder.emit_instruction(MirInstruction::Phi {
-            dst: join.dst,
+        builder.define_current_block_phi_final_with_type_hint(
+            join.dst,
             inputs,
             type_hint,
-        })?;
+            "if_join:apply_if_joins",
+        )?;
     }
 
     Ok(())

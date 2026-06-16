@@ -33,7 +33,9 @@
 //! 4. Failures must fail-fast with Result propagation (no silent no-ops)
 
 use crate::mir::builder::MirBuilder;
-use crate::mir::ssot::cf_common::insert_phi_at_head_spanned;
+use crate::mir::ssot::cf_common::{
+    insert_phi_at_head_spanned, insert_phi_at_head_spanned_with_type_hint,
+};
 use crate::mir::{BasicBlockId, ValueId};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -243,7 +245,20 @@ pub(in crate::mir::builder) fn define_phi_final(
     builder: &mut MirBuilder,
     block: BasicBlockId,
     dst: ValueId,
+    inputs: Vec<(BasicBlockId, ValueId)>,
+    tag: &str,
+) -> Result<(), String> {
+    define_phi_final_with_type_hint(builder, block, dst, inputs, None, tag)
+}
+
+/// Define a final PHI with all inputs and an explicit type hint.
+#[track_caller]
+pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
+    builder: &mut MirBuilder,
+    block: BasicBlockId,
+    dst: ValueId,
     mut inputs: Vec<(BasicBlockId, ValueId)>,
+    type_hint: Option<crate::mir::MirType>,
     tag: &str,
 ) -> Result<(), String> {
     let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
@@ -287,7 +302,7 @@ pub(in crate::mir::builder) fn define_phi_final(
     }
 
     // Insert PHI with complete inputs (single-step)
-    insert_phi_at_head_spanned(func, block, dst, inputs, span)
+    insert_phi_at_head_spanned_with_type_hint(func, block, dst, inputs, type_hint, span)
         .map_err(|e| format!("{e} op=define_phi_final tag={tag}"))?;
 
     Ok(())

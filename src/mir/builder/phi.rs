@@ -6,6 +6,39 @@ use std::collections::{BTreeMap, BTreeSet}; // Phase 25.1: 決定性確保
 // Phase 84-5: if_phi.rs deleted, type inference now handled by GenericTypeResolver/PhiTypeResolver
 
 impl MirBuilder {
+    pub(crate) fn define_current_block_phi_final(
+        &mut self,
+        dst: ValueId,
+        inputs: Vec<(BasicBlockId, ValueId)>,
+        tag: &str,
+    ) -> Result<(), String> {
+        let Some(cur_bb) = self.current_block else {
+            return Err(format!(
+                "[freeze:contract][phi_lifecycle/no_current_block] tag={tag}"
+            ));
+        };
+        crate::mir::builder::emission::phi_lifecycle::define_phi_final(
+            self, cur_bb, dst, inputs, tag,
+        )
+    }
+
+    pub(crate) fn define_current_block_phi_final_with_type_hint(
+        &mut self,
+        dst: ValueId,
+        inputs: Vec<(BasicBlockId, ValueId)>,
+        type_hint: Option<crate::mir::MirType>,
+        tag: &str,
+    ) -> Result<(), String> {
+        let Some(cur_bb) = self.current_block else {
+            return Err(format!(
+                "[freeze:contract][phi_lifecycle/no_current_block] tag={tag}"
+            ));
+        };
+        crate::mir::builder::emission::phi_lifecycle::define_phi_final_with_type_hint(
+            self, cur_bb, dst, inputs, type_hint, tag,
+        )
+    }
+
     /// Merge all variables modified in then/else relative to pre_if_snapshot.
     /// In PHI-off mode inserts edge copies from branch exits to merge. In PHI-on mode emits Phi.
     /// `skip_var` allows skipping a variable already merged elsewhere (e.g., bound to an expression result).

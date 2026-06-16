@@ -1,6 +1,6 @@
 use crate::ast::Span;
 use crate::mir::{
-    BasicBlockId, CompareOp, MirFunction, MirInstruction, SpannedInstruction, ValueId,
+    BasicBlockId, CompareOp, MirFunction, MirInstruction, MirType, SpannedInstruction, ValueId,
 };
 
 /// Emit a MIR Compare instruction into the current block (function-level SSOT helper)
@@ -71,7 +71,19 @@ pub fn insert_phi_at_head_spanned(
     f: &mut MirFunction,
     bb_id: BasicBlockId,
     dst: ValueId,
+    inputs: Vec<(BasicBlockId, ValueId)>,
+    span: Span,
+) -> Result<(), String> {
+    insert_phi_at_head_spanned_with_type_hint(f, bb_id, dst, inputs, None, span)
+}
+
+/// Insert a PHI instruction at block head with an optional type hint.
+pub fn insert_phi_at_head_spanned_with_type_hint(
+    f: &mut MirFunction,
+    bb_id: BasicBlockId,
+    dst: ValueId,
     mut inputs: Vec<(BasicBlockId, ValueId)>,
+    type_hint: Option<MirType>,
     span: Span,
 ) -> Result<(), String> {
     inputs.sort_by_key(|(bb, _)| bb.0);
@@ -86,7 +98,7 @@ pub fn insert_phi_at_head_spanned(
         inst: MirInstruction::Phi {
             dst,
             inputs,
-            type_hint: None,
+            type_hint,
         },
         span,
     });

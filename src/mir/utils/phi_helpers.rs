@@ -70,25 +70,17 @@ impl MirBuilder {
             self.core_ctx.next_value() // Module context: use core_ctx SSOT
         };
 
-        // 統一された挿入ロジック（既存パターンと完全互換）
-        if let (Some(func), Some(cur_bb)) =
-            (self.scope_ctx.current_function.as_mut(), self.current_block)
-        {
-            // CFG経由の正規化挿入（predecessor順序の正規化を含む）
-            crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
-                func,
-                cur_bb,
-                phi_val,
-                inputs.clone(),
-                self.metadata_ctx.current_span(),
-            )?;
-        } else {
-            return Err(
-                FreezeContract::new("builder/phi_insert_without_function_context")
-                    .field("dst", format!("%{}", phi_val.0))
-                    .build(),
-            );
-        }
+        self.define_current_block_phi_final(phi_val, inputs.clone(), "phi_helpers:insert_phi")
+            .map_err(|e| {
+                if e.contains("[freeze:") {
+                    e
+                } else {
+                    FreezeContract::new("builder/phi_insert_without_function_context")
+                        .field("dst", format!("%{}", phi_val.0))
+                        .field("source_error", e)
+                        .build()
+                }
+            })?;
         self.comp_ctx
             .propagate_record_local_value_from_phi(&inputs, phi_val);
 
@@ -139,25 +131,17 @@ impl MirBuilder {
         dst: ValueId,
         inputs: Vec<(BasicBlockId, ValueId)>,
     ) -> Result<(), String> {
-        // 統一された挿入ロジック（既存パターンと完全互換）
-        if let (Some(func), Some(cur_bb)) =
-            (self.scope_ctx.current_function.as_mut(), self.current_block)
-        {
-            // CFG経由の正規化挿入（predecessor順序の正規化を含む）
-            crate::mir::ssot::cf_common::insert_phi_at_head_spanned(
-                func,
-                cur_bb,
-                dst,
-                inputs.clone(),
-                self.metadata_ctx.current_span(),
-            )?;
-        } else {
-            return Err(
-                FreezeContract::new("builder/phi_insert_without_function_context")
-                    .field("dst", format!("%{}", dst.0))
-                    .build(),
-            );
-        }
+        self.define_current_block_phi_final(dst, inputs.clone(), "phi_helpers:insert_phi_with_dst")
+            .map_err(|e| {
+                if e.contains("[freeze:") {
+                    e
+                } else {
+                    FreezeContract::new("builder/phi_insert_without_function_context")
+                        .field("dst", format!("%{}", dst.0))
+                        .field("source_error", e)
+                        .build()
+                }
+            })?;
         self.comp_ctx
             .propagate_record_local_value_from_phi(&inputs, dst);
 
