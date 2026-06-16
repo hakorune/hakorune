@@ -182,22 +182,36 @@ impl ArrayBox {
         let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
         let items = self.items.read();
         let mut total = initial_accumulator;
+        let table_len = loop_bound.min(row_modulus);
+
+        let mut lengths = Vec::with_capacity(table_len);
+        match &*items {
+            ArrayStorage::Text(values) => {
+                for idx in 0..table_len {
+                    lengths.push(values.get(idx).map(|value| value.len() as i64)?);
+                }
+            }
+            ArrayStorage::Boxed(items) => {
+                for idx in 0..table_len {
+                    lengths.push(
+                        items
+                            .get(idx)
+                            .and_then(|item| item.as_str_fast().map(|value| value.len() as i64))?,
+                    );
+                }
+            }
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => return None,
+        }
 
         for step in 0..loop_bound {
             let idx = match row_modulus_mask {
                 Some(mask) => step & mask,
                 None => step % row_modulus,
             };
-            let len = match &*items {
-                ArrayStorage::Text(values) => values.get(idx).map(|value| value.len() as i64),
-                ArrayStorage::Boxed(items) => items
-                    .get(idx)
-                    .and_then(|item| item.as_str_fast().map(|value| value.len() as i64)),
-                ArrayStorage::InlineI64(_)
-                | ArrayStorage::InlineBool(_)
-                | ArrayStorage::InlineF64(_)
-                | ArrayStorage::InlineRecord(_) => None,
-            }?;
+            let len = *lengths.get(idx)?;
             total = total.checked_add(len)?;
         }
 
