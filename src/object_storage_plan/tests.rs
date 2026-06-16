@@ -53,7 +53,7 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("objectplan_canonical_vocabulary_defined", "1")));
     assert!(fields.contains(&("objectplan_is_representation_truth", "1")));
     assert!(fields.contains(&("objectplan_is_publication_site_truth", "1")));
-    assert!(fields.contains(&("local_first_object_plan_compat_alias_enabled", "1")));
+    assert!(fields.contains(&("local_first_object_plan_alias_retired", "1")));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -128,7 +128,7 @@ fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
     assert!(unpublished.is_unpublished_local());
     assert!(!unpublished.requires_publication());
 
-    let published = LocalFirstObjectPlan::new(
+    let published = ObjectPlan::new(
         ObjectValueId(2),
         ObjectStoragePlan::ExactNativeStruct {
             layout_id: LayoutId(7),

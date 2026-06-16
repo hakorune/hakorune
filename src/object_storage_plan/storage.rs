@@ -85,13 +85,6 @@ pub struct ObjectPlan {
     pub publication_sites: Vec<ObjectPublicationSite>,
 }
 
-/// Compatibility alias for older local-first rows.
-///
-/// The canonical vocabulary is `ObjectPlan`: representation and publication
-/// sites are one passive planning artifact.  Older phase cards still mention
-/// `LocalFirstObjectPlan`, so keep the alias until those rows are retired.
-pub type LocalFirstObjectPlan = ObjectPlan;
-
 impl ObjectStoragePlan {
     #[inline]
     pub fn is_exact_candidate(&self) -> bool {

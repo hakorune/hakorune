@@ -55,10 +55,11 @@ grep -R -F -q "pub struct ObjectPlan" src/object_storage_plan.rs src/object_stor
   exit 1
 }
 
-grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan || {
-  echo "[$TAG] alias must still be present in guard-compat row" >&2
+if ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan \
+  && ! grep -R -F -q "(\"local_first_object_plan_alias_retired\", \"1\")" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[$TAG] alias is neither present nor explicitly retired" >&2
   exit 1
-}
+fi
 
 grep -F -q "local_first_object_plan_alias_retired" tools/checks/k2_wide_phase296x_objectplan_passive_unify_guard.sh || {
   echo "[$TAG] passive unify guard does not tolerate future retired marker" >&2
