@@ -6,41 +6,38 @@ use crate::ast::{
 };
 use hakorune_mir_builder::BoxCompilationContext;
 
+enum StatementSurfaceDispatch {
+    Lowered(ValueId),
+    RegularExpression(ASTNode),
+}
+
 impl super::MirBuilder {
-    // Main expression dispatcher
-    pub(super) fn build_expression_impl(&mut self, ast: ASTNode) -> Result<ValueId, String> {
-        // Track current source span for downstream instruction emission
-        self.metadata_ctx.set_current_span(ast.span());
-        if crate::config::env::builder_loopform_debug() {
-            if matches!(ast, ASTNode::Loop { .. }) {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[build_expression_impl] === ENTRY === processing Loop node"
-                ));
-            }
-        }
+    fn try_build_statement_surface_expression(
+        &mut self,
+        ast: ASTNode,
+    ) -> Result<StatementSurfaceDispatch, String> {
         match ast {
-            // Control flow constructs (formerly in exprs_legacy)
             ASTNode::Program { statements, .. } => {
-                // Sequentially lower statements and return last value (or Void)
-                self.cf_block(statements)
+                Ok(StatementSurfaceDispatch::Lowered(self.cf_block(statements)?))
             }
             ASTNode::ScopeBox { body, .. } => {
                 if let Some(value) = self.try_build_guard_let_scopebox(body.clone())? {
-                    Ok(value)
+                    Ok(StatementSurfaceDispatch::Lowered(value))
                 } else {
-                    self.cf_block(body)
+                    Ok(StatementSurfaceDispatch::Lowered(self.cf_block(body)?))
                 }
             }
             ASTNode::TaskScope {
                 body,
                 source_keyword,
                 ..
-            } => super::stmts::task_scope_stmt::build_task_scope_statement(
-                self,
-                body.clone(),
-                source_keyword.clone(),
-            ),
+            } => Ok(StatementSurfaceDispatch::Lowered(
+                super::stmts::task_scope_stmt::build_task_scope_statement(
+                    self,
+                    body.clone(),
+                    source_keyword.clone(),
+                )?,
+            )),
             ASTNode::ContextScope {
                 source_keyword,
                 name,
@@ -49,9 +46,9 @@ impl super::MirBuilder {
                 "[freeze:contract][mir_builder/context_scope_lowering_missing] spelling={} name={} context propagation is owned by CONC-CONTEXT-002",
                 source_keyword, name
             )),
-            ASTNode::Print { expression, .. } => {
-                super::stmts::print_stmt::build_print_statement(self, *expression)
-            }
+            ASTNode::Print { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
+                super::stmts::print_stmt::build_print_statement(self, *expression)?,
+            )),
             ASTNode::If {
                 condition,
                 then_body,
@@ -67,25 +64,114 @@ impl super::MirBuilder {
                     statements: b,
                     span: Span::unknown(),
                 });
-                self.cf_if(*condition, then_node, else_node)
+                Ok(StatementSurfaceDispatch::Lowered(self.cf_if(
+                    *condition, then_node, else_node,
+                )?))
             }
             ASTNode::Loop {
                 condition, body, ..
             } => {
                 if crate::config::env::builder_loopform_debug() {
                     let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[exprs.rs:35] FIRST Loop route matched");
+                    ring0.log.debug("[exprs.rs] statement surface Loop route matched");
                 }
-                self.cf_loop(*condition, body)
+                Ok(StatementSurfaceDispatch::Lowered(
+                    self.cf_loop(*condition, body)?,
+                ))
             }
             ASTNode::TryCatch {
                 try_body,
                 catch_clauses,
                 finally_body,
                 ..
-            } => self.cf_try_catch(try_body, catch_clauses, finally_body),
-            ASTNode::Throw { expression, .. } => self.cf_throw(*expression),
+            } => Ok(StatementSurfaceDispatch::Lowered(self.cf_try_catch(
+                try_body,
+                catch_clauses,
+                finally_body,
+            )?)),
+            ASTNode::Throw { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
+                self.cf_throw(*expression)?,
+            )),
+            node @ ASTNode::Assignment { .. } => {
+                let stmt = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
+                Ok(StatementSurfaceDispatch::Lowered(
+                    self.build_assignment_statement_expression(stmt)?,
+                ))
+            }
+            node @ ASTNode::Return { .. } => {
+                let stmt = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
+                Ok(StatementSurfaceDispatch::Lowered(
+                    self.build_return_statement_expression(stmt)?,
+                ))
+            }
+            ASTNode::Local {
+                variables,
+                initial_values,
+                ..
+            } => Ok(StatementSurfaceDispatch::Lowered(
+                super::stmts::variable_stmt::build_local_statement(
+                    self,
+                    variables.clone(),
+                    initial_values.clone(),
+                )?,
+            )),
+            ASTNode::Outbox { variables, .. } => Ok(StatementSurfaceDispatch::Lowered(
+                super::stmts::variable_stmt::build_outbox_statement(self, variables.clone())?,
+            )),
+            ASTNode::Nowait {
+                variable,
+                expression,
+                ..
+            } => Ok(StatementSurfaceDispatch::Lowered(
+                super::stmts::async_stmt::build_nowait_statement(
+                    self,
+                    variable.clone(),
+                    *expression.clone(),
+                )?,
+            )),
+            ASTNode::UsingStatement { .. } => Ok(StatementSurfaceDispatch::Lowered(
+                crate::mir::builder::emission::constant::emit_void(self)?,
+            )),
+            ast => Ok(StatementSurfaceDispatch::RegularExpression(ast)),
+        }
+    }
 
+    fn build_assignment_statement_expression(
+        &mut self,
+        stmt: AssignStmt,
+    ) -> Result<ValueId, String> {
+        if let ASTNode::FieldAccess { object, field, .. } = stmt.target.as_ref() {
+            self.build_field_assignment(*object.clone(), field.clone(), *stmt.value.clone())
+        } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
+            self.build_index_assignment(*target.clone(), *index.clone(), *stmt.value.clone())
+        } else if let ASTNode::Variable { name, .. } = stmt.target.as_ref() {
+            self.build_assignment(name.clone(), *stmt.value.clone())
+        } else {
+            Err("Complex assignment targets not yet supported".to_string())
+        }
+    }
+
+    fn build_return_statement_expression(&mut self, stmt: ReturnStmt) -> Result<ValueId, String> {
+        super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())
+    }
+
+    // Main expression dispatcher
+    pub(super) fn build_expression_impl(&mut self, ast: ASTNode) -> Result<ValueId, String> {
+        // Track current source span for downstream instruction emission
+        self.metadata_ctx.set_current_span(ast.span());
+        if crate::config::env::builder_loopform_debug() {
+            if matches!(ast, ASTNode::Loop { .. }) {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[build_expression_impl] === ENTRY === processing Loop node"
+                ));
+            }
+        }
+        let ast = match self.try_build_statement_surface_expression(ast)? {
+            StatementSurfaceDispatch::Lowered(value) => return Ok(value),
+            StatementSurfaceDispatch::RegularExpression(ast) => ast,
+        };
+        match ast {
             // Regular expressions
             ASTNode::Literal { value, .. } => self.build_literal(value),
 
@@ -154,24 +240,6 @@ impl super::MirBuilder {
                 ..
             } => self.build_from_expression(parent.clone(), method.clone(), arguments.clone()),
 
-            node @ ASTNode::Assignment { .. } => {
-                // Use AssignStmt wrapper for clearer destructuring (no behavior change)
-                let stmt = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
-                if let ASTNode::FieldAccess { object, field, .. } = stmt.target.as_ref() {
-                    self.build_field_assignment(*object.clone(), field.clone(), *stmt.value.clone())
-                } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
-                    self.build_index_assignment(
-                        *target.clone(),
-                        *index.clone(),
-                        *stmt.value.clone(),
-                    )
-                } else if let ASTNode::Variable { name, .. } = stmt.target.as_ref() {
-                    self.build_assignment(name.clone(), *stmt.value.clone())
-                } else {
-                    Err("Complex assignment targets not yet supported".to_string())
-                }
-            }
-
             // Phase 152-A: Grouped assignment expression (x = expr)
             // Stage-3 only. Value/type same as rhs, side effect assigns to lhs.
             // Reuses existing build_assignment logic, returns the SSA ValueId.
@@ -218,27 +286,6 @@ impl super::MirBuilder {
 
             ASTNode::Lambda { params, body, .. } => {
                 self.build_lambda_expression(params.clone(), body.clone())
-            }
-
-            node @ ASTNode::Return { .. } => {
-                // Use ReturnStmt wrapper for consistent access (no behavior change)
-                let stmt = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
-                super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())
-            }
-
-            // Control flow: break/continue are handled inside LoopBuilder context
-            ASTNode::Local {
-                variables,
-                initial_values,
-                ..
-            } => super::stmts::variable_stmt::build_local_statement(
-                self,
-                variables.clone(),
-                initial_values.clone(),
-            ),
-
-            ASTNode::Outbox { variables, .. } => {
-                super::stmts::variable_stmt::build_outbox_statement(self, variables.clone())
             }
 
             ASTNode::BoxDeclaration {
@@ -417,16 +464,6 @@ impl super::MirBuilder {
             ASTNode::ArrayLiteral { elements, .. } => self.build_array_literal(elements),
             ASTNode::MapLiteral { entries, .. } => self.build_map_literal(entries),
 
-            ASTNode::Nowait {
-                variable,
-                expression,
-                ..
-            } => super::stmts::async_stmt::build_nowait_statement(
-                self,
-                variable.clone(),
-                *expression.clone(),
-            ),
-
             ASTNode::AwaitExpression { expression, .. } => {
                 super::stmts::async_stmt::build_await_expression(self, *expression.clone())
             }
@@ -438,12 +475,6 @@ impl super::MirBuilder {
             } => self.build_record_literal_value(record_type_name.clone(), fields.clone()),
             ASTNode::RecordUpdate { base, updates, .. } => {
                 self.build_record_update_value(*base.clone(), updates.clone())
-            }
-
-            // UsingStatement: namespace resolution is done at parser/runner level.
-            // No MIR emission needed - just return void.
-            ASTNode::UsingStatement { .. } => {
-                Ok(crate::mir::builder::emission::constant::emit_void(self)?)
             }
 
             ASTNode::BlockExpr {

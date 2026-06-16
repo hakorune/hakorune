@@ -845,13 +845,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-947-PHI-IMPORT-BOUNDARY-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-951-EXPR-STMT-RUST-MIRBUILDER-CLEANUP-001.md"
 
-latest_card = "PHI-IMPORT-BOUNDARY-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-947-PHI-IMPORT-BOUNDARY-CLOSEOUT-001.md"
-latest_card_summary = """The PHI lifecycle lane is closed for semantic PHI
-builders. JSON v1 import remains an explicit serialized-MIR reconstruction
-boundary, while test/helper PHI construction is classified as fixture-only."""
+latest_card = "EXPR-STMT-RUST-MIRBUILDER-CLEANUP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-951-EXPR-STMT-RUST-MIRBUILDER-CLEANUP-001.md"
+latest_card_summary = """Rust MIRBuilder expr/stmt cleanup landed as a
+BoxShape-only row: statement/control-flow surfaces now route through the named
+`try_build_statement_surface_expression` compatibility boundary before the
+regular expression match, with assignment and return typed-wrapper helpers
+split out. No new language shape or behavior change is claimed."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
