@@ -1631,6 +1631,39 @@ summary=ok
   reachable replacement is proven. Replacement candidate existence alone is not
   enough.
 
+FastPath Consumer Inventory
+- `fastpath_consumer_inventory.py` lists the current-lane fast-path consumer
+  families and their reachability status. It is not a source scanner and does
+  not prove active-front reachability.
+- Stable v0 entry:
+
+```bash
+python3 tools/hako_check/fastpath_consumer_inventory.py
+```
+
+- Contract:
+
+```text
+output_contract=hako-fastpath-consumer-inventory-v0
+consumer_count
+consumer_inventory_kind=current_lane_known_families
+backend_consumer_code_is_not_reachability=1
+winner_claim_requires_reachable_consumer=1
+unknown_consumer_winner_claim_allowed=0
+consumer_N_family
+consumer_N_owner
+consumer_N_metadata_surface
+consumer_N_backend_consumer
+consumer_N_status
+consumer_N_winner_claim_allowed
+consumer_N_followup_required
+summary=ok
+```
+
+- Boundary: this inventory is a closeout aid. Use
+  `fastpath_reachability_ledger.py` for active-front route selection and
+  reachability.
+
 State Explain
 - `hako_check state-explain` is a MIR-backed diagnostic adapter for state and
   residence work. It consumes an existing MIR JSON artifact and reports
