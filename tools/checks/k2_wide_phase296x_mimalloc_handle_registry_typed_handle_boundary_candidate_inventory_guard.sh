@@ -104,11 +104,11 @@ require_line_in_file "$SHADOW_CARD" "selected_pilot_candidate=HakoAllocObjectLif
 require_line_in_file "$SHADOW_CARD" "selected_pilot_confidence=medium"
 require_line_in_file "$SHADOW_CARD" "host_handle_escaped_plan_count=4"
 
-grep -F -q "HostHandleEscaped" "$OBJECT_PLAN" || {
+grep -R -F -q "HostHandleEscaped" src/object_storage_plan.rs src/object_storage_plan || {
   echo "[mimalloc-handle-boundary-candidate-inventory] ObjectStoragePlan lacks HostHandleEscaped vocabulary" >&2
   exit 1
 }
-grep -F -q "HostHandlePublicationRequired" "$OBJECT_PLAN" || {
+grep -R -F -q "HostHandlePublicationRequired" src/object_storage_plan.rs src/object_storage_plan || {
   echo "[mimalloc-handle-boundary-candidate-inventory] ObjectStoragePlan lacks host-handle publication reason" >&2
   exit 1
 }
