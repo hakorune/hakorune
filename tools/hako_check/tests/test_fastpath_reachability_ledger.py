@@ -58,9 +58,12 @@ class FastPathReachabilityLedgerTest(unittest.TestCase):
             for line in result.stdout.splitlines()
             if "=" in line
         )
-        self.assertEqual(rows["output_contract"], "hako-fastpath-reachability-ledger-v0")
+        self.assertEqual(rows["output_contract"], "hako-fastpath-reachability-ledger-v1")
+        self.assertEqual(rows["route_priority_table_version"], "v0")
         self.assertEqual(rows["selected_route"], "substring_concat_loop_ascii")
         self.assertEqual(rows["selected_route_owner"], "function_level_exact_seed")
+        self.assertEqual(rows["selected_route_priority"], "10")
+        self.assertEqual(rows["selected_route_priority_source"], "route_priority_table_v0")
         self.assertEqual(rows["new_consumer_exists"], "1")
         self.assertEqual(rows["new_consumer_reachable"], "0")
         self.assertEqual(rows["old_exact_seed_selected"], "1")
@@ -68,6 +71,7 @@ class FastPathReachabilityLedgerTest(unittest.TestCase):
         self.assertEqual(rows["winner_claim_allowed"], "0")
         self.assertEqual(rows["candidate_1_family"], "string_dead_text_region")
         self.assertEqual(rows["candidate_1_preempted_by"], "substring_concat_loop_ascii")
+        self.assertEqual(rows["candidate_1_preempted_reason"], "lower_priority_selected_route")
 
     def test_unselected_candidate_is_not_reachable(self) -> None:
         payload = {
@@ -109,7 +113,10 @@ class FastPathReachabilityLedgerTest(unittest.TestCase):
             if "=" in line
         )
         self.assertEqual(rows["candidate_count"], "1")
+        self.assertEqual(rows["output_contract"], "hako-fastpath-reachability-ledger-v1")
+        self.assertEqual(rows["route_priority_table_version"], "v0")
         self.assertEqual(rows["selected_route"], "none")
+        self.assertEqual(rows["selected_route_priority_source"], "none")
         self.assertEqual(rows["new_consumer_exists"], "1")
         self.assertEqual(rows["new_consumer_reachable"], "0")
         self.assertEqual(rows["preemption_detected"], "0")

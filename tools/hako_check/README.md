@@ -1550,7 +1550,8 @@ python3 tools/hako_check/fastpath_reachability_ledger.py \
 - Contract:
 
 ```text
-output_contract=hako-fastpath-reachability-ledger-v0
+output_contract=hako-fastpath-reachability-ledger-v1
+route_priority_table_version=v0
 front
 function
 candidate_count
@@ -1558,6 +1559,7 @@ selected_route
 selected_route_owner
 selected_backend_consumer
 selected_route_priority
+selected_route_priority_source
 new_consumer_exists
 new_consumer_reachable
 old_exact_seed_selected
@@ -1572,6 +1574,7 @@ candidate_N_priority
 candidate_N_selected
 candidate_N_reachable
 candidate_N_preempted_by
+candidate_N_preempted_reason
 summary=ok
 ```
 
@@ -1579,6 +1582,9 @@ summary=ok
   and prints route reachability diagnostics. Route priority changes,
   unreachable-consumer guards, exact-seed retirement, and new backend consumers
   must be owned by separate design / implementation rows.
+- v1 uses `fastpath_route_priority.py` as the priority vocabulary source. It
+  still does not choose routes; it only explains an explicitly selected route
+  and its preemptions with table-derived priority values.
 
 State Explain
 - `hako_check state-explain` is a MIR-backed diagnostic adapter for state and

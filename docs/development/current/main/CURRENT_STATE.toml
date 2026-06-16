@@ -845,18 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-983-FASTPATH-ROUTE-PRIORITY-TABLE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-984-FASTPATH-REACHABILITY-LEDGER-V1-001.md"
 
-latest_card = "FASTPATH-ROUTE-PRIORITY-TABLE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-983-FASTPATH-ROUTE-PRIORITY-TABLE-001.md"
-latest_card_summary = """FastPath route priority table adds a data-only
-hako_check report and guard for v0 route priority: exact_seed=10,
-local_fastpath_fact=20, generic_metadata_consumer=30, and
-runtime_helper_fallback=90, with lowest priority number winning. The row does
-not change backend lowering, route selection, exact seed retirement, forced
-reachability, or winner-claim policy. The next row connects the reachability
-ledger to this table."""
-current_blocker_token = "FASTPATH-REACHABILITY-LEDGER-V1-001"
+latest_card = "FASTPATH-REACHABILITY-LEDGER-V1-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-984-FASTPATH-REACHABILITY-LEDGER-V1-001.md"
+latest_card_summary = """FastPath reachability ledger v1 connects the
+observation-only ledger to the route priority table v0. The ledger now emits
+output_contract=hako-fastpath-reachability-ledger-v1,
+route_priority_table_version=v0, selected_route_priority_source, and
+candidate_N_preempted_reason=lower_priority_selected_route while keeping route
+selection, backend lowering, forced reachability, exact seed retirement, and
+winner claims unchanged."""
+current_blocker_token = "EXACT-SEED-RETIRE-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

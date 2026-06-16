@@ -14,6 +14,8 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
+from fastpath_route_priority import priority_value_for_family
+
 
 @dataclass(frozen=True)
 class Candidate:
@@ -25,6 +27,7 @@ class Candidate:
     selected: bool = False
     reachable: bool = False
     preempted_by: str = "none"
+    preempted_reason: str = "none"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -71,7 +74,7 @@ def exact_seed_candidate(meta: dict[str, Any]) -> Candidate | None:
         producer="function_level_exact_seed",
         backend_consumer=tag,
         expected_route=tag,
-        priority=10,
+        priority=priority_value_for_family("exact_seed"),
         selected=True,
         reachable=True,
     )
@@ -85,7 +88,7 @@ def string_dead_text_candidates(meta: dict[str, Any]) -> list[Candidate]:
             producer="StringDeadTextRegionPlan",
             backend_consumer="cabi_string_dead_text_region_consumer",
             expected_route="generic_metadata_path",
-            priority=30,
+            priority=priority_value_for_family("string_dead_text_region"),
         )
         for _ in plans
     ]
@@ -115,6 +118,7 @@ def resolve_reachability(candidates: list[Candidate]) -> list[Candidate]:
                     selected=True,
                     reachable=True,
                     preempted_by="none",
+                    preempted_reason="none",
                 )
             )
         else:
@@ -124,6 +128,7 @@ def resolve_reachability(candidates: list[Candidate]) -> list[Candidate]:
                     selected=False,
                     reachable=False,
                     preempted_by=selected.expected_route,
+                    preempted_reason="lower_priority_selected_route",
                 )
             )
     return out
@@ -140,6 +145,7 @@ def candidate_rows(candidates: list[Candidate]) -> list[dict[str, str]]:
             "selected": "1" if candidate.selected else "0",
             "reachable": "1" if candidate.reachable else "0",
             "preempted_by": candidate.preempted_by,
+            "preempted_reason": candidate.preempted_reason,
         }
         for candidate in candidates
     ]
@@ -163,7 +169,8 @@ def build_report(data: dict[str, Any], function_name: str, front: str) -> dict[s
     )
     winner_claim_allowed = bool(selected and selected.reachable and not preemption_detected)
     return {
-        "output_contract": "hako-fastpath-reachability-ledger-v0",
+        "output_contract": "hako-fastpath-reachability-ledger-v1",
+        "route_priority_table_version": "v0",
         "front": front,
         "function": function_name,
         "candidate_count": str(len(candidates)),
@@ -171,6 +178,7 @@ def build_report(data: dict[str, Any], function_name: str, front: str) -> dict[s
         "selected_route_owner": selected.producer if selected else "none",
         "selected_backend_consumer": selected.backend_consumer if selected else "none",
         "selected_route_priority": str(selected.priority) if selected else "0",
+        "selected_route_priority_source": "route_priority_table_v0" if selected else "none",
         "new_consumer_exists": "1" if new_consumer_exists else "0",
         "new_consumer_reachable": "1" if new_consumer_reachable else "0",
         "old_exact_seed_selected": "1" if old_exact_seed_selected else "0",
