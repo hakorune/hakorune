@@ -12,7 +12,8 @@ pub(crate) use self::array_string_slot_helpers::{
 };
 pub(super) use self::array_string_slot_indexof::{
     array_string_indexof_by_index_const_utf8, array_string_len_by_index,
-    array_string_session_indexof_by_index, array_string_session_indexof_by_index_const_utf8,
+    array_string_len_sum_region, array_string_session_indexof_by_index,
+    array_string_session_indexof_by_index_const_utf8,
 };
 pub(super) use self::array_string_slot_store::{
     array_string_store_handle_at, array_string_store_kernel_text_slot_at,

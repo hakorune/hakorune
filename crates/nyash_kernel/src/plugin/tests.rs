@@ -31,6 +31,20 @@ fn array_string_len_reads_text_slot_directly() {
 }
 
 #[test]
+fn array_string_len_sum_region_reads_text_slots() {
+    let handle = new_array_handle();
+    let first = new_string_handle("ab");
+    let second = new_string_handle("cde");
+
+    assert_eq!(nyash_array_set_his_alias(handle, 0, first), 1);
+    assert_eq!(nyash_array_set_his_alias(handle, 1, second), 1);
+    assert_eq!(
+        nyash_array_string_len_sum_region_hiii_alias(handle, 4, 2, 10),
+        20
+    );
+}
+
+#[test]
 fn array_string_suffix_store_updates_text_lane() {
     let handle = new_array_handle();
     let seed_h = new_string_handle("line-seed");

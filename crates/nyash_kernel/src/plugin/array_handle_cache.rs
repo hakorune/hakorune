@@ -27,6 +27,17 @@ impl<'a> ArrayTextSession<'a> {
     }
 
     #[inline(always)]
+    pub(crate) fn slot_text_len_sum_region_raw(
+        &self,
+        loop_bound: i64,
+        row_modulus: i64,
+        initial_accumulator: i64,
+    ) -> Option<i64> {
+        self.arr
+            .slot_text_len_sum_region_raw(loop_bound, row_modulus, initial_accumulator)
+    }
+
+    #[inline(always)]
     pub(crate) fn slot_with_text_raw<R>(&self, idx: i64, f: impl FnOnce(&str) -> R) -> Option<R> {
         self.arr.slot_with_text_raw(idx, f)
     }

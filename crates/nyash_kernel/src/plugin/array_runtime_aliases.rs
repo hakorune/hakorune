@@ -17,8 +17,9 @@ use super::array_string_slot::{
     array_string_insert_const_mid_subrange_by_index_store_same_slot_text,
     array_string_insert_const_mid_subrange_len_by_index_store_same_slot_len,
     array_string_insert_const_mid_subrange_len_region_store_len, array_string_len_by_index,
-    array_string_session_indexof_by_index, array_string_session_indexof_by_index_const_utf8,
-    with_cstr_utf8_ptr, with_cstr_utf8_ptr2, with_cstr_utf8_ptr3,
+    array_string_len_sum_region, array_string_session_indexof_by_index,
+    array_string_session_indexof_by_index_const_utf8, with_cstr_utf8_ptr, with_cstr_utf8_ptr2,
+    with_cstr_utf8_ptr3,
 };
 use super::handle_cache::valid_handle_idx;
 use super::runtime_data::{
@@ -234,6 +235,10 @@ crate::nyash_export_i64_alias!(nyash_array_rmw_add1_hi_alias, "nyash.array.rmw_a
 
 crate::nyash_export_i64_alias!(nyash_array_string_len_hi_alias, "nyash.array.string_len_hi", (handle: i64, idx: i64), {
     array_string_len_by_index(handle, idx)
+});
+
+crate::nyash_export_i64_alias!(nyash_array_string_len_sum_region_hiii_alias, "nyash.array.string_len_sum_region_hiii", (handle: i64, loop_bound: i64, row_modulus: i64, initial_accumulator: i64), {
+    array_string_len_sum_region(handle, loop_bound, row_modulus, initial_accumulator)
 });
 
 crate::nyash_export_i64_alias!(hako_array_text_slot_len_hi_alias, "hako.array_text.slot_len", (handle: i64, idx: i64), {

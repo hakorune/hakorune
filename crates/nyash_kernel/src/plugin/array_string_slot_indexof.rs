@@ -45,6 +45,25 @@ pub(in super::super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 
 }
 
 #[inline(always)]
+pub(in super::super) fn array_string_len_sum_region(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    initial_accumulator: i64,
+) -> i64 {
+    let _demand = array_text_read_ref_demand();
+    if handle <= 0 || loop_bound < 0 || row_modulus <= 0 {
+        return 0;
+    }
+    with_array_text_session_cached(handle, |session| {
+        session
+            .slot_text_len_sum_region_raw(loop_bound, row_modulus, initial_accumulator)
+            .unwrap_or(0)
+    })
+    .unwrap_or(0)
+}
+
+#[inline(always)]
 pub(in super::super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64) -> i64 {
     let _demand = array_text_read_ref_demand();
     with_cached_needle_str(needle_h, |needle| {

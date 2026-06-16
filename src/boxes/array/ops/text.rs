@@ -165,6 +165,45 @@ impl ArrayBox {
         }
     }
 
+    /// Read-only MIR-proven region executor for summing repeated text-slot
+    /// lengths without materializing public StringBox values.
+    #[inline(always)]
+    pub fn slot_text_len_sum_region_raw(
+        &self,
+        loop_bound: i64,
+        row_modulus: i64,
+        initial_accumulator: i64,
+    ) -> Option<i64> {
+        if loop_bound < 0 || row_modulus <= 0 {
+            return None;
+        }
+        let loop_bound = usize::try_from(loop_bound).ok()?;
+        let row_modulus = usize::try_from(row_modulus).ok()?;
+        let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
+        let items = self.items.read();
+        let mut total = initial_accumulator;
+
+        for step in 0..loop_bound {
+            let idx = match row_modulus_mask {
+                Some(mask) => step & mask,
+                None => step % row_modulus,
+            };
+            let len = match &*items {
+                ArrayStorage::Text(values) => values.get(idx).map(|value| value.len() as i64),
+                ArrayStorage::Boxed(items) => items
+                    .get(idx)
+                    .and_then(|item| item.as_str_fast().map(|value| value.len() as i64)),
+                ArrayStorage::InlineI64(_)
+                | ArrayStorage::InlineBool(_)
+                | ArrayStorage::InlineF64(_)
+                | ArrayStorage::InlineRecord(_) => None,
+            }?;
+            total = total.checked_add(len)?;
+        }
+
+        Some(total)
+    }
+
     /// Mutate a text slot only when storage is already text-resident.
     /// This does not promote boxed arrays; callers that need full ArrayBox compatibility
     /// must fall back to `slot_update_text_raw`.
