@@ -77,7 +77,7 @@ for token in \
   "(\"local_first_object_plan_compat_alias_enabled\", \"1\")" \
   "(\"object_plan_execution_enabled\", \"0\")" \
   "(\"standalone_publication_plan_enabled\", \"0\")"; do
-  grep -F -q "$token" "$SRC" || {
+  grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[objectplan-passive-unify] missing source token: $token" >&2
     exit 1
   }

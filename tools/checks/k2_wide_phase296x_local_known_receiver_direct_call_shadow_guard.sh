@@ -65,7 +65,7 @@ for code_text in \
   "LocalFastPathFallbackReason::GenericStorage" \
   "(\"local_known_receiver_direct_call_shadow_defined\", \"1\")" \
   "local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs_are_positive"; do
-  grep -F -q "$code_text" "$CODE" || {
+  grep -R -F -q "$code_text" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[$TAG] missing code evidence: $code_text" >&2
     exit 1
   }

@@ -86,7 +86,7 @@ for token in \
   "(\"publication_site_generic_inventory_defined\", \"1\")" \
   "(\"publication_reason_vocabulary_count\", \"8\")" \
   "(\"unknown_publication_forces_generic_fallback\", \"1\")"; do
-  grep -F -q "$token" "$SRC" || {
+  grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[publication-site-generic-inventory] missing source token: $token" >&2
     exit 1
   }

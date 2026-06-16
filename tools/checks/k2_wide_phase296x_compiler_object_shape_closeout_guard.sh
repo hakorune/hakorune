@@ -112,7 +112,7 @@ for token in \
   "(\"backend_plan_consumer_guard_enabled\", \"1\")" \
   "(\"object_plan_execution_enabled\", \"0\")" \
   "(\"standalone_publication_plan_enabled\", \"0\")"; do
-  grep -F -q "$token" "$OBJECT_SRC" || {
+  grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[compiler-object-shape-closeout] missing ObjectPlan source token: $token" >&2
     exit 1
   }

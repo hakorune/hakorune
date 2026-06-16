@@ -62,7 +62,7 @@ grep -F -q "FlattenedNestedFields {" "$OBJECT_SSOT" || {
   echo "[compiler-object-shape-closeout-followup] SSOT must document FlattenedNestedFields" >&2
   exit 1
 }
-grep -F -q "FlattenedNestedFields {" "$OBJECT_PLAN_SRC" || {
+grep -R -F -q "FlattenedNestedFields {" src/object_storage_plan.rs src/object_storage_plan || {
   echo "[compiler-object-shape-closeout-followup] source must still expose FlattenedNestedFields" >&2
   exit 1
 }

@@ -75,7 +75,7 @@ for code_text in \
   "pub fn known_receiver_direct_call" \
   "(\"local_fastpath_fact_backend_consumable\", \"1\")" \
   "(\"fallback_fact_enabled\", \"0\")"; do
-  grep -F -q "$code_text" "$CODE" || {
+  grep -R -F -q "$code_text" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[$TAG] missing code evidence: $code_text" >&2
     exit 1
   }

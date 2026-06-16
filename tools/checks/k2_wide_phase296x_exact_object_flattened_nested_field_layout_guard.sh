@@ -61,9 +61,9 @@ require_line_in_file "$CARD" "selected_next=EXACT-OBJECT-FLATTENED-NESTED-FIELD-
 require_line_in_file "$CARD" "summary=ok"
 require_line_in_file "$NEXT_CARD" "Task: EXACT-OBJECT-FLATTENED-NESTED-FIELD-SHADOW-001"
 
-grep -q 'pub struct FlattenedNestedFieldPlan' "$SRC" || { echo "[flattened-nested-layout] missing FlattenedNestedFieldPlan" >&2; exit 1; }
-grep -q 'FlattenedNestedFields' "$SRC" || { echo "[flattened-nested-layout] missing FlattenedNestedFields plan" >&2; exit 1; }
-grep -q 'flattened_nested_field_layout_vocabulary_defined", "1"' "$SRC" || { echo "[flattened-nested-layout] report vocabulary missing" >&2; exit 1; }
+grep -R -q 'pub struct FlattenedNestedFieldPlan' src/object_storage_plan.rs src/object_storage_plan || { echo "[flattened-nested-layout] missing FlattenedNestedFieldPlan" >&2; exit 1; }
+grep -R -q 'FlattenedNestedFields' src/object_storage_plan.rs src/object_storage_plan || { echo "[flattened-nested-layout] missing FlattenedNestedFields plan" >&2; exit 1; }
+grep -R -q 'flattened_nested_field_layout_vocabulary_defined", "1"' src/object_storage_plan.rs src/object_storage_plan || { echo "[flattened-nested-layout] report vocabulary missing" >&2; exit 1; }
 grep -q 'output_contract=hako-exact-object-flattened-nested-field-layout-ssot-v0' "$TOOL" || { echo "[flattened-nested-layout] tool missing output contract" >&2; exit 1; }
 
 echo "[flattened-nested-layout] ok"

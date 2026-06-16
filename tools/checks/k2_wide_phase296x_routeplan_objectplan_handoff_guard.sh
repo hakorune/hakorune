@@ -96,7 +96,7 @@ for token in \
   "(\"backend_helper_symbol_inference_enabled\", \"0\")" \
   "(\"backend_method_name_special_case_enabled\", \"0\")" \
   "(\"backend_variable_name_special_case_enabled\", \"0\")"; do
-  grep -F -q "$token" "$OBJECT_SRC" || {
+  grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[routeplan-objectplan-handoff] missing object source token: $token" >&2
     exit 1
   }

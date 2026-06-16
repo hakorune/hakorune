@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 DEFAULT_SOURCE = Path("src/object_storage_plan.rs")
+DEFAULT_SOURCE_DIR = Path("src/object_storage_plan")
 
 EXPECTED_REASONS = [
     "PluginOrExternBoundary",
@@ -46,13 +47,25 @@ def extract_enum_variants(source: str, enum_name: str) -> list[str]:
     raise SystemExit(f"enum body not closed: {enum_name}")
 
 
+def read_source_surface(source: Path) -> str:
+    parts = [source.read_text(encoding="utf-8", errors="replace")]
+    source_dir = source.with_suffix("")
+    if source_dir.is_dir():
+        for path in sorted(source_dir.glob("*.rs")):
+            parts.append(path.read_text(encoding="utf-8", errors="replace"))
+    elif DEFAULT_SOURCE_DIR.is_dir() and source == DEFAULT_SOURCE:
+        for path in sorted(DEFAULT_SOURCE_DIR.glob("*.rs")):
+            parts.append(path.read_text(encoding="utf-8", errors="replace"))
+    return "\n".join(parts)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 
-    source = args.source.read_text(encoding="utf-8", errors="replace")
+    source = read_source_surface(args.source)
     variants = extract_enum_variants(source, "ObjectPublicationReason")
     missing = [reason for reason in EXPECTED_REASONS if reason not in variants]
     extra = [reason for reason in variants if reason not in EXPECTED_REASONS]

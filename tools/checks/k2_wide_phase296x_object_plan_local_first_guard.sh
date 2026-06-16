@@ -73,14 +73,14 @@ for token in \
   "pub fn requires_publication" \
   "(\"object_plan_execution_enabled\", \"0\")" \
   "(\"standalone_publication_plan_enabled\", \"0\")"; do
-  grep -F -q "$token" "$SRC" || {
+  grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[object-plan-local-first] missing source token: $token" >&2
     exit 1
   }
 done
 
-if ! grep -F -q "pub struct LocalFirstObjectPlan" "$SRC" \
-  && ! grep -F -q "pub type LocalFirstObjectPlan = ObjectPlan" "$SRC"; then
+if ! grep -R -F -q "pub struct LocalFirstObjectPlan" src/object_storage_plan.rs src/object_storage_plan \
+  && ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan; then
   echo "[object-plan-local-first] missing LocalFirstObjectPlan struct or compat alias" >&2
   exit 1
 fi

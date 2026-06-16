@@ -65,7 +65,7 @@ for code_text in \
   "(\"local_publication_inventory_v2_vocabulary_defined\", \"1\")" \
   "(\"local_publication_inventory_v2_backend_consumable\", \"0\")" \
   "local_publication_inventory_row_is_report_only_gate_input"; do
-  grep -F -q "$code_text" "$CODE" || {
+  grep -R -F -q "$code_text" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[$TAG] missing code evidence: $code_text" >&2
     exit 1
   }

@@ -71,7 +71,7 @@ for code_text in \
   "(\"local_alias_class_mvp_vocabulary_defined\", \"1\")" \
   "(\"local_alias_class_heap_graph_enabled\", \"0\")" \
   "local_alias_class_mvp_observation_is_passive_vocabulary"; do
-  grep -F -q "$code_text" "$CODE" || {
+  grep -R -F -q "$code_text" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[$TAG] missing code evidence: $code_text" >&2
     exit 1
   }

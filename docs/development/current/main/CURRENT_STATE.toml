@@ -845,15 +845,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-989-OBJECT-STORAGE-PLAN-MODULE-SPLIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-990-OBJECT-STORAGE-PLAN-GUARD-PATH-COMPAT-001.md"
 
-latest_card = "OBJECT-STORAGE-PLAN-MODULE-SPLIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-989-OBJECT-STORAGE-PLAN-MODULE-SPLIT-001.md"
-latest_card_summary = """ObjectStoragePlan module split keeps
-src/object_storage_plan.rs as a thin facade and moves ids, storage,
-publication, fastpath, alias, inventory, report, and tests into focused
-submodules while preserving public re-exports. Behavior, backend lowering,
-MIRBuilder object management, and object storage execution remain unchanged."""
+latest_card = "OBJECT-STORAGE-PLAN-GUARD-PATH-COMPAT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-990-OBJECT-STORAGE-PLAN-GUARD-PATH-COMPAT-001.md"
+latest_card_summary = """ObjectStoragePlan guard path compatibility updates
+legacy guards and the publication-site inventory tool to read the split module
+tree instead of assuming type bodies live in the facade. Public re-exports,
+vocabulary, backend lowering, MIRBuilder object management, and execution
+remain unchanged."""
 current_blocker_token = "OBJECT-STORAGE-PLAN-VOCAB-AUDIT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
