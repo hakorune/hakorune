@@ -7,6 +7,22 @@
         long long len_call_count;
         int backend_session_lowering_allowed;
         int backend_consumer_enabled;
+        int region_payload_present;
+        long long region_array_root_value;
+        long long region_loop_index_phi_value;
+        long long region_loop_index_initial_value;
+        long long region_loop_index_initial_const;
+        long long region_loop_index_next_value;
+        long long region_loop_bound_value;
+        long long region_loop_bound_const;
+        long long region_accumulator_phi_value;
+        long long region_accumulator_initial_value;
+        long long region_accumulator_initial_const;
+        long long region_accumulator_next_value;
+        long long region_exit_accumulator_value;
+        long long region_row_index_value;
+        long long region_row_modulus_value;
+        long long region_row_modulus_const;
       };
 
       auto int array_text_loop_session_read_i64(
@@ -85,6 +101,73 @@
                    &backend_consumer_enabled);
       }
 
+      auto int array_text_loop_session_region_payload_fill(
+          yyjson_val* plan,
+          struct ArrayTextLoopSessionPlanMetadata* out) {
+        yyjson_val* payload = plan ? yyjson_obj_get(plan, "region_payload") : NULL;
+        if (!(payload && yyjson_is_obj(payload) && out)) return 0;
+        return array_text_loop_session_read_i64(
+                   payload,
+                   "array_root_value",
+                   &out->region_array_root_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_phi_value",
+                   &out->region_loop_index_phi_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_initial_value",
+                   &out->region_loop_index_initial_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_initial_const",
+                   &out->region_loop_index_initial_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_next_value",
+                   &out->region_loop_index_next_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_bound_value",
+                   &out->region_loop_bound_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_bound_const",
+                   &out->region_loop_bound_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_phi_value",
+                   &out->region_accumulator_phi_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_initial_value",
+                   &out->region_accumulator_initial_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_initial_const",
+                   &out->region_accumulator_initial_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_next_value",
+                   &out->region_accumulator_next_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "exit_accumulator_value",
+                   &out->region_exit_accumulator_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "row_index_value",
+                   &out->region_row_index_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "row_modulus_value",
+                   &out->region_row_modulus_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "row_modulus_const",
+                   &out->region_row_modulus_const);
+      }
+
       auto void array_text_loop_session_plan_fill(
           yyjson_val* plan,
           struct ArrayTextLoopSessionPlanMetadata* out) {
@@ -105,6 +188,9 @@
         }
         if (array_text_loop_session_read_bool(plan, "backend_consumer_enabled", &flag)) {
           out->backend_consumer_enabled = flag;
+        }
+        if (array_text_loop_session_region_payload_fill(plan, out)) {
+          out->region_payload_present = 1;
         }
       }
 
