@@ -69,6 +69,54 @@ class FastPathReachabilityLedgerTest(unittest.TestCase):
         self.assertEqual(rows["candidate_1_family"], "string_dead_text_region")
         self.assertEqual(rows["candidate_1_preempted_by"], "substring_concat_loop_ascii")
 
+    def test_unselected_candidate_is_not_reachable(self) -> None:
+        payload = {
+            "functions": [
+                {
+                    "name": "main",
+                    "metadata": {
+                        "string_dead_text_region_plans": [
+                            {
+                                "route_id": "string.dead_text_region.plan",
+                                "loop_header": 18,
+                            }
+                        ],
+                    },
+                }
+            ]
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "mir.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(LEDGER),
+                    "--mir-json",
+                    str(path),
+                    "--front",
+                    "candidate_only",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        rows = dict(
+            line.split("=", 1)
+            for line in result.stdout.splitlines()
+            if "=" in line
+        )
+        self.assertEqual(rows["candidate_count"], "1")
+        self.assertEqual(rows["selected_route"], "none")
+        self.assertEqual(rows["new_consumer_exists"], "1")
+        self.assertEqual(rows["new_consumer_reachable"], "0")
+        self.assertEqual(rows["preemption_detected"], "0")
+        self.assertEqual(rows["winner_claim_allowed"], "0")
+        self.assertEqual(rows["candidate_0_selected"], "0")
+        self.assertEqual(rows["candidate_0_reachable"], "0")
+
 
 if __name__ == "__main__":
     unittest.main()
