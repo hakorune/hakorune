@@ -845,17 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-976-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-977-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-READER-SURFACE-001.md"
 
-latest_card = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-976-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001.md"
-latest_card_summary = """Substring concat dead-text region plan surface adds
-the passive `StringDeadTextRegionPlan` producer and MIR JSON export. The target
-front now reports route_id=string.dead_text_region.plan with loop_bound=300000,
-base_len=16, inserted_len=2, accumulator_delta=18, final_return=5400016,
-publication_boundary=none, and backend_consumer_enabled=0. Runtime helpers,
-StringBox storage, and backend lowering remain unchanged."""
-current_blocker_token = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-READER-SURFACE-001"
+latest_card = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-READER-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-977-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-READER-SURFACE-001.md"
+latest_card_summary = """Substring concat dead-text region backend reader
+surface adds a C ABI metadata reader for `string_dead_text_region_plans`. The
+reader validates route_id=string.dead_text_region.plan, inserted text length,
+publication_boundary=none, final_text_content_observed=0, mir_json_export_only=1,
+and the plan arithmetic invariant while keeping backend lowering, runtime
+helpers, product StringBox storage, raw MIR rescans, and helper-name inference
+disabled."""
+current_blocker_token = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-GUARD-SURFACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

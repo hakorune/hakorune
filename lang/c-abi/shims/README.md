@@ -63,6 +63,10 @@ Current partitions:
   - metadata reader for MIR `array_text_loop_session_plans` and
     `array_text_indexof_const_region_plans`
   - validates proof booleans and selected loop header/exit only; it does not emit loop-session runtime calls
+- `hako_llvmc_ffi_string_dead_text_region_metadata.inc`
+  - metadata reader for MIR `string_dead_text_region_plans`
+  - validates the dead-text region arithmetic and no-publication contract only;
+    it does not emit substring-concat region lowering
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed metadata reader and emitter for array get/set micro paths
   - route-shape proof is MIR-owned `array_getset_micro_seed_route`; do not regrow raw block scanners here
