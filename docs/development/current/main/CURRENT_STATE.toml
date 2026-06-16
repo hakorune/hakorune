@@ -845,17 +845,20 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-980-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-REACHABILITY-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-981-FASTPATH-REACHABILITY-LEDGER-001.md"
 
-latest_card = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-REACHABILITY-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-980-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-REACHABILITY-CLOSEOUT-001.md"
-latest_card_summary = """Substring concat dead-text region reachability
-closeout records that the generic metadata-path consumer exists but the active
-target front is still preempted by the older function-level
-`substring_concat_loop_ascii` exact seed route. The lane makes no performance
-or winner claim and forbids benchmark/source/helper-name branches to force
-reachability. Next step is fresh front/owner selection."""
-current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-SUBSTRING-CONCAT-CLOSEOUT-001"
+latest_card = "FASTPATH-REACHABILITY-LEDGER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-981-FASTPATH-REACHABILITY-LEDGER-001.md"
+latest_card_summary = """FastPath reachability ledger adds an
+observation-only hako_check report over existing MIR JSON metadata. It reports
+candidate_count, selected_route, selected_route_owner, reachable consumers,
+preempted candidates, and winner_claim_allowed without changing lowering or
+route priority. The current real substring-concat front reports
+selected_route=substring_concat_loop_ascii, old_exact_seed_selected=1, and
+new_consumer_exists=0 because string_dead_text_region_plans are not emitted for
+that active MIR front. The unit fixture pins the preemption case when both an
+exact seed and generic metadata-path candidate are present."""
+current_blocker_token = "FASTPATH-UNREACHABLE-CONSUMER-GUARD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

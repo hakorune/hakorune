@@ -1510,6 +1510,76 @@ summary=ok|failed
 - User-facing goal: answer "what optimization happened?" and "why did this site
   stay generic?" from compiler-emitted metadata.
 
+FastPath Reachability Ledger
+- `fastpath_reachability_ledger.py` is a MIR-backed diagnostic adapter for
+  route selection visibility. It reports which fast-path candidates exist in
+  the selected function metadata, which route is explicitly selected, which
+  candidates are reachable, and which candidates are preempted.
+- This is not an optimizer and not a route selector. It does not emit MIR,
+  rewrite source, alter route priority, force backend reachability, retire
+  exact seeds, or make benchmark winner claims.
+- Source of truth: existing MIR JSON metadata. Candidate existence in this
+  report means the active MIR front emitted that metadata; it must not infer
+  candidates from helper names, source names, backend source files, or benchmark
+  names.
+- The stable v0 entry is:
+
+```bash
+python3 tools/hako_check/fastpath_reachability_ledger.py \
+  --mir-json app.mir.json \
+  --front kilo_micro_substring_concat
+```
+
+- Machine-readable output is available for follow-on guards:
+
+```bash
+python3 tools/hako_check/fastpath_reachability_ledger.py \
+  --mir-json app.mir.json \
+  --front kilo_micro_substring_concat \
+  --format json
+```
+
+- v0 candidate surface:
+  - `exact_seed_backend_route` is an explicitly selected function-level exact
+    seed route.
+  - `string_dead_text_region_plans` are generic metadata-path candidates.
+  - If both are present, the exact seed preempts the generic metadata-path
+    candidate and `winner_claim_allowed=0`.
+  - If only a candidate exists without an explicitly selected route, it is not
+    treated as reachable.
+- Contract:
+
+```text
+output_contract=hako-fastpath-reachability-ledger-v0
+front
+function
+candidate_count
+selected_route
+selected_route_owner
+selected_backend_consumer
+selected_route_priority
+new_consumer_exists
+new_consumer_reachable
+old_exact_seed_selected
+preemption_detected
+forced_reachability_allowed=0
+winner_claim_allowed=0|1
+candidate_N_family
+candidate_N_producer
+candidate_N_backend_consumer
+candidate_N_expected_route
+candidate_N_priority
+candidate_N_selected
+candidate_N_reachable
+candidate_N_preempted_by
+summary=ok
+```
+
+- Boundary: `hako_check` may host this adapter because it only reads MIR JSON
+  and prints route reachability diagnostics. Route priority changes,
+  unreachable-consumer guards, exact-seed retirement, and new backend consumers
+  must be owned by separate design / implementation rows.
+
 State Explain
 - `hako_check state-explain` is a MIR-backed diagnostic adapter for state and
   residence work. It consumes an existing MIR JSON artifact and reports
