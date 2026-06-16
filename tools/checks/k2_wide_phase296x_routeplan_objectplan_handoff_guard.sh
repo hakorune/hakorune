@@ -87,7 +87,6 @@ done
 
 for token in \
   "pub struct ObjectPlan" \
-  "pub type LocalFirstObjectPlan = ObjectPlan" \
   "(\"routeplan_objectplan_handoff_contract_defined\", \"1\")" \
   "(\"routeplan_owns_execution_not_representation\", \"1\")" \
   "(\"objectplan_owns_representation_not_execution\", \"1\")" \
@@ -101,6 +100,12 @@ for token in \
     exit 1
   }
 done
+
+if ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan \
+  && ! grep -R -F -q "(\"local_first_object_plan_alias_retired\", \"1\")" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[routeplan-objectplan-handoff] LocalFirstObjectPlan alias is neither present nor explicitly retired" >&2
+  exit 1
+fi
 
 for stop_line in \
   "do not enable backend lowering in this row" \

@@ -61,20 +61,24 @@ grep -F -q "next_task=LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001" "$PREV_CA
   exit 1
 }
 
-grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" "$OBJECT_SRC" "$OBJECT_DIR" || {
-  echo "[$TAG] public compatibility alias is missing before guard-compat row" >&2
+if ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" "$OBJECT_SRC" "$OBJECT_DIR" \
+  && ! grep -R -F -q "(\"local_first_object_plan_alias_retired\", \"1\")" "$OBJECT_SRC" "$OBJECT_DIR"; then
+  echo "[$TAG] public compatibility alias is neither present nor explicitly retired" >&2
   exit 1
-}
+fi
 
-grep -R -F -q "(\"local_first_object_plan_compat_alias_enabled\", \"1\")" "$OBJECT_SRC" "$OBJECT_DIR" || {
-  echo "[$TAG] report field for compat alias is missing" >&2
-  exit 1
-}
+if grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" "$OBJECT_SRC" "$OBJECT_DIR"; then
+  grep -R -F -q "(\"local_first_object_plan_compat_alias_enabled\", \"1\")" "$OBJECT_SRC" "$OBJECT_DIR" || {
+    echo "[$TAG] report field for compat alias is missing while alias is present" >&2
+    exit 1
+  }
+fi
 
-grep -R -F -q "LocalFirstObjectPlan::new" "$OBJECT_SRC" "$OBJECT_DIR" || {
-  echo "[$TAG] compatibility alias test coverage is missing" >&2
+if grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" "$OBJECT_SRC" "$OBJECT_DIR" \
+  && ! grep -R -F -q "LocalFirstObjectPlan::new" "$OBJECT_SRC" "$OBJECT_DIR"; then
+  echo "[$TAG] compatibility alias test coverage is missing while alias is present" >&2
   exit 1
-}
+fi
 
 for guard in \
   tools/checks/k2_wide_phase296x_object_plan_local_first_guard.sh \

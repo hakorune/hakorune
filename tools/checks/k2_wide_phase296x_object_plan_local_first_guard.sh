@@ -80,8 +80,9 @@ for token in \
 done
 
 if ! grep -R -F -q "pub struct LocalFirstObjectPlan" src/object_storage_plan.rs src/object_storage_plan \
-  && ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan; then
-  echo "[object-plan-local-first] missing LocalFirstObjectPlan struct or compat alias" >&2
+  && ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan \
+  && ! grep -R -F -q "pub struct ObjectPlan" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[object-plan-local-first] missing LocalFirstObjectPlan vocabulary or canonical ObjectPlan" >&2
   exit 1
 fi
 

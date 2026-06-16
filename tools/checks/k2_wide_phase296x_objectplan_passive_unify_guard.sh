@@ -67,14 +67,12 @@ done
 
 for token in \
   "pub struct ObjectPlan" \
-  "pub type LocalFirstObjectPlan = ObjectPlan" \
   "impl ObjectPlan" \
   "pub storage: ObjectStoragePlan" \
   "pub publication_sites: Vec<ObjectPublicationSite>" \
   "(\"objectplan_canonical_vocabulary_defined\", \"1\")" \
   "(\"objectplan_is_representation_truth\", \"1\")" \
   "(\"objectplan_is_publication_site_truth\", \"1\")" \
-  "(\"local_first_object_plan_compat_alias_enabled\", \"1\")" \
   "(\"object_plan_execution_enabled\", \"0\")" \
   "(\"standalone_publication_plan_enabled\", \"0\")"; do
   grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
@@ -82,6 +80,19 @@ for token in \
     exit 1
   }
 done
+
+if ! grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan \
+  && ! grep -R -F -q "(\"local_first_object_plan_alias_retired\", \"1\")" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[objectplan-passive-unify] LocalFirstObjectPlan alias is neither present nor explicitly retired" >&2
+  exit 1
+fi
+
+if grep -R -F -q "pub type LocalFirstObjectPlan = ObjectPlan" src/object_storage_plan.rs src/object_storage_plan; then
+  grep -R -F -q "(\"local_first_object_plan_compat_alias_enabled\", \"1\")" src/object_storage_plan.rs src/object_storage_plan || {
+    echo "[objectplan-passive-unify] compat alias report field missing while alias is present" >&2
+    exit 1
+  }
+fi
 
 for stop_line in \
   "do not enable ObjectPlan execution in this row" \
