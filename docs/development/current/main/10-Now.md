@@ -36,7 +36,8 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization and representation rows remain governed by
   `CURRENT_STATE.toml`; the latest row is
-  `EXPR-STMT-RUST-MIRBUILDER-CLEANUP-001`
+  `MIMALLOC-ARRAY-TEXT-LOOP-SESSION-REGION-PAYLOAD-INVENTORY-001`, and the next
+  blocker is `MIMALLOC-ARRAY-TEXT-LOOP-SESSION-REGION-PAYLOAD-DESIGN-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
