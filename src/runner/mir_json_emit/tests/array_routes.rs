@@ -93,3 +93,43 @@ fn build_mir_json_root_emits_array_string_len_window_routes() {
         serde_json::json!(["load.cell", "observe.len", "keep.source.live"])
     );
 }
+
+#[test]
+fn build_mir_json_root_emits_array_text_loop_session_plans() {
+    let mut function = make_function("main", true);
+    function.metadata.array_text_loop_session_plans.push(
+        crate::mir::array_text_loop_session_plan::ArrayTextLoopSessionPlan::new(
+            crate::mir::BasicBlockId::new(25),
+            crate::mir::BasicBlockId::new(28),
+            crate::mir::ValueId::new(5),
+            crate::mir::ValueId::new(72),
+            1,
+            true,
+            true,
+            true,
+            true,
+            true,
+        ),
+    );
+    let mut module =
+        crate::mir::MirModule::new("json_array_text_loop_session_plans_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let plan = &root["functions"][0]["metadata"]["array_text_loop_session_plans"][0];
+    assert_eq!(plan["route_id"], "array_text.loop_session.plan");
+    assert_eq!(plan["loop_header"], 25);
+    assert_eq!(plan["loop_exit"], 28);
+    assert_eq!(plan["array_value"], 5);
+    assert_eq!(plan["index_value"], 72);
+    assert_eq!(plan["len_call_count"], 1);
+    assert_eq!(plan["same_array_handle"], true);
+    assert_eq!(plan["read_only_region"], true);
+    assert_eq!(plan["no_mutation_region"], true);
+    assert_eq!(plan["no_drop_or_publication_boundary"], true);
+    assert_eq!(plan["index_domain_guarded"], true);
+    assert_eq!(plan["backend_session_lowering_allowed"], true);
+    assert_eq!(plan["first_reject_reason"], serde_json::Value::Null);
+    assert_eq!(plan["mir_json_export_only"], true);
+    assert_eq!(plan["backend_consumer_enabled"], false);
+}

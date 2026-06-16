@@ -45,6 +45,7 @@ pub struct CountingLoopFact {
 pub enum RangeIndexFactOriginKind {
     RangeLoop,
     CountingLoop,
+    ModuloOfRangeIndex,
     FastMemAssume,
 }
 
@@ -53,6 +54,7 @@ impl RangeIndexFactOriginKind {
         match self {
             Self::RangeLoop => "range_loop",
             Self::CountingLoop => "counting_loop",
+            Self::ModuloOfRangeIndex => "modulo_of_range_index",
             Self::FastMemAssume => "fastmem_assume",
         }
     }

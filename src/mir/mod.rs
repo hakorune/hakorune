@@ -25,7 +25,7 @@ pub mod array_string_len_window_plan; // MIR-owned route plans for array get/len
 pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
 pub mod array_text_combined_region_plan; // MIR-owned combined array/text region route plans
 pub mod array_text_edit_plan; // MIR-owned route plans for array/text same-cell edits
-pub mod array_text_loop_session_plan; // Passive proof surface for loop-local array text sessions
+pub mod array_text_loop_session_plan; // MIR-owned proof plans for loop-local array text sessions
 pub mod array_text_loopcarry_plan; // MIR-owned route plans for active array/text loopcarry lane
 pub mod array_text_observer_plan; // MIR-owned route plans for generic array/text read-side observers
 pub mod array_text_observer_region_contract; // Nested executor contract for observer-store regions

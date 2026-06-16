@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-930-CABI-GET-POLICY-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-937-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-GUARD-SURFACE-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -217,7 +217,9 @@ Scope: current lane / next lane / restart order only.
   backend / MIR JSON export still disabled, to be resumed after map correction
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row
-- adjacent array-text session route design is documented, and the selected-route session boundary is now landing
+- adjacent array-text session route design is documented; backend reader and
+  lowering guard surfaces are landed; the next active row is
+  `MIMALLOC-ARRAY-TEXT-LOOP-SESSION-REGION-PAYLOAD-INVENTORY-001`
 - inspect scope dump design is documented: dump is a `hako_check` query, not `.hako` source syntax
 - substring-concat length residual is documented as lowering/codegen work:
   `SUBCONCAT-LEN-CLOSED-FORM-001` should emit scalar closed-form IR from the
@@ -268,7 +270,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-819-LOCAL-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-937-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-GUARD-SURFACE-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`

@@ -109,6 +109,10 @@ pub(super) fn insert_array_metadata_json(
             .collect::<Vec<_>>()),
     );
     obj.insert(
+        "array_text_loop_session_plans".to_string(),
+        build_array_text_loop_session_plans_json(metadata),
+    );
+    obj.insert(
         "array_text_edit_routes".to_string(),
         json!(metadata
             .array_text_edit_routes
@@ -198,6 +202,32 @@ pub(super) fn insert_array_metadata_json(
             .as_ref()
             .map(build_array_text_state_residence_route_json)),
     );
+}
+
+fn build_array_text_loop_session_plans_json(metadata: &FunctionMetadata) -> serde_json::Value {
+    json!(metadata
+        .array_text_loop_session_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "route_id": "array_text.loop_session.plan",
+                "loop_header": plan.loop_header().as_u32(),
+                "loop_exit": plan.loop_exit().as_u32(),
+                "array_value": plan.array_value().as_u32(),
+                "index_value": plan.index_value().as_u32(),
+                "len_call_count": plan.len_call_count(),
+                "same_array_handle": plan.same_array_handle(),
+                "read_only_region": plan.read_only_region(),
+                "no_mutation_region": plan.no_mutation_region(),
+                "no_drop_or_publication_boundary": plan.no_drop_or_publication_boundary(),
+                "index_domain_guarded": plan.index_domain_guarded(),
+                "backend_session_lowering_allowed": plan.backend_session_lowering_allowed(),
+                "first_reject_reason": plan.first_reject_reason().map(|reason| reason.as_str()),
+                "mir_json_export_only": true,
+                "backend_consumer_enabled": false,
+            })
+        })
+        .collect::<Vec<_>>())
 }
 
 fn build_array_text_residence_sessions_json(metadata: &FunctionMetadata) -> serde_json::Value {

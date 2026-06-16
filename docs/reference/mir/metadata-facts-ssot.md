@@ -236,6 +236,7 @@ request to change JSON shape in place.
 | `array_record_materialization_boundary_plans` | `Contracts`, `verifier_active` | Public `get`, returned record elements, or backend escapes become observable. | Fail fast unsupported materialization before public record materialization work begins. |
 | `source_packed_array_direct_read_consumption_plans` | `LoweringRoutes`, CorePlan direct-read route | Real packed direct-read backend lowering is introduced. | Add backend proof, capability gate, and `boxed_fallback=false` contract in the same row. |
 | `loop_range_facts` | `Contracts`, `verifier_active` | LoopRange facts start deciding accepted write/index policy. | Promote the write-policy booleans into a verifier-owned accept/reject contract before lowering depends on them. |
+| `array_text_loop_session_plans` | `LoweringRoutes`, export-only until backend consumer row | C/EXE consumers need loop-session reuse from an explicit MIR plan instead of rediscovering `Array.get(i).length()` legality. | Keep `backend_consumer_enabled=0` until a dedicated consumer row reads proof booleans and rejects malformed plans without helper-name inference. |
 | `array_text_*` / `array_text_state_residence_route` | `LoweringRoutes`, CorePlan text/array route | C/EXE consumers depend on effects, materialization policy, byte-boundary proof, or executor mode. | Route consumers must read a proof-bearing route, not rediscover region legality. |
 | enum use rows derived from `enum_decls` | `Contracts`, `verifier_active` | Sum construction/projection/runtime dispatch depends on declared tag/payload shape. | Keep `enum_decls` as source inventory; add verifier checks for declared variant/tag/payload use. |
 | exact numeric binary/compare/shift route facts | `LoweringRoutes` | Backend lowering consumes op-specific exact numeric facts. | Move consumption behind route rows with backend capability rejection. |
@@ -396,6 +397,7 @@ Contract:
 | `placement_effect_routes` | array | Generic folded placement/effect route inventory; consumers should prefer this before family-specific rows |
 | `array_rmw_window_routes` | array | Backend-consumable array RMW legality window |
 | `array_string_len_window_routes` | array | Backend-consumable array string length observer window |
+| `array_text_loop_session_plans` | array | Export-only array/text loop-session proof plans; backend consumer/lowering remains disabled until its dedicated row |
 | `array_text_*` | array/object | Array/text loopcarry, edit, residence, observer, combined-region, and state-residence plans |
 | `declared_param_decls` / `declared_return_type_name` | array / string or null | Source signature annotation transported without forcing the callable ABI |
 | `exact_numeric_*` | arrays / maps | Exact numeric facts, route facts, rejection rows, and runtime-check contracts |

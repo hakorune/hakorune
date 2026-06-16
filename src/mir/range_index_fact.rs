@@ -50,6 +50,7 @@ pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
         });
     }
     append_mir_counting_loop_range_index_facts(function, &mut facts);
+    append_modulo_range_index_facts(function, &mut facts);
     for mut source in explicit_fastmem_facts {
         source.fact_id = facts.len() as u32;
         if !facts
@@ -60,6 +61,75 @@ pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
         }
     }
     function.metadata.range_index_facts = facts;
+}
+
+fn append_modulo_range_index_facts(function: &MirFunction, facts: &mut Vec<RangeIndexFact>) {
+    let def_map = build_value_def_map(function);
+    let mut derived = Vec::new();
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+
+    for block_id in block_ids {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for inst in &block.instructions {
+            let MirInstruction::BinOp {
+                dst,
+                op: BinaryOp::Mod,
+                lhs,
+                rhs,
+            } = inst
+            else {
+                continue;
+            };
+            let lhs_root = resolve_value_origin(function, &def_map, *lhs);
+            let rhs_root = resolve_value_origin(function, &def_map, *rhs);
+            let Some(modulus) = integer_const_value(function, rhs_root) else {
+                continue;
+            };
+            if modulus <= 0 {
+                continue;
+            }
+
+            for source in facts.iter() {
+                if source.body_bb != block_id
+                    || resolve_value_origin(function, &def_map, source.index_value) != lhs_root
+                    || !value_is_integer_const(function, source.lower_value, 0)
+                    || !source.end_exclusive
+                    || !source.index_body_read_only
+                    || source.loop_carried_writes_supported
+                {
+                    continue;
+                }
+                let fact = RangeIndexFact {
+                    fact_id: 0,
+                    origin_kind: RangeIndexFactOriginKind::ModuloOfRangeIndex,
+                    index_value: *dst,
+                    lower_value: source.lower_value,
+                    upper_exclusive_value: rhs_root,
+                    body_bb: block_id,
+                    // Modulo-derived indices are bounded, but not monotonic.
+                    step: 0,
+                    end_exclusive: true,
+                    index_body_read_only: true,
+                    loop_carried_writes_supported: false,
+                };
+                if !facts
+                    .iter()
+                    .chain(derived.iter())
+                    .any(|existing| same_range_fact(existing, &fact))
+                {
+                    derived.push(fact);
+                }
+            }
+        }
+    }
+
+    for mut fact in derived {
+        fact.fact_id = facts.len() as u32;
+        facts.push(fact);
+    }
 }
 
 fn append_mir_counting_loop_range_index_facts(
@@ -231,6 +301,12 @@ fn integer_const_value(function: &MirFunction, value_id: ValueId) -> Option<i64>
     })
 }
 
+fn value_is_integer_const(function: &MirFunction, value_id: ValueId, expected: i64) -> bool {
+    integer_const_value(function, value_id)
+        .map(|actual| actual == expected)
+        .unwrap_or(false)
+}
+
 fn same_range_fact(lhs: &RangeIndexFact, rhs: &RangeIndexFact) -> bool {
     lhs.origin_kind == rhs.origin_kind
         && lhs.index_value == rhs.index_value
@@ -342,6 +418,68 @@ mod tests {
         assert_eq!(fact.upper_exclusive_value, ValueId::new(11));
         assert_eq!(fact.body_bb, BasicBlockId::new(1));
         assert_eq!(fact.step, 1);
+        assert!(fact.end_exclusive);
+        assert!(fact.index_body_read_only);
+        assert!(!fact.loop_carried_writes_supported);
+    }
+
+    #[test]
+    fn refresh_derives_modulo_range_index_fact_from_counting_loop_index() {
+        let mut function = make_function();
+        function
+            .metadata
+            .counting_loop_facts
+            .push(CountingLoopFact {
+                index_name: "i".to_string(),
+                lower_value: ValueId::new(10),
+                upper_exclusive_value: ValueId::new(11),
+                index_value: ValueId::new(4),
+                preheader_bb: BasicBlockId::new(0),
+                header_bb: BasicBlockId::new(2),
+                body_bb: BasicBlockId::new(1),
+                latch_bb: BasicBlockId::new(3),
+                exit_bb: BasicBlockId::new(4),
+                step: 1,
+                end_exclusive: true,
+                index_body_read_only: true,
+                loop_carried_writes_supported: false,
+            });
+
+        let mut body = BasicBlock::new(BasicBlockId::new(1));
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::Integer(0),
+        });
+        body.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(12),
+            value: ConstValue::Integer(64),
+        });
+        body.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(13),
+            src: ValueId::new(4),
+        });
+        body.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(14),
+            op: BinaryOp::Mod,
+            lhs: ValueId::new(13),
+            rhs: ValueId::new(12),
+        });
+        function.add_block(body);
+
+        refresh_function_range_index_facts(&mut function);
+
+        assert_eq!(function.metadata.range_index_facts.len(), 2);
+        let fact = &function.metadata.range_index_facts[1];
+        assert_eq!(fact.fact_id, 1);
+        assert_eq!(
+            fact.origin_kind,
+            RangeIndexFactOriginKind::ModuloOfRangeIndex
+        );
+        assert_eq!(fact.index_value, ValueId::new(14));
+        assert_eq!(fact.lower_value, ValueId::new(10));
+        assert_eq!(fact.upper_exclusive_value, ValueId::new(12));
+        assert_eq!(fact.body_bb, BasicBlockId::new(1));
+        assert_eq!(fact.step, 0);
         assert!(fact.end_exclusive);
         assert!(fact.index_body_read_only);
         assert!(!fact.loop_carried_writes_supported);

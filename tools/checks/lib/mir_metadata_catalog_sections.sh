@@ -353,6 +353,7 @@ mir_metadata_catalog_check_keys() {
     placement_effect_routes
     array_rmw_window_routes
     array_string_len_window_routes
+    array_text_loop_session_plans
     declared_param_decls
     declared_return_type_name
     exact_numeric_*

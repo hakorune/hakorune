@@ -18,6 +18,7 @@ use crate::mir::{
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_combined_region_plan::ArrayTextCombinedRegionRoute,
     array_text_edit_plan::ArrayTextEditRoute,
+    array_text_loop_session_plan::ArrayTextLoopSessionPlan,
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
@@ -402,6 +403,12 @@ pub struct FunctionMetadata {
     /// backend shims can emit/skip from metadata instead of scanning raw MIR
     /// JSON instruction windows.
     pub array_string_len_window_routes: Vec<ArrayStringLenWindowRoute>,
+
+    /// MIR-owned array/text loop-session proof plans.
+    /// These connect an already-proven `array.get(i).length()` window with a
+    /// loop-local index-domain proof. They are exported for inspection only
+    /// until a later row explicitly enables backend consumption/lowering.
+    pub array_text_loop_session_plans: Vec<ArrayTextLoopSessionPlan>,
 
     /// Backend-consumable array/text loopcarry route plans.
     /// These keep active fused store/len route recognition in MIR so the C
