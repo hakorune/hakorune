@@ -46,11 +46,14 @@
       int active_loop_session_region_emitted = 0;
       struct ArrayTextIndexOfConstRegionPlanMetadata active_indexof_const_region;
       int active_indexof_const_region_emitted = 0;
+      struct StringDeadTextRegionPlanMetadata active_string_dead_text_region;
+      int active_string_dead_text_region_emitted = 0;
       memset(&active_region_executor, 0, sizeof(active_region_executor));
       memset(&active_combined_region, 0, sizeof(active_combined_region));
       memset(&active_observer_store_region, 0, sizeof(active_observer_store_region));
       memset(&active_loop_session_region, 0, sizeof(active_loop_session_region));
       memset(&active_indexof_const_region, 0, sizeof(active_indexof_const_region));
+      memset(&active_string_dead_text_region, 0, sizeof(active_string_dead_text_region));
       active_combined_region_available =
           match_array_text_combined_region_metadata_any(&active_combined_region);
       active_observer_store_region_available =
@@ -168,6 +171,30 @@
             region->observer_arg0_value,
             region->needle_byte_len);
         set_type(region->region_accumulator_phi_value, T_I64);
+      }
+      auto int string_dead_text_region_ready(
+          const struct StringDeadTextRegionPlanMetadata* region) {
+        return region &&
+               region->matched &&
+               region->publication_boundary &&
+               !strcmp(region->publication_boundary, "none") &&
+               !region->final_text_content_observed &&
+               region->loop_index_initial_const == 0 &&
+               region->accumulator_initial_const == 0 &&
+               region->loop_bound_const >= 0 &&
+               region->base_len_const > 0 &&
+               region->inserted_len_const >= 0 &&
+               region->accumulator_delta_const ==
+                   region->base_len_const + region->inserted_len_const &&
+               region->final_return_value ==
+                   region->accumulator_initial_const +
+                       region->loop_bound_const * region->accumulator_delta_const +
+                       region->base_len_const;
+      }
+      auto void emit_string_dead_text_region_closed_form_return(
+          const struct StringDeadTextRegionPlanMetadata* region) {
+        if (!region) return;
+        fprintf(f, "  ret i64 %lld\n", region->final_return_value);
       }
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void set_block_tail_label(long long bid, const char* label) {
@@ -436,6 +463,13 @@
           EMIT("  unreachable\n");
           continue;
         }
+        if (active_string_dead_text_region_emitted &&
+            (bid == active_string_dead_text_region.loop_body ||
+             bid == active_string_dead_text_region.loop_exit)) {
+          emit_block_label(bid);
+          EMIT("  unreachable\n");
+          continue;
+        }
         if (!active_region_executor_matched &&
             match_array_text_residence_session_region_begin_metadata(
                 bid,
@@ -484,6 +518,16 @@
           emit_array_text_indexof_const_region_call(&active_indexof_const_region);
           EMIT("  br label %%bb%lld\n", active_indexof_const_region.loop_exit);
           active_indexof_const_region_emitted = 1;
+          continue;
+        }
+        if (!active_string_dead_text_region_emitted &&
+            match_string_dead_text_region_plan_by_header_metadata(
+                bid,
+                &active_string_dead_text_region) &&
+            string_dead_text_region_ready(&active_string_dead_text_region)) {
+          emit_block_label(bid);
+          emit_string_dead_text_region_closed_form_return(&active_string_dead_text_region);
+          active_string_dead_text_region_emitted = 1;
           continue;
         }
         emit_block_label(bid);

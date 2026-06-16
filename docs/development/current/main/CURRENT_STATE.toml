@@ -845,18 +845,19 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-978-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-GUARD-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-979-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-IMPLEMENTATION-001.md"
 
-latest_card = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-GUARD-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-978-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-GUARD-SURFACE-001.md"
+latest_card = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-979-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-IMPLEMENTATION-001.md"
 latest_card_summary = """Substring concat dead-text region backend lowering
-guard surface selects a narrow loop_header closed-form return seam. The next
-implementation may consume `StringDeadTextRegionPlanMetadata` only when
-publication_boundary=none, final_text_content_observed=0, the arithmetic
-invariant holds, and the exit block is the terminal dead-text sum return. It
-keeps runtime helpers, product StringBox storage, raw MIR rescans,
-benchmark/source/helper-name branches, and winner claims disabled."""
-current_blocker_token = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-BACKEND-LOWERING-IMPLEMENTATION-001"
+implementation adds a guarded generic-path consumer for
+`StringDeadTextRegionPlanMetadata`: at the loop header it emits a closed-form
+return and marks the loop body / exit as unreachable. Runtime helpers, product
+StringBox storage, raw MIR rescans, benchmark/source/helper-name branches, and
+winner claims remain disabled. The active target front is still preempted by
+the older function-level `substring_concat_loop_ascii` exact seed route, so the
+next row is reachability closeout rather than a performance claim."""
+current_blocker_token = "MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-REACHABILITY-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
