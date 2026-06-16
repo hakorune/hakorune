@@ -845,17 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-991-OBJECT-STORAGE-PLAN-VOCAB-AUDIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-992-LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001.md"
 
-latest_card = "OBJECT-STORAGE-PLAN-VOCAB-AUDIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-991-OBJECT-STORAGE-PLAN-VOCAB-AUDIT-001.md"
-latest_card_summary = """ObjectStoragePlan vocabulary audit records six
-keep-separate semantic groups and four merge/retire candidates without merging
-types. Fact/fallback separation, public re-exports, guard path compatibility,
-backend lowering, MIR JSON metadata, and MIRBuilder object management remain
-unchanged. The smallest safe follow-up is a LocalFirstObjectPlan alias retire
-preflight."""
-current_blocker_token = "LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001"
+latest_card = "LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-992-LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001.md"
+latest_card_summary = """LocalFirstObjectPlan alias retire preflight records
+the current live API compatibility, historical docs, and historical guard
+expectations that still depend on the alias. Alias removal is explicitly
+blocked; the next safe row is guard compatibility before any vocabulary
+deletion."""
+current_blocker_token = "LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-GUARD-COMPAT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
