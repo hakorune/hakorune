@@ -845,18 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-960-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-MEASUREMENT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-961-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BORROWED-TEXT-ACCESS-OWNER-INVENTORY-001.md"
 
-latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-MEASUREMENT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-960-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-MEASUREMENT-001.md"
-latest_card_summary = """Array text loop-session backend lowering measurement
-keeps the 296x-959 lowering: paired microstat now reports
-ny_aot_instr=20,925,175 and ny_aot_cycles=4,585,694 versus the 296x-929
-selected-front baseline of 92,925,688 instructions and 32,626,920 cycles. The
-remaining direct micro-ASM hot owner is BorrowedHandleBox::as_str_fast at
-95.24%, so the next row inventories the borrowed text access boundary before
-another implementation."""
-current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BORROWED-TEXT-ACCESS-OWNER-INVENTORY-001"
+latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BORROWED-TEXT-ACCESS-OWNER-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-961-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BORROWED-TEXT-ACCESS-OWNER-INVENTORY-001.md"
+latest_card_summary = """Array text loop-session borrowed text access owner
+inventory confirms the 296x-960 residue is repeated Boxed-slot
+`BorrowedHandleBox::as_str_fast` projection inside the read-only region helper.
+It rejects Array push/storage policy changes and BorrowedHandleBox downcasts,
+then selects a helper-local row-domain length table that reduces projected text
+accesses from loop_bound=600000 to row_modulus=64 without changing product
+storage or representation."""
+current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-LENGTH-TABLE-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
