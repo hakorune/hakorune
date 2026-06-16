@@ -845,18 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-962-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-LENGTH-TABLE-IMPLEMENTATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-963-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-CLOSEOUT-001.md"
 
-latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-LENGTH-TABLE-IMPLEMENTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-962-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-LENGTH-TABLE-IMPLEMENTATION-001.md"
-latest_card_summary = """Array text loop-session length-table implementation
-keeps the optimization helper-local: it precomputes the touched row-domain text
-lengths before the loop, preserves loop_bound < row_modulus semantics with a
-new boundary test, and reduces paired microstat AOT cycles from 4,585,694 to
-1,395,792. The exact front is now a counter winner against its C pair
-(ratio_cycles=2.29), without changing product ArrayBox storage,
-BorrowedHandleBox representation, MIRBuilder, or backend lowering."""
-current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-CLOSEOUT-001"
+latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-963-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-CLOSEOUT-001.md"
+latest_card_summary = """Array text loop-session closeout closes the
+`kilo_leaf_array_string_len` selected owner after 296x-959 and 296x-962:
+ny_aot_cycles moved from the 296x-929 baseline of 32,626,920 to 1,395,792,
+ratio_cycles moved from 0.10 to 2.29, and exact_front_counter_winner=1. This is
+not a product default speedup claim; product ArrayBox storage, push route,
+BorrowedHandleBox representation, MIRBuilder object management, benchmark-name
+branches, and helper-name inference all remain unchanged."""
+current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ARRAY-TEXT-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
