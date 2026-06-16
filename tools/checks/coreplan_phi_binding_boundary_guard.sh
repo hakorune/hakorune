@@ -8,6 +8,7 @@ source tools/checks/lib/guard_common.sh
 
 TASKBOARD="docs/development/current/main/workstreams/compiler-foundation-current.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md"
+PHI_BATCH_CARD="docs/development/current/main/phases/phase-296x/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md"
 INDEX="docs/tools/check-scripts-index.md"
 LOCAL_PATCH_SSOT="docs/development/current/main/design/local-patch-prevention-ssot.md"
 DEV_GATE_STEPS="tools/checks/lib/dev_gate_quick_steps.sh"
@@ -21,6 +22,7 @@ guard_require_files \
   "$TAG" \
   "$TASKBOARD" \
   "$CARD" \
+  "$PHI_BATCH_CARD" \
   "$INDEX" \
   "$LOCAL_PATCH_SSOT" \
   "$DEV_GATE_STEPS" \
@@ -50,6 +52,18 @@ guard_expect_fixed_in_file "$TAG" \
   "[freeze:contract][phi_lifecycle/txn_abort]" \
   "src/mir/builder/emission/phi_lifecycle.rs" \
   "PhiTxn abort must fail-fast after rollback"
+guard_expect_fixed_in_file "$TAG" \
+  "define_phi_batch_prepend" \
+  "src/mir/builder/emission/phi_lifecycle.rs" \
+  "phi_lifecycle must own ordered/batched PHI prepend"
+guard_expect_fixed_in_file "$TAG" \
+  "insert_phi_batch_prepend_spanned_with_type_hint" \
+  "src/mir/ssot/cf_common.rs" \
+  "cf_common must expose the low-level batch prepend primitive"
+guard_expect_fixed_in_file "$TAG" \
+  "loop_header_finalize_direct_phi_construction=0" \
+  "$PHI_BATCH_CARD" \
+  "phase card must record loop-header raw PHI construction removal"
 guard_expect_fixed_in_file "$TAG" \
   "$SELF_SCRIPT" \
   "$INDEX" \
@@ -153,6 +167,7 @@ allowed_low_level_phi_call_prefixes = (
 
 low_level_patterns = (
     r"cf_common::insert_phi_at_head",
+    r"insert_phi_batch_prepend_spanned_with_type_hint",
     r"insert_phi_at_head_spanned\(",
     r"insert_phi_at_head\(",
     r"\.update_phi_instruction\(",
@@ -187,7 +202,6 @@ allowed_prefixes = (
     "src/mir/builder/emission/phi_lifecycle.rs:",
     "src/mir/builder/ssa/phi_input_materializer.rs:",
     "src/mir/builder/record_helper_args.rs:",
-    "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs:",
     "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs:",
     "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs:",
     "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/instruction_rewrite.rs:",
@@ -240,5 +254,6 @@ echo "[$TAG] recipe_only_whole_body_fallback=0"
 echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
 echo "[$TAG] phi_transaction_boundary_defined=1"
 echo "[$TAG] joinir_exit_phi_builder_direct_phi_construction=0"
+echo "[$TAG] joinir_loop_header_phi_builder_direct_phi_construction=0"
 echo "[$TAG] phi_direct_emit_no_growth=1"
 echo "[$TAG] ok"

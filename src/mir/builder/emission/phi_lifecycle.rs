@@ -32,11 +32,13 @@
 //! 3. PHI Insert/Update must go through this SSOT entry point (no direct writes)
 //! 4. Failures must fail-fast with Result propagation (no silent no-ops)
 
+use crate::ast::Span;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ssot::cf_common::{
     insert_phi_at_head_spanned, insert_phi_at_head_spanned_with_type_hint,
+    insert_phi_batch_prepend_spanned_with_type_hint,
 };
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::{BasicBlockId, MirType, ValueId};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(in crate::mir::builder) struct PhiToken {
@@ -304,6 +306,82 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
     // Insert PHI with complete inputs (single-step)
     insert_phi_at_head_spanned_with_type_hint(func, block, dst, inputs, type_hint, span)
         .map_err(|e| format!("{e} op=define_phi_final tag={tag}"))?;
+
+    Ok(())
+}
+
+/// One item in a lifecycle-owned PHI batch prepend operation.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PhiBatchItem {
+    pub dst: ValueId,
+    pub inputs: Vec<(BasicBlockId, ValueId)>,
+    pub type_hint: Option<MirType>,
+    pub span: Span,
+    pub item_tag: String,
+}
+
+/// Define an ordered batch of PHIs before the existing block body.
+///
+/// This shape is used by loop-header PHIs. The API materializes and validates
+/// all inputs before mutating the target block, then prepends instructions and
+/// spans in one low-level operation.
+#[track_caller]
+pub(in crate::mir::builder) fn define_phi_batch_prepend(
+    builder: &mut MirBuilder,
+    block: BasicBlockId,
+    items: Vec<PhiBatchItem>,
+    tag: &str,
+) -> Result<(), String> {
+    let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+        format!(
+            "[freeze:contract][phi_lifecycle/batch_prepend_no_function] tag={} No current function",
+            tag
+        )
+    })?;
+
+    let mut prepared = Vec::with_capacity(items.len());
+    for mut item in items {
+        for (pred, incoming) in &mut item.inputs {
+            *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                func,
+                *pred,
+                *incoming,
+                &item.item_tag,
+                "phi_batch",
+            )?;
+        }
+        item.inputs.sort_by_key(|(bb, _)| bb.0);
+
+        if crate::config::env::joinir_dev::debug_enabled() {
+            builder
+                .metadata_ctx
+                .record_value_caller(item.dst, std::panic::Location::caller());
+            if let Some(loc) = builder
+                .metadata_ctx
+                .value_origin_callers()
+                .get(&item.dst)
+                .cloned()
+            {
+                func.metadata.value_origin_callers.insert(item.dst, loc);
+            }
+        }
+
+        prepared.push((item.dst, item.inputs, item.type_hint, item.span));
+    }
+
+    if crate::config::env::joinir_dev::debug_enabled() {
+        let ring0 = crate::runtime::get_global_ring0();
+        ring0.log.debug(&format!(
+            "[phi_lifecycle/batch_prepend] fn={} bb={:?} count={} tag={}",
+            func.signature.name,
+            block,
+            prepared.len(),
+            tag
+        ));
+    }
+
+    insert_phi_batch_prepend_spanned_with_type_hint(func, block, prepared)
+        .map_err(|e| format!("{e} op=define_phi_batch_prepend tag={tag}"))?;
 
     Ok(())
 }

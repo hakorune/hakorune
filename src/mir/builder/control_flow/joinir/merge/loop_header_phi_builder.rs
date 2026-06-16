@@ -31,7 +31,8 @@ use super::super::trace;
 use super::dev_log;
 use super::header_pred_policy;
 use super::loop_header_phi_info::{CarrierPhiEntry, LoopHeaderPhiInfo};
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+use crate::mir::builder::emission::phi_lifecycle::{self, PhiBatchItem};
+use crate::mir::{BasicBlockId, ValueId};
 
 /// Builder for loop header PHIs
 ///
@@ -496,9 +497,9 @@ impl LoopHeaderPhiBuilder {
             ));
         }
 
-        // Insert PHIs at the beginning of the header block (before other instructions)
-        // Sorted by carrier name for determinism
-        let mut phi_instructions: Vec<MirInstruction> = Vec::new();
+        // Insert PHIs at the beginning of the header block (before other instructions).
+        // Iteration is currently by carrier name for determinism.
+        let mut phi_items: Vec<PhiBatchItem> = Vec::new();
 
         // Step 6: Insert PHIs with inputs from ALL entry preds + latch
         // Phase 257 P1.2-FIX: Handle multiple entry predecessors (bb0 host + bb10 JoinIR main)
@@ -509,51 +510,19 @@ impl LoopHeaderPhiBuilder {
             // Build PHI inputs: entry preds use init value, latch preds use next value
             let mut phi_inputs = Vec::new();
             for &entry_pred in &entry_preds {
-                let entry_val = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-                    current_func,
-                    entry_pred,
-                    entry_val,
-                    name,
-                    "entry",
-                )?;
                 phi_inputs.push((entry_pred, entry_val));
             }
             for &latch_pred in &latch_preds {
-                let latch_val = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-                    current_func,
-                    latch_pred,
-                    latch_val,
-                    name,
-                    "latch",
-                )?;
                 phi_inputs.push((latch_pred, latch_val));
             }
 
-            let phi = MirInstruction::Phi {
+            phi_items.push(PhiBatchItem {
                 dst: entry.phi_dst,
                 inputs: phi_inputs.clone(),
                 type_hint: None,
-            };
-
-            if crate::config::env::joinir_dev::debug_enabled() {
-                let caller = std::panic::Location::caller();
-                builder
-                    .metadata_ctx
-                    .record_value_caller(entry.phi_dst, caller);
-                if let Some(loc) = builder
-                    .metadata_ctx
-                    .value_origin_callers()
-                    .get(&entry.phi_dst)
-                    .cloned()
-                {
-                    current_func
-                        .metadata
-                        .value_origin_callers
-                        .insert(entry.phi_dst, loc);
-                }
-            }
-
-            phi_instructions.push(phi);
+                span: crate::ast::Span::unknown(),
+                item_tag: format!("loop_header_phi_builder:{name}"),
+            });
 
             if dev_debug {
                 let phi_desc = phi_inputs
@@ -571,32 +540,25 @@ impl LoopHeaderPhiBuilder {
             }
         }
 
-        // Prepend PHIs to existing instructions
-        let header_block = current_func
-            .blocks
-            .get_mut(&info.header_block)
-            .ok_or_else(|| {
-                format!(
-                    "Phase 33-16: Header block {:?} not found in current function",
-                    info.header_block
-                )
-            })?;
-        let mut new_instructions = phi_instructions;
-        new_instructions.append(&mut header_block.instructions);
-        header_block.instructions = new_instructions;
-
-        // Also prepend spans for the PHIs
-        let mut new_spans: Vec<crate::ast::Span> = (0..info.carrier_phis.len())
-            .map(|_| crate::ast::Span::unknown())
-            .collect();
-        new_spans.append(&mut header_block.instruction_spans);
-        header_block.instruction_spans = new_spans;
+        phi_lifecycle::define_phi_batch_prepend(
+            builder,
+            info.header_block,
+            phi_items,
+            "loop_header_phi_builder:finalize",
+        )?;
 
         if dev_debug {
+            let header_instruction_count = builder
+                .scope_ctx
+                .current_function
+                .as_ref()
+                .and_then(|func| func.blocks.get(&info.header_block))
+                .map(|block| block.instructions.len())
+                .unwrap_or(0);
             trace.stderr_if(
                 &format!(
                     "[joinir/header-phi]   Header block now has {} instructions",
-                    header_block.instructions.len()
+                    header_instruction_count
                 ),
                 true,
             );

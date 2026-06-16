@@ -14,8 +14,8 @@ COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
 reseal, PhiTxn, JoinIR exit PHI migration, and normalizer statement-only
 prelude adapter. PHI lane has now progressed through
-PHI-COREPLAN-SIMPLE-RAW-EMIT-MIGRATION-001 and the next row is
-PHI-HEADER-BATCH-PREPEND-DESIGN-001. Exact-AOT optimization resumed through
+PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001 and the next row is
+PHI-BRIDGE-IMPORT-PHI-LIFECYCLE-DESIGN-001. Exact-AOT optimization resumed through
 MIMALLOC-AOT-KERNEL-FRONT-SELECT-002. That row found no meaningful Hako-slower
 resident exact-kernel owner after boot amortization and fixed the measurement
 harness link path for runtime/string kernels. MIMALLOC-BODY-TIMING-FRONT-SELECT-001
@@ -845,15 +845,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-940-PHI-COREPLAN-SIMPLE-RAW-EMIT-MIGRATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md"
 
-latest_card = "PHI-COREPLAN-SIMPLE-RAW-EMIT-MIGRATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-940-PHI-COREPLAN-SIMPLE-RAW-EMIT-MIGRATION-001.md"
-latest_card_summary = """PHI helper entry points and the simple CorePlan raw
-PHI emission sites now route through the PHI lifecycle facade while preserving
-type hints. Ordered loop-header PHI batch/prepend migration remains a separate
+latest_card = "PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md"
+latest_card_summary = """loop_header_phi_builder::finalize now constructs
+PHIs through the lifecycle-owned batch/prepend API. The guard rejects direct
+loop-header PHI construction while bridge/import PHI migration remains a later
 design row."""
-current_blocker_token = "PHI-HEADER-BATCH-PREPEND-DESIGN-001"
+current_blocker_token = "PHI-BRIDGE-IMPORT-PHI-LIFECYCLE-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

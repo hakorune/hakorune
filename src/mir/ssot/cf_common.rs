@@ -104,3 +104,42 @@ pub fn insert_phi_at_head_spanned_with_type_hint(
     });
     Ok(())
 }
+
+/// Prepend a PHI batch before the existing block body.
+///
+/// Loop-header PHIs are assembled as one ordered batch, not as independent
+/// single-PHI insertions. This helper keeps instruction/spans lockstep while
+/// leaving lifecycle policy to `phi_lifecycle`.
+pub fn insert_phi_batch_prepend_spanned_with_type_hint(
+    f: &mut MirFunction,
+    bb_id: BasicBlockId,
+    items: Vec<(ValueId, Vec<(BasicBlockId, ValueId)>, Option<MirType>, Span)>,
+) -> Result<(), String> {
+    let fn_name = f.signature.name.clone();
+    let bb = f.get_block_mut(bb_id).ok_or_else(|| {
+        format!(
+            "[freeze:contract][cf_common/phi_batch_block_missing] fn={} bb_id={:?}",
+            fn_name, bb_id
+        )
+    })?;
+
+    let mut new_instructions = Vec::with_capacity(items.len() + bb.instructions.len());
+    let mut new_spans = Vec::with_capacity(items.len() + bb.instruction_spans.len());
+
+    for (dst, mut inputs, type_hint, span) in items {
+        inputs.sort_by_key(|(bb, _)| bb.0);
+        new_instructions.push(MirInstruction::Phi {
+            dst,
+            inputs,
+            type_hint,
+        });
+        new_spans.push(span);
+    }
+
+    new_instructions.append(&mut bb.instructions);
+    new_spans.append(&mut bb.instruction_spans);
+    bb.instructions = new_instructions;
+    bb.instruction_spans = new_spans;
+
+    Ok(())
+}
