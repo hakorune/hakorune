@@ -845,16 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-994-LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-IMPLEMENTATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-995-OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001.md"
 
-latest_card = "LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-IMPLEMENTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-994-LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-IMPLEMENTATION-001.md"
-latest_card_summary = """LocalFirstObjectPlan alias retire implementation removes
-the public compatibility alias and updates object storage plan report fields to
-publish local_first_object_plan_alias_retired=1. ObjectPlan remains canonical;
-backend lowering, MIR JSON metadata, public module re-exports, and MIRBuilder
-object management are unchanged."""
-current_blocker_token = "OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001"
+latest_card = "OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-995-OBJECT-STORAGE-PLAN-NEXT-VOCAB-CANDIDATE-SELECTION-001.md"
+latest_card_summary = """ObjectStoragePlan next vocabulary candidate selection
+chooses site_location_fields as the next thin cleanup seam. Reason enum merging
+and scalar field descriptor merging are deferred because they blur distinct
+semantic owners. No field migration, MIR JSON metadata, backend lowering, or
+MIRBuilder object management changed."""
+current_blocker_token = "OBJECT-SITE-LOCATION-VOCABULARY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
