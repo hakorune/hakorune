@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-944-PHI-JOINIR-VM-BRIDGE-FUNCTION-LIFECYCLE-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -218,9 +218,9 @@ Scope: current lane / next lane / restart order only.
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row
 - PHI lifecycle is the next active lane; helper entry points, simple CorePlan
-  raw PHI emission sites, and loop-header batch/prepend PHIs route through the
-  lifecycle facade, and the next active row is
-  `PHI-BRIDGE-IMPORT-PHI-LIFECYCLE-DESIGN-001`
+  raw PHI emission sites, loop-header batch/prepend PHIs, and the semantic
+  JoinIR VM bridge merge PHI route through lifecycle facades, and the next
+  active row is `PHI-TRANSFORM-REWRITE-LIFECYCLE-BOUNDARY-DESIGN-001`
 - inspect scope dump design is documented: dump is a `hako_check` query, not `.hako` source syntax
 - substring-concat length residual is documented as lowering/codegen work:
   `SUBCONCAT-LEN-CLOSED-FORM-001` should emit scalar closed-form IR from the
@@ -271,7 +271,7 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-944-PHI-JOINIR-VM-BRIDGE-FUNCTION-LIFECYCLE-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`

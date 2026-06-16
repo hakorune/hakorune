@@ -93,7 +93,7 @@ mod phi_merge;
 mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
-mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）
+pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）
 pub(crate) use emission::copy_emitter;
 mod emit_guard; // EmitGuardBox（emit直前の最終関所）
 mod metadata; // MetadataPropagationBox（type/originの伝播）

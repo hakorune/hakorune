@@ -1,6 +1,7 @@
 use super::super::call_generator::{emit_call_pair, emit_call_pair_with_spans};
 use crate::ast::Span;
 use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
+use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::join_ir::{JoinContId, JoinFuncId, MergePair};
 use crate::mir::{BasicBlockId, Callee, EffectMask, MirFunction, MirInstruction, ValueId};
@@ -123,19 +124,18 @@ pub(crate) fn handle_conditional_method_call(
     ctx.mir_func.blocks.insert(else_block, else_block_obj);
 
     // merge block: phi for dst
-    let mut merge_block_obj = crate::mir::BasicBlock::new(merge_block);
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let caller = std::panic::Location::caller();
-        let loc = format!("{}:{}:{}", caller.file(), caller.line(), caller.column());
-        ctx.mir_func.metadata.value_origin_callers.insert(*dst, loc);
-    }
-    merge_block_obj.instructions.push(MirInstruction::Phi {
-        dst: *dst,
-        inputs: vec![(then_block, then_value), (else_block, else_value)],
-        type_hint: None,
-    });
-    merge_block_obj.instruction_spans.push(Span::unknown());
+    let merge_block_obj = crate::mir::BasicBlock::new(merge_block);
     ctx.mir_func.blocks.insert(merge_block, merge_block_obj);
+    phi_lifecycle::define_phi_final_fn_with_type_hint_and_tag(
+        ctx.mir_func,
+        merge_block,
+        *dst,
+        vec![(then_block, then_value), (else_block, else_value)],
+        None,
+        Span::unknown(),
+        "join_ir_vm_bridge:block_converter_conditional_method_call",
+    )
+    .map_err(JoinIrVmBridgeError::new)?;
 
     copy_emitter::emit_copy_in_block(
         ctx.mir_func,

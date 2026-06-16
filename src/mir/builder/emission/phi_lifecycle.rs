@@ -424,16 +424,34 @@ pub(in crate::mir::builder) fn define_phi_final_fn(
     function: &mut crate::mir::MirFunction,
     block: BasicBlockId,
     dst: ValueId,
-    mut inputs: Vec<(BasicBlockId, ValueId)>,
+    inputs: Vec<(BasicBlockId, ValueId)>,
     span: crate::ast::Span,
+) -> Result<(), String> {
+    define_phi_final_fn_with_type_hint_and_tag(
+        function,
+        block,
+        dst,
+        inputs,
+        None,
+        span,
+        "edgecfg_block_params",
+    )
+}
+
+/// Define a final PHI with all inputs (function-level API) and a type hint.
+#[track_caller]
+pub(in crate::mir) fn define_phi_final_fn_with_type_hint_and_tag(
+    function: &mut crate::mir::MirFunction,
+    block: BasicBlockId,
+    dst: ValueId,
+    mut inputs: Vec<(BasicBlockId, ValueId)>,
+    type_hint: Option<MirType>,
+    span: crate::ast::Span,
+    tag: &str,
 ) -> Result<(), String> {
     for (pred, incoming) in &mut inputs {
         *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-            function,
-            *pred,
-            *incoming,
-            "edgecfg_block_params",
-            "phi",
+            function, *pred, *incoming, tag, "phi",
         )?;
     }
 
@@ -449,14 +467,14 @@ pub(in crate::mir::builder) fn define_phi_final_fn(
     if crate::config::env::joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "[phi_lifecycle/define] fn={} bb={:?} dst=%{} tag=edgecfg_block_params",
-            function.signature.name, block, dst.0
+            "[phi_lifecycle/define] fn={} bb={:?} dst=%{} tag={}",
+            function.signature.name, block, dst.0, tag
         ));
     }
 
     // Insert PHI with complete inputs (function-level)
-    insert_phi_at_head_spanned(function, block, dst, inputs, span)
-        .map_err(|e| format!("{e} op=define_phi_final_fn tag=edgecfg_block_params"))?;
+    insert_phi_at_head_spanned_with_type_hint(function, block, dst, inputs, type_hint, span)
+        .map_err(|e| format!("{e} op=define_phi_final_fn tag={tag}"))?;
 
     Ok(())
 }

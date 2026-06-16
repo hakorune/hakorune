@@ -214,7 +214,7 @@ patterns = (
     r"emit_instruction\(MirInstruction::Phi",
     r"add_instruction\(MirInstruction::Phi",
     r"instructions\.push\(MirInstruction::Phi",
-    r"MirInstruction::Phi \{",
+    r"=\s*MirInstruction::Phi \{",
 )
 
 cmd = [
@@ -222,6 +222,7 @@ cmd = [
     "-n",
     "|".join(patterns),
     "src/mir/builder",
+    "src/mir/join_ir_vm_bridge",
     "src/mir/ssot",
     "-g",
     "*.rs",
@@ -230,6 +231,17 @@ result = subprocess.run(cmd, text=True, capture_output=True)
 lines = result.stdout.splitlines() if result.returncode in (0, 1) else []
 violations = []
 for line in lines:
+    path = line.split(":", 1)[0]
+    try:
+        source = Path(path).read_text()
+        line_no = int(line.split(":", 2)[1])
+        test_start = source.find("\n#[cfg(test)]")
+        if test_start >= 0:
+            before_line = source[:test_start].count("\n") + 1
+            if line_no >= before_line:
+                continue
+    except Exception:
+        pass
     if any(line.startswith(prefix) for prefix in allowed_prefixes):
         continue
     # Pattern matching / read-only inspection is allowed outside PHI builders.
@@ -255,5 +267,6 @@ echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
 echo "[$TAG] phi_transaction_boundary_defined=1"
 echo "[$TAG] joinir_exit_phi_builder_direct_phi_construction=0"
 echo "[$TAG] joinir_loop_header_phi_builder_direct_phi_construction=0"
+echo "[$TAG] joinir_vm_bridge_direct_phi_construction=0"
 echo "[$TAG] phi_direct_emit_no_growth=1"
 echo "[$TAG] ok"

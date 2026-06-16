@@ -35,6 +35,7 @@
 
 use crate::ast::Span;
 use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
+use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::join_ir_vm_bridge::block_allocator::BlockAllocator;
 use crate::mir::join_ir_vm_bridge::terminator_builder::{
     create_branch_terminator, create_jump_terminator,
@@ -167,18 +168,17 @@ where
 
     // Merge block: phi for dst
     let mut merge_block_obj = BasicBlock::new(merge_block);
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let caller = std::panic::Location::caller();
-        let loc = format!("{}:{}:{}", caller.file(), caller.line(), caller.column());
-        mir_func.metadata.value_origin_callers.insert(*dst, loc);
-    }
-    merge_block_obj.instructions.push(MirInstruction::Phi {
-        dst: *dst,
-        inputs: vec![(then_block, then_value), (else_block, else_value)],
-        type_hint: type_hint.clone(),
-    });
-    merge_block_obj.instruction_spans.push(Span::unknown());
     mir_func.blocks.insert(merge_block, merge_block_obj);
+    phi_lifecycle::define_phi_final_fn_with_type_hint_and_tag(
+        mir_func,
+        merge_block,
+        *dst,
+        vec![(then_block, then_value), (else_block, else_value)],
+        type_hint.clone(),
+        Span::unknown(),
+        "join_ir_vm_bridge:conditional_method_call",
+    )
+    .map_err(JoinIrVmBridgeError::new)?;
 
     copy_emitter::emit_copy_in_block(
         mir_func,
