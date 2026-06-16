@@ -9,7 +9,13 @@ object management.
 ## Module Boundaries
 
 - `plans.rs`
-  - public plan vocabulary and accessors
+  - facade for public plan vocabulary
+- `plans/kind.rs`
+  - `MapReprKind` tags only
+- `plans/map_repr.rs`
+  - `MapReprPlan` route-backed representation rows
+- `plans/local_storage.rs`
+  - LocalI64Map storage / direct-storage / entry-value tracking rows
   - no route scanning
   - no metadata refresh orchestration
 - `candidates.rs`
@@ -23,7 +29,11 @@ object management.
   - function/module refresh orchestration
   - writes `FunctionMetadata` fields from the local builders
 - `tests.rs`
-  - fixtures for the public refresh contract
+  - facade for module tests
+- `tests/fixtures.rs`
+  - shared MIR fixture builders
+- `tests/refresh_cases.rs`
+  - public refresh contract cases
 
 ## Stop Line
 
