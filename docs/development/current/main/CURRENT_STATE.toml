@@ -845,18 +845,17 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-984-FASTPATH-REACHABILITY-LEDGER-V1-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-985-EXACT-SEED-RETIRE-INVENTORY-001.md"
 
-latest_card = "FASTPATH-REACHABILITY-LEDGER-V1-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-984-FASTPATH-REACHABILITY-LEDGER-V1-001.md"
-latest_card_summary = """FastPath reachability ledger v1 connects the
-observation-only ledger to the route priority table v0. The ledger now emits
-output_contract=hako-fastpath-reachability-ledger-v1,
-route_priority_table_version=v0, selected_route_priority_source, and
-candidate_N_preempted_reason=lower_priority_selected_route while keeping route
-selection, backend lowering, forced reachability, exact seed retirement, and
-winner claims unchanged."""
-current_blocker_token = "EXACT-SEED-RETIRE-INVENTORY-001"
+latest_card = "EXACT-SEED-RETIRE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-985-EXACT-SEED-RETIRE-INVENTORY-001.md"
+latest_card_summary = """Exact-seed retire inventory adds a read-only
+hako_check adapter that reports exact_seed_backend_route presence, replacement
+candidate existence, replacement reachability, preemption, and retire blockers.
+It keeps retire_allowed=0, drive_by_retire_allowed=0, exact_seed_retired=0,
+backend_lowering_changed=0, route_priority_changed=0, forced reachability, and
+winner claims closed."""
+current_blocker_token = "FASTPATH-CONSUMER-REACHABILITY-GATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

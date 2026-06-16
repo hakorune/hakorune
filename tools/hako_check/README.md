@@ -1586,6 +1586,51 @@ summary=ok
   still does not choose routes; it only explains an explicitly selected route
   and its preemptions with table-derived priority values.
 
+Exact Seed Retire Inventory
+- `exact_seed_retire_inventory.py` is a MIR-backed diagnostic adapter for
+  exact-seed route retirement preflight. It reports whether the selected
+  function has an exact seed, whether a replacement candidate exists, and
+  whether that replacement is reachable.
+- This is not a route retire tool. It does not delete exact seeds, change route
+  priority, change backend lowering, force reachability, or make benchmark
+  winner claims.
+- Stable v0 entry:
+
+```bash
+python3 tools/hako_check/exact_seed_retire_inventory.py \
+  --mir-json app.mir.json \
+  --front kilo_micro_substring_concat
+```
+
+- Contract:
+
+```text
+output_contract=hako-exact-seed-retire-inventory-v0
+route_priority_table_version=v0
+front
+function
+exact_seed_present
+exact_seed_tag
+exact_seed_source_route
+exact_seed_proof
+exact_seed_selected_value
+replacement_family
+replacement_candidate_exists
+replacement_reachable
+preemption_detected
+retire_allowed=0
+retire_blocker
+drive_by_retire_allowed=0
+backend_lowering_changed=0
+exact_seed_retired=0
+winner_claim_allowed=0
+summary=ok
+```
+
+- Boundary: exact-seed retirement requires a deliberate follow-up row after a
+  reachable replacement is proven. Replacement candidate existence alone is not
+  enough.
+
 State Explain
 - `hako_check state-explain` is a MIR-backed diagnostic adapter for state and
   residence work. It consumes an existing MIR JSON artifact and reports
