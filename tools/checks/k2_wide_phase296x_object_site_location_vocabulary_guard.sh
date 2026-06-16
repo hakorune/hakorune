@@ -55,21 +55,17 @@ for token in \
   "pub struct ObjectSiteLocation" \
   "pub const fn new(" \
   "pub const fn location(&self) -> ObjectSiteLocation" \
-  "(\"object_site_location_vocabulary_defined\", \"1\")" \
-  "(\"object_site_location_field_migration_enabled\", \"0\")"; do
+  "(\"object_site_location_vocabulary_defined\", \"1\")"; do
   grep -R -F -q "$token" src/object_storage_plan.rs src/object_storage_plan || {
     echo "[$TAG] missing source token: $token" >&2
     exit 1
   }
 done
 
-for token in \
-  "pub block_id: ObjectBasicBlockId" \
-  "pub instruction_index: ObjectInstructionIndex"; do
-  grep -R -F -q "$token" src/object_storage_plan/publication.rs src/object_storage_plan/fastpath.rs src/object_storage_plan/inventory.rs || {
-    echo "[$TAG] public field shape was unexpectedly migrated: $token" >&2
-    exit 1
-  }
-done
+if ! grep -R -F -q "(\"object_site_location_field_migration_enabled\", \"0\")" src/object_storage_plan.rs src/object_storage_plan \
+  && ! grep -R -F -q "(\"object_publication_site_location_field_migrated\", \"1\")" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[$TAG] field migration state is neither disabled nor explicitly migrated" >&2
+  exit 1
+fi
 
 echo "[$TAG] ok"

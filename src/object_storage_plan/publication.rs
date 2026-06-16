@@ -26,14 +26,23 @@ pub enum PublicationState {
 pub struct ObjectPublicationSite {
     pub value_id: ObjectValueId,
     pub reason: ObjectPublicationReason,
-    pub block_id: ObjectBasicBlockId,
-    pub instruction_index: ObjectInstructionIndex,
+    pub location: ObjectSiteLocation,
 }
 
 impl ObjectPublicationSite {
     #[inline]
     pub const fn location(&self) -> ObjectSiteLocation {
-        ObjectSiteLocation::new(self.block_id, self.instruction_index)
+        self.location
+    }
+
+    #[inline]
+    pub const fn block_id(&self) -> ObjectBasicBlockId {
+        self.location.block_id
+    }
+
+    #[inline]
+    pub const fn instruction_index(&self) -> ObjectInstructionIndex {
+        self.location.instruction_index
     }
 }
 

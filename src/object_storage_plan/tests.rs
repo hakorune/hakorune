@@ -55,7 +55,11 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("objectplan_is_publication_site_truth", "1")));
     assert!(fields.contains(&("local_first_object_plan_alias_retired", "1")));
     assert!(fields.contains(&("object_site_location_vocabulary_defined", "1")));
-    assert!(fields.contains(&("object_site_location_field_migration_enabled", "0")));
+    assert!(fields.contains(&("object_site_location_field_migration_enabled", "1")));
+    assert!(fields.contains(&(
+        "object_publication_site_location_field_migrated",
+        "1"
+    )));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -138,8 +142,7 @@ fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
         vec![ObjectPublicationSite {
             value_id: ObjectValueId(2),
             reason: ObjectPublicationReason::PluginOrExternBoundary,
-            block_id: ObjectBasicBlockId(3),
-            instruction_index: ObjectInstructionIndex(4),
+            location: ObjectSiteLocation::new(ObjectBasicBlockId(3), ObjectInstructionIndex(4)),
         }],
     );
     assert!(!published.is_unpublished_local());
@@ -147,6 +150,11 @@ fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
     assert_eq!(
         published.publication_sites[0].location(),
         ObjectSiteLocation::new(ObjectBasicBlockId(3), ObjectInstructionIndex(4))
+    );
+    assert_eq!(published.publication_sites[0].block_id(), ObjectBasicBlockId(3));
+    assert_eq!(
+        published.publication_sites[0].instruction_index(),
+        ObjectInstructionIndex(4)
     );
 }
 

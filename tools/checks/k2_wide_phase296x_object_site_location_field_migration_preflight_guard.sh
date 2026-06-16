@@ -62,10 +62,11 @@ grep -R -F -q "pub struct ObjectPublicationSite" src/object_storage_plan/publica
   exit 1
 }
 
-grep -R -F -q "pub block_id: ObjectBasicBlockId" src/object_storage_plan/publication.rs || {
-  echo "[$TAG] ObjectPublicationSite should not be migrated in preflight row" >&2
+if ! grep -R -F -q "pub block_id: ObjectBasicBlockId" src/object_storage_plan/publication.rs \
+  && ! grep -R -F -q "(\"object_publication_site_location_field_migrated\", \"1\")" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[$TAG] ObjectPublicationSite is neither pre-migration nor explicitly migrated" >&2
   exit 1
-}
+fi
 
 grep -R -F -q "fact.block_id" src/runner/mir_json_emit src/mir/map_repr_plan || {
   echo "[$TAG] expected LocalFastPathFact external consumer evidence missing" >&2
