@@ -167,7 +167,7 @@ where
     mir_func.blocks.insert(else_block, else_block_obj);
 
     // Merge block: phi for dst
-    let mut merge_block_obj = BasicBlock::new(merge_block);
+    let merge_block_obj = BasicBlock::new(merge_block);
     mir_func.blocks.insert(merge_block, merge_block_obj);
     phi_lifecycle::define_phi_final_fn_with_type_hint_and_tag(
         mir_func,

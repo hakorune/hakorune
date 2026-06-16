@@ -448,11 +448,6 @@ impl DirectSlotCellV0 {
             || (cfg!(target_pointer_width = "64") && self.storage_tag == DIRECT_SLOT_TAG_USIZE)
     }
 
-    #[cfg(test)]
-    fn read_handle(&self) -> Option<i64> {
-        (self.storage_tag == DIRECT_SLOT_TAG_HANDLE).then_some(self.payload as i64)
-    }
-
     fn write_handle(&mut self, value: i64) -> bool {
         if self.storage_tag != DIRECT_SLOT_TAG_HANDLE {
             return false;
