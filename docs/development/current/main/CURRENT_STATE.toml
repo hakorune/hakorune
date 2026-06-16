@@ -845,18 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-987-FASTPATH-CONSUMER-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-988-FASTPATH-CLOSEOUT-001.md"
 
-latest_card = "FASTPATH-CONSUMER-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-987-FASTPATH-CONSUMER-INVENTORY-001.md"
-latest_card_summary = """FastPath consumer inventory adds a read-only
-hako_check report for current-lane known consumer families: exact_seed,
-local_fastpath_fact, local_i64_map_entry_table, string_dead_text_region, and
-runtime_helper_fallback. It keeps active-front reachability owned by the ledger
-and fixes backend_consumer_code_is_not_reachability=1,
-winner_claim_requires_reachable_consumer=1, and
-unknown_consumer_winner_claim_allowed=0."""
-current_blocker_token = "FASTPATH-CLOSEOUT-001"
+latest_card = "FASTPATH-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-988-FASTPATH-CLOSEOUT-001.md"
+latest_card_summary = """FastPath closeout lands the route reachability /
+priority cleanup series: reachability ledger v1, unreachable consumer guard,
+route priority table, exact-seed retire inventory, consumer reachability gate,
+and consumer inventory. Backend lowering, runtime route priority, exact-seed
+retirement, forced reachability, and new winner claims remain unchanged. The
+next row returns to fresh front / owner selection with route reachability
+visible."""
+current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-FASTPATH-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
