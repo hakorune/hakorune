@@ -84,6 +84,7 @@ pub mod function_box;
 pub mod gc_config_box;
 // ARCHIVED: JIT Box modules moved to archive/jit-cranelift/ during Phase 15
 pub mod map_box;
+pub mod map_key_domain;
 pub mod map_surface_catalog;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod qr_box;

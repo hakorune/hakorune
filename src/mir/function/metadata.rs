@@ -41,7 +41,10 @@ use crate::mir::{
     hotcore_method_summary::HotCoreMethodSummary,
     inline_plan::InlinePlan,
     map_lookup_fusion_plan::MapLookupFusionRoute,
-    map_repr_plan::MapReprPlan,
+    map_repr_plan::{
+        LocalI64MapDirectStoragePlan, LocalI64MapEntryValueTrackingPlan,
+        LocalMapStorageRealizationPlan, MapReprPlan,
+    },
     placement_effect::PlacementEffectRoute,
     receiver_snapshot_publication_plan::ReceiverSnapshotPublicationPlan,
     route_decision::RouteDecision,
@@ -66,6 +69,7 @@ use crate::mir::{
     value_consumer::ValueConsumerFacts,
     MirType, ValueId,
 };
+use crate::object_storage_plan::LocalFastPathFact;
 use std::collections::BTreeMap;
 
 /// Metadata for MIR functions.
@@ -360,6 +364,32 @@ pub struct FunctionMetadata {
     /// generic method routes. Later rows may promote fixed / enum / interned
     /// subsets into the same family without changing lowering by themselves.
     pub map_repr_plans: Vec<MapReprPlan>,
+
+    /// Passive exact-AOT/local-first Map storage realization plans.
+    ///
+    /// These rows describe candidate representation before publication. They
+    /// do not enable backend lowering, runtime helper routes, or product
+    /// MapBox storage changes by themselves.
+    pub local_map_storage_realization_plans: Vec<LocalMapStorageRealizationPlan>,
+
+    /// Passive exact-AOT/local-first i64 Map direct storage descriptors.
+    ///
+    /// These rows name the selected closed-world storage representation but
+    /// keep entry value tracking, backend lowering, runtime helpers, and
+    /// product MapBox storage changes disabled.
+    pub local_i64_map_direct_storage_plans: Vec<LocalI64MapDirectStoragePlan>,
+
+    /// Passive set-site value tracking rows for local i64 Map direct storage.
+    ///
+    /// These rows record which key/value operands seeded the future local
+    /// table. They do not materialize the table or enable backend lowering.
+    pub local_i64_map_entry_value_tracking_plans: Vec<LocalI64MapEntryValueTrackingPlan>,
+
+    /// Backend-consumable local fast path permissions.
+    ///
+    /// These rows must be positive facts only. Fallback evidence, observations,
+    /// helper names, and source variable names do not belong in this surface.
+    pub local_fastpath_facts: Vec<LocalFastPathFact>,
 
     /// Backend-consumable array RMW route plans.
     /// These own `array.get(i) -> + 1 -> array.set(i, ...)` legality in MIR

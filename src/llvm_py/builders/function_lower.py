@@ -20,6 +20,10 @@ from builders.function_metadata import (
     _load_direct_array_access_plan_metadata,
     _load_exact_numeric_route_metadata,
     _load_fastmem_access_plan_metadata,
+    _load_local_fastpath_fact_metadata,
+    _load_local_i64_map_direct_storage_plan_metadata,
+    _load_local_i64_map_entry_value_tracking_plan_metadata,
+    _load_local_map_storage_realization_plan_metadata,
     _load_map_lookup_fusion_metadata,
     _load_map_repr_metadata,
     _load_sum_placement_metadata,
@@ -114,6 +118,10 @@ def lower_function(builder, func_data: Dict[str, Any]):
     _load_direct_array_access_plan_metadata(builder, func_data)
     _load_map_lookup_fusion_metadata(builder, func_data)
     _load_map_repr_metadata(builder, func_data)
+    _load_local_fastpath_fact_metadata(builder, func_data)
+    _load_local_map_storage_realization_plan_metadata(builder, func_data)
+    _load_local_i64_map_direct_storage_plan_metadata(builder, func_data)
+    _load_local_i64_map_entry_value_tracking_plan_metadata(builder, func_data)
     _load_fastmem_access_plan_metadata(builder, func_data)
 
     # Conservative sign analysis for power-of-two modulo fast path.

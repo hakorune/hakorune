@@ -27,6 +27,23 @@ that exact old slice is explicitly reopened.
 `CURRENT_STATE.toml` may point at `latest_workstream_card`; daily progress
 should land there instead of opening row-specific guards.
 
+## Lean Row / Guard Policy
+
+Use row cards by behavior boundary, not by every observation.
+
+- Batch docs-only, design, shadow, and inventory work into a family card when
+  executable behavior and the public metadata contract do not change.
+- Add a dedicated shell guard only for behavior-changing implementation rows,
+  validation/closeout rows that become a stable public entry, or reusable family
+  gates.
+- Measurement rows record commands and evidence in the card. Add a guard only
+  if that measurement becomes a stable regression gate.
+- Pointer updates are required for active blocker/lane transitions and
+  behavior-changing rows. Do not move current pointers for every docs-only
+  exploration row.
+- Prefer family quick-index entries and reusable bucket guards over one guard
+  per row.
+
 Active phase-296x daily set:
 
 ```bash
@@ -44,7 +61,38 @@ routing.
 Avoid `k2_wide_phase296x_symbol_presence_probe_guard.sh` in daily loops; it
 performs a release build and should stay a targeted archaeology/probe guard.
 
+## How To Read This File
+
+This file is the full guard ledger. It is intentionally long because historical
+row guards remain traceable after their lane closes.
+
+Use this order for normal work:
+
+1. Start from `CURRENT_STATE.toml` and the quick entry above.
+2. Use the current-family quick index below to find the active guard family.
+3. Search the full ledger only when reopening old evidence or auditing a row.
+
+Do not add every exploratory inventory row to the daily quick entry. Prefer a
+family guard, `current_state_pointer_guard.sh`, or a manifest-backed row guard
+unless the row needs a stable public shell entry.
+
+## Current Phase-296x Family Quick Index
+
+This section is a navigation mirror. The full row ledger in `Core Gates` remains
+the traceability list.
+
+| Family | Rows | Primary Guards |
+| --- | --- | --- |
+| LocalI64Map fast-path fact and local storage realization | 296x-895..913 | `k2_wide_phase296x_local_fastpath_eligibility_ssot_guard.sh`<br>`k2_wide_phase296x_local_i64_map_storage_realization_closeout_guard.sh`<br>`k2_wide_phase296x_map_hash_owner_refresh_after_local_i64_storage_realization_closeout_guard.sh` |
+| LocalI64Map direct storage policy | 296x-914..918 | `k2_wide_phase296x_local_i64_map_direct_storage_policy_design_guard.sh`<br>`k2_wide_phase296x_local_i64_map_direct_storage_plan_surface_guard.sh`<br>`k2_wide_phase296x_local_i64_map_direct_storage_enablement_design_guard.sh` |
+| LocalI64Map entry value tracking | 296x-919..922 | `k2_wide_phase296x_local_i64_map_entry_value_tracking_surface_guard.sh`<br>`k2_wide_phase296x_local_i64_map_entry_value_tracking_shadow_guard.sh`<br>`k2_wide_phase296x_local_i64_map_entry_value_tracking_enablement_design_guard.sh` |
+| LocalI64Map entry table materialization | 296x-923..928 | `k2_wide_phase296x_local_i64_map_entry_table_materialization_design_guard.sh`<br>`k2_wide_phase296x_local_i64_map_entry_table_materialization_pilot_guard.sh`<br>`k2_wide_phase296x_local_i64_map_entry_table_materialization_validation_guard.sh`<br>296x-927/928 are measurement and owner-refresh closeout evidence only; no dedicated shell guard per lean row policy. |
+| Array text loop session | 296x-845..851,929 | `k2_wide_phase296x_array_text_loop_session_plan_surface_guard.sh`<br>296x-929 reselects this parked front after LocalI64Map entry-table closeout; no dedicated shell guard per lean row policy. |
+
 ## Core Gates
+
+The table below is the complete historical ledger. It is optimized for
+traceability, not daily scanning; use the quick index above first.
 
 | Script | Purpose |
 | --- | --- |
@@ -182,6 +230,32 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_perf_parity_selfhost_handoff_gate_guard.sh` | 296x-75 の selfhost handoff gate guard。small-block gap が残るため selfhost handoff を park し、hako_check perf-surface contract を次 row として選択する。 |
 | `tools/allocator/hako_mimalloc_perf_parity_selfhost_handoff_gate.py` | 296x selfhost handoff gate tool。hakmem LD_PRELOAD bench pilot 後の判断を stable report として出し、winner/replacement claims を閉じる。 |
 | `tools/checks/k2_wide_phase296x_hako_check_perf_surface_contract_guard.sh` | 296x-76 の hako_check perf-surface contract guard。observation-only の report surface を固定し、rewrite/provider/replacement/winner claims を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_get_nonfolded_scalar_front_selection_guard.sh` | 296x-862 の map-get non-folded scalar front selection guard。`kilo_leaf_map_get_dynamic_covered_i64` を Hako-only repeated map-get owner front として固定し、invalid C winner claim と benchmark-specific route branch を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_get_dynamic_covered_i64_scalar_proof_design_guard.sh` | 296x-863 の map-get dynamic covered i64 scalar proof design guard。covered dynamic i64 key proof の owner を generic_method_route_plan に固定し、MapBox storage / MIRBuilder / LLVM helper-name inference へ責務を漏らさない。 |
+| `tools/checks/k2_wide_phase296x_map_get_dynamic_covered_i64_scalar_proof_guard_surface_guard.sh` | 296x-864 の map-get dynamic covered i64 scalar proof guard-surface guard。post target を loop `MapGet -> map_load_scalar_i64` に固定し、final const-key fallback / C winner / benchmark-specific branch を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_get_dynamic_covered_i64_scalar_proof_implementation_guard.sh` | 296x-865 の map-get dynamic covered i64 scalar proof implementation guard。`i % 3` covered key loop の repeated `MapGet` が `nyash.map.scalar_load_hi` に落ち、`nyash.runtime_data.get_hh` を import しないことを検証する。 |
+| `tools/checks/k2_wide_phase296x_map_get_dynamic_covered_i64_scalar_proof_measurement_guard.sh` | 296x-866 の map-get dynamic covered i64 scalar proof measurement guard。route-to-AOT は keeper としつつ、残 hot owner が scalar helper 内部の i64-key String storage / hashing に移ったことを固定する。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_key_storage_owner_selection_guard.sh` | 296x-867 の map scalar-load i64-key storage owner-selection guard。MapBox の stringified-key public semantics を守るため i64 sidecar storage を閉じ、次 owner を scalar helper 内部の no-publication borrowed lookup / i64 key text に切る。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_borrowed_lookup_design_guard.sh` | 296x-868 の map scalar-load i64 borrowed lookup design guard。`nyash.map.scalar_load_hi` 内部だけで no-publication scalar read と i64 key text を使い、MapBox storage / public get/set / slot_load_hh を変えない設計を固定する。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_borrowed_lookup_implementation_guard.sh` | 296x-869 の map scalar-load i64 borrowed lookup implementation guard。`nyash.map.scalar_load_hi` だけを no-allocation i64 key text と MapBox borrowed scalar read へ切り替え、visible MapBox get / slot_load_hh / storage を維持する。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_borrowed_lookup_validation_guard.sh` | 296x-870 の map scalar-load i64 borrowed lookup validation guard。design / implementation guard と Rust build validation を固定し、winner claim を measurement row へ送る。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_borrowed_lookup_measurement_guard.sh` | 296x-871 の map scalar-load i64 borrowed lookup measurement guard。borrowed scalar lookup で String allocation/share/get_opt_key_str が top から消え、残 owner が string-key hash/key-domain に移ったことを固定する。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_hashmap_key_domain_owner_selection_guard.sh` | 296x-872 の map scalar-load i64 HashMap key-domain owner-selection guard。残 owner を `HashMap<String>` key hashing とし、i64 sidecar 実装へ飛ばさず stringified-key alias plan design へ送る。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_alias_plan_design_guard.sh` | 296x-873 の map key-domain alias-plan design guard。`MapKeyDomain::CanonicalI64/Text` を設計し、`1` と `"1"` の alias を守りながら sidecar/storage 実装を vocabulary row まで閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_vocabulary_guard.sh` | 296x-874 の map key-domain vocabulary guard。`MapKeyDomain::CanonicalI64/Text` と canonical decimal parser tests を追加し、MapBox storage / scalar helper consumption / sidecar 実装を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_storage_design_guard.sh` | 296x-875 の map key-domain storage design guard。MapBox storage truth が `nyash-rust::boxes` 側にあるため、kernel prototype vocabulary を core owner へ昇格してから storage を変える方針を固定する。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_core_promotion_guard.sh` | 296x-876 の map key-domain core promotion guard。`MapKeyDomain` を `src/boxes` 側へ昇格し、MapBox storage / scalar helper consumption はまだ閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_storage_guard_surface_guard.sh` | 296x-877 の map key-domain storage guard-surface guard。次 row の post target を `HashMap<MapKeyDomain, ...>` と public key alias/keys output tests に固定し、scalar helper consumption を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_storage_implementation_guard.sh` | 296x-878 の map key-domain storage implementation guard。MapBox storage を `HashMap<MapKeyDomain, ...>` に変更し、public alias / keys / JSON semantics を維持しながら scalar helper consumer row を閉じたままにする。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_storage_validation_guard.sh` | 296x-879 の map key-domain storage validation guard。MapKeyDomain storage implementation の guard / build / semantic tests が通ったことを固定し、性能測定 row まで winner claim を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_key_domain_storage_measurement_guard.sh` | 296x-880 の map key-domain storage measurement guard。storage 実装後の top symbols を固定し、次 owner を scalar helper key-domain consumer に選ぶ。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_key_domain_consumer_design_guard.sh` | 296x-881 の map scalar-load i64 key-domain consumer design guard。`scalar_load_hi` だけを i64 domain helper seam へ送る設計を固定し、slot_load / public Map semantics / hasher / sidecar を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_key_domain_consumer_implementation_guard.sh` | 296x-882 の map scalar-load i64 key-domain consumer implementation guard。`scalar_load_hi` を direct i64-domain helperへ接続し、obsolete text helperを削除しつつ slot_load/public semanticsを維持する。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_key_domain_consumer_measurement_guard.sh` | 296x-883 の map scalar-load i64 key-domain consumer measurement guard。direct i64-domain helper の keeper win と、次 owner が domain lookup/hash 側へ移ったことを固定する。 |
+| `tools/checks/k2_wide_phase296x_map_scalar_load_i64_post_domain_consumer_owner_selection_guard.sh` | 296x-884 の map scalar-load i64 post-domain-consumer owner selection guard。残 owner を MapKeyDomain hash/lookup policy として選び、hasher/typed storage/sidecar 実装を設計相談まで閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_get_scalar_keydomain_closeout_guard.sh` | 296x-885 の map-get scalar key-domain closeout guard。SpecToString 除去 keeper を閉じ、残 owner を Map storage policy design へ分離する。 |
+| `tools/checks/k2_wide_phase296x_map_storage_policy_ssot_guard.sh` | 296x-886 の Map storage policy SSOT guard。ProductMapStorage と Local MapStoragePlan を分離し、product hasher swap / i64-only storage / sidecar / MIRBuilder ownership を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_hash_owner_inventory_guard.sh` | 296x-887 の Map hash owner inventory guard。残 hash/lookup owner を棚卸しし、product hasher swap を閉じたまま LocalI64KeyMap front selection へ渡す。 |
 | `tools/hako_check.sh perf-surface-contract` | hako_check root wrapper の perf-surface contract subcommand。`tools/hako_check/perf_surface_contract.py` に委譲する。 |
 | `tools/hako_check/perf_surface_contract.py` | hako_check perf-surface contract tool。allocator hot-path inventory 用の stable report vocabulary を出す。 |
 | `tools/checks/k2_wide_phase296x_hako_check_perf_surface_inventory_guard.sh` | 296x-77 の hako_check perf-surface inventory guard。object lifecycle facade の hot method 棚卸しから release known-page fast path keeper を選ぶ。 |
@@ -347,9 +421,9 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_local_page_receiver_candidate_probe_guard.sh` | 296x-817 の Local page receiver candidate probe guard。probe report と stop line を固定し、known receiver direct-call guard surface まで実装を閉じる。 |
 | `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_guard_surface_guard.sh` | 296x-818 の Local known receiver direct-call guard surface。pre-publication receiver / known type / known method surface を shadow 条件にしつつ、implementation / storage direct / HostHandle bypass を閉じる。 |
 | `tools/allocator/hako_local_known_receiver_direct_call_shadow.py` | 296x-819 の Local known receiver direct-call shadow tool。page の3件の pre-publication method call を report-only direct-call candidate として分類し、storage / HostHandle / Arc を閉じる。 |
-| `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_shadow_guard.sh` | 296x-819 の Local known receiver direct-call shadow guard。shadow candidate count と stop line を固定し、pilot implementation row へ handoff する。 |
+| `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_shadow_guard.sh` | 296x-819 / 296x-899 の Local known receiver direct-call shadow guard。296x-819 では page pre-publication shadow candidate count と stop line を固定し、296x-899 では inventory + RoutePlan + ObjectStoragePlan から optional LocalFastPathFact candidate を作る passive shadow vocabulary を固定する。backend consumption は閉じる。 |
 | `tools/allocator/hako_local_known_receiver_direct_call_pilot.py` | 296x-820 の Local known receiver direct-call pilot tool。既存 `user_box_method_routes` C shim consumer を generic RoutePlan backend seam として分類し、page/method/helper 専用分岐を閉じる。 |
-| `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_pilot_guard.sh` | 296x-820 の Local known receiver direct-call pilot guard。既存 generic route seam を固定し、新規 lowering なしで measurement row へ進めることを検証する。 |
+| `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_pilot_guard.sh` | 296x-820 / 296x-900 の Local known receiver direct-call pilot guard。296x-820 では既存 generic route seam を固定し、296x-900 では Python LLVM backend が positive `local_fastpath_facts_by_site` だけを消費して fallback reason 付き Fact を拒否することを固定する。 |
 | `tools/allocator/hako_local_known_receiver_direct_call_measurement.py` | 296x-821 の Local known receiver direct-call measurement tool。pilot report と Hako/C body timing pair を結合し、current front no-longer-Hako-slower 判定を出す。 |
 | `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_measurement_guard.sh` | 296x-821 の Local known receiver direct-call measurement guard。65536 repeat の body_elapsed_ratio=0.836、winner_claim=1、ただし新規 lowering claim なしを固定する。 |
 | `tools/allocator/hako_local_known_receiver_direct_call_closeout.py` | 296x-822 の Local known receiver direct-call closeout tool。measurement report を読み、current front winner / no new lowering / next owner selection required を正規化する。 |
@@ -378,6 +452,24 @@ performs a release build and should stay a targeted archaeology/probe guard.
 | `tools/checks/k2_wide_phase296x_map_missing_empty_route_implementation_guard.sh` | 296x-841 の map missing-empty route implementation guard。`MapMissingEmptyRoute` -> `RouteDecision` -> backend selected-route consumption を固定し、MapBox storage / public semantics / product default を変えないことを検証する。 |
 | `tools/checks/k2_wide_phase296x_map_missing_empty_route_measurement_guard.sh` | 296x-842 の map missing-empty route measurement guard。selected-route consumption 後の stat / ny_main shape / closeout pointer を固定する。 |
 | `tools/checks/k2_wide_phase296x_map_missing_empty_route_closeout_guard.sh` | 296x-843 の map missing-empty route closeout guard。keeper route の owner / consumer / stop line と次の fresh-front selection pointer を固定する。 |
+| `tools/checks/k2_wide_phase296x_fresh_front_selection_after_map_missing_empty_closeout_guard.sh` | 296x-844 の map missing-empty closeout 後 fresh-front selection guard。`kilo_leaf_array_string_len` を次 front に選び、実装前 owner inventory へ渡す。 |
+| `tools/checks/k2_wide_phase296x_leaf_array_string_len_owner_inventory_guard.sh` | 296x-845 の leaf array string len owner inventory guard。低信頼 runtime TLS attribution を固定し、Array/String/helper/MIRBuilder patch を閉じる。 |
+| `tools/checks/k2_wide_phase296x_leaf_array_string_len_attribution_repeat_guard.sh` | 296x-846 の leaf array string len attribution repeat guard。`hako.array_text.slot_len` 内の TLS handle-cache boundary を owner として選び、狭い ready-path implementation を許可する。 |
+| `tools/checks/k2_wide_phase296x_leaf_array_string_len_ready_path_implementation_guard.sh` | 296x-847 の leaf array string len ready-path implementation guard。ready-path attempt を nonkeeper として rollback 済みに固定する。 |
+| `tools/checks/k2_wide_phase296x_leaf_array_string_len_next_owner_selection_guard.sh` | 296x-848 の leaf array string len next-owner selection guard。ready-path nonkeeper 後、loop-local text session boundary を design-only next row に選ぶ。 |
+| `tools/checks/k2_wide_phase296x_leaf_array_string_len_route_symbol_attribution_probe_guard.sh` | 296x-849 の leaf array string len route-symbol attribution probe guard。`nyash.array.string_len_hi` と `hako.array_text.slot_len` が同一 body の alias であり、symbol spelling を owner evidence にしないことを固定する。 |
+| `tools/checks/k2_wide_phase296x_leaf_array_string_len_loop_session_design_guard.sh` | 296x-850 の leaf array string len loop-session design guard。raw pointer/session FFI を禁止し、ArrayTextLoopSessionPlan surface を次 row に選ぶ。 |
+| `tools/checks/k2_wide_phase296x_array_text_loop_session_plan_surface_guard.sh` | 296x-851 の ArrayTextLoopSessionPlan surface guard。loop-local text session lowering に必要な passive proof fields をコードと docs で固定し、refresh/backend/MIR JSON export を閉じる。 |
+| `tools/checks/k2_wide_phase296x_map_missing_bench_correction_guard.sh` | 296x-852 の Map missing benchmark correction。C pair が volatile compare で map lookup ではないこと、Hako 側は `map.get(0)` であること、旧 winner claim を撤回し MapGetI64 scalar route inventory へ切ることを固定する。 |
+| `tools/checks/k2_wide_phase296x_map_get_i64_scalar_route_inventory_guard.sh` | 296x-853 の MapGetI64 scalar route inventory。MapHasI64 route は存在する一方で MapGetI64 route kind は未定義、既存 scalar proof は RuntimeDataLoadAny/get_hh のまま、substrate helper `nyash.map.slot_load_hi` は存在するが String-key storage を残すことを固定する。 |
+| `tools/checks/k2_wide_phase296x_map_get_i64_scalar_route_design_guard.sh` | 296x-854 の MapGetI64 scalar route design。`MapLoadScalarI64 -> nyash.map.scalar_load_hi` を proof-positive RuntimeDataBox.get 専用に設計し、mixed get / direct handle get / slot_load_hi / String-key storage / stored-value constant emission を分離する。 |
+| `tools/checks/k2_wide_phase296x_map_get_i64_scalar_route_guard_surface_guard.sh` | 296x-855 の MapGetI64 scalar route guard surface。実装後の MapLoadScalarI64 route/helper と、mixed RuntimeDataBox.get / direct MapBox.get / slot_load_hi / benchmark / typed-storage / constant-emission 非変更を固定する。 |
+| `tools/checks/k2_wide_phase296x_map_get_i64_scalar_route_implementation_guard.sh` | 296x-856 の MapGetI64 scalar route implementation。`MapLoadScalarI64 -> nyash.map.scalar_load_hi` を proof-positive RuntimeDataBox.get に実装し、mixed get / direct handle get / slot_load_hi / benchmark / typed-storage / constant-emission 非変更を検証する。 |
+| `tools/checks/k2_wide_phase296x_map_get_i64_scalar_route_validation_guard.sh` | 296x-857 の MapGetI64 scalar route validation。C shim を再ビルドし、lowering-plan fixture が `nyash.map.scalar_load_hi` を emit しつつ mixed get / direct handle get の既存 fallback を保つことを検証する。 |
+| `tools/checks/k2_wide_phase296x_map_get_direct_mapbox_scalar_demand_design_guard.sh` | 296x-858 の direct MapBox scalar-demand design。source AOT front では RuntimeDataBox loop get は scalar route 化済みだが final direct MapBox.get が handle route に残るため、次 row を proof-backed direct MapBox.get scalar route に切る。 |
+| `tools/checks/k2_wide_phase296x_map_get_direct_mapbox_scalar_demand_implementation_guard.sh` | 296x-859 の direct MapBox scalar-demand implementation。proof-backed direct `MapBox.get` だけを `MapLoadScalarI64 -> nyash.map.scalar_load_hi` にし、unproven direct get / mixed RuntimeDataBox fallback を維持する。 |
+| `tools/checks/k2_wide_phase296x_map_get_direct_mapbox_scalar_demand_validation_guard.sh` | 296x-860 の direct MapBox scalar-demand validation。`kilo_leaf_map_getset_has` の source MIR と exact-AOT object が `nyash.map.scalar_load_hi` を使い、`slot_load_hh` / `runtime_data.get_hh` を残さないことを検証する。 |
+| `tools/checks/k2_wide_phase296x_map_get_direct_mapbox_scalar_demand_measurement_guard.sh` | 296x-861 の direct MapBox scalar-demand measurement attribution。route は AOT に届いたが target front は folded single-load shape のため keeper 測定に使わず、non-folded scalar front selection へ切る。 |
 | `tools/allocator/hako_mimalloc_small_alloc_direct_single_page_select_fast_path_keeper.py` | small-alloc direct single-page select keeper validator。`objectLifecycleSmallAlloc` が単一ページ時だけ direct select route を使うことを検証する。 |
 | `tools/checks/k2_wide_phase296x_hako_mimalloc_post_small_alloc_direct_select_keeper_measurement_guard.sh` | 296x-107 の post-small-alloc direct select keeper measurement guard。exact-EXE measurement と accepted keeper classification を固定する。 |
 | `tools/allocator/hako_mimalloc_post_small_alloc_direct_select_keeper_measurement.py` | post-small-alloc direct select keeper measurement tool。object-lifecycle facade exact-EXE を repeated measurement report に正規化する。 |
@@ -1858,6 +1950,43 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_phase296x_collection_method_direct_array_lane_post_retirement_perf_owner_refresh_guard.sh` | 296x-412 の Collection Method direct-array lane post-retirement perf owner refresh。DirectArray dominance と ArrayRepr design row への handoff を固定する。 |
 | `tools/checks/k2_wide_phase296x_post_directarray_remaining_direct_path_surface_check_guard.sh` | 296x-413 の post-DirectArray remaining direct-path surface check。追加 fast path 候補を typed-object / RuntimeDataBox / facade / public ArrayBox / DirectArray optional / result capsule / page model に分けて閉じ、mimalloc source-level owner refresh へ戻す。 |
 | `tools/checks/k2_wide_phase296x_mimalloc_source_level_owner_refresh_guard.sh` | 296x-414 の mimalloc source-level owner refresh / 415 handoff。DirectArray lane を閉じた後の source-level owner を refresh し、object_lifecycle_facade を保持したまま次の選定 row へ渡す。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_front_selection_guard.sh` | 296x-888 の LocalI64Map front selection。`kilo_leaf_map_get_dynamic_covered_i64` を LocalI64KeyMap shadow 候補に選び、product MapBox i64-only storage / hasher swap / sidecar / MIRBuilder storage ownership / backend loweringを閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_shadow_guard.sh` | 296x-889 の LocalI64Map storage shadow。`src/mir/map_repr_plan.rs` に passive `local_i64_key_map_shadow` metadata row を追加し、backend lowering / product MapBox storage / hasher swap / sidecar / MIRBuilder storage ownership を閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_get_pilot_guard_surface_guard.sh` | 296x-890 の LocalI64Map get pilot guard surface。`map_repr.local_i64_key_map_shadow` + `map_load_scalar_i64` の call-site metadata consumer だけを許可し、product storage / hasher / sidecar / MIRBuilder ownership / name-based inference を閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_get_pilot_guard.sh` | 296x-891 の LocalI64Map get pilot。Python LLVM backend が call-site `map_repr.local_i64_key_map_shadow` metadata を消費して `nyash.map.local_i64_get_hi` を emit し、helper は既存 scalar load へ委譲する。winner claim は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_get_pilot_validation_guard.sh` | 296x-892 の LocalI64Map get pilot validation。Python metadata consumer test、MapReprPlan unit tests、release cargo check、current-state guard、diff check の通過と winner claim なしを固定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_get_pilot_measurement_guard.sh` | 296x-893 の LocalI64Map get pilot measurement。`ny_main` hot loop が `nyash.map.local_i64_get_hi` に到達したこと、remaining hot owner が MapKeyDomain hash lookup であること、winner claim なしを固定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_get_pilot_closeout_guard.sh` | 296x-894 の LocalI64Map get pilot closeout。metadata consumer pilot を reachability-only keeper として閉じ、helper alias extension を止め、次 owner を LocalFastPath eligibility に移す。 |
+| `tools/checks/k2_wide_phase296x_local_fastpath_eligibility_ssot_guard.sh` | 296x-895 の LocalFastPath eligibility SSOT。backend が読むのは positive `LocalFastPathFact` だけ、fallback evidence は report-only、unknown/maybe-published は fallback と固定する。 |
+| `tools/checks/k2_wide_phase296x_local_publication_classifier_guard.sh` | 296x-896 の Local publication classifier。`PublicationState` / fallback reason / `LocalFastPathFact` の passive vocabulary を追加し、Unpublished 以外は fallback、backend lowering disabled を固定する。 |
+| `tools/checks/k2_wide_phase296x_local_alias_class_mvp_guard.sh` | 296x-897 の Local alias class MVP。local assignment / SSA copy / PHI / select / simple receiver alias だけを v0 source として許可し、heap graph / field-sensitive points-to / backend lowering を閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_publication_inventory_v2_guard.sh` | 296x-898 の Local publication inventory v2。alias-class aware publication-state inventory row を report-only として固定し、Unknown alias / MaybePublished は fallback、backend consumption は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_fastpath_fact_metadata_surface_guard.sh` | 296x-901 の LocalFastPathFact metadata surface。FunctionMetadata -> MIR JSON -> Python loader -> resolver の transport を固定し、automatic producer / fallback Fact / helper-name inference を閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_fastpath_fact_producer_selection_guard.sh` | 296x-902 の LocalFastPathFact producer selection。`map_repr.generic_hash_runtime` の scalar/no-publication get だけを positive Fact producer にし、fallback Fact / full alias analysis / full ObjectStoragePlan を閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_known_receiver_direct_call_measurement_903_guard.sh` | 296x-903 の Local known receiver direct call measurement。MIR JSON の positive `LocalFastPathFact` が measured exact-AOT front の hot loop で `nyash.map.local_i64_get_hi` に到達し、winner claim なしで hash owner refresh へ進むことを固定する。 |
+| `tools/checks/k2_wide_phase296x_map_hash_owner_refresh_after_local_fastpath_guard.sh` | 296x-904 の Map hash owner refresh after local fastpath。LocalFastPathFact 到達後も残る owner を `MapBox::get_scalar_i64_key_domain` / `BuildHasher::hash_one` として固定し、product hasher/storage 変更を閉じたまま local i64 map storage realization design へ進める。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_realization_design_guard.sh` | 296x-905 の Local i64 map storage realization design。product MapBox を変えず、exact-AOT/local-first の publication 前 representation として LocalI64KeyMap storage を設計し、最初の実装 slice を passive plan/guard surface に限定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_realization_guard_surface_guard.sh` | 296x-906 の Local i64 map storage realization guard surface。`FunctionMetadata.local_map_storage_realization_plans` と MIR JSON export を追加し、backend/runtime lowering は disabled のまま固定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_realization_lowering_design_guard.sh` | 296x-907 の Local i64 map storage realization lowering design。backend が読む契約を `LocalFastPathFact + LocalMapStorageRealizationPlan(receiver_value)` に限定し、fallback/helper/source-name evidence を proof にしない。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_realization_backend_loader_guard.sh` | 296x-908 の Local i64 map storage realization backend loader。Python backend が `local_map_storage_realization_plans` を `receiver_value` keyed metadata として読むだけに留め、lowering/runtime/helper は開かない。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_realization_shadow_guard.sh` | 296x-909 の Local i64 map storage realization shadow。`LocalFastPathFact` 単独での helper emission を閉じ、`LocalMapStorageRealizationPlan(receiver_value)` との組み合わせを必須にする。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_legacy_shadow_consumer_retire_design_guard.sh` | 296x-910 の Local i64 map legacy shadow consumer retire design。旧 `map_repr.local_i64_key_map_shadow` consumer を backend proof から外し、Fact+Plan 経路へ一本化する方針を固定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_legacy_shadow_consumer_retire_guard.sh` | 296x-911 の Local i64 map legacy shadow consumer retire。Python backend の旧 shadow consumer を削除し、helper emission を `LocalFastPathFact + LocalMapStorageRealizationPlan` 経路だけに限定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_storage_realization_closeout_guard.sh` | 296x-912 の Local i64 map storage realization closeout。metadata surface / backend loader / Fact+Plan guard / legacy shadow consumer retire を閉じ、次を hash owner refresh に戻す。 |
+| `tools/checks/k2_wide_phase296x_map_hash_owner_refresh_after_local_i64_storage_realization_closeout_guard.sh` | 296x-913 の Map hash owner refresh。local helper 到達後も product `MapBox::get_scalar_i64_key_domain` / `BuildHasher::hash_one` が hot であることを固定し、次を LocalI64Map direct storage policy design に切る。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_direct_storage_policy_design_guard.sh` | 296x-914 の Local i64 map direct storage policy design。product MapBox/hash を変えず、exact-AOT/unpublished local map の `closed_world_i64_key_value_table` passive plan だけを次 slice に許可する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_direct_storage_plan_surface_guard.sh` | 296x-915 の Local i64 map direct storage plan surface。`FunctionMetadata.local_i64_map_direct_storage_plans` と MIR JSON export を追加し、entry value tracking / backend loader / lowering / runtime helper は disabled のまま固定する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_direct_storage_backend_loader_guard.sh` | 296x-916 の Local i64 map direct storage backend loader。Python backend が `local_i64_map_direct_storage_plans` を receiver-keyed metadata として読むだけに留め、backend consumer / lowering / runtime helper は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_direct_storage_shadow_guard.sh` | 296x-917 の Local i64 map direct storage shadow。`LocalFastPathFact + LocalI64MapDirectStoragePlan` の shadow candidate だけを追加し、helper emission / backend lowering / runtime helper は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_direct_storage_enablement_design_guard.sh` | 296x-918 の Local i64 map direct storage enablement design。direct storage helper emission は値追跡 surface が入るまで閉じ、次を MapStoragePlan-owned entry value tracking surface に切る。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_value_tracking_surface_guard.sh` | 296x-919 の Local i64 map entry value tracking surface。MapStoragePlan が set-site の key/value operand と known const を metadata / MIR JSON に出し、backend loader / lowering は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_value_tracking_backend_loader_guard.sh` | 296x-920 の Local i64 map entry value tracking backend loader。Python backend が `local_i64_map_entry_value_tracking_plans` を receiver-keyed metadata として読むだけに留め、backend consumer / lowering / runtime helper は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_value_tracking_shadow_guard.sh` | 296x-921 の Local i64 map entry value tracking shadow。`LocalFastPathFact + LocalI64MapDirectStoragePlan + EntryValueTrackingRows` の shadow candidate だけを追加し、helper emission / backend lowering / runtime helper は閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_value_tracking_enablement_design_guard.sh` | 296x-922 の Local i64 map entry value tracking enablement design。entry value tracking shadow から直接 executable lowering を開かず、entry table materialization / publication policy / runtime helper ABI design を次 row に要求する。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_table_materialization_design_guard.sh` | 296x-923 の Local i64 map entry table materialization design。最初の executable shape を backend-local const i64 entry table に限定し、runtime helper / product MapBox storage / backend lowering はまだ閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_table_materialization_guard_surface_guard.sh` | 296x-924 の Local i64 map entry table materialization guard surface。次の pilot の post target を backend-local const i64 key dispatch に固定し、runtime helper / product MapBox storage / backend lowering はまだ閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_table_materialization_pilot_guard.sh` | 296x-925 の Local i64 map entry table materialization pilot。EntryValueTrackingRows から backend-local const key dispatch を emit し、fallback を `nyash.map.slot_load_hh` に残しつつ runtime helper / product storage / winner claim を閉じる。 |
+| `tools/checks/k2_wide_phase296x_local_i64_map_entry_table_materialization_validation_guard.sh` | 296x-926 の Local i64 map entry table materialization validation。Python unit / pilot guard / current pointer / diff check の green を固定し、target-front reachability と winner claim は measurement row へ送る。 |
 | `tools/checks/k2_wide_phase296x_exact_object_pilot_measurement_002_guard.sh` | 296x-730 の Exact object pilot measurement 002。ny-llvmc boundary route が ObjectStoragePlan を消費した後の product exact-AOT body timing を固定し、winner_claim=0 と closeout handoff を検証する。 |
 | `tools/checks/k2_wide_phase296x_exact_object_pilot_closeout_guard.sh` | 296x-731 の Exact object pilot closeout。first exact-object pilot を no-keeper boundary experiment として閉じ、MIRBuilder object management / global Arc retirement / product default change を閉じたまま fresh owner selection へ戻す。 |
 | `tools/checks/k2_wide_phase296x_record_box_surface_guard.sh` | 296x-732 の Record / Box surface。user-facing `record` と `box` を two-surface / one-substrate model として固定し、source surface collapse / record methods / ordinary-box `with` / MIRBuilder representation ownership を閉じる。 |

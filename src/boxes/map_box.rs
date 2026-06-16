@@ -104,6 +104,7 @@
  */
 
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox};
+use crate::boxes::map_key_domain::MapKeyDomain;
 use crate::boxes::ArrayBox;
 use std::any::Any;
 use std::collections::HashMap;
@@ -112,7 +113,7 @@ use std::sync::{Arc, RwLock}; // Arc追加
 
 /// キーバリューストアを表すBox
 pub struct MapBox {
-    data: Arc<RwLock<HashMap<String, Box<dyn NyashBox>>>>, // Arc追加
+    data: Arc<RwLock<HashMap<MapKeyDomain, Box<dyn NyashBox>>>>, // Arc追加
     base: BoxBase,
 }
 
@@ -170,7 +171,8 @@ impl MapBox {
     /// 値を取得
     pub fn get(&self, key: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let key_str = key.to_string_box().value;
-        match self.data.read().unwrap().get(&key_str) {
+        let key_domain = MapKeyDomain::from_text(&key_str);
+        match self.data.read().unwrap().get(&key_domain) {
             Some(value) => Self::clone_for_visible_read(value.as_ref()),
             None => Box::new(StringBox::new(&format!(
                 "[map/missing] Key not found: {}",
@@ -197,7 +199,13 @@ impl MapBox {
 
     /// 全てのキーを取得
     pub fn keys(&self) -> Box<dyn NyashBox> {
-        let mut keys: Vec<String> = self.data.read().unwrap().keys().cloned().collect();
+        let mut keys: Vec<String> = self
+            .data
+            .read()
+            .unwrap()
+            .keys()
+            .map(MapKeyDomain::public_text)
+            .collect();
         // Deterministic ordering for stable stringify/tests
         keys.sort();
         let array = ArrayBox::new();
@@ -210,13 +218,14 @@ impl MapBox {
     /// 全ての値を取得 (keys() と同じソート済みキー順で返す)
     pub fn values(&self) -> Box<dyn NyashBox> {
         let data = self.data.read().unwrap();
-        let mut keys: Vec<&String> = data.keys().collect();
-        keys.sort();
+        let mut entries: Vec<(String, &Box<dyn NyashBox>)> = data
+            .iter()
+            .map(|(key, value)| (key.public_text(), value))
+            .collect();
+        entries.sort_by(|left, right| left.0.cmp(&right.0));
         let array = ArrayBox::new();
-        for key in keys {
-            if let Some(value) = data.get(key) {
-                array.push(Self::clone_for_visible_read(value.as_ref()));
-            }
+        for (_key, value) in entries {
+            array.push(Self::clone_for_visible_read(value.as_ref()));
         }
         Box::new(array)
     }
@@ -238,25 +247,53 @@ impl MapBox {
 
     /// Raw read helper for substrate/plugin routes.
     pub fn get_opt_key_str(&self, key: &str) -> Option<Box<dyn NyashBox>> {
+        let key = MapKeyDomain::from_text(key);
         self.data
             .read()
             .unwrap()
-            .get(key)
+            .get(&key)
             .map(|value| Self::clone_for_visible_read(value.as_ref()))
+    }
+
+    /// Raw scalar read helper for no-publication substrate routes.
+    pub fn get_scalar_i64_key_str(&self, key: &str) -> Option<i64> {
+        let key = MapKeyDomain::from_text(key);
+        self.get_scalar_i64_key_domain(&key)
+    }
+
+    /// Raw scalar read helper for canonical i64 key-domain substrate routes.
+    pub fn get_scalar_i64_key_i64(&self, key: i64) -> Option<i64> {
+        let key = MapKeyDomain::from_i64(key);
+        self.get_scalar_i64_key_domain(&key)
+    }
+
+    fn get_scalar_i64_key_domain(&self, key: &MapKeyDomain) -> Option<i64> {
+        let data = self.data.read().unwrap();
+        let value = data.get(key)?;
+        if let Some(integer) = value.as_any().downcast_ref::<IntegerBox>() {
+            return Some(integer.value);
+        }
+        value
+            .as_any()
+            .downcast_ref::<BoolBox>()
+            .map(|boolean| if boolean.value { 1 } else { 0 })
     }
 
     /// Raw presence helper for substrate/plugin routes.
     pub fn contains_key_str(&self, key: &str) -> bool {
-        self.data.read().unwrap().contains_key(key)
+        let key = MapKeyDomain::from_text(key);
+        self.data.read().unwrap().contains_key(&key)
     }
 
     /// Raw remove helper for substrate/plugin routes.
     pub fn remove_key_str(&self, key: &str) -> bool {
-        self.data.write().unwrap().remove(key).is_some()
+        let key = MapKeyDomain::from_text(key);
+        self.data.write().unwrap().remove(&key).is_some()
     }
 
     /// Raw insert helper for substrate/plugin routes.
     pub fn insert_key_str(&self, key: String, value: Box<dyn NyashBox>) {
+        let key = MapKeyDomain::from_text(&key);
         self.data.write().unwrap().insert(key, value);
     }
 
@@ -289,6 +326,7 @@ impl MapBox {
         let mut json_parts = Vec::new();
 
         for (key, value) in data.iter() {
+            let key = key.public_text();
             let value_str = value.to_string_box().value;
             // 値が数値の場合はそのまま、文字列の場合は引用符で囲む
             let formatted_value = if value.as_any().downcast_ref::<IntegerBox>().is_some()
@@ -305,7 +343,7 @@ impl MapBox {
     }
 
     /// 内部データへのアクセス（JSONBox用）
-    pub fn get_data(&self) -> &RwLock<HashMap<String, Box<dyn NyashBox>>> {
+    pub fn get_data(&self) -> &RwLock<HashMap<MapKeyDomain, Box<dyn NyashBox>>> {
         &self.data
     }
 }
@@ -315,7 +353,7 @@ impl Clone for MapBox {
     fn clone(&self) -> Self {
         // Keep nested identity boxes shared to avoid recursive graph cloning.
         let data_guard = self.data.read().unwrap();
-        let cloned_data: HashMap<String, Box<dyn NyashBox>> = data_guard
+        let cloned_data: HashMap<MapKeyDomain, Box<dyn NyashBox>> = data_guard
             .iter()
             .map(|(k, v)| (k.clone(), Self::clone_for_visible_read(v.as_ref())))
             .collect();
@@ -394,10 +432,11 @@ impl Display for MapBox {
 impl Debug for MapBox {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let data = self.data.read().unwrap();
+        let keys: Vec<String> = data.keys().map(MapKeyDomain::public_text).collect();
         f.debug_struct("MapBox")
             .field("id", &self.base.id)
             .field("size", &data.len())
-            .field("keys", &data.keys().collect::<Vec<_>>())
+            .field("keys", &keys)
             .finish()
     }
 }
@@ -408,6 +447,13 @@ mod tests {
 
     fn str_val(b: &Box<dyn NyashBox>) -> String {
         b.to_string_box().value
+    }
+
+    fn int_val(b: &Box<dyn NyashBox>) -> i64 {
+        b.as_any()
+            .downcast_ref::<IntegerBox>()
+            .expect("value must be IntegerBox")
+            .value
     }
 
     /// Slice 1 — values() must follow sorted key order (same as keys()).
@@ -483,5 +529,59 @@ mod tests {
                 _ => panic!("unexpected key: {k}"),
             }
         }
+    }
+
+    #[test]
+    fn test_key_domain_i64_text_alias() {
+        let map = MapBox::new();
+        map.set(Box::new(IntegerBox::new(1)), Box::new(IntegerBox::new(42)));
+
+        let value = map.get(Box::new(StringBox::new("1")));
+        assert_eq!(int_val(&value), 42);
+        assert!(map.contains_key_str("1"));
+        assert_eq!(map.get_scalar_i64_key_str("1"), Some(42));
+        assert_eq!(map.get_scalar_i64_key_i64(1), Some(42));
+    }
+
+    #[test]
+    fn test_key_domain_noncanonical_text_preserved() {
+        let map = MapBox::new();
+        map.set(
+            Box::new(StringBox::new("01")),
+            Box::new(StringBox::new("leading-zero")),
+        );
+        map.set(
+            Box::new(IntegerBox::new(1)),
+            Box::new(StringBox::new("one")),
+        );
+
+        assert_eq!(
+            str_val(&map.get(Box::new(StringBox::new("01")))),
+            "leading-zero"
+        );
+        assert_eq!(str_val(&map.get(Box::new(IntegerBox::new(1)))), "one");
+        assert_ne!(
+            str_val(&map.get(Box::new(StringBox::new("01")))),
+            str_val(&map.get(Box::new(IntegerBox::new(1))))
+        );
+    }
+
+    #[test]
+    fn test_keys_public_text_after_key_domain_storage() {
+        let map = MapBox::new();
+        map.set(
+            Box::new(IntegerBox::new(1)),
+            Box::new(StringBox::new("one")),
+        );
+        map.set(
+            Box::new(StringBox::new("01")),
+            Box::new(StringBox::new("leading-zero")),
+        );
+
+        let keys = map.keys();
+        let keys_arr = keys.as_any().downcast_ref::<ArrayBox>().unwrap();
+        assert_eq!(keys_arr.len(), 2);
+        assert_eq!(str_val(&keys_arr.get_index_i64(0)), "01");
+        assert_eq!(str_val(&keys_arr.get_index_i64(1)), "1");
     }
 }

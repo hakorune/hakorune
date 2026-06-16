@@ -317,6 +317,7 @@ def _load_map_repr_metadata(builder, func_data: Dict[str, Any]) -> None:
     int_keys = (
         "block",
         "instruction_index",
+        "site_id",
         "receiver_value",
         "key_value",
         "result_value",
@@ -342,6 +343,189 @@ def _load_map_repr_metadata(builder, func_data: Dict[str, Any]) -> None:
         by_site.setdefault((block, instruction_index), []).append(normalized)
 
     builder.resolver.map_repr_plans_by_site = by_site
+
+
+def _load_local_fastpath_fact_metadata(builder, func_data: Dict[str, Any]) -> None:
+    metadata = _safe_metadata(func_data)
+    rows = metadata.get("local_fastpath_facts", [])
+    by_site: Dict[tuple[int, int], List[Dict[str, Any]]] = {}
+    if not isinstance(rows, list):
+        builder.resolver.local_fastpath_facts_by_site = {}
+        return
+
+    int_keys = (
+        "block",
+        "instruction_index",
+        "site_id",
+        "receiver_value",
+        "key_value",
+        "object_id",
+        "alias_class",
+        "route_plan_id",
+        "storage_plan_id",
+    )
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        normalized = dict(row)
+        try:
+            block = int(normalized.get("block"))
+            instruction_index = int(normalized.get("instruction_index"))
+        except (TypeError, ValueError):
+            continue
+        for key in int_keys:
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            try:
+                normalized[key] = int(value)
+            except (TypeError, ValueError):
+                pass
+        by_site.setdefault((block, instruction_index), []).append(normalized)
+
+    builder.resolver.local_fastpath_facts_by_site = by_site
+
+
+def _load_local_map_storage_realization_plan_metadata(
+    builder, func_data: Dict[str, Any]
+) -> None:
+    metadata = _safe_metadata(func_data)
+    rows = metadata.get("local_map_storage_realization_plans", [])
+    by_receiver: Dict[int, List[Dict[str, Any]]] = {}
+    if not isinstance(rows, list):
+        builder.resolver.local_map_storage_realization_plans_by_receiver = {}
+        return
+
+    int_keys = (
+        "receiver_value",
+        "candidate_set_count",
+        "candidate_scalar_get_count",
+    )
+    bool_keys = (
+        "publication_materialization_required",
+        "backend_lowering_enabled",
+        "runtime_helper_enabled",
+    )
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        normalized = dict(row)
+        receiver_value = _as_int_or_none(normalized.get("receiver_value"))
+        if receiver_value is None:
+            continue
+        for key in int_keys:
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            coerced = _as_int_or_none(value)
+            normalized[key] = coerced if coerced is not None else value
+        for key in bool_keys:
+            normalized[key] = _as_bool_or_none(normalized.get(key))
+        by_receiver.setdefault(receiver_value, []).append(normalized)
+
+    builder.resolver.local_map_storage_realization_plans_by_receiver = by_receiver
+
+
+def _load_local_i64_map_direct_storage_plan_metadata(
+    builder, func_data: Dict[str, Any]
+) -> None:
+    metadata = _safe_metadata(func_data)
+    rows = metadata.get("local_i64_map_direct_storage_plans", [])
+    by_receiver: Dict[int, List[Dict[str, Any]]] = {}
+    if not isinstance(rows, list):
+        builder.resolver.local_i64_map_direct_storage_plans_by_receiver = {}
+        return
+
+    int_keys = (
+        "receiver_value",
+        "known_i64_key_set_count",
+        "scalar_get_count",
+    )
+    bool_keys = (
+        "entry_value_tracking_enabled",
+        "publication_materialization_required",
+        "backend_lowering_enabled",
+        "runtime_helper_enabled",
+    )
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        normalized = dict(row)
+        receiver_value = _as_int_or_none(normalized.get("receiver_value"))
+        if receiver_value is None:
+            continue
+        for key in int_keys:
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            coerced = _as_int_or_none(value)
+            normalized[key] = coerced if coerced is not None else value
+        for key in bool_keys:
+            normalized[key] = _as_bool_or_none(normalized.get(key))
+        by_receiver.setdefault(receiver_value, []).append(normalized)
+
+    builder.resolver.local_i64_map_direct_storage_plans_by_receiver = by_receiver
+
+
+def _load_local_i64_map_entry_value_tracking_plan_metadata(
+    builder, func_data: Dict[str, Any]
+) -> None:
+    metadata = _safe_metadata(func_data)
+    rows = metadata.get("local_i64_map_entry_value_tracking_plans", [])
+    by_receiver: Dict[int, List[Dict[str, Any]]] = {}
+    if not isinstance(rows, list):
+        builder.resolver.local_i64_map_entry_value_tracking_plans_by_receiver = {}
+        return
+
+    int_keys = (
+        "receiver_value",
+        "set_block",
+        "set_instruction_index",
+        "key_value",
+        "value_value",
+        "key_const_if_known",
+        "value_const_if_known",
+    )
+    bool_keys = (
+        "backend_lowering_enabled",
+        "runtime_helper_enabled",
+    )
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        normalized = dict(row)
+        receiver_value = _as_int_or_none(normalized.get("receiver_value"))
+        if receiver_value is None:
+            continue
+        for key in int_keys:
+            value = normalized.get(key)
+            if value is None:
+                normalized[key] = None
+                continue
+            coerced = _as_int_or_none(value)
+            normalized[key] = coerced if coerced is not None else value
+        for key in bool_keys:
+            normalized[key] = _as_bool_or_none(normalized.get(key))
+        by_receiver.setdefault(receiver_value, []).append(normalized)
+
+    builder.resolver.local_i64_map_entry_value_tracking_plans_by_receiver = by_receiver
+
+
+def _as_bool_or_none(value: Any) -> Optional[bool]:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"1", "true", "yes"}:
+            return True
+        if lowered in {"0", "false", "no"}:
+            return False
+    return bool(value)
 
 
 def _load_direct_array_access_plan_metadata(builder, func_data: Dict[str, Any]) -> None:

@@ -87,6 +87,22 @@ class FunctionLowerContext:
         # Keys: (block_id, instruction_index) -> [plan dict, ...]
         # This remains metadata-only in v0; backend consumers only read it.
         self.map_repr_plans_by_site: Dict[tuple[int, int], list[Dict[str, Any]]] = {}
+        # MIR-owned LocalFastPath facts (function-local).
+        # Keys: (block_id, instruction_index) -> [fact dict, ...]
+        # Backend consumers may read only positive facts, never fallback evidence.
+        self.local_fastpath_facts_by_site: Dict[tuple[int, int], list[Dict[str, Any]]] = {}
+        # MIR-owned LocalMapStorageRealization plans (function-local).
+        # Keys: receiver_value -> [plan dict, ...]
+        # Lowering remains disabled until a later explicit row.
+        self.local_map_storage_realization_plans_by_receiver: Dict[int, list[Dict[str, Any]]] = {}
+        # MIR-owned LocalI64MapDirectStorage plans (function-local).
+        # Keys: receiver_value -> [plan dict, ...]
+        # This is metadata-only; lowering remains disabled until a later row.
+        self.local_i64_map_direct_storage_plans_by_receiver: Dict[int, list[Dict[str, Any]]] = {}
+        # MIR-owned LocalI64Map entry value tracking rows (function-local).
+        # Keys: receiver_value -> [tracking dict, ...]
+        # This is metadata-only; lowering remains disabled until a later row.
+        self.local_i64_map_entry_value_tracking_plans_by_receiver: Dict[int, list[Dict[str, Any]]] = {}
 
         # NewBox→string-arg hints (function-local)
         self.resolver_newbox_string_args: Dict = {}

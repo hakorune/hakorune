@@ -54,6 +54,13 @@
           {
             "generic_method.get",
             "MapGet",
+            "map_load_scalar_i64",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
+          },
+          {
+            "generic_method.get",
+            "MapGet",
             "map_load_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,

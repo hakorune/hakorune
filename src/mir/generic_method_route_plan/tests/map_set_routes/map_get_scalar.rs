@@ -135,9 +135,61 @@ fn proves_same_block_runtime_data_get_scalar_i64_return_shape() {
         route.publication_policy(),
         Some(GenericMethodPublicationPolicy::NoPublication)
     );
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapLoadScalarI64);
     assert_eq!(
         route.route_kind().helper_symbol(),
-        "nyash.runtime_data.get_hh"
+        "nyash.map.scalar_load_hi"
+    );
+}
+
+#[test]
+fn proves_same_block_direct_mapbox_get_scalar_i64_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "MapBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: crate::mir::ConstValue::Integer(-1),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: crate::mir::ConstValue::Integer(7),
+    });
+    block.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![1, 2, 3]));
+    block.add_instruction(method_call(Some(5), "MapBox", "get", 1, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 2);
+    let route = route_for(&function, "MapBox", "get", Some(5));
+    assert_eq!(route.box_name(), "MapBox");
+    assert_eq!(route.method(), "get");
+    assert_eq!(route.receiver_origin_box(), Some("MapBox"));
+    assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::I64Const));
+    assert_eq!(
+        route.proof(),
+        GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape
+    );
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64OrMissingZero)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapLoadScalarI64);
+    assert_eq!(
+        route.route_kind().helper_symbol(),
+        "nyash.map.scalar_load_hi"
     );
 }
 

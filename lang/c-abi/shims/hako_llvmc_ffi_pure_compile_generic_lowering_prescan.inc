@@ -600,6 +600,8 @@
         fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
       if (needs.map_get || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_get || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.map.scalar_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_has || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_has || module_has_planned_same_module_function_definition())

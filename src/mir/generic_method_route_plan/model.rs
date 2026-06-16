@@ -9,6 +9,7 @@ use crate::mir::{BasicBlockId, ValueId};
 pub(crate) enum GenericMethodRouteKind {
     RuntimeDataLoadAny,
     RuntimeDataContainsAny,
+    MapLoadScalarI64,
     MapLoadAny,
     MapEntryCount,
     MapKeysArray,
@@ -31,9 +32,10 @@ pub(crate) enum GenericMethodRouteKind {
 impl GenericMethodRouteKind {
     fn route_id(self) -> &'static str {
         match self {
-            Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => {
-                "generic_method.get"
-            }
+            Self::RuntimeDataLoadAny
+            | Self::MapLoadScalarI64
+            | Self::MapLoadAny
+            | Self::ArraySlotLoadAny => "generic_method.get",
             Self::RuntimeDataContainsAny
             | Self::ArrayContainsAny
             | Self::MapContainsAny
@@ -52,7 +54,10 @@ impl GenericMethodRouteKind {
 
     fn emit_kind(self) -> &'static str {
         match self {
-            Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => "get",
+            Self::RuntimeDataLoadAny
+            | Self::MapLoadScalarI64
+            | Self::MapLoadAny
+            | Self::ArraySlotLoadAny => "get",
             Self::RuntimeDataContainsAny
             | Self::ArrayContainsAny
             | Self::MapContainsAny
@@ -73,6 +78,7 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
+            Self::MapLoadScalarI64 => "nyash.map.scalar_load_hi",
             Self::MapLoadAny => "nyash.map.slot_load_hh",
             Self::MapEntryCount => "nyash.map.entry_count_i64",
             Self::MapKeysArray => "nyash.map.keys_h",
@@ -95,7 +101,10 @@ impl GenericMethodRouteKind {
 
     fn effect_tags(self) -> &'static [&'static str] {
         match self {
-            Self::RuntimeDataLoadAny | Self::MapLoadAny | Self::ArraySlotLoadAny => &["read.key"],
+            Self::RuntimeDataLoadAny
+            | Self::MapLoadScalarI64
+            | Self::MapLoadAny
+            | Self::ArraySlotLoadAny => &["read.key"],
             Self::RuntimeDataContainsAny
             | Self::ArrayContainsAny
             | Self::MapContainsAny
@@ -116,6 +125,7 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny => "runtime_data_load_any",
             Self::RuntimeDataContainsAny => "runtime_data_contains_any",
+            Self::MapLoadScalarI64 => "map_load_scalar_i64",
             Self::MapLoadAny => "map_load_any",
             Self::MapEntryCount => "map_entry_count",
             Self::MapKeysArray => "map_keys_array",
@@ -158,6 +168,7 @@ pub(crate) enum GenericMethodRouteProof {
     ContainsSurfacePolicy,
     MapSetScalarI64DominatesNoEscape,
     MapSetScalarI64SameKeyNoEscape,
+    MapSetScalarI64CoveredDynamicI64KeyNoEscape,
     MirJsonNumericValueField,
     MirJsonConstValueField,
     MirJsonPhiIncomingArrayItem,
@@ -199,6 +210,9 @@ impl GenericMethodRouteProof {
             Self::ContainsSurfacePolicy => "contains_surface_policy",
             Self::MapSetScalarI64DominatesNoEscape => "map_set_scalar_i64_dominates_no_escape",
             Self::MapSetScalarI64SameKeyNoEscape => "map_set_scalar_i64_same_key_no_escape",
+            Self::MapSetScalarI64CoveredDynamicI64KeyNoEscape => {
+                "map_set_scalar_i64_covered_dynamic_i64_key_no_escape"
+            }
             Self::MirJsonNumericValueField => "mir_json_numeric_value_field",
             Self::MirJsonConstValueField => "mir_json_const_value_field",
             Self::MirJsonPhiIncomingArrayItem => "mir_json_phi_incoming_array_item",

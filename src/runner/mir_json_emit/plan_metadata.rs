@@ -96,4 +96,98 @@ pub(super) fn insert_plan_metadata_json(
                 .collect(),
         ),
     );
+    obj.insert(
+        "local_fastpath_facts".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .local_fastpath_facts
+                .iter()
+                .map(|fact| {
+                    json!({
+                        "route_id": "local_fastpath.known_receiver_direct_call",
+                        "fact_kind": "local_fastpath_fact",
+                        "backend_kind": match fact.backend_kind {
+                            crate::object_storage_plan::LocalFastPathKind::KnownReceiverDirectCall => "known_receiver_direct_call",
+                            crate::object_storage_plan::LocalFastPathKind::LocalFieldAccess => "local_field_access",
+                            crate::object_storage_plan::LocalFastPathKind::LocalStorageAccess => "local_storage_access",
+                        },
+                        "route_plan": "map_repr.generic_hash_runtime",
+                        "site_id": fact.site_id.0,
+                        "block": fact.block_id.0,
+                        "instruction_index": fact.instruction_index.0,
+                        "object_id": fact.object_id.0,
+                        "receiver_value": fact.object_id.0,
+                        "alias_class": fact.alias_class.0,
+                        "route_plan_id": fact.route_plan.0,
+                        "storage_plan_id": fact.storage_plan.0,
+                        "valid_until_publication": fact.valid_until_publication,
+                        "fallback_reason": serde_json::Value::Null,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "local_map_storage_realization_plans".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .local_map_storage_realization_plans
+                .iter()
+                .map(|plan| {
+                    json!({
+                        "receiver_value": plan.receiver_value().as_u32(),
+                        "representation": plan.representation(),
+                        "candidate_set_count": plan.candidate_set_count(),
+                        "candidate_scalar_get_count": plan.candidate_scalar_get_count(),
+                        "publication_materialization_required": plan.publication_materialization_required(),
+                        "backend_lowering_enabled": plan.backend_lowering_enabled(),
+                        "runtime_helper_enabled": plan.runtime_helper_enabled(),
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "local_i64_map_direct_storage_plans".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .local_i64_map_direct_storage_plans
+                .iter()
+                .map(|plan| {
+                    json!({
+                        "receiver_value": plan.receiver_value().as_u32(),
+                        "representation": plan.representation(),
+                        "known_i64_key_set_count": plan.known_i64_key_set_count(),
+                        "scalar_get_count": plan.scalar_get_count(),
+                        "entry_value_tracking_enabled": plan.entry_value_tracking_enabled(),
+                        "publication_materialization_required": plan.publication_materialization_required(),
+                        "backend_lowering_enabled": plan.backend_lowering_enabled(),
+                        "runtime_helper_enabled": plan.runtime_helper_enabled(),
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
+        "local_i64_map_entry_value_tracking_plans".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .local_i64_map_entry_value_tracking_plans
+                .iter()
+                .map(|plan| {
+                    json!({
+                        "receiver_value": plan.receiver_value().as_u32(),
+                        "set_block": plan.set_block().as_u32(),
+                        "set_instruction_index": plan.set_instruction_index(),
+                        "key_value": plan.key_value().as_u32(),
+                        "value_value": plan.value_value().as_u32(),
+                        "key_const_if_known": plan.key_const_if_known(),
+                        "value_const_if_known": plan.value_const_if_known(),
+                        "backend_lowering_enabled": plan.backend_lowering_enabled(),
+                        "runtime_helper_enabled": plan.runtime_helper_enabled(),
+                    })
+                })
+                .collect(),
+        ),
+    );
 }

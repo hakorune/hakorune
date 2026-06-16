@@ -7,6 +7,8 @@ import llvmlite.ir as ir
 
 from src.llvm_py.instructions.llvm_decl import declare_function
 from src.llvm_py.instructions.mir_call.collection_method_call import (
+    _current_local_i64_map_direct_storage_shadow_candidate,
+    _current_local_i64_map_entry_value_tracking_shadow_candidate,
     lower_collection_method_call,
 )
 
@@ -17,6 +19,11 @@ class _DummyResolver:
         self.integerish_ids = set(integerish_ids or [])
         self.direct_array_access_plans_by_site = {}
         self.map_lookup_fusion_routes_by_site = {}
+        self.map_repr_plans_by_site = {}
+        self.local_fastpath_facts_by_site = {}
+        self.local_map_storage_realization_plans_by_receiver = {}
+        self.local_i64_map_direct_storage_plans_by_receiver = {}
+        self.local_i64_map_entry_value_tracking_plans_by_receiver = {}
         self.route_decisions_by_site = {}
         self.route_decisions_metadata_present = False
         self.current_block_id = 0
@@ -124,6 +131,136 @@ def _seed_map_lookup_fusion_route(
     ).append(route)
 
 
+def _seed_local_i64_map_shadow_get_plan(
+    resolver,
+    *,
+    receiver_value=1,
+    key_value=2,
+    instruction_index=0,
+):
+    resolver.map_repr_plans_by_site.setdefault(
+        (int(resolver.current_block_id), int(instruction_index)),
+        [],
+    ).append(
+        {
+            "route_id": "map_repr.local_i64_key_map_shadow",
+            "repr_kind": "local_i64_key_map_shadow",
+            "source_route_kind": "map_load_scalar_i64",
+            "receiver_value": int(receiver_value),
+            "key_value": int(key_value),
+            "proof_tag": "local_i64_key_map_shadow",
+        }
+    )
+
+
+def _seed_local_fastpath_known_receiver_direct_call_fact(
+    resolver,
+    *,
+    receiver_value=1,
+    key_value=2,
+    instruction_index=0,
+    route_plan="map_repr.generic_hash_runtime",
+    method_name="get",
+    fallback_reason=None,
+):
+    resolver.local_fastpath_facts_by_site.setdefault(
+        (int(resolver.current_block_id), int(instruction_index)),
+        [],
+    ).append(
+        {
+            "route_id": "local_fastpath.known_receiver_direct_call",
+            "fact_kind": "local_fastpath_fact",
+            "backend_kind": "known_receiver_direct_call",
+            "route_plan": route_plan,
+            "box_name": "MapBox",
+            "method_name": method_name,
+            "receiver_value": int(receiver_value),
+            "key_value": int(key_value),
+            "fallback_reason": fallback_reason,
+        }
+    )
+
+
+def _seed_local_i64_map_storage_realization_plan(
+    resolver,
+    *,
+    receiver_value=1,
+    candidate_set_count=3,
+    candidate_scalar_get_count=2,
+):
+    resolver.local_map_storage_realization_plans_by_receiver.setdefault(
+        int(receiver_value),
+        [],
+    ).append(
+        {
+            "receiver_value": int(receiver_value),
+            "representation": "local_i64_key_map",
+            "candidate_set_count": int(candidate_set_count),
+            "candidate_scalar_get_count": int(candidate_scalar_get_count),
+            "publication_materialization_required": True,
+            "backend_lowering_enabled": False,
+            "runtime_helper_enabled": False,
+        }
+    )
+
+
+def _seed_local_i64_map_direct_storage_plan(
+    resolver,
+    *,
+    receiver_value=1,
+    known_i64_key_set_count=3,
+    scalar_get_count=2,
+):
+    resolver.local_i64_map_direct_storage_plans_by_receiver.setdefault(
+        int(receiver_value),
+        [],
+    ).append(
+        {
+            "receiver_value": int(receiver_value),
+            "representation": "closed_world_i64_key_value_table",
+            "known_i64_key_set_count": int(known_i64_key_set_count),
+            "scalar_get_count": int(scalar_get_count),
+            "entry_value_tracking_enabled": False,
+            "publication_materialization_required": True,
+            "backend_lowering_enabled": False,
+            "runtime_helper_enabled": False,
+        }
+    )
+
+
+def _seed_local_i64_map_entry_value_tracking_plan(
+    resolver,
+    *,
+    receiver_value=1,
+    set_block=0,
+    set_instruction_index=4,
+    key_value=2,
+    value_value=3,
+    key_const_if_known=0,
+    value_const_if_known=1,
+):
+    resolver.local_i64_map_entry_value_tracking_plans_by_receiver.setdefault(
+        int(receiver_value),
+        [],
+    ).append(
+        {
+            "receiver_value": int(receiver_value),
+            "set_block": int(set_block),
+            "set_instruction_index": int(set_instruction_index),
+            "key_value": int(key_value),
+            "value_value": int(value_value),
+            "key_const_if_known": None
+            if key_const_if_known is None
+            else int(key_const_if_known),
+            "value_const_if_known": None
+            if value_const_if_known is None
+            else int(value_const_if_known),
+            "backend_lowering_enabled": False,
+            "runtime_helper_enabled": False,
+        }
+    )
+
+
 def _seed_map_lookup_route_decision(
     resolver,
     *,
@@ -207,6 +344,142 @@ class TestCollectionMethodCall(unittest.TestCase):
         builder.ret(result)
 
         self.assertIn("nyash.map.slot_load_hh", str(module))
+
+    def test_local_i64_map_direct_storage_shadow_requires_fact_and_plan(self):
+        resolver = _DummyResolver()
+        _seed_local_fastpath_known_receiver_direct_call_fact(resolver)
+        _seed_local_i64_map_direct_storage_plan(resolver)
+
+        candidate = _current_local_i64_map_direct_storage_shadow_candidate(
+            resolver=resolver,
+            box_name="MapBox",
+            method_name="get",
+            receiver_vid=1,
+            arg_ids=[2],
+        )
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["fact"]["route_plan"], "map_repr.generic_hash_runtime")
+        self.assertEqual(
+            candidate["plan"]["representation"], "closed_world_i64_key_value_table"
+        )
+
+    def test_local_i64_map_direct_storage_shadow_rejects_plan_without_fact(self):
+        resolver = _DummyResolver()
+        _seed_local_i64_map_direct_storage_plan(resolver)
+
+        candidate = _current_local_i64_map_direct_storage_shadow_candidate(
+            resolver=resolver,
+            box_name="MapBox",
+            method_name="get",
+            receiver_vid=1,
+            arg_ids=[2],
+        )
+
+        self.assertIsNone(candidate)
+
+    def test_local_i64_map_entry_value_tracking_shadow_requires_entry_rows(self):
+        resolver = _DummyResolver()
+        _seed_local_fastpath_known_receiver_direct_call_fact(resolver)
+        _seed_local_i64_map_direct_storage_plan(resolver)
+        _seed_local_i64_map_entry_value_tracking_plan(resolver)
+
+        candidate = _current_local_i64_map_entry_value_tracking_shadow_candidate(
+            resolver=resolver,
+            box_name="MapBox",
+            method_name="get",
+            receiver_vid=1,
+            arg_ids=[2],
+        )
+
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["fact"]["route_plan"], "map_repr.generic_hash_runtime")
+        self.assertEqual(
+            candidate["plan"]["representation"], "closed_world_i64_key_value_table"
+        )
+        self.assertEqual(len(candidate["entry_value_tracking"]), 1)
+        self.assertEqual(candidate["entry_value_tracking"][0]["value_const_if_known"], 1)
+
+    def test_local_i64_map_entry_value_tracking_shadow_rejects_missing_rows(self):
+        resolver = _DummyResolver()
+        _seed_local_fastpath_known_receiver_direct_call_fact(resolver)
+        _seed_local_i64_map_direct_storage_plan(resolver)
+
+        candidate = _current_local_i64_map_entry_value_tracking_shadow_candidate(
+            resolver=resolver,
+            box_name="MapBox",
+            method_name="get",
+            receiver_vid=1,
+            arg_ids=[2],
+        )
+
+        self.assertIsNone(candidate)
+
+    def test_local_i64_map_entry_table_dispatch_uses_const_tracking_rows(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        _seed_local_fastpath_known_receiver_direct_call_fact(resolver)
+        _seed_local_i64_map_direct_storage_plan(resolver)
+        _seed_local_i64_map_entry_value_tracking_plan(
+            resolver,
+            key_const_if_known=0,
+            value_const_if_known=1,
+        )
+        _seed_local_i64_map_entry_value_tracking_plan(
+            resolver,
+            set_instruction_index=5,
+            key_value=4,
+            value_value=5,
+            key_const_if_known=7,
+            value_const_if_known=9,
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("local_i64_map_entry_dispatch_result", ir_text)
+        self.assertIn("local_i64_map_entry_dispatch_hit0", ir_text)
+        self.assertIn("local_i64_map_entry_dispatch_hit1", ir_text)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("nyash.map.local_i64_get_hi", ir_text)
+
+    def test_local_i64_map_entry_table_dispatch_rejects_non_const_value(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver()
+        _seed_local_fastpath_known_receiver_direct_call_fact(resolver)
+        _seed_local_i64_map_direct_storage_plan(resolver)
+        _seed_local_i64_map_entry_value_tracking_plan(
+            resolver,
+            value_const_if_known=None,
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertNotIn("local_i64_map_entry_dispatch_result", ir_text)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
 
     def test_runtime_data_push_uses_runtime_data_dispatch(self):
         i64, module, builder = _new_builder()
@@ -629,6 +902,121 @@ class TestCollectionMethodCall(unittest.TestCase):
         ir_text = str(module)
         self.assertIn("ret i64 7", ir_text)
         self.assertNotIn("nyash.map.slot_load_hh", ir_text)
+
+    def test_mapbox_local_i64_shadow_get_falls_back_after_consumer_retire(self):
+        i64, module, builder = _new_builder_named("MapLocalI64.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_local_i64_map_shadow_get_plan(
+            resolver,
+            receiver_value=1,
+            key_value=2,
+            instruction_index=0,
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("local_i64_map_get_hi", ir_text)
+
+    def test_mapbox_local_fastpath_fact_get_uses_known_receiver_direct_call_helper(self):
+        i64, module, builder = _new_builder_named("MapLocalFastPath.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_local_fastpath_known_receiver_direct_call_fact(
+            resolver,
+            receiver_value=1,
+            key_value=2,
+            instruction_index=0,
+        )
+        _seed_local_i64_map_storage_realization_plan(resolver, receiver_value=1)
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.local_i64_get_hi", ir_text)
+        self.assertIn("local_fastpath_map_get_hi", ir_text)
+        self.assertNotIn("nyash.map.slot_load_hh", ir_text)
+
+    def test_mapbox_local_fastpath_fact_get_requires_storage_plan(self):
+        i64, module, builder = _new_builder_named("MapLocalFastPathNoStorage.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_local_fastpath_known_receiver_direct_call_fact(
+            resolver,
+            receiver_value=1,
+            key_value=2,
+            instruction_index=0,
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("local_fastpath_map_get_hi", ir_text)
+
+    def test_mapbox_local_fastpath_fact_get_ignores_fallback_reason(self):
+        i64, module, builder = _new_builder_named("MapLocalFastPathFallback.get/0")
+        resolver = _DummyResolver(value_types={2: "i64"}, integerish_ids={2})
+        _seed_local_fastpath_known_receiver_direct_call_fact(
+            resolver,
+            receiver_value=1,
+            key_value=2,
+            instruction_index=0,
+            fallback_reason="MaybePublishedBeforeSite",
+        )
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=partial(declare_function, module),
+            box_name="MapBox",
+            method_name="get",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            resolver=resolver,
+            receiver_vid=1,
+            dst_vid=3,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.slot_load_hh", ir_text)
+        self.assertNotIn("nyash.map.local_i64_get_hi", ir_text)
 
     def test_mapbox_const_fold_uses_route_decision_payload_without_fusion_metadata(self):
         i64, module, builder = _new_builder_named("MapFusion.get/0")

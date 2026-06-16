@@ -1,7 +1,7 @@
 use super::handle_cache::with_map_box;
 use super::map_key_codec::{map_key_string_from_any, map_key_string_from_i64};
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
-use super::map_slot_load::map_slot_load_str;
+use super::map_slot_load::{map_scalar_load_i64, map_slot_load_str};
 use super::map_slot_mutate::{map_slot_clear, map_slot_delete_any};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 pub(super) fn map_entry_count_raw(handle: i64) -> i64 {
@@ -59,6 +59,16 @@ pub extern "C" fn nyash_map_slot_load_hi_alias(handle: i64, key_i64: i64) -> i64
 pub extern "C" fn nyash_map_slot_load_hh_alias(handle: i64, key_any: i64) -> i64 {
     let key_str = map_key_string_from_any(key_any);
     map_slot_load_str(handle, &key_str)
+}
+
+#[export_name = "nyash.map.scalar_load_hi"]
+pub extern "C" fn nyash_map_scalar_load_hi_alias(handle: i64, key_i64: i64) -> i64 {
+    map_scalar_load_i64(handle, key_i64)
+}
+
+#[export_name = "nyash.map.local_i64_get_hi"]
+pub extern "C" fn nyash_map_local_i64_get_hi_alias(handle: i64, key_i64: i64) -> i64 {
+    map_scalar_load_i64(handle, key_i64)
 }
 
 #[export_name = "nyash.map.slot_store_hih"]

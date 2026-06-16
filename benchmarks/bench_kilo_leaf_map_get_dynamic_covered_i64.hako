@@ -1,0 +1,27 @@
+// kilo/map leaf-proof front:
+// repeated integer-key MapBox.get over a covered dynamic i64 key.
+//
+// This is intentionally Hako-only for the current optimization lane. Existing
+// C map pairs are not equivalent map lookup work, so this front must not be
+// used for Hako-vs-C winner claims until a real C hashmap pair exists.
+static box Main {
+  main() {
+    local ops = 2000000
+    local map = new MapBox()
+    local i = 0
+
+    map.set(0, 1)
+    map.set(1, 2)
+    map.set(2, 3)
+
+    local sum = 0
+    loop (i < ops) {
+      local k = i % 3
+      local v = map.get(k)
+      sum = sum + v
+      i = i + 1
+    }
+
+    return sum + map.get(1)
+  }
+}

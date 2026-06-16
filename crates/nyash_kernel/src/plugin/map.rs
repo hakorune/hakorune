@@ -72,6 +72,25 @@ mod tests {
     }
 
     #[test]
+    fn scalar_load_hi_keeps_no_publication_scalar_contract() {
+        let handle = new_map_handle();
+        let string_value = string_handle("scalar-load-non-scalar");
+
+        assert_eq!(nyash_map_slot_store_hih_alias(handle, -71001, 42), 1);
+        assert_eq!(nyash_map_scalar_load_hi_alias(handle, -71001), 42);
+
+        assert_eq!(
+            nyash_map_slot_store_hih_alias(handle, -71002, string_value),
+            1
+        );
+        assert_eq!(nyash_map_slot_load_hi_alias(handle, -71002), string_value);
+        assert_eq!(nyash_map_scalar_load_hi_alias(handle, -71002), 0);
+
+        assert_eq!(nyash_map_scalar_load_hi_alias(handle, -71003), 0);
+        assert_eq!(nyash_map_scalar_load_hi_alias(0, -71001), 0);
+    }
+
+    #[test]
     fn raw_aliases_keep_fail_safe_contract() {
         assert_eq!(nyash_map_slot_load_hi_alias(0, 1), 0);
         assert_eq!(nyash_map_slot_load_hh_alias(0, 1), 0);

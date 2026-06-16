@@ -11,6 +11,10 @@ for _path in (str(_REPO_ROOT), str(_LLVM_PY_ROOT)):
 
 from src.llvm_py.builders.function_metadata import (
     _load_fastmem_access_plan_metadata,
+    _load_local_i64_map_direct_storage_plan_metadata,
+    _load_local_i64_map_entry_value_tracking_plan_metadata,
+    _load_local_fastpath_fact_metadata,
+    _load_local_map_storage_realization_plan_metadata,
     _load_map_lookup_fusion_metadata,
     _load_map_repr_metadata,
 )
@@ -21,6 +25,10 @@ class _DummyResolver:
         self.fastmem_access_plans_by_site = {}
         self.map_lookup_fusion_routes_by_site = {}
         self.map_repr_plans_by_site = {}
+        self.local_fastpath_facts_by_site = {}
+        self.local_map_storage_realization_plans_by_receiver = {}
+        self.local_i64_map_direct_storage_plans_by_receiver = {}
+        self.local_i64_map_entry_value_tracking_plans_by_receiver = {}
 
 
 class _DummyBuilder:
@@ -136,6 +144,139 @@ class TestFastMemMetadataLoader(unittest.TestCase):
         self.assertEqual(plan["receiver_value"], 20)
         self.assertEqual(plan["key_value"], 21)
         self.assertEqual(plan["result_value"], 22)
+
+    def test_local_fastpath_fact_loader_indexes_sites(self):
+        builder = _DummyBuilder()
+        func_data = {
+            "metadata": {
+                "local_fastpath_facts": [
+                    {
+                        "route_id": "local_fastpath.known_receiver_direct_call",
+                        "fact_kind": "local_fastpath_fact",
+                        "backend_kind": "known_receiver_direct_call",
+                        "route_plan": "map_repr.generic_hash_runtime",
+                        "site_id": "99",
+                        "block": "5",
+                        "instruction_index": "8",
+                        "receiver_value": "20",
+                        "key_value": "21",
+                        "object_id": "20",
+                        "alias_class": "3",
+                        "route_plan_id": "4",
+                        "storage_plan_id": "5",
+                        "fallback_reason": None,
+                    }
+                ]
+            }
+        }
+
+        _load_local_fastpath_fact_metadata(builder, func_data)
+
+        by_site = builder.resolver.local_fastpath_facts_by_site
+        self.assertIn((5, 8), by_site)
+        fact = by_site[(5, 8)][0]
+        self.assertEqual(fact["route_id"], "local_fastpath.known_receiver_direct_call")
+        self.assertEqual(fact["receiver_value"], 20)
+        self.assertEqual(fact["key_value"], 21)
+        self.assertEqual(fact["site_id"], 99)
+        self.assertEqual(fact["alias_class"], 3)
+
+    def test_local_map_storage_realization_plan_loader_indexes_receivers(self):
+        builder = _DummyBuilder()
+        func_data = {
+            "metadata": {
+                "local_map_storage_realization_plans": [
+                    {
+                        "receiver_value": "20",
+                        "representation": "local_i64_key_map",
+                        "candidate_set_count": "3",
+                        "candidate_scalar_get_count": "2",
+                        "publication_materialization_required": "true",
+                        "backend_lowering_enabled": "false",
+                        "runtime_helper_enabled": False,
+                    }
+                ]
+            }
+        }
+
+        _load_local_map_storage_realization_plan_metadata(builder, func_data)
+
+        by_receiver = builder.resolver.local_map_storage_realization_plans_by_receiver
+        self.assertIn(20, by_receiver)
+        plan = by_receiver[20][0]
+        self.assertEqual(plan["representation"], "local_i64_key_map")
+        self.assertEqual(plan["candidate_set_count"], 3)
+        self.assertEqual(plan["candidate_scalar_get_count"], 2)
+        self.assertTrue(plan["publication_materialization_required"])
+        self.assertFalse(plan["backend_lowering_enabled"])
+        self.assertFalse(plan["runtime_helper_enabled"])
+
+    def test_local_i64_map_direct_storage_plan_loader_indexes_receivers(self):
+        builder = _DummyBuilder()
+        func_data = {
+            "metadata": {
+                "local_i64_map_direct_storage_plans": [
+                    {
+                        "receiver_value": "20",
+                        "representation": "closed_world_i64_key_value_table",
+                        "known_i64_key_set_count": "3",
+                        "scalar_get_count": "2",
+                        "entry_value_tracking_enabled": "false",
+                        "publication_materialization_required": "true",
+                        "backend_lowering_enabled": "false",
+                        "runtime_helper_enabled": False,
+                    }
+                ]
+            }
+        }
+
+        _load_local_i64_map_direct_storage_plan_metadata(builder, func_data)
+
+        by_receiver = builder.resolver.local_i64_map_direct_storage_plans_by_receiver
+        self.assertIn(20, by_receiver)
+        plan = by_receiver[20][0]
+        self.assertEqual(plan["representation"], "closed_world_i64_key_value_table")
+        self.assertEqual(plan["known_i64_key_set_count"], 3)
+        self.assertEqual(plan["scalar_get_count"], 2)
+        self.assertFalse(plan["entry_value_tracking_enabled"])
+        self.assertTrue(plan["publication_materialization_required"])
+        self.assertFalse(plan["backend_lowering_enabled"])
+        self.assertFalse(plan["runtime_helper_enabled"])
+
+    def test_local_i64_map_entry_value_tracking_plan_loader_indexes_receivers(self):
+        builder = _DummyBuilder()
+        func_data = {
+            "metadata": {
+                "local_i64_map_entry_value_tracking_plans": [
+                    {
+                        "receiver_value": "20",
+                        "set_block": "3",
+                        "set_instruction_index": "9",
+                        "key_value": "21",
+                        "value_value": "22",
+                        "key_const_if_known": "-1",
+                        "value_const_if_known": "7",
+                        "backend_lowering_enabled": "false",
+                        "runtime_helper_enabled": False,
+                    }
+                ]
+            }
+        }
+
+        _load_local_i64_map_entry_value_tracking_plan_metadata(builder, func_data)
+
+        by_receiver = builder.resolver.local_i64_map_entry_value_tracking_plans_by_receiver
+        self.assertIn(20, by_receiver)
+        plan = by_receiver[20][0]
+        self.assertEqual(plan["receiver_value"], 20)
+        self.assertEqual(plan["set_block"], 3)
+        self.assertEqual(plan["set_instruction_index"], 9)
+        self.assertEqual(plan["key_value"], 21)
+        self.assertEqual(plan["value_value"], 22)
+        self.assertEqual(plan["key_const_if_known"], -1)
+        self.assertEqual(plan["value_const_if_known"], 7)
+        self.assertFalse(plan["backend_lowering_enabled"])
+        self.assertFalse(plan["runtime_helper_enabled"])
 
 
 if __name__ == "__main__":

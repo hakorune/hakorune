@@ -204,6 +204,33 @@ pub(super) fn match_generic_get_route(
     }
 
     if box_name == "MapBox" && receiver_origin_box.as_deref() == Some("MapBox") {
+        if let Some(scalar_fact) = prove_scalar_i64_map_get_store_fact(
+            function,
+            def_map,
+            block,
+            instruction_index,
+            *receiver,
+            args[0],
+        ) {
+            return Some(GenericMethodRoute::new(
+                GenericMethodRouteSite::new(block, instruction_index),
+                GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
+                GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+                    .with_result_origin_box(result_origin_box),
+                GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+                GenericMethodRouteDecision::new(
+                    GenericMethodRouteKind::MapLoadScalarI64,
+                    scalar_fact.route_proof,
+                    Some(CoreMethodOpCarrier::manifest(
+                        CoreMethodOp::MapGet,
+                        CoreMethodLoweringTier::WarmDirectAbi,
+                    )),
+                    Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+                    GenericMethodValueDemand::ScalarI64,
+                    Some(GenericMethodPublicationPolicy::NoPublication),
+                ),
+            ));
+        }
         let typed_object_result =
             map_get_result_origin_requires_runtime_data_load(result_origin_box.as_deref());
         let (route_kind, lowering_tier, return_shape, value_demand, publication_policy) =
@@ -277,22 +304,26 @@ pub(super) fn match_generic_get_route(
         *receiver,
         args[0],
     );
-    let (proof, return_shape, value_demand, publication_policy) = if let Some(proof) = scalar_proof
-    {
-        (
-            proof.route_proof,
-            Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
-            GenericMethodValueDemand::ScalarI64,
-            Some(GenericMethodPublicationPolicy::NoPublication),
-        )
-    } else {
-        (
-            GenericMethodRouteProof::GetSurfacePolicy,
-            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
-            GenericMethodValueDemand::RuntimeI64OrHandle,
-            Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
-        )
-    };
+    let (route_kind, lowering_tier, proof, return_shape, value_demand, publication_policy) =
+        if let Some(proof) = scalar_proof {
+            (
+                GenericMethodRouteKind::MapLoadScalarI64,
+                CoreMethodLoweringTier::WarmDirectAbi,
+                proof.route_proof,
+                Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+                GenericMethodValueDemand::ScalarI64,
+                Some(GenericMethodPublicationPolicy::NoPublication),
+            )
+        } else {
+            (
+                GenericMethodRouteKind::RuntimeDataLoadAny,
+                CoreMethodLoweringTier::ColdFallback,
+                GenericMethodRouteProof::GetSurfacePolicy,
+                Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                GenericMethodValueDemand::RuntimeI64OrHandle,
+                Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+            )
+        };
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
@@ -301,11 +332,11 @@ pub(super) fn match_generic_get_route(
             .with_result_origin_box(result_origin_box),
         GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
         GenericMethodRouteDecision::new(
-            GenericMethodRouteKind::RuntimeDataLoadAny,
+            route_kind,
             proof,
             Some(CoreMethodOpCarrier::manifest(
                 CoreMethodOp::MapGet,
-                CoreMethodLoweringTier::ColdFallback,
+                lowering_tier,
             )),
             return_shape,
             value_demand,

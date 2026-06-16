@@ -269,7 +269,7 @@ fn nyash_box_to_json_value(value: Box<dyn NyashBox>) -> Value {
         let map = data.read().unwrap();
         let mut obj = serde_json::Map::new();
         for (key, val) in map.iter() {
-            obj.insert(key.clone(), nyash_box_to_json_value(val.clone_box()));
+            obj.insert(key.public_text(), nyash_box_to_json_value(val.clone_box()));
         }
         Value::Object(obj)
     } else {

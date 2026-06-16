@@ -1,6 +1,7 @@
       enum GenericMethodGetRouteKind {
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE = 0,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY,
+        HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY,
       };
@@ -10,11 +11,20 @@
         enum GenericMethodGetRouteKind route;
       };
 
+      struct LocalI64MapEntryTableMetadata {
+        int invalid;
+        int entry_n;
+        long long keys[32];
+        long long values[32];
+      };
+
       auto const char* generic_method_get_helper_symbol(
           enum GenericMethodGetRouteKind route) {
         switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY:
             return "nyash.runtime_data.get_hh";
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64:
+            return "nyash.map.scalar_load_hi";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
             return "nyash.map.slot_load_hh";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
@@ -29,6 +39,9 @@
           const char* route_kind) {
         if (route_kind && !strcmp(route_kind, "runtime_data_load_any")) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY;
+        }
+        if (route_kind && !strcmp(route_kind, "map_load_scalar_i64")) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64;
         }
         if (route_kind && !strcmp(route_kind, "map_load_any")) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY;
@@ -82,12 +95,126 @@
         return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE;
       }
 
+      auto enum GenericMethodGetRouteKind
+      generic_method_get_route_kind_from_core_and_route_metadata(
+          enum GenericMethodGetRouteKind core_route_kind,
+          enum GenericMethodGetRouteKind metadata_route_kind) {
+        if (core_route_kind == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY &&
+            metadata_route_kind == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64;
+        }
+        return core_route_kind;
+      }
+
+      auto int local_i64_map_entry_table_has_direct_storage_plan(long long recv) {
+        yyjson_val* plans = NULL;
+        size_t pi = 0;
+        if (!fn_metadata) return 0;
+        plans = yyjson_obj_get(fn_metadata, "local_i64_map_direct_storage_plans");
+        if (!(plans && yyjson_is_arr(plans))) return 0;
+        for (pi = 0; pi < yyjson_arr_size(plans); pi++) {
+          yyjson_val* plan = yyjson_arr_get(plans, pi);
+          const char* representation = plan ? read_str(plan, "representation") : NULL;
+          long long receiver_value = 0;
+          if (!hako_llvmc_json_read_i64_field(
+                  plan,
+                  "receiver_value",
+                  &receiver_value)) {
+            return 0;
+          }
+          if (receiver_value == recv &&
+              representation &&
+              !strcmp(representation, "closed_world_i64_key_value_table")) {
+            return 1;
+          }
+        }
+        return 0;
+      }
+
+      auto int match_local_i64_map_entry_table_metadata(
+          long long recv,
+          struct LocalI64MapEntryTableMetadata* out) {
+        yyjson_val* rows = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!local_i64_map_entry_table_has_direct_storage_plan(recv)) return 0;
+        rows = yyjson_obj_get(fn_metadata, "local_i64_map_entry_value_tracking_plans");
+        if (!(rows && yyjson_is_arr(rows))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(rows); ri++) {
+          yyjson_val* row = yyjson_arr_get(rows, ri);
+          long long receiver_value = 0;
+          long long key_const = 0;
+          long long value_const = 0;
+          if (!hako_llvmc_json_read_i64_field(
+                  row,
+                  "receiver_value",
+                  &receiver_value)) {
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (receiver_value != recv) continue;
+          if (!hako_llvmc_json_read_i64_field(
+                  row,
+                  "key_const_if_known",
+                  &key_const) ||
+              !hako_llvmc_json_read_i64_field(
+                  row,
+                  "value_const_if_known",
+                  &value_const)) {
+            if (out) out->invalid = 1;
+            return 0;
+          }
+          if (out && out->entry_n <
+                         (int)(sizeof(out->keys) / sizeof(out->keys[0]))) {
+            out->keys[out->entry_n] = key_const;
+            out->values[out->entry_n] = value_const;
+            out->entry_n++;
+          }
+        }
+        return out && out->entry_n > 0;
+      }
+
+      auto void emit_local_i64_map_entry_table_get(
+          FILE* f,
+          long long dst,
+          long long key_reg,
+          const struct LocalI64MapEntryTableMetadata* table) {
+        char prev[96];
+        snprintf(prev, sizeof(prev), "0");
+        for (int i = 0; table && i < table->entry_n; i++) {
+          fprintf(
+              f,
+              "  %%local_i64_map_entry_table_hit_%lld_%d = icmp eq i64 %%r%lld, %lld\n",
+              dst,
+              i,
+              key_reg,
+              table->keys[i]);
+          fprintf(
+              f,
+              "  %%local_i64_map_entry_table_value_%lld_%d = select i1 %%local_i64_map_entry_table_hit_%lld_%d, i64 %lld, i64 %s\n",
+              dst,
+              i,
+              dst,
+              i,
+              table->values[i],
+              prev);
+          snprintf(
+              prev,
+              sizeof(prev),
+              "%%local_i64_map_entry_table_value_%lld_%d",
+              dst,
+              i);
+        }
+        fprintf(f, "  %%r%lld = add i64 0, %s\n", dst, prev);
+      }
+
       auto int generic_method_get_receiver_origin_valid(
           enum GenericMethodGetRouteKind route,
           const char* receiver_origin_box) {
         if (!receiver_origin_box) return 0;
         switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY:
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64:
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
             return !strcmp(receiver_origin_box, "MapBox");
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
@@ -122,6 +249,7 @@
         if (!strcmp(proof, "get_surface_policy")) return 1;
         if (!strcmp(proof, "map_set_scalar_i64_dominates_no_escape")) return 1;
         if (!strcmp(proof, "map_set_scalar_i64_same_key_no_escape")) return 1;
+        if (!strcmp(proof, "map_set_scalar_i64_covered_dynamic_i64_key_no_escape")) return 1;
         return 0;
       }
 
@@ -201,6 +329,12 @@
         if (!strcmp(view.core_op, "MapGet") &&
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY &&
             !lowering_plan_tier_is_cold_runtime(view.tier)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (!strcmp(view.core_op, "MapGet") &&
+            route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64 &&
+            !lowering_plan_tier_is_direct_abi(view.tier)) {
           if (out) out->invalid = 1;
           return 0;
         }
@@ -307,7 +441,11 @@
               route,
               &core_method_present,
               &core_method_invalid);
-          route_kind = core_method_present ? core_route_kind : metadata_route_kind;
+          route_kind = core_method_present
+              ? generic_method_get_route_kind_from_core_and_route_metadata(
+                    core_route_kind,
+                    metadata_route_kind)
+              : metadata_route_kind;
           if (!(route_box && bname && !strcmp(route_box, bname)) ||
               !(method && !strcmp(method, "get")) ||
               !generic_method_get_key_route_valid(key_route) ||
@@ -517,6 +655,17 @@
         enum GenericMethodGetRouteKind route = metadata_result
             ? metadata.route
             : classify_generic_method_get_route(bname, plan);
+        if (route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64 && dst) {
+          struct LocalI64MapEntryTableMetadata entry_table;
+          if (match_local_i64_map_entry_table_metadata(recv, &entry_table)) {
+            emit_local_i64_map_entry_table_get(f, dst, a0, &entry_table);
+            set_type(dst, T_I64);
+            return 1;
+          }
+          if (entry_table.invalid) {
+            return -1;
+          }
+        }
         switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY:
             if (dst) {
@@ -524,6 +673,14 @@
               set_type(dst, T_I64);
             } else {
               fprintf(f, "  call i64 @\"nyash.runtime_data.get_hh\"(%s)\n", ab);
+            }
+            return 1;
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64:
+            if (dst) {
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.map.scalar_load_hi\"(%s)\n", dst, ab);
+              set_type(dst, T_I64);
+            } else {
+              fprintf(f, "  call i64 @\"nyash.map.scalar_load_hi\"(%s)\n", ab);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:

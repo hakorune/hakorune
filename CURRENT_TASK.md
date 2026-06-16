@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-843-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-929-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
 5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
@@ -198,7 +198,23 @@ Scope: current lane / next lane / restart order only.
   `EXACT-OBJECT-PILOT-CLOSEOUT-001`;
   `kilo_micro_userbox_flag_toggle` remains the landed inline-bool scalar keeper,
   `kilo_micro_userbox_counter_step_chain` remains a startup sentinel, and
-  process-total boot cost is diagnostic rather than the primary owner selector
+  process-total boot cost is diagnostic rather than the primary owner selector;
+  `kilo_leaf_map_get_missing` has a valid semantic `MapMissingEmptyRoute`, but
+  its old Hako-vs-C winner claim is retracted by 296x-852 because the C pair is
+  a volatile compare and not a map lookup; the real map follow-up is
+  `MIMALLOC-MAP-GET-I64-SCALAR-ROUTE-INVENTORY-001`; 296x-853 fixed the actual
+  gap as scalar proof-positive MapGet still using `RuntimeDataLoadAny` /
+  `nyash.runtime_data.get_hh`, while only MapHas has an i64 direct route.
+  296x-854 selects a helper-backed `MapLoadScalarI64 ->
+  nyash.map.scalar_load_hi` design and explicitly keeps mixed get,
+  direct handle get, String-key storage, and stored-value constant emission
+  separate; 296x-855 fixes the post-implementation guard surface before code
+  changes. The fresh
+  `kilo_leaf_array_string_len` row remains landed: the first ready-path attempt
+  was rejected and reverted as a nonkeeper; route-symbol alias spelling is
+  pinned as non-owner evidence; raw pointer/session FFI is rejected; and the
+  passive `ArrayTextLoopSessionPlan` proof surface is in code with refresh /
+  backend / MIR JSON export still disabled, to be resumed after map correction
 - MIM-PORT-FMEM-005 and MIM-PORT-FMEM-006 are historical Done rows, not the next
   active implementation row
 - adjacent array-text session route design is documented, and the selected-route session boundary is now landing

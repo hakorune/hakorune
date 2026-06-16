@@ -82,6 +82,10 @@ class Resolver:
         self.fastmem_layout_refs: Dict[int, Dict[str, Any]] = {}
         self.map_lookup_fusion_routes_by_site: Dict[Tuple[int, int], list[Dict[str, Any]]] = {}
         self.map_repr_plans_by_site: Dict[Tuple[int, int], list[Dict[str, Any]]] = {}
+        self.local_fastpath_facts_by_site: Dict[Tuple[int, int], list[Dict[str, Any]]] = {}
+        self.local_map_storage_realization_plans_by_receiver: Dict[int, list[Dict[str, Any]]] = {}
+        self.local_i64_map_direct_storage_plans_by_receiver: Dict[int, list[Dict[str, Any]]] = {}
+        self.local_i64_map_entry_value_tracking_plans_by_receiver: Dict[int, list[Dict[str, Any]]] = {}
         self.thin_entry_selection_by_value: Dict[int, Any] = {}
         self.thin_entry_selection_by_subject: Dict[Tuple[str, str], Any] = {}
         self.sum_local_aggregate_paths: Dict[int, str] = {}
@@ -134,6 +138,16 @@ class Resolver:
         self.fastmem_layout_refs = context.fastmem_layout_refs
         self.map_lookup_fusion_routes_by_site = context.map_lookup_fusion_routes_by_site
         self.map_repr_plans_by_site = context.map_repr_plans_by_site
+        self.local_fastpath_facts_by_site = context.local_fastpath_facts_by_site
+        self.local_map_storage_realization_plans_by_receiver = (
+            context.local_map_storage_realization_plans_by_receiver
+        )
+        self.local_i64_map_direct_storage_plans_by_receiver = (
+            context.local_i64_map_direct_storage_plans_by_receiver
+        )
+        self.local_i64_map_entry_value_tracking_plans_by_receiver = (
+            context.local_i64_map_entry_value_tracking_plans_by_receiver
+        )
         self.fast_branch_only_compare_dsts = context.fast_branch_only_compare_dsts
         self.entry_block_id = context.entry_block_id
         self.entry_block = context.entry_block

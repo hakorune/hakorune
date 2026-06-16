@@ -25,3 +25,11 @@ pub(super) fn map_slot_load_str_with(
     })
     .unwrap_or(0)
 }
+
+#[inline(always)]
+pub(super) fn map_scalar_load_i64(handle: i64, key_i64: i64) -> i64 {
+    with_map_box(handle, |map| {
+        map.get_scalar_i64_key_i64(key_i64).unwrap_or(0)
+    })
+    .unwrap_or(0)
+}

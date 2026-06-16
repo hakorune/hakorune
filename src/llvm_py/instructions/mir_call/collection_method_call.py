@@ -36,6 +36,11 @@ MAP_MISSING_EMPTY_CONST_ZERO_ROUTE = "map_get_missing_empty_const_zero"
 MAP_MISSING_EMPTY_SOURCE_PLAN = "MapMissingEmptyRoute"
 MAP_LOOKUP_GET_SEMANTIC_OP = "MapGet"
 MAP_LOOKUP_HAS_SEMANTIC_OP = "MapHas"
+LOCAL_FASTPATH_FACT_ROUTE = "local_fastpath.known_receiver_direct_call"
+LOCAL_FASTPATH_FACT_KIND = "local_fastpath_fact"
+LOCAL_FASTPATH_BACKEND_KIND_KNOWN_RECEIVER = "known_receiver_direct_call"
+LOCAL_FASTPATH_ROUTE_MAP_SCALAR_NO_PUBLICATION_GET = "map_repr.generic_hash_runtime"
+LOCAL_I64_MAP_DIRECT_STORAGE_REPRESENTATION = "closed_world_i64_key_value_table"
 
 _SAFE_COLLECTION_METHOD_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
 
@@ -142,6 +147,270 @@ def _current_map_lookup_fusion_decision(
     if _as_optional_int(decision.get("key_value")) not in (None, key_vid):
         return None
     return decision
+
+
+def _current_local_fastpath_known_receiver_direct_call_fact(
+    *,
+    resolver,
+    box_name,
+    method_name: str,
+    receiver_vid,
+    arg_ids: List[int],
+    required_route_plan: str,
+):
+    if resolver is None or receiver_vid is None:
+        return None
+    try:
+        block_id = int(getattr(resolver, "current_block_id"))
+        instruction_index = int(getattr(resolver, "current_instruction_index"))
+        receiver_vid = int(receiver_vid)
+    except _SAFE_COLLECTION_METHOD_EXC:
+        return None
+
+    facts_by_site = getattr(resolver, "local_fastpath_facts_by_site", None)
+    if not isinstance(facts_by_site, dict):
+        return None
+
+    key_vid = None
+    if arg_ids:
+        try:
+            key_vid = int(arg_ids[0])
+        except _SAFE_COLLECTION_METHOD_EXC:
+            return None
+
+    for fact in facts_by_site.get((block_id, instruction_index), []):
+        if not isinstance(fact, dict):
+            continue
+        if fact.get("route_id") != LOCAL_FASTPATH_FACT_ROUTE:
+            continue
+        if fact.get("fact_kind") != LOCAL_FASTPATH_FACT_KIND:
+            continue
+        if fact.get("backend_kind") != LOCAL_FASTPATH_BACKEND_KIND_KNOWN_RECEIVER:
+            continue
+        if fact.get("route_plan") != required_route_plan:
+            continue
+        if fact.get("box_name") not in (None, str(box_name or "")):
+            continue
+        if fact.get("method_name") not in (None, method_name):
+            continue
+        if _as_optional_int(fact.get("receiver_value")) not in (None, receiver_vid):
+            continue
+        if key_vid is not None and _as_optional_int(fact.get("key_value")) not in (None, key_vid):
+            continue
+        if fact.get("fallback_reason") not in (None, "", "none"):
+            continue
+        return fact
+    return None
+
+
+def _current_local_i64_map_storage_realization_plan(
+    *,
+    resolver,
+    receiver_vid,
+):
+    if resolver is None or receiver_vid is None:
+        return None
+    try:
+        receiver_vid = int(receiver_vid)
+    except _SAFE_COLLECTION_METHOD_EXC:
+        return None
+
+    plans_by_receiver = getattr(
+        resolver, "local_map_storage_realization_plans_by_receiver", None
+    )
+    if not isinstance(plans_by_receiver, dict):
+        return None
+
+    for plan in plans_by_receiver.get(receiver_vid, []):
+        if not isinstance(plan, dict):
+            continue
+        if plan.get("representation") != "local_i64_key_map":
+            continue
+        if plan.get("publication_materialization_required") is not True:
+            continue
+        if plan.get("backend_lowering_enabled") is not False:
+            continue
+        if plan.get("runtime_helper_enabled") is not False:
+            continue
+        return plan
+    return None
+
+
+def _current_local_i64_map_direct_storage_shadow_candidate(
+    *,
+    resolver,
+    box_name,
+    method_name: str,
+    receiver_vid,
+    arg_ids: List[int],
+):
+    fact = _current_local_fastpath_known_receiver_direct_call_fact(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+        required_route_plan=LOCAL_FASTPATH_ROUTE_MAP_SCALAR_NO_PUBLICATION_GET,
+    )
+    if fact is None or resolver is None or receiver_vid is None:
+        return None
+    try:
+        receiver_vid = int(receiver_vid)
+    except _SAFE_COLLECTION_METHOD_EXC:
+        return None
+    plans_by_receiver = getattr(
+        resolver, "local_i64_map_direct_storage_plans_by_receiver", None
+    )
+    if not isinstance(plans_by_receiver, dict):
+        return None
+
+    for plan in plans_by_receiver.get(receiver_vid, []):
+        if not isinstance(plan, dict):
+            continue
+        if plan.get("representation") != LOCAL_I64_MAP_DIRECT_STORAGE_REPRESENTATION:
+            continue
+        if plan.get("entry_value_tracking_enabled") is not False:
+            continue
+        if plan.get("publication_materialization_required") is not True:
+            continue
+        if plan.get("backend_lowering_enabled") is not False:
+            continue
+        if plan.get("runtime_helper_enabled") is not False:
+            continue
+        return {"fact": fact, "plan": plan}
+    return None
+
+
+def _current_local_i64_map_entry_value_tracking_shadow_candidate(
+    *,
+    resolver,
+    box_name,
+    method_name: str,
+    receiver_vid,
+    arg_ids: List[int],
+):
+    direct_candidate = _current_local_i64_map_direct_storage_shadow_candidate(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+    )
+    if direct_candidate is None or resolver is None or receiver_vid is None:
+        return None
+    try:
+        receiver_vid = int(receiver_vid)
+    except _SAFE_COLLECTION_METHOD_EXC:
+        return None
+
+    tracking_by_receiver = getattr(
+        resolver, "local_i64_map_entry_value_tracking_plans_by_receiver", None
+    )
+    if not isinstance(tracking_by_receiver, dict):
+        return None
+
+    tracking_rows = []
+    for row in tracking_by_receiver.get(receiver_vid, []):
+        if not isinstance(row, dict):
+            continue
+        if row.get("backend_lowering_enabled") is not False:
+            continue
+        if row.get("runtime_helper_enabled") is not False:
+            continue
+        if _as_optional_int(row.get("key_value")) is None:
+            continue
+        if _as_optional_int(row.get("value_value")) is None:
+            continue
+        tracking_rows.append(row)
+
+    if not tracking_rows:
+        return None
+
+    return {
+        "fact": direct_candidate["fact"],
+        "plan": direct_candidate["plan"],
+        "entry_value_tracking": tracking_rows,
+    }
+
+
+def _local_i64_map_const_entries_from_tracking_candidate(candidate):
+    if not isinstance(candidate, dict):
+        return None
+    rows = candidate.get("entry_value_tracking")
+    if not isinstance(rows, list) or not rows:
+        return None
+
+    entries_by_key: Dict[int, int] = {}
+    for row in sorted(
+        rows,
+        key=lambda item: (
+            _as_optional_int(item.get("set_block")) or 0,
+            _as_optional_int(item.get("set_instruction_index")) or 0,
+        )
+        if isinstance(item, dict)
+        else (0, 0),
+    ):
+        if not isinstance(row, dict):
+            return None
+        key_const = _as_optional_int(row.get("key_const_if_known"))
+        value_const = _as_optional_int(row.get("value_const_if_known"))
+        if key_const is None or value_const is None:
+            return None
+        entries_by_key[key_const] = value_const
+
+    if not entries_by_key:
+        return None
+    return sorted(entries_by_key.items(), key=lambda item: item[0])
+
+
+def _lower_local_i64_map_entry_table_dispatch(
+    *,
+    builder: ir.IRBuilder,
+    declare: Callable,
+    recv_h,
+    key,
+    entries,
+):
+    if not entries:
+        return None
+
+    i64 = ir.IntType(64)
+    function = builder.block.function
+    done_bb = function.append_basic_block("local_i64_map_entry_dispatch.done")
+    fallback_bb = function.append_basic_block("local_i64_map_entry_dispatch.fallback")
+    incoming = []
+
+    for index, (key_const, value_const) in enumerate(entries):
+        match_bb = function.append_basic_block(f"local_i64_map_entry_dispatch.match{index}")
+        next_bb = (
+            fallback_bb
+            if index == len(entries) - 1
+            else function.append_basic_block(f"local_i64_map_entry_dispatch.next{index}")
+        )
+        cond = builder.icmp_signed(
+            "==",
+            key,
+            ir.Constant(i64, int(key_const)),
+            name=f"local_i64_map_entry_dispatch_hit{index}",
+        )
+        builder.cbranch(cond, match_bb, next_bb)
+
+        builder.position_at_end(match_bb)
+        builder.branch(done_bb)
+        incoming.append((ir.Constant(i64, int(value_const)), builder.block))
+
+        builder.position_at_end(next_bb)
+
+    callee = declare("nyash.map.slot_load_hh", i64, [i64, i64])
+    fallback_value = builder.call(callee, [recv_h, key], name="local_i64_map_entry_dispatch_fallback")
+    builder.branch(done_bb)
+    incoming.append((fallback_value, builder.block))
+
+    builder.position_at_end(done_bb)
+    result = builder.phi(i64, name="local_i64_map_entry_dispatch_result")
+    for value, block in incoming:
+        result.add_incoming(value, block)
+    return result
 
 
 def _map_lookup_semantic_op(method_name: str) -> Optional[str]:
@@ -293,6 +562,42 @@ def _lower_map_get_collection_method_call(
     key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
     if not arg_ids:
         return zero
+    entry_tracking_candidate = _current_local_i64_map_entry_value_tracking_shadow_candidate(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+    )
+    if entry_tracking_candidate is not None:
+        entries = _local_i64_map_const_entries_from_tracking_candidate(
+            entry_tracking_candidate
+        )
+        entry_table_result = _lower_local_i64_map_entry_table_dispatch(
+            builder=builder,
+            declare=declare,
+            recv_h=recv_h,
+            key=key,
+            entries=entries,
+        )
+        if entry_table_result is not None:
+            return entry_table_result
+    local_fastpath_fact = _current_local_fastpath_known_receiver_direct_call_fact(
+        resolver=resolver,
+        box_name=box_name,
+        method_name=method_name,
+        receiver_vid=receiver_vid,
+        arg_ids=arg_ids,
+        required_route_plan=LOCAL_FASTPATH_ROUTE_MAP_SCALAR_NO_PUBLICATION_GET,
+    )
+    if local_fastpath_fact is not None:
+        local_storage_plan = _current_local_i64_map_storage_realization_plan(
+            resolver=resolver,
+            receiver_vid=receiver_vid,
+        )
+        if local_storage_plan is not None:
+            callee = declare("nyash.map.local_i64_get_hi", i64, [i64, i64])
+            return builder.call(callee, [recv_h, key], name="local_fastpath_map_get_hi")
     callee = declare("nyash.map.slot_load_hh", i64, [i64, i64])
     return builder.call(callee, [recv_h, key], name="unified_map_slot_load_hh")
 

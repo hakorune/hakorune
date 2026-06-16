@@ -35,8 +35,8 @@ Related:
   `CURRENT_STATE.toml`
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization and representation rows remain governed by
-  `CURRENT_STATE.toml`; the active row is
-  `MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001`
+  `CURRENT_STATE.toml`; the latest row is
+  `MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -53,7 +53,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-843-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-929-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-738-SIMPLE-BOX-EXACT-OBJECT-CANDIDATE-001.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`

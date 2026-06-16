@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-15"
+date = "2026-06-16"
 
 active_lane = "CURRENT-ENTRY-MANUAL-SYNC-001 manual/current-entry synchronization"
 active_lane_status = """Compiler foundation is paused at
@@ -696,21 +696,164 @@ reduced ny_aot_instr from 896474449 to 472935, removed the target
 nyash.runtime_data.get_hh call from ny_main, and produced route_winner_claim=1
 with product_default_changed=0. MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001
 closed this front with front_closed=1 and selected fresh-front selection before
-any new implementation row."""
+any new implementation row. MIMALLOC-FRESH-FRONT-SELECTION-AFTER-MAP-MISSING-EMPTY-CLOSEOUT-001
+selected kilo_leaf_array_string_len as the next Hako-slower leaf front:
+ratio_instr=0.16, ratio_cycles=0.10, and ratio_ms=0.40. The follow-up
+MIMALLOC-LEAF-ARRAY-STRING-LEN-OWNER-INVENTORY-001 found only a low-confidence
+runtime TLS attribution so far: asm_top_symbol_0=std::thread::local::LocalKey<T>::with,
+asm_top_symbol_0_percent=97.52, asm_sample_count=25, and implementation_allowed=0.
+MIMALLOC-LEAF-ARRAY-STRING-LEN-ATTRIBUTION-REPEAT-001 repeated attribution and
+selected array_text_slot_len_handle_cache_tls_boundary as a medium-confidence
+owner, allowing one narrow array_string_len readonly ready-path attempt.
+MIMALLOC-LEAF-ARRAY-STRING-LEN-READY-PATH-IMPLEMENTATION-001 rejected and
+reverted that attempt because cycles and wall time regressed:
+ny_aot_cycles 32183346 -> 54242794 and ny_aot_ms 10 -> 13. The active row
+selected the next owner before any further implementation.
+MIMALLOC-LEAF-ARRAY-STRING-LEN-NEXT-OWNER-SELECTION-001 selected
+array_text_slot_len_loop_local_session_boundary with implementation_allowed=0;
+MIMALLOC-LEAF-ARRAY-STRING-LEN-ROUTE-SYMBOL-ATTRIBUTION-PROBE-001 fixed
+`nyash.array.string_len_hi` and `hako.array_text.slot_len` as same-body aliases
+at 0x414930, so alias spelling is not owner evidence. The active row designs
+the loop-local session boundary before backend/code changes.
+MIMALLOC-LEAF-ARRAY-STRING-LEN-LOOP-SESSION-DESIGN-001 rejected raw
+ArrayTextSession/ArrayBox pointer FFI and selected ArrayTextLoopSessionPlan as
+the required proof surface before any backend loop-session lowering.
+MIMALLOC-ARRAY-TEXT-LOOP-SESSION-PLAN-SURFACE-001 added the passive
+src/mir/array_text_loop_session_plan.rs vocabulary and kept refresh, MIR JSON
+export, backend consumption, and loop-session lowering disabled. A benchmark
+correction then retracted the old `kilo_leaf_map_get_missing` Hako-vs-C winner
+claim because the C pair is a volatile compare rather than a map lookup. The
+semantic `MapMissingEmptyRoute` remains intact, but the next real map work is
+MapGetI64 scalar route inventory. That inventory found MapHasI64 already has
+`MapContainsI64 -> nyash.map.probe_hi`, while scalar-proof-positive MapGet still
+uses `RuntimeDataLoadAny -> nyash.runtime_data.get_hh`; `nyash.map.slot_load_hi`
+exists as substrate but still stringifies i64 keys. The design row selected a
+separate helper-backed `MapLoadScalarI64 -> nyash.map.scalar_load_hi` contract
+for proof-positive RuntimeDataBox.get only, while preserving mixed get, direct
+handle get, String-key storage, and stored-value constant emission as separate
+rows. The guard surface fixed post targets for MapLoadScalarI64 and preserves
+mixed get, direct handle get, slot_load_hi, benchmark source, typed storage, and
+constant emission as non-goals. The implementation row added the proof-backed
+Rust route, runtime scalar helper, and LLVM C shim consumer while keeping mixed
+get and direct handle get unchanged. The validation row confirmed the rebuilt
+C shim emits `nyash.map.scalar_load_hi` for the scalar lower-plan fixture while
+mixed get still imports `nyash.runtime_data.get_hh` and direct MapBox.get still
+imports `nyash.map.slot_load_hh`. The direct MapBox scalar-demand row then
+applied the same scalar-store proof to direct `MapBox.get`, so the
+`kilo_leaf_map_getset_has` source front now emits `map_load_scalar_i64` for both
+the loop get and final get while preserving unproven handle fallback. The next
+row validated source-to-AOT object output: `kilo_leaf_map_getset_has` source MIR
+and exact-AOT object now require `nyash.map.scalar_load_hi` and no longer import
+`nyash.map.slot_load_hh` or `nyash.runtime_data.get_hh` for the target front.
+The measurement-attribution row classified this as route-reaches-AOT only:
+`kilo_leaf_map_getset_has` folds to a single store + scalar load shape, so it is
+not a repeated body keeper front. The front-selection row selected
+`kilo_leaf_map_get_dynamic_covered_i64` as a Hako-only repeated map-get owner:
+current AOT still imports `nyash.runtime_data.get_hh` in the loop and no scalar
+route is present yet. The proof-design row selects
+generic_method_route_plan_map_key_coverage_proof as route-proof owner for the
+narrow covered dynamic i64 key shape; MapBox storage, MIRBuilder object
+management, LLVM helper-name inference, and winner claims remain closed. The
+guard-surface row fixes the post target before code: the loop MapGet must route
+to `map_load_scalar_i64`, runtime_data.get_hh must leave the loop, and final
+const-key fallback may remain separate. The implementation row adds the narrow
+covered dynamic i64 key proof, updates the ny-llvmc metadata need/emit
+allowlists for the new proof token, and verifies the selected front now imports
+`nyash.map.scalar_load_hi` without importing `nyash.runtime_data.get_hh`.
+Winner claims and C-pair measurement remain closed. The measurement row confirms
+the route reaches AOT but the hot owner moved into scalar helper internals:
+i64 key String conversion, hashing, MapBox::get_opt_key_str, and share/drop
+costs dominate. The owner-selection row closes i64 sidecar storage for now
+because MapBox public semantics use a stringified-key namespace, and selects
+`map_scalar_no_publication_borrowed_lookup` as the next owner. The design row
+selects only scalar_load_hi-internal borrowed scalar read plus i64 key text
+allocation removal. MapBox storage, public get/set semantics, mixed
+RuntimeDataBox.get routing, slot_load_hh/slot_load_hi materialization, and
+winner claims remain closed. The implementation row switches only
+`nyash.map.scalar_load_hi` to stack i64 key text and `MapBox` borrowed scalar
+read, keeping visible MapBox materialization and storage unchanged. Validation
+is green, and measurement confirms the old String allocation / visible share
+costs left the top symbols. The remaining hot owner is now
+HashMap<String>-key hashing / key-domain representation. The owner-selection
+row closes direct i64 sidecar implementation for now. The key-domain design row
+selects a normalized `MapKeyDomain` vocabulary with `CanonicalI64(i64)` and
+`Text(String)`, preserving the public alias between i64 `1` and text `"1"` while
+keeping non-canonical numeric-looking text as text. The vocabulary row adds the
+module and tests only. The storage design row recognizes that MapBox storage
+truth lives in `nyash-rust::boxes`, so the kernel vocabulary is prototype-only.
+The core-promotion row adds `src/boxes/map_key_domain.rs` and exports it from
+`src/boxes/mod.rs`, while keeping MapBox storage, scalar helper consumption,
+sidecars, and winner claims closed. The storage guard-surface row fixes the
+next post target as `HashMap<MapKeyDomain, Box<dyn NyashBox>>` plus public
+alias/key-output tests. The storage implementation row changes MapBox storage
+to `HashMap<MapKeyDomain, Box<dyn NyashBox>>`, preserves public key text output
+for keys / values / JSON, and keeps scalar helper consumer rows closed. The
+validation row passes the implementation guard, release cargo check, pointer
+guard, diff check, and targeted MapKeyDomain / MapBox semantic tests. The
+measurement row shows the storage change is reached but `nyash.map.scalar_load_hi`
+still stringifies i64 keys: top symbols are BuildHasher::hash_one=39.73%,
+scalar_load_hi=31.14%, and SpecToString=23.81%. The scalar-helper consumer
+design row selects only `scalar_load_hi -> map_scalar_load_i64 ->
+MapBox::get_scalar_i64_key_i64`, while keeping slot_load routes, public MapBox
+semantics, sidecars, hashers, MIRBuilder, and route proof unchanged. The
+implementation row adds that raw i64-domain helper seam, removes the obsolete
+borrowed decimal text helper, and keeps slot_load/public semantics unchanged.
+The measurement row confirms a keeper: cycles drop from ~1.18B to ~0.48B,
+SpecToString disappears from top symbols, scalar_load_hi drops from 31.14% to
+3.30%, and the remaining owner moves to MapBox::get_scalar_i64_key_domain /
+BuildHasher::hash_one. The post-domain-consumer owner-selection row chooses
+`map_key_domain_hash_lookup_policy` but closes implementation because the next
+step requires a Map storage policy design decision: hasher specialization,
+typed i64-keyed storage, closeout, or new front. The key-domain closeout row
+closes this front as a keeper and opens Map storage policy as a separate design
+lane. The Map storage policy SSOT keeps product MapBox as
+`HashMap<MapKeyDomain, Box<dyn NyashBox>>` with default hasher, reserves
+LocalI64KeyMap / LocalTextKeyMap / LocalScalarValueMap / PublishedMapBoxFallback
+for exact-AOT/local-first planning, and keeps product hasher swaps, sidecars,
+i64-only product storage, and MIRBuilder storage ownership disabled. The hash
+owner inventory confirms the hot loop is canonical-i64 lookup only, keeps
+product hasher swap disabled, and hands off to LocalI64KeyMap front selection.
+The LocalI64Map front selection chooses
+`kilo_leaf_map_get_dynamic_covered_i64` as the first LocalI64KeyMap shadow
+candidate: one local MapBox birth, three i64-key writes, one hot-loop i64 get,
+one post-loop i64 get, and no visible keys/values/toJSON/plugin/extern/return
+publication boundary. The storage shadow row added passive
+`local_i64_key_map_shadow` metadata in `src/mir/map_repr_plan.rs` from existing
+generic_method_routes. Backend lowering, product MapBox i64-only storage,
+hasher swaps, sidecars, and MIRBuilder storage ownership remain closed. The
+pilot guard surface permits only a call-site metadata consumer for
+`map_repr.local_i64_key_map_shadow` + `map_load_scalar_i64` and keeps
+benchmark/helper-name inference closed. The LocalI64Map get pilot wires that
+consumer in the Python LLVM backend and emits `nyash.map.local_i64_get_hi`;
+the helper delegates to existing `map_scalar_load_i64`, so this row proves the
+metadata consumer seam without changing product MapBox storage or claiming a
+winner. The validation row passes the Python metadata consumer test,
+MapReprPlan unit tests, release cargo check, current-state pointer guard, and
+diff check. The measurement row confirms the active C ABI `ny-llvmc` route
+reaches entry-table materialization for the target front: the `ny_main` hot loop
+has no map helper calls, the post-loop public fallback still calls
+`nyash.map.slot_load_hh`, and the direct executable returns 4000001 with
+~6.46M cycles in the direct micro-ASM runner. The owner-refresh closeout row
+therefore retires the stale `MapBox::get_scalar_i64_key_domain` /
+`BuildHasher::hash_one` owner for this front: the old owner is no longer in the
+hot loop, the remaining post-loop `slot_load_hh` fallback is not a current hot
+owner, and the next step is fresh front selection. This is target-front
+reachability and a local-entry-table win, not a Hako-vs-C winner claim."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-843-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-929-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001.md"
 
-latest_card = "MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-843-MIMALLOC-MAP-MISSING-EMPTY-ROUTE-CLOSEOUT-001.md"
-latest_card_summary = """Map missing-empty route closeout:
-closed kilo_leaf_map_get_missing after the proof-bearing selected route removed
-the target runtime_data.get_hh call and measured route_winner_claim=1. The
-front remains scoped: no generic DirectMap, MapBox storage change, product
-default change, or helper-name inference."""
-current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-MAP-MISSING-EMPTY-CLOSEOUT-001"
+latest_card = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-929-MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ENTRY-TABLE-CLOSEOUT-001.md"
+latest_card_summary = """The fresh front selection after LocalI64Map entry-table
+closeout reselects `kilo_leaf_array_string_len`: it is still Hako-slower
+against the current C pair and already has the parked
+`ArrayTextLoopSessionPlan` surface from 296x-851. The next step is
+`MIMALLOC-ARRAY-TEXT-LOOP-SESSION-PLAN-INVENTORY-001`; map entry-table work
+stays closed."""
+current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-PLAN-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
