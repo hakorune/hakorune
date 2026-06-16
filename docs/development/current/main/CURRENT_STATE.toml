@@ -845,15 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-955-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-PAYLOAD-READER-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-956-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-HELPER-CONTRACT-DESIGN-001.md"
 
-latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-PAYLOAD-READER-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-955-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-PAYLOAD-READER-SURFACE-001.md"
-latest_card_summary = """Array text loop-session backend payload reader
-surface extended the C ABI metadata reader with passive 15-field region payload
-fields and `region_payload_present`. Backend consumption, runtime helper calls,
-backend lowering, raw MIR rescans, and product behavior changes remain disabled."""
-current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-HELPER-CONTRACT-DESIGN-001"
+latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-HELPER-CONTRACT-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-956-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-HELPER-CONTRACT-DESIGN-001.md"
+latest_card_summary = """Array text loop-session helper contract design
+selected the read-only `nyash.array.string_len_sum_region_hiii` helper with
+signature i64(handle, loop_bound, row_modulus, initial_accumulator). Existing
+mutating edit/observer region helpers remain out of scope, and backend
+lowering/runtime implementation stay disabled until the helper-surface row."""
+current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-HELPER-SURFACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
