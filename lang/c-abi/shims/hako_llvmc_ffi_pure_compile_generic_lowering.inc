@@ -44,10 +44,13 @@
       int active_observer_store_region_emitted = 0;
       struct ArrayTextLoopSessionPlanMetadata active_loop_session_region;
       int active_loop_session_region_emitted = 0;
+      struct ArrayTextIndexOfConstRegionPlanMetadata active_indexof_const_region;
+      int active_indexof_const_region_emitted = 0;
       memset(&active_region_executor, 0, sizeof(active_region_executor));
       memset(&active_combined_region, 0, sizeof(active_combined_region));
       memset(&active_observer_store_region, 0, sizeof(active_observer_store_region));
       memset(&active_loop_session_region, 0, sizeof(active_loop_session_region));
+      memset(&active_indexof_const_region, 0, sizeof(active_indexof_const_region));
       active_combined_region_available =
           match_array_text_combined_region_metadata_any(&active_combined_region);
       active_observer_store_region_available =
@@ -135,6 +138,36 @@
             region->region_row_modulus_const,
             region->region_accumulator_initial_const);
         set_type(region->region_exit_accumulator_value, T_I64);
+      }
+      auto int array_text_indexof_const_region_ready(
+          const struct ArrayTextIndexOfConstRegionPlanMetadata* region) {
+        return region &&
+               region->matched &&
+               region->region_payload_present &&
+               region->consumer_shape &&
+               !strcmp(region->consumer_shape, "found_predicate") &&
+               region->needle_const_text &&
+               region->needle_byte_len > 0 &&
+               region->region_loop_index_initial_const == 0 &&
+               region->region_accumulator_initial_const == 0 &&
+               region->region_loop_bound_const >= 0 &&
+               region->region_row_modulus_const > 0 &&
+               region->observer_arg0_value > 0;
+      }
+      auto void emit_array_text_indexof_const_region_call(
+          const struct ArrayTextIndexOfConstRegionPlanMetadata* region) {
+        if (!region) return;
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"hako.array_text.indexof_const_found_count_region\"(i64 %%r%lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld)\n",
+            region->region_accumulator_phi_value,
+            region->region_array_root_value,
+            region->region_loop_bound_const,
+            region->region_row_modulus_const,
+            region->needle_byte_len + 1,
+            region->observer_arg0_value,
+            region->needle_byte_len);
+        set_type(region->region_accumulator_phi_value, T_I64);
       }
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void set_block_tail_label(long long bid, const char* label) {
@@ -397,6 +430,12 @@
           EMIT("  unreachable\n");
           continue;
         }
+        if (active_indexof_const_region_emitted &&
+            bid == active_indexof_const_region.loop_body) {
+          emit_block_label(bid);
+          EMIT("  unreachable\n");
+          continue;
+        }
         if (!active_region_executor_matched &&
             match_array_text_residence_session_region_begin_metadata(
                 bid,
@@ -434,6 +473,17 @@
           emit_array_text_loop_session_region_call(&active_loop_session_region);
           EMIT("  br label %%bb%lld\n", active_loop_session_region.loop_exit);
           active_loop_session_region_emitted = 1;
+          continue;
+        }
+        if (!active_indexof_const_region_emitted &&
+            match_array_text_indexof_const_region_plan_by_header_metadata(
+                bid,
+                &active_indexof_const_region) &&
+            array_text_indexof_const_region_ready(&active_indexof_const_region)) {
+          emit_block_label(bid);
+          emit_array_text_indexof_const_region_call(&active_indexof_const_region);
+          EMIT("  br label %%bb%lld\n", active_indexof_const_region.loop_exit);
+          active_indexof_const_region_emitted = 1;
           continue;
         }
         emit_block_label(bid);

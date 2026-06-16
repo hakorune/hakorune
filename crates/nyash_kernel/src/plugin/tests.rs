@@ -57,6 +57,21 @@ fn array_string_len_sum_region_reads_only_touched_row_domain() {
 }
 
 #[test]
+fn array_text_indexof_const_found_count_region_counts_hits() {
+    let handle = new_array_handle();
+    let first = new_string_handle("line-a");
+    let second = new_string_handle("none");
+    let needle = cstring("line");
+
+    assert_eq!(nyash_array_push_hh_alias(handle, first), 1);
+    assert_eq!(nyash_array_push_hh_alias(handle, second), 2);
+    assert_eq!(
+        hako_array_text_indexof_const_found_count_region_alias(handle, 5, 2, needle.as_ptr(), 4,),
+        3
+    );
+}
+
+#[test]
 fn array_string_suffix_store_updates_text_lane() {
     let handle = new_array_handle();
     let seed_h = new_string_handle("line-seed");

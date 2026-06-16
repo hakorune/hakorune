@@ -26,6 +26,42 @@
         long long region_row_modulus_const;
       };
 
+      struct ArrayTextIndexOfConstRegionPlanMetadata {
+        int matched;
+        long long loop_header;
+        long long loop_body;
+        long long loop_exit;
+        long long array_value;
+        long long index_value;
+        long long get_instruction_index;
+        long long observer_instruction_index;
+        long long observer_arg0_value;
+        const char* needle_const_text;
+        long long needle_byte_len;
+        const char* consumer_shape;
+        const char* selected_helper_symbol;
+        int backend_consumer_enabled;
+        int region_payload_present;
+        long long region_array_root_value;
+        long long region_loop_index_phi_value;
+        long long region_loop_index_initial_value;
+        long long region_loop_index_initial_const;
+        long long region_loop_index_next_value;
+        long long region_loop_bound_value;
+        long long region_loop_bound_const;
+        long long region_accumulator_phi_value;
+        long long region_accumulator_initial_value;
+        long long region_accumulator_initial_const;
+        long long region_accumulator_next_value;
+        long long region_exit_accumulator_value;
+        long long region_row_index_value;
+        long long region_row_modulus_value;
+        long long region_row_modulus_const;
+        long long region_get_result_value;
+        long long region_indexof_result_value;
+        long long region_predicate_value;
+      };
+
       auto int array_text_loop_session_read_i64(
           yyjson_val* obj,
           const char* key,
@@ -226,6 +262,209 @@
           memset(&metadata, 0, sizeof(metadata));
           if (!array_text_loop_session_plan_valid(plan)) continue;
           array_text_loop_session_plan_fill(plan, &metadata);
+          if (metadata.region_payload_present) return 1;
+        }
+        return 0;
+      }
+
+      auto int array_text_indexof_const_region_plan_valid(yyjson_val* plan) {
+        const char* route_id = plan ? read_str(plan, "route_id") : NULL;
+        const char* needle_const_text = plan ? read_str(plan, "needle_const_text") : NULL;
+        const char* consumer_shape = plan ? read_str(plan, "consumer_shape") : NULL;
+        const char* selected_helper_symbol = plan ? read_str(plan, "selected_helper_symbol") : NULL;
+        long long loop_header = 0;
+        long long loop_body = 0;
+        long long loop_exit = 0;
+        long long array_value = 0;
+        long long index_value = 0;
+        long long get_instruction_index = 0;
+        long long observer_instruction_index = 0;
+        long long observer_arg0_value = 0;
+        long long needle_byte_len = 0;
+        int mir_json_export_only = 0;
+        int backend_consumer_enabled = 0;
+        return plan &&
+               route_id &&
+               !strcmp(route_id, "array_text.indexof_const_region.plan") &&
+               array_text_loop_session_read_i64(plan, "loop_header", &loop_header) &&
+               array_text_loop_session_read_i64(plan, "loop_body", &loop_body) &&
+               array_text_loop_session_read_i64(plan, "loop_exit", &loop_exit) &&
+               array_text_loop_session_read_i64(plan, "array_value", &array_value) &&
+               array_text_loop_session_read_i64(plan, "index_value", &index_value) &&
+               array_text_loop_session_read_i64(
+                   plan,
+                   "get_instruction_index",
+                   &get_instruction_index) &&
+               array_text_loop_session_read_i64(
+                   plan,
+                   "observer_instruction_index",
+                   &observer_instruction_index) &&
+               array_text_loop_session_read_i64(
+                   plan,
+                   "observer_arg0_value",
+                   &observer_arg0_value) &&
+               needle_const_text &&
+               array_text_loop_session_read_i64(plan, "needle_byte_len", &needle_byte_len) &&
+               needle_byte_len > 0 &&
+               (long long)strlen(needle_const_text) == needle_byte_len &&
+               consumer_shape &&
+               !strcmp(consumer_shape, "found_predicate") &&
+               selected_helper_symbol &&
+               !strncmp(selected_helper_symbol, "hako.array_text.", 16) &&
+               array_text_loop_session_read_bool(
+                   plan,
+                   "mir_json_export_only",
+                   &mir_json_export_only) &&
+               mir_json_export_only &&
+               array_text_loop_session_read_bool(
+                   plan,
+                   "backend_consumer_enabled",
+                   &backend_consumer_enabled);
+      }
+
+      auto int array_text_indexof_const_region_payload_fill(
+          yyjson_val* plan,
+          struct ArrayTextIndexOfConstRegionPlanMetadata* out) {
+        yyjson_val* payload = plan ? yyjson_obj_get(plan, "region_payload") : NULL;
+        if (!(payload && yyjson_is_obj(payload) && out)) return 0;
+        return array_text_loop_session_read_i64(
+                   payload,
+                   "array_root_value",
+                   &out->region_array_root_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_phi_value",
+                   &out->region_loop_index_phi_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_initial_value",
+                   &out->region_loop_index_initial_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_initial_const",
+                   &out->region_loop_index_initial_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_index_next_value",
+                   &out->region_loop_index_next_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_bound_value",
+                   &out->region_loop_bound_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "loop_bound_const",
+                   &out->region_loop_bound_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_phi_value",
+                   &out->region_accumulator_phi_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_initial_value",
+                   &out->region_accumulator_initial_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_initial_const",
+                   &out->region_accumulator_initial_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "accumulator_next_value",
+                   &out->region_accumulator_next_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "exit_accumulator_value",
+                   &out->region_exit_accumulator_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "row_index_value",
+                   &out->region_row_index_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "row_modulus_value",
+                   &out->region_row_modulus_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "row_modulus_const",
+                   &out->region_row_modulus_const) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "get_result_value",
+                   &out->region_get_result_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "indexof_result_value",
+                   &out->region_indexof_result_value) &&
+               array_text_loop_session_read_i64(
+                   payload,
+                   "predicate_value",
+                   &out->region_predicate_value);
+      }
+
+      auto void array_text_indexof_const_region_plan_fill(
+          yyjson_val* plan,
+          struct ArrayTextIndexOfConstRegionPlanMetadata* out) {
+        long long tmp = 0;
+        int flag = 0;
+        if (!plan || !out) return;
+        memset(out, 0, sizeof(*out));
+        out->matched = 1;
+        if (array_text_loop_session_read_i64(plan, "loop_header", &tmp)) out->loop_header = tmp;
+        if (array_text_loop_session_read_i64(plan, "loop_body", &tmp)) out->loop_body = tmp;
+        if (array_text_loop_session_read_i64(plan, "loop_exit", &tmp)) out->loop_exit = tmp;
+        if (array_text_loop_session_read_i64(plan, "array_value", &tmp)) out->array_value = tmp;
+        if (array_text_loop_session_read_i64(plan, "index_value", &tmp)) out->index_value = tmp;
+        if (array_text_loop_session_read_i64(plan, "get_instruction_index", &tmp)) {
+          out->get_instruction_index = tmp;
+        }
+        if (array_text_loop_session_read_i64(plan, "observer_instruction_index", &tmp)) {
+          out->observer_instruction_index = tmp;
+        }
+        if (array_text_loop_session_read_i64(plan, "observer_arg0_value", &tmp)) {
+          out->observer_arg0_value = tmp;
+        }
+        out->needle_const_text = read_str(plan, "needle_const_text");
+        if (array_text_loop_session_read_i64(plan, "needle_byte_len", &tmp)) {
+          out->needle_byte_len = tmp;
+        }
+        out->consumer_shape = read_str(plan, "consumer_shape");
+        out->selected_helper_symbol = read_str(plan, "selected_helper_symbol");
+        if (array_text_loop_session_read_bool(plan, "backend_consumer_enabled", &flag)) {
+          out->backend_consumer_enabled = flag;
+        }
+        if (array_text_indexof_const_region_payload_fill(plan, out)) {
+          out->region_payload_present = 1;
+        }
+      }
+
+      auto int match_array_text_indexof_const_region_plan_by_header_metadata(
+          long long loop_header,
+          struct ArrayTextIndexOfConstRegionPlanMetadata* out) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "array_text_indexof_const_region_plans") : NULL;
+        size_t idx = 0;
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (idx = 0; idx < yyjson_arr_size(routes); idx++) {
+          yyjson_val* plan = yyjson_arr_get(routes, idx);
+          long long plan_header = 0;
+          if (!array_text_indexof_const_region_plan_valid(plan)) continue;
+          if (!array_text_loop_session_read_i64(plan, "loop_header", &plan_header)) continue;
+          if (plan_header != loop_header) continue;
+          if (out) array_text_indexof_const_region_plan_fill(plan, out);
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int array_text_indexof_const_region_has_payload_plan(void) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "array_text_indexof_const_region_plans") : NULL;
+        size_t idx = 0;
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (idx = 0; idx < yyjson_arr_size(routes); idx++) {
+          yyjson_val* plan = yyjson_arr_get(routes, idx);
+          struct ArrayTextIndexOfConstRegionPlanMetadata metadata;
+          memset(&metadata, 0, sizeof(metadata));
+          if (!array_text_indexof_const_region_plan_valid(plan)) continue;
+          array_text_indexof_const_region_plan_fill(plan, &metadata);
           if (metadata.region_payload_present) return 1;
         }
         return 0;

@@ -845,18 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-966-MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-REGION-PAYLOAD-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-972-MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-CLOSEOUT-001.md"
 
-latest_card = "MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-REGION-PAYLOAD-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-966-MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-REGION-PAYLOAD-DESIGN-001.md"
-latest_card_summary = """Array text indexOf const region payload design
-selects a separate `ArrayTextIndexOfConstRegionPlan` and JSON field
-`array_text_indexof_const_region_plans` rather than overloading the length-only
-loop-session plan. The v0 shape requires a const UTF-8 needle, found-predicate
-consumer, no publication boundary, single-body loop, zero start, unit step, and
-known loop/row constants; backend reader/lowering and runtime helper remain
-disabled."""
-current_blocker_token = "MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-REGION-PAYLOAD-SURFACE-001"
+latest_card = "MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-972-MIMALLOC-ARRAY-TEXT-INDEXOF-CONST-CLOSEOUT-001.md"
+latest_card_summary = """Array text indexOf const closeout marks the guarded
+region lowering as a front-local keeper. The active C ABI ny-llvmc route reaches
+`hako.array_text.indexof_const_found_count_region`, preserves the exit PHI and
+post-loop Array.length addition, keeps product ArrayBox/StringBox storage
+unchanged, and measures `kilo_leaf_array_string_indexof_const` with
+aot_status=ok, ratio_instr=9.02, and ratio_cycles=4.79. The next row returns to
+fresh front selection."""
+current_blocker_token = "MIMALLOC-FRESH-FRONT-SELECTION-AFTER-ARRAY-TEXT-INDEXOF-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

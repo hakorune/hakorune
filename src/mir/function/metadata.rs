@@ -18,7 +18,7 @@ use crate::mir::{
     array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_combined_region_plan::ArrayTextCombinedRegionRoute,
     array_text_edit_plan::ArrayTextEditRoute,
-    array_text_loop_session_plan::ArrayTextLoopSessionPlan,
+    array_text_loop_session_plan::{ArrayTextIndexOfConstRegionPlan, ArrayTextLoopSessionPlan},
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
@@ -409,6 +409,13 @@ pub struct FunctionMetadata {
     /// loop-local index-domain proof. They are exported for inspection only
     /// until a later row explicitly enables backend consumption/lowering.
     pub array_text_loop_session_plans: Vec<ArrayTextLoopSessionPlan>,
+
+    /// MIR-owned array/text indexOf-const region proof plans.
+    /// These connect an already-proven `array.get(i).indexOf("const")`
+    /// observer route with a loop-local found-predicate accumulator shape.
+    /// They are exported for inspection only until a later row explicitly
+    /// enables backend consumption/lowering.
+    pub array_text_indexof_const_region_plans: Vec<ArrayTextIndexOfConstRegionPlan>,
 
     /// Backend-consumable array/text loopcarry route plans.
     /// These keep active fused store/len route recognition in MIR so the C

@@ -170,3 +170,90 @@ fn build_mir_json_root_emits_array_text_loop_session_plans() {
     assert_eq!(plan["mir_json_export_only"], true);
     assert_eq!(plan["backend_consumer_enabled"], false);
 }
+
+#[test]
+fn build_mir_json_root_emits_array_text_indexof_const_region_plans() {
+    let mut function = make_function("main", true);
+    function
+        .metadata
+        .array_text_indexof_const_region_plans
+        .push(
+            crate::mir::array_text_loop_session_plan::ArrayTextIndexOfConstRegionPlan::new(
+                crate::mir::BasicBlockId::new(25),
+                crate::mir::BasicBlockId::new(26),
+                crate::mir::BasicBlockId::new(28),
+                crate::mir::ValueId::new(5),
+                crate::mir::ValueId::new(78),
+                7,
+                9,
+                crate::mir::ValueId::new(84),
+                "line".to_string(),
+                4,
+                "found_predicate",
+                "hako.array_text.indexof_const_found_count_region",
+                crate::mir::array_text_loop_session_plan::ArrayTextIndexOfConstRegionPayload::new(
+                    crate::mir::ValueId::new(5),
+                    crate::mir::ValueId::new(55),
+                    crate::mir::ValueId::new(51),
+                    0,
+                    crate::mir::ValueId::new(97),
+                    crate::mir::ValueId::new(72),
+                    400000,
+                    crate::mir::ValueId::new(52),
+                    crate::mir::ValueId::new(50),
+                    0,
+                    crate::mir::ValueId::new(91),
+                    crate::mir::ValueId::new(54),
+                    crate::mir::ValueId::new(78),
+                    crate::mir::ValueId::new(80),
+                    64,
+                    crate::mir::ValueId::new(60),
+                    crate::mir::ValueId::new(62),
+                    crate::mir::ValueId::new(92),
+                ),
+            ),
+        );
+    let mut module =
+        crate::mir::MirModule::new("json_array_text_indexof_const_region_plans_test".to_string());
+    module.add_function(function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let plan = &root["functions"][0]["metadata"]["array_text_indexof_const_region_plans"][0];
+    assert_eq!(plan["route_id"], "array_text.indexof_const_region.plan");
+    assert_eq!(plan["loop_header"], 25);
+    assert_eq!(plan["loop_body"], 26);
+    assert_eq!(plan["loop_exit"], 28);
+    assert_eq!(plan["array_value"], 5);
+    assert_eq!(plan["index_value"], 78);
+    assert_eq!(plan["get_instruction_index"], 7);
+    assert_eq!(plan["observer_instruction_index"], 9);
+    assert_eq!(plan["observer_arg0_value"], 84);
+    assert_eq!(plan["needle_const_text"], "line");
+    assert_eq!(plan["needle_byte_len"], 4);
+    assert_eq!(plan["consumer_shape"], "found_predicate");
+    assert_eq!(
+        plan["selected_helper_symbol"],
+        "hako.array_text.indexof_const_found_count_region"
+    );
+    let payload = &plan["region_payload"];
+    assert_eq!(payload["array_root_value"], 5);
+    assert_eq!(payload["loop_index_phi_value"], 55);
+    assert_eq!(payload["loop_index_initial_value"], 51);
+    assert_eq!(payload["loop_index_initial_const"], 0);
+    assert_eq!(payload["loop_index_next_value"], 97);
+    assert_eq!(payload["loop_bound_value"], 72);
+    assert_eq!(payload["loop_bound_const"], 400000);
+    assert_eq!(payload["accumulator_phi_value"], 52);
+    assert_eq!(payload["accumulator_initial_value"], 50);
+    assert_eq!(payload["accumulator_initial_const"], 0);
+    assert_eq!(payload["accumulator_next_value"], 91);
+    assert_eq!(payload["exit_accumulator_value"], 54);
+    assert_eq!(payload["row_index_value"], 78);
+    assert_eq!(payload["row_modulus_value"], 80);
+    assert_eq!(payload["row_modulus_const"], 64);
+    assert_eq!(payload["get_result_value"], 60);
+    assert_eq!(payload["indexof_result_value"], 62);
+    assert_eq!(payload["predicate_value"], 92);
+    assert_eq!(plan["mir_json_export_only"], true);
+    assert_eq!(plan["backend_consumer_enabled"], false);
+}

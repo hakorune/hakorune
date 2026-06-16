@@ -193,7 +193,7 @@ pub(super) fn derive_region_payload(
     ))
 }
 
-fn single_preheader_jump_to_header(
+pub(super) fn single_preheader_jump_to_header(
     function: &MirFunction,
     header_block: BasicBlockId,
     latch_block: BasicBlockId,
@@ -215,7 +215,11 @@ fn single_preheader_jump_to_header(
     }
 }
 
-fn const_i64(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<i64> {
+pub(super) fn const_i64(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<i64> {
     let value = value_root(function, def_map, value);
     let (block, index) = def_map.get(&value).copied()?;
     match function.blocks.get(&block)?.instructions.get(index)? {
@@ -227,7 +231,7 @@ fn const_i64(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> O
     }
 }
 
-fn match_loop_index_condition(
+pub(super) fn match_loop_index_condition(
     function: &MirFunction,
     def_map: &ValueDefMap,
     header: &BasicBlock,
@@ -265,7 +269,7 @@ fn is_phi_dst(block: &BasicBlock, value: ValueId) -> bool {
     })
 }
 
-fn phi_input_from(
+pub(super) fn phi_input_from(
     block: &BasicBlock,
     phi_value: ValueId,
     predecessor: BasicBlockId,
@@ -278,7 +282,7 @@ fn phi_input_from(
     })
 }
 
-fn is_add_const_one_from(
+pub(super) fn is_add_const_one_from(
     function: &MirFunction,
     def_map: &ValueDefMap,
     body: &BasicBlock,
@@ -302,7 +306,7 @@ fn is_add_const_one_from(
     })
 }
 
-fn match_row_modulus(
+pub(super) fn match_row_modulus(
     function: &MirFunction,
     def_map: &ValueDefMap,
     index_value: ValueId,
@@ -380,7 +384,7 @@ fn is_accumulator_next_value(
     })
 }
 
-fn block_uses_root(
+pub(super) fn block_uses_root(
     function: &MirFunction,
     def_map: &ValueDefMap,
     block: &BasicBlock,

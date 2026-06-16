@@ -10,7 +10,7 @@ use super::array_string_slot::{
     array_kernel_slot_concat_his, array_kernel_slot_insert_hisi,
     array_string_concat_const_suffix_by_index_store_same_slot_len,
     array_string_concat_const_suffix_by_index_store_same_slot_text,
-    array_string_indexof_by_index_const_utf8,
+    array_string_indexof_by_index_const_utf8, array_string_indexof_const_found_count_region,
     array_string_insert_const_mid_by_index_store_same_slot_len,
     array_string_insert_const_mid_by_index_store_same_slot_text,
     array_string_insert_const_mid_subrange_by_index_store_same_slot_len,
@@ -267,6 +267,10 @@ crate::nyash_export_i64_alias!(hako_array_text_slot_indexof_const_utf8_alias, "h
 
 crate::nyash_export_i64_alias!(hako_array_text_session_indexof_const_utf8_alias, "hako.array_text.session_indexof_const_utf8", (handle: i64, idx: i64, needle_ptr: *const i8, needle_len: i64), {
     array_string_session_indexof_by_index_const_utf8(handle, idx, needle_ptr, needle_len)
+});
+
+crate::nyash_export_i64_alias!(hako_array_text_indexof_const_found_count_region_alias, "hako.array_text.indexof_const_found_count_region", (handle: i64, loop_bound: i64, row_modulus: i64, needle_ptr: *const i8, needle_len: i64), {
+    array_string_indexof_const_found_count_region(handle, loop_bound, row_modulus, needle_ptr, needle_len)
 });
 
 crate::nyash_export_i64_alias!(hako_array_text_slot_indexof_handle_hih_alias, "hako.array_text.slot_indexof_handle_hih", (handle: i64, idx: i64, needle_h: i64), {

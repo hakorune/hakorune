@@ -8,8 +8,13 @@ use super::array_receiver_proof::{match_array_set_call, same_value_root};
 use super::value_origin::build_value_def_map;
 use super::{BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId};
 
+mod indexof_const_region;
 mod region_payload;
 
+use indexof_const_region::derive_indexof_const_region_payload;
+pub use indexof_const_region::{
+    ArrayTextIndexOfConstRegionPayload, ArrayTextIndexOfConstRegionPlan,
+};
 use region_payload::derive_region_payload;
 pub use region_payload::ArrayTextLoopSessionRegionPayload;
 
@@ -166,6 +171,7 @@ impl ArrayTextLoopSessionPlan {
 pub fn refresh_module_array_text_loop_session_plans(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_array_text_loop_session_plans(function);
+        refresh_function_array_text_indexof_const_region_plans(function);
     }
 }
 
@@ -227,6 +233,88 @@ pub fn refresh_function_array_text_loop_session_plans(function: &mut MirFunction
 
     plans.sort_by_key(|plan| (plan.loop_header.as_u32(), plan.array_value.as_u32()));
     function.metadata.array_text_loop_session_plans = plans;
+}
+
+pub fn refresh_function_array_text_indexof_const_region_plans(function: &mut MirFunction) {
+    let def_map = build_value_def_map(function);
+    let mut plans = Vec::new();
+
+    for route in &function.metadata.array_text_observer_routes {
+        if route.observer_kind() != "indexof"
+            || !route.observer_arg0_is_const_utf8()
+            || !route.has_found_predicate_consumer()
+            || route.publication_boundary() != "none"
+            || route.get_block() != route.block()
+        {
+            continue;
+        }
+        let Some((loop_header, loop_exit)) = match_single_body_loop(function, route.block()) else {
+            continue;
+        };
+        let Some(body_block) = function.blocks.get(&route.block()) else {
+            continue;
+        };
+        if body_mutates_array(function, &def_map, body_block, route.array_value()) {
+            continue;
+        }
+        if body_publishes_array(
+            function,
+            &def_map,
+            body_block,
+            route.array_value(),
+            route.get_instruction_index(),
+            route.observer_instruction_index(),
+        ) {
+            continue;
+        }
+        let index_domain_guarded =
+            function.metadata.range_index_facts.iter().any(|fact| {
+                fact.body_bb == route.block() && fact.index_value == route.index_value()
+            });
+        if !index_domain_guarded {
+            continue;
+        }
+        let Some(payload) = derive_indexof_const_region_payload(
+            function,
+            &def_map,
+            route,
+            loop_header,
+            route.block(),
+            loop_exit,
+        ) else {
+            continue;
+        };
+        let Some(needle_const_text) = route.observer_arg0_text().map(str::to_string) else {
+            continue;
+        };
+        let Some(needle_byte_len) = route.observer_arg0_byte_len() else {
+            continue;
+        };
+        plans.push(ArrayTextIndexOfConstRegionPlan::new(
+            loop_header,
+            route.block(),
+            loop_exit,
+            route.array_value(),
+            route.index_value(),
+            route.get_instruction_index(),
+            route.observer_instruction_index(),
+            route.observer_arg0(),
+            needle_const_text,
+            needle_byte_len,
+            route.consumer_shape(),
+            "hako.array_text.indexof_const_found_count_region",
+            payload,
+        ));
+    }
+
+    plans.sort_by_key(|plan| {
+        (
+            plan.loop_header().as_u32(),
+            plan.array_value().as_u32(),
+            plan.observer_instruction_index(),
+        )
+    });
+    function.metadata.array_text_indexof_const_region_plans = plans;
 }
 
 fn match_single_body_loop(

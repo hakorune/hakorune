@@ -20,5 +20,5 @@ int main(void) {
     }
   }
 
-  return (int)(hits & 0xFF);
+  return (int)((hits + rows) & 0xFF);
 }

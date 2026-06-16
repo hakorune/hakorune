@@ -105,6 +105,55 @@ pub(in super::super) fn array_string_session_indexof_by_index_const_utf8(
 }
 
 #[inline(always)]
+pub(in super::super) fn array_string_indexof_const_found_count_region(
+    handle: i64,
+    loop_bound: i64,
+    row_modulus: i64,
+    needle_ptr: *const i8,
+    needle_len: i64,
+) -> i64 {
+    let _demand = array_text_read_ref_demand();
+    if handle <= 0 || loop_bound < 0 || row_modulus <= 0 {
+        return 0;
+    }
+    with_compiler_const_utf8_ptr_len(needle_ptr, needle_len, |needle| {
+        with_array_text_session_cached(handle, |session| {
+            let loop_bound = usize::try_from(loop_bound).ok()?;
+            let row_modulus = usize::try_from(row_modulus).ok()?;
+            let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
+            let table_len = loop_bound.min(row_modulus);
+            let mut found = Vec::with_capacity(table_len);
+
+            for idx in 0..table_len {
+                let hit = if needle.is_empty() {
+                    true
+                } else {
+                    session
+                        .slot_with_text_raw(idx as i64, |hay| {
+                            string_indexof_fast_str(hay, needle) >= 0
+                        })
+                        .unwrap_or(false)
+                };
+                found.push(i64::from(hit));
+            }
+
+            let mut total = 0_i64;
+            for step in 0..loop_bound {
+                let idx = match row_modulus_mask {
+                    Some(mask) => step & mask,
+                    None => step % row_modulus,
+                };
+                total = total.checked_add(*found.get(idx)?)?;
+            }
+            Some(total)
+        })
+        .and_then(|value| value)
+        .unwrap_or(0)
+    })
+    .unwrap_or(0)
+}
+
+#[inline(always)]
 fn array_string_indexof_by_index_str(handle: i64, idx: i64, needle: &str) -> i64 {
     if !valid_handle_idx(handle, idx) {
         return if needle.is_empty() { 0 } else { -1 };

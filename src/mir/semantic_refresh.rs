@@ -19,7 +19,10 @@ use super::{
     array_string_store_micro_seed_plan::refresh_function_array_string_store_micro_seed_route,
     array_text_combined_region_plan::refresh_function_array_text_combined_region_routes,
     array_text_edit_plan::refresh_function_array_text_edit_routes,
-    array_text_loop_session_plan::refresh_function_array_text_loop_session_plans,
+    array_text_loop_session_plan::{
+        refresh_function_array_text_indexof_const_region_plans,
+        refresh_function_array_text_loop_session_plans,
+    },
     array_text_loopcarry_plan::refresh_function_array_text_loopcarry_len_store_routes,
     array_text_observer_plan::refresh_function_array_text_observer_routes,
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
@@ -150,6 +153,7 @@ fn refresh_function_pre_fixpoint_routes(
     refresh_function_array_text_edit_routes(function);
     refresh_function_array_text_residence_session_routes(function);
     refresh_function_array_text_observer_routes(function);
+    refresh_function_array_text_indexof_const_region_plans(function);
     refresh_function_array_text_combined_region_routes(function);
 }
 

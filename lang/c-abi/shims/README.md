@@ -60,7 +60,8 @@ Current partitions:
   - temporary text-state residence emitter for current indexOf micro fronts
   - consumes MIR `array_text_state_residence_route`; do not regrow search route dispatch or raw block scanners here
 - `hako_llvmc_ffi_array_text_loop_session_metadata.inc`
-  - metadata reader for MIR `array_text_loop_session_plans`
+  - metadata reader for MIR `array_text_loop_session_plans` and
+    `array_text_indexof_const_region_plans`
   - validates proof booleans and selected loop header/exit only; it does not emit loop-session runtime calls
 - `hako_llvmc_ffi_array_micro_seed.inc`
   - pure-first seed metadata reader and emitter for array get/set micro paths

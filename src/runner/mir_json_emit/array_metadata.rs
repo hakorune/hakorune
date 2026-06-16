@@ -113,6 +113,10 @@ pub(super) fn insert_array_metadata_json(
         build_array_text_loop_session_plans_json(metadata),
     );
     obj.insert(
+        "array_text_indexof_const_region_plans".to_string(),
+        build_array_text_indexof_const_region_plans_json(metadata),
+    );
+    obj.insert(
         "array_text_edit_routes".to_string(),
         json!(metadata
             .array_text_edit_routes
@@ -244,6 +248,55 @@ fn build_array_text_loop_session_plans_json(metadata: &FunctionMetadata) -> serd
                 "backend_session_lowering_allowed": plan.backend_session_lowering_allowed(),
                 "first_reject_reason": plan.first_reject_reason().map(|reason| reason.as_str()),
                 "region_payload": region_payload,
+                "mir_json_export_only": true,
+                "backend_consumer_enabled": false,
+            })
+        })
+        .collect::<Vec<_>>())
+}
+
+fn build_array_text_indexof_const_region_plans_json(
+    metadata: &FunctionMetadata,
+) -> serde_json::Value {
+    json!(metadata
+        .array_text_indexof_const_region_plans
+        .iter()
+        .map(|plan| {
+            let payload = plan.region_payload();
+            json!({
+                "route_id": "array_text.indexof_const_region.plan",
+                "loop_header": plan.loop_header().as_u32(),
+                "loop_body": plan.loop_body().as_u32(),
+                "loop_exit": plan.loop_exit().as_u32(),
+                "array_value": plan.array_value().as_u32(),
+                "index_value": plan.index_value().as_u32(),
+                "get_instruction_index": plan.get_instruction_index(),
+                "observer_instruction_index": plan.observer_instruction_index(),
+                "observer_arg0_value": plan.observer_arg0_value().as_u32(),
+                "needle_const_text": plan.needle_const_text(),
+                "needle_byte_len": plan.needle_byte_len(),
+                "consumer_shape": plan.consumer_shape(),
+                "selected_helper_symbol": plan.selected_helper_symbol(),
+                "region_payload": {
+                    "array_root_value": payload.array_root_value().as_u32(),
+                    "loop_index_phi_value": payload.loop_index_phi_value().as_u32(),
+                    "loop_index_initial_value": payload.loop_index_initial_value().as_u32(),
+                    "loop_index_initial_const": payload.loop_index_initial_const(),
+                    "loop_index_next_value": payload.loop_index_next_value().as_u32(),
+                    "loop_bound_value": payload.loop_bound_value().as_u32(),
+                    "loop_bound_const": payload.loop_bound_const(),
+                    "accumulator_phi_value": payload.accumulator_phi_value().as_u32(),
+                    "accumulator_initial_value": payload.accumulator_initial_value().as_u32(),
+                    "accumulator_initial_const": payload.accumulator_initial_const(),
+                    "accumulator_next_value": payload.accumulator_next_value().as_u32(),
+                    "exit_accumulator_value": payload.exit_accumulator_value().as_u32(),
+                    "row_index_value": payload.row_index_value().as_u32(),
+                    "row_modulus_value": payload.row_modulus_value().as_u32(),
+                    "row_modulus_const": payload.row_modulus_const(),
+                    "get_result_value": payload.get_result_value().as_u32(),
+                    "indexof_result_value": payload.indexof_result_value().as_u32(),
+                    "predicate_value": payload.predicate_value().as_u32(),
+                },
                 "mir_json_export_only": true,
                 "backend_consumer_enabled": false,
             })
