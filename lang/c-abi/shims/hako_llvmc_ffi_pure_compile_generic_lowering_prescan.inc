@@ -664,6 +664,8 @@
         fprintf(f, "declare i64 @\"nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_ascii_hiisiiisisi\"(i64, i64, i64, ptr, i64, i64, i64, ptr, i64, ptr, i64)\n");
       if (array_text_observer_has_store_region_route())
         fprintf(f, "declare i64 @\"nyash.array.string_indexof_suffix_store_region_hisisi\"(i64, i64, ptr, i64, ptr, i64)\n");
+      if (array_text_loop_session_has_region_payload_plan())
+        fprintf(f, "declare i64 @\"nyash.array.string_len_sum_region_hiii\"(i64, i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);

@@ -845,16 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-958-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-GUARD-SURFACE-002.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-959-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-IMPLEMENTATION-001.md"
 
-latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-GUARD-SURFACE-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-958-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-GUARD-SURFACE-002.md"
-latest_card_summary = """Array text loop-session backend lowering guard
-surface selected the loop-header helper-call seam using
-`nyash.array.string_len_sum_region_hiii`, preserving the post-loop exit block
-and forbidding raw MIR rescans, benchmark branches, helper-name inference, and
-mutating helper reuse."""
-current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-IMPLEMENTATION-001"
+latest_card = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-959-MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-IMPLEMENTATION-001.md"
+latest_card_summary = """Array text loop-session backend lowering implementation
+adds MIR-owned `loop_body` metadata, declares and emits
+`nyash.array.string_len_sum_region_hiii`, skips the loop body, preserves the
+post-loop exit block, and returns the expected direct executable result. Keeper
+claim remains gated on measurement."""
+current_blocker_token = "MIMALLOC-ARRAY-TEXT-LOOP-SESSION-BACKEND-LOWERING-MEASUREMENT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

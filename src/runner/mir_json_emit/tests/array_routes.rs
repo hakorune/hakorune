@@ -100,6 +100,7 @@ fn build_mir_json_root_emits_array_text_loop_session_plans() {
     function.metadata.array_text_loop_session_plans.push(
         crate::mir::array_text_loop_session_plan::ArrayTextLoopSessionPlan::new(
             crate::mir::BasicBlockId::new(25),
+            crate::mir::BasicBlockId::new(26),
             crate::mir::BasicBlockId::new(28),
             crate::mir::ValueId::new(5),
             crate::mir::ValueId::new(72),
@@ -138,6 +139,7 @@ fn build_mir_json_root_emits_array_text_loop_session_plans() {
     let plan = &root["functions"][0]["metadata"]["array_text_loop_session_plans"][0];
     assert_eq!(plan["route_id"], "array_text.loop_session.plan");
     assert_eq!(plan["loop_header"], 25);
+    assert_eq!(plan["loop_body"], 26);
     assert_eq!(plan["loop_exit"], 28);
     assert_eq!(plan["array_value"], 5);
     assert_eq!(plan["index_value"], 72);

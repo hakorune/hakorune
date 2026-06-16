@@ -37,6 +37,7 @@ impl ArrayTextLoopSessionRejectReason {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ArrayTextLoopSessionPlan {
     loop_header: BasicBlockId,
+    loop_body: BasicBlockId,
     loop_exit: BasicBlockId,
     array_value: ValueId,
     index_value: ValueId,
@@ -53,6 +54,7 @@ impl ArrayTextLoopSessionPlan {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         loop_header: BasicBlockId,
+        loop_body: BasicBlockId,
         loop_exit: BasicBlockId,
         array_value: ValueId,
         index_value: ValueId,
@@ -65,6 +67,7 @@ impl ArrayTextLoopSessionPlan {
     ) -> Self {
         Self {
             loop_header,
+            loop_body,
             loop_exit,
             array_value,
             index_value,
@@ -85,6 +88,10 @@ impl ArrayTextLoopSessionPlan {
 
     pub fn loop_header(&self) -> BasicBlockId {
         self.loop_header
+    }
+
+    pub fn loop_body(&self) -> BasicBlockId {
+        self.loop_body
     }
 
     pub fn loop_exit(&self) -> BasicBlockId {
@@ -192,6 +199,7 @@ pub fn refresh_function_array_text_loop_session_plans(function: &mut MirFunction
 
         let mut plan = ArrayTextLoopSessionPlan::new(
             loop_header,
+            route.block(),
             loop_exit,
             route.array_value(),
             route.index_value(),
@@ -306,6 +314,7 @@ mod tests {
     ) -> ArrayTextLoopSessionPlan {
         ArrayTextLoopSessionPlan::new(
             BasicBlockId::new(10),
+            BasicBlockId::new(15),
             BasicBlockId::new(20),
             ValueId::new(1),
             ValueId::new(2),

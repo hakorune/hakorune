@@ -1,6 +1,7 @@
       struct ArrayTextLoopSessionPlanMetadata {
         int matched;
         long long loop_header;
+        long long loop_body;
         long long loop_exit;
         long long array_value;
         long long index_value;
@@ -48,6 +49,7 @@
       auto int array_text_loop_session_plan_valid(yyjson_val* plan) {
         const char* route_id = plan ? read_str(plan, "route_id") : NULL;
         long long loop_header = 0;
+        long long loop_body = 0;
         long long loop_exit = 0;
         long long array_value = 0;
         long long index_value = 0;
@@ -63,6 +65,7 @@
         yyjson_val* first_reject_reason = plan ? yyjson_obj_get(plan, "first_reject_reason") : NULL;
         return plan && route_id && !strcmp(route_id, "array_text.loop_session.plan") &&
                array_text_loop_session_read_i64(plan, "loop_header", &loop_header) &&
+               array_text_loop_session_read_i64(plan, "loop_body", &loop_body) &&
                array_text_loop_session_read_i64(plan, "loop_exit", &loop_exit) &&
                array_text_loop_session_read_i64(plan, "array_value", &array_value) &&
                array_text_loop_session_read_i64(plan, "index_value", &index_value) &&
@@ -177,6 +180,7 @@
         memset(out, 0, sizeof(*out));
         out->matched = 1;
         if (array_text_loop_session_read_i64(plan, "loop_header", &tmp)) out->loop_header = tmp;
+        if (array_text_loop_session_read_i64(plan, "loop_body", &tmp)) out->loop_body = tmp;
         if (array_text_loop_session_read_i64(plan, "loop_exit", &tmp)) out->loop_exit = tmp;
         if (array_text_loop_session_read_i64(plan, "array_value", &tmp)) out->array_value = tmp;
         if (array_text_loop_session_read_i64(plan, "index_value", &tmp)) out->index_value = tmp;
@@ -208,6 +212,21 @@
           if (plan_header != loop_header) continue;
           if (out) array_text_loop_session_plan_fill(plan, out);
           return 1;
+        }
+        return 0;
+      }
+
+      auto int array_text_loop_session_has_region_payload_plan(void) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "array_text_loop_session_plans") : NULL;
+        size_t idx = 0;
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (idx = 0; idx < yyjson_arr_size(routes); idx++) {
+          yyjson_val* plan = yyjson_arr_get(routes, idx);
+          struct ArrayTextLoopSessionPlanMetadata metadata;
+          memset(&metadata, 0, sizeof(metadata));
+          if (!array_text_loop_session_plan_valid(plan)) continue;
+          array_text_loop_session_plan_fill(plan, &metadata);
+          if (metadata.region_payload_present) return 1;
         }
         return 0;
       }

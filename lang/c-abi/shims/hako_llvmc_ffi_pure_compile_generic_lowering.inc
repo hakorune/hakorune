@@ -42,9 +42,12 @@
       struct ArrayTextObserverStoreRegionRouteMetadata active_observer_store_region;
       int active_observer_store_region_available = 0;
       int active_observer_store_region_emitted = 0;
+      struct ArrayTextLoopSessionPlanMetadata active_loop_session_region;
+      int active_loop_session_region_emitted = 0;
       memset(&active_region_executor, 0, sizeof(active_region_executor));
       memset(&active_combined_region, 0, sizeof(active_combined_region));
       memset(&active_observer_store_region, 0, sizeof(active_observer_store_region));
+      memset(&active_loop_session_region, 0, sizeof(active_loop_session_region));
       active_combined_region_available =
           match_array_text_combined_region_metadata_any(&active_combined_region);
       active_observer_store_region_available =
@@ -107,6 +110,31 @@
             region->suffix_reg,
             region->suffix_len);
         set_type(region->accumulator_phi_value, T_I64);
+      }
+      auto int array_text_loop_session_region_ready(
+          const struct ArrayTextLoopSessionPlanMetadata* region) {
+        return region &&
+               region->matched &&
+               region->region_payload_present &&
+               region->backend_session_lowering_allowed &&
+               region->region_loop_index_initial_const == 0 &&
+               region->region_accumulator_initial_const == 0 &&
+               region->region_loop_bound_const >= 0 &&
+               region->region_row_modulus_const > 0 &&
+               region->region_exit_accumulator_value == region->region_accumulator_phi_value;
+      }
+      auto void emit_array_text_loop_session_region_call(
+          const struct ArrayTextLoopSessionPlanMetadata* region) {
+        if (!region) return;
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"nyash.array.string_len_sum_region_hiii\"(i64 %%r%lld, i64 %lld, i64 %lld, i64 %lld)\n",
+            region->region_exit_accumulator_value,
+            region->region_array_root_value,
+            region->region_loop_bound_const,
+            region->region_row_modulus_const,
+            region->region_accumulator_initial_const);
+        set_type(region->region_exit_accumulator_value, T_I64);
       }
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void set_block_tail_label(long long bid, const char* label) {
@@ -363,6 +391,12 @@
           EMIT("  unreachable\n");
           continue;
         }
+        if (active_loop_session_region_emitted &&
+            bid == active_loop_session_region.loop_body) {
+          emit_block_label(bid);
+          EMIT("  unreachable\n");
+          continue;
+        }
         if (!active_region_executor_matched &&
             match_array_text_residence_session_region_begin_metadata(
                 bid,
@@ -389,6 +423,17 @@
           emit_array_text_observer_store_region_call(&active_observer_store_region);
           EMIT("  br label %%bb%lld\n", active_observer_store_region.exit_block);
           active_observer_store_region_emitted = 1;
+          continue;
+        }
+        if (!active_loop_session_region_emitted &&
+            match_array_text_loop_session_plan_by_header_metadata(
+                bid,
+                &active_loop_session_region) &&
+            array_text_loop_session_region_ready(&active_loop_session_region)) {
+          emit_block_label(bid);
+          emit_array_text_loop_session_region_call(&active_loop_session_region);
+          EMIT("  br label %%bb%lld\n", active_loop_session_region.loop_exit);
+          active_loop_session_region_emitted = 1;
           continue;
         }
         emit_block_label(bid);

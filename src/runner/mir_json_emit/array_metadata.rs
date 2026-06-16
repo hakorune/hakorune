@@ -231,6 +231,7 @@ fn build_array_text_loop_session_plans_json(metadata: &FunctionMetadata) -> serd
             json!({
                 "route_id": "array_text.loop_session.plan",
                 "loop_header": plan.loop_header().as_u32(),
+                "loop_body": plan.loop_body().as_u32(),
                 "loop_exit": plan.loop_exit().as_u32(),
                 "array_value": plan.array_value().as_u32(),
                 "index_value": plan.index_value().as_u32(),
