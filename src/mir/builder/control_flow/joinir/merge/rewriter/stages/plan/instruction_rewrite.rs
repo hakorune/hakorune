@@ -16,7 +16,7 @@ use super::super::super::{
 // Merge level (3 super:: up from plan/ to stages/, then 1 more to rewriter/, then 1 more to merge/)
 use super::super::super::super::{
     block_remapper::remap_block_id, loop_header_phi_info::LoopHeaderPhiInfo,
-    phi_block_remapper::remap_phi_instruction, trace,
+    phi_block_remapper::remap_existing_phi_block_ids, trace,
 };
 
 use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
@@ -172,7 +172,7 @@ pub(super) fn process_block_instructions(
                 dst,
                 inputs,
                 type_hint,
-            } => remap_phi_instruction(dst, &inputs, type_hint, local_block_map),
+            } => remap_existing_phi_block_ids(dst, &inputs, type_hint, local_block_map),
             other => other,
         };
 

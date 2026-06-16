@@ -8,8 +8,11 @@ use std::collections::BTreeMap;
 
 use crate::mir::{BasicBlockId, MirInstruction, MirType, ValueId};
 
-/// Remap a single PHI instruction's block ids.
-pub(crate) fn remap_phi_instruction(
+/// Remap block ids for an existing PHI instruction.
+///
+/// This is a transform boundary, not a PHI definition lifecycle entry point.
+/// It preserves the PHI dst/type_hint and only rewrites incoming block ids.
+pub(crate) fn remap_existing_phi_block_ids(
     dst: ValueId,
     inputs: &[(BasicBlockId, ValueId)],
     type_hint: Option<MirType>,
@@ -50,7 +53,7 @@ mod tests {
         map.insert(bb(1), bb(10));
         map.insert(bb(99), bb(100)); // unused entry should not matter
 
-        let inst = remap_phi_instruction(ValueId(5), &inputs, None, &map);
+        let inst = remap_existing_phi_block_ids(ValueId(5), &inputs, None, &map);
 
         match inst {
             MirInstruction::Phi {
@@ -72,7 +75,7 @@ mod tests {
         let mut map = BTreeMap::new();
         map.insert(bb(3), bb(30));
 
-        let inst = remap_phi_instruction(ValueId(7), &inputs, Some(MirType::Integer), &map);
+        let inst = remap_existing_phi_block_ids(ValueId(7), &inputs, Some(MirType::Integer), &map);
 
         match inst {
             MirInstruction::Phi {
