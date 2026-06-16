@@ -209,6 +209,25 @@ fn build_array_text_loop_session_plans_json(metadata: &FunctionMetadata) -> serd
         .array_text_loop_session_plans
         .iter()
         .map(|plan| {
+            let region_payload = plan.region_payload().map(|payload| {
+                json!({
+                    "array_root_value": payload.array_root_value().as_u32(),
+                    "loop_index_phi_value": payload.loop_index_phi_value().as_u32(),
+                    "loop_index_initial_value": payload.loop_index_initial_value().as_u32(),
+                    "loop_index_initial_const": payload.loop_index_initial_const(),
+                    "loop_index_next_value": payload.loop_index_next_value().as_u32(),
+                    "loop_bound_value": payload.loop_bound_value().as_u32(),
+                    "loop_bound_const": payload.loop_bound_const(),
+                    "accumulator_phi_value": payload.accumulator_phi_value().as_u32(),
+                    "accumulator_initial_value": payload.accumulator_initial_value().as_u32(),
+                    "accumulator_initial_const": payload.accumulator_initial_const(),
+                    "accumulator_next_value": payload.accumulator_next_value().as_u32(),
+                    "exit_accumulator_value": payload.exit_accumulator_value().as_u32(),
+                    "row_index_value": payload.row_index_value().as_u32(),
+                    "row_modulus_value": payload.row_modulus_value().as_u32(),
+                    "row_modulus_const": payload.row_modulus_const(),
+                })
+            });
             json!({
                 "route_id": "array_text.loop_session.plan",
                 "loop_header": plan.loop_header().as_u32(),
@@ -223,6 +242,7 @@ fn build_array_text_loop_session_plans_json(metadata: &FunctionMetadata) -> serd
                 "index_domain_guarded": plan.index_domain_guarded(),
                 "backend_session_lowering_allowed": plan.backend_session_lowering_allowed(),
                 "first_reject_reason": plan.first_reject_reason().map(|reason| reason.as_str()),
+                "region_payload": region_payload,
                 "mir_json_export_only": true,
                 "backend_consumer_enabled": false,
             })

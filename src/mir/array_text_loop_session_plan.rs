@@ -8,6 +8,11 @@ use super::array_receiver_proof::{match_array_set_call, same_value_root};
 use super::value_origin::build_value_def_map;
 use super::{BasicBlockId, MirFunction, MirInstruction, MirModule, ValueId};
 
+mod region_payload;
+
+use region_payload::derive_region_payload;
+pub use region_payload::ArrayTextLoopSessionRegionPayload;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayTextLoopSessionRejectReason {
     DifferentArrayHandle,
@@ -41,6 +46,7 @@ pub struct ArrayTextLoopSessionPlan {
     no_mutation_region: bool,
     no_drop_or_publication_boundary: bool,
     index_domain_guarded: bool,
+    region_payload: Option<ArrayTextLoopSessionRegionPayload>,
 }
 
 impl ArrayTextLoopSessionPlan {
@@ -68,7 +74,13 @@ impl ArrayTextLoopSessionPlan {
             no_mutation_region,
             no_drop_or_publication_boundary,
             index_domain_guarded,
+            region_payload: None,
         }
+    }
+
+    pub fn with_region_payload(mut self, payload: ArrayTextLoopSessionRegionPayload) -> Self {
+        self.region_payload = Some(payload);
+        self
     }
 
     pub fn loop_header(&self) -> BasicBlockId {
@@ -109,6 +121,10 @@ impl ArrayTextLoopSessionPlan {
 
     pub fn index_domain_guarded(&self) -> bool {
         self.index_domain_guarded
+    }
+
+    pub fn region_payload(&self) -> Option<&ArrayTextLoopSessionRegionPayload> {
+        self.region_payload.as_ref()
     }
 
     pub fn backend_session_lowering_allowed(&self) -> bool {
@@ -174,7 +190,7 @@ pub fn refresh_function_array_text_loop_session_plans(function: &mut MirFunction
                 fact.body_bb == route.block() && fact.index_value == route.index_value()
             });
 
-        let plan = ArrayTextLoopSessionPlan::new(
+        let mut plan = ArrayTextLoopSessionPlan::new(
             loop_header,
             loop_exit,
             route.array_value(),
@@ -186,6 +202,16 @@ pub fn refresh_function_array_text_loop_session_plans(function: &mut MirFunction
             no_drop_or_publication_boundary,
             index_domain_guarded,
         );
+        if let Some(payload) = derive_region_payload(
+            function,
+            &def_map,
+            route,
+            loop_header,
+            route.block(),
+            loop_exit,
+        ) {
+            plan = plan.with_region_payload(payload);
+        }
         if plan.backend_session_lowering_allowed() {
             plans.push(plan);
         }

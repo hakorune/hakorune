@@ -109,6 +109,25 @@ fn build_mir_json_root_emits_array_text_loop_session_plans() {
             true,
             true,
             true,
+        )
+        .with_region_payload(
+            crate::mir::array_text_loop_session_plan::ArrayTextLoopSessionRegionPayload::new(
+                crate::mir::ValueId::new(5),
+                crate::mir::ValueId::new(52),
+                crate::mir::ValueId::new(51),
+                0,
+                crate::mir::ValueId::new(53),
+                crate::mir::ValueId::new(66),
+                600000,
+                crate::mir::ValueId::new(56),
+                crate::mir::ValueId::new(50),
+                0,
+                crate::mir::ValueId::new(61),
+                crate::mir::ValueId::new(56),
+                crate::mir::ValueId::new(72),
+                crate::mir::ValueId::new(75),
+                64,
+            ),
         ),
     );
     let mut module =
@@ -130,6 +149,22 @@ fn build_mir_json_root_emits_array_text_loop_session_plans() {
     assert_eq!(plan["index_domain_guarded"], true);
     assert_eq!(plan["backend_session_lowering_allowed"], true);
     assert_eq!(plan["first_reject_reason"], serde_json::Value::Null);
+    let payload = &plan["region_payload"];
+    assert_eq!(payload["array_root_value"], 5);
+    assert_eq!(payload["loop_index_phi_value"], 52);
+    assert_eq!(payload["loop_index_initial_value"], 51);
+    assert_eq!(payload["loop_index_initial_const"], 0);
+    assert_eq!(payload["loop_index_next_value"], 53);
+    assert_eq!(payload["loop_bound_value"], 66);
+    assert_eq!(payload["loop_bound_const"], 600000);
+    assert_eq!(payload["accumulator_phi_value"], 56);
+    assert_eq!(payload["accumulator_initial_value"], 50);
+    assert_eq!(payload["accumulator_initial_const"], 0);
+    assert_eq!(payload["accumulator_next_value"], 61);
+    assert_eq!(payload["exit_accumulator_value"], 56);
+    assert_eq!(payload["row_index_value"], 72);
+    assert_eq!(payload["row_modulus_value"], 75);
+    assert_eq!(payload["row_modulus_const"], 64);
     assert_eq!(plan["mir_json_export_only"], true);
     assert_eq!(plan["backend_consumer_enabled"], false);
 }
