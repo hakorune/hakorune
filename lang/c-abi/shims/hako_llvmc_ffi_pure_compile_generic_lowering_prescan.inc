@@ -668,6 +668,8 @@
         fprintf(f, "declare i64 @\"nyash.array.string_len_sum_region_hiii\"(i64, i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (array_text_indexof_const_region_has_payload_plan())
         fprintf(f, "declare i64 @\"hako.array_text.indexof_const_found_count_region\"(i64, i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (array_text_edit_lenhalf_dest_len_only_has_route())
+        fprintf(f, "declare i64 @\"hako.array_text.slot_len\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);

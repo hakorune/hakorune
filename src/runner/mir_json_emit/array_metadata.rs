@@ -142,8 +142,16 @@ pub(super) fn insert_array_metadata_json(
                     "split_policy": route.split_policy(),
                     "proof": route.proof(),
                     "carrier": "array_lane_text_cell",
-                    "effects": ["load.ref", "store.cell"],
-                    "consumer_capabilities": ["sink_store"],
+                    "effects": if route.is_lenhalf_insert_mid_dest_slot_len_only() {
+                        json!(["load.ref", "store.cell", "observe.len"])
+                    } else {
+                        json!(["load.ref", "store.cell"])
+                    },
+                    "consumer_capabilities": if route.is_lenhalf_insert_mid_dest_slot_len_only() {
+                        json!(["sink_store_len_only"])
+                    } else {
+                        json!(["sink_store"])
+                    },
                     "materialization_policy": "text_resident_or_stringlike_slot",
                     "publication_boundary": "none",
                 })

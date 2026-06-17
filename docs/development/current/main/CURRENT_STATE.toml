@@ -845,18 +845,19 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1011-ARRAY-TEXT-STORE-LOCAL-MUTATION-PLAN-METADATA-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1012-ARRAY-TEXT-STORE-LOCAL-MUTATION-BACKEND-CONSUMER-001.md"
 
-latest_card = "ARRAY-TEXT-STORE-LOCAL-MUTATION-PLAN-METADATA-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1011-ARRAY-TEXT-STORE-LOCAL-MUTATION-PLAN-METADATA-001.md"
-latest_card_summary = """ArrayTextEditRoute now has a metadata-only
-cross-array len-only route for kilo_meso_substring_concat_array_set:
-src.get(row) feeds dst.set(row, out), and result_len_value records len + 2.
-The existing same-slot proof and backend consumer are preserved; the new proof
-is visible in MIR JSON but not consumed by C lowering yet. Product ArrayBox /
-StringBox storage, benchmark/source/helper-name branching, and backend behavior
-remain unchanged."""
-current_blocker_token = "ARRAY-TEXT-STORE-LOCAL-MUTATION-BACKEND-CONSUMER-DESIGN-001"
+latest_card = "ARRAY-TEXT-STORE-LOCAL-MUTATION-BACKEND-CONSUMER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1012-ARRAY-TEXT-STORE-LOCAL-MUTATION-BACKEND-CONSUMER-001.md"
+latest_card_summary = """The cross-array len-only array text edit route is now
+consumed by the C ABI backend for kilo_meso_substring_concat_array_set. The hot
+loop now lowers to hako.array_text.slot_len(src,row) + 2 and no longer calls
+nyash.array.kernel_slot_insert_hisi or nyash.array.kernel_slot_store_hi.
+Measured lanes: c_kernel_cycles=182726, ny_kernel_cycles=200265,
+ratio_kernel_cycles=0.91, and aot_status=ok. Product ArrayBox/StringBox
+storage, benchmark/source/helper-name branching, and MIRBuilder object
+management remain unchanged."""
+current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -5,11 +5,13 @@
         long long block;
         long long get_instruction_index;
         long long array_value;
+        long long destination_array_value;
         long long index_value;
         long long source_value;
         long long middle_reg;
         long long middle_len;
         long long result_value;
+        long long result_len_value;
       };
 
       auto int array_text_edit_metadata_read_i64(
@@ -89,6 +91,56 @@
                array_text_edit_metadata_string_array_eq1(capabilities, "sink_store");
       }
 
+      auto int array_text_edit_lenhalf_dest_len_only_route_valid(yyjson_val* route) {
+        const char* edit_kind = route ? read_str(route, "edit_kind") : NULL;
+        const char* split_policy = route ? read_str(route, "split_policy") : NULL;
+        const char* proof = route ? read_str(route, "proof") : NULL;
+        const char* carrier = route ? read_str(route, "carrier") : NULL;
+        const char* publication_boundary =
+            route ? read_str(route, "publication_boundary") : NULL;
+        const char* materialization_policy =
+            route ? read_str(route, "materialization_policy") : NULL;
+        yyjson_val* capabilities =
+            route ? yyjson_obj_get(route, "consumer_capabilities") : NULL;
+        long long array_value = 0;
+        long long destination_array_value = 0;
+        long long result_len_value = 0;
+        long long middle_len = 0;
+        long long get_instruction_index = 0;
+        long long set_instruction_index = 0;
+        return route &&
+               array_text_edit_metadata_read_i64(
+                   route,
+                   "get_instruction_index",
+                   &get_instruction_index) &&
+               array_text_edit_metadata_read_i64(
+                   route,
+                   "set_instruction_index",
+                   &set_instruction_index) &&
+               set_instruction_index > get_instruction_index &&
+               array_text_edit_metadata_read_i64(route, "array_value", &array_value) &&
+               array_text_edit_metadata_read_i64(
+                   route,
+                   "destination_array_value",
+                   &destination_array_value) &&
+               destination_array_value != array_value &&
+               array_text_edit_metadata_read_i64(
+                   route,
+                   "result_len_value",
+                   &result_len_value) &&
+               result_len_value > 0 &&
+               array_text_edit_metadata_read_i64(route, "middle_byte_len", &middle_len) &&
+               middle_len >= 0 &&
+               edit_kind && !strcmp(edit_kind, "insert_mid_const") &&
+               split_policy && !strcmp(split_policy, "source_len_div_const(2)") &&
+               proof && !strcmp(proof, "array_get_lenhalf_insert_mid_dest_slot_len_only") &&
+               carrier && !strcmp(carrier, "array_lane_text_cell") &&
+               publication_boundary && !strcmp(publication_boundary, "none") &&
+               materialization_policy &&
+                   !strcmp(materialization_policy, "text_resident_or_stringlike_slot") &&
+               array_text_edit_metadata_string_array_eq1(capabilities, "sink_store_len_only");
+      }
+
       auto void array_text_edit_lenhalf_route_fill(
           yyjson_val* route,
           struct ArrayTextEditLenHalfRouteMetadata* out) {
@@ -103,6 +155,9 @@
           out->get_instruction_index = tmp;
         }
         if (array_text_edit_metadata_read_i64(route, "array_value", &tmp)) out->array_value = tmp;
+        if (array_text_edit_metadata_read_i64(route, "destination_array_value", &tmp)) {
+          out->destination_array_value = tmp;
+        }
         if (array_text_edit_metadata_read_i64(route, "index_value", &tmp)) out->index_value = tmp;
         if (array_text_edit_metadata_read_i64(route, "source_value", &tmp)) out->source_value = tmp;
         if (array_text_edit_metadata_read_i64(route, "middle_value", &tmp)) out->middle_reg = tmp;
@@ -110,6 +165,9 @@
           out->middle_len = tmp;
         }
         if (array_text_edit_metadata_read_i64(route, "result_value", &tmp)) out->result_value = tmp;
+        if (array_text_edit_metadata_read_i64(route, "result_len_value", &tmp)) {
+          out->result_len_value = tmp;
+        }
         skip_vals = yyjson_obj_get(route, "skip_instruction_indices");
         if (skip_vals && yyjson_is_arr(skip_vals)) {
           for (si = 0; si < yyjson_arr_size(skip_vals); si++) {
@@ -119,6 +177,20 @@
             out->skip_iis[out->skip_n++] = (size_t)yyjson_get_sint(item);
           }
         }
+      }
+
+      auto int array_text_edit_lenhalf_dest_len_only_has_route(void) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_text_edit_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          if (array_text_edit_lenhalf_dest_len_only_route_valid(yyjson_arr_get(routes, ri))) {
+            return 1;
+          }
+        }
+        return 0;
       }
 
       auto int match_array_text_edit_lenhalf_route_metadata(
@@ -136,6 +208,35 @@
           long long block = 0;
           long long get_instruction_index = 0;
           if (!array_text_edit_lenhalf_route_valid(route)) continue;
+          if (!array_text_edit_metadata_read_i64(route, "block", &block)) continue;
+          if (!array_text_edit_metadata_read_i64(
+                  route,
+                  "get_instruction_index",
+                  &get_instruction_index)) {
+            continue;
+          }
+          if (block != bid || get_instruction_index != (long long)ii) continue;
+          array_text_edit_lenhalf_route_fill(route, out);
+          return out && out->matched;
+        }
+        return 0;
+      }
+
+      auto int match_array_text_edit_lenhalf_dest_len_only_route_metadata(
+          long long bid,
+          size_t ii,
+          struct ArrayTextEditLenHalfRouteMetadata* out) {
+        yyjson_val* routes = NULL;
+        size_t ri = 0;
+        if (out) memset(out, 0, sizeof(*out));
+        if (!fn_metadata) return 0;
+        routes = yyjson_obj_get(fn_metadata, "array_text_edit_routes");
+        if (!(routes && yyjson_is_arr(routes))) return 0;
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          long long block = 0;
+          long long get_instruction_index = 0;
+          if (!array_text_edit_lenhalf_dest_len_only_route_valid(route)) continue;
           if (!array_text_edit_metadata_read_i64(route, "block", &block)) continue;
           if (!array_text_edit_metadata_read_i64(
                   route,
