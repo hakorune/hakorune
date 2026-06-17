@@ -7,3 +7,6 @@ edition = "2021"
 name = "hakorune_mir_plans"
 path = "src/lib.rs"
 crate-type = ["rlib"]
+
+[dependencies]
+hakorune-mir-core = { path = "../hakorune_mir_core" }

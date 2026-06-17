@@ -1,9 +1,4 @@
-use crate::mir::generic_method_route_facts::const_i64_value;
-use crate::mir::generic_method_route_plan::GenericMethodRoute;
-use crate::mir::value_origin::ValueDefMap;
-use crate::mir::{BasicBlockId, MirFunction, ValueId};
-
-use super::super::candidates::LocalI64MapShadowCandidate;
+use hakorune_mir_core::{BasicBlockId, ValueId};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalMapStorageRealizationPlan {
@@ -17,15 +12,16 @@ pub struct LocalMapStorageRealizationPlan {
 }
 
 impl LocalMapStorageRealizationPlan {
-    pub(in crate::mir::map_repr_plan) fn local_i64_key_map(
+    pub fn local_i64_key_map(
         receiver_value: ValueId,
-        candidate: &LocalI64MapShadowCandidate,
+        candidate_set_count: usize,
+        candidate_scalar_get_count: usize,
     ) -> Self {
         Self {
             receiver_value,
             representation: "local_i64_key_map",
-            candidate_set_count: candidate.i64_set_count,
-            candidate_scalar_get_count: candidate.scalar_get_count,
+            candidate_set_count,
+            candidate_scalar_get_count,
             publication_materialization_required: true,
             backend_lowering_enabled: false,
             runtime_helper_enabled: false,
@@ -74,15 +70,16 @@ pub struct LocalI64MapDirectStoragePlan {
 }
 
 impl LocalI64MapDirectStoragePlan {
-    pub(in crate::mir::map_repr_plan) fn closed_world_i64_key_value_table(
+    pub fn closed_world_i64_key_value_table(
         receiver_value: ValueId,
-        candidate: &LocalI64MapShadowCandidate,
+        known_i64_key_set_count: usize,
+        scalar_get_count: usize,
     ) -> Self {
         Self {
             receiver_value,
             representation: "closed_world_i64_key_value_table",
-            known_i64_key_set_count: candidate.i64_set_count,
-            scalar_get_count: candidate.scalar_get_count,
+            known_i64_key_set_count,
+            scalar_get_count,
             entry_value_tracking_enabled: false,
             publication_materialization_required: true,
             backend_lowering_enabled: false,
@@ -137,22 +134,23 @@ pub struct LocalI64MapEntryValueTrackingPlan {
 }
 
 impl LocalI64MapEntryValueTrackingPlan {
-    pub(in crate::mir::map_repr_plan) fn from_set_site(
-        function: &MirFunction,
-        def_map: &ValueDefMap,
-        route: &GenericMethodRoute,
+    pub fn from_parts(
         receiver_value: ValueId,
+        set_block: BasicBlockId,
+        set_instruction_index: usize,
         key_value: ValueId,
         value_value: ValueId,
+        key_const_if_known: Option<i64>,
+        value_const_if_known: Option<i64>,
     ) -> Self {
         Self {
             receiver_value,
-            set_block: route.block(),
-            set_instruction_index: route.instruction_index(),
+            set_block,
+            set_instruction_index,
             key_value,
             value_value,
-            key_const_if_known: const_i64_value(function, def_map, key_value),
-            value_const_if_known: const_i64_value(function, def_map, value_value),
+            key_const_if_known,
+            value_const_if_known,
             backend_lowering_enabled: false,
             runtime_helper_enabled: false,
         }

@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001
-next_task=BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001
-purpose=select the next passive MIR plan family after aggregate_storage_plan split
+latest_done=BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001
+next_task=BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001
+purpose=select the next passive MIR plan family after map_repr_plan pure-data split
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -169,5 +169,16 @@ large_file_count=0
 second_family=aggregate_storage_plan
 owner=crates/hakorune_mir_plans/src/aggregate_storage_plan.rs
 main_crate_compat_facade=src/aggregate_storage_plan.rs
+behavior_changed=0
+```
+
+## Stage 1 Third Slice Result
+
+```text
+third_family=map_repr_plan_pure_data_subset
+owner=crates/hakorune_mir_plans/src/map_repr_plan
+main_crate_builder_facade=src/mir/map_repr_plan/plans.rs
+refresh_logic_owner=src/mir/map_repr_plan/refresh.rs
+candidate_detection_owner=src/mir/map_repr_plan/candidates.rs
 behavior_changed=0
 ```

@@ -3,8 +3,9 @@ use super::candidates::{
     set_route_key_value_operands, LocalI64MapShadowCandidate,
 };
 use super::plans::{
-    LocalI64MapDirectStoragePlan, LocalI64MapEntryValueTrackingPlan,
-    LocalMapStorageRealizationPlan, MapReprPlan,
+    closed_world_i64_key_value_table_plan, entry_value_tracking_plan, generic_hash_runtime_plan,
+    local_i64_key_map_shadow_plan, local_i64_key_map_storage_plan, LocalI64MapDirectStoragePlan,
+    LocalI64MapEntryValueTrackingPlan, LocalMapStorageRealizationPlan,
 };
 use crate::mir::value_origin::{build_value_def_map, ValueDefMap};
 use crate::mir::{MirFunction, MirModule, ValueId};
@@ -22,12 +23,12 @@ pub fn refresh_function_map_repr_plans(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
 
     for route in &function.metadata.generic_method_routes {
-        if let Some(plan) = MapReprPlan::generic_hash_runtime(route) {
+        if let Some(plan) = generic_hash_runtime_plan(route) {
             plans.push(plan);
         }
         let storage_receiver = map_storage_receiver_value(function, route);
         if local_i64_shadow_receivers.contains_key(&storage_receiver) {
-            if let Some(plan) = MapReprPlan::local_i64_key_map_shadow(route, storage_receiver) {
+            if let Some(plan) = local_i64_key_map_shadow_plan(route, storage_receiver) {
                 plans.push(plan);
             }
         }
@@ -53,7 +54,7 @@ fn build_local_map_storage_realization_plans(
     let mut plans: Vec<_> = local_i64_candidates
         .iter()
         .map(|(receiver, candidate)| {
-            LocalMapStorageRealizationPlan::local_i64_key_map(*receiver, candidate)
+            local_i64_key_map_storage_plan(*receiver, candidate)
         })
         .collect();
     plans.sort_by_key(|plan| plan.receiver_value().as_u32());
@@ -66,7 +67,7 @@ fn build_local_i64_map_direct_storage_plans(
     let mut plans: Vec<_> = local_i64_candidates
         .iter()
         .map(|(receiver, candidate)| {
-            LocalI64MapDirectStoragePlan::closed_world_i64_key_value_table(*receiver, candidate)
+            closed_world_i64_key_value_table_plan(*receiver, candidate)
         })
         .collect();
     plans.sort_by_key(|plan| plan.receiver_value().as_u32());
@@ -90,7 +91,7 @@ fn build_local_i64_map_entry_value_tracking_plans(
         let Some((key_value, value_value)) = set_route_key_value_operands(function, route) else {
             continue;
         };
-        plans.push(LocalI64MapEntryValueTrackingPlan::from_set_site(
+        plans.push(entry_value_tracking_plan(
             function,
             def_map,
             route,
