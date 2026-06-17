@@ -1,7 +1,8 @@
 use super::plans::MapReprPlan;
 use crate::object_storage_plan::{
-    AliasClassId, LocalFastPathFact, LocalFastPathSiteId, ObjectBasicBlockId,
-    ObjectInstructionIndex, ObjectStoragePlanId, ObjectValueId, RoutePlanId,
+    AliasClassId, LocalFastPathFact, LocalFastPathSiteId, LocalKnownReceiverDirectCallShadowRow,
+    LocalPublicationInventoryRow, ObjectBasicBlockId, ObjectInstructionIndex, ObjectStoragePlanId,
+    ObjectValueId, PublicationState, RoutePlanId,
 };
 
 pub(super) fn build_local_fastpath_facts_from_map_repr_plans(
@@ -23,15 +24,20 @@ pub(super) fn build_local_fastpath_facts_from_map_repr_plans(
             if plan.return_shape_tag() != Some("scalar_i64_or_missing_zero") {
                 return None;
             }
-            Some(LocalFastPathFact::known_receiver_direct_call(
+            let inventory = LocalPublicationInventoryRow::new(
                 LocalFastPathSiteId(index as u32),
                 ObjectBasicBlockId(plan.block().as_u32()),
                 ObjectInstructionIndex(plan.instruction_index() as u32),
                 ObjectValueId(plan.receiver_value().as_u32()),
-                AliasClassId(plan.receiver_value().as_u32()),
-                RoutePlanId(index as u32),
-                ObjectStoragePlanId(index as u32),
-            ))
+                Some(AliasClassId(plan.receiver_value().as_u32())),
+                PublicationState::Unpublished,
+            );
+            LocalKnownReceiverDirectCallShadowRow::new(
+                inventory,
+                Some(RoutePlanId(index as u32)),
+                Some(ObjectStoragePlanId(index as u32)),
+            )
+            .into_allowed_fact()
         })
         .collect()
 }

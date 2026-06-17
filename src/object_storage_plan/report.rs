@@ -71,7 +71,10 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
             "1",
         ),
         ("local_known_receiver_direct_call_shadow_defined", "1"),
-        ("local_known_receiver_direct_call_shadow_decision_defined", "1"),
+        (
+            "local_known_receiver_direct_call_shadow_decision_defined",
+            "1",
+        ),
         (
             "local_known_receiver_direct_call_shadow_backend_consumable",
             "0",
@@ -89,6 +92,10 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("fastpath_reachability_is_posthoc", "1"),
         ("fastpath_preemption_is_deny_reason", "0"),
         ("fastpath_reachability_feedback_to_resolver", "0"),
+        ("local_known_receiver_direct_call_pilot_b_lite_enabled", "1"),
+        ("local_fastpath_fact_allow_decision_source", "1"),
+        ("local_fastpath_deny_mir_json_export_enabled", "0"),
+        ("local_fastpath_fact_fallback_reason_compat_null", "1"),
         ("flattened_nested_field_layout_vocabulary_defined", "1"),
         ("object_storage_plan_execution_enabled", "0"),
         ("object_plan_execution_enabled", "0"),

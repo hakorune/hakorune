@@ -24,6 +24,7 @@ object management.
   - no public metadata writes
 - `fastpath.rs`
   - positive `LocalFastPathFact` production only
+  - facts are exported only from `FastPathDecision::Allow`
   - fallback evidence is not a fact
 - `refresh.rs`
   - function/module refresh orchestration

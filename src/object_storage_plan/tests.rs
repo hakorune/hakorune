@@ -56,18 +56,9 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("local_first_object_plan_alias_retired", "1")));
     assert!(fields.contains(&("object_site_location_vocabulary_defined", "1")));
     assert!(fields.contains(&("object_site_location_field_migration_enabled", "1")));
-    assert!(fields.contains(&(
-        "object_publication_site_location_field_migrated",
-        "1"
-    )));
-    assert!(fields.contains(&(
-        "local_fastpath_fact_location_field_migrated",
-        "1"
-    )));
-    assert!(fields.contains(&(
-        "local_publication_inventory_location_field_migrated",
-        "1"
-    )));
+    assert!(fields.contains(&("object_publication_site_location_field_migrated", "1")));
+    assert!(fields.contains(&("local_fastpath_fact_location_field_migrated", "1")));
+    assert!(fields.contains(&("local_publication_inventory_location_field_migrated", "1")));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -175,7 +166,10 @@ fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
         published.publication_sites[0].location(),
         ObjectSiteLocation::new(ObjectBasicBlockId(3), ObjectInstructionIndex(4))
     );
-    assert_eq!(published.publication_sites[0].block_id(), ObjectBasicBlockId(3));
+    assert_eq!(
+        published.publication_sites[0].block_id(),
+        ObjectBasicBlockId(3)
+    );
     assert_eq!(
         published.publication_sites[0].instruction_index(),
         ObjectInstructionIndex(4)
@@ -294,7 +288,9 @@ fn fastpath_deny_reasons_have_owner_mapping() {
     }
 
     assert_eq!(
-        LocalFastPathFallbackReason::RoutePlanMissing.owner_mapping().owner_lane,
+        LocalFastPathFallbackReason::RoutePlanMissing
+            .owner_mapping()
+            .owner_lane,
         "route_proof_producer"
     );
 }
@@ -351,8 +347,7 @@ fn five_hop_alias_chain_feeds_publication_inventory_without_backend_consumption(
         ),
     ];
 
-    let observations =
-        linear_alias_chain_observations(ObjectValueId(1), AliasClassId(77), &links);
+    let observations = linear_alias_chain_observations(ObjectValueId(1), AliasClassId(77), &links);
     assert_eq!(observations.len(), 6);
     assert!(observations
         .iter()
@@ -437,6 +432,7 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
     );
     assert!(eligible.candidate_fact.is_some());
     assert!(eligible.decision.is_allow());
+    assert_eq!(eligible.allowed_fact(), eligible.candidate_fact.as_ref());
     assert_eq!(eligible.fallback_reason, None);
 
     let missing_route = LocalKnownReceiverDirectCallShadowRow::new(
@@ -445,6 +441,7 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
         Some(ObjectStoragePlanId(5)),
     );
     assert!(missing_route.candidate_fact.is_none());
+    assert_eq!(missing_route.allowed_fact(), None);
     assert_eq!(
         missing_route.decision.deny_reason(),
         Some(LocalFastPathFallbackReason::RoutePlanMissing)
@@ -488,6 +485,35 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
         maybe_published.fallback_reason,
         Some(LocalFastPathFallbackReason::MaybePublishedBeforeSite)
     );
+}
+
+#[test]
+fn local_known_receiver_direct_call_exports_only_allow_decision_fact() {
+    let eligible_inventory = LocalPublicationInventoryRow::new(
+        LocalFastPathSiteId(1),
+        ObjectBasicBlockId(10),
+        ObjectInstructionIndex(11),
+        ObjectValueId(2),
+        Some(AliasClassId(3)),
+        PublicationState::Unpublished,
+    );
+    let eligible = LocalKnownReceiverDirectCallShadowRow::new(
+        eligible_inventory,
+        Some(RoutePlanId(4)),
+        Some(ObjectStoragePlanId(5)),
+    );
+    let fact = eligible
+        .clone()
+        .into_allowed_fact()
+        .expect("allow decision fact");
+    assert_eq!(eligible.decision.fact(), Some(&fact));
+
+    let deny = LocalKnownReceiverDirectCallShadowRow::new(
+        eligible_inventory,
+        None,
+        Some(ObjectStoragePlanId(5)),
+    );
+    assert!(deny.into_allowed_fact().is_none());
 }
 
 #[test]

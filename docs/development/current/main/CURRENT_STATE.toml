@@ -869,19 +869,23 @@ backend consumption. FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001 makes the
 existing KnownReceiver shadow row emit FastPathDecision while keeping backend
 behavior and resolver execution unchanged. FASTPATH-REACHABILITY-LEDGER-POSTHOC-001
 adds passive post-hoc reachability vocabulary so selected/preempted/unreachable
-status stays separate from eligibility decisions."""
+status stays separate from eligibility decisions. FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001
+closes the B-lite pilot by routing exported known-receiver facts through
+FastPathDecision::Allow while keeping deny decisions report-only and backend
+behavior unchanged."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1039-FASTPATH-REACHABILITY-LEDGER-POSTHOC-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1040-FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001.md"
 
-latest_card = "FASTPATH-REACHABILITY-LEDGER-POSTHOC-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1039-FASTPATH-REACHABILITY-LEDGER-POSTHOC-001.md"
-latest_card_summary = """Passive FastPathReachability vocabulary is added.
-Selected, preempted, and unreachable status are post-hoc route observations and
-do not feed back into eligibility. Backend behavior remains unchanged."""
-current_blocker_token = "FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001"
+latest_card = "FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1040-FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001.md"
+latest_card_summary = """B-lite known-receiver pilot is closed. Exported
+LocalFastPathFact rows now come from FastPathDecision::Allow; deny decisions
+remain report-only and MIR JSON fallback_reason remains compatibility-null for
+emitted facts. Backend behavior remains unchanged."""
+current_blocker_token = "FASTPATH-VOCAB-SLIM-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

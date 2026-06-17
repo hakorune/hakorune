@@ -126,4 +126,17 @@ impl LocalKnownReceiverDirectCallShadowRow {
             fallback_reason,
         }
     }
+
+    #[inline]
+    pub fn allowed_fact(&self) -> Option<&LocalFastPathFact> {
+        self.decision.fact()
+    }
+
+    #[inline]
+    pub fn into_allowed_fact(self) -> Option<LocalFastPathFact> {
+        match self.decision {
+            FastPathDecision::Allow(fact) => Some(fact),
+            FastPathDecision::Deny(_) => None,
+        }
+    }
 }
