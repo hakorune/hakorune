@@ -905,19 +905,25 @@ entry_removal_enabled=0, schedule_reorder_enabled=0, and
 semantic_refresh_timing_changed=0. CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001
 closes the callsite canonicalize entry residue with
 callsite_canonicalize_entry_residue_closed=1; remaining cleanup decisions are
-ExactStackObject retire design or FastPathReachability retire/enable design."""
+ExactStackObject retire design or FastPathReachability retire/enable design.
+EXACT-STACK-OBJECT-RETIRE-DESIGN-001 selects retiring ExactStackObject from
+active vocabulary because exact_stack_object_external_producer_count=0 and no
+backend consumer exists. Active exact storage forms remain ExactNativeStruct,
+Scalarized, and FlattenedNestedFields; implementation is split to a separate
+row."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1048-CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1049-EXACT-STACK-OBJECT-RETIRE-DESIGN-001.md"
 
-latest_card = "CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1048-CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001.md"
-latest_card_summary = """Callsite canonicalize schedule facade closeout is
-landed. The four production entries remain and all route through the facade;
-inventory reports centralized_schedule_owner=1, no unknown entries, no entry
-removal, no schedule reorder, and no semantic refresh or JSON policy change."""
+latest_card = "EXACT-STACK-OBJECT-RETIRE-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1049-EXACT-STACK-OBJECT-RETIRE-DESIGN-001.md"
+latest_card_summary = """ExactStackObject retire design is landed. It selects
+retiring the passive no-producer variant from active ObjectStoragePlan
+vocabulary while keeping ExactNativeStruct, Scalarized, and FlattenedNestedFields
+as active exact forms. No code deletion or backend behavior change is included
+in this design row."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
