@@ -7,6 +7,8 @@
 
 #[path = "object_storage_plan/alias.rs"]
 mod alias;
+#[path = "object_storage_plan/decision.rs"]
+mod decision;
 #[path = "object_storage_plan/fastpath.rs"]
 mod fastpath;
 #[path = "object_storage_plan/ids.rs"]
@@ -21,6 +23,7 @@ mod report;
 mod storage;
 
 pub use alias::*;
+pub use decision::*;
 pub use fastpath::*;
 pub use ids::*;
 pub use inventory::*;

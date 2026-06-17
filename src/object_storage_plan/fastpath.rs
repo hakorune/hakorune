@@ -2,6 +2,7 @@ use super::ids::{
     AliasClassId, LocalFastPathSiteId, ObjectBasicBlockId, ObjectInstructionIndex,
     ObjectSiteLocation, ObjectStoragePlanId, ObjectValueId, RoutePlanId,
 };
+use super::PlanEpoch;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LocalFastPathFallbackReason {
@@ -30,6 +31,7 @@ pub struct LocalFastPathFact {
     pub alias_class: AliasClassId,
     pub route_plan: RoutePlanId,
     pub storage_plan: ObjectStoragePlanId,
+    pub plan_epoch: PlanEpoch,
     pub valid_until_publication: bool,
     pub backend_kind: LocalFastPathKind,
 }
@@ -66,6 +68,7 @@ impl LocalFastPathFact {
             alias_class,
             route_plan,
             storage_plan,
+            plan_epoch: PlanEpoch::INITIAL,
             valid_until_publication: true,
             backend_kind: LocalFastPathKind::KnownReceiverDirectCall,
         }

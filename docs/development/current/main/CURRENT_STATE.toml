@@ -858,20 +858,23 @@ is selected by evidence. FASTPATH-ELIGIBILITY-RESOLVER-SSOT-001 accepts the
 demand-driven recursive resolver design for future fastpaths: plan freeze first,
 read-only Allow(LocalFastPathFact)/Deny(reason) resolution, backend fact-only
 emission, and post-hoc reachability ledger. V0 is limited to
-KnownReceiverDirectCall."""
+KnownReceiverDirectCall. FASTPATH-DECISION-VOCAB-000 adds passive
+FastPathDecision / PlanEpoch vocabulary, requires LocalFastPathFact.plan_epoch,
+and exports plan_epoch in MIR JSON metadata without enabling resolver execution
+or changing backend behavior."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1034-FASTPATH-ELIGIBILITY-RESOLVER-SSOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1035-FASTPATH-DECISION-VOCAB-000.md"
 
-latest_card = "FASTPATH-ELIGIBILITY-RESOLVER-SSOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1034-FASTPATH-ELIGIBILITY-RESOLVER-SSOT-001.md"
-latest_card_summary = """The recursive fastpath resolver design is documented
-and tasked. Future fastpaths should use frozen plans, a read-only demand-driven
-resolver that returns Allow(LocalFastPathFact) or Deny(reason), backend fact-only
-emission, and post-hoc reachability. V0 is limited to KnownReceiverDirectCall."""
-current_blocker_token = "FASTPATH-DECISION-VOCAB-000"
+latest_card = "FASTPATH-DECISION-VOCAB-000"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1035-FASTPATH-DECISION-VOCAB-000.md"
+latest_card_summary = """Passive resolver vocabulary is added:
+FastPathDecision::Allow(LocalFastPathFact) / Deny(LocalFastPathFallbackReason),
+PlanEpoch, and LocalFastPathFact.plan_epoch. MIR JSON exports plan_epoch.
+Resolver execution and backend behavior remain unchanged."""
+current_blocker_token = "FASTPATH-DENY-OWNER-MAPPING-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

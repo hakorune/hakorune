@@ -69,6 +69,7 @@ fn build_mir_json_root_emits_local_fastpath_facts() {
     assert_eq!(fact["instruction_index"], 9);
     assert_eq!(fact["receiver_value"], 20);
     assert_eq!(fact["alias_class"], 3);
+    assert_eq!(fact["plan_epoch"], 0);
     assert!(fact["fallback_reason"].is_null());
 }
 

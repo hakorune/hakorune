@@ -92,6 +92,10 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("publication_state_maybe_published_fastpath_allowed", "0")));
     assert!(fields.contains(&("local_fastpath_fallback_reason_vocabulary_defined", "1")));
     assert!(fields.contains(&("local_fastpath_fact_vocabulary_defined", "1")));
+    assert!(fields.contains(&("fastpath_decision_vocabulary_defined", "1")));
+    assert!(fields.contains(&("fastpath_decision_shape", "AllowFact_or_DenyReason")));
+    assert!(fields.contains(&("fastpath_plan_epoch_vocabulary_defined", "1")));
+    assert!(fields.contains(&("local_fastpath_fact_plan_epoch_required", "1")));
     assert!(fields.contains(&("local_fastpath_fact_backend_consumable", "1")));
     assert!(fields.contains(&("fallback_evidence_backend_consumable", "0")));
     assert!(fields.contains(&("fallback_fact_enabled", "0")));
@@ -207,11 +211,42 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
     assert_eq!(fact.alias_class, AliasClassId(30));
     assert_eq!(fact.route_plan, RoutePlanId(40));
     assert_eq!(fact.storage_plan, ObjectStoragePlanId(50));
+    assert_eq!(fact.plan_epoch, PlanEpoch::INITIAL);
     assert!(fact.valid_until_publication);
     assert_eq!(
         fact.backend_kind,
         LocalFastPathKind::KnownReceiverDirectCall
     );
+}
+
+#[test]
+fn fastpath_decision_is_allow_fact_or_deny_reason() {
+    let fact = LocalFastPathFact::known_receiver_direct_call(
+        LocalFastPathSiteId(10),
+        ObjectBasicBlockId(11),
+        ObjectInstructionIndex(12),
+        ObjectValueId(20),
+        AliasClassId(30),
+        RoutePlanId(40),
+        ObjectStoragePlanId(50),
+    );
+
+    let allow = FastPathDecision::allow(fact.clone());
+    assert!(allow.is_allow());
+    assert!(!allow.is_deny());
+    assert_eq!(allow.fact(), Some(&fact));
+    assert_eq!(allow.deny_reason(), None);
+
+    let deny = FastPathDecision::deny(LocalFastPathFallbackReason::AliasUnknown);
+    assert!(!deny.is_allow());
+    assert!(deny.is_deny());
+    assert_eq!(deny.fact(), None);
+    assert_eq!(
+        deny.deny_reason(),
+        Some(LocalFastPathFallbackReason::AliasUnknown)
+    );
+
+    assert!(PlanEpoch::INITIAL.is_initial());
 }
 
 #[test]
