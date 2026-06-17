@@ -79,8 +79,8 @@ expected_seed = {
     "init_push_count": 1,
     "final_get_count": 2,
     "selected_rmw_block": 23,
-    "selected_rmw_instruction_index": 8,
-    "selected_rmw_set_instruction_index": 13,
+    "selected_rmw_instruction_index": 7,
+    "selected_rmw_set_instruction_index": 12,
     "proof": "kilo_leaf_array_rmw_add1_7block",
     "rmw_proof": "array_get_add1_set_same_slot",
 }

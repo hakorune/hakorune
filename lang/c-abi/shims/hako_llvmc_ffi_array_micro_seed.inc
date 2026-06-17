@@ -357,8 +357,8 @@ static int hako_llvmc_consume_array_rmw_add1_leaf_route(
         init_push_count == 1 &&
         final_get_count == 2 &&
         selected_rmw_block == 23 &&
-        selected_rmw_instruction_index == 8 &&
-        selected_rmw_set_instruction_index == 13)) {
+        selected_rmw_instruction_index > 0 &&
+        selected_rmw_set_instruction_index > selected_rmw_instruction_index)) {
     if (hako_llvmc_route_trace_enabled()) {
       hako_llvmc_emit_route_trace(
           "array_rmw_add1_leaf",

@@ -840,22 +840,29 @@ therefore retires the stale `MapBox::get_scalar_i64_key_domain` /
 `BuildHasher::hash_one` owner for this front: the old owner is no longer in the
 hot loop, the remaining post-loop `slot_load_hh` fallback is not a current hot
 owner, and the next step is fresh front selection. This is target-front
-reachability and a local-entry-table win, not a Hako-vs-C winner claim."""
+reachability and a local-entry-table win, not a Hako-vs-C winner claim.
+FRESH-COMPILER-OWNER-SELECTION-004 found no fresh Hako-slower performance owner
+and selected the blocked `kilo_leaf_array_rmw_add1` exact seed consumer as a
+coverage-contract repair. ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001
+removed the stale raw instruction-index pin from the C ABI exact seed consumer:
+source-direct MIR now reports get/set positions 7/12, the route is consumed,
+the perf lane returns `aot_status=ok`, and kernel ratio is 1.00. The next step
+is fresh compiler owner selection."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1030-FRESH-COMPILER-OWNER-SELECTION-004.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1031-ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001.md"
 
-latest_card = "FRESH-COMPILER-OWNER-SELECTION-004"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1030-FRESH-COMPILER-OWNER-SELECTION-004.md"
-latest_card_summary = """Fresh exact-AOT sweep after the substring result length
-fact found no fresh Hako-slower performance owner. The only blocked front is
-kilo_leaf_array_rmw_add1. Direct MIR emits the expected exact seed route, but
-the C ABI exact seed consumer rejects it because it still pins stale instruction
-positions 8/13 while current MIR metadata reports 7/12. This is a compiler
-coverage blocker, not a perf owner."""
-current_blocker_token = "ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001"
+latest_card = "ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1031-ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001.md"
+latest_card_summary = """The array RMW add1 exact seed consumer no longer pins
+stale raw instruction positions 8/13. It keeps the proof/shape/block checks and
+requires the selected set index to follow the selected get index. The
+source-direct MIR route with 7/12 is now consumed, the direct executable returns
+145, the smoke passes, and the perf lane is back to aot_status=ok with kernel
+ratio 1.00. This is a coverage-contract repair, not a winner claim."""
+current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-005"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
