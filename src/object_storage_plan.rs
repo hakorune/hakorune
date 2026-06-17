@@ -17,6 +17,8 @@ mod ids;
 mod inventory;
 #[path = "object_storage_plan/publication.rs"]
 mod publication;
+#[path = "object_storage_plan/reason_domain.rs"]
+mod reason_domain;
 #[path = "object_storage_plan/report.rs"]
 mod report;
 #[path = "object_storage_plan/storage.rs"]
@@ -28,6 +30,7 @@ pub use fastpath::*;
 pub use ids::*;
 pub use inventory::*;
 pub use publication::*;
+pub use reason_domain::*;
 pub use report::*;
 pub use storage::*;
 

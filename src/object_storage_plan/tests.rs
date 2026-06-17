@@ -55,6 +55,12 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("object_publication_site_location_field_migrated", "1")));
     assert!(fields.contains(&("local_fastpath_fact_location_field_migrated", "1")));
     assert!(fields.contains(&("local_publication_inventory_location_field_migrated", "1")));
+    assert!(fields.contains(&("reason_domain_report_vocabulary_defined", "1")));
+    assert!(fields.contains(&("reason_domain_count", "3")));
+    assert!(fields.contains(&("reason_enum_merge_enabled", "0")));
+    assert!(fields.contains(&("reason_domain_storage_enums_kept", "3")));
+    assert!(fields.contains(&("reason_domain_publication_enum_kept", "1")));
+    assert!(fields.contains(&("reason_domain_fastpath_enum_kept", "1")));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -123,10 +129,7 @@ fn report_fields_keep_execution_disabled() {
         "local_known_receiver_direct_call_shadow_requires_objectstorageplan",
         "1"
     )));
-    assert!(fields.contains(&(
-        "fastpath_reachability_rust_vocabulary_retired",
-        "1"
-    )));
+    assert!(fields.contains(&("fastpath_reachability_rust_vocabulary_retired", "1")));
     assert!(fields.contains(&("fastpath_reachability_tooling_owner", "hako_check")));
     assert!(fields.contains(&("fastpath_reachability_is_posthoc", "1")));
     assert!(fields.contains(&("fastpath_preemption_is_deny_reason", "0")));
@@ -206,6 +209,43 @@ fn publication_state_allows_only_unpublished_local_fast_path() {
     assert_eq!(
         PublicationState::MaybePublished.fallback_reason(),
         Some(LocalFastPathFallbackReason::MaybePublishedBeforeSite)
+    );
+}
+
+#[test]
+fn reason_domain_classifies_without_merging_reason_enums() {
+    assert_eq!(
+        GenericBoxReason::MissingTypeProof.reason_domain(),
+        ReasonDomain::StorageRepresentation
+    );
+    assert_eq!(
+        EscapeReason::PluginOrExternBoundary.reason_domain(),
+        ReasonDomain::StorageRepresentation
+    );
+    assert_eq!(
+        DynamicReason::RuntimeTypeIdentityRequired.reason_domain(),
+        ReasonDomain::StorageRepresentation
+    );
+    assert_eq!(
+        ObjectPublicationReason::HostHandleRequired.reason_domain(),
+        ReasonDomain::PublicationBoundary
+    );
+    assert_eq!(
+        LocalFastPathFallbackReason::RoutePlanMissing.reason_domain(),
+        ReasonDomain::FastPathEligibility
+    );
+
+    assert_eq!(
+        ReasonDomain::StorageRepresentation.as_str(),
+        "storage_representation"
+    );
+    assert_eq!(
+        ReasonDomain::PublicationBoundary.as_str(),
+        "publication_boundary"
+    );
+    assert_eq!(
+        ReasonDomain::FastPathEligibility.as_str(),
+        "fastpath_eligibility"
     );
 }
 

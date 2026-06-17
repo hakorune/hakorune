@@ -21,6 +21,7 @@ Keep new vocabulary inside one of these groups:
 - `inventory`
   - report-only rows and shadow rows
   - owns inputs to eligibility, not backend-consumable proof
+  - owns `ReasonDomain` report classification; it does not replace owner-specific reason enums
 - `decision`
   - `FastPathDecision` and `PlanEpoch`
   - owns `Allow(LocalFastPathFact)` / `Deny(reason)` shape

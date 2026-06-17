@@ -1,7 +1,5 @@
 use super::fastpath::LocalFastPathFallbackReason;
-use super::ids::{
-    ObjectBasicBlockId, ObjectInstructionIndex, ObjectSiteLocation, ObjectValueId,
-};
+use super::ids::{ObjectBasicBlockId, ObjectInstructionIndex, ObjectSiteLocation, ObjectValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ObjectPublicationReason {

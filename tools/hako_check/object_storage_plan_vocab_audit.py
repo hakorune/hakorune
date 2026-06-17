@@ -66,13 +66,6 @@ ROWS: tuple[AuditRow, ...] = (
         reason="inventory_and_shadow_rows_are_not_backend_consumable",
     ),
     AuditRow(
-        name="reason_enums",
-        kind="merge_candidate",
-        status="possible_synonym_cluster",
-        action="defer",
-        reason="GenericBoxReason_EscapeReason_DynamicReason_PublicationReason_FallbackReason_overlap_but_domain_meanings_differ",
-    ),
-    AuditRow(
         name="site_location_fields",
         kind="merge_candidate",
         status="repeated_block_instruction_pair",
@@ -141,6 +134,12 @@ def usage_inventory(root: Path) -> dict[str, str]:
         "exact_stack_object_source_presence_count": str(exact_stack_source_presence),
         "active_exact_storage_forms": "ExactNativeStruct,Scalarized,FlattenedNestedFields",
         "stack_allocation_support_claimed": "0",
+        "reason_enum_merge_enabled": "0",
+        "reason_domain_report_enabled": "1",
+        "reason_domain_count": "3",
+        "reason_domain_storage_enums_kept": "3",
+        "reason_domain_publication_enum_kept": "1",
+        "reason_domain_fastpath_enum_kept": "1",
         "fastpath_reachability_rust_vocab_retired": "1",
         "fastpath_reachability_tooling_owner": "hako_check",
         "fastpath_decision_non_test_consumer_count": str(fastpath_decision_consumers),
@@ -155,7 +154,7 @@ def build_report(repo_root: Path | None = None) -> dict[str, object]:
     merge_count = sum(row.kind == "merge_candidate" for row in ROWS)
     report: dict[str, object] = {
         "output_contract": "hako-object-storage-plan-vocab-audit-v0",
-        "source_evidence": "296x-994,296x-1050,296x-1052",
+        "source_evidence": "296x-1054",
         "row_kind": "inventory",
         "keep_separate_count": str(keep_count),
         "merge_candidate_count": str(merge_count),
@@ -164,7 +163,7 @@ def build_report(repo_root: Path | None = None) -> dict[str, object]:
         "fact_fallback_separation_preserved": "1",
         "public_api_reexport_preserved": "1",
         "guard_path_compat_landed": "1",
-        "first_safe_followup": "REASON-ENUMS-VOCABULARY-DESIGN-001",
+        "first_safe_followup": "OBJECT-SITE-LOCATION-VOCABULARY-DESIGN-001",
         "summary": "ok",
         "rows": [asdict(row) for row in ROWS],
     }
