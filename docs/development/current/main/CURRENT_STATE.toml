@@ -845,18 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1018-ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1019-ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-SURFACE-001.md"
 
-latest_card = "ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1018-ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001.md"
-latest_card_summary = """The diagnostic-only producer shape report landed.
-For the target front it observes const suffix concat, same-array same-row set,
-updated.length(), row index as loop_index % 128, and length feeding the
-accumulator add. The remaining failure reason is
-store_only_contract_rejects_length_carry, so the producer shape is present and
-the next row may add passive length-result-carry metadata without backend or
-runtime helper lowering."""
-current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-SURFACE-001"
+latest_card = "ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1019-ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-SURFACE-001.md"
+latest_card_summary = """The passive region payload surface landed for the
+indexOf append/update observer front. The target now reports
+array_text_observer_executor_contract_count=1 with length_result_carry and
+scalar_accumulator effects, sink_store_len_sum capability, row_modulus_const=128,
+length_result_value=41, accumulator_phi_value=33, and accumulator_next_value=43.
+Backend lowering and runtime helper changes remain disabled; the next row is a
+backend reader/guard surface for this payload."""
+current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-READER-SURFACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

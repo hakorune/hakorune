@@ -654,8 +654,20 @@ def main() -> int:
                     f"{prefix}_executor_contract_publication_boundary={executor_contract.get('publication_boundary', 'unknown')}",
                     f"{prefix}_executor_contract_proof_region={executor_contract.get('proof_region', 'unknown')}",
                     f"{prefix}_executor_contract_carrier={executor_contract.get('carrier', 'unknown')}",
+                    f"{prefix}_executor_contract_effects={','.join(str(value) for value in executor_contract.get('effects', []))}",
+                    f"{prefix}_executor_contract_consumer_capabilities={','.join(str(value) for value in executor_contract.get('consumer_capabilities', []))}",
                 ]
             )
+            region_mapping = executor_contract.get("region_mapping")
+            if isinstance(region_mapping, dict):
+                lines.extend(
+                    [
+                        f"{prefix}_region_mapping_row_modulus_const={region_mapping.get('row_modulus_const', 'none')}",
+                        f"{prefix}_region_mapping_length_result_value={region_mapping.get('length_result_value', 'none')}",
+                        f"{prefix}_region_mapping_accumulator_phi_value={region_mapping.get('accumulator_phi_value', 'none')}",
+                        f"{prefix}_region_mapping_accumulator_next_value={region_mapping.get('accumulator_next_value', 'none')}",
+                    ]
+                )
         diagnostic = route.get("producer_shape_diagnostic")
         if isinstance(diagnostic, dict):
             lines.extend(

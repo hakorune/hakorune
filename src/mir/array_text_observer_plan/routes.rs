@@ -3,7 +3,8 @@ use std::collections::BTreeSet;
 use super::super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::super::{
     array_text_observer_region_contract::{
-        derive_observer_store_region_contract, ArrayTextObserverExecutorContract,
+        derive_observer_store_len_sum_region_contract, derive_observer_store_region_contract,
+        ArrayTextObserverExecutorContract,
     },
     definitions::Callee,
     BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
@@ -136,7 +137,12 @@ fn match_array_text_indexof_route(
         function, def_map, &route,
     ));
     route.executor_contract = derive_observer_store_region_contract(function, def_map, &route)
-        .map(ArrayTextObserverExecutorContract::conditional_suffix_store_single_region);
+        .map(ArrayTextObserverExecutorContract::conditional_suffix_store_single_region)
+        .or_else(|| {
+            derive_observer_store_len_sum_region_contract(function, def_map, &route).map(
+                ArrayTextObserverExecutorContract::conditional_suffix_store_len_sum_single_region,
+            )
+        });
     assert!(
         route.selected_route.starts_with("hako.array_text."),
         "selected observer route must stay in the hako.array_text namespace"

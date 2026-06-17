@@ -26,6 +26,12 @@ pub struct ArrayTextObserverStoreRegionMapping {
     suffix_value: ValueId,
     suffix_text: String,
     suffix_byte_len: usize,
+    row_index_value: Option<ValueId>,
+    row_modulus_value: Option<ValueId>,
+    row_modulus_const: Option<i64>,
+    length_result_value: Option<ValueId>,
+    accumulator_phi_value: Option<ValueId>,
+    accumulator_next_value: Option<ValueId>,
     latch_block: BasicBlockId,
     exit_block: BasicBlockId,
 }
@@ -73,9 +79,33 @@ impl ArrayTextObserverStoreRegionMapping {
             suffix_value,
             suffix_text,
             suffix_byte_len,
+            row_index_value: None,
+            row_modulus_value: None,
+            row_modulus_const: None,
+            length_result_value: None,
+            accumulator_phi_value: None,
+            accumulator_next_value: None,
             latch_block,
             exit_block,
         }
+    }
+
+    pub(super) fn with_len_sum_payload(
+        mut self,
+        row_index_value: ValueId,
+        row_modulus_value: ValueId,
+        row_modulus_const: i64,
+        length_result_value: ValueId,
+        accumulator_phi_value: ValueId,
+        accumulator_next_value: ValueId,
+    ) -> Self {
+        self.row_index_value = Some(row_index_value);
+        self.row_modulus_value = Some(row_modulus_value);
+        self.row_modulus_const = Some(row_modulus_const);
+        self.length_result_value = Some(length_result_value);
+        self.accumulator_phi_value = Some(accumulator_phi_value);
+        self.accumulator_next_value = Some(accumulator_next_value);
+        self
     }
 
     pub fn array_root_value(&self) -> ValueId {
@@ -148,6 +178,30 @@ impl ArrayTextObserverStoreRegionMapping {
 
     pub fn suffix_byte_len(&self) -> usize {
         self.suffix_byte_len
+    }
+
+    pub fn row_index_value(&self) -> Option<ValueId> {
+        self.row_index_value
+    }
+
+    pub fn row_modulus_value(&self) -> Option<ValueId> {
+        self.row_modulus_value
+    }
+
+    pub fn row_modulus_const(&self) -> Option<i64> {
+        self.row_modulus_const
+    }
+
+    pub fn length_result_value(&self) -> Option<ValueId> {
+        self.length_result_value
+    }
+
+    pub fn accumulator_phi_value(&self) -> Option<ValueId> {
+        self.accumulator_phi_value
+    }
+
+    pub fn accumulator_next_value(&self) -> Option<ValueId> {
+        self.accumulator_next_value
     }
 
     pub fn latch_block(&self) -> BasicBlockId {
@@ -226,6 +280,30 @@ impl ArrayTextObserverExecutorContract {
             consumer_capabilities: vec![
                 ArrayTextObserverExecutorConsumerCapability::CompareOnly,
                 ArrayTextObserverExecutorConsumerCapability::SinkStore,
+            ],
+            materialization_policy:
+                ArrayTextObserverExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,
+            region_mapping: Some(region_mapping),
+        }
+    }
+
+    pub(crate) fn conditional_suffix_store_len_sum_single_region(
+        region_mapping: ArrayTextObserverStoreRegionMapping,
+    ) -> Self {
+        Self {
+            execution_mode: ArrayTextObserverExecutorExecutionMode::SingleRegionExecutor,
+            proof_region: ArrayTextObserverExecutorProofRegion::LoopBackedgeSingleBody,
+            publication_boundary: ArrayTextObserverPublicationBoundary::None,
+            carrier: ArrayTextObserverExecutorCarrier::ArrayLaneTextCell,
+            effects: vec![
+                ArrayTextObserverExecutorEffect::ObserveIndexOf,
+                ArrayTextObserverExecutorEffect::StoreCell,
+                ArrayTextObserverExecutorEffect::LengthResultCarry,
+                ArrayTextObserverExecutorEffect::ScalarAccumulator,
+            ],
+            consumer_capabilities: vec![
+                ArrayTextObserverExecutorConsumerCapability::CompareOnly,
+                ArrayTextObserverExecutorConsumerCapability::SinkStoreLenSum,
             ],
             materialization_policy:
                 ArrayTextObserverExecutorMaterializationPolicy::TextResidentOrStringlikeSlot,

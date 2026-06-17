@@ -35,6 +35,8 @@ impl std::fmt::Display for ArrayTextObserverExecutorCarrier {
 pub enum ArrayTextObserverExecutorEffect {
     ObserveIndexOf,
     StoreCell,
+    LengthResultCarry,
+    ScalarAccumulator,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorEffect {
@@ -47,6 +49,7 @@ impl std::fmt::Display for ArrayTextObserverExecutorEffect {
 pub enum ArrayTextObserverExecutorConsumerCapability {
     CompareOnly,
     SinkStore,
+    SinkStoreLenSum,
 }
 
 impl std::fmt::Display for ArrayTextObserverExecutorConsumerCapability {
@@ -95,6 +98,8 @@ impl ArrayTextObserverExecutorEffect {
         match self {
             Self::ObserveIndexOf => "observe.indexof",
             Self::StoreCell => "store.cell",
+            Self::LengthResultCarry => "length_result_carry",
+            Self::ScalarAccumulator => "scalar_accumulator",
         }
     }
 }
@@ -104,6 +109,7 @@ impl ArrayTextObserverExecutorConsumerCapability {
         match self {
             Self::CompareOnly => "compare_only",
             Self::SinkStore => "sink_store",
+            Self::SinkStoreLenSum => "sink_store_len_sum",
         }
     }
 }

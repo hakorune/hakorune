@@ -457,6 +457,12 @@ fn build_array_text_observer_routes_json(metadata: &FunctionMetadata) -> serde_j
                         "suffix_value": mapping.suffix_value().as_u32(),
                         "suffix_text": mapping.suffix_text(),
                         "suffix_byte_len": mapping.suffix_byte_len(),
+                        "row_index_value": mapping.row_index_value().map(|value| value.as_u32()),
+                        "row_modulus_value": mapping.row_modulus_value().map(|value| value.as_u32()),
+                        "row_modulus_const": mapping.row_modulus_const(),
+                        "length_result_value": mapping.length_result_value().map(|value| value.as_u32()),
+                        "accumulator_phi_value": mapping.accumulator_phi_value().map(|value| value.as_u32()),
+                        "accumulator_next_value": mapping.accumulator_next_value().map(|value| value.as_u32()),
                         "latch_block": mapping.latch_block().as_u32(),
                         "exit_block": mapping.exit_block().as_u32(),
                     });

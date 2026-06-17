@@ -214,6 +214,109 @@ fn attaches_executor_contract_for_observer_conditional_suffix_store_region() {
 }
 
 #[test]
+fn attaches_executor_contract_for_observer_suffix_store_len_sum_region() {
+    let mut function = test_function(MirType::Integer);
+    for id in 1..=5 {
+        function.blocks.insert(
+            BasicBlockId::new(id),
+            BasicBlock::new(BasicBlockId::new(id)),
+        );
+    }
+
+    {
+        let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.add_instruction(const_i(20, 0));
+        block.add_instruction(jump(1));
+    }
+    {
+        let block = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
+        block.predecessors.insert(BasicBlockId::new(0));
+        block.predecessors.insert(BasicBlockId::new(4));
+        block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(21),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(20)),
+                (BasicBlockId::new(4), ValueId::new(45)),
+            ],
+            type_hint: Some(MirType::Integer),
+        });
+        block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(22),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(20)),
+                (BasicBlockId::new(4), ValueId::new(44)),
+            ],
+            type_hint: Some(MirType::Integer),
+        });
+        block.add_instruction(const_i(23, 64));
+        block.add_instruction(compare(24, CompareOp::Lt, 21, 23));
+        block.add_instruction(branch(24, 2, 5));
+    }
+    {
+        let block = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+        block.predecessors.insert(BasicBlockId::new(1));
+        block.add_instruction(const_i(25, 128));
+        block.add_instruction(mod_op(26, 21, 25));
+        block.add_instruction(array_get(27, 1, 26));
+        block.add_instruction(const_s(28, "line"));
+        block.add_instruction(indexof_call(29, 27, 28));
+        block.add_instruction(const_i(30, 0));
+        block.add_instruction(compare(31, CompareOp::Ge, 29, 30));
+        block.add_instruction(branch(31, 3, 4));
+    }
+    {
+        let block = function.blocks.get_mut(&BasicBlockId::new(3)).unwrap();
+        block.predecessors.insert(BasicBlockId::new(2));
+        block.add_instruction(const_i(32, 128));
+        block.add_instruction(mod_op(33, 21, 32));
+        block.add_instruction(const_s(34, "ln"));
+        block.add_instruction(add(35, 27, 34));
+        block.add_instruction(array_set(36, 1, 33, 35));
+        block.add_instruction(len_call(37, 35));
+        block.add_instruction(add(44, 22, 37));
+        block.add_instruction(jump(4));
+    }
+    {
+        let block = function.blocks.get_mut(&BasicBlockId::new(4)).unwrap();
+        block.predecessors.insert(BasicBlockId::new(2));
+        block.predecessors.insert(BasicBlockId::new(3));
+        block.add_instruction(const_i(38, 1));
+        block.add_instruction(add(45, 21, 38));
+        block.add_instruction(jump(1));
+    }
+    {
+        let block = function.blocks.get_mut(&BasicBlockId::new(5)).unwrap();
+        block.predecessors.insert(BasicBlockId::new(1));
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(22)),
+        });
+    }
+
+    refresh_function_array_text_observer_routes(&mut function);
+
+    let route = &function.metadata.array_text_observer_routes[0];
+    let contract = route.executor_contract().expect("executor contract");
+    assert_eq!(
+        contract.consumer_capabilities(),
+        vec!["compare_only", "sink_store_len_sum"]
+    );
+    assert_eq!(
+        contract.effects(),
+        vec![
+            "observe.indexof",
+            "store.cell",
+            "length_result_carry",
+            "scalar_accumulator"
+        ]
+    );
+    let mapping = contract.region_mapping().expect("region mapping");
+    assert_eq!(mapping.row_modulus_const(), Some(128));
+    assert_eq!(mapping.length_result_value(), Some(ValueId::new(37)));
+    assert_eq!(mapping.accumulator_phi_value(), Some(ValueId::new(22)));
+    assert_eq!(mapping.accumulator_next_value(), Some(ValueId::new(44)));
+}
+
+#[test]
 fn marks_observer_arg_live_when_const_is_used_elsewhere() {
     let mut function = test_function(MirType::Integer);
     let block = entry_block(&mut function);
