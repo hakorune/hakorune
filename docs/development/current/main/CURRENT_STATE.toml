@@ -937,20 +937,25 @@ merge_candidate_count=0. FASTPATH-DENY-OWNER-CODE-RETIRE-001 retires
 FastPathDenyOwner / owner_mapping from Rust code because the active resolver
 execution path does not consume it; deny-owner routing remains docs/report
 guidance while FastPathDecision stays Allow(LocalFastPathFact) or
-Deny(LocalFastPathFallbackReason)."""
+Deny(LocalFastPathFallbackReason). FRESH-COMPILER-OWNER-SELECTION-006 returns
+from cleanup to the active fastpath lane and selects
+local_fastpath_fact_producer_gap from current object-lifecycle MIR evidence:
+known_receiver_direct_method_route_count=19, local_fastpath_fact_count=0, and
+known_receiver_direct_method_without_fact_count=19 for
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1058-FASTPATH-DENY-OWNER-CODE-RETIRE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1059-FRESH-COMPILER-OWNER-SELECTION-006.md"
 
-latest_card = "FASTPATH-DENY-OWNER-CODE-RETIRE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1058-FASTPATH-DENY-OWNER-CODE-RETIRE-001.md"
-latest_card_summary = """FastPath deny owner mapping is retired from Rust code.
-FastPathDecision remains Allow(LocalFastPathFact) or
-Deny(LocalFastPathFallbackReason); deny owner routing is docs/report guidance,
-not execution vocabulary."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
+latest_card = "FRESH-COMPILER-OWNER-SELECTION-006"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1059-FRESH-COMPILER-OWNER-SELECTION-006.md"
+latest_card_summary = """Fresh compiler owner selection selects
+local_fastpath_fact_producer_gap. Current object-lifecycle MIR has 19 known
+direct receiver method routes in the target method and zero local fastpath
+facts; backend lowering remains closed until a fact producer design row lands."""
+current_blocker_token = "LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
