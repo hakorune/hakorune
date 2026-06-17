@@ -989,20 +989,23 @@ covered rows. The active target now reports
 known_receiver_direct_method_route_count=19,
 known_receiver_direct_method_without_fact_count=19,
 known_receiver_direct_method_thin_entry_covered_count=19, and
-known_receiver_direct_method_uncovered_count=0."""
+known_receiver_direct_method_uncovered_count=0. FRESH-COMPILER-OWNER-SELECTION-007
+closes the previous local_fastpath_fact_producer_gap owner because the focused
+target and whole artifact both report user-box method uncovered_count=0; next
+owner selection requires a fresh exact-AOT perf sweep."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1069-USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1070-FRESH-COMPILER-OWNER-SELECTION-007.md"
 
-latest_card = "USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1069-USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001.md"
-latest_card_summary = """B-lite split leaves user-box method direct calls on
-user_box_method_routes plus thin_entry_selections rather than LocalFastPathFact.
-The active object-lifecycle front now has thin_entry_covered_count=19 and
-uncovered_count=0 for user-box known receiver direct method routes."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-007"
+latest_card = "FRESH-COMPILER-OWNER-SELECTION-007"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1070-FRESH-COMPILER-OWNER-SELECTION-007.md"
+latest_card_summary = """The previous local_fastpath_fact_producer_gap owner is
+closed: focused target thin_entry_covered_count=19 and uncovered_count=0;
+whole artifact thin_entry_covered_count=184 and uncovered_count=0. No fresh
+compiler owner is selected from this metadata report."""
+current_blocker_token = "FRESH-EXACT-AOT-PERF-SWEEP-AFTER-FASTPATH-GAP-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
