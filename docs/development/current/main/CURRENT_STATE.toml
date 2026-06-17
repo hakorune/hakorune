@@ -845,15 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1000-LOCAL-FASTPATH-FACT-LOCATION-FIELD-MIGRATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1001-LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001.md"
 
-latest_card = "LOCAL-FASTPATH-FACT-LOCATION-FIELD-MIGRATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1000-LOCAL-FASTPATH-FACT-LOCATION-FIELD-MIGRATION-001.md"
-latest_card_summary = """LocalFastPathFact now stores ObjectSiteLocation while
-preserving known_receiver_direct_call constructor arguments and MIR JSON block /
-instruction_index output shape through accessors. LocalPublicationInventoryRow
-still exposes block_id / instruction_index and is the next migration target."""
-current_blocker_token = "LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001"
+latest_card = "LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1001-LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001.md"
+latest_card_summary = """LocalPublicationInventoryRow now stores ObjectSiteLocation
+while preserving constructor arguments and block_id()/instruction_index()
+accessors. This completes the ObjectSiteLocation field migration across
+publication site, LocalFastPathFact, and inventory row without MIR JSON metadata
+or backend lowering changes."""
+current_blocker_token = "OBJECT-SITE-LOCATION-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

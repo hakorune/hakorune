@@ -73,9 +73,10 @@ for token in \
   }
 done
 
-grep -R -F -q "pub block_id: ObjectBasicBlockId" src/object_storage_plan/inventory.rs || {
-  echo "[$TAG] LocalPublicationInventoryRow was unexpectedly migrated" >&2
+if ! grep -R -F -q "pub block_id: ObjectBasicBlockId" src/object_storage_plan/inventory.rs \
+  && ! grep -R -F -q "(\"local_publication_inventory_location_field_migrated\", \"1\")" src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[$TAG] LocalPublicationInventoryRow is neither pre-migration nor explicitly migrated" >&2
   exit 1
-}
+fi
 
 echo "[$TAG] ok"

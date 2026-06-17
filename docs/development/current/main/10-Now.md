@@ -36,8 +36,8 @@ Related:
 - compiler foundation is paused at `COMPILER-FOUNDATION-CHECKPOINT-001`
 - exact-front optimization and representation rows remain governed by
   `CURRENT_STATE.toml`; the latest row is
-  `LOCAL-FASTPATH-FACT-LOCATION-FIELD-MIGRATION-001`, and the next blocker is
-  `LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001`
+  `LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001`, and the next blocker is
+  `OBJECT-SITE-LOCATION-CLOSEOUT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -54,7 +54,7 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1000-LOCAL-FASTPATH-FACT-LOCATION-FIELD-MIGRATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1001-LOCAL-PUBLICATION-INVENTORY-LOCATION-FIELD-MIGRATION-001.md`
 3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 4. `docs/development/current/main/phases/phase-296x/296x-738-SIMPLE-BOX-EXACT-OBJECT-CANDIDATE-001.md`
 5. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`

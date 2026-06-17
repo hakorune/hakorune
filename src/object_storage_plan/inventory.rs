@@ -8,8 +8,7 @@ use super::publication::PublicationState;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LocalPublicationInventoryRow {
     pub site_id: LocalFastPathSiteId,
-    pub block_id: ObjectBasicBlockId,
-    pub instruction_index: ObjectInstructionIndex,
+    pub location: ObjectSiteLocation,
     pub value_id: ObjectValueId,
     pub alias_class: Option<AliasClassId>,
     pub publication_state: PublicationState,
@@ -28,7 +27,17 @@ pub struct LocalKnownReceiverDirectCallShadowRow {
 impl LocalPublicationInventoryRow {
     #[inline]
     pub const fn location(&self) -> ObjectSiteLocation {
-        ObjectSiteLocation::new(self.block_id, self.instruction_index)
+        self.location
+    }
+
+    #[inline]
+    pub const fn block_id(&self) -> ObjectBasicBlockId {
+        self.location.block_id
+    }
+
+    #[inline]
+    pub const fn instruction_index(&self) -> ObjectInstructionIndex {
+        self.location.instruction_index
     }
 
     pub fn new(
@@ -45,8 +54,7 @@ impl LocalPublicationInventoryRow {
         };
         Self {
             site_id,
-            block_id,
-            instruction_index,
+            location: ObjectSiteLocation::new(block_id, instruction_index),
             value_id,
             alias_class,
             publication_state,
@@ -91,8 +99,8 @@ impl LocalKnownReceiverDirectCallShadowRow {
             (true, Some(alias_class), Some(route_plan), Some(storage_plan), None) => {
                 Some(LocalFastPathFact::known_receiver_direct_call(
                     inventory.site_id,
-                    inventory.block_id,
-                    inventory.instruction_index,
+                    inventory.block_id(),
+                    inventory.instruction_index(),
                     inventory.value_id,
                     alias_class,
                     route_plan,

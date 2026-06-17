@@ -64,6 +64,10 @@ fn report_fields_keep_execution_disabled() {
         "local_fastpath_fact_location_field_migrated",
         "1"
     )));
+    assert!(fields.contains(&(
+        "local_publication_inventory_location_field_migrated",
+        "1"
+    )));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -248,6 +252,8 @@ fn local_publication_inventory_row_is_report_only_gate_input() {
         eligible.location(),
         ObjectSiteLocation::new(ObjectBasicBlockId(10), ObjectInstructionIndex(11))
     );
+    assert_eq!(eligible.block_id(), ObjectBasicBlockId(10));
+    assert_eq!(eligible.instruction_index(), ObjectInstructionIndex(11));
 
     let unknown_alias = LocalPublicationInventoryRow::new(
         LocalFastPathSiteId(4),
