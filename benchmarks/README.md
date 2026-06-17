@@ -34,9 +34,9 @@ Leaf-proof cases (run these first when adding/changing one observer/mutator leaf
 - `kilo_leaf_array_string_indexof_const`: array string `get -> indexOf("line")` observer only
 - `kilo_leaf_map_getset_has`: string-key `MapBox.get -> set -> has` on a stable key array
 - `kilo_leaf_map_get_missing`: missing-key `MapBox.get` on a stable integer key
-- `kilo_leaf_map_get_dynamic_covered_i64`: Hako-only repeated `MapBox.get(i % 3)`
-  over preseeded i64 keys. This is an optimization owner front, not a C-ratio
-  winner front, until a real C hashmap pair exists.
+- `kilo_leaf_map_get_dynamic_covered_i64`: repeated `MapBox.get(i % 3)` over
+  preseeded i64 keys. The C pair uses a small real i64 hash map rather than a
+  volatile compare, so this front can be used for C/Hako measurement hygiene.
 
 Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 

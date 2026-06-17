@@ -847,22 +847,25 @@ coverage-contract repair. ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001
 removed the stale raw instruction-index pin from the C ABI exact seed consumer:
 source-direct MIR now reports get/set positions 7/12, the route is consumed,
 the perf lane returns `aot_status=ok`, and kernel ratio is 1.00. The next step
-is fresh compiler owner selection."""
+is fresh compiler owner selection. FRESH-COMPILER-OWNER-SELECTION-005 found no
+fresh Hako-slower exact-AOT compiler owner after the array RMW repair. It also
+added a real C i64-hashmap pair for `kilo_leaf_map_get_dynamic_covered_i64`,
+replacing the Hako-only measurement hole; that front is now comparison-ready
+and remains Hako-smaller on kernel instr/cycles."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1031-ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1032-FRESH-COMPILER-OWNER-SELECTION-005.md"
 
-latest_card = "ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1031-ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001.md"
-latest_card_summary = """The array RMW add1 exact seed consumer no longer pins
-stale raw instruction positions 8/13. It keeps the proof/shape/block checks and
-requires the selected set index to follow the selected get index. The
-source-direct MIR route with 7/12 is now consumed, the direct executable returns
-145, the smoke passes, and the perf lane is back to aot_status=ok with kernel
-ratio 1.00. This is a coverage-contract repair, not a winner claim."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-005"
+latest_card = "FRESH-COMPILER-OWNER-SELECTION-005"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1032-FRESH-COMPILER-OWNER-SELECTION-005.md"
+latest_card_summary = """Fresh exact-AOT sweep after the array RMW add1 exact
+seed contract repair found no Hako-slower compiler fastpath owner. The row also
+added a real C i64-hashmap pair for kilo_leaf_map_get_dynamic_covered_i64, so
+that front is no longer Hako-only; with the real C pair it remains Hako-smaller
+on kernel instructions and cycles. No implementation owner is selected."""
+current_blocker_token = "FASTPATH-OPTIMIZATION-CHECKPOINT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
