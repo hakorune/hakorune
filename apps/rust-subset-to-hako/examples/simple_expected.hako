@@ -1,0 +1,12 @@
+record Point {
+    x: i64
+    y: i64
+}
+
+function Point_len2(me: Point): i64 {
+    return me.x * me.x + me.y * me.y
+}
+
+function add(a: i64, b: i64): i64 {
+    return a + b
+}
