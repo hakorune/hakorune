@@ -972,21 +972,28 @@ origins stay maybe_published. USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFL
 regenerated the object-lifecycle MIR and found the active target still has
 publication_fact_allowed_count=0: all 19 user-box method route receivers are
 maybe_published, with phi_merge_publication_not_proven as the dominant blocker
-at 13 rows. User-box fact producer implementation remains closed."""
+at 13 rows. User-box fact producer implementation remains closed.
+USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001 finds that PHI-B-lite is safe
+only when all incoming roots are already classified Unpublished, but the active
+target's PHI roots are mostly param, field_get, or call_result. Broad PHI/CFG
+publication analysis remains closed. The next design point is whether
+KnownReceiverDirectCall really requires Unpublished, or whether call-route-only
+direct dispatch can accept product-compatible published receivers without
+storage/HostHandle/Arc bypass."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1066-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1067-USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001.md"
 
-latest_card = "USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1066-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001.md"
-latest_card_summary = """Preflight shows the active object-lifecycle target
-still cannot produce user-box LocalFastPathFact rows:
-publication_fact_allowed_count=0, publication_maybe_published_count=19, and
-top_publication_blocker_proof=phi_merge_publication_not_proven. Producer
-implementation remains closed."""
-current_blocker_token = "USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001"
+latest_card = "USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1067-USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001.md"
+latest_card_summary = """PHI-B-lite is allowed only for same-origin PHI inputs
+whose incoming roots are already Unpublished; this is safe but is not expected
+to unlock the active target. The next design point is whether
+KnownReceiverDirectCall should require Unpublished when no storage/handle bypass
+is performed."""
+current_blocker_token = "USER-BOX-METHOD-DIRECT-CALL-PUBLICATION-REQUIREMENT-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
