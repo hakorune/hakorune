@@ -66,13 +66,6 @@ ROWS: tuple[AuditRow, ...] = (
         reason="inventory_and_shadow_rows_are_not_backend_consumable",
     ),
     AuditRow(
-        name="LocalFirstObjectPlan",
-        kind="merge_candidate",
-        status="compat_alias",
-        action="audit_before_retire",
-        reason="alias_points_to_ObjectPlan_but_old_cards_and_guards_still_reference_it",
-    ),
-    AuditRow(
         name="reason_enums",
         kind="merge_candidate",
         status="possible_synonym_cluster",
@@ -162,7 +155,7 @@ def build_report(repo_root: Path | None = None) -> dict[str, object]:
     merge_count = sum(row.kind == "merge_candidate" for row in ROWS)
     report: dict[str, object] = {
         "output_contract": "hako-object-storage-plan-vocab-audit-v0",
-        "source_evidence": "296x-989,296x-990,worker-audit",
+        "source_evidence": "296x-994,296x-1050,296x-1052",
         "row_kind": "inventory",
         "keep_separate_count": str(keep_count),
         "merge_candidate_count": str(merge_count),
@@ -171,7 +164,7 @@ def build_report(repo_root: Path | None = None) -> dict[str, object]:
         "fact_fallback_separation_preserved": "1",
         "public_api_reexport_preserved": "1",
         "guard_path_compat_landed": "1",
-        "first_safe_followup": "LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001",
+        "first_safe_followup": "REASON-ENUMS-VOCABULARY-DESIGN-001",
         "summary": "ok",
         "rows": [asdict(row) for row in ROWS],
     }

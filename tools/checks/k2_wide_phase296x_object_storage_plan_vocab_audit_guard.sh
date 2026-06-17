@@ -5,14 +5,13 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 TAG="object-storage-plan-vocab-audit"
-CARD="docs/development/current/main/phases/phase-296x/296x-991-OBJECT-STORAGE-PLAN-VOCAB-AUDIT-001.md"
-PREV_CARD="docs/development/current/main/phases/phase-296x/296x-990-OBJECT-STORAGE-PLAN-GUARD-PATH-COMPAT-001.md"
+CARD="docs/development/current/main/phases/phase-296x/296x-1053-OBJECT-STORAGE-VOCAB-AUDIT-STALE-ROW-CLEANUP-001.md"
 INDEX="docs/tools/check-scripts-index.md"
 TOOL="tools/hako_check/object_storage_plan_vocab_audit.py"
 TEST="tools/hako_check/tests/test_object_storage_plan_vocab_audit.py"
 SELF_SCRIPT="tools/checks/k2_wide_phase296x_object_storage_plan_vocab_audit_guard.sh"
 
-for file in "$CARD" "$PREV_CARD" "$INDEX" "$TOOL" "$TEST"; do
+for file in "$CARD" "$INDEX" "$TOOL" "$TEST"; do
   [[ -f "$file" ]] || { echo "[$TAG] missing file: $file" >&2; exit 1; }
 done
 
@@ -36,24 +35,22 @@ require_card_line() {
 
 for expected in \
   "output_contract=hako-object-storage-plan-vocab-audit-v0" \
-  "source_evidence=296x-989,296x-990,worker-audit" \
+  "source_evidence=296x-994,296x-1050,296x-1052" \
   "row_kind=inventory" \
   "keep_separate_count=6" \
-  "merge_candidate_count=4" \
+  "merge_candidate_count=3" \
   "immediate_merge_allowed=0" \
   "vocabulary_merge_count=0" \
   "fact_fallback_separation_preserved=1" \
   "public_api_reexport_preserved=1" \
   "guard_path_compat_landed=1" \
-  "next_task=LOCALFIRSTOBJECTPLAN-ALIAS-RETIRE-PREFLIGHT-001" \
+  "local_first_object_plan_alias_retired=1" \
+  "exact_stack_object_retired=1" \
+  "fastpath_reachability_rust_vocab_retired=1" \
+  "first_safe_followup=REASON-ENUMS-VOCABULARY-DESIGN-001" \
   "summary=ok"; do
   require_card_line "$expected"
 done
-
-grep -F -q "next_task=OBJECT-STORAGE-PLAN-VOCAB-AUDIT-001" "$PREV_CARD" || {
-  echo "[$TAG] previous card does not hand off to vocab audit" >&2
-  exit 1
-}
 
 python3 -m unittest tools.hako_check.tests.test_object_storage_plan_vocab_audit >/tmp/"$TAG".unittest.out
 python3 "$TOOL" >/tmp/"$TAG".kv
@@ -61,15 +58,14 @@ python3 "$TOOL" >/tmp/"$TAG".kv
 for expected in \
   "output_contract=hako-object-storage-plan-vocab-audit-v0" \
   "keep_separate_count=6" \
-  "merge_candidate_count=4" \
+  "merge_candidate_count=3" \
   "immediate_merge_allowed=0" \
   "vocabulary_merge_count=0" \
+  "first_safe_followup=REASON-ENUMS-VOCABULARY-DESIGN-001" \
   "row_3_name=local_fastpath_fact" \
   "row_3_action=keep" \
-  "row_6_name=LocalFirstObjectPlan" \
-  "row_6_action=audit_before_retire" \
-  "row_7_name=reason_enums" \
-  "row_7_action=defer"; do
+  "row_6_name=reason_enums" \
+  "row_6_action=defer"; do
   grep -F -x -q "$expected" /tmp/"$TAG".kv || {
     echo "[$TAG] missing audit output: $expected" >&2
     exit 1
