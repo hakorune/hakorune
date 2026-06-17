@@ -91,6 +91,10 @@ def thin_entry_method_candidate_count(function: dict[str, Any]) -> int:
     )
 
 
+def publication_classifications(function: dict[str, Any]) -> list[dict[str, Any]]:
+    return list_meta(function, "user_box_method_publication_classifications")
+
+
 def summarize_function(function: dict[str, Any]) -> dict[str, Any]:
     routes = [
         row for row in list_meta(function, "user_box_method_routes")
@@ -102,12 +106,26 @@ def summarize_function(function: dict[str, Any]) -> dict[str, Any]:
         str(row.get("symbol") or row.get("target_symbol") or "unknown")
         for row in missing
     )
+    publication_rows = publication_classifications(function)
+    publication_states = Counter(str(row.get("publication_state") or "unknown") for row in publication_rows)
+    blocker_proofs = Counter(
+        str(row.get("proof") or "unknown")
+        for row in publication_rows
+        if not bool(row.get("fact_allowed"))
+    )
     return {
         "function": function_name(function),
         "known_receiver_direct_method_route_count": len(routes),
         "local_fastpath_fact_count": len(fact_sites),
         "known_receiver_direct_method_without_fact_count": len(missing),
         "thin_entry_method_candidate_count": thin_entry_method_candidate_count(function),
+        "user_box_method_publication_classification_count": len(publication_rows),
+        "publication_fact_allowed_count": sum(1 for row in publication_rows if bool(row.get("fact_allowed"))),
+        "publication_unpublished_count": publication_states.get("unpublished", 0),
+        "publication_maybe_published_count": publication_states.get("maybe_published", 0),
+        "publication_published_count": publication_states.get("published", 0),
+        "top_publication_blocker_proof": blocker_proofs.most_common(1)[0][0] if blocker_proofs else "none",
+        "top_publication_blocker_count": blocker_proofs.most_common(1)[0][1] if blocker_proofs else 0,
         "top_missing_subject": subjects.most_common(1)[0][0] if subjects else "none",
         "top_missing_subject_count": subjects.most_common(1)[0][1] if subjects else 0,
     }
@@ -119,11 +137,20 @@ def build_report(data: dict[str, Any], method_filter: str | None, front: str) ->
     fact_count = sum(int(row["local_fastpath_fact_count"]) for row in rows)
     missing_count = sum(int(row["known_receiver_direct_method_without_fact_count"]) for row in rows)
     thin_count = sum(int(row["thin_entry_method_candidate_count"]) for row in rows)
+    publication_count = sum(int(row["user_box_method_publication_classification_count"]) for row in rows)
+    publication_allowed_count = sum(int(row["publication_fact_allowed_count"]) for row in rows)
+    publication_maybe_count = sum(int(row["publication_maybe_published_count"]) for row in rows)
+    publication_published_count = sum(int(row["publication_published_count"]) for row in rows)
     top = max(
         rows,
         key=lambda row: int(row["known_receiver_direct_method_without_fact_count"]),
         default=None,
     )
+    blocker_proofs = Counter()
+    for row in rows:
+        proof = str(row["top_publication_blocker_proof"])
+        if proof != "none":
+            blocker_proofs[proof] += int(row["top_publication_blocker_count"])
     return {
         "output_contract": "hako-fastpath-gap-inventory-v0",
         "front": front,
@@ -133,6 +160,12 @@ def build_report(data: dict[str, Any], method_filter: str | None, front: str) ->
         "local_fastpath_fact_count": str(fact_count),
         "known_receiver_direct_method_without_fact_count": str(missing_count),
         "thin_entry_method_candidate_count": str(thin_count),
+        "user_box_method_publication_classification_count": str(publication_count),
+        "publication_fact_allowed_count": str(publication_allowed_count),
+        "publication_maybe_published_count": str(publication_maybe_count),
+        "publication_published_count": str(publication_published_count),
+        "top_publication_blocker_proof": blocker_proofs.most_common(1)[0][0] if blocker_proofs else "none",
+        "top_publication_blocker_count": str(blocker_proofs.most_common(1)[0][1]) if blocker_proofs else "0",
         "fallback_evidence_fact_enabled": "0",
         "backend_lowering_changed": "0",
         "winner_claim_allowed": "0",

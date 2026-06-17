@@ -129,6 +129,28 @@ pub(super) fn insert_plan_metadata_json(
         ),
     );
     obj.insert(
+        "user_box_method_publication_classifications".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .user_box_method_publication_classifications
+                .iter()
+                .map(|row| {
+                    json!({
+                        "block": row.block(),
+                        "instruction_index": row.instruction_index(),
+                        "receiver_value": row.receiver_value().as_u32(),
+                        "route_plan": row.route_plan_label(),
+                        "origin_kind": row.origin_kind(),
+                        "publication_state": row.publication_state_tag(),
+                        "proof": row.proof(),
+                        "fact_allowed": row.fact_allowed(),
+                        "backend_consumable": false,
+                    })
+                })
+                .collect(),
+        ),
+    );
+    obj.insert(
         "local_map_storage_realization_plans".to_string(),
         serde_json::Value::Array(
             metadata

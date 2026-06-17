@@ -49,6 +49,15 @@ class FastPathGapInventoryTest(unittest.TestCase):
                             }
                         ],
                         "local_fastpath_facts": [],
+                        "user_box_method_publication_classifications": [
+                            {
+                                "block": 10,
+                                "instruction_index": 2,
+                                "publication_state": "maybe_published",
+                                "fact_allowed": False,
+                                "proof": "param_origin_requires_interprocedural_publication_proof",
+                            }
+                        ],
                     },
                 }
             ]
@@ -61,6 +70,13 @@ class FastPathGapInventoryTest(unittest.TestCase):
         self.assertEqual(rows["local_fastpath_fact_count"], "0")
         self.assertEqual(rows["known_receiver_direct_method_without_fact_count"], "1")
         self.assertEqual(rows["thin_entry_method_candidate_count"], "1")
+        self.assertEqual(rows["user_box_method_publication_classification_count"], "1")
+        self.assertEqual(rows["publication_fact_allowed_count"], "0")
+        self.assertEqual(rows["publication_maybe_published_count"], "1")
+        self.assertEqual(
+            rows["top_publication_blocker_proof"],
+            "param_origin_requires_interprocedural_publication_proof",
+        )
         self.assertEqual(rows["function_0_top_missing_subject"], "Page.acquire_usize/1")
         self.assertEqual(rows["fallback_evidence_fact_enabled"], "0")
         self.assertEqual(rows["backend_lowering_changed"], "0")
@@ -91,6 +107,15 @@ class FastPathGapInventoryTest(unittest.TestCase):
                                 "backend_kind": "known_receiver_direct_call",
                             }
                         ],
+                        "user_box_method_publication_classifications": [
+                            {
+                                "block": 10,
+                                "instruction_index": 2,
+                                "publication_state": "unpublished",
+                                "fact_allowed": True,
+                                "proof": "same_block_newbox_no_alias_publication_before_site",
+                            }
+                        ],
                     },
                 }
             ]
@@ -101,6 +126,7 @@ class FastPathGapInventoryTest(unittest.TestCase):
         self.assertEqual(rows["known_receiver_direct_method_route_count"], "1")
         self.assertEqual(rows["local_fastpath_fact_count"], "1")
         self.assertEqual(rows["known_receiver_direct_method_without_fact_count"], "0")
+        self.assertEqual(rows["publication_fact_allowed_count"], "1")
         self.assertEqual(rows["top_gap_function"], "Main.runOne/2")
         self.assertEqual(rows["top_gap_count"], "0")
 

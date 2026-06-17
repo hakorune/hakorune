@@ -963,20 +963,30 @@ storage plans, and backend behavior remains unchanged.
 USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001 selects A-lite:
 user_box_method_routes alone are route-positive but not publication-positive,
 so user-box LocalFastPathFact production remains disabled until a conservative
-publication classifier proves `publication_state_before_site=Unpublished`."""
+publication classifier proves `publication_state_before_site=Unpublished`.
+USER-BOX-METHOD-PUBLICATION-CLASSIFIER-A-LITE-001 adds that report-only
+classifier and MIR JSON export while keeping backend facts, lowering, and route
+priority unchanged. V0 proves only same-block NewBox receivers with no
+same-block alias publication before the call; param/call/phi/cross-block
+origins stay maybe_published. USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001
+regenerated the object-lifecycle MIR and found the active target still has
+publication_fact_allowed_count=0: all 19 user-box method route receivers are
+maybe_published, with phi_merge_publication_not_proven as the dominant blocker
+at 13 rows. User-box fact producer implementation remains closed."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1064-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1066-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001.md"
 
-latest_card = "USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1064-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001.md"
-latest_card_summary = """User-box method LocalFastPathFact design selects
-A-lite: direct same-module route evidence alone is not enough for a backend
-fact. User-box facts require alias and unpublished publication proof, so the
-next row is a conservative publication classifier."""
-current_blocker_token = "USER-BOX-METHOD-PUBLICATION-CLASSIFIER-A-LITE-001"
+latest_card = "USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1066-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-PREFLIGHT-001.md"
+latest_card_summary = """Preflight shows the active object-lifecycle target
+still cannot produce user-box LocalFastPathFact rows:
+publication_fact_allowed_count=0, publication_maybe_published_count=19, and
+top_publication_blocker_proof=phi_merge_publication_not_proven. Producer
+implementation remains closed."""
+current_blocker_token = "USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

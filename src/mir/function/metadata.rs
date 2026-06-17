@@ -64,6 +64,7 @@ use crate::mir::{
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute,
     thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection,
+    user_box_method_publication::UserBoxMethodPublicationClassification,
     user_box_method_route_plan::UserBoxMethodRoute,
     userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
@@ -361,6 +362,12 @@ pub struct FunctionMetadata {
     /// function call; backends must consume this metadata instead of
     /// rediscovering user-box method semantics from raw names.
     pub user_box_method_routes: Vec<UserBoxMethodRoute>,
+
+    /// Report-only publication classification for user-box method route receivers.
+    ///
+    /// These rows are not backend-consumable. They only say whether a later
+    /// LocalFastPathFact producer may consider a route receiver unpublished.
+    pub user_box_method_publication_classifications: Vec<UserBoxMethodPublicationClassification>,
 
     /// Metadata-only MapGet/MapHas same-key fusion preflight routes.
     /// These are derived from `generic_method_routes` and do not change

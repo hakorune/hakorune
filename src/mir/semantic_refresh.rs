@@ -85,6 +85,7 @@ use super::{
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
+    user_box_method_publication::refresh_function_user_box_method_publication_classifications,
     user_box_method_route_plan::refresh_function_user_box_method_routes,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     MirFunction, MirInstruction, MirModule,
@@ -147,6 +148,7 @@ fn refresh_function_pre_fixpoint_routes(
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);
+    refresh_function_user_box_method_publication_classifications(function);
     refresh_function_hotcore_method_summaries(function);
     refresh_function_map_lookup_fusion_routes(function);
     refresh_function_array_rmw_window_routes(function);
@@ -303,6 +305,7 @@ fn refresh_function_post_fixpoint_consumers(
         refresh_function_fastmem_access_plans(function);
         refresh_function_effect_summaries(function);
         refresh_function_receiver_snapshot_publication_plans(function);
+        refresh_function_user_box_method_publication_classifications(function);
         refresh_function_hotcore_method_summaries(function);
         refresh_function_local_fastpath_facts(function);
     }
