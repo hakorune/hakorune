@@ -1002,19 +1002,23 @@ near-parity with fewer Hako instructions but slightly worse cycles and no
 single owner. Fastpath lane is at a next-lane selection point.
 NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001 records that design consultation:
 recommended next lane is compiler construction / selfhost compiler work
-unless the user explicitly wants a wider optimization discovery pass."""
+unless the user explicitly wants a wider optimization discovery pass.
+FASTPATH-RESIDUE-AUDIT-001 then checked the reported medium/low residue list:
+callsite canonicalize is already centralized behind schedule facade entries,
+Rust-side FastPathReachability / FastPathDenyOwner and ExactStackObject code
+residue are retired, and object_storage_plan report keys have no duplicate."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1072-NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1073-FASTPATH-RESIDUE-AUDIT-001.md"
 
-latest_card = "NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1072-NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001.md"
-latest_card_summary = """Design consultation point after exact-AOT fastpath
-sweep: no fresh optimization owner is selected; recommended next lane is
-compiler construction unless a wider optimization discovery pass is explicitly
-chosen."""
+latest_card = "FASTPATH-RESIDUE-AUDIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1073-FASTPATH-RESIDUE-AUDIT-001.md"
+latest_card_summary = """Audit of reported fastpath/object-storage/callsite
+residue: callsite canonicalize four entries are intentional schedule facade
+entries, FastPathReachability/FastPathDenyOwner and ExactStackObject code
+residue are retired, and object_storage_plan report keys have no duplicate."""
 current_blocker_token = "NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
