@@ -851,21 +851,24 @@ is fresh compiler owner selection. FRESH-COMPILER-OWNER-SELECTION-005 found no
 fresh Hako-slower exact-AOT compiler owner after the array RMW repair. It also
 added a real C i64-hashmap pair for `kilo_leaf_map_get_dynamic_covered_i64`,
 replacing the Hako-only measurement hole; that front is now comparison-ready
-and remains Hako-smaller on kernel instr/cycles."""
+and remains Hako-smaller on kernel instr/cycles. FASTPATH-OPTIMIZATION-CHECKPOINT-001
+closes the current fastpath burst with no fresh compiler implementation owner
+selected. New backend fastpaths remain closed until a fresh Hako-slower front
+is selected by evidence."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1032-FRESH-COMPILER-OWNER-SELECTION-005.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1033-FASTPATH-OPTIMIZATION-CHECKPOINT-001.md"
 
-latest_card = "FRESH-COMPILER-OWNER-SELECTION-005"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1032-FRESH-COMPILER-OWNER-SELECTION-005.md"
-latest_card_summary = """Fresh exact-AOT sweep after the array RMW add1 exact
-seed contract repair found no Hako-slower compiler fastpath owner. The row also
-added a real C i64-hashmap pair for kilo_leaf_map_get_dynamic_covered_i64, so
-that front is no longer Hako-only; with the real C pair it remains Hako-smaller
-on kernel instructions and cycles. No implementation owner is selected."""
-current_blocker_token = "FASTPATH-OPTIMIZATION-CHECKPOINT-001"
+latest_card = "FASTPATH-OPTIMIZATION-CHECKPOINT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1033-FASTPATH-OPTIMIZATION-CHECKPOINT-001.md"
+latest_card_summary = """The current exact-AOT compiler fastpath burst is
+checkpointed. Array RMW add1 coverage and dynamic-covered-i64 map measurement
+hygiene are repaired, and the fresh sweep selected no Hako-slower compiler
+implementation owner. New backend fastpaths remain closed until a fresh
+evidence-backed front is selected."""
+current_blocker_token = "PERF-FRONT-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
