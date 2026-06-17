@@ -999,19 +999,22 @@ candidate fronts, and selected no fresh compiler optimization owner. The only
 Hako-slower successful front is tiny-floor residue
 kilo_micro_substring_views_only; kilo_meso_substring_concat_array_set is
 near-parity with fewer Hako instructions but slightly worse cycles and no
-single owner. Fastpath lane is at a next-lane selection point."""
+single owner. Fastpath lane is at a next-lane selection point.
+NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001 records that design consultation:
+recommended next lane is compiler construction / selfhost compiler work
+unless the user explicitly wants a wider optimization discovery pass."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1071-FRESH-EXACT-AOT-PERF-SWEEP-AFTER-FASTPATH-GAP-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1072-NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001.md"
 
-latest_card = "FRESH-EXACT-AOT-PERF-SWEEP-AFTER-FASTPATH-GAP-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1071-FRESH-EXACT-AOT-PERF-SWEEP-AFTER-FASTPATH-GAP-CLOSEOUT-001.md"
-latest_card_summary = """Perf sweep after fastpath gap closeout selected no
-fresh exact-AOT compiler owner: 16 fronts succeeded, tiny Hako-slower
-substring_views_only was rejected as floor residue, and the only near-parity
-mixed result lacks a concrete owner."""
+latest_card = "NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1072-NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001.md"
+latest_card_summary = """Design consultation point after exact-AOT fastpath
+sweep: no fresh optimization owner is selected; recommended next lane is
+compiler construction unless a wider optimization discovery pass is explicitly
+chosen."""
 current_blocker_token = "NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
