@@ -43,3 +43,5 @@ cargo check -q
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
 - exact-front optimization is paused while the compiler foundation lane is
   active; resume only through the return lane named by the active taskboard
+- product/app validation now uses EXE/AOT as the primary route; VM work is a
+  small semantic-reference subset only

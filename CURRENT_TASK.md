@@ -13,17 +13,16 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1002-OBJECT-SITE-LOCATION-CLOSEOUT-001.md`
-3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
-5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
-6. `docs/development/current/main/workstreams/compiler-foundation-current.md`
-7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-8. `docs/development/current/main/05-Restart-Quick-Resume.md`
-9. `docs/development/current/main/10-Now.md`
-10. `git status -sb`
-11. `bash tools/checks/current_state_pointer_guard.sh`
-12. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+2. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
+4. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+5. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
+6. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+7. `docs/development/current/main/05-Restart-Quick-Resume.md`
+8. `docs/development/current/main/10-Now.md`
+9. `git status -sb`
+10. `bash tools/checks/current_state_pointer_guard.sh`
+11. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -37,7 +36,13 @@ Scope: current lane / next lane / restart order only.
 ## Status
 
 - implementation_gap_count=0
-- active work has moved from boot-amortized exact-kernel selection through
+- active work has moved from exact-AOT fastpath optimization pause into
+  compiler construction / selfhost app-front work. VM product-route app
+  validation is retired by `VM-ACTIVE-LANE-RETIRE-001`; EXE/AOT is the primary
+  route for app/selfhost validation. Build-time reduction is now in plan via
+  `BUILD-CRATE-SPLIT-PLAN-001`, with next blocker
+  `BUILD-MIR-CORE-GROWTH-PREFLIGHT-001`.
+- historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
   `PARAM-EXPRESSION-COPY-CHAIN-POLICY-SELECTION-001`,

@@ -1,0 +1,136 @@
+---
+Status: SSOT
+Decision: accepted
+Date: 2026-06-18
+Scope: Build-time reduction through crate split planning.
+Related:
+  - docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md
+---
+
+# Build Crate Split Plan SSOT
+
+## Problem
+
+The main `nyash-rust` crate is too large to compile efficiently.
+
+Observed audit:
+
+```text
+main_crate_lines=469k
+main_crate_files=2370
+total_build_time_sec=41.6
+main_crate_compile_time_sec=33.8
+main_crate_compile_time_percent=81
+src_mir_lines=278k
+src_mir_percent_of_main_crate=59
+```
+
+One giant crate limits parallelism and forces unrelated compiler/runtime edits
+through the same compile unit.
+
+## Decision
+
+Adopt a staged crate split, but do not start with the deepest lowering code.
+
+The first goal is build-time leverage with low architectural risk:
+
+```text
+stage_0=mir_core_growth
+stage_1=hakorune_mir_plans
+stage_2=hakorune_backend
+stage_3=hakorune_frontend
+stage_4=box_core_config
+stage_5=hakorune_lowering
+stage_6=runtime_boxes
+```
+
+## Ranking
+
+| Rank | Crate | Approx Size | Effect | Effort | Risk | Decision |
+|---:|---|---:|---|---|---|---|
+| 1 | `hakorune-mir-plans` | 40-45k lines | high | medium | low | first real split |
+| 2 | grow `mir_core` | 1.2k -> larger | medium | small | low | prerequisite |
+| 3 | `hakorune-backend` | 18k lines | medium | medium | low | after plans |
+| 4 | `hakorune-frontend` | 17.5k lines | medium | medium | medium | after backend |
+| 5 | `box-core + config` | 6k lines | medium | medium | medium | only after boundary audit |
+| 6 | `hakorune-lowering` | 82k lines | high | large | high | last compiler split |
+| 7 | `runtime + boxes` | 46k lines | medium | large | high | last overall split |
+
+## Stage 0: mir_core Growth
+
+Purpose:
+
+```text
+move_stable_mir_data_types=1
+move_plan_independent_value_types=1
+move_report_contract_types_when_dependency_free=1
+```
+
+Allowed:
+
+```text
+MirType / ValueId / BlockId style shared primitives
+small plan-neutral enums
+serde-compatible metadata structs with no builder/backend dependency
+```
+
+Forbidden:
+
+```text
+builder control-flow logic
+lowering logic
+runtime boxes
+backend emitters
+policy decisions with active owners
+```
+
+## Stage 1: hakorune-mir-plans
+
+Purpose:
+
+```text
+extract plan vocabularies and passive plan data from src/mir
+keep lowering/building behavior in main crate at first
+```
+
+Candidate families:
+
+```text
+object_storage_plan
+local_fastpath_fact
+map_repr_plan passive data
+route plan data models after dependency audit
+plan report vocabularies
+```
+
+Non-goals:
+
+```text
+do not move control_flow lowering yet
+do not move MIRBuilder yet
+do not move runtime Box implementations
+do not change behavior while splitting
+```
+
+## Guardrail
+
+Each split row must be BoxShape-only:
+
+```text
+behavior_changed=0
+public_api_changed_only_for_crate_boundary=1
+cargo_build_release_bin_hakorune_green=1
+quick_smoke_green_when_slice_ready=1
+```
+
+No language acceptance shape, optimizer rule, or runtime behavior change may be
+mixed into the crate split commits.
+
+## Next Task
+
+```text
+next_task=BUILD-MIR-CORE-GROWTH-PREFLIGHT-001
+purpose=inventory dependency-free MIR plan/data types that can move before hakorune-mir-plans
+implementation_allowed=inventory_only
+```
+

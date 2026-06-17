@@ -139,6 +139,14 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     SemanticRefresh as fact owner, RoutePlan as execution truth, ObjectPlan as
     representation/publication truth, backend as plan consumer, and runtime as
     generic fallback world
+- `design/vm-active-lane-retirement-ssot.md`
+  - VM active-lane retirement owner; keeps Rust VM as a small semantic
+    reference subset, `.hako` VM as optional subset experiment, and moves
+    product/app validation to EXE/AOT
+- `design/build-crate-split-plan-ssot.md`
+  - build-time crate split owner; stages `mir_core` growth before
+    `hakorune-mir-plans`, backend, frontend, deep lowering, and runtime/boxes
+    splits
 - `design/selfhost-mir-object-metadata-ssot.md`
   - selfhost `.hako` MIRBuilder object metadata boundary; allows only
     source_span / receiver_origin / known_type_hint / field_key / call_site_id /

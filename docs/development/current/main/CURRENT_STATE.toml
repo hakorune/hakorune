@@ -6,9 +6,9 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-17"
+date = "2026-06-18"
 
-active_lane = "CURRENT-ENTRY-MANUAL-SYNC-001 manual/current-entry synchronization"
+active_lane = "COMPILER-CONSTRUCTION-AFTER-FASTPATH-PAUSE compiler construction / selfhost app front"
 active_lane_status = """Compiler foundation is paused at
 COMPILER-FOUNDATION-CHECKPOINT-001 after BoxCallable / TypeAbiCatalog
 reconciliation, collection visible semantics closeout, CorePlan variable_map
@@ -1011,19 +1011,25 @@ EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001 resolves the lane decision by pausing
 the exact-AOT fastpath optimization lane: no fresh compiler optimization owner
 is selected, user-box fastpath gaps are closed, and residue audit is clean.
 The next recommended lane is compiler construction / selfhost app front
-selection, with picohttpparser-lite as the first candidate to evaluate."""
+selection, with picohttpparser-lite as the first candidate to evaluate.
+VM-ACTIVE-LANE-RETIRE-001 retires Rust VM / .hako VM from product-level app
+execution and keeps them as semantic-reference / small-subset routes only.
+BUILD-CRATE-SPLIT-PLAN-001 adds build-time reduction to the compiler
+construction plan: grow `mir_core` first, then split `hakorune-mir-plans`
+before backend/frontend/deep lowering/runtime splits."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
+method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1074-EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md"
 
-latest_card = "EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1074-EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001.md"
-latest_card_summary = """Pause checkpoint for exact-AOT fastpath optimization:
-fresh owner selected=0, user-box fastpath gap closed, residue audit clean, and
-next lane recommended as compiler construction / selfhost app front selection."""
-current_blocker_token = "SELFHOST-APP-FRONT-SELECTION-001"
+latest_card = "BUILD-CRATE-SPLIT-PLAN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md"
+latest_card_summary = """Build-time crate split plan: VM active product route
+is retired by 296x-1075, and compiler construction now includes staged crate
+split work starting with BUILD-MIR-CORE-GROWTH-PREFLIGHT-001 before
+hakorune-mir-plans."""
+current_blocker_token = "BUILD-MIR-CORE-GROWTH-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1032,6 +1038,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-18: 296x-1076 adds the build crate split plan: grow mir_core first, then split hakorune-mir-plans before backend/frontend/deep lowering/runtime splits.",
+  "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
+  "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",
   "2026-06-09: 296x-648 selects the direct-exact optimization sweep owner from the Hako vs C mimalloc comparison evidence.",
   "2026-06-08: 296x-639..647 close the selfhost surface preflight, production allocator API selections, and current docs pointer cleanup before returning to exact-front optimization.",
