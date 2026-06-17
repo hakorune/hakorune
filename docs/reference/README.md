@@ -34,6 +34,8 @@
 ### boxes-system/
 - ビルトイン Box / Box システムの仕様
 - Everything-is-Box、delegation、lifecycle、plugin Box 周辺の参照
+- `.hako` app file input quick reference:
+  `docs/reference/boxes-system/filebox.md`
 
 ### plugin-system/
 - プラグインシステム仕様

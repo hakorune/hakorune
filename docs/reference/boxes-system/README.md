@@ -28,6 +28,11 @@ Nyash時代の「Everything is Box」の解説。現在読む場合は historica
 #### [box-reference.md](box-reference.md)  
 **統合版Box型完全リファレンス**。全ビルトインBox型のAPI仕様、基本型からプラグインBoxまで。
 
+#### [filebox.md](filebox.md)
+`.hako` app からファイルを読むための current practical quick reference。
+まず `FileBox.open(path, "r") -> read() -> close()` を使い、DLL/externcall
+追加へ進む前にこの route を試す。
+
 ### 🔄 システム設計
 
 #### [delegation-system.md](delegation-system.md)

@@ -18,6 +18,7 @@ Read these files first:
 - apps/rust-subset-to-hako/examples/edge_subset.json
 - apps/rust-subset-to-hako/examples/edge_expected.hako
 - apps/rust-subset-to-hako/examples/invalid_unknown_kind.json
+- docs/reference/boxes-system/filebox.md
 - tools/hako_parser/cli.hako
 
 Goal:

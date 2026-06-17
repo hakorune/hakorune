@@ -109,6 +109,9 @@ Use `FileBox` for the first real `.hako` file-input route.
 Known working precedent:
 
 ```text
+docs/reference/boxes-system/filebox.md:
+  current practical FileBox file-input reference
+
 tools/hako_parser/cli.hako:
   new FileBox()
   open(path)
