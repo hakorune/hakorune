@@ -48,6 +48,8 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("fastpath_decision_shape", "AllowFact_or_DenyReason"),
         ("fastpath_plan_epoch_vocabulary_defined", "1"),
         ("local_fastpath_fact_plan_epoch_required", "1"),
+        ("fastpath_deny_owner_mapping_defined", "1"),
+        ("fastpath_deny_without_owner_allowed", "0"),
         ("local_fastpath_fact_backend_consumable", "1"),
         ("fallback_evidence_backend_consumable", "0"),
         ("fallback_fact_enabled", "0"),

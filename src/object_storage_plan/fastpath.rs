@@ -7,12 +7,19 @@ use super::PlanEpoch;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LocalFastPathFallbackReason {
     OpenWorld,
+    UnknownValue,
     AliasUnknown,
     PublishedBeforeSite,
     MaybePublishedBeforeSite,
+    RoutePlanMissing,
     DynamicRoute,
+    ObjectPlanMissing,
     GenericStorage,
     BackendMissing,
+    CycleDetected,
+    PhiMergeNotProven,
+    LoopCarriedNotProven,
+    InterprocSummaryMissing,
     UnknownCall,
 }
 
