@@ -979,21 +979,30 @@ target's PHI roots are mostly param, field_get, or call_result. Broad PHI/CFG
 publication analysis remains closed. The next design point is whether
 KnownReceiverDirectCall really requires Unpublished, or whether call-route-only
 direct dispatch can accept product-compatible published receivers without
-storage/HostHandle/Arc bypass."""
+storage/HostHandle/Arc bypass. USER-BOX-METHOD-DIRECT-CALL-PUBLICATION-REQUIREMENT-DESIGN-001
+selects B-lite: user-box direct method calls are owned by
+user_box_method_routes plus thin_entry_selections, accept product-compatible
+public receiver carriers, and must not be forced into LocalFastPathFact.
+USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001 updates
+fastpath_gap_inventory to distinguish raw without-fact rows from thin-entry
+covered rows. The active target now reports
+known_receiver_direct_method_route_count=19,
+known_receiver_direct_method_without_fact_count=19,
+known_receiver_direct_method_thin_entry_covered_count=19, and
+known_receiver_direct_method_uncovered_count=0."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1067-USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1069-USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001.md"
 
-latest_card = "USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1067-USER-BOX-METHOD-PHI-PUBLICATION-OWNER-DESIGN-001.md"
-latest_card_summary = """PHI-B-lite is allowed only for same-origin PHI inputs
-whose incoming roots are already Unpublished; this is safe but is not expected
-to unlock the active target. The next design point is whether
-KnownReceiverDirectCall should require Unpublished when no storage/handle bypass
-is performed."""
-current_blocker_token = "USER-BOX-METHOD-DIRECT-CALL-PUBLICATION-REQUIREMENT-DESIGN-001"
+latest_card = "USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1069-USER-BOX-METHOD-THIN-ENTRY-COVERAGE-INVENTORY-001.md"
+latest_card_summary = """B-lite split leaves user-box method direct calls on
+user_box_method_routes plus thin_entry_selections rather than LocalFastPathFact.
+The active object-lifecycle front now has thin_entry_covered_count=19 and
+uncovered_count=0 for user-box known receiver direct method routes."""
+current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-007"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

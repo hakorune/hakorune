@@ -81,13 +81,28 @@ def local_fastpath_fact_sites(function: dict[str, Any]) -> set[tuple[str, str]]:
     return sites
 
 
+def is_user_box_method_thin_entry(row: dict[str, Any]) -> bool:
+    return (
+        str(row.get("surface")) == "user_box_method"
+        and str(row.get("state")) == "candidate"
+        and str(row.get("selected_entry")) == "thin_internal_entry"
+        and str(row.get("manifest_row")) == "user_box_method.known_receiver"
+    )
+
+
+def thin_entry_method_candidate_sites(function: dict[str, Any]) -> set[tuple[str, str]]:
+    return {
+        site_key(row)
+        for row in list_meta(function, "thin_entry_selections")
+        if is_user_box_method_thin_entry(row)
+    }
+
+
 def thin_entry_method_candidate_count(function: dict[str, Any]) -> int:
     return sum(
         1
         for row in list_meta(function, "thin_entry_selections")
-        if str(row.get("surface")) == "user_box_method"
-        and str(row.get("state")) == "candidate"
-        and str(row.get("selected_entry")) == "thin_internal_entry"
+        if is_user_box_method_thin_entry(row)
     )
 
 
@@ -101,10 +116,13 @@ def summarize_function(function: dict[str, Any]) -> dict[str, Any]:
         if is_known_receiver_direct_method(row)
     ]
     fact_sites = local_fastpath_fact_sites(function)
+    thin_entry_sites = thin_entry_method_candidate_sites(function)
     missing = [row for row in routes if site_key(row) not in fact_sites]
+    thin_entry_covered = [row for row in missing if site_key(row) in thin_entry_sites]
+    uncovered = [row for row in missing if site_key(row) not in thin_entry_sites]
     subjects = Counter(
         str(row.get("symbol") or row.get("target_symbol") or "unknown")
-        for row in missing
+        for row in uncovered
     )
     publication_rows = publication_classifications(function)
     publication_states = Counter(str(row.get("publication_state") or "unknown") for row in publication_rows)
@@ -118,6 +136,8 @@ def summarize_function(function: dict[str, Any]) -> dict[str, Any]:
         "known_receiver_direct_method_route_count": len(routes),
         "local_fastpath_fact_count": len(fact_sites),
         "known_receiver_direct_method_without_fact_count": len(missing),
+        "known_receiver_direct_method_thin_entry_covered_count": len(thin_entry_covered),
+        "known_receiver_direct_method_uncovered_count": len(uncovered),
         "thin_entry_method_candidate_count": thin_entry_method_candidate_count(function),
         "user_box_method_publication_classification_count": len(publication_rows),
         "publication_fact_allowed_count": sum(1 for row in publication_rows if bool(row.get("fact_allowed"))),
@@ -136,6 +156,10 @@ def build_report(data: dict[str, Any], method_filter: str | None, front: str) ->
     direct_count = sum(int(row["known_receiver_direct_method_route_count"]) for row in rows)
     fact_count = sum(int(row["local_fastpath_fact_count"]) for row in rows)
     missing_count = sum(int(row["known_receiver_direct_method_without_fact_count"]) for row in rows)
+    thin_entry_covered_count = sum(
+        int(row["known_receiver_direct_method_thin_entry_covered_count"]) for row in rows
+    )
+    uncovered_count = sum(int(row["known_receiver_direct_method_uncovered_count"]) for row in rows)
     thin_count = sum(int(row["thin_entry_method_candidate_count"]) for row in rows)
     publication_count = sum(int(row["user_box_method_publication_classification_count"]) for row in rows)
     publication_allowed_count = sum(int(row["publication_fact_allowed_count"]) for row in rows)
@@ -143,7 +167,7 @@ def build_report(data: dict[str, Any], method_filter: str | None, front: str) ->
     publication_published_count = sum(int(row["publication_published_count"]) for row in rows)
     top = max(
         rows,
-        key=lambda row: int(row["known_receiver_direct_method_without_fact_count"]),
+        key=lambda row: int(row["known_receiver_direct_method_uncovered_count"]),
         default=None,
     )
     blocker_proofs = Counter()
@@ -159,6 +183,8 @@ def build_report(data: dict[str, Any], method_filter: str | None, front: str) ->
         "known_receiver_direct_method_route_count": str(direct_count),
         "local_fastpath_fact_count": str(fact_count),
         "known_receiver_direct_method_without_fact_count": str(missing_count),
+        "known_receiver_direct_method_thin_entry_covered_count": str(thin_entry_covered_count),
+        "known_receiver_direct_method_uncovered_count": str(uncovered_count),
         "thin_entry_method_candidate_count": str(thin_count),
         "user_box_method_publication_classification_count": str(publication_count),
         "publication_fact_allowed_count": str(publication_allowed_count),
@@ -170,7 +196,7 @@ def build_report(data: dict[str, Any], method_filter: str | None, front: str) ->
         "backend_lowering_changed": "0",
         "winner_claim_allowed": "0",
         "top_gap_function": str(top["function"]) if top else "none",
-        "top_gap_count": str(top["known_receiver_direct_method_without_fact_count"]) if top else "0",
+        "top_gap_count": str(top["known_receiver_direct_method_uncovered_count"]) if top else "0",
         "summary": "ok",
         "functions": rows,
     }

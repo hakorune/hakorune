@@ -43,7 +43,10 @@ class FastPathGapInventoryTest(unittest.TestCase):
                         ],
                         "thin_entry_selections": [
                             {
+                                "block": 10,
+                                "instruction_index": 2,
                                 "surface": "user_box_method",
+                                "manifest_row": "user_box_method.known_receiver",
                                 "state": "candidate",
                                 "selected_entry": "thin_internal_entry",
                             }
@@ -69,6 +72,8 @@ class FastPathGapInventoryTest(unittest.TestCase):
         self.assertEqual(rows["known_receiver_direct_method_route_count"], "1")
         self.assertEqual(rows["local_fastpath_fact_count"], "0")
         self.assertEqual(rows["known_receiver_direct_method_without_fact_count"], "1")
+        self.assertEqual(rows["known_receiver_direct_method_thin_entry_covered_count"], "1")
+        self.assertEqual(rows["known_receiver_direct_method_uncovered_count"], "0")
         self.assertEqual(rows["thin_entry_method_candidate_count"], "1")
         self.assertEqual(rows["user_box_method_publication_classification_count"], "1")
         self.assertEqual(rows["publication_fact_allowed_count"], "0")
@@ -77,7 +82,7 @@ class FastPathGapInventoryTest(unittest.TestCase):
             rows["top_publication_blocker_proof"],
             "param_origin_requires_interprocedural_publication_proof",
         )
-        self.assertEqual(rows["function_0_top_missing_subject"], "Page.acquire_usize/1")
+        self.assertEqual(rows["function_0_top_missing_subject"], "none")
         self.assertEqual(rows["fallback_evidence_fact_enabled"], "0")
         self.assertEqual(rows["backend_lowering_changed"], "0")
         self.assertEqual(rows["winner_claim_allowed"], "0")
@@ -126,6 +131,8 @@ class FastPathGapInventoryTest(unittest.TestCase):
         self.assertEqual(rows["known_receiver_direct_method_route_count"], "1")
         self.assertEqual(rows["local_fastpath_fact_count"], "1")
         self.assertEqual(rows["known_receiver_direct_method_without_fact_count"], "0")
+        self.assertEqual(rows["known_receiver_direct_method_thin_entry_covered_count"], "0")
+        self.assertEqual(rows["known_receiver_direct_method_uncovered_count"], "0")
         self.assertEqual(rows["publication_fact_allowed_count"], "1")
         self.assertEqual(rows["top_gap_function"], "Main.runOne/2")
         self.assertEqual(rows["top_gap_count"], "0")
