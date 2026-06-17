@@ -845,18 +845,17 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1029-STRING-SUBSTRING-RESULT-LEN-FACT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1030-FRESH-COMPILER-OWNER-SELECTION-004.md"
 
-latest_card = "STRING-SUBSTRING-RESULT-LEN-FACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1029-STRING-SUBSTRING-RESULT-LEN-FACT-001.md"
-latest_card_summary = """The substring result known-length fact row landed.
-When C ABI exact-AOT emits substring_hii with constant start/end operands, it
-records put_known_string_len(result,end-start). Existing StringLen lowering then
-uses the known-length corridor. For kilo_micro_len_substring_views, ny_main no
-longer calls len_fast_h, result remains 4800016, and lane measurement improves
-ny_kernel_instr from 73806308 to 6267 and ny_kernel_cycles from 30512946 to
-7129. The next step is fresh compiler owner selection."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-004"
+latest_card = "FRESH-COMPILER-OWNER-SELECTION-004"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1030-FRESH-COMPILER-OWNER-SELECTION-004.md"
+latest_card_summary = """Fresh exact-AOT sweep after the substring result length
+fact found no fresh Hako-slower performance owner. The only blocked front is
+kilo_leaf_array_rmw_add1. Direct MIR emits the expected exact seed route, but
+the C ABI exact seed consumer rejects it because it still pins stale instruction
+positions 8/13 while current MIR metadata reports 7/12. This is a compiler
+coverage blocker, not a perf owner."""
+current_blocker_token = "ARRAY-RMW-ADD1-EXACT-SEED-METADATA-CONTRACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
