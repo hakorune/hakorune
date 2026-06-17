@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import asdict, dataclass
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -92,13 +93,83 @@ ROWS: tuple[AuditRow, ...] = (
         action="defer",
         reason="FieldScalarPlan_and_FlattenedNestedFieldPlan_overlap_but_nested_layout_payload_differs",
     ),
+    AuditRow(
+        name="ExactStackObject",
+        kind="merge_candidate",
+        status="passive_variant_no_external_producer",
+        action="defer_to_design",
+        reason="variant_is_SSOT_guarded_but_no_external_code_producer_is_selected",
+    ),
+    AuditRow(
+        name="fastpath_decision_reachability",
+        kind="merge_candidate",
+        status="passive_report_vocabulary",
+        action="defer_to_resolver_or_retire_design",
+        reason="decision_and_reachability_vocabulary_is_report_only_until_resolver_execution_is_enabled",
+    ),
 )
 
 
-def build_report() -> dict[str, object]:
+def _read_rs_files(root: Path) -> list[tuple[Path, str]]:
+    src = root / "src"
+    if not src.exists():
+        return []
+    rows: list[tuple[Path, str]] = []
+    for path in sorted(src.rglob("*.rs")):
+        if "target" in path.parts:
+            continue
+        rows.append((path.relative_to(root), path.read_text(encoding="utf-8")))
+    return rows
+
+
+def _count_token(
+    files: list[tuple[Path, str]],
+    token: str,
+    *,
+    exclude_prefixes: tuple[str, ...] = (),
+    exclude_suffixes: tuple[str, ...] = (),
+) -> int:
+    count = 0
+    for rel, text in files:
+        rel_text = str(rel).replace("\\", "/")
+        if any(rel_text.startswith(prefix) for prefix in exclude_prefixes):
+            continue
+        if any(rel_text.endswith(suffix) for suffix in exclude_suffixes):
+            continue
+        count += text.count(token)
+    return count
+
+
+def usage_inventory(root: Path) -> dict[str, str]:
+    files = _read_rs_files(root)
+    exact_stack_external = _count_token(
+        files,
+        "ExactStackObject",
+        exclude_prefixes=("src/object_storage_plan",),
+    )
+    fastpath_decision_consumers = _count_token(
+        files,
+        "FastPathDecision",
+        exclude_suffixes=("src/object_storage_plan/decision.rs", "src/object_storage_plan/tests.rs"),
+    )
+    fastpath_reachability_consumers = _count_token(
+        files,
+        "FastPathReachability",
+        exclude_suffixes=("src/object_storage_plan/reachability.rs", "src/object_storage_plan/tests.rs"),
+    )
+    return {
+        "exact_stack_object_external_producer_count": str(exact_stack_external),
+        "fastpath_decision_non_test_consumer_count": str(fastpath_decision_consumers),
+        "fastpath_reachability_non_test_consumer_count": str(fastpath_reachability_consumers),
+        "passive_vocab_execution_enabled": "0",
+        "vocab_retire_allowed": "0",
+    }
+
+
+def build_report(repo_root: Path | None = None) -> dict[str, object]:
     keep_count = sum(row.kind == "keep_separate" for row in ROWS)
     merge_count = sum(row.kind == "merge_candidate" for row in ROWS)
-    return {
+    report: dict[str, object] = {
         "output_contract": "hako-object-storage-plan-vocab-audit-v0",
         "source_evidence": "296x-989,296x-990,worker-audit",
         "row_kind": "inventory",
@@ -113,6 +184,9 @@ def build_report() -> dict[str, object]:
         "summary": "ok",
         "rows": [asdict(row) for row in ROWS],
     }
+    if repo_root is not None:
+        report.update(usage_inventory(repo_root))
+    return report
 
 
 def emit_kv(report: dict[str, object]) -> None:
@@ -131,13 +205,14 @@ def emit_kv(report: dict[str, object]) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--format", choices=("kv", "json"), default="kv")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    report = build_report()
+    report = build_report(args.repo_root.resolve())
     if args.format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

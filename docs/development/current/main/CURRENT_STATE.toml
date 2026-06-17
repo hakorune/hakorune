@@ -884,19 +884,26 @@ CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001 makes the residue explicit:
 production_entry_count=4, known_entry_count=4, unknown_entry_count=0, and
 single_transform_owner=1 while centralized_schedule_owner remains 0. No
 canonicalize entry is removed or reordered; the next step is a separate owner
-design row if this cleanup is reopened."""
+design row if this cleanup is reopened.
+OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001 extends the vocabulary audit
+for the remaining passive residue: exact_stack_object_external_producer_count=0,
+fastpath_decision_non_test_consumer_count>=1, and
+fastpath_reachability_non_test_consumer_count=0. It keeps resolver/backend
+execution disabled and requires a separate retire/design row before deletion or
+merge."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1043-CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1044-OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001.md"
 
-latest_card = "CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1043-CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001.md"
-latest_card_summary = """Callsite canonicalize entry inventory is landed. The
-read-only tool reports four known production schedule entries, one transform
-owner under src/mir/passes/callsite_canonicalize, no unknown production entries,
-and no behavior or schedule refactor."""
+latest_card = "OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1044-OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001.md"
+latest_card_summary = """Object storage passive vocabulary usage inventory is
+landed. The read-only audit reports ExactStackObject has no external code
+producer, FastPathDecision has non-test inventory consumers, and
+FastPathReachability has no non-test execution consumer; retire/merge remains a
+separate design decision."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
