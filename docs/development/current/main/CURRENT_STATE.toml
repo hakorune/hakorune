@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-16"
+date = "2026-06-17"
 
 active_lane = "CURRENT-ENTRY-MANUAL-SYNC-001 manual/current-entry synchronization"
 active_lane_status = """Compiler foundation is paused at
@@ -845,16 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1002-OBJECT-SITE-LOCATION-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1007-SUBSTRING-CONCAT-EXACT-SEED-CLOSED-FORM-RETURN-CLOSEOUT-001.md"
 
-latest_card = "OBJECT-SITE-LOCATION-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1002-OBJECT-SITE-LOCATION-CLOSEOUT-001.md"
-latest_card_summary = """ObjectSiteLocation closeout confirms the selected
-publication site, LocalFastPathFact, and LocalPublicationInventoryRow field
-migrations are complete. MIR JSON block/instruction_index shape is preserved
-through accessors, backend lowering and MIRBuilder object management are
-unchanged, and reason enum / scalar descriptor merges remain deferred."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-001"
+latest_card = "SUBSTRING-CONCAT-EXACT-SEED-CLOSED-FORM-RETURN-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1007-SUBSTRING-CONCAT-EXACT-SEED-CLOSED-FORM-RETURN-CLOSEOUT-001.md"
+latest_card_summary = """Substring concat exact-seed closed-form closeout
+confirms the selected exact_seed_dead_byte_copy_loop owner is closed for
+kilo_micro_substring_concat. The active route now emits a direct constant
+return, ny_main no longer contains the stack byte-copy loop, and resident
+kernel cycles dropped from 4.8M to 4.3K. Product runtime, route priority,
+exact-seed retirement, and benchmark/source/helper-name branches remain
+unchanged."""
+current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-AFTER-SUBSTRING-CONCAT-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

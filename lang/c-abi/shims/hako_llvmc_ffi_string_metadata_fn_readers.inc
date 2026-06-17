@@ -65,6 +65,14 @@ static int hako_llvmc_string_corridor_has_stable_length_scalar_base_fn(
   iter = yyjson_obj_iter_with(relations);
   while ((key = yyjson_obj_iter_next(&iter))) {
     yyjson_val* arr = yyjson_obj_iter_get_val(key);
+    const char* owner_key =
+        (key && yyjson_is_str(key)) ? yyjson_get_str(key) : NULL;
+    char* owner_end = NULL;
+    long long owner_value = owner_key ? strtoll(owner_key, &owner_end, 10) : 0;
+    int owner_key_valid =
+        owner_key && owner_end && *owner_end == '\0' && owner_value > 0;
+    int phi_carry_base_to_owner = 0;
+    int owner_has_stable_length_scalar = 0;
     size_t i;
     if (!(arr && yyjson_is_arr(arr))) continue;
     for (i = 0; i < yyjson_arr_size(arr); i++) {
@@ -74,18 +82,34 @@ static int hako_llvmc_string_corridor_has_stable_length_scalar_base_fn(
       yyjson_val* window_val = relation ? yyjson_obj_get(relation, "window_contract") : NULL;
       const char* actual_window =
           (window_val && yyjson_is_str(window_val)) ? yyjson_get_str(window_val) : NULL;
+      const char* kind =
+          (kind_val && yyjson_is_str(kind_val)) ? yyjson_get_str(kind_val) : NULL;
+      long long relation_base =
+          (base_val && yyjson_is_num(base_val)) ? (long long)yyjson_get_sint(base_val) : 0;
 
-      if (!(kind_val && yyjson_is_str(kind_val) &&
-            !strcmp(yyjson_get_str(kind_val), "stable_length_scalar") &&
-            base_val && yyjson_is_num(base_val) &&
-            (long long)yyjson_get_sint(base_val) == base_value)) {
-        continue;
+      if (kind && !strcmp(kind, "stable_length_scalar") &&
+          relation_base == base_value) {
+        if (window_contract && (!actual_window || strcmp(actual_window, window_contract))) {
+          continue;
+        }
+        return 1;
       }
-      if (window_contract && (!actual_window || strcmp(actual_window, window_contract))) {
-        continue;
+
+      if (owner_key_valid && kind && !strcmp(kind, "phi_carry_base") &&
+          relation_base == base_value) {
+        if (!window_contract || (actual_window && !strcmp(actual_window, window_contract))) {
+          phi_carry_base_to_owner = 1;
+        }
       }
-      return 1;
+
+      if (owner_key_valid && kind && !strcmp(kind, "stable_length_scalar") &&
+          relation_base == owner_value) {
+        if (actual_window && !strcmp(actual_window, "preserve_plan_window")) {
+          owner_has_stable_length_scalar = 1;
+        }
+      }
     }
+    if (phi_carry_base_to_owner && owner_has_stable_length_scalar) return 1;
   }
 
   return 0;
