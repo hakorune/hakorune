@@ -71,6 +71,7 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
             "1",
         ),
         ("local_known_receiver_direct_call_shadow_defined", "1"),
+        ("local_known_receiver_direct_call_shadow_decision_defined", "1"),
         (
             "local_known_receiver_direct_call_shadow_backend_consumable",
             "0",

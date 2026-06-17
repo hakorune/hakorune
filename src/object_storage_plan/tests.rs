@@ -120,6 +120,10 @@ fn report_fields_keep_execution_disabled() {
     )));
     assert!(fields.contains(&("local_known_receiver_direct_call_shadow_defined", "1")));
     assert!(fields.contains(&(
+        "local_known_receiver_direct_call_shadow_decision_defined",
+        "1"
+    )));
+    assert!(fields.contains(&(
         "local_known_receiver_direct_call_shadow_backend_consumable",
         "0"
     )));
@@ -428,6 +432,7 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
         Some(ObjectStoragePlanId(5)),
     );
     assert!(eligible.candidate_fact.is_some());
+    assert!(eligible.decision.is_allow());
     assert_eq!(eligible.fallback_reason, None);
 
     let missing_route = LocalKnownReceiverDirectCallShadowRow::new(
@@ -437,16 +442,24 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
     );
     assert!(missing_route.candidate_fact.is_none());
     assert_eq!(
+        missing_route.decision.deny_reason(),
+        Some(LocalFastPathFallbackReason::RoutePlanMissing)
+    );
+    assert_eq!(
         missing_route.fallback_reason,
-        Some(LocalFastPathFallbackReason::DynamicRoute)
+        Some(LocalFastPathFallbackReason::RoutePlanMissing)
     );
 
     let missing_storage =
         LocalKnownReceiverDirectCallShadowRow::new(eligible_inventory, Some(RoutePlanId(4)), None);
     assert!(missing_storage.candidate_fact.is_none());
     assert_eq!(
+        missing_storage.decision.deny_reason(),
+        Some(LocalFastPathFallbackReason::ObjectPlanMissing)
+    );
+    assert_eq!(
         missing_storage.fallback_reason,
-        Some(LocalFastPathFallbackReason::GenericStorage)
+        Some(LocalFastPathFallbackReason::ObjectPlanMissing)
     );
 
     let maybe_published_inventory = LocalPublicationInventoryRow::new(
@@ -463,6 +476,10 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
         Some(ObjectStoragePlanId(10)),
     );
     assert!(maybe_published.candidate_fact.is_none());
+    assert_eq!(
+        maybe_published.decision.deny_reason(),
+        Some(LocalFastPathFallbackReason::MaybePublishedBeforeSite)
+    );
     assert_eq!(
         maybe_published.fallback_reason,
         Some(LocalFastPathFallbackReason::MaybePublishedBeforeSite)

@@ -865,19 +865,22 @@ or changing backend behavior. FASTPATH-DENY-OWNER-MAPPING-001 maps every
 passive deny reason to a next owner lane so failed eligibility reports do not
 turn into guesswork. FASTPATH-ALIAS-PUBLICATION-MVP-001 adds report-only linear
 alias-chain inputs and a 5-hop fixture that feeds publication inventory without
-backend consumption."""
+backend consumption. FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001 makes the
+existing KnownReceiver shadow row emit FastPathDecision while keeping backend
+behavior and resolver execution unchanged."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1037-FASTPATH-ALIAS-PUBLICATION-MVP-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1038-FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md"
 
-latest_card = "FASTPATH-ALIAS-PUBLICATION-MVP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1037-FASTPATH-ALIAS-PUBLICATION-MVP-001.md"
-latest_card_summary = """Report-only alias/publication resolver inputs are in
-place. A linear 5-hop alias-chain fixture feeds LocalPublicationInventoryRow
-without backend consumption. Resolver execution remains disabled."""
-current_blocker_token = "FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001"
+latest_card = "FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1038-FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-SHADOW-001.md"
+latest_card_summary = """KnownReceiverDirectCall shadow rows now expose
+FastPathDecision while keeping candidate_fact/fallback_reason compatibility.
+Missing route and object plan inputs map to precise passive deny reasons.
+Resolver execution and backend behavior remain unchanged."""
+current_blocker_token = "FASTPATH-REACHABILITY-LEDGER-POSTHOC-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

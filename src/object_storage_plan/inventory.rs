@@ -1,3 +1,4 @@
+use super::decision::FastPathDecision;
 use super::fastpath::{LocalFastPathFact, LocalFastPathFallbackReason};
 use super::ids::{
     AliasClassId, LocalFastPathSiteId, ObjectBasicBlockId, ObjectInstructionIndex,
@@ -20,6 +21,7 @@ pub struct LocalKnownReceiverDirectCallShadowRow {
     pub inventory: LocalPublicationInventoryRow,
     pub route_plan: Option<RoutePlanId>,
     pub storage_plan: Option<ObjectStoragePlanId>,
+    pub decision: FastPathDecision,
     pub candidate_fact: Option<LocalFastPathFact>,
     pub fallback_reason: Option<LocalFastPathFallbackReason>,
 }
@@ -81,12 +83,12 @@ impl LocalKnownReceiverDirectCallShadowRow {
             .or_else(|| {
                 route_plan
                     .is_none()
-                    .then_some(LocalFastPathFallbackReason::DynamicRoute)
+                    .then_some(LocalFastPathFallbackReason::RoutePlanMissing)
             })
             .or_else(|| {
                 storage_plan
                     .is_none()
-                    .then_some(LocalFastPathFallbackReason::GenericStorage)
+                    .then_some(LocalFastPathFallbackReason::ObjectPlanMissing)
             });
 
         let candidate_fact = match (
@@ -109,11 +111,17 @@ impl LocalKnownReceiverDirectCallShadowRow {
             }
             _ => None,
         };
+        let decision = match (candidate_fact.clone(), fallback_reason) {
+            (Some(fact), None) => FastPathDecision::allow(fact),
+            (_, Some(reason)) => FastPathDecision::deny(reason),
+            (None, None) => FastPathDecision::deny(LocalFastPathFallbackReason::UnknownValue),
+        };
 
         Self {
             inventory,
             route_plan,
             storage_plan,
+            decision,
             candidate_fact,
             fallback_reason,
         }
