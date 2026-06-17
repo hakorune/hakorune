@@ -845,19 +845,17 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1027-LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1028-LEN-SUBSTRING-VIEWS-POST-COVERAGE-OWNER-SELECTION-001.md"
 
-latest_card = "LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1027-LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001.md"
-latest_card_summary = """The selected coverage blocker is fixed by one narrow
-accepted shape: StringBox.substring with a redundant String receiver carrier in
-the argument list now produces generic_method.substring metadata with logical
-arity=2, and the C ABI normalizer strips the same carrier only for
-generic_method.substring. The target front now builds and runs under pure-first
-with Result=4800016 and aot_status=ok. This is coverage, not an optimization
-keeper; the now-visible Hako-slow kernel moves to post-coverage owner
-selection."""
-current_blocker_token = "LEN-SUBSTRING-VIEWS-POST-COVERAGE-OWNER-SELECTION-001"
+latest_card = "LEN-SUBSTRING-VIEWS-POST-COVERAGE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1028-LEN-SUBSTRING-VIEWS-POST-COVERAGE-OWNER-SELECTION-001.md"
+latest_card_summary = """After the substring coverage fix, the target front is
+AOT-buildable and exposes a high-confidence owner: ny_main creates two
+substring_hii results before the loop, then calls len_fast_h twice inside the
+loop. perf reports top_symbol=nyash.string.len_fast_h at 99.15%. The selected
+next seam is substring_result_known_length_fact, not helper-internal
+optimization or runtime semantics change."""
+current_blocker_token = "STRING-SUBSTRING-RESULT-LEN-FACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
