@@ -879,20 +879,24 @@ without a design row. FASTPATH-GAP-INVENTORY-001 adds a read-only MIR JSON
 inventory for known receiver direct user-box method routes that have not become
 positive LocalFastPathFact entries. The current mimalloc object-lifecycle MIR
 shows 19 gaps in HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1 and
-4 gaps in Main.runOne/2, with backend lowering and winner claim still closed."""
+4 gaps in Main.runOne/2, with backend lowering and winner claim still closed.
+CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001 makes the residue explicit:
+production_entry_count=4, known_entry_count=4, unknown_entry_count=0, and
+single_transform_owner=1 while centralized_schedule_owner remains 0. No
+canonicalize entry is removed or reordered; the next step is a separate owner
+design row if this cleanup is reopened."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1042-FASTPATH-GAP-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1043-CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001.md"
 
-latest_card = "FASTPATH-GAP-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1042-FASTPATH-GAP-INVENTORY-001.md"
-latest_card_summary = """Fastpath gap inventory is landed. The read-only tool
-reports known receiver direct user-box method routes that lack matching
-LocalFastPathFact entries; mimalloc object-lifecycle currently shows 19 gaps in
-objectLifecycleSmallAlloc/1 and 4 gaps in Main.runOne/2. Backend behavior and
-winner claims remain unchanged."""
+latest_card = "CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1043-CALLSITE-CANONICALIZE-ENTRY-INVENTORY-001.md"
+latest_card_summary = """Callsite canonicalize entry inventory is landed. The
+read-only tool reports four known production schedule entries, one transform
+owner under src/mir/passes/callsite_canonicalize, no unknown production entries,
+and no behavior or schedule refactor."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
