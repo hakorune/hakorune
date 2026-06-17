@@ -42,6 +42,9 @@
       struct ArrayTextObserverStoreRegionRouteMetadata active_observer_store_region;
       int active_observer_store_region_available = 0;
       int active_observer_store_region_emitted = 0;
+      struct ArrayTextObserverStoreLenSumRegionRouteMetadata
+          active_observer_store_len_sum_region;
+      int active_observer_store_len_sum_region_available = 0;
       struct ArrayTextLoopSessionPlanMetadata active_loop_session_region;
       int active_loop_session_region_emitted = 0;
       struct ArrayTextIndexOfConstRegionPlanMetadata active_indexof_const_region;
@@ -51,6 +54,10 @@
       memset(&active_region_executor, 0, sizeof(active_region_executor));
       memset(&active_combined_region, 0, sizeof(active_combined_region));
       memset(&active_observer_store_region, 0, sizeof(active_observer_store_region));
+      memset(
+          &active_observer_store_len_sum_region,
+          0,
+          sizeof(active_observer_store_len_sum_region));
       memset(&active_loop_session_region, 0, sizeof(active_loop_session_region));
       memset(&active_indexof_const_region, 0, sizeof(active_indexof_const_region));
       memset(&active_string_dead_text_region, 0, sizeof(active_string_dead_text_region));
@@ -59,6 +66,11 @@
       active_observer_store_region_available =
           match_array_text_observer_store_region_metadata_any(
               &active_observer_store_region);
+      active_observer_store_len_sum_region_available =
+          match_array_text_observer_store_len_sum_region_metadata_any(
+              &active_observer_store_len_sum_region);
+      (void)active_observer_store_len_sum_region_available;
+      (void)active_observer_store_len_sum_region;
       auto void emit_array_text_region_executor_call(
           const struct ArrayTextResidenceSessionRouteMetadata* region) {
         if (!region) return;
