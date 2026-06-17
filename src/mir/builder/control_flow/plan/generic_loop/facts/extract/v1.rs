@@ -28,7 +28,7 @@ use super::super::super::body_check::step_validation::{
 use super::super::super::facts_helpers::reject_or_none;
 use super::super::super::facts_types::GenericLoopV1Facts;
 use super::collection::{
-    body_has_break_or_continue_stmt, collect_loop_var_candidates_from_body, has_continue_recursive,
+    body_has_break_or_continue_stmt, collect_loop_var_candidates_from_body,
 };
 
 #[derive(Default)]
@@ -168,7 +168,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
         {
             body_lowering_policy = BodyLoweringPolicy::RecipeOnly;
         }
-        if shape_id.is_none() && body_exit_allowed.is_none() {
+        if !use_body_managed_step && shape_id.is_none() && body_exit_allowed.is_none() {
             if check_body_generic_v0(&flat_body, loop_var, &loop_increment).is_some() {
                 reject.v0_guard += 1;
                 continue;
@@ -347,67 +347,8 @@ fn resolve_step_for_candidate(
 pub(in crate::mir::builder) fn has_generic_loop_v1_recipe_hint(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> bool {
-    let flat_body = flatten_scope_boxes(body);
-    let allow_var_step = true;
-
-    let Some(canon) = canon_condition_for_generic_loop_v0(condition, true) else {
-        return false;
-    };
-
-    let mut candidates = canon.loop_var_candidates;
-
-    if candidates.is_empty() {
-        candidates = collect_loop_var_candidates_from_body(&flat_body);
-    }
-    if candidates.is_empty() {
-        return false;
-    }
-
-    for loop_var in &candidates {
-        let Some(loop_increment) =
-            canon_loop_increment_for_var(&flat_body, loop_var, allow_var_step)
-        else {
-            continue;
-        };
-
-        let step_decision = classify_step_placement(&flat_body, loop_var, &loop_increment);
-        let placement_ok = match step_decision.placement {
-            Some(StepPlacement::Last) => true,
-            Some(StepPlacement::InContinueIf(_)) | Some(StepPlacement::InBreakElseIf(_)) => true,
-            Some(StepPlacement::InBody(_)) => false,
-            None => false,
-        };
-        if !placement_ok {
-            continue;
-        }
-
-        let has_nested_loop = flat_body
-            .iter()
-            .any(|stmt| matches!(stmt, ASTNode::Loop { .. } | ASTNode::LoopRange { .. }));
-        if has_nested_loop {
-            continue;
-        }
-        let has_continue = flat_body.iter().any(has_continue_recursive);
-        if has_continue {
-            continue;
-        }
-
-        let body_for_recipe: Vec<ASTNode> = flat_body
-            .iter()
-            .filter(|stmt| !matches_loop_increment(stmt, loop_var, &loop_increment))
-            .cloned()
-            .collect();
-        let body_exit_allowed = if body_for_recipe.is_empty() {
-            true
-        } else {
-            try_build_exit_allowed_block_recipe(&body_for_recipe, false).is_some()
-        };
-        if body_exit_allowed {
-            return true;
-        }
-    }
-    false
+) -> Result<bool, Freeze> {
+    Ok(try_extract_generic_loop_v1_facts(condition, body)?.is_some())
 }
 
 fn preferred_loop_var_from_condition(condition: &ASTNode) -> Option<String> {
@@ -449,11 +390,12 @@ fn should_use_body_managed_step(
     preferred_loop_var: Option<&str>,
     body: &[ASTNode],
 ) -> bool {
-    if preferred_loop_var != Some(loop_var) {
-        return false;
+    if preferred_loop_var == Some(loop_var) {
+        return has_top_level_loop_var_assignment(body, loop_var)
+            || body.iter().any(ASTNode::contains_break_continue)
+            || has_receiver_method_call_recursive(body, loop_var);
     }
-    has_top_level_loop_var_assignment(body, loop_var)
-        || body.iter().any(ASTNode::contains_break_continue)
+    has_receiver_method_call_recursive(body, loop_var)
 }
 
 fn has_top_level_loop_var_assignment(body: &[ASTNode], loop_var: &str) -> bool {
@@ -464,4 +406,73 @@ fn has_top_level_loop_var_assignment(body: &[ASTNode], loop_var: &str) -> bool {
                 if matches!(target.as_ref(), ASTNode::Variable { name, .. } if name == loop_var)
         )
     })
+}
+
+fn has_receiver_method_call_recursive(body: &[ASTNode], loop_var: &str) -> bool {
+    body.iter()
+        .any(|stmt| stmt_has_receiver_method_call(stmt, loop_var))
+}
+
+fn stmt_has_receiver_method_call(stmt: &ASTNode, loop_var: &str) -> bool {
+    match stmt {
+        ASTNode::MethodCall {
+            object,
+            arguments,
+            ..
+        } => {
+            receiver_name_matches_loop_var(object.as_ref(), loop_var)
+                || arguments
+                    .iter()
+                    .any(|arg| stmt_has_receiver_method_call(arg, loop_var))
+        }
+        ASTNode::Local { initial_values, .. } => initial_values
+            .iter()
+            .flatten()
+            .any(|expr| stmt_has_receiver_method_call(expr.as_ref(), loop_var)),
+        ASTNode::Assignment { target, value, .. } => {
+            stmt_has_receiver_method_call(target.as_ref(), loop_var)
+                || stmt_has_receiver_method_call(value.as_ref(), loop_var)
+        }
+        ASTNode::If {
+            condition,
+            then_body,
+            else_body,
+            ..
+        } => {
+            stmt_has_receiver_method_call(condition.as_ref(), loop_var)
+                || then_body
+                    .iter()
+                    .any(|inner| stmt_has_receiver_method_call(inner, loop_var))
+                || else_body.as_ref().is_some_and(|body| {
+                    body.iter()
+                        .any(|inner| stmt_has_receiver_method_call(inner, loop_var))
+                })
+        }
+        ASTNode::Loop { condition, body, .. } => {
+            stmt_has_receiver_method_call(condition.as_ref(), loop_var)
+                || body
+                    .iter()
+                    .any(|inner| stmt_has_receiver_method_call(inner, loop_var))
+        }
+        ASTNode::Program { statements, .. } | ASTNode::ScopeBox { body: statements, .. } => statements
+            .iter()
+            .any(|inner| stmt_has_receiver_method_call(inner, loop_var)),
+        ASTNode::UnaryOp { operand, .. } => stmt_has_receiver_method_call(operand.as_ref(), loop_var),
+        ASTNode::BinaryOp { left, right, .. } => {
+            stmt_has_receiver_method_call(left.as_ref(), loop_var)
+                || stmt_has_receiver_method_call(right.as_ref(), loop_var)
+        }
+        ASTNode::FunctionCall { arguments, .. } => arguments
+            .iter()
+            .any(|arg| stmt_has_receiver_method_call(arg, loop_var)),
+        _ => false,
+    }
+}
+
+fn receiver_name_matches_loop_var(object: &ASTNode, loop_var: &str) -> bool {
+    match object {
+        ASTNode::Variable { name, .. } => name == loop_var,
+        ASTNode::Me { .. } => loop_var == "me",
+        _ => false,
+    }
 }

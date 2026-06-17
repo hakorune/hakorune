@@ -107,9 +107,16 @@ fn try_build_loop_facts_inner(
     // Phase 29bq: Skip generic_loop_v0/v1 extraction when loop_cond_* routes matched.
     // generic_loop_v0 would freeze on shapes like ExitIfTree that loop_cond_break_continue
     // can handle. By skipping when we have a specific match, we avoid the freeze.
-    let has_generic_v1_recipe_hint = loop_cond_break_continue
-        .as_ref()
-        .is_some_and(|_| has_generic_loop_v1_recipe_hint(condition, body));
+    let has_generic_v1_recipe_hint = if loop_cond_break_continue.is_some() {
+        has_generic_loop_v1_recipe_hint(condition, body)?
+    } else {
+        false
+    };
+    let loop_cond_break_continue = if has_generic_v1_recipe_hint {
+        None
+    } else {
+        loop_cond_break_continue
+    };
     let loop_cond_break_blocks_generic = loop_cond_break_continue.as_ref().is_some_and(|facts| {
         if has_generic_v1_recipe_hint {
             return false;

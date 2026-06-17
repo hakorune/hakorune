@@ -8,6 +8,7 @@ use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::alloc_generic_loop_v0_skeleton;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
+use crate::mir::policies::BodyLoweringPolicy;
 
 impl RecipeComposer {
     /// Compose generic_loop_v0 facts into LoweredRecipe without the normalizer.
@@ -66,10 +67,15 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=generic_loop_v1 path=direct_pipeline");
         }
 
-        // Planner-required contracts expect a recipe to exist before lowering.
-        if generic_loop_v1.body_exit_allowed.is_none() {
+        // ExitAllowed lowering needs its prebuilt recipe. RecipeOnly v1 shapes
+        // may still lower through the v1 pipeline without an ExitAllowed recipe.
+        if matches!(
+            generic_loop_v1.body_lowering_policy,
+            BodyLoweringPolicy::ExitAllowed { .. }
+        ) && generic_loop_v1.body_exit_allowed.is_none()
+        {
             return Err(Freeze::contract(
-                "generic_loop_v1 recipe route requires body_exit_allowed",
+                "generic_loop_v1 ExitAllowed route requires body_exit_allowed",
             ));
         }
 

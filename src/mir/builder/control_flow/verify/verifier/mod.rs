@@ -15,7 +15,7 @@
 //! ├── position_validators.rs    - Exit position enforcement (V11)
 //! ├── plan_validators.rs        - Seq/If/BranchN/Exit validation (V3-V6, V11)
 //! ├── effect_validators.rs      - Effect validation (V2, V6, V12 leaf checks)
-//! ├── loop_validators.rs        - Loop structure validation (V2, V7-V10, V10b, V14)
+//! ├── loop_validators.rs        - Loop structure validation (V2, V8-V10, V10b, V14)
 //! └── loop_body_validators.rs   - Loop body tree validation (V12)
 //! ```
 //!
@@ -29,7 +29,7 @@
 //! - **V6**: ValueId validity (all ValueIds pre-generated, non-empty names)
 //!
 //! ## Loop-Specific Invariants
-//! - **V7**: PHI non-empty (loops require at least one carrier)
+//! - **V7**: historical; side-effect-only loops may have no PHI carriers
 //! - **V8**: Frag entry matches header_bb (loop entry SSOT)
 //! - **V9**: block_effects contains header_bb
 //! - **V10**: body_bb effects go in loop_plan.body (block_effects[body_bb] must be empty)
@@ -53,7 +53,7 @@
 //!
 //! All errors follow the format: `[Vx][reason=...] description`
 //! - `Vx`: Invariant number (V2-V14)
-//! - `reason`: Stable error code (e.g., `loop_phi_empty`, `exit_not_last`)
+//! - `reason`: Stable error code (e.g., `exit_not_last`)
 //! - `description`: Human-readable details
 //!
 //! # Design Rationale

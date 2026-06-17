@@ -1,13 +1,13 @@
 //! Phase 29bq+: Loop validation logic
 //!
 //! # Responsibilities
-//! - Verify loop structure invariants (V2, V7-V10, V10b, V14)
+//! - Verify loop structure invariants (V2, V8-V10, V10b, V14)
 //! - Validate PHI nodes and carrier completeness
 //! - Check loop wiring and pipeline correctness
 //!
 //! # Invariants
 //! - V2: Condition validity (cond_loop, cond_match must be valid ValueIds)
-//! - V7: PHI non-empty (loops must have at least one carrier)
+//! - V7: historical; side-effect-only loops may have no PHI carriers
 //! - V8: Frag entry matches header_bb
 //! - V9: block_effects contains header_bb
 //! - V10: body_bb effects must be empty in block_effects (use loop_plan.body instead)
@@ -24,7 +24,7 @@ use crate::mir::builder::control_flow::lower::{
 ///
 /// Invariants:
 /// - V2: Condition validity (cond_loop, cond_match)
-/// - V7: PHI non-empty (at least one carrier)
+/// - V7: historical; side-effect-only loops may have no PHI carriers
 /// - V8: Frag entry matches header_bb
 /// - V9: block_effects contains header_bb
 pub(super) fn verify_loop(
@@ -35,18 +35,6 @@ pub(super) fn verify_loop(
     // V2: Condition validity (basic check - ValueId should be non-zero for safety)
     primitives::verify_value_id_basic(loop_plan.cond_loop, depth, "cond_loop")?;
     primitives::verify_value_id_basic(loop_plan.cond_match, depth, "cond_match")?;
-
-    // V7: PHI non-empty (loops must have at least one carrier)
-    if loop_plan.phis.is_empty() {
-        return Err(primitives::err(
-            "V7",
-            "loop_phi_empty",
-            format!(
-                "Loop at depth {} has no PHI nodes (loops require at least one carrier)",
-                depth
-            ),
-        ));
-    }
 
     // V8: Frag entry matches header_bb (loop entry SSOT)
     if loop_plan.frag.entry != loop_plan.header_bb {

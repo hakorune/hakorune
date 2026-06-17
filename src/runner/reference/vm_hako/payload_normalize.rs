@@ -31,6 +31,7 @@ pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, Strin
         .cloned()
         .ok_or_else(|| "MissingBlocks".to_string())?;
     let blocks = prune_dead_string_handle_consts(&blocks);
+    let blocks = normalize_global_mir_calls(&blocks);
     let blocks = normalize_map_method_mir_calls(&blocks);
     let (blocks, used_dynamic_bridge) = normalize_dynamic_method_calls(&blocks);
     let blocks = normalize_print_calls(&blocks);
@@ -269,12 +270,11 @@ fn compact_payload_function(func: &Value) -> Value {
             .cloned()
             .unwrap_or_else(|| Value::Array(Vec::new())),
     );
-    out.insert(
-        "blocks".to_string(),
-        func.get("blocks")
-            .cloned()
-            .unwrap_or_else(|| Value::Array(Vec::new())),
-    );
+    let blocks = func
+        .get("blocks")
+        .cloned()
+        .unwrap_or_else(|| Value::Array(Vec::new()));
+    out.insert("blocks".to_string(), normalize_global_mir_calls(&blocks));
     if let Some(entry_block) = func.get("entry_block").cloned() {
         out.insert("entry_block".to_string(), entry_block);
     }
@@ -357,6 +357,61 @@ fn resolve_return_model_by_base_name(
         }
     }
     matched
+}
+
+fn normalize_global_mir_calls(blocks: &Value) -> Value {
+    let Some(blocks_arr) = blocks.as_array() else {
+        return blocks.clone();
+    };
+
+    let mut out_blocks = Vec::new();
+    for block in blocks_arr {
+        let Some(mut obj) = block.as_object().cloned() else {
+            out_blocks.push(block.clone());
+            continue;
+        };
+        let Some(insts) = block.get("instructions").and_then(|v| v.as_array()) else {
+            out_blocks.push(block.clone());
+            continue;
+        };
+        let mut rewritten = Vec::new();
+        for inst in insts {
+            rewritten.push(normalize_global_mir_call_inst(inst));
+        }
+        obj.insert("instructions".to_string(), Value::Array(rewritten));
+        out_blocks.push(Value::Object(obj));
+    }
+    Value::Array(out_blocks)
+}
+
+fn normalize_global_mir_call_inst(inst: &Value) -> Value {
+    if inst.get("op").and_then(|v| v.as_str()) != Some("mir_call") {
+        return inst.clone();
+    }
+    let Some(payload) = inst.get("mir_call") else {
+        return inst.clone();
+    };
+    let Some(callee) = payload.get("callee") else {
+        return inst.clone();
+    };
+    if callee.get("type").and_then(|v| v.as_str()) != Some("Global") {
+        return inst.clone();
+    }
+
+    let mut out = serde_json::Map::new();
+    out.insert("op".to_string(), json!("call"));
+    out.insert("callee".to_string(), callee.clone());
+    out.insert(
+        "args".to_string(),
+        payload
+            .get("args")
+            .cloned()
+            .unwrap_or_else(|| Value::Array(Vec::new())),
+    );
+    if let Some(dst) = inst.get("dst") {
+        out.insert("dst".to_string(), dst.clone());
+    }
+    Value::Object(out)
 }
 
 fn canonical_print_externcall(arg0: u64) -> Value {

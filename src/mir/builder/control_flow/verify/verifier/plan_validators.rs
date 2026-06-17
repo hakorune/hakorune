@@ -187,13 +187,6 @@ pub(super) fn verify_exit(
                 ));
             }
             position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-            if phi_args.is_empty() {
-                return Err(primitives::err(
-                    "V3",
-                    "break_phi_args_empty",
-                    format!("BreakWithPhiArgs has empty phi_args at depth {}", depth),
-                ));
-            }
             for (dst, src) in phi_args {
                 primitives::verify_value_id_basic(*dst, depth, "BreakWithPhiArgs.phi_dst")?;
                 primitives::verify_value_id_basic(*src, depth, "BreakWithPhiArgs.phi_src")?;
@@ -221,13 +214,6 @@ pub(super) fn verify_exit(
                 ));
             }
             position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-            if phi_args.is_empty() {
-                return Err(primitives::err(
-                    "V3",
-                    "continue_phi_args_empty",
-                    format!("ContinueWithPhiArgs has empty phi_args at depth {}", depth),
-                ));
-            }
             for (dst, src) in phi_args {
                 primitives::verify_value_id_basic(*dst, depth, "ContinueWithPhiArgs.phi_dst")?;
                 primitives::verify_value_id_basic(*src, depth, "ContinueWithPhiArgs.phi_src")?;

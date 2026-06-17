@@ -2,7 +2,7 @@
 mod tests {
     use super::super::v0::try_extract_generic_loop_v0_facts;
     use super::super::v1::try_extract_generic_loop_v1_facts;
-    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
     use crate::mir::policies::BodyLoweringPolicy;
     use std::ffi::OsString;
     use std::sync::Mutex;
@@ -102,6 +102,25 @@ mod tests {
             object: Box::new(var(obj)),
             method: method.to_string(),
             arguments: vec![],
+            span: Span::unknown(),
+        }
+    }
+
+    fn me_method_call(method: &str) -> ASTNode {
+        ASTNode::MethodCall {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            method: method.to_string(),
+            arguments: vec![],
+            span: Span::unknown(),
+        }
+    }
+
+    fn not(expr: ASTNode) -> ASTNode {
+        ASTNode::UnaryOp {
+            operator: UnaryOperator::Not,
+            operand: Box::new(expr),
             span: Span::unknown(),
         }
     }
@@ -281,6 +300,57 @@ mod tests {
             assert!(matches!(
                 facts.body_lowering_policy,
                 BodyLoweringPolicy::RecipeOnly
+            ));
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_accepts_receiver_managed_scanner_step() {
+        with_joinir_env(None, None, || {
+            let cond = bin(
+                BinaryOperator::And,
+                not(me_method_call("is_eof")),
+                me_method_call("is_alphanumeric_or_underscore"),
+            );
+            let body = vec![me_method_call("advance")];
+
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("no freeze")
+                .expect("scanner-style receiver step should match");
+
+            assert_eq!(facts.loop_var, "me");
+            assert!(matches!(
+                facts.loop_increment,
+                ASTNode::Variable { ref name, .. } if name == "me"
+            ));
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_accepts_receiver_step_from_local_initializer() {
+        with_joinir_env(None, None, || {
+            let cond = not(ASTNode::MethodCall {
+                object: Box::new(ASTNode::FieldAccess {
+                    object: Box::new(ASTNode::Me {
+                        span: Span::unknown(),
+                    }),
+                    field: "scanner".to_string(),
+                    span: Span::unknown(),
+                }),
+                method: "is_eof".to_string(),
+                arguments: vec![],
+                span: Span::unknown(),
+            });
+            let body = vec![local_init("token", me_method_call("next_token"))];
+
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("no freeze")
+                .expect("local-initializer receiver step should match");
+
+            assert_eq!(facts.loop_var, "me");
+            assert!(matches!(
+                facts.loop_increment,
+                ASTNode::Variable { ref name, .. } if name == "me"
             ));
         });
     }

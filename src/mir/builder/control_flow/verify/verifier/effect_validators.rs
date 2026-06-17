@@ -205,16 +205,6 @@ pub(super) fn verify_effect(
                     phi_args,
                 } => {
                     position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                    if phi_args.is_empty() {
-                        return Err(primitives::err(
-                            "V12",
-                            "exit_if_break_phi_args_empty",
-                            format!(
-                                "ExitIf(BreakWithPhiArgs) has empty phi_args at depth {}",
-                                depth
-                            ),
-                        ));
-                    }
                     for (dst, src) in phi_args {
                         primitives::verify_value_id_basic(*dst, depth, "ExitIf.break.phi_dst")?;
                         primitives::verify_value_id_basic(*src, depth, "ExitIf.break.phi_src")?;
@@ -225,16 +215,6 @@ pub(super) fn verify_effect(
                     phi_args,
                 } => {
                     position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                    if phi_args.is_empty() {
-                        return Err(primitives::err(
-                            "V12",
-                            "exit_if_continue_phi_args_empty",
-                            format!(
-                                "ExitIf(ContinueWithPhiArgs) has empty phi_args at depth {}",
-                                depth
-                            ),
-                        ));
-                    }
                     for (dst, src) in phi_args {
                         primitives::verify_value_id_basic(*dst, depth, "ExitIf.continue.phi_dst")?;
                         primitives::verify_value_id_basic(*src, depth, "ExitIf.continue.phi_src")?;
@@ -298,16 +278,6 @@ pub(super) fn verify_if_effect_branch(
             } if is_last => {
                 primitives::verify_value_id_basic(*exit_cond, depth, "IfEffect.continue.cond")?;
                 position_validators::verify_exit_depth(*exit_depth, loop_depth, depth)?;
-                if phi_args.is_empty() {
-                    return Err(primitives::err(
-                        "V12",
-                        "if_effect_continue_phi_args_empty",
-                        format!(
-                            "IfEffect at depth {} has ContinueWithPhiArgs with empty phi_args",
-                            depth
-                        ),
-                    ));
-                }
                 for (dst, src) in phi_args {
                     primitives::verify_value_id_basic(*dst, depth, "IfEffect.continue.phi_dst")?;
                     primitives::verify_value_id_basic(*src, depth, "IfEffect.continue.phi_src")?;

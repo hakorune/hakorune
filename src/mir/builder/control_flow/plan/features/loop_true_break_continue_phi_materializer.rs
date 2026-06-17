@@ -36,7 +36,7 @@ impl LoopTrueBreakContinuePhiMaterializer {
     pub(in crate::mir::builder) fn prepare(
         builder: &mut MirBuilder,
         carrier_vars: &[String],
-        error_prefix: &str,
+        _error_prefix: &str,
     ) -> Result<Self, String> {
         let mut carrier_inits = BTreeMap::new();
         let mut carrier_phis = BTreeMap::new();
@@ -55,9 +55,6 @@ impl LoopTrueBreakContinuePhiMaterializer {
             carrier_inits.insert(var.clone(), init_val);
             carrier_phis.insert(var.clone(), phi_dst);
             carrier_step_phis.insert(var.clone(), step_phi_dst);
-        }
-        if carrier_phis.is_empty() {
-            return Err(format!("{error_prefix}: no loop carriers"));
         }
         Ok(Self {
             carrier_inits,

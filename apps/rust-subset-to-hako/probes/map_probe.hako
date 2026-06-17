@@ -1,0 +1,21 @@
+static box Main {
+    main() {
+        local m = new MapBox()
+        m.set("kind", "Program")
+        print("has.kind=" + m.has("kind"))
+        local v = m.get("kind")
+        if v == null {
+            print("get.kind=null")
+        } else {
+            print("get.kind=" + v)
+        }
+        local ks = m.keys()
+        print("keys.length=" + ks.length())
+        local i = 0
+        loop(i < ks.length()) {
+            print("key." + i + "=" + ks.get(i))
+            i = i + 1
+        }
+        return 0
+    }
+}

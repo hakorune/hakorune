@@ -1,0 +1,27 @@
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local parsed = JsonParserUtils.parse_json("{\"kind\":\"Program\",\"items\":[]}")
+        if parsed == null {
+            print("parsed=null")
+            return 1
+        }
+        print("kind=" + parsed.get_kind())
+        local kind = parsed.get("kind")
+        if kind == null {
+            print("field.kind=null")
+            return 2
+        }
+        print("field.kind.type=" + kind.get_kind())
+        print("field.kind.value=" + kind.as_string())
+        local items = parsed.get("items")
+        if items == null {
+            print("items=null")
+            return 3
+        }
+        print("items.type=" + items.get_kind())
+        print("items.length=" + items.length())
+        return 0
+    }
+}

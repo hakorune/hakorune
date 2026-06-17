@@ -1,0 +1,18 @@
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local a = new ArrayBox()
+        local s = JsonNode.create_string("Program")
+        a.push(s)
+        print("len=" + a.length())
+        local got = a.get(0)
+        if got == null {
+            print("got=null")
+            return 1
+        }
+        print("got.kind=" + got.get_kind())
+        print("got.value=" + got.as_string())
+        return 0
+    }
+}

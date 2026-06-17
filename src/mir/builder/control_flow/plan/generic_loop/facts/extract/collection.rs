@@ -56,6 +56,18 @@ pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(
                     }
                 }
             }
+            ASTNode::MethodCall { object, .. } => {
+                if let Some(name) = receiver_candidate_name(object.as_ref()) {
+                    if !out.iter().any(|v| v == &name) {
+                        out.push(name);
+                    }
+                }
+            }
+            ASTNode::Local { initial_values, .. } => {
+                for init in initial_values.iter().flatten() {
+                    walk(init.as_ref(), out);
+                }
+            }
             ASTNode::If {
                 then_body,
                 else_body,
@@ -89,25 +101,11 @@ pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(
     out
 }
 
-/// Check if a statement (recursively) contains a Continue statement.
-pub(in crate::mir::builder) fn has_continue_recursive(stmt: &ASTNode) -> bool {
-    match stmt {
-        ASTNode::Continue { .. } => true,
-        ASTNode::If {
-            then_body,
-            else_body,
-            ..
-        } => {
-            then_body.iter().any(has_continue_recursive)
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| body.iter().any(has_continue_recursive))
-        }
-        ASTNode::Loop { body, .. } => body.iter().any(has_continue_recursive),
-        ASTNode::LoopRange { body, .. } => body.iter().any(has_continue_recursive),
-        ASTNode::Program { statements, .. } => statements.iter().any(has_continue_recursive),
-        ASTNode::ScopeBox { body, .. } => body.iter().any(has_continue_recursive),
-        _ => false,
+fn receiver_candidate_name(object: &ASTNode) -> Option<String> {
+    match object {
+        ASTNode::Variable { name, .. } => Some(name.clone()),
+        ASTNode::Me { .. } => Some("me".to_string()),
+        _ => None,
     }
 }
 

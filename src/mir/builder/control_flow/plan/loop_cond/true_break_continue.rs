@@ -47,13 +47,8 @@ pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
     //
     // This is critical for Stage-B parser loops such as `parse_block` where the body may contain
     // nested loops (e.g. whitespace skipping) and join-bearing `if` statements.
-    let allow_extended = crate::config::env::joinir_dev::strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
-    let body_exit_allowed = if allow_extended {
-        try_build_exit_allowed_block_recipe(body, allow_extended)
-    } else {
-        None
-    };
+    let allow_extended = true;
+    let body_exit_allowed = try_build_exit_allowed_block_recipe(body, allow_extended);
     if let Some(body_exit_allowed) = body_exit_allowed {
         return Ok(Some(LoopTrueBreakContinueFacts {
             recipe: LoopCondRecipe::new(body.to_vec(), Vec::new()),
@@ -477,7 +472,7 @@ mod tests {
     }
 
     #[test]
-    fn policy_recipe_only_without_extended() {
+    fn policy_exit_allowed_without_dev_env() {
         with_loop_true_break_continue_env(|| {
             std::env::remove_var("NYASH_JOINIR_DEV");
             std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
@@ -498,7 +493,7 @@ mod tests {
 
             assert!(matches!(
                 facts.lowering,
-                LoopTrueBreakContinueLowering::RecipeOnly
+                LoopTrueBreakContinueLowering::ExitAllowed(_)
             ));
         });
     }

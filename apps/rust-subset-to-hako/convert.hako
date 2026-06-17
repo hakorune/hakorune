@@ -18,20 +18,18 @@ static box Main {
         // v0: hardcoded path for testing
         local path = "apps/rust-subset-to-hako/examples/simple_subset.json"
         local f = new FileBox()
-        if f.open(path) == 0 {
+        if f.open(path, "r") == 0 {
             print("// error: cannot open " + path)
             return 1
         }
         local text = f.read()
         f.close()
 
-        local result = RustSubsetConverter.convert(text)
+        local result = me.convert(text)
         print(result)
         return 0
     }
-}
 
-static box RustSubsetConverter {
     // ── main entry ──────────────────────────────────────
 
     convert(json_text) {
@@ -297,7 +295,14 @@ static box RustSubsetConverter {
     // Extract string value from a JsonNode (handles string/int/bool nodes)
     node_str(node) {
         if node == null { return "" }
-        // JsonNode stores string values accessible via string concatenation
-        return "" + node
+        local kind = node.get_kind()
+        if kind == "string" { return node.as_string() }
+        if kind == "int" { return "" + node.as_int() }
+        if kind == "bool" {
+            if node.as_bool() { return "true" }
+            return "false"
+        }
+        if kind == "null" { return "" }
+        return node.stringify()
     }
 }

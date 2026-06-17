@@ -1,0 +1,31 @@
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local obj = JsonNode.create_object()
+        if obj == null {
+            print("obj=null")
+            return 1
+        }
+        print("obj.kind=" + obj.get_kind())
+        local s = JsonNode.create_string("Program")
+        print("s.kind=" + s.get_kind())
+        print("s.value=" + s.as_string())
+        obj.object_set("kind", s)
+        local got = obj.get("kind")
+        if got == null {
+            print("got=null")
+            return 2
+        }
+        print("got.kind=" + got.get_kind())
+        print("got.value=" + got.as_string())
+        local arr = JsonNode.create_array()
+        arr.array_push(JsonNode.create_int(1))
+        print("arr.kind=" + arr.get_kind())
+        print("arr.length=" + arr.length())
+        obj.object_set("items", arr)
+        print("obj.length=" + obj.length())
+        print("obj.json=" + obj.stringify())
+        return 0
+    }
+}
