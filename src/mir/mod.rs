@@ -102,6 +102,7 @@ pub mod join_ir_vm_bridge; // Phase 27-shortterm S-4: JoinIR → Rust VM ブリ�
 pub mod join_ir_vm_bridge_dispatch; // Phase 30 F-4.4: JoinIR VM ブリッジ dispatch helper
 pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
 pub mod loop_route_detection; // Active module surface for loop route-shape detection
+pub mod local_fastpath_fact; // LocalFastPathFact aggregation owner
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
 pub mod passes;

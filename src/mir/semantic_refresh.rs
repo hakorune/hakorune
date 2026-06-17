@@ -48,6 +48,7 @@ use super::{
     hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans,
     hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans,
     hotcore_method_summary::refresh_function_hotcore_method_summaries,
+    local_fastpath_fact::refresh_function_local_fastpath_facts,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     map_repr_plan::refresh_function_map_repr_plans,
     placement_effect::refresh_function_placement_effect_routes,
@@ -157,6 +158,7 @@ fn refresh_function_pre_fixpoint_routes(
     refresh_function_array_text_observer_routes(function);
     refresh_function_array_text_indexof_const_region_plans(function);
     refresh_function_array_text_combined_region_routes(function);
+    refresh_function_local_fastpath_facts(function);
 }
 
 fn refresh_function_experimental_seed_routes(function: &mut MirFunction) {
@@ -302,6 +304,7 @@ fn refresh_function_post_fixpoint_consumers(
         refresh_function_effect_summaries(function);
         refresh_function_receiver_snapshot_publication_plans(function);
         refresh_function_hotcore_method_summaries(function);
+        refresh_function_local_fastpath_facts(function);
     }
 }
 

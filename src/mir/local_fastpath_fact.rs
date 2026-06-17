@@ -1,11 +1,25 @@
-use super::plans::MapReprPlan;
+/*!
+ * LocalFastPathFact aggregation owner.
+ *
+ * Positive fastpath facts are backend-consumable proof. Producer families may
+ * expose route/object evidence, but this module owns the final assignment to
+ * `MirFunction.metadata.local_fastpath_facts` so producers cannot clobber each
+ * other as the surface grows.
+ */
+
+use crate::mir::{map_repr_plan::MapReprPlan, MirFunction};
 use crate::object_storage_plan::{
     AliasClassId, LocalFastPathFact, LocalFastPathSiteId, LocalKnownReceiverDirectCallShadowRow,
     LocalPublicationInventoryRow, ObjectBasicBlockId, ObjectInstructionIndex, ObjectStoragePlanId,
     ObjectValueId, PublicationState, RoutePlanId,
 };
 
-pub(super) fn build_local_fastpath_facts_from_map_repr_plans(
+pub fn refresh_function_local_fastpath_facts(function: &mut MirFunction) {
+    function.metadata.local_fastpath_facts =
+        build_local_fastpath_facts_from_map_repr_plans(&function.metadata.map_repr_plans);
+}
+
+fn build_local_fastpath_facts_from_map_repr_plans(
     plans: &[MapReprPlan],
 ) -> Vec<LocalFastPathFact> {
     plans

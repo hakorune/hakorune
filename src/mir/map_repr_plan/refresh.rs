@@ -2,7 +2,6 @@ use super::candidates::{
     is_i64_map_set_route, local_i64_key_map_shadow_receivers, map_storage_receiver_value,
     set_route_key_value_operands, LocalI64MapShadowCandidate,
 };
-use super::fastpath::build_local_fastpath_facts_from_map_repr_plans;
 use super::plans::{
     LocalI64MapDirectStoragePlan, LocalI64MapEntryValueTrackingPlan,
     LocalMapStorageRealizationPlan, MapReprPlan,
@@ -35,7 +34,6 @@ pub fn refresh_function_map_repr_plans(function: &mut MirFunction) {
     }
 
     plans.sort_by_key(|plan| (plan.block().as_u32(), plan.instruction_index()));
-    function.metadata.local_fastpath_facts = build_local_fastpath_facts_from_map_repr_plans(&plans);
     function.metadata.local_map_storage_realization_plans =
         build_local_map_storage_realization_plans(&local_i64_shadow_receivers);
     function.metadata.local_i64_map_direct_storage_plans =

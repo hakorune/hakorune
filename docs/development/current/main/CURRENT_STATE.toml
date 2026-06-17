@@ -949,20 +949,24 @@ The current map_repr producer becomes an input rather than the assignment
 owner, user_box_method_routes become a future input, and implementation must
 first remove the MIR JSON hardcoded
 `route_plan=map_repr.generic_hash_runtime` label before user-box facts can be
-exported."""
+exported. LOCAL-FASTPATH-FACT-AGGREGATOR-SURFACE-001 adds
+`src/mir/local_fastpath_fact.rs` as the single assignment owner for
+`function.metadata.local_fastpath_facts`, converts map_repr to producer input,
+and preserves existing map scalar no-publication facts; route-plan label export
+remains the next blocker."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1060-LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1061-LOCAL-FASTPATH-FACT-AGGREGATOR-SURFACE-001.md"
 
-latest_card = "LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1060-LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001.md"
-latest_card_summary = """Local fastpath fact producer gap design selects a
-single local_fastpath_fact_aggregator owner. map_repr and user_box route
-families are producer inputs; the next implementation row must preserve current
-map facts while moving final metadata assignment to the aggregator."""
-current_blocker_token = "LOCAL-FASTPATH-FACT-AGGREGATOR-SURFACE-001"
+latest_card = "LOCAL-FASTPATH-FACT-AGGREGATOR-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1061-LOCAL-FASTPATH-FACT-AGGREGATOR-SURFACE-001.md"
+latest_card_summary = """Local fastpath fact aggregation surface lands
+src/mir/local_fastpath_fact.rs as the single metadata assignment owner.
+map_repr_plan now contributes producer evidence only, and existing map scalar
+no-publication facts remain green."""
+current_blocker_token = "LOCAL-FASTPATH-FACT-ROUTE-LABEL-SURFACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

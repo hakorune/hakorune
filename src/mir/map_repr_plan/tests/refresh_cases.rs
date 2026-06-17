@@ -214,7 +214,7 @@ fn refresh_function_map_repr_plans_joins_set_receiver_alias_and_later_public_rea
 }
 
 #[test]
-fn refresh_function_map_repr_plans_emits_local_fastpath_facts_for_scalar_no_publication_get() {
+fn local_fastpath_fact_aggregator_emits_map_scalar_no_publication_get_fact() {
     let mut function = make_function();
     let entry_id = BasicBlockId::new(0);
     let body_id = BasicBlockId::new(1);
@@ -243,6 +243,7 @@ fn refresh_function_map_repr_plans_emits_local_fastpath_facts_for_scalar_no_publ
 
     crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(&mut function);
     refresh_function_map_repr_plans(&mut function);
+    crate::mir::local_fastpath_fact::refresh_function_local_fastpath_facts(&mut function);
 
     let facts = &function.metadata.local_fastpath_facts;
     assert_eq!(facts.len(), 1);

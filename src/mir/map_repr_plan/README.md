@@ -22,8 +22,9 @@ object management.
   - local candidate detection from existing `GenericMethodRoute` rows
   - operand shape repair for current Map set/get routes
   - no public metadata writes
-- `fastpath.rs`
-  - positive `LocalFastPathFact` production only
+- `../local_fastpath_fact.rs`
+  - owns positive `LocalFastPathFact` aggregation
+  - consumes map representation evidence as one producer input
   - facts are exported only from `FastPathDecision::Allow`
   - fallback evidence is not a fact
 - `refresh.rs`
