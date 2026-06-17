@@ -46,8 +46,8 @@ fn build_mir_json_root_emits_local_fastpath_facts() {
             AliasClassId(3),
             "map_repr.generic_hash_runtime",
             RoutePlanId(4),
-            ObjectStoragePlanId(5),
-        ));
+        )
+        .with_storage_plan(ObjectStoragePlanId(5)));
 
     let mut module = MirModule::new("json_local_fastpath_fact_test".to_string());
     module.add_function(function);
@@ -70,6 +70,8 @@ fn build_mir_json_root_emits_local_fastpath_facts() {
     assert_eq!(fact["instruction_index"], 9);
     assert_eq!(fact["receiver_value"], 20);
     assert_eq!(fact["alias_class"], 3);
+    assert_eq!(fact["route_plan_id"], 4);
+    assert_eq!(fact["storage_plan_id"], 5);
     assert_eq!(fact["plan_epoch"], 0);
     assert!(fact["fallback_reason"].is_null());
 }

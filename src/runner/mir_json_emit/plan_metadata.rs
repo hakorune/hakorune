@@ -119,7 +119,7 @@ pub(super) fn insert_plan_metadata_json(
                         "receiver_value": fact.object_id.0,
                         "alias_class": fact.alias_class.0,
                         "route_plan_id": fact.route_plan.0,
-                        "storage_plan_id": fact.storage_plan.0,
+                        "storage_plan_id": fact.storage_plan.map(|plan| plan.0),
                         "plan_epoch": fact.plan_epoch.0,
                         "valid_until_publication": fact.valid_until_publication,
                         "fallback_reason": serde_json::Value::Null,

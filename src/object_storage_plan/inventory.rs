@@ -93,8 +93,7 @@ impl LocalKnownReceiverDirectCallShadowRow {
                     .then_some(LocalFastPathFallbackReason::RoutePlanMissing)
             })
             .or_else(|| {
-                storage_plan
-                    .is_none()
+                known_receiver_direct_call_storage_plan_missing(storage_plan)
                     .then_some(LocalFastPathFallbackReason::ObjectPlanMissing)
             });
 
@@ -103,7 +102,6 @@ impl LocalKnownReceiverDirectCallShadowRow {
             inventory.alias_class,
             route_plan_label,
             route_plan,
-            storage_plan,
             fallback_reason,
         ) {
             (
@@ -111,7 +109,6 @@ impl LocalKnownReceiverDirectCallShadowRow {
                 Some(alias_class),
                 Some(route_plan_label),
                 Some(route_plan),
-                Some(storage_plan),
                 None,
             ) => {
                 Some(LocalFastPathFact::known_receiver_direct_call(
@@ -122,7 +119,6 @@ impl LocalKnownReceiverDirectCallShadowRow {
                     alias_class,
                     route_plan_label,
                     route_plan,
-                    storage_plan,
                 ))
             }
             _ => None,
@@ -156,4 +152,11 @@ impl LocalKnownReceiverDirectCallShadowRow {
             FastPathDecision::Deny(_) => None,
         }
     }
+}
+
+#[inline]
+const fn known_receiver_direct_call_storage_plan_missing(
+    _storage_plan: Option<ObjectStoragePlanId>,
+) -> bool {
+    false
 }

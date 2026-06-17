@@ -53,6 +53,7 @@ fn build_local_fastpath_facts_from_map_repr_plans(
                 Some(ObjectStoragePlanId(index as u32)),
             )
             .into_allowed_fact()
+            .map(|fact| fact.with_storage_plan(ObjectStoragePlanId(index as u32)))
         })
         .collect()
 }

@@ -259,7 +259,6 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
         AliasClassId(30),
         "test.route_plan",
         RoutePlanId(40),
-        ObjectStoragePlanId(50),
     );
 
     assert_eq!(fact.site_id, LocalFastPathSiteId(10));
@@ -273,7 +272,11 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
     assert_eq!(fact.alias_class, AliasClassId(30));
     assert_eq!(fact.route_plan_label, "test.route_plan");
     assert_eq!(fact.route_plan, RoutePlanId(40));
-    assert_eq!(fact.storage_plan, ObjectStoragePlanId(50));
+    assert_eq!(fact.storage_plan, None);
+    assert_eq!(
+        fact.clone().with_storage_plan(ObjectStoragePlanId(50)).storage_plan,
+        Some(ObjectStoragePlanId(50))
+    );
     assert_eq!(fact.plan_epoch, PlanEpoch::INITIAL);
     assert!(fact.valid_until_publication);
     assert_eq!(
@@ -292,7 +295,6 @@ fn fastpath_decision_is_allow_fact_or_deny_reason() {
         AliasClassId(30),
         "test.route_plan",
         RoutePlanId(40),
-        ObjectStoragePlanId(50),
     );
 
     let allow = FastPathDecision::allow(fact.clone());
@@ -434,7 +436,7 @@ fn local_publication_inventory_row_is_report_only_gate_input() {
 }
 
 #[test]
-fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs_are_positive() {
+fn local_known_receiver_direct_call_shadow_row_creates_fact_without_storage_plan() {
     let eligible_inventory = LocalPublicationInventoryRow::new(
         LocalFastPathSiteId(1),
         ObjectBasicBlockId(10),
@@ -471,21 +473,21 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
         Some(LocalFastPathFallbackReason::RoutePlanMissing)
     );
 
-    let missing_storage = LocalKnownReceiverDirectCallShadowRow::new(
+    let storage_optional = LocalKnownReceiverDirectCallShadowRow::new(
         eligible_inventory,
         Some("test.route_plan"),
         Some(RoutePlanId(4)),
         None,
     );
-    assert!(missing_storage.candidate_fact.is_none());
+    assert!(storage_optional.candidate_fact.is_some());
     assert_eq!(
-        missing_storage.decision.deny_reason(),
-        Some(LocalFastPathFallbackReason::ObjectPlanMissing)
+        storage_optional
+            .candidate_fact
+            .as_ref()
+            .and_then(|fact| fact.storage_plan),
+        None
     );
-    assert_eq!(
-        missing_storage.fallback_reason,
-        Some(LocalFastPathFallbackReason::ObjectPlanMissing)
-    );
+    assert_eq!(storage_optional.fallback_reason, None);
 
     let maybe_published_inventory = LocalPublicationInventoryRow::new(
         LocalFastPathSiteId(6),

@@ -38,7 +38,7 @@ pub struct LocalFastPathFact {
     pub alias_class: AliasClassId,
     pub route_plan_label: &'static str,
     pub route_plan: RoutePlanId,
-    pub storage_plan: ObjectStoragePlanId,
+    pub storage_plan: Option<ObjectStoragePlanId>,
     pub plan_epoch: PlanEpoch,
     pub valid_until_publication: bool,
     pub backend_kind: LocalFastPathKind,
@@ -68,7 +68,6 @@ impl LocalFastPathFact {
         alias_class: AliasClassId,
         route_plan_label: &'static str,
         route_plan: RoutePlanId,
-        storage_plan: ObjectStoragePlanId,
     ) -> Self {
         Self {
             site_id,
@@ -77,10 +76,15 @@ impl LocalFastPathFact {
             alias_class,
             route_plan_label,
             route_plan,
-            storage_plan,
+            storage_plan: None,
             plan_epoch: PlanEpoch::INITIAL,
             valid_until_publication: true,
             backend_kind: LocalFastPathKind::KnownReceiverDirectCall,
         }
+    }
+
+    pub fn with_storage_plan(mut self, storage_plan: ObjectStoragePlanId) -> Self {
+        self.storage_plan = Some(storage_plan);
+        self
     }
 }
