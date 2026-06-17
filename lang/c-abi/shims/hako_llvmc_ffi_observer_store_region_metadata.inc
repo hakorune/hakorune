@@ -499,3 +499,18 @@
         }
         return 0;
       }
+
+      auto int array_text_observer_store_len_sum_region_ready(
+          const struct ArrayTextObserverStoreLenSumRegionRouteMetadata* region) {
+        return region &&
+               region->matched &&
+               region->begin_to_header_block == region->header_block &&
+               region->loop_bound_const >= 0 &&
+               region->row_modulus_const > 0 &&
+               region->length_result_value >= 0 &&
+               region->accumulator_phi_value >= 0 &&
+               region->accumulator_next_value >= 0 &&
+               region->accumulator_next_value != region->accumulator_phi_value &&
+               region->needle_len >= 0 &&
+               region->suffix_len >= 0;
+      }

@@ -845,17 +845,16 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1020-ARRAY-TEXT-APPEND-UPDATE-BACKEND-READER-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1021-ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-GUARD-SURFACE-001.md"
 
-latest_card = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-READER-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1020-ARRAY-TEXT-APPEND-UPDATE-BACKEND-READER-SURFACE-001.md"
-latest_card_summary = """The C ABI reader surface landed for the append/update
-observer len-sum executor contract. The new reader validates the
-length_result_carry/scalar_accumulator effects, sink_store_len_sum capability,
-row_modulus_const, length_result_value, accumulator_phi_value, and
-accumulator_next_value while keeping the existing store-only reader separate.
-Generic lowering records reader availability but does not emit code from it."""
-current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-GUARD-SURFACE-001"
+latest_card = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-GUARD-SURFACE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1021-ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-GUARD-SURFACE-001.md"
+latest_card_summary = """The guarded backend enablement surface landed for the
+append/update observer len-sum region. C ABI now exposes
+array_text_observer_store_len_sum_region_ready(region), and generic lowering
+computes readiness without emitting code. Helper declarations, runtime helper
+calls, product behavior changes, and winner claims remain disabled."""
+current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
