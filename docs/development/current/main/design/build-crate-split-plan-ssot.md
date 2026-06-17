@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001
-next_task=BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001
-purpose=select the next passive MIR plan family after map_repr_plan pure-data split
+latest_done=BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001
+next_task=BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001
+purpose=select the next passive MIR plan family after local fastpath aggregator split
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -180,5 +180,16 @@ owner=crates/hakorune_mir_plans/src/map_repr_plan
 main_crate_builder_facade=src/mir/map_repr_plan/plans.rs
 refresh_logic_owner=src/mir/map_repr_plan/refresh.rs
 candidate_detection_owner=src/mir/map_repr_plan/candidates.rs
+behavior_changed=0
+```
+
+## Stage 1 Fourth Slice Result
+
+```text
+fourth_family=local_fastpath_fact_pure_aggregator
+owner=crates/hakorune_mir_plans/src/local_fastpath_fact.rs
+main_crate_assignment_facade=src/mir/local_fastpath_fact.rs
+moved_function=build_local_fastpath_facts_from_map_repr_plans
+mirfunction_assignment_owner_preserved=1
 behavior_changed=0
 ```
