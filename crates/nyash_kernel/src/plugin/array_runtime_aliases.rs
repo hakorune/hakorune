@@ -161,6 +161,25 @@ crate::nyash_export_i64_alias!(nyash_array_string_indexof_suffix_store_region_hi
     .unwrap_or(0)
 });
 
+crate::nyash_export_i64_alias!(nyash_array_string_indexof_suffix_store_len_sum_region_hiisisi_alias, "nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi", (handle: i64, loop_bound: i64, row_modulus: i64, needle_ptr: *const i8, _needle_len: i64, suffix_ptr: *const i8, _suffix_len: i64), {
+    if handle <= 0 || loop_bound < 0 || row_modulus <= 0 {
+        return 0;
+    }
+    with_cstr_utf8_ptr2(needle_ptr, suffix_ptr, |needle, suffix| {
+        super::array_handle_cache::with_array_box(handle, |arr| {
+            arr.slot_text_indexof_suffix_store_len_sum_region_raw(
+                loop_bound,
+                row_modulus,
+                needle,
+                suffix,
+            )
+        })
+        .flatten()
+        .unwrap_or(0)
+    })
+    .unwrap_or(0)
+});
+
 crate::nyash_export_i64_alias!(nyash_array_string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi_alias, "nyash.array.string_lenhalf_insert_mid_periodic_indexof_suffix_region_hiisiiisisi", (handle: i64, loop_bound: i64, row_modulus: i64, middle_ptr: *const i8, _middle_len: i64, observer_period: i64, observer_bound: i64, needle_ptr: *const i8, _needle_len: i64, suffix_ptr: *const i8, _suffix_len: i64), {
     if handle <= 0 || loop_bound < 0 || row_modulus <= 0 || observer_period <= 0 {
         return 0;

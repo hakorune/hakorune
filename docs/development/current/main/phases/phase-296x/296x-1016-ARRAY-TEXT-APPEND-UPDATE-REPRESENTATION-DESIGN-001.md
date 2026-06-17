@@ -21,8 +21,8 @@ existing_observer_store_region_contract_extended=1
 existing_store_count_helper_reused=0
 new_helper_contract_required=1
 
-selected_helper_symbol=nyash.array.string_indexof_suffix_store_len_sum_region_hisisi
-selected_helper_signature=i64(i64 handle, i64 loop_bound, ptr needle, i64 needle_len, ptr suffix, i64 suffix_len)
+selected_helper_symbol=nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi
+selected_helper_signature=i64(i64 handle, i64 loop_bound, i64 row_modulus, ptr needle, i64 needle_len, ptr suffix, i64 suffix_len)
 helper_effect=mutates_array_text_cells
 helper_returns_accumulated_length=1
 helper_materializes_public_stringbox=0
@@ -108,8 +108,8 @@ materialization_policy=text_resident_or_stringlike_slot
 The runtime helper contract:
 
 ```text
-symbol=nyash.array.string_indexof_suffix_store_len_sum_region_hisisi
-signature=i64(i64 handle, i64 loop_bound, ptr needle, i64 needle_len, ptr suffix, i64 suffix_len)
+symbol=nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi
+signature=i64(i64 handle, i64 loop_bound, i64 row_modulus, ptr needle, i64 needle_len, ptr suffix, i64 suffix_len)
 
 acc = 0
 for idx in 0..loop_bound:
@@ -181,9 +181,10 @@ The next row should add passive metadata only. It must not emit the helper yet.
 First backend consumer row should eventually replace the region body with:
 
 ```llvm
-%acc.next = call i64 @"nyash.array.string_indexof_suffix_store_len_sum_region_hisisi"(
+%acc.next = call i64 @"nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi"(
   i64 %array,
   i64 <loop_bound>,
+  i64 <row_modulus>,
   ptr @needle,
   i64 <needle_len>,
   ptr @suffix,

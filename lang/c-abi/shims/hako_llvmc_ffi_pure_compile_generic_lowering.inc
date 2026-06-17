@@ -46,6 +46,7 @@
           active_observer_store_len_sum_region;
       int active_observer_store_len_sum_region_available = 0;
       int active_observer_store_len_sum_region_ready = 0;
+      int active_observer_store_len_sum_region_emitted = 0;
       struct ArrayTextLoopSessionPlanMetadata active_loop_session_region;
       int active_loop_session_region_emitted = 0;
       struct ArrayTextIndexOfConstRegionPlanMetadata active_indexof_const_region;
@@ -75,6 +76,7 @@
               &active_observer_store_len_sum_region);
       (void)active_observer_store_len_sum_region_available;
       (void)active_observer_store_len_sum_region_ready;
+      (void)active_observer_store_len_sum_region_emitted;
       (void)active_observer_store_len_sum_region;
       auto void emit_array_text_region_executor_call(
           const struct ArrayTextResidenceSessionRouteMetadata* region) {
@@ -105,6 +107,24 @@
             region->suffix_len + 1,
             region->suffix_reg,
             region->suffix_len);
+      }
+      auto void emit_array_text_observer_store_len_sum_region_call(
+          const struct ArrayTextObserverStoreLenSumRegionRouteMetadata* region) {
+        if (!region) return;
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi\"(i64 %%r%lld, i64 %lld, i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld, ptr getelementptr inbounds ([%lld x i8], ptr @.str_reg_%lld, i64 0, i64 0), i64 %lld)\n",
+            region->accumulator_phi_value,
+            region->array_root_value,
+            region->loop_bound_const,
+            region->row_modulus_const,
+            region->needle_len + 1,
+            region->needle_reg,
+            region->needle_len,
+            region->suffix_len + 1,
+            region->suffix_reg,
+            region->suffix_len);
+        set_type(region->accumulator_phi_value, T_I64);
       }
       auto void emit_array_text_combined_region_call(
           const struct ArrayTextCombinedRegionRouteMetadata* region) {
@@ -459,6 +479,14 @@
           EMIT("  unreachable\n");
           continue;
         }
+        if (active_observer_store_len_sum_region_ready &&
+            (bid == active_observer_store_len_sum_region.observer_block ||
+             bid == active_observer_store_len_sum_region.then_store_block ||
+             bid == active_observer_store_len_sum_region.latch_block)) {
+          emit_block_label(bid);
+          EMIT("  unreachable\n");
+          continue;
+        }
         if (active_observer_store_region_available &&
             (bid == active_observer_store_region.header_block ||
              bid == active_observer_store_region.observer_block ||
@@ -504,6 +532,16 @@
           emit_array_text_combined_region_call(&active_combined_region);
           EMIT("  br label %%bb%lld\n", active_combined_region.exit_block);
           active_combined_region_emitted = 1;
+          continue;
+        }
+        if (active_observer_store_len_sum_region_ready &&
+            !active_observer_store_len_sum_region_emitted &&
+            bid == active_observer_store_len_sum_region.header_block) {
+          emit_block_label(bid);
+          emit_array_text_observer_store_len_sum_region_call(
+              &active_observer_store_len_sum_region);
+          EMIT("  br label %%bb%lld\n", active_observer_store_len_sum_region.exit_block);
+          active_observer_store_len_sum_region_emitted = 1;
           continue;
         }
         if (active_observer_store_region_available &&

@@ -72,6 +72,32 @@ fn array_text_indexof_const_found_count_region_counts_hits() {
 }
 
 #[test]
+fn array_string_indexof_suffix_store_len_sum_region_updates_and_sums_hits() {
+    let handle = new_array_handle();
+    let first = new_string_handle("line-a");
+    let second = new_string_handle("none");
+    let needle = cstring("line");
+    let suffix = cstring("ln");
+
+    assert_eq!(nyash_array_set_his_alias(handle, 0, first), 1);
+    assert_eq!(nyash_array_set_his_alias(handle, 1, second), 1);
+    assert_eq!(
+        nyash_array_string_indexof_suffix_store_len_sum_region_hiisisi_alias(
+            handle,
+            5,
+            2,
+            needle.as_ptr(),
+            4,
+            suffix.as_ptr(),
+            2,
+        ),
+        30
+    );
+    assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 12);
+    assert_eq!(nyash_array_string_len_hi_alias(handle, 1), 4);
+}
+
+#[test]
 fn array_string_suffix_store_updates_text_lane() {
     let handle = new_array_handle();
     let seed_h = new_string_handle("line-seed");

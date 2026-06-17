@@ -426,6 +426,82 @@ impl ArrayBox {
         Some(stores)
     }
 
+    /// Runtime-private observer/store executor for a MIR-proven append/update
+    /// region that also carries the updated text length into a scalar sum.
+    #[inline(always)]
+    pub fn slot_text_indexof_suffix_store_len_sum_region_raw(
+        &self,
+        loop_bound: i64,
+        row_modulus: i64,
+        needle: &str,
+        suffix: &str,
+    ) -> Option<i64> {
+        if loop_bound < 0 || row_modulus <= 0 {
+            return None;
+        }
+        let loop_bound = usize::try_from(loop_bound).ok()?;
+        let row_modulus = usize::try_from(row_modulus).ok()?;
+        let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
+        let mut items = self.items.write();
+
+        if let ArrayStorage::Boxed(boxed) = &*items {
+            if let Some(values) = Self::try_text_values(boxed) {
+                *items = ArrayStorage::Text(values);
+            }
+        }
+
+        if let ArrayStorage::Text(values) = &mut *items {
+            if row_modulus > values.len() {
+                return None;
+            }
+            let mut total = 0_i64;
+            for step in 0..loop_bound {
+                let idx = match row_modulus_mask {
+                    Some(mask) => step & mask,
+                    None => step % row_modulus,
+                };
+                let value = values.get_mut(idx)?;
+                if value.contains_literal(needle) {
+                    value.append_suffix(suffix);
+                    total = total.checked_add(value.len() as i64)?;
+                }
+            }
+            return Some(total);
+        }
+
+        let boxed_len = match &*items {
+            ArrayStorage::Boxed(boxed) => boxed.len(),
+            ArrayStorage::InlineI64(_)
+            | ArrayStorage::InlineBool(_)
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => return None,
+            ArrayStorage::Text(_) => unreachable!("text storage returned above"),
+        };
+        if row_modulus > boxed_len {
+            return None;
+        }
+
+        let mut session =
+            ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible);
+        let mut total = 0_i64;
+        for step in 0..loop_bound {
+            let idx = match row_modulus_mask {
+                Some(mask) => step & mask,
+                None => step % row_modulus,
+            };
+            let (updated_len, _kind) = session.update(idx, |value| {
+                if ArrayTextCell::string_contains_literal(value, needle) {
+                    ArrayTextCell::append_suffix_to_string(value, suffix);
+                    value.len() as i64
+                } else {
+                    0_i64
+                }
+            })?;
+            total = total.checked_add(updated_len)?;
+        }
+        Some(total)
+    }
+
     /// Runtime-private combined executor for a MIR-proven outer edit region.
     /// The write guard stays inside this call; MIR owns ordering and legality.
     #[inline(always)]
