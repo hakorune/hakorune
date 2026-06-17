@@ -27,9 +27,6 @@ Keep new vocabulary inside one of these groups:
 - `fastpath`
   - `LocalFastPathFact`, fastpath kind, deny reason
   - owns positive backend-consumable permission
-- `reachability`
-  - post-hoc selected/preempted/unreachable route observations
-  - owns winner-claim visibility, not eligibility
 
 ## Boundary Rules
 
@@ -37,7 +34,7 @@ Keep new vocabulary inside one of these groups:
 backend reads LocalFastPathFact only
 fallback evidence is not a fact
 deny decisions are not exported to MIR JSON
-reachability is post-hoc and never feeds resolver eligibility
+reachability is owned by hako_check tooling, not object_storage_plan Rust types
 ```
 
 Do not add near-synonym types for an existing concept group. If a new concept
@@ -52,4 +49,3 @@ do not add fallback facts
 do not make inventory rows backend-readable
 do not split PublicationPlan out until ObjectPlan becomes too large
 ```
-

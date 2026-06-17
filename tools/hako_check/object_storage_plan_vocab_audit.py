@@ -93,13 +93,6 @@ ROWS: tuple[AuditRow, ...] = (
         action="defer",
         reason="FieldScalarPlan_and_FlattenedNestedFieldPlan_overlap_but_nested_layout_payload_differs",
     ),
-    AuditRow(
-        name="fastpath_decision_reachability",
-        kind="merge_candidate",
-        status="passive_report_vocabulary",
-        action="defer_to_resolver_or_retire_design",
-        reason="decision_and_reachability_vocabulary_is_report_only_until_resolver_execution_is_enabled",
-    ),
 )
 
 
@@ -155,6 +148,8 @@ def usage_inventory(root: Path) -> dict[str, str]:
         "exact_stack_object_source_presence_count": str(exact_stack_source_presence),
         "active_exact_storage_forms": "ExactNativeStruct,Scalarized,FlattenedNestedFields",
         "stack_allocation_support_claimed": "0",
+        "fastpath_reachability_rust_vocab_retired": "1",
+        "fastpath_reachability_tooling_owner": "hako_check",
         "fastpath_decision_non_test_consumer_count": str(fastpath_decision_consumers),
         "fastpath_reachability_non_test_consumer_count": str(fastpath_reachability_consumers),
         "passive_vocab_execution_enabled": "0",

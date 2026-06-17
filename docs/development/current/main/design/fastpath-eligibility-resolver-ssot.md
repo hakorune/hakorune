@@ -110,16 +110,14 @@ Therefore preemption is not an eligibility denial.
 do not use Deny(PreemptedByHigherPriorityRoute)
 ```
 
-Use a post-hoc ledger instead:
+Use the hako_check post-hoc ledger instead:
 
-```rust
-struct FastPathReachability {
-    site_id: FastPathSiteId,
-    fact_kind: LocalFastPathKind,
-    reachable_in_active_route: bool,
-    selected_route: Option<RouteId>,
-    preempted_by: Option<RouteId>,
-}
+```text
+candidate_N_site_id=<site>
+candidate_N_family=<family>
+candidate_N_reachable=0|1
+candidate_N_selected_route=<route|none>
+candidate_N_preempted_by=<route|none>
 ```
 
 Backend may emit only selected reachable facts.

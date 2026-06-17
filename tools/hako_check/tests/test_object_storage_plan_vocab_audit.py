@@ -22,7 +22,7 @@ class ObjectStoragePlanVocabAuditTest(unittest.TestCase):
 
         self.assertEqual(rows["output_contract"], "hako-object-storage-plan-vocab-audit-v0")
         self.assertEqual(rows["keep_separate_count"], "6")
-        self.assertEqual(rows["merge_candidate_count"], "5")
+        self.assertEqual(rows["merge_candidate_count"], "4")
         self.assertEqual(rows["immediate_merge_allowed"], "0")
         self.assertEqual(rows["vocabulary_merge_count"], "0")
         self.assertEqual(rows["fact_fallback_separation_preserved"], "1")
@@ -30,6 +30,8 @@ class ObjectStoragePlanVocabAuditTest(unittest.TestCase):
         self.assertEqual(rows["exact_stack_object_source_presence_count"], "0")
         self.assertEqual(rows["active_exact_storage_forms"], "ExactNativeStruct,Scalarized,FlattenedNestedFields")
         self.assertEqual(rows["stack_allocation_support_claimed"], "0")
+        self.assertEqual(rows["fastpath_reachability_rust_vocab_retired"], "1")
+        self.assertEqual(rows["fastpath_reachability_tooling_owner"], "hako_check")
         self.assertGreaterEqual(int(rows["fastpath_decision_non_test_consumer_count"]), 1)
         self.assertEqual(rows["fastpath_reachability_non_test_consumer_count"], "0")
         self.assertEqual(rows["passive_vocab_execution_enabled"], "0")
@@ -41,8 +43,6 @@ class ObjectStoragePlanVocabAuditTest(unittest.TestCase):
         self.assertEqual(rows["row_6_action"], "audit_before_retire")
         self.assertEqual(rows["row_7_name"], "reason_enums")
         self.assertEqual(rows["row_7_action"], "defer")
-        self.assertEqual(rows["row_10_name"], "fastpath_decision_reachability")
-        self.assertEqual(rows["row_10_action"], "defer_to_resolver_or_retire_design")
 
 
 if __name__ == "__main__":

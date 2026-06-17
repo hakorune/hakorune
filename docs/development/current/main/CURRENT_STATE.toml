@@ -915,19 +915,22 @@ from source vocabulary and guards the active exact forms as ExactNativeStruct,
 Scalarized, and FlattenedNestedFields with stack_allocation_support_claimed=0.
 FASTPATH-REACHABILITY-RETIRE-OR-ENABLE-DESIGN-001 selects retiring the Rust-side
 FastPathReachability passive vocabulary while keeping the Python hako_check
-reachability ledger as the selected/preempted/unreachable report owner."""
+reachability ledger as the selected/preempted/unreachable report owner.
+FASTPATH-REACHABILITY-RUST-VOCAB-RETIRE-001 removes the Rust-side
+FastPathReachability type and keeps reachability as hako_check-owned post-hoc
+tooling, with preemption still outside Deny reasons."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1051-FASTPATH-REACHABILITY-RETIRE-OR-ENABLE-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1052-FASTPATH-REACHABILITY-RUST-VOCAB-RETIRE-001.md"
 
-latest_card = "FASTPATH-REACHABILITY-RETIRE-OR-ENABLE-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1051-FASTPATH-REACHABILITY-RETIRE-OR-ENABLE-DESIGN-001.md"
-latest_card_summary = """FastPathReachability retire-or-enable design is
-landed. It selects retiring the Rust-side passive reachability vocabulary from
-object_storage_plan while keeping the hako_check reachability ledger/tooling as
-the active post-hoc route visibility owner."""
+latest_card = "FASTPATH-REACHABILITY-RUST-VOCAB-RETIRE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1052-FASTPATH-REACHABILITY-RUST-VOCAB-RETIRE-001.md"
+latest_card_summary = """FastPathReachability Rust vocabulary retirement is
+landed. The Rust-side passive type is removed from object_storage_plan, while
+hako_check remains the owner for post-hoc selected/preempted/unreachable
+reachability reports."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
