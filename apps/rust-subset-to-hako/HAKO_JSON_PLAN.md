@@ -102,18 +102,51 @@ nested object/array
 If a parser bug appears, fix `json_native` with a small fixture first. Do not
 work around parser bugs inside the RustSubset emitter.
 
-## File / stdin Input
+## File Input
 
-Do not block the first `.hako` converter on direct file/stdin support.
+Use `FileBox` for the first real `.hako` file-input route.
 
-Allowed first route:
+Known working precedent:
+
+```text
+tools/hako_parser/cli.hako:
+  new FileBox()
+  open(path)
+  read()
+  close()
+
+phase-29y feature matrix:
+  newbox(FileBox), FileBox.open(path, mode), FileBox.read(), FileBox.close()
+  are ported for the vm-hako route.
+```
+
+Preferred v0 input flow:
+
+```text
+path argument
+  -> FileBox.open(path, "r")
+  -> FileBox.read()
+  -> FileBox.close()
+  -> JsonParserUtils.parse_json(text)
+  -> RustSubsetJsonReader
+```
+
+Use `NYASH_FILEBOX_MODE=core-ro` in the first smoke if plugin setup is noisy.
+The first committed smoke may be VM-only; EXE/AOT parity can be added after the
+converter behavior is fixed.
+
+Stdin support is separate. Do not block v0 on stdin if `FileBox` path input is
+working.
+
+Temporary bring-up fallback, if `FileBox` path input regresses:
 
 ```text
 main.hako contains or receives a JSON string fixture
 converter emits to stdout
 ```
 
-Then add CLI/file input once the runtime path is confirmed.
+This fallback must be documented as a bring-up fallback, not as the final app
+shape.
 
 ## Native JSON Backend Later
 
@@ -132,6 +165,7 @@ Do not make the RustSubset converter depend directly on a DLL.
 ```text
 json_dll_required_for_v0=0
 json_native_reused=1
+filebox_path_input_is_v0_route=1
 rust_subset_json_reader_defined=1
 schema_fail_fast_owned_by_reader=1
 emitter_raw_json_navigation_allowed=0
@@ -143,6 +177,7 @@ summary=ok
 ```text
 do not reimplement a second JSON parser inside rust-subset-to-hako
 do not add a JSON DLL before the .hako parser route is tried
+do not replace FileBox path input with a native file-read DLL for v0
 do not scatter required-field checks across emitter functions
 do not silently coerce missing fields to empty strings
 do not make the Python converter a runtime dependency

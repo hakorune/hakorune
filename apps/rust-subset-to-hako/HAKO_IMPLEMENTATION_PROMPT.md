@@ -18,6 +18,7 @@ Read these files first:
 - apps/rust-subset-to-hako/examples/edge_subset.json
 - apps/rust-subset-to-hako/examples/edge_expected.hako
 - apps/rust-subset-to-hako/examples/invalid_unknown_kind.json
+- tools/hako_parser/cli.hako
 
 Goal:
 Create a .hako converter that matches the Python converter behavior for v0.
@@ -29,7 +30,7 @@ Suggested files:
 - apps/rust-subset-to-hako/lib/rust_subset_cli.hako
 
 Required behavior:
-1. Read RustSubset JSON v0.
+1. Read RustSubset JSON v0 from a file path using FileBox.
 2. Emit .hako skeleton text.
 3. Match examples/simple_expected.hako for examples/simple_subset.json.
 4. Match examples/edge_expected.hako for examples/edge_subset.json.
@@ -38,6 +39,8 @@ Required behavior:
 JSON plan:
 - Reuse apps/lib/json_native first.
 - Put RustSubset schema navigation in rust_subset_json_reader.hako.
+- Use FileBox for path input: open(path, "r") -> read() -> close().
+- Use NYASH_FILEBOX_MODE=core-ro for first VM smoke if plugin setup is noisy.
 - Do not build a JSON DLL/externcall for v0.
 - Do not reimplement a second JSON parser inside rust-subset-to-hako.
 
@@ -88,11 +91,13 @@ Important constraints:
 - Do not claim semantic equivalence with Rust.
 - Do not silently drop unsupported declarations.
 - Do not hardcode example file names or source names.
+- Do not replace FileBox path input with a native file-read DLL for v0.
 - Keep Python converter as reference, not runtime dependency.
 
 Acceptance:
 rust_source_parser_owned_by_hako=0
 hako_converter_implemented=1
+filebox_path_input_used=1
 simple_fixture_matches=1
 edge_fixture_matches=1
 unknown_kind_fail_fast=1
