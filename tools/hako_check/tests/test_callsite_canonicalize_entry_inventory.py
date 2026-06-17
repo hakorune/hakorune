@@ -17,19 +17,19 @@ class CallsiteCanonicalizeEntryInventoryTest(unittest.TestCase):
             repo = Path(tmp)
             self._write(
                 repo / "src" / "mir" / "compiler" / "mod.rs",
-                "super::passes::callsite_canonicalize::canonicalize_callsites(&mut module);\n",
+                "super::passes::callsite_canonicalize::canonicalize_for_site(&mut module, Site::MirCompilerPostRc);\n",
             )
             self._write(
                 repo / "src" / "mir" / "optimizer" / "core.rs",
-                "crate::mir::passes::callsite_canonicalize::canonicalize_callsites(module);\n",
+                "crate::mir::passes::callsite_canonicalize::canonicalize_for_site(module, Site::MirOptimizerLateCallAndInline);\n",
             )
             self._write(
                 repo / "src" / "runner" / "json_v0_bridge" / "core.rs",
-                "crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);\n",
+                "crate::mir::passes::callsite_canonicalize::canonicalize_for_site(&mut module, Site::ProgramJsonV0Bridge);\n",
             )
             self._write(
                 repo / "src" / "runner" / "mir_json_v0.rs",
-                "crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);\n",
+                "crate::mir::passes::callsite_canonicalize::canonicalize_for_site(&mut module, Site::MirJsonV0Loader);\n",
             )
             self._write(
                 repo / "src" / "mir" / "passes" / "callsite_canonicalize" / "tests" / "mcl.rs",
@@ -47,16 +47,19 @@ class CallsiteCanonicalizeEntryInventoryTest(unittest.TestCase):
         self.assertEqual(rows["program_json_v0_bridge_entry"], "1")
         self.assertEqual(rows["mir_json_v0_loader_entry"], "1")
         self.assertEqual(rows["single_transform_owner"], "1")
-        self.assertEqual(rows["centralized_schedule_owner"], "0")
+        self.assertEqual(rows["centralized_schedule_owner"], "1")
         self.assertEqual(rows["behavior_changed"], "0")
         self.assertEqual(rows["canonicalize_entry_refactor_allowed"], "0")
+        self.assertEqual(rows["entry_removal_enabled"], "0")
+        self.assertEqual(rows["schedule_reorder_enabled"], "0")
+        self.assertEqual(rows["entry_0_call_kind"], "schedule_facade")
 
     def test_unknown_production_entry_is_visible(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             self._write(
                 repo / "src" / "somewhere" / "else.rs",
-                "crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);\n",
+                "crate::mir::passes::callsite_canonicalize::canonicalize_for_site(&mut module, Site::Unknown);\n",
             )
 
             rows = self._run_tool(repo)
@@ -65,6 +68,7 @@ class CallsiteCanonicalizeEntryInventoryTest(unittest.TestCase):
         self.assertEqual(rows["known_entry_count"], "0")
         self.assertEqual(rows["unknown_entry_count"], "1")
         self.assertEqual(rows["entry_0_entry_kind"], "unknown")
+        self.assertEqual(rows["centralized_schedule_owner"], "0")
 
     def _run_tool(self, repo: Path) -> dict[str, str]:
         result = subprocess.run(

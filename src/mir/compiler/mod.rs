@@ -119,8 +119,10 @@ impl MirCompiler {
         // Runs after optimization and verification, before backend codegen
         let _rc_stats = insert_rc_instructions(&mut module);
         refresh_module_semantic_metadata(&mut module);
-        let canonicalized =
-            super::passes::callsite_canonicalize::canonicalize_callsites(&mut module);
+        let canonicalized = super::passes::callsite_canonicalize::canonicalize_for_site(
+            &mut module,
+            super::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
+        );
         if canonicalized > 0 {
             refresh_module_semantic_metadata(&mut module);
         }

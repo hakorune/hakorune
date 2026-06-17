@@ -24,8 +24,11 @@ mod helpers;
 mod pass;
 #[path = "callsite_canonicalize/receiver_operand.rs"]
 mod receiver_operand;
+#[path = "callsite_canonicalize/schedule.rs"]
+mod schedule;
 
 pub use pass::canonicalize_callsites;
+pub use schedule::{canonicalize_for_site, CallsiteCanonicalizeScheduleSite};
 
 #[cfg(test)]
 #[path = "callsite_canonicalize/tests/mod.rs"]

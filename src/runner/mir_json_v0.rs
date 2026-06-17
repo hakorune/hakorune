@@ -605,7 +605,10 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
 
     // Canonicalize legacy callsites from selfhost JSON route before VM preflight.
     // This keeps runtime acceptance aligned with MCL lane (BoxCall/ExternCall -> Call(callee=...)).
-    let _ = crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);
+    let _ = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
+        &mut module,
+        crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirJsonV0Loader,
+    );
 
     Ok(module)
 }

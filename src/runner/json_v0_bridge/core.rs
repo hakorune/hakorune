@@ -39,7 +39,10 @@ pub fn parse_json_v0_to_module_with_imports(
 
     let mut module = lower_program(prog, imports)?;
     // Keep Program(JSON v0) bridge aligned with runtime preflight callsite contract.
-    let _ = crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);
+    let _ = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
+        &mut module,
+        crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge,
+    );
     crate::mir::semantic_refresh::refresh_module_json_v0_post_canonicalize_metadata(&mut module);
     Ok(module)
 }

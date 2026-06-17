@@ -14,7 +14,8 @@ import re
 from pathlib import Path
 
 
-CALL_RE = re.compile(r"canonicalize_callsites\s*\(")
+ENTRY_RE = re.compile(r"canonicalize_for_site\s*\(")
+TRANSFORM_RE = re.compile(r"canonicalize_callsites\s*\(")
 DEFAULT_INCLUDE_ROOTS = ("src",)
 SKIP_PARTS = {
     ".git",
@@ -57,6 +58,8 @@ def classify_entry(path: Path) -> str:
         return "mir_json_v0_loader"
     if text.endswith("src/mir/passes/callsite_canonicalize/pass.rs"):
         return "pass_owner_definition"
+    if text.endswith("src/mir/passes/callsite_canonicalize/schedule.rs"):
+        return "schedule_owner_definition"
     return "unknown"
 
 
@@ -67,16 +70,19 @@ def find_entries(root: Path) -> list[dict[str, str]]:
             continue
         rel = path.relative_to(root)
         for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-            if not CALL_RE.search(line):
+            is_facade = bool(ENTRY_RE.search(line))
+            is_transform = bool(TRANSFORM_RE.search(line))
+            if not is_facade and not is_transform:
                 continue
             kind = classify_entry(rel)
-            if kind == "pass_owner_definition":
+            if kind in {"pass_owner_definition", "schedule_owner_definition"}:
                 continue
             rows.append(
                 {
                     "path": str(rel),
                     "line": str(lineno),
                     "entry_kind": kind,
+                    "call_kind": "schedule_facade" if is_facade else "direct_transform",
                 }
             )
     return rows
@@ -87,6 +93,11 @@ def build_report(root: Path) -> dict[str, object]:
     known = [row for row in entries if row["entry_kind"] != "unknown"]
     unknown = [row for row in entries if row["entry_kind"] == "unknown"]
     kinds = {row["entry_kind"] for row in known}
+    centralized = (
+        len(entries) == 4
+        and not unknown
+        and all(row.get("call_kind") == "schedule_facade" for row in known)
+    )
     return {
         "output_contract": "hako-callsite-canonicalize-entry-inventory-v0",
         "production_entry_count": str(len(entries)),
@@ -98,10 +109,12 @@ def build_report(root: Path) -> dict[str, object]:
         "mir_json_v0_loader_entry": "1" if "mir_json_v0_loader" in kinds else "0",
         "transform_owner": "src/mir/passes/callsite_canonicalize",
         "single_transform_owner": "1",
-        "centralized_schedule_owner": "0",
+        "centralized_schedule_owner": "1" if centralized else "0",
         "behavior_changed": "0",
         "canonicalize_entry_refactor_allowed": "0",
-        "next_task": "CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001",
+        "entry_removal_enabled": "0",
+        "schedule_reorder_enabled": "0",
+        "next_task": "CALLSITE-CANONICALIZE-SCHEDULE-FACADE-001" if not centralized else "CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001",
         "summary": "ok",
         "entries": entries,
     }

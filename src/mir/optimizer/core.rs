@@ -181,8 +181,10 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += updates as usize;
         }
 
-        let canonicalized =
-            crate::mir::passes::callsite_canonicalize::canonicalize_callsites(module);
+        let canonicalized = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
+            module,
+            crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline,
+        );
         if canonicalized > 0 {
             stats.intrinsic_optimizations += canonicalized;
         }
