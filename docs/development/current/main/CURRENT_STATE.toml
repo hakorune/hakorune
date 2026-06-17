@@ -942,20 +942,27 @@ from cleanup to the active fastpath lane and selects
 local_fastpath_fact_producer_gap from current object-lifecycle MIR evidence:
 known_receiver_direct_method_route_count=19, local_fastpath_fact_count=0, and
 known_receiver_direct_method_without_fact_count=19 for
-HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1."""
+HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1.
+LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001 selects a single
+local_fastpath_fact_aggregator owner for `function.metadata.local_fastpath_facts`.
+The current map_repr producer becomes an input rather than the assignment
+owner, user_box_method_routes become a future input, and implementation must
+first remove the MIR JSON hardcoded
+`route_plan=map_repr.generic_hash_runtime` label before user-box facts can be
+exported."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1059-FRESH-COMPILER-OWNER-SELECTION-006.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1060-LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001.md"
 
-latest_card = "FRESH-COMPILER-OWNER-SELECTION-006"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1059-FRESH-COMPILER-OWNER-SELECTION-006.md"
-latest_card_summary = """Fresh compiler owner selection selects
-local_fastpath_fact_producer_gap. Current object-lifecycle MIR has 19 known
-direct receiver method routes in the target method and zero local fastpath
-facts; backend lowering remains closed until a fact producer design row lands."""
-current_blocker_token = "LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001"
+latest_card = "LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1060-LOCAL-FASTPATH-FACT-PRODUCER-GAP-DESIGN-001.md"
+latest_card_summary = """Local fastpath fact producer gap design selects a
+single local_fastpath_fact_aggregator owner. map_repr and user_box route
+families are producer inputs; the next implementation row must preserve current
+map facts while moving final metadata assignment to the aggregator."""
+current_blocker_token = "LOCAL-FASTPATH-FACT-AGGREGATOR-SURFACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
