@@ -845,18 +845,20 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1007-SUBSTRING-CONCAT-EXACT-SEED-CLOSED-FORM-RETURN-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1010-SUBSTRING-CONCAT-ARRAY-SET-ARRAY-TEXT-STORE-OWNER-INVENTORY-001.md"
 
-latest_card = "SUBSTRING-CONCAT-EXACT-SEED-CLOSED-FORM-RETURN-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1007-SUBSTRING-CONCAT-EXACT-SEED-CLOSED-FORM-RETURN-CLOSEOUT-001.md"
-latest_card_summary = """Substring concat exact-seed closed-form closeout
-confirms the selected exact_seed_dead_byte_copy_loop owner is closed for
-kilo_micro_substring_concat. The active route now emits a direct constant
-return, ny_main no longer contains the stack byte-copy loop, and resident
-kernel cycles dropped from 4.8M to 4.3K. Product runtime, route priority,
-exact-seed retirement, and benchmark/source/helper-name branches remain
-unchanged."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-AFTER-SUBSTRING-CONCAT-CLOSEOUT-001"
+latest_card = "SUBSTRING-CONCAT-ARRAY-SET-ARRAY-TEXT-STORE-OWNER-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1010-SUBSTRING-CONCAT-ARRAY-SET-ARRAY-TEXT-STORE-OWNER-INVENTORY-001.md"
+latest_card_summary = """The next valid Hako-slower front is
+kilo_meso_substring_concat_array_set. Its hot loop already uses array-text
+helpers rather than generic StringBox concat or generic ArrayBox get/set:
+nyash.array.string_len_hi, nyash.array.kernel_slot_store_hi,
+array_kernel_slot_insert_hisi, and session cache dominate. The selected owner
+is array_text_slot_insert_store_boundary. The next design row must decide
+whether the shape is a local array text mutation plan or a dead local store /
+closed-form length route, using array-text metadata and local publication
+state rather than benchmark/source/helper-name inference."""
+current_blocker_token = "ARRAY-TEXT-STORE-LOCAL-MUTATION-PLAN-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

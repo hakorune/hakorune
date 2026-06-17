@@ -2,12 +2,18 @@
 #include <string.h>
 
 int main(void) {
-  const int rows = 128;
-  const int64_t ops = 320000;
+  enum {
+    rows = 128,
+    ops = 320000,
+    seed_len = 16,
+    append_bytes = 2,
+    max_appends_per_row = (ops + rows - 1) / rows,
+    line_cap = seed_len + append_bytes * max_appends_per_row + 1
+  };
   const char seed[] = "line-seed-abcdef";
   const int len = (int)(sizeof(seed) - 1);
-  char lines[128][96];
-  int lens[128];
+  char lines[rows][line_cap];
+  int lens[rows];
   volatile int64_t total = 0;
 
   for (int i = 0; i < rows; i++) {
