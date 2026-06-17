@@ -14,6 +14,7 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("object_site_location_vocabulary_defined", "1"),
         ("object_site_location_field_migration_enabled", "1"),
         ("object_publication_site_location_field_migrated", "1"),
+        ("local_fastpath_fact_location_field_migrated", "1"),
         ("publication_site_generic_inventory_defined", "1"),
         ("publication_reason_vocabulary_count", "8"),
         ("unknown_publication_forces_generic_fallback", "1"),

@@ -60,6 +60,10 @@ fn report_fields_keep_execution_disabled() {
         "object_publication_site_location_field_migrated",
         "1"
     )));
+    assert!(fields.contains(&(
+        "local_fastpath_fact_location_field_migrated",
+        "1"
+    )));
     assert!(fields.contains(&("routeplan_objectplan_handoff_contract_defined", "1")));
     assert!(fields.contains(&("routeplan_owns_execution_not_representation", "1")));
     assert!(fields.contains(&("objectplan_owns_representation_not_execution", "1")));
@@ -189,12 +193,12 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
     );
 
     assert_eq!(fact.site_id, LocalFastPathSiteId(10));
-    assert_eq!(fact.block_id, ObjectBasicBlockId(11));
-    assert_eq!(fact.instruction_index, ObjectInstructionIndex(12));
     assert_eq!(
         fact.location(),
         ObjectSiteLocation::new(ObjectBasicBlockId(11), ObjectInstructionIndex(12))
     );
+    assert_eq!(fact.block_id(), ObjectBasicBlockId(11));
+    assert_eq!(fact.instruction_index(), ObjectInstructionIndex(12));
     assert_eq!(fact.object_id, ObjectValueId(20));
     assert_eq!(fact.alias_class, AliasClassId(30));
     assert_eq!(fact.route_plan, RoutePlanId(40));

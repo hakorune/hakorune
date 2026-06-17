@@ -259,7 +259,7 @@ fn refresh_function_map_repr_plans_emits_local_fastpath_facts_for_scalar_no_publ
     assert_eq!(source_plan.route_id(), "map_repr.generic_hash_runtime");
     let fact = &facts[0];
     assert_eq!(fact.object_id, ObjectValueId(1));
-    assert_eq!(fact.block_id, ObjectBasicBlockId(1));
-    assert_eq!(fact.instruction_index, ObjectInstructionIndex(0));
+    assert_eq!(fact.block_id(), ObjectBasicBlockId(1));
+    assert_eq!(fact.instruction_index(), ObjectInstructionIndex(0));
     assert!(fact.valid_until_publication);
 }

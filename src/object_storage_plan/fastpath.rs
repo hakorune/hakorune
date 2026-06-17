@@ -25,8 +25,7 @@ pub enum LocalFastPathKind {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalFastPathFact {
     pub site_id: LocalFastPathSiteId,
-    pub block_id: ObjectBasicBlockId,
-    pub instruction_index: ObjectInstructionIndex,
+    pub location: ObjectSiteLocation,
     pub object_id: ObjectValueId,
     pub alias_class: AliasClassId,
     pub route_plan: RoutePlanId,
@@ -38,7 +37,17 @@ pub struct LocalFastPathFact {
 impl LocalFastPathFact {
     #[inline]
     pub const fn location(&self) -> ObjectSiteLocation {
-        ObjectSiteLocation::new(self.block_id, self.instruction_index)
+        self.location
+    }
+
+    #[inline]
+    pub const fn block_id(&self) -> ObjectBasicBlockId {
+        self.location.block_id
+    }
+
+    #[inline]
+    pub const fn instruction_index(&self) -> ObjectInstructionIndex {
+        self.location.instruction_index
     }
 
     pub fn known_receiver_direct_call(
@@ -52,8 +61,7 @@ impl LocalFastPathFact {
     ) -> Self {
         Self {
             site_id,
-            block_id,
-            instruction_index,
+            location: ObjectSiteLocation::new(block_id, instruction_index),
             object_id,
             alias_class,
             route_plan,
