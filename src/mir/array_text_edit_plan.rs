@@ -19,170 +19,10 @@ use super::{
     MirInstruction, MirModule, ValueId,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ArrayTextEditKind {
-    InsertMidConst,
-}
+mod model;
 
-impl ArrayTextEditKind {
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::InsertMidConst => "insert_mid_const",
-        }
-    }
-}
-
-impl std::fmt::Display for ArrayTextEditKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ArrayTextEditSplitPolicy {
-    SourceLenDivConst { divisor: i64 },
-}
-
-impl std::fmt::Display for ArrayTextEditSplitPolicy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::SourceLenDivConst { divisor } => {
-                write!(f, "source_len_div_const({divisor})")
-            }
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ArrayTextEditProof {
-    ArrayGetLenHalfInsertMidSameSlot,
-    ArrayGetLenHalfInsertMidDestSlotLenOnly,
-}
-
-impl ArrayTextEditProof {
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::ArrayGetLenHalfInsertMidSameSlot => "array_get_lenhalf_insert_mid_same_slot",
-            Self::ArrayGetLenHalfInsertMidDestSlotLenOnly => {
-                "array_get_lenhalf_insert_mid_dest_slot_len_only"
-            }
-        }
-    }
-}
-
-impl std::fmt::Display for ArrayTextEditProof {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ArrayTextEditRoute {
-    block: BasicBlockId,
-    get_instruction_index: usize,
-    set_instruction_index: usize,
-    array_value: ValueId,
-    destination_array_value: ValueId,
-    index_value: ValueId,
-    source_value: ValueId,
-    length_value: ValueId,
-    split_value: ValueId,
-    result_value: ValueId,
-    result_len_value: Option<ValueId>,
-    middle_value: ValueId,
-    middle_text: String,
-    middle_byte_len: usize,
-    skip_instruction_indices: Vec<usize>,
-    edit_kind: ArrayTextEditKind,
-    split_policy: ArrayTextEditSplitPolicy,
-    proof: ArrayTextEditProof,
-}
-
-impl ArrayTextEditRoute {
-    pub fn block(&self) -> BasicBlockId {
-        self.block
-    }
-
-    pub fn get_instruction_index(&self) -> usize {
-        self.get_instruction_index
-    }
-
-    pub fn set_instruction_index(&self) -> usize {
-        self.set_instruction_index
-    }
-
-    pub fn array_value(&self) -> ValueId {
-        self.array_value
-    }
-
-    pub fn destination_array_value(&self) -> ValueId {
-        self.destination_array_value
-    }
-
-    pub fn index_value(&self) -> ValueId {
-        self.index_value
-    }
-
-    pub fn source_value(&self) -> ValueId {
-        self.source_value
-    }
-
-    pub fn length_value(&self) -> ValueId {
-        self.length_value
-    }
-
-    pub fn split_value(&self) -> ValueId {
-        self.split_value
-    }
-
-    pub fn result_value(&self) -> ValueId {
-        self.result_value
-    }
-
-    pub fn result_len_value(&self) -> Option<ValueId> {
-        self.result_len_value
-    }
-
-    pub fn middle_value(&self) -> ValueId {
-        self.middle_value
-    }
-
-    pub fn middle_text(&self) -> &str {
-        &self.middle_text
-    }
-
-    pub fn middle_byte_len(&self) -> usize {
-        self.middle_byte_len
-    }
-
-    pub fn skip_instruction_indices(&self) -> &[usize] {
-        &self.skip_instruction_indices
-    }
-
-    pub fn edit_kind(&self) -> &'static str {
-        self.edit_kind.as_str()
-    }
-
-    pub fn split_policy(&self) -> String {
-        self.split_policy.to_string()
-    }
-
-    pub fn proof(&self) -> &'static str {
-        self.proof.as_str()
-    }
-
-    pub fn is_lenhalf_insert_mid_same_slot(&self) -> bool {
-        self.edit_kind == ArrayTextEditKind::InsertMidConst
-            && self.split_policy == (ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 })
-            && self.proof == ArrayTextEditProof::ArrayGetLenHalfInsertMidSameSlot
-    }
-
-    pub fn is_lenhalf_insert_mid_dest_slot_len_only(&self) -> bool {
-        self.edit_kind == ArrayTextEditKind::InsertMidConst
-            && self.split_policy == (ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 })
-            && self.proof == ArrayTextEditProof::ArrayGetLenHalfInsertMidDestSlotLenOnly
-    }
-}
+pub use model::ArrayTextEditRoute;
+use model::{ArrayTextEditKind, ArrayTextEditProof, ArrayTextEditSplitPolicy};
 
 pub fn refresh_module_array_text_edit_routes(module: &mut MirModule) {
     for function in module.functions.values_mut() {
@@ -747,8 +587,13 @@ fn match_lenhalf_insert_mid_same_slot_route(
     source_value: ValueId,
 ) -> Option<ArrayTextEditRoute> {
     let instructions = block.instructions.as_slice();
-    let mut matched =
-        match_lenhalf_insert_mid_prefix(function, def_map, block, get_instruction_index, source_value)?;
+    let mut matched = match_lenhalf_insert_mid_prefix(
+        function,
+        def_map,
+        block,
+        get_instruction_index,
+        source_value,
+    )?;
     let (set_array, set_index, set_value) = match_set_call(instructions.get(matched.cursor)?)?;
     if !same_root(function, def_map, set_array, array_value)
         || !same_root(function, def_map, set_index, index_value)
@@ -798,8 +643,13 @@ fn match_lenhalf_insert_mid_dest_slot_len_only_route(
     source_value: ValueId,
 ) -> Option<ArrayTextEditRoute> {
     let instructions = block.instructions.as_slice();
-    let mut matched =
-        match_lenhalf_insert_mid_prefix(function, def_map, block, get_instruction_index, source_value)?;
+    let mut matched = match_lenhalf_insert_mid_prefix(
+        function,
+        def_map,
+        block,
+        get_instruction_index,
+        source_value,
+    )?;
 
     let (set_array, set_index, set_value) = match_set_call(instructions.get(matched.cursor)?)?;
     if same_root(function, def_map, set_array, array_value)
@@ -812,8 +662,10 @@ fn match_lenhalf_insert_mid_dest_slot_len_only_route(
     matched.skip.push(matched.cursor);
     matched.cursor += 1;
 
-    let middle_len_value =
-        match_const_i64(instructions.get(matched.cursor)?, matched.middle_text.len() as i64)?;
+    let middle_len_value = match_const_i64(
+        instructions.get(matched.cursor)?,
+        matched.middle_text.len() as i64,
+    )?;
     matched.skip.push(matched.cursor);
     matched.cursor += 1;
 
