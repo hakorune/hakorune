@@ -845,18 +845,19 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1023-ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-VALIDATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1024-ARRAY-TEXT-APPEND-UPDATE-BACKEND-MEASUREMENT-001.md"
 
-latest_card = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-VALIDATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1023-ARRAY-TEXT-APPEND-UPDATE-BACKEND-LOWERING-VALIDATION-001.md"
-latest_card_summary = """Target-front validation passed for the append/update
-observer len-sum backend lowering. MIR metadata still exposes one
-sink_store_len_sum executor contract, and direct micro-ASM reaches
-nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi in ny_main.
-The old store-count helper and per-iteration get/indexOf/concat/set/length
-materialization route are absent from the ny_main objdump snippet. Product
-behavior changes and winner claims remain disabled."""
-current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-MEASUREMENT-001"
+latest_card = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-MEASUREMENT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1024-ARRAY-TEXT-APPEND-UPDATE-BACKEND-MEASUREMENT-001.md"
+latest_card_summary = """Target-front measurement confirms the append/update
+backend fast path is a kernel keeper: ratio_kernel_instr=37.16 and
+ratio_kernel_cycles=35.66 after ny_main collapsed to
+nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi plus final
+array.len_h. Total wall winner claim remains disabled because total_ms still
+includes startup/runner effects and ratio_total_ms=0.80. The next owner is no
+longer backend reachability for this front; closeout should return to fresh
+owner selection unless a separate runtime-helper owner is selected."""
+current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
