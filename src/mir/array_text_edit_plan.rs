@@ -1,8 +1,10 @@
 /*!
- * MIR-owned array/text same-cell edit routes.
+ * MIR-owned array/text edit routes.
  *
- * This module owns the current H27 edit contract:
- * `array.get(i).length() -> split = len / 2 -> same-slot insert-mid const`.
+ * This module owns the current array/text edit contracts:
+ * - same-slot `array.get(i).length() -> split = len / 2 -> insert-mid const`
+ * - cross-array len-only store evidence where `src.get(i)` feeds `dst.set(i, out)`
+ *   and only the resulting length is observed.
  * Backends may consume this metadata to select a helper call and skip the
  * covered instructions, but they must not rediscover edit legality from raw
  * MIR JSON.
@@ -54,12 +56,16 @@ impl std::fmt::Display for ArrayTextEditSplitPolicy {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ArrayTextEditProof {
     ArrayGetLenHalfInsertMidSameSlot,
+    ArrayGetLenHalfInsertMidDestSlotLenOnly,
 }
 
 impl ArrayTextEditProof {
     fn as_str(self) -> &'static str {
         match self {
             Self::ArrayGetLenHalfInsertMidSameSlot => "array_get_lenhalf_insert_mid_same_slot",
+            Self::ArrayGetLenHalfInsertMidDestSlotLenOnly => {
+                "array_get_lenhalf_insert_mid_dest_slot_len_only"
+            }
         }
     }
 }
@@ -76,11 +82,13 @@ pub struct ArrayTextEditRoute {
     get_instruction_index: usize,
     set_instruction_index: usize,
     array_value: ValueId,
+    destination_array_value: ValueId,
     index_value: ValueId,
     source_value: ValueId,
     length_value: ValueId,
     split_value: ValueId,
     result_value: ValueId,
+    result_len_value: Option<ValueId>,
     middle_value: ValueId,
     middle_text: String,
     middle_byte_len: usize,
@@ -107,6 +115,10 @@ impl ArrayTextEditRoute {
         self.array_value
     }
 
+    pub fn destination_array_value(&self) -> ValueId {
+        self.destination_array_value
+    }
+
     pub fn index_value(&self) -> ValueId {
         self.index_value
     }
@@ -125,6 +137,10 @@ impl ArrayTextEditRoute {
 
     pub fn result_value(&self) -> ValueId {
         self.result_value
+    }
+
+    pub fn result_len_value(&self) -> Option<ValueId> {
+        self.result_len_value
     }
 
     pub fn middle_value(&self) -> ValueId {
@@ -160,6 +176,12 @@ impl ArrayTextEditRoute {
             && self.split_policy == (ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 })
             && self.proof == ArrayTextEditProof::ArrayGetLenHalfInsertMidSameSlot
     }
+
+    pub fn is_lenhalf_insert_mid_dest_slot_len_only(&self) -> bool {
+        self.edit_kind == ArrayTextEditKind::InsertMidConst
+            && self.split_policy == (ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 })
+            && self.proof == ArrayTextEditProof::ArrayGetLenHalfInsertMidDestSlotLenOnly
+    }
 }
 
 pub fn refresh_module_array_text_edit_routes(module: &mut MirModule) {
@@ -183,6 +205,19 @@ pub fn refresh_function_array_text_edit_routes(function: &mut MirFunction) {
                 continue;
             };
             if let Some(route) = match_lenhalf_insert_mid_same_slot_route(
+                function,
+                &def_map,
+                block,
+                block_id,
+                instruction_index,
+                array_value,
+                index_value,
+                source_value,
+            ) {
+                routes.push(route);
+                continue;
+            }
+            if let Some(route) = match_lenhalf_insert_mid_dest_slot_len_only_route(
                 function,
                 &def_map,
                 block,
@@ -258,6 +293,52 @@ fn match_const_string(
     }
 }
 
+fn match_string_value_inst(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+) -> Option<(ValueId, String)> {
+    let value = match inst {
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::String(_),
+        } => *dst,
+        MirInstruction::Copy { dst, .. } => *dst,
+        _ => return None,
+    };
+    let text = match_const_string(function, def_map, value)?;
+    Some((value, text))
+}
+
+fn advance_to_string_value_inst(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    instructions: &[MirInstruction],
+    mut cursor: usize,
+    values: &mut [ValueId],
+    skip: &mut Vec<usize>,
+) -> Option<(usize, ValueId, String)> {
+    while let Some(inst) = instructions.get(cursor) {
+        if let Some((value, text)) = match_string_value_inst(function, def_map, inst) {
+            return Some((cursor, value, text));
+        }
+        match inst {
+            MirInstruction::Copy { dst, src } => {
+                if let Some(slot) = values
+                    .iter()
+                    .position(|value| same_root(function, def_map, *src, *value))
+                {
+                    skip.push(cursor);
+                    values[slot] = *dst;
+                }
+                cursor += 1;
+            }
+            _ => return None,
+        }
+    }
+    None
+}
+
 fn match_binop(
     inst: &MirInstruction,
     op: BinaryOp,
@@ -325,6 +406,45 @@ fn match_set_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> 
             Some((*receiver, args[0], args[1]))
         }
         _ => None,
+    }
+}
+
+fn match_len_plus_middle(
+    inst: &MirInstruction,
+    length: ValueId,
+    middle_len: i64,
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+) -> Option<ValueId> {
+    let MirInstruction::BinOp {
+        dst,
+        op: BinaryOp::Add,
+        lhs,
+        rhs,
+    } = inst
+    else {
+        return None;
+    };
+    let lhs_root = root(function, def_map, *lhs);
+    let rhs_root = root(function, def_map, *rhs);
+    let length_root = root(function, def_map, length);
+    let middle_const = |value| {
+        let (block, index) = def_map.get(&root(function, def_map, value)).copied()?;
+        match function.blocks.get(&block)?.instructions.get(index)? {
+            MirInstruction::Const {
+                value: ConstValue::Integer(actual),
+                ..
+            } if *actual == middle_len => Some(()),
+            _ => None,
+        }
+    };
+
+    if lhs_root == length_root && middle_const(*rhs).is_some()
+        || rhs_root == length_root && middle_const(*lhs).is_some()
+    {
+        Some(*dst)
+    } else {
+        None
     }
 }
 
@@ -399,17 +519,55 @@ fn has_uncovered_use(
     })
 }
 
-#[allow(clippy::too_many_arguments)]
-fn match_lenhalf_insert_mid_same_slot_route(
+struct LenHalfInsertMidMatch {
+    cursor: usize,
+    skip: Vec<usize>,
+    carried: ValueId,
+    length_value: ValueId,
+    length_final: ValueId,
+    length_for_split: ValueId,
+    divisor_value: ValueId,
+    split_value: ValueId,
+    left_value: ValueId,
+    right_value: ValueId,
+    left_final: ValueId,
+    right_final: ValueId,
+    middle_value: ValueId,
+    middle_text: String,
+    pair_value: ValueId,
+    pair_final: ValueId,
+    result_value: ValueId,
+}
+
+impl LenHalfInsertMidMatch {
+    fn base_consumed_values(&self, source_value: ValueId) -> [ValueId; 15] {
+        [
+            source_value,
+            self.carried,
+            self.length_value,
+            self.length_final,
+            self.length_for_split,
+            self.divisor_value,
+            self.split_value,
+            self.left_value,
+            self.right_value,
+            self.left_final,
+            self.right_final,
+            self.middle_value,
+            self.pair_value,
+            self.pair_final,
+            self.result_value,
+        ]
+    }
+}
+
+fn match_lenhalf_insert_mid_prefix(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
     block: &BasicBlock,
-    block_id: BasicBlockId,
     get_instruction_index: usize,
-    array_value: ValueId,
-    index_value: ValueId,
     source_value: ValueId,
-) -> Option<ArrayTextEditRoute> {
+) -> Option<LenHalfInsertMidMatch> {
     let instructions = block.instructions.as_slice();
     let mut skip = Vec::new();
     let (mut cursor, carried) = skip_copy_chain(
@@ -500,21 +658,35 @@ fn match_lenhalf_insert_mid_same_slot_route(
     );
     let [left_final, right_final] = concat_values;
 
-    let middle_value = match instructions.get(cursor)? {
-        MirInstruction::Const {
-            dst,
-            value: ConstValue::String(_),
-        } => *dst,
-        _ => return None,
-    };
-    let middle_text = match_const_string(function, def_map, middle_value)?;
+    let mut source_values = [left_final, right_final];
+    let (middle_cursor, middle_value, middle_text) = advance_to_string_value_inst(
+        function,
+        def_map,
+        instructions,
+        cursor,
+        &mut source_values,
+        &mut skip,
+    )?;
+    let [left_final, right_final] = source_values;
+    cursor = middle_cursor;
     skip.push(cursor);
     cursor += 1;
+
+    let mut final_values = [left_final, right_final, middle_value];
+    cursor = skip_interleaved_copies(
+        function,
+        def_map,
+        instructions,
+        cursor,
+        &mut final_values,
+        &mut skip,
+    );
+    let [left_final, right_final, middle_final] = final_values;
 
     let pair_value = match_add_either(
         instructions.get(cursor)?,
         left_final,
-        middle_value,
+        middle_final,
         function,
         def_map,
     )?;
@@ -542,18 +714,9 @@ fn match_lenhalf_insert_mid_same_slot_route(
     skip.push(cursor);
     cursor += 1;
 
-    let (set_array, set_index, set_value) = match_set_call(instructions.get(cursor)?)?;
-    if !same_root(function, def_map, set_array, array_value)
-        || !same_root(function, def_map, set_index, index_value)
-        || !same_root(function, def_map, set_value, result_value)
-    {
-        return None;
-    }
-    let set_instruction_index = cursor;
-    skip.push(cursor);
-
-    let consumed = [
-        source_value,
+    Some(LenHalfInsertMidMatch {
+        cursor,
+        skip,
         carried,
         length_value,
         length_final,
@@ -565,11 +728,39 @@ fn match_lenhalf_insert_mid_same_slot_route(
         left_final,
         right_final,
         middle_value,
+        middle_text,
         pair_value,
         pair_final,
         result_value,
-    ];
-    if has_uncovered_use(function, def_map, block_id, cursor, &consumed) {
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn match_lenhalf_insert_mid_same_slot_route(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    block: &BasicBlock,
+    block_id: BasicBlockId,
+    get_instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+) -> Option<ArrayTextEditRoute> {
+    let instructions = block.instructions.as_slice();
+    let mut matched =
+        match_lenhalf_insert_mid_prefix(function, def_map, block, get_instruction_index, source_value)?;
+    let (set_array, set_index, set_value) = match_set_call(instructions.get(matched.cursor)?)?;
+    if !same_root(function, def_map, set_array, array_value)
+        || !same_root(function, def_map, set_index, index_value)
+        || !same_root(function, def_map, set_value, matched.result_value)
+    {
+        return None;
+    }
+    let set_instruction_index = matched.cursor;
+    matched.skip.push(matched.cursor);
+
+    let consumed = matched.base_consumed_values(source_value);
+    if has_uncovered_use(function, def_map, block_id, matched.cursor, &consumed) {
         return None;
     }
 
@@ -578,18 +769,88 @@ fn match_lenhalf_insert_mid_same_slot_route(
         get_instruction_index,
         set_instruction_index,
         array_value: root(function, def_map, array_value),
+        destination_array_value: root(function, def_map, array_value),
         index_value: root(function, def_map, index_value),
         source_value: root(function, def_map, source_value),
-        length_value,
-        split_value,
-        result_value,
-        middle_byte_len: middle_text.len(),
-        middle_value,
-        middle_text,
-        skip_instruction_indices: skip,
+        length_value: matched.length_value,
+        split_value: matched.split_value,
+        result_value: matched.result_value,
+        result_len_value: None,
+        middle_byte_len: matched.middle_text.len(),
+        middle_value: matched.middle_value,
+        middle_text: matched.middle_text,
+        skip_instruction_indices: matched.skip,
         edit_kind: ArrayTextEditKind::InsertMidConst,
         split_policy: ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 },
         proof: ArrayTextEditProof::ArrayGetLenHalfInsertMidSameSlot,
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn match_lenhalf_insert_mid_dest_slot_len_only_route(
+    function: &MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+    block: &BasicBlock,
+    block_id: BasicBlockId,
+    get_instruction_index: usize,
+    array_value: ValueId,
+    index_value: ValueId,
+    source_value: ValueId,
+) -> Option<ArrayTextEditRoute> {
+    let instructions = block.instructions.as_slice();
+    let mut matched =
+        match_lenhalf_insert_mid_prefix(function, def_map, block, get_instruction_index, source_value)?;
+
+    let (set_array, set_index, set_value) = match_set_call(instructions.get(matched.cursor)?)?;
+    if same_root(function, def_map, set_array, array_value)
+        || !same_root(function, def_map, set_index, index_value)
+        || !same_root(function, def_map, set_value, matched.result_value)
+    {
+        return None;
+    }
+    let set_instruction_index = matched.cursor;
+    matched.skip.push(matched.cursor);
+    matched.cursor += 1;
+
+    let middle_len_value =
+        match_const_i64(instructions.get(matched.cursor)?, matched.middle_text.len() as i64)?;
+    matched.skip.push(matched.cursor);
+    matched.cursor += 1;
+
+    let result_len_value = match_len_plus_middle(
+        instructions.get(matched.cursor)?,
+        matched.length_final,
+        matched.middle_text.len() as i64,
+        function,
+        def_map,
+    )?;
+    matched.skip.push(matched.cursor);
+
+    let mut consumed = matched.base_consumed_values(source_value).to_vec();
+    consumed.push(middle_len_value);
+    if has_uncovered_use(function, def_map, block_id, matched.cursor, &consumed) {
+        return None;
+    }
+
+    Some(ArrayTextEditRoute {
+        block: block_id,
+        get_instruction_index,
+        set_instruction_index,
+        array_value: root(function, def_map, array_value),
+        destination_array_value: root(function, def_map, set_array),
+        index_value: root(function, def_map, index_value),
+        source_value: root(function, def_map, source_value),
+        length_value: matched.length_value,
+        split_value: matched.split_value,
+        result_value: matched.result_value,
+        result_len_value: Some(result_len_value),
+        middle_byte_len: matched.middle_text.len(),
+        middle_value: matched.middle_value,
+        middle_text: matched.middle_text,
+        skip_instruction_indices: matched.skip,
+        edit_kind: ArrayTextEditKind::InsertMidConst,
+        split_policy: ArrayTextEditSplitPolicy::SourceLenDivConst { divisor: 2 },
+        proof: ArrayTextEditProof::ArrayGetLenHalfInsertMidDestSlotLenOnly,
     })
 }
 
