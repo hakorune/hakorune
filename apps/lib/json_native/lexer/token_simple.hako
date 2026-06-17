@@ -3,13 +3,13 @@
 
 // 🌟 JSONトークン（Everything is Box）
 box JsonToken {
-    type: StringBox        // トークンタイプ
+    token_type: StringBox  // トークンタイプ
     value: StringBox       // トークンの値
     start: IntegerBox      // 開始位置
     end: IntegerBox        // 終了位置
     
     birth(token_type, token_value, start_pos, end_pos) {
-        me.type = token_type
+        me.token_type = token_type
         me.value = token_value
         me.start = start_pos
         me.end = end_pos
@@ -17,7 +17,7 @@ box JsonToken {
     
     // ===== アクセッサーメソッド =====
     
-    get_type() { return me.type }
+    get_type() { return me.token_type }
     get_value() { return me.value }
     get_start() { return me.start }
     get_end() { return me.end }
@@ -25,25 +25,25 @@ box JsonToken {
     // ===== 判定メソッド（簡易版） =====
     
     is_literal() {
-        return me.type == "NULL" or me.type == "TRUE" or me.type == "FALSE" or me.type == "NUMBER" or me.type == "STRING"
+        return me.token_type == "NULL" or me.token_type == "TRUE" or me.token_type == "FALSE" or me.token_type == "NUMBER" or me.token_type == "STRING"
     }
     
     is_structural() {
-        return me.type == "LBRACE" or me.type == "RBRACE" or me.type == "LBRACKET" or me.type == "RBRACKET" or me.type == "COMMA" or me.type == "COLON"
+        return me.token_type == "LBRACE" or me.token_type == "RBRACE" or me.token_type == "LBRACKET" or me.token_type == "RBRACKET" or me.token_type == "COMMA" or me.token_type == "COLON"
     }
     
     is_error() {
-        return me.type == "ERROR"
+        return me.token_type == "ERROR"
     }
     
     is_eof() {
-        return me.type == "EOF"
+        return me.token_type == "EOF"
     }
     
     // ===== デバッグ用メソッド =====
     
     to_string() {
-        return me.type + "(" + me.value + ") at " + me.start + "-" + me.end
+        return me.token_type + "(" + me.value + ") at " + me.start + "-" + me.end
     }
 }
 
