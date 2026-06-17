@@ -1006,20 +1006,24 @@ unless the user explicitly wants a wider optimization discovery pass.
 FASTPATH-RESIDUE-AUDIT-001 then checked the reported medium/low residue list:
 callsite canonicalize is already centralized behind schedule facade entries,
 Rust-side FastPathReachability / FastPathDenyOwner and ExactStackObject code
-residue are retired, and object_storage_plan report keys have no duplicate."""
+residue are retired, and object_storage_plan report keys have no duplicate.
+EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001 resolves the lane decision by pausing
+the exact-AOT fastpath optimization lane: no fresh compiler optimization owner
+is selected, user-box fastpath gaps are closed, and residue audit is clean.
+The next recommended lane is compiler construction / selfhost app front
+selection, with picohttpparser-lite as the first candidate to evaluate."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1073-FASTPATH-RESIDUE-AUDIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1074-EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001.md"
 
-latest_card = "FASTPATH-RESIDUE-AUDIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1073-FASTPATH-RESIDUE-AUDIT-001.md"
-latest_card_summary = """Audit of reported fastpath/object-storage/callsite
-residue: callsite canonicalize four entries are intentional schedule facade
-entries, FastPathReachability/FastPathDenyOwner and ExactStackObject code
-residue are retired, and object_storage_plan report keys have no duplicate."""
-current_blocker_token = "NEXT-LANE-SELECTION-AFTER-FASTPATH-SWEEP-001"
+latest_card = "EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1074-EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001.md"
+latest_card_summary = """Pause checkpoint for exact-AOT fastpath optimization:
+fresh owner selected=0, user-box fastpath gap closed, residue audit clean, and
+next lane recommended as compiler construction / selfhost app front selection."""
+current_blocker_token = "SELFHOST-APP-FRONT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
