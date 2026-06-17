@@ -890,20 +890,24 @@ for the remaining passive residue: exact_stack_object_external_producer_count=0,
 fastpath_decision_non_test_consumer_count>=1, and
 fastpath_reachability_non_test_consumer_count=0. It keeps resolver/backend
 execution disabled and requires a separate retire/design row before deletion or
-merge."""
+merge. RESIDUE-RETIRE-DESIGN-QUEUE-001 fixes the stop-line and queue:
+CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001 first, then
+EXACT-STACK-OBJECT-RETIRE-DESIGN-001 or
+FASTPATH-REACHABILITY-RETIRE-OR-ENABLE-DESIGN-001. No deletion, schedule
+change, backend behavior change, or implementation is allowed by the queue row."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1044-OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1045-RESIDUE-RETIRE-DESIGN-QUEUE-001.md"
 
-latest_card = "OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1044-OBJECT-STORAGE-PASSIVE-VOCAB-USAGE-INVENTORY-001.md"
-latest_card_summary = """Object storage passive vocabulary usage inventory is
-landed. The read-only audit reports ExactStackObject has no external code
-producer, FastPathDecision has non-test inventory consumers, and
-FastPathReachability has no non-test execution consumer; retire/merge remains a
-separate design decision."""
+latest_card = "RESIDUE-RETIRE-DESIGN-QUEUE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1045-RESIDUE-RETIRE-DESIGN-QUEUE-001.md"
+latest_card_summary = """Residue retire design queue is landed. It selects
+CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001 as the first design decision and
+keeps ExactStackObject / FastPathReachability retire-or-enable work behind
+separate design rows. No implementation, deletion, schedule change, or backend
+behavior change is allowed by this row."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
