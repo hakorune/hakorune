@@ -845,19 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1025-ARRAY-TEXT-APPEND-UPDATE-BACKEND-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1026-FRESH-COMPILER-OWNER-SELECTION-003.md"
 
-latest_card = "ARRAY-TEXT-APPEND-UPDATE-BACKEND-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1025-ARRAY-TEXT-APPEND-UPDATE-BACKEND-CLOSEOUT-001.md"
-latest_card_summary = """The append/update observer len-sum backend row is
-closed as a target-front kernel keeper. ny_main reaches
-nyash.array.string_indexof_suffix_store_len_sum_region_hiisisi, the old
-per-iteration materialization route is absent from the ny_main objdump snippet,
-and measurement reports ratio_kernel_instr=37.16 / ratio_kernel_cycles=35.66.
-Product-wide and total-wall winner claims remain disabled
-(ratio_total_ms=0.80). Further work must return to owner-first selection or
-open a separate runtime-helper body owner."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-003"
+latest_card = "FRESH-COMPILER-OWNER-SELECTION-003"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1026-FRESH-COMPILER-OWNER-SELECTION-003.md"
+latest_card_summary = """The fresh exact-AOT sweep selected no successful-front
+compiler optimization owner. Closed/tiny exact fronts and Hako-faster fronts
+are not reopened, and kilo_micro_substring_views_only is rejected as a
+tiny-floor residue. The only actionable candidate is
+kilo_micro_len_substring_views, which fails AOT as
+pure_first_unsupported_shape; that is a compiler coverage blocker, not a perf
+owner."""
+current_blocker_token = "LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
