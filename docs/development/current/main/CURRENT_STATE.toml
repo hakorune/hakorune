@@ -845,20 +845,21 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1013-ARRAY-TEXT-COPY-NOISE-ORIGIN-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1014-FRESH-COMPILER-OWNER-SELECTION-002.md"
 
-latest_card = "ARRAY-TEXT-COPY-NOISE-ORIGIN-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1013-ARRAY-TEXT-COPY-NOISE-ORIGIN-INVENTORY-001.md"
-latest_card_summary = """The Copy noise inside the selected
-kilo_meso_substring_concat_array_set array_text_edit route was inventoried.
-Skipped copies are len / left-substring / right-substring SSA carriers, while
-the unrelated tolerated `%7 -> %84 -> %83` chain is the destination-array
-receiver carrier for dst.set(row,out), owned by MethodCall receiver
-materialization through finalize_call_operands / finalize_method_receiver /
-pin_to_slot(@recv) / ssa::local::recv. Classification is normal SSA carrier
-noise, not a new implementation owner; broad LocalSSA coalescing and receiver
-materialization changes remain closed."""
-current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-002"
+latest_card = "FRESH-COMPILER-OWNER-SELECTION-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1014-FRESH-COMPILER-OWNER-SELECTION-002.md"
+latest_card_summary = """Fresh owner selection after the array-text store keeper
+reconfirmed kilo_meso_substring_concat_array_set as closed enough
+(ratio_kernel_cycles=0.93), array_set_loopcarry as an equivalence guard,
+and substring_concat_len as closed-form exact-seed output. The only remaining
+large measured gap is kilo_meso_indexof_append_array_set, but perf points to a
+broad text materialization / allocator boundary rather than a narrow compiler
+fastpath: malloc_consolidate=34.50%, ArrayBox::boxed_from_text=19.55%,
+_int_malloc=16.32%, and memmove=13.62%. The next row is inventory only:
+identify whether this broad front has a narrow compiler-route seam before any
+implementation."""
+current_blocker_token = "INDEXOF-APPEND-MATERIALIZATION-BOUNDARY-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
