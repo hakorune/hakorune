@@ -142,6 +142,14 @@ fn report_fields_keep_execution_disabled() {
 }
 
 #[test]
+fn report_fields_have_unique_keys() {
+    let mut seen = std::collections::BTreeSet::new();
+    for (key, _) in object_storage_plan_report_fields() {
+        assert!(seen.insert(*key), "duplicate object storage report key: {key}");
+    }
+}
+
+#[test]
 fn local_first_plan_tracks_publication_sites_without_enabling_execution() {
     let unpublished = ObjectPlan::new(
         ObjectValueId(1),

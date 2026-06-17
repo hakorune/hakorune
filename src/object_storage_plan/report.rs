@@ -37,7 +37,6 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("object_plan_local_first_vocabulary_defined", "1"),
         ("object_plan_publication_sites_defined", "1"),
         ("standalone_publication_plan_enabled", "0"),
-        ("unknown_publication_forces_generic_fallback", "1"),
         ("publication_state_vocabulary_defined", "1"),
         ("publication_state_unpublished_fastpath_allowed", "1"),
         ("publication_state_published_fastpath_allowed", "0"),
