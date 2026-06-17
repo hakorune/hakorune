@@ -9,6 +9,7 @@ Please implement the .hako version of apps/rust-subset-to-hako.
 Read these files first:
 - apps/rust-subset-to-hako/README.md
 - apps/rust-subset-to-hako/DESIGN.md
+- apps/rust-subset-to-hako/HAKO_JSON_PLAN.md
 - apps/rust-subset-to-hako/schema/RustSubset-v0.md
 - apps/rust-subset-to-hako/convert.py
 - apps/rust-subset-to-hako/selftest.py
@@ -23,7 +24,7 @@ Create a .hako converter that matches the Python converter behavior for v0.
 
 Suggested files:
 - apps/rust-subset-to-hako/main.hako
-- apps/rust-subset-to-hako/lib/rust_subset_schema.hako
+- apps/rust-subset-to-hako/lib/rust_subset_json_reader.hako
 - apps/rust-subset-to-hako/lib/rust_subset_emit.hako
 - apps/rust-subset-to-hako/lib/rust_subset_cli.hako
 
@@ -33,6 +34,12 @@ Required behavior:
 3. Match examples/simple_expected.hako for examples/simple_subset.json.
 4. Match examples/edge_expected.hako for examples/edge_subset.json.
 5. Fail-fast for unknown item kind, using invalid_unknown_kind.json.
+
+JSON plan:
+- Reuse apps/lib/json_native first.
+- Put RustSubset schema navigation in rust_subset_json_reader.hako.
+- Do not build a JSON DLL/externcall for v0.
+- Do not reimplement a second JSON parser inside rust-subset-to-hako.
 
 V0 supported item kinds:
 - Struct
@@ -73,6 +80,8 @@ Mapping rules:
 
 Important constraints:
 - Do not implement Rust source parsing.
+- Do not implement a second JSON parser.
+- Do not require a JSON DLL/externcall for v0.
 - Do not implement borrow checking.
 - Do not implement macro expansion.
 - Do not implement trait/generic resolution.
