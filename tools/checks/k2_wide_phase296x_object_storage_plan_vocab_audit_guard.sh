@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 TAG="object-storage-plan-vocab-audit"
-CARD="docs/development/current/main/phases/phase-296x/296x-1056-SITE-LOCATION-AUDIT-STALE-ROW-CLEANUP-001.md"
+CARD="docs/development/current/main/phases/phase-296x/296x-1057-SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001.md"
 INDEX="docs/tools/check-scripts-index.md"
 TOOL="tools/hako_check/object_storage_plan_vocab_audit.py"
 TEST="tools/hako_check/tests/test_object_storage_plan_vocab_audit.py"
@@ -35,18 +35,20 @@ require_card_line() {
 
 for expected in \
   "output_contract=hako-object-storage-plan-vocab-audit-v0" \
-  "source_evidence=296x-996,296x-998,296x-999" \
+  "source_evidence=296x-1055,object-storage-plan-storage-rs" \
   "row_kind=inventory" \
   "keep_separate_count=6" \
-  "merge_candidate_count=1" \
+  "merge_candidate_count=0" \
   "immediate_merge_allowed=0" \
   "vocabulary_merge_count=0" \
   "fact_fallback_separation_preserved=1" \
   "public_api_reexport_preserved=1" \
   "guard_path_compat_landed=1" \
-  "object_site_location_field_migration_complete=1" \
-  "site_location_fields_candidate_retired=1" \
-  "first_safe_followup=SCALAR-FIELD-DESCRIPTOR-VOCABULARY-DESIGN-001" \
+  "scalar_field_descriptor_merge_enabled=0" \
+  "field_scalar_plan_kept=1" \
+  "flattened_nested_field_plan_kept=1" \
+  "scalar_field_descriptor_candidate_closed=1" \
+  "first_safe_followup=none" \
   "summary=ok"; do
   require_card_line "$expected"
 done
@@ -57,16 +59,16 @@ python3 "$TOOL" >/tmp/"$TAG".kv
 for expected in \
   "output_contract=hako-object-storage-plan-vocab-audit-v0" \
   "keep_separate_count=6" \
-  "merge_candidate_count=1" \
+  "merge_candidate_count=0" \
   "immediate_merge_allowed=0" \
   "vocabulary_merge_count=0" \
-  "object_site_location_field_migration_complete=1" \
-  "site_location_fields_candidate_retired=1" \
-  "first_safe_followup=SCALAR-FIELD-DESCRIPTOR-VOCABULARY-DESIGN-001" \
+  "scalar_field_descriptor_merge_enabled=0" \
+  "field_scalar_plan_kept=1" \
+  "flattened_nested_field_plan_kept=1" \
+  "scalar_field_descriptor_candidate_closed=1" \
+  "first_safe_followup=none" \
   "row_3_name=local_fastpath_fact" \
-  "row_3_action=keep" \
-  "row_6_name=scalar_field_descriptors" \
-  "row_6_action=defer"; do
+  "row_3_action=keep"; do
   grep -F -x -q "$expected" /tmp/"$TAG".kv || {
     echo "[$TAG] missing audit output: $expected" >&2
     exit 1

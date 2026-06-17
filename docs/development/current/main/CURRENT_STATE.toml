@@ -929,19 +929,23 @@ adds that report-only ReasonDomain classifier and removes reason_enums from the
 current merge-candidate list, leaving site_location_fields and
 scalar_field_descriptors. SITE-LOCATION-AUDIT-STALE-ROW-CLEANUP-001 removes
 the already-completed ObjectSiteLocation migration from the current audit,
-leaving scalar_field_descriptors as the only merge candidate."""
+leaving scalar_field_descriptors as the only merge candidate.
+SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001 keeps FieldScalarPlan and
+FlattenedNestedFieldPlan separate because flattened nested fields carry
+owner/nested/flattened mapping payload; the current vocabulary audit now has
+merge_candidate_count=0."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1056-SITE-LOCATION-AUDIT-STALE-ROW-CLEANUP-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1057-SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001.md"
 
-latest_card = "SITE-LOCATION-AUDIT-STALE-ROW-CLEANUP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1056-SITE-LOCATION-AUDIT-STALE-ROW-CLEANUP-001.md"
-latest_card_summary = """Site location audit stale-row cleanup is landed.
-ObjectSiteLocation already owns block/instruction storage in current
-object_storage_plan rows, so site_location_fields is removed from the audit;
-scalar_field_descriptors is the only remaining merge candidate."""
+latest_card = "SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1057-SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001.md"
+latest_card_summary = """Scalar field descriptor vocabulary closeout is
+landed. FieldScalarPlan and FlattenedNestedFieldPlan remain separate because
+their semantic payload differs, and the object storage vocabulary audit now has
+merge_candidate_count=0."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

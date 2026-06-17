@@ -22,7 +22,7 @@ class ObjectStoragePlanVocabAuditTest(unittest.TestCase):
 
         self.assertEqual(rows["output_contract"], "hako-object-storage-plan-vocab-audit-v0")
         self.assertEqual(rows["keep_separate_count"], "6")
-        self.assertEqual(rows["merge_candidate_count"], "1")
+        self.assertEqual(rows["merge_candidate_count"], "0")
         self.assertEqual(rows["immediate_merge_allowed"], "0")
         self.assertEqual(rows["vocabulary_merge_count"], "0")
         self.assertEqual(rows["fact_fallback_separation_preserved"], "1")
@@ -38,17 +38,19 @@ class ObjectStoragePlanVocabAuditTest(unittest.TestCase):
         self.assertEqual(rows["reason_domain_fastpath_enum_kept"], "1")
         self.assertEqual(rows["object_site_location_field_migration_complete"], "1")
         self.assertEqual(rows["site_location_fields_candidate_retired"], "1")
+        self.assertEqual(rows["scalar_field_descriptor_merge_enabled"], "0")
+        self.assertEqual(rows["field_scalar_plan_kept"], "1")
+        self.assertEqual(rows["flattened_nested_field_plan_kept"], "1")
+        self.assertEqual(rows["scalar_field_descriptor_candidate_closed"], "1")
         self.assertEqual(rows["fastpath_reachability_rust_vocab_retired"], "1")
         self.assertEqual(rows["fastpath_reachability_tooling_owner"], "hako_check")
         self.assertGreaterEqual(int(rows["fastpath_decision_non_test_consumer_count"]), 1)
         self.assertEqual(rows["fastpath_reachability_non_test_consumer_count"], "0")
         self.assertEqual(rows["passive_vocab_execution_enabled"], "0")
         self.assertEqual(rows["vocab_retire_allowed"], "0")
-        self.assertEqual(rows["first_safe_followup"], "SCALAR-FIELD-DESCRIPTOR-VOCABULARY-DESIGN-001")
+        self.assertEqual(rows["first_safe_followup"], "none")
         self.assertEqual(rows["row_3_name"], "local_fastpath_fact")
         self.assertEqual(rows["row_3_action"], "keep")
-        self.assertEqual(rows["row_6_name"], "scalar_field_descriptors")
-        self.assertEqual(rows["row_6_action"], "defer")
 
 
 if __name__ == "__main__":
