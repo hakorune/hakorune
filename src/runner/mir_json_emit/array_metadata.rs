@@ -414,6 +414,19 @@ fn build_array_text_observer_routes_json(metadata: &FunctionMetadata) -> serde_j
             if let Some(byte_len) = route.observer_arg0_byte_len() {
                 obj["observer_arg0_byte_len"] = json!(byte_len);
             }
+            if let Some(diagnostic) = route.producer_shape_diagnostic() {
+                obj["producer_shape_diagnostic"] = json!({
+                    "const_suffix_concat_seen": diagnostic.const_suffix_concat_seen(),
+                    "same_slot_set_seen": diagnostic.same_slot_set_seen(),
+                    "concat_length_use_seen": diagnostic.concat_length_use_seen(),
+                    "concat_length_use_count": diagnostic.concat_length_use_count(),
+                    "non_length_concat_use_count": diagnostic.non_length_concat_use_count(),
+                    "row_index_mod_const_seen": diagnostic.row_index_mod_const_seen(),
+                    "row_modulus_const": diagnostic.row_modulus_const(),
+                    "length_result_feeds_accumulator_add": diagnostic.length_result_feeds_accumulator_add(),
+                    "failure_reason": diagnostic.failure_reason(),
+                });
+            }
             if let Some(contract) = route.executor_contract() {
                 let mut contract_obj = json!({
                     "execution_mode": contract.execution_mode(),

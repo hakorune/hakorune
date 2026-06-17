@@ -10,9 +10,9 @@ use super::super::{
 };
 
 use super::{
-    ArrayTextObserverArgRepr, ArrayTextObserverConsumerShape, ArrayTextObserverKind,
-    ArrayTextObserverProofRegion, ArrayTextObserverPublicationBoundary,
-    ArrayTextObserverResultRepr, ArrayTextObserverRoute,
+    diagnostic::diagnose_append_update_producer_shape, ArrayTextObserverArgRepr,
+    ArrayTextObserverConsumerShape, ArrayTextObserverKind, ArrayTextObserverProofRegion,
+    ArrayTextObserverPublicationBoundary, ArrayTextObserverResultRepr, ArrayTextObserverRoute,
 };
 
 pub fn refresh_module_array_text_observer_routes(module: &mut MirModule) {
@@ -129,8 +129,12 @@ fn match_array_text_indexof_route(
         selected_bridge_symbol,
         fallback_route: "nyash.array.string_indexof_hisi",
         fallback_policy: "fail_fast",
+        producer_shape_diagnostic: None,
         executor_contract: None,
     };
+    route.producer_shape_diagnostic = Some(diagnose_append_update_producer_shape(
+        function, def_map, &route,
+    ));
     route.executor_contract = derive_observer_store_region_contract(function, def_map, &route)
         .map(ArrayTextObserverExecutorContract::conditional_suffix_store_single_region);
     assert!(

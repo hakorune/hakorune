@@ -845,20 +845,18 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1017-ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-PREFLIGHT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1018-ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001.md"
 
-latest_card = "ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-PREFLIGHT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1017-ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-PREFLIGHT-001.md"
-latest_card_summary = """A passive metadata implementation attempt for the
-indexof suffix-store length-carry route was stopped before commit because it
-compiled but still produced array_text_observer_executor_contract_count=0 for
-the target front. The WIP patch was saved under target/array-text-append-update-region-payload-1017/
-for reference only. The blockers are now explicit: the row index is
-loop_index % 128, not the loop index itself, and the concat result remains live
-through updated.length(), so the store-only executor contract cannot be reused.
-The next row must diagnose the producer shape predicate-by-predicate before
-adding more vocabulary."""
-current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001"
+latest_card = "ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1018-ARRAY-TEXT-APPEND-UPDATE-PRODUCER-SHAPE-DIAGNOSTIC-001.md"
+latest_card_summary = """The diagnostic-only producer shape report landed.
+For the target front it observes const suffix concat, same-array same-row set,
+updated.length(), row index as loop_index % 128, and length feeding the
+accumulator add. The remaining failure reason is
+store_only_contract_rejects_length_carry, so the producer shape is present and
+the next row may add passive length-result-carry metadata without backend or
+runtime helper lowering."""
+current_blocker_token = "ARRAY-TEXT-APPEND-UPDATE-REGION-PAYLOAD-SURFACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

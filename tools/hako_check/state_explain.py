@@ -656,6 +656,21 @@ def main() -> int:
                     f"{prefix}_executor_contract_carrier={executor_contract.get('carrier', 'unknown')}",
                 ]
             )
+        diagnostic = route.get("producer_shape_diagnostic")
+        if isinstance(diagnostic, dict):
+            lines.extend(
+                [
+                    f"{prefix}_producer_shape_failure_reason={diagnostic.get('failure_reason', 'unknown')}",
+                    f"{prefix}_producer_shape_const_suffix_concat_seen={bool_text(bool(diagnostic.get('const_suffix_concat_seen', False)))}",
+                    f"{prefix}_producer_shape_same_slot_set_seen={bool_text(bool(diagnostic.get('same_slot_set_seen', False)))}",
+                    f"{prefix}_producer_shape_concat_length_use_seen={bool_text(bool(diagnostic.get('concat_length_use_seen', False)))}",
+                    f"{prefix}_producer_shape_concat_length_use_count={diagnostic.get('concat_length_use_count', 0)}",
+                    f"{prefix}_producer_shape_non_length_concat_use_count={diagnostic.get('non_length_concat_use_count', 0)}",
+                    f"{prefix}_producer_shape_row_index_mod_const_seen={bool_text(bool(diagnostic.get('row_index_mod_const_seen', False)))}",
+                    f"{prefix}_producer_shape_row_modulus_const={diagnostic.get('row_modulus_const', 'none')}",
+                    f"{prefix}_producer_shape_length_result_feeds_accumulator_add={bool_text(bool(diagnostic.get('length_result_feeds_accumulator_add', False)))}",
+                ]
+            )
 
     clean = len(record_state_residence_plans) == 0 or all(
         bool(row.get("summary", "ok") == "ok") for row in record_state_residence_plans

@@ -859,6 +859,17 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
                                 "selected_bridge_symbol": "hako.array_text.session_indexof_const_utf8",
                                 "fallback_route": "nyash.array.string_indexof_hisi",
                                 "fallback_policy": "fail_fast",
+                                "producer_shape_diagnostic": {
+                                    "const_suffix_concat_seen": True,
+                                    "same_slot_set_seen": True,
+                                    "concat_length_use_seen": True,
+                                    "concat_length_use_count": 1,
+                                    "non_length_concat_use_count": 0,
+                                    "row_index_mod_const_seen": True,
+                                    "row_modulus_const": 128,
+                                    "length_result_feeds_accumulator_add": True,
+                                    "failure_reason": "store_contract_candidate",
+                                },
                                 "executor_contract": {
                                     "publication_boundary": "none",
                                     "proof_region": "observe.indexof",
@@ -937,6 +948,18 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
             )
             self.assertIn(
                 "array_text_observer_route_0_executor_contract_publication_boundary=none",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_producer_shape_failure_reason=store_contract_candidate",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_producer_shape_const_suffix_concat_seen=1",
+                text,
+            )
+            self.assertIn(
+                "array_text_observer_route_0_producer_shape_row_modulus_const=128",
                 text,
             )
 

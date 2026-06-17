@@ -11,6 +11,8 @@ use super::{
     array_text_observer_region_contract::ArrayTextObserverExecutorContract, BasicBlockId, ValueId,
 };
 
+mod diagnostic;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArrayTextObserverKind {
     IndexOf,
@@ -164,6 +166,7 @@ pub struct ArrayTextObserverRoute {
     selected_bridge_symbol: &'static str,
     fallback_route: &'static str,
     fallback_policy: &'static str,
+    producer_shape_diagnostic: Option<ArrayTextObserverProducerShapeDiagnostic>,
     executor_contract: Option<ArrayTextObserverExecutorContract>,
 }
 
@@ -271,8 +274,87 @@ impl ArrayTextObserverRoute {
         self.fallback_policy
     }
 
+    pub fn producer_shape_diagnostic(&self) -> Option<&ArrayTextObserverProducerShapeDiagnostic> {
+        self.producer_shape_diagnostic.as_ref()
+    }
+
     pub fn executor_contract(&self) -> Option<&ArrayTextObserverExecutorContract> {
         self.executor_contract.as_ref()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayTextObserverProducerShapeDiagnostic {
+    const_suffix_concat_seen: bool,
+    same_slot_set_seen: bool,
+    concat_length_use_seen: bool,
+    concat_length_use_count: usize,
+    non_length_concat_use_count: usize,
+    row_index_mod_const_seen: bool,
+    row_modulus_const: Option<i64>,
+    length_result_feeds_accumulator_add: bool,
+    failure_reason: &'static str,
+}
+
+impl ArrayTextObserverProducerShapeDiagnostic {
+    pub(crate) fn new(
+        const_suffix_concat_seen: bool,
+        same_slot_set_seen: bool,
+        concat_length_use_seen: bool,
+        concat_length_use_count: usize,
+        non_length_concat_use_count: usize,
+        row_index_mod_const_seen: bool,
+        row_modulus_const: Option<i64>,
+        length_result_feeds_accumulator_add: bool,
+        failure_reason: &'static str,
+    ) -> Self {
+        Self {
+            const_suffix_concat_seen,
+            same_slot_set_seen,
+            concat_length_use_seen,
+            concat_length_use_count,
+            non_length_concat_use_count,
+            row_index_mod_const_seen,
+            row_modulus_const,
+            length_result_feeds_accumulator_add,
+            failure_reason,
+        }
+    }
+
+    pub fn const_suffix_concat_seen(&self) -> bool {
+        self.const_suffix_concat_seen
+    }
+
+    pub fn same_slot_set_seen(&self) -> bool {
+        self.same_slot_set_seen
+    }
+
+    pub fn concat_length_use_seen(&self) -> bool {
+        self.concat_length_use_seen
+    }
+
+    pub fn concat_length_use_count(&self) -> usize {
+        self.concat_length_use_count
+    }
+
+    pub fn non_length_concat_use_count(&self) -> usize {
+        self.non_length_concat_use_count
+    }
+
+    pub fn row_index_mod_const_seen(&self) -> bool {
+        self.row_index_mod_const_seen
+    }
+
+    pub fn row_modulus_const(&self) -> Option<i64> {
+        self.row_modulus_const
+    }
+
+    pub fn length_result_feeds_accumulator_add(&self) -> bool {
+        self.length_result_feeds_accumulator_add
+    }
+
+    pub fn failure_reason(&self) -> &'static str {
+        self.failure_reason
     }
 }
 

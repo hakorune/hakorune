@@ -231,6 +231,44 @@ fn marks_observer_arg_live_when_const_is_used_elsewhere() {
     assert!(route.observer_arg0_keep_live());
 }
 
+#[test]
+fn diagnoses_append_update_producer_shape_without_executor_contract() {
+    let mut function = test_function(MirType::Integer);
+    let block = entry_block(&mut function);
+    block.add_instruction(const_i(3, 0));
+    block.add_instruction(const_i(4, 128));
+    block.add_instruction(mod_op(5, 2, 4));
+    block.add_instruction(array_get(10, 1, 5));
+    block.add_instruction(const_s(11, "line"));
+    block.add_instruction(indexof_call(12, 10, 11));
+    block.add_instruction(const_i(13, 0));
+    block.add_instruction(compare(14, CompareOp::Ge, 12, 13));
+    block.add_instruction(const_s(15, "ln"));
+    block.add_instruction(add(16, 10, 15));
+    block.add_instruction(array_set(17, 1, 5, 16));
+    block.add_instruction(len_call(18, 16));
+    block.add_instruction(add(19, 3, 18));
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(19)),
+    });
+
+    refresh_function_array_text_observer_routes(&mut function);
+
+    let route = &function.metadata.array_text_observer_routes[0];
+    let diagnostic = route
+        .producer_shape_diagnostic()
+        .expect("producer shape diagnostic");
+    assert!(diagnostic.const_suffix_concat_seen());
+    assert!(diagnostic.same_slot_set_seen());
+    assert!(diagnostic.concat_length_use_seen());
+    assert_eq!(diagnostic.concat_length_use_count(), 1);
+    assert_eq!(diagnostic.non_length_concat_use_count(), 0);
+    assert!(diagnostic.row_index_mod_const_seen());
+    assert_eq!(diagnostic.row_modulus_const(), Some(128));
+    assert!(diagnostic.length_result_feeds_accumulator_add());
+    assert_eq!(diagnostic.failure_reason(), "store_contract_candidate");
+}
+
 fn test_function(return_type: MirType) -> MirFunction {
     let signature = FunctionSignature {
         name: "main".to_string(),
@@ -300,6 +338,15 @@ fn add(dst: u32, lhs: u32, rhs: u32) -> MirInstruction {
     MirInstruction::BinOp {
         dst: ValueId::new(dst),
         op: BinaryOp::Add,
+        lhs: ValueId::new(lhs),
+        rhs: ValueId::new(rhs),
+    }
+}
+
+fn mod_op(dst: u32, lhs: u32, rhs: u32) -> MirInstruction {
+    MirInstruction::BinOp {
+        dst: ValueId::new(dst),
+        op: BinaryOp::Mod,
         lhs: ValueId::new(lhs),
         rhs: ValueId::new(rhs),
     }
