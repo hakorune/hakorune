@@ -1026,19 +1026,23 @@ BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001 moves that vocabulary into the new
 `hakorune-mir-plans` crate behind the existing `src/object_storage_plan.rs`
 compatibility facade. BUILD-TIME-BASELINE-MEASURE-001 records the first cold
 post-split release baseline: cargo build --release --bin hakorune real=157.37s,
-user=208.27s, sys=9.49s, with large_file_count=0."""
+user=208.27s, sys=9.49s, with large_file_count=0.
+BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001 selects `aggregate_storage_plan` as
+the next passive family, and BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001 moves
+it into `hakorune-mir-plans` behind the existing `src/aggregate_storage_plan.rs`
+compatibility facade."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md"
 
-latest_card = "BUILD-TIME-BASELINE-MEASURE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md"
-latest_card_summary = """Cold release build-time baseline after first crate
-split slices: real=157.37s, user=208.27s, sys=9.49s; no 800-line files
-detected in src/crate split surfaces."""
-current_blocker_token = "BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001"
+latest_card = "BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md"
+latest_card_summary = """Second hakorune-mir-plans passive split:
+aggregate_storage_plan moved into hakorune-mir-plans with the existing
+main-crate aggregate_storage_plan facade preserved."""
+current_blocker_token = "BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1051,6 +1055,7 @@ landed_tail = [
   "2026-06-18: 296x-1077/1078 complete the first mir_core growth slice by selecting and moving control-flow ID newtypes into hakorune-mir-core.",
   "2026-06-18: 296x-1079/1080 create hakorune-mir-plans and move object_storage_plan passive vocabulary behind the existing main-crate facade.",
   "2026-06-18: 296x-1081 records the post-split cold release build baseline: real=157.37s, user=208.27s, sys=9.49s.",
+  "2026-06-18: 296x-1082/1083 move aggregate_storage_plan passive vocabulary into hakorune-mir-plans behind the existing main-crate facade.",
   "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
   "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",

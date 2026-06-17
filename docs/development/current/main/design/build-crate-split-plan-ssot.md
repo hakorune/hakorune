@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-TIME-BASELINE-MEASURE-001
-next_task=BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001
-purpose=select the next passive MIR plan family after object_storage_plan split
+latest_done=BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001
+next_task=BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001
+purpose=select the next passive MIR plan family after aggregate_storage_plan split
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -161,4 +161,13 @@ cold_build_real_sec=157.37
 cold_build_user_sec=208.27
 cold_build_sys_sec=9.49
 large_file_count=0
+```
+
+## Stage 1 Second Slice Result
+
+```text
+second_family=aggregate_storage_plan
+owner=crates/hakorune_mir_plans/src/aggregate_storage_plan.rs
+main_crate_compat_facade=src/aggregate_storage_plan.rs
+behavior_changed=0
 ```

@@ -43,8 +43,9 @@ Related:
   `BUILD-CRATE-SPLIT-PLAN-001`; the first `mir_core` growth slice moved
   control-flow ID newtypes into `hakorune-mir-core`; the first
   `hakorune-mir-plans` split moved `object_storage_plan` behind a compatibility
-  facade; the first cold release build baseline is recorded, and the next
-  blocker is `BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001`
+  facade; the first cold release build baseline is recorded; the second
+  passive split moved `aggregate_storage_plan`, and the next blocker is
+  `BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -61,16 +62,18 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
-5. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
-6. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
-7. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
-8. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
-9. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
-10. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
-11. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1082-BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
+5. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
+6. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
+7. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
+8. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
+9. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
+10. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
+11. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+12. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
+13. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 
