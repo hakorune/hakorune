@@ -922,19 +922,20 @@ tooling, with preemption still outside Deny reasons.
 OBJECT-STORAGE-VOCAB-AUDIT-STALE-ROW-CLEANUP-001 removes the already-retired
 LocalFirstObjectPlan alias from the current vocabulary audit candidate list,
 leaving reason_enums, site_location_fields, and scalar_field_descriptors as the
-remaining merge candidates."""
+remaining merge candidates. REASON-ENUMS-VOCABULARY-DESIGN-001 selects
+C-lite: keep storage/publication/fastpath reason enums separate and add only a
+shared report-domain classification layer."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1053-OBJECT-STORAGE-VOCAB-AUDIT-STALE-ROW-CLEANUP-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1054-REASON-ENUMS-VOCABULARY-DESIGN-001.md"
 
-latest_card = "OBJECT-STORAGE-VOCAB-AUDIT-STALE-ROW-CLEANUP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1053-OBJECT-STORAGE-VOCAB-AUDIT-STALE-ROW-CLEANUP-001.md"
-latest_card_summary = """ObjectStoragePlan vocabulary audit stale-row cleanup
-is landed. The already-retired LocalFirstObjectPlan alias is no longer listed as
-a current merge candidate; the remaining candidates are reason_enums,
-site_location_fields, and scalar_field_descriptors."""
+latest_card = "REASON-ENUMS-VOCABULARY-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1054-REASON-ENUMS-VOCABULARY-DESIGN-001.md"
+latest_card_summary = """Reason enum vocabulary design is landed. It keeps
+storage, publication, and fastpath eligibility reason enums separate and selects
+a shared report-domain classification layer instead of enum merging."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
