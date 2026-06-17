@@ -10,10 +10,10 @@ use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 use super::{
     generic_pure_string_value_origin_box_name,
     generic_runtime_data_contains_param_text_origin_box_name,
-    generic_string_receiver_origin_box_name, string_corridor_method_origin_box_name,
-    GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
-    GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
-    GenericMethodRouteSite, GenericMethodRouteSurface,
+    generic_string_receiver_origin_box_name, method_args_without_redundant_receiver,
+    string_corridor_method_origin_box_name, GenericMethodRoute, GenericMethodRouteDecision,
+    GenericMethodRouteEvidence, GenericMethodRouteKind, GenericMethodRouteOperands,
+    GenericMethodRouteProof, GenericMethodRouteSite, GenericMethodRouteSurface,
 };
 
 pub(super) fn match_generic_substring_route(
@@ -38,7 +38,7 @@ pub(super) fn match_generic_substring_route(
     else {
         return None;
     };
-    if method != "substring" || !(args.len() == 1 || args.len() == 2) {
+    if method != "substring" {
         return None;
     }
 
@@ -53,10 +53,17 @@ pub(super) fn match_generic_substring_route(
     {
         return None;
     }
+    let substring_args = substring_logical_args(
+        function,
+        def_map,
+        *receiver,
+        receiver_origin_box.as_deref(),
+        args,
+    )?;
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
-        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), substring_args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(
@@ -71,6 +78,28 @@ pub(super) fn match_generic_substring_route(
             None,
         ),
     ))
+}
+
+fn substring_logical_args<'a>(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: crate::mir::ValueId,
+    receiver_origin_box: Option<&str>,
+    args: &'a [crate::mir::ValueId],
+) -> Option<&'a [crate::mir::ValueId]> {
+    method_args_without_redundant_receiver(function, def_map, receiver, args, 2)
+        .or_else(|| method_args_without_redundant_receiver(function, def_map, receiver, args, 1))
+        .or_else(|| {
+            let semantic_arity = args.len().checked_sub(1)?;
+            if !matches!(semantic_arity, 1 | 2) {
+                return None;
+            }
+            let first_arg_origin = receiver_origin_box_name(function, def_map, args[0])
+                .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, args[0]));
+            (receiver_origin_box == Some("StringBox")
+                && first_arg_origin.as_deref() == Some("StringBox"))
+            .then_some(&args[1..])
+        })
 }
 
 pub(super) fn match_generic_indexof_route(

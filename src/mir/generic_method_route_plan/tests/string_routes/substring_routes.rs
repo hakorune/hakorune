@@ -169,6 +169,42 @@ fn records_direct_substring_core_method_route() {
 }
 
 #[test]
+fn records_direct_substring_with_redundant_receiver_arg() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::String("line-seed-abcdef".to_string()),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(8),
+        value: ConstValue::String("line-seed-abcdef".to_string()),
+    });
+    block.add_instruction(method_call(
+        Some(17),
+        "StringBox",
+        "substring",
+        8,
+        vec![3, 20, 21],
+    ));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.substring");
+    assert_eq!(route.box_name(), "StringBox");
+    assert_eq!(route.method(), "substring");
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.receiver_value(), ValueId::new(8));
+    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
+}
+
+#[test]
 fn records_runtime_data_substring_from_string_origin() {
     let mut function = make_function();
     let block = function

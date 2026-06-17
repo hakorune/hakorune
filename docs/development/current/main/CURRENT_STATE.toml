@@ -845,18 +845,19 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1026-FRESH-COMPILER-OWNER-SELECTION-003.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1027-LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001.md"
 
-latest_card = "FRESH-COMPILER-OWNER-SELECTION-003"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1026-FRESH-COMPILER-OWNER-SELECTION-003.md"
-latest_card_summary = """The fresh exact-AOT sweep selected no successful-front
-compiler optimization owner. Closed/tiny exact fronts and Hako-faster fronts
-are not reopened, and kilo_micro_substring_views_only is rejected as a
-tiny-floor residue. The only actionable candidate is
-kilo_micro_len_substring_views, which fails AOT as
-pure_first_unsupported_shape; that is a compiler coverage blocker, not a perf
-owner."""
-current_blocker_token = "LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001"
+latest_card = "LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1027-LEN-SUBSTRING-VIEWS-AOT-FAILURE-INVENTORY-001.md"
+latest_card_summary = """The selected coverage blocker is fixed by one narrow
+accepted shape: StringBox.substring with a redundant String receiver carrier in
+the argument list now produces generic_method.substring metadata with logical
+arity=2, and the C ABI normalizer strips the same carrier only for
+generic_method.substring. The target front now builds and runs under pure-first
+with Result=4800016 and aot_status=ok. This is coverage, not an optimization
+keeper; the now-visible Hako-slow kernel moves to post-coverage owner
+selection."""
+current_blocker_token = "LEN-SUBSTRING-VIEWS-POST-COVERAGE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
