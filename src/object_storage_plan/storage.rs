@@ -63,9 +63,6 @@ pub enum ObjectStoragePlan {
     ArcDynBox {
         reason: DynamicReason,
     },
-    ExactStackObject {
-        layout_id: LayoutId,
-    },
     ExactNativeStruct {
         layout_id: LayoutId,
     },
@@ -90,8 +87,7 @@ impl ObjectStoragePlan {
     pub fn is_exact_candidate(&self) -> bool {
         matches!(
             self,
-            Self::ExactStackObject { .. }
-                | Self::ExactNativeStruct { .. }
+            Self::ExactNativeStruct { .. }
                 | Self::Scalarized { .. }
                 | Self::FlattenedNestedFields { .. }
         )

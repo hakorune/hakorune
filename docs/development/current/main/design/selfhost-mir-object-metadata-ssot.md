@@ -70,10 +70,9 @@ publication_site
 publication_reason
 hosthandle_bypass
 arc_retirement
-exact_stack_object
-exact_native_struct
-scalarized_fields
-flattened_nested_fields
+ exact_native_struct
+ scalarized_fields
+ flattened_nested_fields
 closed_world_direct_call
 backend_direct_route
 helper_symbol_inference

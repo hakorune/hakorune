@@ -910,20 +910,21 @@ EXACT-STACK-OBJECT-RETIRE-DESIGN-001 selects retiring ExactStackObject from
 active vocabulary because exact_stack_object_external_producer_count=0 and no
 backend consumer exists. Active exact storage forms remain ExactNativeStruct,
 Scalarized, and FlattenedNestedFields; implementation is split to a separate
-row."""
+row. EXACT-STACK-OBJECT-RETIRE-IMPLEMENTATION-001 retires the inactive variant
+from source vocabulary and guards the active exact forms as ExactNativeStruct,
+Scalarized, and FlattenedNestedFields with stack_allocation_support_claimed=0."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1049-EXACT-STACK-OBJECT-RETIRE-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1050-EXACT-STACK-OBJECT-RETIRE-IMPLEMENTATION-001.md"
 
-latest_card = "EXACT-STACK-OBJECT-RETIRE-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1049-EXACT-STACK-OBJECT-RETIRE-DESIGN-001.md"
-latest_card_summary = """ExactStackObject retire design is landed. It selects
-retiring the passive no-producer variant from active ObjectStoragePlan
-vocabulary while keeping ExactNativeStruct, Scalarized, and FlattenedNestedFields
-as active exact forms. No code deletion or backend behavior change is included
-in this design row."""
+latest_card = "EXACT-STACK-OBJECT-RETIRE-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1050-EXACT-STACK-OBJECT-RETIRE-IMPLEMENTATION-001.md"
+latest_card_summary = """ExactStackObject retire implementation is landed. It
+removes the inactive no-producer variant from active ObjectStoragePlan
+vocabulary, keeps ExactNativeStruct, Scalarized, and FlattenedNestedFields as
+the active exact forms, and preserves backend/product behavior."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

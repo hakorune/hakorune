@@ -106,7 +106,7 @@ RoutePlan:
 ObjectStoragePlan:
   owns representation route
   decides GenericBox / HostHandleEscaped / ArcDynBox / ExactNativeStruct /
-  ExactStackObject / Scalarized / FlattenedNestedFields
+  Scalarized / FlattenedNestedFields
 
 ObjectPlan:
   owns the passive combination of representation route and publication sites
@@ -136,7 +136,7 @@ MIRBuilder:
 Plans:
   NewBoxRoutePlan = closed-world constructor route
   MethodCallRoutePlan = ClosedWorldDirect
-  ObjectStoragePlan = ExactNativeStruct / ExactStackObject / Scalarized
+  ObjectStoragePlan = ExactNativeStruct / Scalarized / FlattenedNestedFields
 
 Backend:
   struct Counter { value: i64 }
@@ -194,9 +194,9 @@ metadata:
 MIRBuilder must not emit a representation choice such as:
 
 ```text
-ExactStackObject
 ExactNativeStruct
 Scalarized
+FlattenedNestedFields
 ArcRemoved
 HostHandleRemoved
 ```
@@ -217,9 +217,6 @@ enum ObjectStoragePlan {
     },
     ArcDynBox {
         reason: DynamicReason,
-    },
-    ExactStackObject {
-        layout_id: LayoutId,
     },
     ExactNativeStruct {
         layout_id: LayoutId,
@@ -459,9 +456,9 @@ host_handle_boundary_count=<n>
 dynamic_box_method_route_count=<n>
 box_callable_routeplan_dynamic_count=<n>
 closed_world_direct_method_candidate_count=<n>
-exact_stack_object_candidate_count=<n>
 exact_native_struct_candidate_count=<n>
 scalarized_object_candidate_count=<n>
+flattened_nested_fields_candidate_count=<n>
 object_escape_count=<n>
 plugin_or_extern_escape_count=<n>
 array_or_map_escape_count=<n>

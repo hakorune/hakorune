@@ -47,7 +47,10 @@ require_line_in_file "$CARD" "summary=ok"
 
 require_line_in_file "$SSOT" "object_storage_plan_is_representation_truth=1"
 grep -R -q 'pub enum ObjectStoragePlan' src/object_storage_plan.rs src/object_storage_plan || { echo "[object-storage-plan-ssot] missing ObjectStoragePlan enum" >&2; exit 1; }
-grep -R -q 'ExactStackObject' src/object_storage_plan.rs src/object_storage_plan || { echo "[object-storage-plan-ssot] missing ExactStackObject" >&2; exit 1; }
+if grep -R -q 'ExactStackObject' src/object_storage_plan.rs src/object_storage_plan; then
+  echo "[object-storage-plan-ssot] ExactStackObject must remain retired" >&2
+  exit 1
+fi
 grep -R -q 'ExactNativeStruct' src/object_storage_plan.rs src/object_storage_plan || { echo "[object-storage-plan-ssot] missing ExactNativeStruct" >&2; exit 1; }
 grep -R -q 'Scalarized' src/object_storage_plan.rs src/object_storage_plan || { echo "[object-storage-plan-ssot] missing Scalarized" >&2; exit 1; }
 grep -R -q 'object_storage_plan_execution_enabled", "0"' src/object_storage_plan.rs src/object_storage_plan || { echo "[object-storage-plan-ssot] execution must remain disabled" >&2; exit 1; }

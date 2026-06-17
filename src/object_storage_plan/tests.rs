@@ -2,10 +2,6 @@ use super::*;
 
 #[test]
 fn exact_candidates_are_separate_from_generic_or_escaped_routes() {
-    assert!(ObjectStoragePlan::ExactStackObject {
-        layout_id: LayoutId(7),
-    }
-    .is_exact_candidate());
     assert!(ObjectStoragePlan::ExactNativeStruct {
         layout_id: LayoutId(7),
     }
@@ -145,7 +141,10 @@ fn report_fields_keep_execution_disabled() {
 fn report_fields_have_unique_keys() {
     let mut seen = std::collections::BTreeSet::new();
     for (key, _) in object_storage_plan_report_fields() {
-        assert!(seen.insert(*key), "duplicate object storage report key: {key}");
+        assert!(
+            seen.insert(*key),
+            "duplicate object storage report key: {key}"
+        );
     }
 }
 

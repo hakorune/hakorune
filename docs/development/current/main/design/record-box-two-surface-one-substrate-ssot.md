@@ -224,7 +224,7 @@ record Point:
   ExactNativeStruct / Scalarized / StackAggregate
 
 simple non-escaping box Counter:
-  ExactNativeStruct / ExactStackObject / Scalarized
+  ExactNativeStruct / Scalarized / FlattenedNestedFields
 ```
 
 But the proofs differ:

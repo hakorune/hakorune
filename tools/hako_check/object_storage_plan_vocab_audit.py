@@ -94,13 +94,6 @@ ROWS: tuple[AuditRow, ...] = (
         reason="FieldScalarPlan_and_FlattenedNestedFieldPlan_overlap_but_nested_layout_payload_differs",
     ),
     AuditRow(
-        name="ExactStackObject",
-        kind="merge_candidate",
-        status="passive_variant_no_external_producer",
-        action="defer_to_design",
-        reason="variant_is_SSOT_guarded_but_no_external_code_producer_is_selected",
-    ),
-    AuditRow(
         name="fastpath_decision_reachability",
         kind="merge_candidate",
         status="passive_report_vocabulary",
@@ -142,10 +135,10 @@ def _count_token(
 
 def usage_inventory(root: Path) -> dict[str, str]:
     files = _read_rs_files(root)
-    exact_stack_external = _count_token(
+    exact_stack_source_presence = _count_token(
         files,
         "ExactStackObject",
-        exclude_prefixes=("src/object_storage_plan",),
+        exclude_prefixes=(),
     )
     fastpath_decision_consumers = _count_token(
         files,
@@ -158,7 +151,10 @@ def usage_inventory(root: Path) -> dict[str, str]:
         exclude_suffixes=("src/object_storage_plan/reachability.rs", "src/object_storage_plan/tests.rs"),
     )
     return {
-        "exact_stack_object_external_producer_count": str(exact_stack_external),
+        "exact_stack_object_retired": "1",
+        "exact_stack_object_source_presence_count": str(exact_stack_source_presence),
+        "active_exact_storage_forms": "ExactNativeStruct,Scalarized,FlattenedNestedFields",
+        "stack_allocation_support_claimed": "0",
         "fastpath_decision_non_test_consumer_count": str(fastpath_decision_consumers),
         "fastpath_reachability_non_test_consumer_count": str(fastpath_reachability_consumers),
         "passive_vocab_execution_enabled": "0",
