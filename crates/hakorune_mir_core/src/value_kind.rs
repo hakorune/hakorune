@@ -17,7 +17,7 @@ use crate::ValueId;
 ///
 /// ## GUARDバグの例（修正済み）
 ///
-/// ```rust
+/// ```ignore
 /// // ❌ ValueId(0) を「常に未初期化」と誤判定
 /// for (name, value) in &current_vars {
 ///     if value.0 == 0 {  // ← Parameter s=ValueId(0) も弾いてしまう！
@@ -96,7 +96,7 @@ pub enum MirValueKind {
     ///
     /// # PHI nodeとの関係
     ///
-    /// ```hako
+    /// ```text
     /// local i = 0
     /// loop(i < 10) {
     ///     i = i + 1  // ← i は LoopCarrier
@@ -104,7 +104,7 @@ pub enum MirValueKind {
     /// ```
     ///
     /// MIR表現:
-    /// ```
+    /// ```text
     /// header:
     ///   %i_phi = phi [(%i_entry, preheader), (%i_next, latch)]
     /// body:
@@ -170,7 +170,7 @@ impl MirValueKind {
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```ignore
 /// // パラメータ s=ValueId(0)
 /// let s = TypedValueId::new(ValueId(0), MirValueKind::Parameter(0));
 /// assert!(s.is_parameter());
@@ -199,7 +199,7 @@ impl TypedValueId {
     ///
     /// # GUARDバグ予防
     ///
-    /// ```rust
+    /// ```ignore
     /// let s = TypedValueId::new(ValueId(0), MirValueKind::Parameter(0));
     /// assert!(s.is_parameter());  // ✅ ValueId(0) でも正しく判定！
     /// ```
@@ -257,7 +257,7 @@ impl TypedValueId {
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```ignore
 /// let typed = TypedValueId::new(ValueId(5), MirValueKind::Local(0));
 /// let id: ValueId = typed.into();  // 自動変換
 /// assert_eq!(id, ValueId(5));

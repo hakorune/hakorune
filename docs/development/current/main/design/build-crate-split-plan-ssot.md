@@ -129,8 +129,36 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-next_task=BUILD-MIR-CORE-GROWTH-PREFLIGHT-001
-purpose=inventory dependency-free MIR plan/data types that can move before hakorune-mir-plans
-implementation_allowed=inventory_only
+latest_done=BUILD-TIME-BASELINE-MEASURE-001
+next_task=BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001
+purpose=select the next passive MIR plan family after object_storage_plan split
+implementation_allowed=selection_only_until_dependency_audit
 ```
 
+## Stage 0 Result
+
+```text
+mir_core_growth_first_slice=control_flow_id_newtypes
+moved_types=LoopId,ExitEdgeId,ContinueEdgeId
+compat_reexport=src/mir/control_form.rs
+behavior_changed=0
+```
+
+## Stage 1 First Slice Result
+
+```text
+hakorune_mir_plans_created=1
+first_family=object_storage_plan
+main_crate_compat_facade=src/object_storage_plan.rs
+behavior_changed=0
+```
+
+## Baseline Result
+
+```text
+baseline_card=BUILD-TIME-BASELINE-MEASURE-001
+cold_build_real_sec=157.37
+cold_build_user_sec=208.27
+cold_build_sys_sec=9.49
+large_file_count=0
+```

@@ -12,25 +12,12 @@
 
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction};
 use crate::runtime::get_global_ring0;
+pub use hakorune_mir_core::{ContinueEdgeId, ExitEdgeId, LoopId};
 use std::collections::BTreeSet;
 
 // ============================================================================
 // Phase 32: 新しい ID 型（LoopRegion / LoopControlShape 用）
 // ============================================================================
-
-/// ループを一意に識別する ID
-///
-/// Phase 264: PartialOrd, Ord を追加（ExitKind の BTreeMap キーとして使用）
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
-pub struct LoopId(pub u32);
-
-/// 出口辺を一意に識別する ID
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ExitEdgeId(pub u32);
-
-/// continue 辺を一意に識別する ID
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ContinueEdgeId(pub u32);
 
 /// ループラベル（将来の labeled break/continue 用）
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]

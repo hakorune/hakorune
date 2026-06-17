@@ -1016,20 +1016,29 @@ VM-ACTIVE-LANE-RETIRE-001 retires Rust VM / .hako VM from product-level app
 execution and keeps them as semantic-reference / small-subset routes only.
 BUILD-CRATE-SPLIT-PLAN-001 adds build-time reduction to the compiler
 construction plan: grow `mir_core` first, then split `hakorune-mir-plans`
-before backend/frontend/deep lowering/runtime splits."""
+before backend/frontend/deep lowering/runtime splits. BUILD-MIR-CORE-GROWTH-PREFLIGHT-001
+selects dependency-free control-flow ID newtypes as the first safe core-growth
+slice, and BUILD-MIR-CORE-GROWTH-ID-SLICE-001 moves LoopId, ExitEdgeId, and
+ContinueEdgeId into `hakorune-mir-core` behind the existing
+`src/mir/control_form.rs` compatibility facade. BUILD-MIR-PLANS-CRATE-PREFLIGHT-001
+selects `object_storage_plan` as the first passive plan family, and
+BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001 moves that vocabulary into the new
+`hakorune-mir-plans` crate behind the existing `src/object_storage_plan.rs`
+compatibility facade. BUILD-TIME-BASELINE-MEASURE-001 records the first cold
+post-split release baseline: cargo build --release --bin hakorune real=157.37s,
+user=208.27s, sys=9.49s, with large_file_count=0."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md"
 
-latest_card = "BUILD-CRATE-SPLIT-PLAN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md"
-latest_card_summary = """Build-time crate split plan: VM active product route
-is retired by 296x-1075, and compiler construction now includes staged crate
-split work starting with BUILD-MIR-CORE-GROWTH-PREFLIGHT-001 before
-hakorune-mir-plans."""
-current_blocker_token = "BUILD-MIR-CORE-GROWTH-PREFLIGHT-001"
+latest_card = "BUILD-TIME-BASELINE-MEASURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md"
+latest_card_summary = """Cold release build-time baseline after first crate
+split slices: real=157.37s, user=208.27s, sys=9.49s; no 800-line files
+detected in src/crate split surfaces."""
+current_blocker_token = "BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1039,6 +1048,9 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
   "2026-06-18: 296x-1076 adds the build crate split plan: grow mir_core first, then split hakorune-mir-plans before backend/frontend/deep lowering/runtime splits.",
+  "2026-06-18: 296x-1077/1078 complete the first mir_core growth slice by selecting and moving control-flow ID newtypes into hakorune-mir-core.",
+  "2026-06-18: 296x-1079/1080 create hakorune-mir-plans and move object_storage_plan passive vocabulary behind the existing main-crate facade.",
+  "2026-06-18: 296x-1081 records the post-split cold release build baseline: real=157.37s, user=208.27s, sys=9.49s.",
   "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
   "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",

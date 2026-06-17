@@ -1,0 +1,9 @@
+[package]
+name = "hakorune-mir-plans"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hakorune_mir_plans"
+path = "src/lib.rs"
+crate-type = ["rlib"]
