@@ -959,19 +959,24 @@ instead of hardcoding `map_repr.generic_hash_runtime`; user-box fact production
 is still disabled. LOCAL-FASTPATH-FACT-STORAGE-OPTIONAL-SURFACE-001 makes
 `LocalFastPathFact.storage_plan` optional so KnownReceiverDirectCall facts do
 not require fake ObjectStoragePlan proof; map-derived facts still attach
-storage plans, and backend behavior remains unchanged."""
+storage plans, and backend behavior remains unchanged.
+USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001 selects A-lite:
+user_box_method_routes alone are route-positive but not publication-positive,
+so user-box LocalFastPathFact production remains disabled until a conservative
+publication classifier proves `publication_state_before_site=Unpublished`."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1063-LOCAL-FASTPATH-FACT-STORAGE-OPTIONAL-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1064-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001.md"
 
-latest_card = "LOCAL-FASTPATH-FACT-STORAGE-OPTIONAL-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1063-LOCAL-FASTPATH-FACT-STORAGE-OPTIONAL-SURFACE-001.md"
-latest_card_summary = """Local fastpath fact storage surface makes
-storage_plan optional for KnownReceiverDirectCall, preventing fake storage
-proofs for call-route facts while preserving map-derived storage metadata."""
-current_blocker_token = "USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-001"
+latest_card = "USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1064-USER-BOX-METHOD-LOCAL-FASTPATH-FACT-PRODUCER-DESIGN-001.md"
+latest_card_summary = """User-box method LocalFastPathFact design selects
+A-lite: direct same-module route evidence alone is not enough for a backend
+fact. User-box facts require alias and unpublished publication proof, so the
+next row is a conservative publication classifier."""
+current_blocker_token = "USER-BOX-METHOD-PUBLICATION-CLASSIFIER-A-LITE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
