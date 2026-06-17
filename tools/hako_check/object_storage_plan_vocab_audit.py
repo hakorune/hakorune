@@ -66,13 +66,6 @@ ROWS: tuple[AuditRow, ...] = (
         reason="inventory_and_shadow_rows_are_not_backend_consumable",
     ),
     AuditRow(
-        name="site_location_fields",
-        kind="merge_candidate",
-        status="repeated_block_instruction_pair",
-        action="defer",
-        reason="ObjectBasicBlockId_and_ObjectInstructionIndex_repeat_but_no_second_consumer_requires_ObjectSiteLocation",
-    ),
-    AuditRow(
         name="scalar_field_descriptors",
         kind="merge_candidate",
         status="shared_scalar_field_shape",
@@ -140,6 +133,8 @@ def usage_inventory(root: Path) -> dict[str, str]:
         "reason_domain_storage_enums_kept": "3",
         "reason_domain_publication_enum_kept": "1",
         "reason_domain_fastpath_enum_kept": "1",
+        "object_site_location_field_migration_complete": "1",
+        "site_location_fields_candidate_retired": "1",
         "fastpath_reachability_rust_vocab_retired": "1",
         "fastpath_reachability_tooling_owner": "hako_check",
         "fastpath_decision_non_test_consumer_count": str(fastpath_decision_consumers),
@@ -154,7 +149,7 @@ def build_report(repo_root: Path | None = None) -> dict[str, object]:
     merge_count = sum(row.kind == "merge_candidate" for row in ROWS)
     report: dict[str, object] = {
         "output_contract": "hako-object-storage-plan-vocab-audit-v0",
-        "source_evidence": "296x-1054",
+        "source_evidence": "296x-996,296x-998,296x-999",
         "row_kind": "inventory",
         "keep_separate_count": str(keep_count),
         "merge_candidate_count": str(merge_count),
@@ -163,7 +158,7 @@ def build_report(repo_root: Path | None = None) -> dict[str, object]:
         "fact_fallback_separation_preserved": "1",
         "public_api_reexport_preserved": "1",
         "guard_path_compat_landed": "1",
-        "first_safe_followup": "OBJECT-SITE-LOCATION-VOCABULARY-DESIGN-001",
+        "first_safe_followup": "SCALAR-FIELD-DESCRIPTOR-VOCABULARY-DESIGN-001",
         "summary": "ok",
         "rows": [asdict(row) for row in ROWS],
     }
