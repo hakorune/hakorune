@@ -902,20 +902,22 @@ semantic refresh timing changes, and Program(JSON v0) / MIR JSON policy merging
 remain disabled. CALLSITE-CANONICALIZE-SCHEDULE-FACADE-001 implements that
 narrow facade: production_entry_count=4, centralized_schedule_owner=1,
 entry_removal_enabled=0, schedule_reorder_enabled=0, and
-semantic_refresh_timing_changed=0."""
+semantic_refresh_timing_changed=0. CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001
+closes the callsite canonicalize entry residue with
+callsite_canonicalize_entry_residue_closed=1; remaining cleanup decisions are
+ExactStackObject retire design or FastPathReachability retire/enable design."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1047-CALLSITE-CANONICALIZE-SCHEDULE-FACADE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1048-CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001.md"
 
-latest_card = "CALLSITE-CANONICALIZE-SCHEDULE-FACADE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1047-CALLSITE-CANONICALIZE-SCHEDULE-FACADE-001.md"
-latest_card_summary = """Callsite canonicalize schedule facade is landed. All
-four production entries remain, but they now delegate through
-canonicalize_for_site(..., CallsiteCanonicalizeScheduleSite::*). Inventory
-reports centralized_schedule_owner=1 with no entry removal, schedule reorder,
-semantic refresh timing change, or JSON policy merge."""
+latest_card = "CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1048-CALLSITE-CANONICALIZE-SCHEDULE-FACADE-CLOSEOUT-001.md"
+latest_card_summary = """Callsite canonicalize schedule facade closeout is
+landed. The four production entries remain and all route through the facade;
+inventory reports centralized_schedule_owner=1, no unknown entries, no entry
+removal, no schedule reorder, and no semantic refresh or JSON policy change."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
