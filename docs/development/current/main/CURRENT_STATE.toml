@@ -894,20 +894,24 @@ merge. RESIDUE-RETIRE-DESIGN-QUEUE-001 fixes the stop-line and queue:
 CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001 first, then
 EXACT-STACK-OBJECT-RETIRE-DESIGN-001 or
 FASTPATH-REACHABILITY-RETIRE-OR-ENABLE-DESIGN-001. No deletion, schedule
-change, backend behavior change, or implementation is allowed by the queue row."""
+change, backend behavior change, or implementation is allowed by the queue row.
+CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001 selects option B: keep the four
+production entries but route them through a thin schedule facade under the
+existing callsite_canonicalize transform owner. Entry removal, schedule reorder,
+semantic refresh timing changes, and Program(JSON v0) / MIR JSON policy merging
+remain disabled; the next task is a narrow facade implementation row."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1045-RESIDUE-RETIRE-DESIGN-QUEUE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1046-CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001.md"
 
-latest_card = "RESIDUE-RETIRE-DESIGN-QUEUE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1045-RESIDUE-RETIRE-DESIGN-QUEUE-001.md"
-latest_card_summary = """Residue retire design queue is landed. It selects
-CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001 as the first design decision and
-keeps ExactStackObject / FastPathReachability retire-or-enable work behind
-separate design rows. No implementation, deletion, schedule change, or backend
-behavior change is allowed by this row."""
+latest_card = "CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1046-CALLSITE-CANONICALIZE-ENTRY-OWNER-DESIGN-001.md"
+latest_card_summary = """Callsite canonicalize entry owner design is landed.
+It selects a thin schedule facade while keeping all four production entries,
+schedule order, semantic refresh timing, and JSON route policies unchanged.
+Implementation is split to CALLSITE-CANONICALIZE-SCHEDULE-FACADE-001."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
