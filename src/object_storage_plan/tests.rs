@@ -89,8 +89,8 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("fastpath_decision_shape", "AllowFact_or_DenyReason")));
     assert!(fields.contains(&("fastpath_plan_epoch_vocabulary_defined", "1")));
     assert!(fields.contains(&("local_fastpath_fact_plan_epoch_required", "1")));
-    assert!(fields.contains(&("fastpath_deny_owner_mapping_defined", "1")));
-    assert!(fields.contains(&("fastpath_deny_without_owner_allowed", "0")));
+    assert!(fields.contains(&("fastpath_deny_owner_mapping_code_enabled", "0")));
+    assert!(fields.contains(&("fastpath_deny_owner_mapping_owner", "docs_report")));
     assert!(fields.contains(&("local_fastpath_fact_backend_consumable", "1")));
     assert!(fields.contains(&("fallback_evidence_backend_consumable", "0")));
     assert!(fields.contains(&("fallback_fact_enabled", "0")));
@@ -308,46 +308,6 @@ fn fastpath_decision_is_allow_fact_or_deny_reason() {
     );
 
     assert!(PlanEpoch::INITIAL.is_initial());
-}
-
-#[test]
-fn fastpath_deny_reasons_have_owner_mapping() {
-    let reasons = [
-        LocalFastPathFallbackReason::OpenWorld,
-        LocalFastPathFallbackReason::UnknownValue,
-        LocalFastPathFallbackReason::AliasUnknown,
-        LocalFastPathFallbackReason::PublishedBeforeSite,
-        LocalFastPathFallbackReason::MaybePublishedBeforeSite,
-        LocalFastPathFallbackReason::RoutePlanMissing,
-        LocalFastPathFallbackReason::DynamicRoute,
-        LocalFastPathFallbackReason::ObjectPlanMissing,
-        LocalFastPathFallbackReason::GenericStorage,
-        LocalFastPathFallbackReason::BackendMissing,
-        LocalFastPathFallbackReason::CycleDetected,
-        LocalFastPathFallbackReason::PhiMergeNotProven,
-        LocalFastPathFallbackReason::LoopCarriedNotProven,
-        LocalFastPathFallbackReason::InterprocSummaryMissing,
-        LocalFastPathFallbackReason::UnknownCall,
-    ];
-
-    for reason in reasons {
-        let owner = reason.owner_mapping();
-        assert!(
-            !owner.owner_lane.is_empty(),
-            "missing owner lane for {reason:?}"
-        );
-        assert!(
-            !owner.next_action.is_empty(),
-            "missing next action for {reason:?}"
-        );
-    }
-
-    assert_eq!(
-        LocalFastPathFallbackReason::RoutePlanMissing
-            .owner_mapping()
-            .owner_lane,
-        "route_proof_producer"
-    );
 }
 
 #[test]

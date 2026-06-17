@@ -115,6 +115,11 @@ def usage_inventory(root: Path) -> dict[str, str]:
         "FastPathReachability",
         exclude_suffixes=("src/object_storage_plan/reachability.rs", "src/object_storage_plan/tests.rs"),
     )
+    fastpath_deny_owner_presence = _count_token(
+        files,
+        "FastPathDenyOwner",
+        exclude_suffixes=("src/object_storage_plan/tests.rs",),
+    )
     return {
         "exact_stack_object_retired": "1",
         "exact_stack_object_source_presence_count": str(exact_stack_source_presence),
@@ -136,6 +141,9 @@ def usage_inventory(root: Path) -> dict[str, str]:
         "fastpath_reachability_tooling_owner": "hako_check",
         "fastpath_decision_non_test_consumer_count": str(fastpath_decision_consumers),
         "fastpath_reachability_non_test_consumer_count": str(fastpath_reachability_consumers),
+        "fastpath_deny_owner_code_retired": "1",
+        "fastpath_deny_owner_source_presence_count": str(fastpath_deny_owner_presence),
+        "fastpath_deny_owner_mapping_owner": "docs_report",
         "passive_vocab_execution_enabled": "0",
         "vocab_retire_allowed": "0",
     }

@@ -219,10 +219,17 @@ open_world_policy=Deny
 
 ## Deny Reasons And Owner Mapping
 
-Every deny reason must map to a next owner lane. Reasons without an owner become
-diagnostic trash and invite guesswork.
+Every deny reason must map to a next owner lane in docs/report vocabulary.
+Reasons without an owner become diagnostic trash and invite guesswork.
+
+This mapping is not Rust execution vocabulary. The resolver returns
+`Deny(reason)` only; report tooling and task cards own the next-owner reading.
 
 ```text
+Deny owner mapping:
+  code_enabled=0
+  owner=docs_report
+
 Deny(OpenWorld)
   owner=route/open-world boundary
 

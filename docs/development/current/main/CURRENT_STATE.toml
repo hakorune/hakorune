@@ -933,19 +933,23 @@ leaving scalar_field_descriptors as the only merge candidate.
 SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001 keeps FieldScalarPlan and
 FlattenedNestedFieldPlan separate because flattened nested fields carry
 owner/nested/flattened mapping payload; the current vocabulary audit now has
-merge_candidate_count=0."""
+merge_candidate_count=0. FASTPATH-DENY-OWNER-CODE-RETIRE-001 retires
+FastPathDenyOwner / owner_mapping from Rust code because the active resolver
+execution path does not consume it; deny-owner routing remains docs/report
+guidance while FastPathDecision stays Allow(LocalFastPathFact) or
+Deny(LocalFastPathFallbackReason)."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1057-SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1058-FASTPATH-DENY-OWNER-CODE-RETIRE-001.md"
 
-latest_card = "SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1057-SCALAR-FIELD-DESCRIPTOR-VOCABULARY-CLOSEOUT-001.md"
-latest_card_summary = """Scalar field descriptor vocabulary closeout is
-landed. FieldScalarPlan and FlattenedNestedFieldPlan remain separate because
-their semantic payload differs, and the object storage vocabulary audit now has
-merge_candidate_count=0."""
+latest_card = "FASTPATH-DENY-OWNER-CODE-RETIRE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1058-FASTPATH-DENY-OWNER-CODE-RETIRE-001.md"
+latest_card_summary = """FastPath deny owner mapping is retired from Rust code.
+FastPathDecision remains Allow(LocalFastPathFact) or
+Deny(LocalFastPathFallbackReason); deny owner routing is docs/report guidance,
+not execution vocabulary."""
 current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
