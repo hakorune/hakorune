@@ -1,0 +1,18 @@
+// enum Status
+//   Ok
+//   Err(String)
+
+box Buffer {
+    data: Array
+    label: String
+    ready: bool
+}
+
+function compute(x: i64): i64 {
+    local label: String = "ok"
+    local enabled: bool = true
+    local y: i64 = double(x)
+    label
+    enabled
+    return y.abs()
+}

@@ -88,6 +88,12 @@ Do not implement the external Rust parser adapter in the first slice. If an
 adapter is needed later, use Rust `syn` or `tree-sitter-rust` outside the
 Hakorune app and keep it as a replaceable producer of the same JSON schema.
 
+Run the local converter selftest:
+
+```bash
+python3 apps/rust-subset-to-hako/selftest.py
+```
+
 ## Acceptance
 
 ```text

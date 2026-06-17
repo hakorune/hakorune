@@ -1,0 +1,73 @@
+{
+  "schema_version": 0,
+  "kind": "RustSubsetModule",
+  "module": "edge",
+  "items": [
+    {
+      "kind": "Enum",
+      "name": "Status",
+      "variants": [
+        {"name": "Ok", "fields": []},
+        {"name": "Err", "fields": [{"type": "String"}]}
+      ]
+    },
+    {
+      "kind": "Struct",
+      "name": "Buffer",
+      "identity": true,
+      "identity_reason": "resource_or_mutable_state",
+      "fields": [
+        {"name": "data", "type": "Vec<i64>"},
+        {"name": "label", "type": "&str"},
+        {"name": "ready", "type": "bool"}
+      ]
+    },
+    {
+      "kind": "Function",
+      "name": "compute",
+      "params": [{"name": "x", "type": "i32"}],
+      "return_type": "i64",
+      "body": [
+        {
+          "kind": "Let",
+          "name": "label",
+          "type": "String",
+          "value": {"kind": "Literal", "type": "String", "value": "ok"}
+        },
+        {
+          "kind": "Let",
+          "name": "enabled",
+          "type": "bool",
+          "value": {"kind": "Literal", "type": "bool", "value": true}
+        },
+        {
+          "kind": "Let",
+          "name": "y",
+          "type": "i64",
+          "value": {
+            "kind": "Call",
+            "callee": "double",
+            "args": [{"kind": "Name", "name": "x"}]
+          }
+        },
+        {
+          "kind": "Expr",
+          "value": {"kind": "Name", "name": "label"}
+        },
+        {
+          "kind": "Expr",
+          "value": {"kind": "Name", "name": "enabled"}
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "MethodCall",
+            "receiver": {"kind": "Name", "name": "y"},
+            "method": "abs",
+            "args": []
+          }
+        }
+      ]
+    }
+  ]
+}
