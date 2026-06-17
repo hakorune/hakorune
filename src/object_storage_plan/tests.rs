@@ -131,6 +131,10 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("fastpath_reachability_is_posthoc", "1")));
     assert!(fields.contains(&("fastpath_preemption_is_deny_reason", "0")));
     assert!(fields.contains(&("fastpath_reachability_feedback_to_resolver", "0")));
+    assert!(fields.contains(&("fastpath_vocab_slim_closeout", "1")));
+    assert!(fields.contains(&("object_storage_plan_readme_defined", "1")));
+    assert!(fields.contains(&("object_storage_plan_concept_group_count", "7")));
+    assert!(fields.contains(&("fastpath_new_synonym_type_allowed", "0")));
     assert!(fields.contains(&("flattened_nested_field_layout_vocabulary_defined", "1")));
     assert!(fields.contains(&("object_storage_plan_execution_enabled", "0")));
     assert!(fields.contains(&("object_plan_execution_enabled", "0")));

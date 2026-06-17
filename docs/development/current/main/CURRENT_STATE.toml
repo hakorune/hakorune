@@ -872,20 +872,23 @@ adds passive post-hoc reachability vocabulary so selected/preempted/unreachable
 status stays separate from eligibility decisions. FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001
 closes the B-lite pilot by routing exported known-receiver facts through
 FastPathDecision::Allow while keeping deny decisions report-only and backend
-behavior unchanged."""
+behavior unchanged. FASTPATH-VOCAB-SLIM-CLOSEOUT-001 closes the vocabulary
+slimming row by adding a code-side object_storage_plan README with seven allowed
+concept groups and report fields forbidding new near-synonym fastpath types
+without a design row."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/perf-owner-first-optimization-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1040-FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1041-FASTPATH-VOCAB-SLIM-CLOSEOUT-001.md"
 
-latest_card = "FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1040-FASTPATH-KNOWN-RECEIVER-DIRECT-CALL-PILOT-001.md"
-latest_card_summary = """B-lite known-receiver pilot is closed. Exported
-LocalFastPathFact rows now come from FastPathDecision::Allow; deny decisions
-remain report-only and MIR JSON fallback_reason remains compatibility-null for
-emitted facts. Backend behavior remains unchanged."""
-current_blocker_token = "FASTPATH-VOCAB-SLIM-CLOSEOUT-001"
+latest_card = "FASTPATH-VOCAB-SLIM-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1041-FASTPATH-VOCAB-SLIM-CLOSEOUT-001.md"
+latest_card_summary = """Fastpath vocabulary slimming is closed. The
+object_storage_plan code-side README fixes seven concept groups and report
+fields forbid new near-synonym fastpath types without a design row. Backend
+behavior remains unchanged."""
+current_blocker_token = "FRESH-COMPILER-OWNER-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
