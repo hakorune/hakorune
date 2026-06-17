@@ -106,6 +106,8 @@ fn report_fields_keep_execution_disabled() {
     assert!(fields.contains(&("interprocedural_fixedpoint_required_for_v0", "0")));
     assert!(fields.contains(&("local_alias_class_mvp_vocabulary_defined", "1")));
     assert!(fields.contains(&("local_alias_class_mvp_source_count", "5")));
+    assert!(fields.contains(&("local_alias_class_mvp_linear_chain_supported", "1")));
+    assert!(fields.contains(&("local_alias_class_mvp_five_hop_fixture", "1")));
     assert!(fields.contains(&("local_alias_class_heap_graph_enabled", "0")));
     assert!(fields.contains(&("local_alias_class_field_sensitive_points_to_enabled", "0")));
     assert!(fields.contains(&("local_publication_inventory_v2_vocabulary_defined", "1")));
@@ -309,6 +311,57 @@ fn local_alias_class_mvp_observation_is_passive_vocabulary() {
         LocalAliasSourceKind::SimpleReceiverAlias,
     ];
     assert_eq!(allowed_sources.len(), 5);
+}
+
+#[test]
+fn five_hop_alias_chain_feeds_publication_inventory_without_backend_consumption() {
+    let links = [
+        LocalAliasLink::new(
+            ObjectValueId(1),
+            ObjectValueId(2),
+            LocalAliasSourceKind::SsaCopy,
+        ),
+        LocalAliasLink::new(
+            ObjectValueId(2),
+            ObjectValueId(3),
+            LocalAliasSourceKind::SimpleReceiverAlias,
+        ),
+        LocalAliasLink::new(
+            ObjectValueId(3),
+            ObjectValueId(4),
+            LocalAliasSourceKind::Phi,
+        ),
+        LocalAliasLink::new(
+            ObjectValueId(4),
+            ObjectValueId(5),
+            LocalAliasSourceKind::Select,
+        ),
+        LocalAliasLink::new(
+            ObjectValueId(5),
+            ObjectValueId(6),
+            LocalAliasSourceKind::SsaCopy,
+        ),
+    ];
+
+    let observations =
+        linear_alias_chain_observations(ObjectValueId(1), AliasClassId(77), &links);
+    assert_eq!(observations.len(), 6);
+    assert!(observations
+        .iter()
+        .all(|observation| observation.alias_class == AliasClassId(77)));
+    assert_eq!(observations[5].value_id, ObjectValueId(6));
+    assert_eq!(observations[5].source_kind, LocalAliasSourceKind::SsaCopy);
+
+    let final_inventory = LocalPublicationInventoryRow::new(
+        LocalFastPathSiteId(9),
+        ObjectBasicBlockId(90),
+        ObjectInstructionIndex(91),
+        observations[5].value_id,
+        Some(observations[5].alias_class),
+        PublicationState::Unpublished,
+    );
+    assert!(final_inventory.can_feed_fastpath_eligibility());
+    assert_eq!(final_inventory.fallback_reason, None);
 }
 
 #[test]

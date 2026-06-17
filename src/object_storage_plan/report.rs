@@ -58,6 +58,8 @@ pub fn object_storage_plan_report_fields() -> &'static [(&'static str, &'static 
         ("interprocedural_fixedpoint_required_for_v0", "0"),
         ("local_alias_class_mvp_vocabulary_defined", "1"),
         ("local_alias_class_mvp_source_count", "5"),
+        ("local_alias_class_mvp_linear_chain_supported", "1"),
+        ("local_alias_class_mvp_five_hop_fixture", "1"),
         ("local_alias_class_heap_graph_enabled", "0"),
         ("local_alias_class_field_sensitive_points_to_enabled", "0"),
         ("local_publication_inventory_v2_vocabulary_defined", "1"),
