@@ -44,6 +44,7 @@ fn build_mir_json_root_emits_local_fastpath_facts() {
             ObjectInstructionIndex(9),
             ObjectValueId(20),
             AliasClassId(3),
+            "map_repr.generic_hash_runtime",
             RoutePlanId(4),
             ObjectStoragePlanId(5),
         ));

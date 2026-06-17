@@ -111,7 +111,7 @@ pub(super) fn insert_plan_metadata_json(
                             crate::object_storage_plan::LocalFastPathKind::LocalFieldAccess => "local_field_access",
                             crate::object_storage_plan::LocalFastPathKind::LocalStorageAccess => "local_storage_access",
                         },
-                        "route_plan": "map_repr.generic_hash_runtime",
+                        "route_plan": fact.route_plan_label,
                         "site_id": fact.site_id.0,
                         "block": fact.block_id().0,
                         "instruction_index": fact.instruction_index().0,

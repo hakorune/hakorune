@@ -48,6 +48,7 @@ fn build_local_fastpath_facts_from_map_repr_plans(
             );
             LocalKnownReceiverDirectCallShadowRow::new(
                 inventory,
+                Some("map_repr.generic_hash_runtime"),
                 Some(RoutePlanId(index as u32)),
                 Some(ObjectStoragePlanId(index as u32)),
             )

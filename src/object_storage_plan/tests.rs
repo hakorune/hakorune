@@ -257,6 +257,7 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
         ObjectInstructionIndex(12),
         ObjectValueId(20),
         AliasClassId(30),
+        "test.route_plan",
         RoutePlanId(40),
         ObjectStoragePlanId(50),
     );
@@ -270,6 +271,7 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
     assert_eq!(fact.instruction_index(), ObjectInstructionIndex(12));
     assert_eq!(fact.object_id, ObjectValueId(20));
     assert_eq!(fact.alias_class, AliasClassId(30));
+    assert_eq!(fact.route_plan_label, "test.route_plan");
     assert_eq!(fact.route_plan, RoutePlanId(40));
     assert_eq!(fact.storage_plan, ObjectStoragePlanId(50));
     assert_eq!(fact.plan_epoch, PlanEpoch::INITIAL);
@@ -288,6 +290,7 @@ fn fastpath_decision_is_allow_fact_or_deny_reason() {
         ObjectInstructionIndex(12),
         ObjectValueId(20),
         AliasClassId(30),
+        "test.route_plan",
         RoutePlanId(40),
         ObjectStoragePlanId(50),
     );
@@ -442,6 +445,7 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
     );
     let eligible = LocalKnownReceiverDirectCallShadowRow::new(
         eligible_inventory,
+        Some("test.route_plan"),
         Some(RoutePlanId(4)),
         Some(ObjectStoragePlanId(5)),
     );
@@ -452,6 +456,7 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
 
     let missing_route = LocalKnownReceiverDirectCallShadowRow::new(
         eligible_inventory,
+        None,
         None,
         Some(ObjectStoragePlanId(5)),
     );
@@ -466,8 +471,12 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
         Some(LocalFastPathFallbackReason::RoutePlanMissing)
     );
 
-    let missing_storage =
-        LocalKnownReceiverDirectCallShadowRow::new(eligible_inventory, Some(RoutePlanId(4)), None);
+    let missing_storage = LocalKnownReceiverDirectCallShadowRow::new(
+        eligible_inventory,
+        Some("test.route_plan"),
+        Some(RoutePlanId(4)),
+        None,
+    );
     assert!(missing_storage.candidate_fact.is_none());
     assert_eq!(
         missing_storage.decision.deny_reason(),
@@ -488,6 +497,7 @@ fn local_known_receiver_direct_call_shadow_row_creates_fact_only_when_all_inputs
     );
     let maybe_published = LocalKnownReceiverDirectCallShadowRow::new(
         maybe_published_inventory,
+        Some("test.route_plan"),
         Some(RoutePlanId(9)),
         Some(ObjectStoragePlanId(10)),
     );
@@ -514,6 +524,7 @@ fn local_known_receiver_direct_call_exports_only_allow_decision_fact() {
     );
     let eligible = LocalKnownReceiverDirectCallShadowRow::new(
         eligible_inventory,
+        Some("test.route_plan"),
         Some(RoutePlanId(4)),
         Some(ObjectStoragePlanId(5)),
     );
@@ -525,6 +536,7 @@ fn local_known_receiver_direct_call_exports_only_allow_decision_fact() {
 
     let deny = LocalKnownReceiverDirectCallShadowRow::new(
         eligible_inventory,
+        None,
         None,
         Some(ObjectStoragePlanId(5)),
     );

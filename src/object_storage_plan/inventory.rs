@@ -19,6 +19,7 @@ pub struct LocalPublicationInventoryRow {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LocalKnownReceiverDirectCallShadowRow {
     pub inventory: LocalPublicationInventoryRow,
+    pub route_plan_label: Option<&'static str>,
     pub route_plan: Option<RoutePlanId>,
     pub storage_plan: Option<ObjectStoragePlanId>,
     pub decision: FastPathDecision,
@@ -75,6 +76,7 @@ impl LocalPublicationInventoryRow {
 impl LocalKnownReceiverDirectCallShadowRow {
     pub fn new(
         inventory: LocalPublicationInventoryRow,
+        route_plan_label: Option<&'static str>,
         route_plan: Option<RoutePlanId>,
         storage_plan: Option<ObjectStoragePlanId>,
     ) -> Self {
@@ -82,6 +84,11 @@ impl LocalKnownReceiverDirectCallShadowRow {
             .fallback_reason
             .or_else(|| {
                 route_plan
+                    .is_none()
+                    .then_some(LocalFastPathFallbackReason::RoutePlanMissing)
+            })
+            .or_else(|| {
+                route_plan_label
                     .is_none()
                     .then_some(LocalFastPathFallbackReason::RoutePlanMissing)
             })
@@ -94,17 +101,26 @@ impl LocalKnownReceiverDirectCallShadowRow {
         let candidate_fact = match (
             inventory.can_feed_fastpath_eligibility(),
             inventory.alias_class,
+            route_plan_label,
             route_plan,
             storage_plan,
             fallback_reason,
         ) {
-            (true, Some(alias_class), Some(route_plan), Some(storage_plan), None) => {
+            (
+                true,
+                Some(alias_class),
+                Some(route_plan_label),
+                Some(route_plan),
+                Some(storage_plan),
+                None,
+            ) => {
                 Some(LocalFastPathFact::known_receiver_direct_call(
                     inventory.site_id,
                     inventory.block_id(),
                     inventory.instruction_index(),
                     inventory.value_id,
                     alias_class,
+                    route_plan_label,
                     route_plan,
                     storage_plan,
                 ))
@@ -119,6 +135,7 @@ impl LocalKnownReceiverDirectCallShadowRow {
 
         Self {
             inventory,
+            route_plan_label,
             route_plan,
             storage_plan,
             decision,

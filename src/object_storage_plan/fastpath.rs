@@ -36,6 +36,7 @@ pub struct LocalFastPathFact {
     pub location: ObjectSiteLocation,
     pub object_id: ObjectValueId,
     pub alias_class: AliasClassId,
+    pub route_plan_label: &'static str,
     pub route_plan: RoutePlanId,
     pub storage_plan: ObjectStoragePlanId,
     pub plan_epoch: PlanEpoch,
@@ -65,6 +66,7 @@ impl LocalFastPathFact {
         instruction_index: ObjectInstructionIndex,
         object_id: ObjectValueId,
         alias_class: AliasClassId,
+        route_plan_label: &'static str,
         route_plan: RoutePlanId,
         storage_plan: ObjectStoragePlanId,
     ) -> Self {
@@ -73,6 +75,7 @@ impl LocalFastPathFact {
             location: ObjectSiteLocation::new(block_id, instruction_index),
             object_id,
             alias_class,
+            route_plan_label,
             route_plan,
             storage_plan,
             plan_epoch: PlanEpoch::INITIAL,
