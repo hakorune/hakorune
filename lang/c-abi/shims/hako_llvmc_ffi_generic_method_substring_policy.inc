@@ -55,6 +55,20 @@
         return 1;
       }
 
+      auto void remember_substring_result_known_len(
+          long long dst,
+          long long start_reg,
+          long long end_reg) {
+        long long start_const = 0;
+        long long end_const = 0;
+        if (dst &&
+            has_const(resolve_copy_source_reg(start_reg), &start_const) &&
+            has_const(resolve_copy_source_reg(end_reg), &end_const) &&
+            end_const >= start_const) {
+          put_known_string_len(dst, end_const - start_const);
+        }
+      }
+
       auto int emit_string_substring_concat_call(
           FILE* f,
           size_t ii,
@@ -90,6 +104,7 @@
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
           remember_string_substring_call(dst, recv, a0, a1);
+          remember_substring_result_known_len(dst, a0, a1);
         } else {
           fprintf(
               f,
@@ -199,8 +214,6 @@
           long long end,
           const char* route_reason) {
         const char* middle_const = get_str_const(middle_reg);
-        long long start_const = 0;
-        long long end_const = 0;
         char ab[256];
         char route_extra[256];
 
@@ -234,11 +247,7 @@
         set_origin(dst, ORG_STRING);
         set_scan_origin(dst, ORG_STRING);
         remember_string_substring_call(dst, recv, start, end);
-        if (has_const(resolve_copy_source_reg(start), &start_const) &&
-            has_const(resolve_copy_source_reg(end), &end_const) &&
-            end_const >= start_const) {
-          put_known_string_len(dst, end_const - start_const);
-        }
+        remember_substring_result_known_len(dst, start, end);
         if (hako_llvmc_route_trace_enabled()) {
           snprintf(
               route_extra,
@@ -522,6 +531,7 @@
           set_origin(dst, ORG_STRING);
           set_scan_origin(dst, ORG_STRING);
           remember_string_substring_call(dst, recv, a0, a1);
+          remember_substring_result_known_len(dst, a0, a1);
         } else {
           fprintf(f, "  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
         }
