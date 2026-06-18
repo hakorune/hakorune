@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1200-BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1201-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001.md"
 
-latest_card = "BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1200-BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001.md"
-latest_card_summary = """Moved BuildGateExplainReport into
-hakorune-frontend-parser behind the historical src/parser/build_cfg.rs facade;
-active build_cfg predicate/prune impls stay in the main crate."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001"
+latest_card = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1201-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001.md"
+latest_card_summary = """Selected BuildMode and ParserBuildConfig as the next
+safe parser-side passive split. ParserMetadata is deferred because it belongs
+with the rune metadata boundary."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-BUILD-CONFIG-PASSIVE-SPLIT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
