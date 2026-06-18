@@ -7,6 +7,7 @@
 pub mod build_cfg;
 pub mod build_config;
 pub mod cursor;
+pub mod delegate_lowering;
 pub mod error;
 pub mod expr_cursor;
 pub mod lifecycle;

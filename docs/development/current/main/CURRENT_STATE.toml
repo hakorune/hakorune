@@ -1057,13 +1057,13 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1211-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1212-BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001.md"
 
-latest_card = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1211-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006.md"
-latest_card_summary = """Selected delegate exposes lowering as the next
-parser-side owner bundle move. It depends on AST and ParseError only."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001"
+latest_card = "BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1212-BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001.md"
+latest_card_summary = """Moved delegate exposes lowering into
+hakorune-frontend-parser behind the historical main-crate parser facade."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-007"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

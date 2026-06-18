@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006
-next_task=BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001
-purpose=move delegate exposes lowering into hakorune-frontend-parser behind compatibility facade
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001
+next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-007
+purpose=select whether to move a small active parser impl bundle or stop this parser split series
+implementation_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Delegate Lowering Owner Bundle Move Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/parser/delegate_lowering.rs
+compat_facade=src/parser/delegate_lowering.rs
+entrypoint=lower_delegate_exposes
+delegate_lowering_semantics_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-007
 ```
 
 ## Frontend Parser Next Boundary Preflight 006 Result
