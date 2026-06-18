@@ -172,8 +172,10 @@ Related:
   boundary. `ParseError` now lives in `hakorune-frontend-parser` behind the
   main crate parser facade. Next-boundary preflight 003 selected `TokenCursor`
   and `NewlineMode` as the next passive parser boundary. Those types now live
-  in `hakorune-frontend-parser` behind the main crate cursor facade. The next
-  blocker is `BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004`
+  in `hakorune-frontend-parser` behind the main crate cursor facade.
+  Next-boundary preflight 004 selected `ExprParserWithCursor` and helper
+  modules as the next owner bundle move. The next blocker is
+  `BUILD-FRONTEND-PARSER-EXPR-CURSOR-OWNER-BUNDLE-MOVE-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -190,9 +192,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1206-BUILD-FRONTEND-PARSER-CURSOR-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1205-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-003.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1204-BUILD-FRONTEND-PARSER-PARSE-ERROR-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1207-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1206-BUILD-FRONTEND-PARSER-CURSOR-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1205-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-003.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

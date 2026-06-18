@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-CURSOR-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004
-purpose=re-check expr_cursor helpers and parser metadata/rune boundaries after cursor ownership moved
-implementation_allowed=0
+latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004
+next_task=BUILD-FRONTEND-PARSER-EXPR-CURSOR-OWNER-BUNDLE-MOVE-001
+purpose=move ExprParserWithCursor and helper modules into hakorune-frontend-parser behind compatibility facade
+implementation_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Next Boundary Preflight 004 Result
+
+```text
+selected_family=parser_expr_cursor
+selected_owner_bundle=ExprParserWithCursor,precedence,primary,record
+selected_destination=crates/hakorune_frontend_parser/src/parser/expr_cursor.rs
+NyashParser_owner_required=0
+selected_next_task=BUILD-FRONTEND-PARSER-EXPR-CURSOR-OWNER-BUNDLE-MOVE-001
 ```
 
 ## Frontend Parser Cursor Passive Split Result
