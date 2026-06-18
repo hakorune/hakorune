@@ -1057,13 +1057,13 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md"
 
-latest_card = "BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md"
-latest_card_summary = """Measured cold release build after the
-hakorune-mir-json-emit split: real=161.28s, winner_claim=0."""
-current_blocker_token = "BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001"
+latest_card = "BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md"
+latest_card_summary = """Selected backend_aot as the next low-dependency
+backend-adjacent crate split boundary."""
+current_blocker_token = "BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

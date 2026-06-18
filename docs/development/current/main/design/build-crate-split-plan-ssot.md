@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001
-next_task=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
-purpose=select the next backend-adjacent crate-split boundary from dependency evidence
+latest_done=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
+next_task=BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001
+purpose=audit backend_aot dependencies before deciding full split or passive first slice
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -411,6 +411,16 @@ baseline_cold_build_real_sec=157.37
 post_stage1_cold_build_real_sec=158.95
 build_time_winner_claim=0
 selected_next_task=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
+```
+
+## Backend Next Boundary Selection Result
+
+```text
+selection_card=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
+selected_next_boundary=backend_aot
+backend_aot_lines=950
+backend_aot_dependency_refs=4
+selected_next_task=BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
