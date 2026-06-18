@@ -49,5 +49,37 @@ impl FrontendHostBoundary for RuntimeFrontendHost {
 }
 
 pub(crate) fn runtime_host() -> RuntimeFrontendHost {
+    install_frontend_parser_host();
     RuntimeFrontendHost
+}
+
+impl hakorune_frontend_parser::frontend_host::FrontendHostBoundary for RuntimeFrontendHost {
+    fn log(
+        &self,
+        level: hakorune_frontend_parser::frontend_host::FrontendLogLevel,
+        message: &str,
+    ) {
+        let level = match level {
+            hakorune_frontend_parser::frontend_host::FrontendLogLevel::Debug => {
+                FrontendLogLevel::Debug
+            }
+            hakorune_frontend_parser::frontend_host::FrontendLogLevel::Warn => {
+                FrontendLogLevel::Warn
+            }
+            hakorune_frontend_parser::frontend_host::FrontendLogLevel::Error => {
+                FrontendLogLevel::Error
+            }
+        };
+        FrontendHostBoundary::log(self, level, message);
+    }
+
+    fn warn_alias_once(&self, alias: &'static str, primary: &'static str) {
+        FrontendHostBoundary::warn_alias_once(self, alias, primary);
+    }
+}
+
+static RUNTIME_FRONTEND_HOST: RuntimeFrontendHost = RuntimeFrontendHost;
+
+pub(crate) fn install_frontend_parser_host() {
+    hakorune_frontend_parser::frontend_host::install_frontend_host(&RUNTIME_FRONTEND_HOST);
 }

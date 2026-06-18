@@ -1,12 +1,18 @@
-//! Passive frontend logging boundary marker.
-//!
-//! Active logging remains host-provided by the main crate until file movement.
+//! Frontend logging facade for moved frontend modules.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct FrontendLogBoundary;
+use crate::frontend_host::{frontend_host, FrontendLogLevel};
 
-impl FrontendLogBoundary {
-    pub const fn name(self) -> &'static str {
-        "frontend_log"
-    }
+#[inline]
+pub fn debug(message: &str) {
+    frontend_host().log(FrontendLogLevel::Debug, message);
+}
+
+#[inline]
+pub fn warn(message: &str) {
+    frontend_host().log(FrontendLogLevel::Warn, message);
+}
+
+#[inline]
+pub fn error(message: &str) {
+    frontend_host().log(FrontendLogLevel::Error, message);
 }
