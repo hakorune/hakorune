@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001
-next_task=BUILD-FRONTEND-TOKENIZER-KINDS-PASSIVE-SPLIT-001
-purpose=move TokenType/Token/TokenizeError to hakorune-frontend-parser behind compatibility facade
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-TOKENIZER-KINDS-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001
+purpose=choose the next tokenizer/parser movement unit after TokenType ownership moved
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Tokenizer Kinds Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/tokenizer/kinds.rs
+compat_facade=src/tokenizer/kinds.rs
+types_moved=TokenType,Token,TokenizeError
+tokenizer_engine_moved=0
+NyashTokenizer_moved=0
+selected_next_task=BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001
 ```
 
 ## Frontend Parser/Tokenizer File Move Preflight Result

@@ -4,6 +4,9 @@
 //! exists so future file-move rows can preserve `crate::tokenizer::*` paths
 //! inside the extracted crate.
 
+pub mod kinds;
+pub use kinds::{Token, TokenType, TokenizeError};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TokenizerBoundary;
 
