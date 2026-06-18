@@ -1057,13 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1209-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-005.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1210-BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001.md"
 
-latest_card = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-005"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1209-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-005.md"
-latest_card_summary = """Selected ParserMetadata as the next safe parser-side
-passive split. Rune parser implementations stay in the main crate."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001"
+latest_card = "BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1210-BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001.md"
+latest_card_summary = """Moved ParserMetadata into hakorune-frontend-parser
+behind the historical main-crate parser facade. Rune parser implementations
+stay in the main crate."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

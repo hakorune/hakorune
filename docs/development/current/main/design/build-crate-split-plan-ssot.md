@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-005
-next_task=BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001
-purpose=move ParserMetadata into hakorune-frontend-parser behind compatibility facade
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006
+purpose=re-check active parser module boundaries after passive metadata ownership moved
+implementation_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Metadata Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/parser/metadata.rs
+compat_facade=src/parser/mod.rs
+type_moved=ParserMetadata
+metadata_producer_moved=0
+selected_next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006
 ```
 
 ## Frontend Parser Next Boundary Preflight 005 Result

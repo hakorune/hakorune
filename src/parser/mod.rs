@@ -50,13 +50,8 @@ fn is_sugar_enabled() -> bool {
     crate::parser::sugar_gate::is_enabled()
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct ParserMetadata {
-    pub runes: Vec<RuneAttr>,
-}
-
 pub use build_cfg::BuildGateExplainReport;
-pub use hakorune_frontend_parser::parser::{BuildMode, ParserBuildConfig};
+pub use hakorune_frontend_parser::parser::{BuildMode, ParserBuildConfig, ParserMetadata};
 
 // ===== 🔥 Debug Macros =====
 

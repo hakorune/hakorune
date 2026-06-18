@@ -10,11 +10,13 @@ pub mod cursor;
 pub mod error;
 pub mod expr_cursor;
 pub mod lifecycle;
+pub mod metadata;
 pub use build_cfg::BuildGateExplainReport;
 pub use build_config::{BuildMode, ParserBuildConfig};
 pub use cursor::{NewlineMode, TokenCursor};
 pub use error::ParseError;
 pub use expr_cursor::ExprParserWithCursor;
+pub use metadata::ParserMetadata;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ParserBoundary;
