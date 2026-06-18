@@ -8,7 +8,11 @@
 
 pub const FRONTEND_AST_CRATE_READY: bool = true;
 
+mod build_predicate;
+mod operators;
 mod span;
+pub use build_predicate::BuildPredicate;
+pub use operators::{BinaryOperator, UnaryOperator};
 pub use span::Span;
 
 /// Passive boundary marker for the first frontend AST split.

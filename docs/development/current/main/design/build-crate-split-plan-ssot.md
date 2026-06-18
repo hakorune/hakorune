@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001
-next_task=BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001
-purpose=move UnaryOperator BinaryOperator and BuildPredicate into hakorune-frontend-ast behind the existing syntax facade
-implementation_allowed=passive_type_split_only
+latest_done=BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001
+purpose=isolate RuneAttr Profile validation from rune_profile_registry before moving attrs
+implementation_allowed=seam_refactor_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Syntax Passive Split Result
+
+```text
+moved_types=UnaryOperator,BinaryOperator,BuildPredicate
+new_owner=crates/hakorune_frontend_ast/src/operators.rs
+new_owner=crates/hakorune_frontend_ast/src/build_predicate.rs
+compat_reexport=src/ast/syntax.rs
+literal_value_moved=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001
 ```
 
 ## Frontend AST Next Passive Type Selection Result
