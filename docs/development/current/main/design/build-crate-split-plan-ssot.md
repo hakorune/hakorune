@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-GATE-CLOSEOUT-001
-next_task=BUILD-VM-REFERENCE-BUILD-MEASURE-001
-purpose=measure build impact of the no-vm cli/plugins profile before changing default features
-implementation_allowed=measurement_only
+latest_done=BUILD-VM-REFERENCE-BUILD-MEASURE-001
+next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001
+purpose=preflight removing vm-reference from Cargo default features after the no-vm cli/plugins build candidate measured green
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## VM Reference Build Measure Result
+
+```text
+feature_profile=cli,plugins
+vm_reference_enabled=0
+cold_build_real_sec=151.21
+latest_default_baseline_cold_build_real_sec=161.28
+candidate_real_delta_sec=-10.07
+build_time_candidate_visible=1
+default_feature_changed=0
+selected_next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001
 ```
 
 ## VM Reference Gate Closeout Result

@@ -1057,15 +1057,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1138-BUILD-VM-REFERENCE-GATE-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1139-BUILD-VM-REFERENCE-BUILD-MEASURE-001.md"
 
-latest_card = "BUILD-VM-REFERENCE-GATE-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1138-BUILD-VM-REFERENCE-GATE-CLOSEOUT-001.md"
-latest_card_summary = """Closed the vm-reference gate scaffold. no-VM
-cli/plugins checks are green and warning-free, and remaining full no-default
-failures belong to the plugins-disabled stub surface; default feature changes
-remain closed until build impact is measured."""
-current_blocker_token = "BUILD-VM-REFERENCE-BUILD-MEASURE-001"
+latest_card = "BUILD-VM-REFERENCE-BUILD-MEASURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1139-BUILD-VM-REFERENCE-BUILD-MEASURE-001.md"
+latest_card_summary = """Measured the no-VM cli/plugins release profile:
+real=151.21s versus the latest default baseline real=161.28s. This is a visible
+build-time candidate, but not a default-route claim until the default feature
+set is changed and checked."""
+current_blocker_token = "BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -80,8 +80,10 @@ Related:
   modules remain available. The final keep/vm common helper imports are now
   gated while preserving MIR JSON / EXE emit early exits. The vm-reference gate
   scaffold is closed: no-VM `cli,plugins` checks are green, and remaining full
-  no-default failures belong to the plugins-disabled stub surface. The next
-  blocker is `BUILD-VM-REFERENCE-BUILD-MEASURE-001`
+  no-default failures belong to the plugins-disabled stub surface. The no-VM
+  `cli,plugins` cold release profile measured real=151.21s versus the latest
+  default baseline real=161.28s, making it a visible build-time candidate. The
+  next blocker is `BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -98,9 +100,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1138-BUILD-VM-REFERENCE-GATE-CLOSEOUT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1137-BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1136-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1139-BUILD-VM-REFERENCE-BUILD-MEASURE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1138-BUILD-VM-REFERENCE-GATE-CLOSEOUT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1137-BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
