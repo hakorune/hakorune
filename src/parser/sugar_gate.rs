@@ -5,10 +5,10 @@ thread_local! {
 }
 
 pub fn is_enabled_env() -> bool {
-    if std::env::var("NYASH_FORCE_SUGAR").ok().as_deref() == Some("1") {
+    if crate::parser::env::force_sugar_enabled() {
         return true;
     }
-    match std::env::var("NYASH_SYNTAX_SUGAR_LEVEL").ok() {
+    match crate::parser::env::syntax_sugar_level_raw() {
         Some(v) => {
             let v = v.to_ascii_lowercase();
             // Accept legacy toggles and new explicit off

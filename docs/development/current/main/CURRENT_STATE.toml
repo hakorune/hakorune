@@ -1057,14 +1057,13 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md"
 
-latest_card = "BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md"
-latest_card_summary = """Audited parser/tokenizer env/log abstraction. The
-existing facades are useful, but parser direct std::env reads must be
-centralized before abstraction."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001"
+latest_card = "BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md"
+latest_card_summary = """Centralized parser direct std::env reads behind
+src/parser/env.rs, leaving zero parser direct env reads outside the facade."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -30,7 +30,7 @@ impl NyashParser {
             }
             TokenType::PercentLBrace => {
                 let sugar_on = crate::parser::sugar_gate::is_enabled()
-                    || std::env::var("NYASH_ENABLE_MAP_LITERAL").ok().as_deref() == Some("1");
+                    || crate::parser::env::enable_map_literal();
                 if !sugar_on {
                     let line = self.current_token().line;
                     return Err(ParseError::UnexpectedToken {
@@ -197,7 +197,7 @@ impl NyashParser {
             TokenType::THIS => {
                 let line = self.current_token().line;
                 let column = self.current_token().column;
-                if std::env::var("NYASH_DEPRECATE_THIS").ok().as_deref() == Some("1") {
+                if crate::parser::env::deprecate_this_enabled() {
                     crate::parser::log::warn(&format!(
                         "[deprecate:this] 'this' is deprecated; use 'me' instead (line {})",
                         self.current_token().line

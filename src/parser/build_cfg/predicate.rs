@@ -92,13 +92,7 @@ impl NyashParser {
     }
 
     fn skip_statement_separators(&mut self) {
-        let allow_sc = std::env::var("NYASH_PARSER_ALLOW_SEMICOLON")
-            .ok()
-            .map(|v| {
-                let lv = v.to_ascii_lowercase();
-                !(lv == "0" || lv == "false" || lv == "off")
-            })
-            .unwrap_or(true);
+        let allow_sc = crate::parser::env::parser_allow_semicolon_raw();
 
         while self.match_token(&TokenType::NEWLINE)
             || (allow_sc && self.match_token(&TokenType::SEMICOLON))

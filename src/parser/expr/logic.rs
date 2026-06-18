@@ -10,7 +10,7 @@ impl NyashParser {
             let operator = BinaryOperator::Or;
             self.advance();
             let right = self.expr_parse_and()?;
-            if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
+            if crate::parser::env::grammar_diff() {
                 let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_binop("or");
                 if !ok {
                     crate::parser::log::warn(
@@ -34,7 +34,7 @@ impl NyashParser {
             let operator = BinaryOperator::And;
             self.advance();
             let right = self.expr_parse_equality()?;
-            if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
+            if crate::parser::env::grammar_diff() {
                 let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_binop("and");
                 if !ok {
                     crate::parser::log::warn(

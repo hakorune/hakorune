@@ -129,7 +129,7 @@ impl NyashParser {
 
     /// Parse block statements: { statement* }
     pub(super) fn parse_block_statements(&mut self) -> Result<Vec<ASTNode>, ParseError> {
-        let trace_blocks = std::env::var("NYASH_PARSER_TRACE_BLOCKS").ok().as_deref() == Some("1");
+        let trace_blocks = crate::parser::env::parser_trace_blocks();
         if trace_blocks {
             crate::parser::log::debug(&format!(
                 "[parser][block] enter '{{' at line {}",
@@ -177,7 +177,7 @@ impl NyashParser {
     /// just consumed, to avoid false positives inside method bodies.
     pub(super) fn parse_method_body_statements(&mut self) -> Result<Vec<ASTNode>, ParseError> {
         // Reuse block entry tracing
-        let trace_blocks = std::env::var("NYASH_PARSER_TRACE_BLOCKS").ok().as_deref() == Some("1");
+        let trace_blocks = crate::parser::env::parser_trace_blocks();
         if trace_blocks {
             crate::parser::log::debug(&format!(
                 "[parser][block] enter '{{' (method) at line {}",
@@ -243,11 +243,7 @@ impl NyashParser {
             // like `ident '(' ... ')' NEWLINE* '{'`, bail out so the caller
             // (static box member parser) can handle it as a declaration, not
             // as a function call expression inside this body.
-            if std::env::var("NYASH_PARSER_METHOD_BODY_STRICT")
-                .ok()
-                .as_deref()
-                == Some("1")
-            {
+            if crate::parser::env::parser_method_body_strict_raw() {
                 if looks_like_method_head(self) {
                     break;
                 }
@@ -376,7 +372,7 @@ impl NyashParser {
         };
 
         // Non-invasive syntax rule check
-        if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
+        if crate::parser::env::grammar_diff() {
             if let Some(k) = Self::grammar_keyword_for(&start_tok) {
                 let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_statement(k);
                 if !ok {

@@ -137,8 +137,9 @@ Related:
   found grammar/sugar/prelude seams cleared, but direct extraction is still
   blocked by env/log facades that delegate to main-crate config/runtime. The
   env/log abstraction preflight found parser direct `std::env` reads outside
-  the parser env facade, so the next blocker is
-  `BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001`
+  the parser env facade; those reads are now centralized behind
+  `src/parser/env.rs`, so the next blocker is
+  `BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -155,9 +156,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1172-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1171-BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1172-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

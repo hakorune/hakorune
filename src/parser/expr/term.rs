@@ -16,7 +16,7 @@ impl NyashParser {
             };
             self.advance();
             let right = self.expr_parse_shift()?;
-            if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
+            if crate::parser::env::grammar_diff() {
                 let name = match operator {
                     BinaryOperator::Add => "add",
                     BinaryOperator::Subtract => "sub",

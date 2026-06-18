@@ -30,8 +30,7 @@ impl NyashParser {
 
     /// Parse local variable declaration: local var1, var2, var3 or local x = 10
     pub(super) fn parse_local(&mut self) -> Result<ASTNode, ParseError> {
-        let debug_parse_local =
-            std::env::var("NYASH_DEBUG_PARSE_LOCAL").ok().as_deref() == Some("1");
+        let debug_parse_local = crate::parser::env::debug_parse_local();
         if debug_parse_local {
             crate::parser::log::debug(&format!(
                 "[parse_local] entry: current_token={:?} at line {}",
