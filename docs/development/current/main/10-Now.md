@@ -85,8 +85,10 @@ Related:
   default baseline real=161.28s, making it a visible build-time candidate.
   Removing `vm-reference` from Cargo defaults is implemented: default/no-vm
   checks are green, explicit `vm-reference` remains green, MIR JSON emit still
-  works, and VM execution fail-fasts in the default build. The next blocker is
-  `BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001`
+  works, and VM execution fail-fasts in the default build. The default-off cold
+  release build measured real=149.82s versus the latest default baseline
+  real=161.28s. The next blocker is
+  `BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -103,9 +105,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1141-BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1140-BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1139-BUILD-VM-REFERENCE-BUILD-MEASURE-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1142-BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1141-BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1140-BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

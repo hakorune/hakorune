@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001
-next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001
-purpose=measure cold release build after vm-reference is removed from Cargo defaults
-implementation_allowed=measurement_only
+latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001
+next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001
+purpose=close the vm-reference default-off row and select the next crate split boundary
+implementation_allowed=closeout_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## VM Reference Default-Off Measure Result
+
+```text
+default_features=["cli","plugins"]
+vm_reference_enabled_by_default=0
+cold_build_real_sec=149.82
+latest_default_baseline_cold_build_real_sec=161.28
+default_off_real_delta_sec=-11.46
+build_time_winner_claim=1
+selected_next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001
 ```
 
 ## VM Reference Default-Off Implementation Result
