@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001
-next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-007
-purpose=select whether to move a small active parser impl bundle or stop this parser split series
-implementation_allowed=0
+latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-007
+next_task=BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001
+purpose=move AST-to-AST sugar transform into hakorune-frontend-parser behind compatibility facade
+implementation_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Next Boundary Preflight 007 Result
+
+```text
+selected_family=parser_sugar_transform
+selected_entrypoint=apply_sugar
+selected_destination=crates/hakorune_frontend_parser/src/parser/sugar.rs
+sugar_gate_deferred=1
+entry_sugar_deferred=1
+selected_next_task=BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001
 ```
 
 ## Frontend Parser Delegate Lowering Owner Bundle Move Result
