@@ -129,10 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
-next_task=BUILD-VM-REFERENCE-GATE-CLOSEOUT-001
-purpose=close the vm-reference gate scaffold and choose whether to address plugin-stub no-default surface or measure build impact
-implementation_allowed=closeout_only
+latest_done=BUILD-VM-REFERENCE-GATE-CLOSEOUT-001
+next_task=BUILD-VM-REFERENCE-BUILD-MEASURE-001
+purpose=measure build impact of the no-vm cli/plugins profile before changing default features
+implementation_allowed=measurement_only
+default_feature_change_allowed=0
+full_no_default_plugin_stub_fix_allowed=0
+```
+
+## VM Reference Gate Closeout Result
+
+```text
+vm_reference_feature_scaffold_closed=1
+vm_reference_stays_default_on=1
+vm_reference_default_off_claim=0
+vm_direct_import_error_count_cli_plugins_without_vm_reference=0
+cargo_check_no_default_cli_plugins_green=1
+cargo_check_no_default_cli_plugins_warning_count=0
+cargo_check_no_default_features_green=0
+remaining_no_default_failure=plugins_disabled_stub_surface
 ```
 
 ## Stage 0 Result

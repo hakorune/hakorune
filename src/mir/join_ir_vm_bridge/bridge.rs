@@ -2,6 +2,7 @@ use super::{convert_join_module_to_mir_with_meta, join_func_name, JoinIrVmBridge
 use crate::mir::join_ir::frontend::JoinFuncMetaMap;
 use crate::mir::join_ir::JoinModule;
 use crate::mir::MirModule;
+#[cfg(any(test, feature = "vm-reference"))]
 use std::collections::BTreeMap;
 
 fn ensure_joinir_function_aliases(mir_module: &mut MirModule, join_module: &JoinModule) {
@@ -71,6 +72,7 @@ pub(crate) fn bridge_joinir_to_mir_with_meta(
 }
 
 /// JoinIR → MIR（メタなし）呼び出しのユーティリティ。
+#[cfg(any(test, feature = "vm-reference"))]
 pub(crate) fn bridge_joinir_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
     let empty_meta: JoinFuncMetaMap = BTreeMap::new();
     bridge_joinir_to_mir_with_meta(module, &empty_meta, None)

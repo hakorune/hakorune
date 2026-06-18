@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1137-BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1136-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1135-BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1138-BUILD-VM-REFERENCE-GATE-CLOSEOUT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1137-BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1136-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -79,9 +79,10 @@ Scope: current lane / next lane / restart order only.
   structure-only JoinIR runner API/executor is now gated behind `vm-reference`.
   `run_joinir_via_vm` is now gated behind `vm-reference` while bridge conversion
   modules remain available. The final keep/vm common helper imports are now
-  gated while preserving MIR JSON / EXE emit early exits. no-default VM import
-  errors are zero; remaining no-default failures belong to the plugins-disabled
-  stub surface. The next blocker is `BUILD-VM-REFERENCE-GATE-CLOSEOUT-001`.
+  gated while preserving MIR JSON / EXE emit early exits. The vm-reference gate
+  scaffold is closed: no-VM `cli,plugins` checks are green, and remaining full
+  no-default failures belong to the plugins-disabled stub surface. The next
+  blocker is `BUILD-VM-REFERENCE-BUILD-MEASURE-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,

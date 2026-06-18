@@ -30,16 +30,19 @@ impl ReplSessionBox {
 
     /// REPL set: 変数に実行時の値を保存
     /// Phase 288.1: Made public for ExternCall bridge (__repl.set)
+    #[cfg(feature = "vm-reference")]
     pub fn set(&mut self, name: String, value: VMValue) {
         self.variables.insert(name, value);
     }
 
     /// REPL get: 変数の実行時の値を取得（未定義は None）
     /// Phase 288.1: Made public for ExternCall bridge (__repl.get)
+    #[cfg(feature = "vm-reference")]
     pub fn get(&self, name: &str) -> Option<&VMValue> {
         self.variables.get(name)
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(super) fn set_last_value(&mut self, value: VMValue) {
         self.last_value = Some(value.clone());
         self.variables.insert("_".to_string(), value);

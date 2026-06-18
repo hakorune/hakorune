@@ -5,7 +5,7 @@ mod enabled;
 #[cfg(any(not(feature = "plugins"), target_arch = "wasm32"))]
 mod stub;
 
-#[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
+#[cfg(all(feature = "plugins", feature = "vm-reference", not(target_arch = "wasm32")))]
 pub(crate) use enabled::compat_codegen_receiver;
 #[cfg(all(feature = "plugins", not(target_arch = "wasm32")))]
 pub use enabled::*;

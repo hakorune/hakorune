@@ -58,7 +58,9 @@ mod terminator_builder; // Legacy top-level handler lane; prod owner is joinir_b
 mod tests;
 
 // Phase 190: Use modularized converters
-pub(crate) use bridge::{bridge_joinir_to_mir, bridge_joinir_to_mir_with_meta};
+#[cfg(any(test, feature = "vm-reference"))]
+pub(crate) use bridge::bridge_joinir_to_mir;
+pub(crate) use bridge::bridge_joinir_to_mir_with_meta;
 #[cfg(test)]
 pub(crate) use convert::convert_joinir_to_mir;
 pub(crate) use convert::convert_mir_like_inst; // helper for sub-modules

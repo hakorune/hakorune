@@ -9,6 +9,7 @@
 //! - Session state management via ReplSessionBox
 
 use super::repl_session::ReplSessionBox;
+#[cfg(feature = "vm-reference")]
 use crate::backend::VMValue; // Phase 288.1: For auto-display
 use crate::cli::CliConfig;
 use std::cell::RefCell;
@@ -21,17 +22,20 @@ pub(super) struct ReplRunnerBox {
     session: Rc<RefCell<ReplSessionBox>>,
     /// REPL mode での内部ログ抑制フラグ
     /// verbose が false の場合に true（REPL 専用）
+    #[cfg(feature = "vm-reference")]
     quiet_internal_logs: bool,
 }
 
 impl ReplRunnerBox {
     pub(super) fn new(_config: CliConfig) -> Self {
         // REPL mode では verbose が false なら内部ログを抑制
+        #[cfg(feature = "vm-reference")]
         let quiet_internal_logs = !crate::config::env::cli_verbose();
 
         Self {
             // Phase 288.1: Rc<RefCell<>> で初期化（即座に生成）
             session: Rc::new(RefCell::new(ReplSessionBox::new())),
+            #[cfg(feature = "vm-reference")]
             quiet_internal_logs,
         }
     }
@@ -178,6 +182,7 @@ impl ReplRunnerBox {
     }
 
     /// Phase 288.1: Format VMValue for auto-display
+    #[cfg(feature = "vm-reference")]
     fn format_vm_value(value: &VMValue) -> String {
         match value {
             VMValue::Integer(i) => i.to_string(),
