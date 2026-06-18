@@ -35,6 +35,7 @@ pub mod core; // core models shared by backends
 #[path = "core/environment.rs"]
 pub mod environment;
 pub(crate) mod frontend_env;
+pub(crate) mod frontend_log;
 #[path = "core/exception_box.rs"]
 pub mod exception_box;
 #[path = "core/finalization.rs"]

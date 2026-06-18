@@ -5,13 +5,13 @@
 //! runtime ring0 API into a future frontend crate.
 
 pub(crate) fn debug(message: &str) {
-    crate::runtime::get_global_ring0().log.debug(message);
+    crate::frontend_log::debug(message);
 }
 
 pub(crate) fn warn(message: &str) {
-    crate::runtime::get_global_ring0().log.warn(message);
+    crate::frontend_log::warn(message);
 }
 
 pub(crate) fn error(message: &str) {
-    crate::runtime::get_global_ring0().log.error(message);
+    crate::frontend_log::error(message);
 }
