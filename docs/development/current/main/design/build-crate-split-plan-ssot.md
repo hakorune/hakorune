@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
-next_task=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
-purpose=audit default-compiled mir_interpreter surface before any VM compile gating or split
-implementation_allowed=selection_only_until_dependency_audit
+latest_done=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
+next_task=BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001
+purpose=design a narrow mir_interpreter feature boundary while keeping VMValue/VMError always available
+implementation_allowed=design_only_until_runner_and_test_callers_are_classified
 ```
 
 ## Stage 0 Result
@@ -465,6 +465,21 @@ passive_aot_support_split_closed=1
 post_split_default_cold_build_measure_selected=0
 reason=aot_boundary_is_optional_feature_not_default_build_owner
 selected_next_task=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
+```
+
+## VM MIR Interpreter Compile Audit Result
+
+```text
+audit_card=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
+mir_interpreter_default_compiled=1
+mir_interpreter_file_count=66
+mir_interpreter_lines=12944
+vm_product_route_retired=1
+vm_semantic_reference_subset_alive=1
+vm_types_live_outside_interpreter=1
+immediate_mir_interpreter_delete_selected=0
+immediate_mir_interpreter_feature_gate_selected=0
+selected_next_task=BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
