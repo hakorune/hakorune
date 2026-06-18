@@ -36,6 +36,7 @@ pub(super) fn build_mir_json_root(
     let mut funs = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
         let mut blocks = Vec::new();
+        let mut instruction_count = 0usize;
         let mut ids: Vec<_> = f.blocks.keys().copied().collect();
         ids.sort();
         for bid in ids {
@@ -54,6 +55,7 @@ pub(super) fn build_mir_json_root(
                 if let Some(term) = emitters::emit_terminator(&bb.terminator)? {
                     insts.push(term);
                 }
+                instruction_count += insts.len();
                 blocks.push(json!({"id": bid.as_u32(), "instructions": insts}));
             }
         }
@@ -62,6 +64,22 @@ pub(super) fn build_mir_json_root(
 
         // Phase 131-11-F: Build metadata JSON from MIR metadata (SSOT)
         let metadata_json = build_function_metadata_json(f);
+        let metadata_entry_count = metadata_json.as_object().map(|obj| obj.len()).unwrap_or(0);
+        let function_export_summary = mir_json_export_model::summarize_function(
+            name.clone(),
+            params.len(),
+            blocks.len(),
+            instruction_count,
+            metadata_entry_count,
+        );
+        debug_assert_eq!(function_export_summary.name.as_str(), name.as_str());
+        debug_assert_eq!(function_export_summary.param_count, params.len());
+        debug_assert_eq!(function_export_summary.block_count, blocks.len());
+        debug_assert_eq!(function_export_summary.instruction_count, instruction_count);
+        debug_assert_eq!(
+            function_export_summary.metadata_entry_count,
+            metadata_entry_count
+        );
         let attrs_json = json!({
             "runes": f
                 .metadata

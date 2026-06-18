@@ -71,6 +71,22 @@ impl MirJsonFunctionExportSummary {
     }
 }
 
+pub(crate) fn summarize_function(
+    name: impl Into<String>,
+    param_count: usize,
+    block_count: usize,
+    instruction_count: usize,
+    metadata_entry_count: usize,
+) -> MirJsonFunctionExportSummary {
+    MirJsonFunctionExportSummary::new(
+        name,
+        param_count,
+        block_count,
+        instruction_count,
+        metadata_entry_count,
+    )
+}
+
 impl MirJsonExportModelSummary {
     pub(crate) fn new(
         schema: MirJsonExportSchema,
@@ -167,5 +183,16 @@ mod tests {
         assert_eq!(summary.block_count, 2);
         assert_eq!(summary.instruction_count, 7);
         assert_eq!(summary.metadata_entry_count, 4);
+    }
+
+    #[test]
+    fn summarize_function_keeps_projection_counts_without_json_payload() {
+        let summary = summarize_function("Main.helper/1", 1, 3, 11, 6);
+
+        assert_eq!(summary.name, "Main.helper/1");
+        assert_eq!(summary.param_count, 1);
+        assert_eq!(summary.block_count, 3);
+        assert_eq!(summary.instruction_count, 11);
+        assert_eq!(summary.metadata_entry_count, 6);
     }
 }

@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EXPORT-MODEL-FUNCTION-SUMMARY-SCAFFOLD-001
-next_task=BUILD-MIR-JSON-EXPORT-MODEL-FUNCTION-SUMMARY-WIRING-001
-purpose=wire function-level export model summary construction without changing emitted JSON
+latest_done=BUILD-MIR-JSON-EXPORT-MODEL-FUNCTION-SUMMARY-WIRING-001
+next_task=BUILD-MIR-JSON-EXPORT-MODEL-CLOSEOUT-001
+purpose=decide whether the export-model seam is sufficient before the next crate split attempt
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -318,6 +318,16 @@ future_crate_created=0
 scaffold_card=BUILD-MIR-JSON-EXPORT-MODEL-FUNCTION-SUMMARY-SCAFFOLD-001
 new_vocabulary=MirJsonFunctionExportSummary
 function_summary_wired_to_root=0
+json_output_changed=0
+future_crate_created=0
+```
+
+## MIR JSON Export Model Function Summary Wiring Result
+
+```text
+wiring_card=BUILD-MIR-JSON-EXPORT-MODEL-FUNCTION-SUMMARY-WIRING-001
+summary_helper=mir_json_export_model::summarize_function
+summary_consumer=src/runner/mir_json_emit/root.rs
 json_output_changed=0
 future_crate_created=0
 ```
