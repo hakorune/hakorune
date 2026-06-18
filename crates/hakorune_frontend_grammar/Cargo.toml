@@ -1,0 +1,12 @@
+[package]
+name = "hakorune-frontend-grammar"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hakorune_frontend_grammar"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+once_cell = "1.20"

@@ -75,7 +75,10 @@ fn main() {
     let grammar_file = grammar_dir.join("unified-grammar.toml");
 
     // Ensure output dir exists
-    let out_dir = manifest_dir.join("src").join("grammar");
+    let out_dir = manifest_dir
+        .join("crates")
+        .join("hakorune_frontend_grammar")
+        .join("src");
     fs::create_dir_all(&out_dir).ok();
     let out_file = out_dir.join("generated.rs");
 

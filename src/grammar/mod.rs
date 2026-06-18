@@ -1,5 +1,9 @@
-pub mod engine;
-// Generated tables from grammar/unified-grammar.toml
-#[path = "generated.rs"]
-mod generated;
-pub use generated::*;
+/*!
+ * Grammar compatibility facade.
+ *
+ * The frontend grammar engine and generated tables live in
+ * `hakorune-frontend-grammar`; this module preserves the historical
+ * `crate::grammar::*` import path during staged frontend crate extraction.
+ */
+
+pub use hakorune_frontend_grammar::*;

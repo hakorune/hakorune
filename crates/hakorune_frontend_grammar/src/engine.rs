@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 
-use super::generated;
+use crate::generated;
 
 pub struct UnifiedGrammarEngine;
 
@@ -97,12 +97,12 @@ pub fn get() -> &'static UnifiedGrammarEngine {
 // --- Syntax rule helpers (generated-backed) ---
 impl UnifiedGrammarEngine {
     pub fn syntax_is_allowed_statement(&self, keyword: &str) -> bool {
-        super::generated::SYNTAX_ALLOWED_STATEMENTS
+        crate::generated::SYNTAX_ALLOWED_STATEMENTS
             .iter()
             .any(|k| *k == keyword)
     }
     pub fn syntax_is_allowed_binop(&self, op: &str) -> bool {
-        super::generated::SYNTAX_ALLOWED_BINOPS
+        crate::generated::SYNTAX_ALLOWED_BINOPS
             .iter()
             .any(|k| *k == op)
     }

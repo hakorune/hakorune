@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001
-next_task=BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001
-purpose=move dependency-light grammar engine and generated tables into a frontend grammar crate
-implementation_allowed=passive_split_only
+latest_done=BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001
+next_task=BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001
+purpose=switch parser/tokenizer grammar engine imports to hakorune_frontend_grammar
+implementation_allowed=import_switch_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Grammar Crate Scaffold Result
+
+```text
+new_crate=hakorune-frontend-grammar
+new_engine_owner=crates/hakorune_frontend_grammar/src/engine.rs
+new_generated_owner=crates/hakorune_frontend_grammar/src/generated.rs
+compat_facade=src/grammar/mod.rs
+src_grammar_facade_lines=9
+build_rs_generated_path=crates/hakorune_frontend_grammar/src/generated.rs
+cargo_check_default_green=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001
 ```
 
 ## Frontend Grammar Engine Seam Preflight Result
