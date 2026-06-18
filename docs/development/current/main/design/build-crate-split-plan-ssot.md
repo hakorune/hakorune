@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001
-next_task=BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001
-purpose=decide the Stage-3/env-alias warning seam before parser crate extraction
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001
+next_task=BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001
+purpose=move Stage-3 feature parsing and alias warning into shared frontend env facade
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Stage-3 Env Seam Preflight Result
+
+```text
+selected_shape=shared_frontend_env_stage3_facade
+new_owner=src/frontend_env.rs
+parser_tokenizer_duplicate_stage3_logic=0
+stage3_alias_warning_behavior_preserved=1
+runtime_logger_behavior_preserved=1
+selected_next_task=BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001
 ```
 
 ## Frontend Parser Standalone Env Simple Flags Result
