@@ -42,7 +42,7 @@ fn feature_enabled<const N: usize>(targets: [&str; N]) -> bool {
 }
 
 pub(crate) fn block_postfix_catch() -> bool {
-    crate::config::env::block_postfix_catch()
+    crate::frontend_env::block_postfix_catch()
 }
 
 pub(crate) fn debug_parse_local() -> bool {
@@ -70,11 +70,11 @@ pub(crate) fn cli_verbose_enabled() -> bool {
 }
 
 pub(crate) fn expr_postfix_catch() -> bool {
-    crate::config::env::expr_postfix_catch()
+    crate::frontend_env::expr_postfix_catch()
 }
 
 pub(crate) fn method_catch() -> bool {
-    crate::config::env::method_catch()
+    crate::frontend_env::method_catch()
 }
 
 pub(crate) fn parser_allow_semicolon() -> bool {
@@ -110,7 +110,7 @@ pub(crate) fn parser_method_body_strict_raw() -> bool {
 }
 
 pub(crate) fn parser_stage3_enabled() -> bool {
-    crate::config::env::parser_stage3_enabled()
+    crate::frontend_env::parser_stage3_enabled()
 }
 
 pub(crate) fn parser_static_init_strict_enabled() -> bool {

@@ -51,7 +51,7 @@ pub(crate) fn parser_metadata_annotations_enabled() -> bool {
 
 #[inline]
 pub(crate) fn parser_stage3_enabled() -> bool {
-    crate::config::env::parser_stage3_enabled()
+    crate::frontend_env::parser_stage3_enabled()
 }
 
 #[inline]

@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001
-next_task=BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001
-purpose=move Stage-3 feature parsing and alias warning into shared frontend env facade
-implementation_allowed=seam_only
+latest_done=BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001
+next_task=BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001
+purpose=decide parser/tokenizer logging and CLI verbose host seam before parser crate extraction
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Stage-3 Env Shared Facade Result
+
+```text
+new_owner=src/frontend_env.rs
+parser_stage3_config_delegate_after=0
+tokenizer_stage3_config_delegate_after=0
+parser_env_facade_main_config_refs_after=1
+tokenizer_env_facade_main_config_refs_after=0
+remaining_parser_config_ref=cli_verbose_enabled
+selected_next_task=BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001
 ```
 
 ## Frontend Parser Stage-3 Env Seam Preflight Result

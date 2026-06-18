@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1177-BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1176-BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1175-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1178-BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1177-BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1176-BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -141,9 +141,9 @@ Scope: current lane / next lane / restart order only.
   the parser env facade; those reads are now centralized behind
   `src/parser/env.rs`. Env/log abstraction preflight v2 selected standalone
   facade simple flags first; those simple flags now live in parser/tokenizer
-  local facades. Stage-3 seam preflight selected a shared frontend env facade
-  for alias warnings, so the next blocker is
-  `BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001`.
+  local facades. Stage-3 feature parsing and alias warnings now live in
+  `src/frontend_env.rs`, so the next blocker is
+  `BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -379,9 +379,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1177-BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1176-BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1175-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1178-BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1177-BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1176-BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
