@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001
-next_task=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002
-purpose=rerun parser/tokenizer env/log abstraction preflight after parser env reads were centralized
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002
+next_task=BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001
+purpose=replace simple parser/tokenizer facade config delegates with local env helpers while preserving behavior
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Env/Log Abstraction Preflight v2 Result
+
+```text
+parser_direct_std_env_reads_outside_facade=0
+parser_env_facade_main_config_refs=11
+tokenizer_env_facade_main_config_refs=7
+parser_log_facade_runtime_refs=3
+tokenizer_log_facade_runtime_refs=2
+selected_shape=standalone_facade_simple_flags_first
+trait_backed_adapter=defer
+runtime_logger_adapter=defer
+selected_next_task=BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001
 ```
 
 ## Frontend Parser Direct Env Seam Result

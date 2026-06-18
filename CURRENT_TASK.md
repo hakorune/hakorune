@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1172-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1175-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -139,8 +139,9 @@ Scope: current lane / next lane / restart order only.
   blocked by env/log facades that delegate to main-crate config/runtime. The
   env/log abstraction preflight found parser direct `std::env` reads outside
   the parser env facade; those reads are now centralized behind
-  `src/parser/env.rs`, so the next blocker is
-  `BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002`.
+  `src/parser/env.rs`. Env/log abstraction preflight v2 selected standalone
+  facade simple flags first, so the next blocker is
+  `BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -376,9 +377,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1172-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1175-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1174-BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1173-BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
