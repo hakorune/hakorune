@@ -76,9 +76,10 @@ Related:
   exits are preserved. Direct VM import families remain in JoinIR, REPL, and
   common VM helpers. The isolated REPL VM direct import is gated, and the
   structure-only JoinIR runner API/executor is now gated behind `vm-reference`.
-  The next direct caller selection chose JoinIR VM bridge execution while
-  keeping bridge conversion modules available. The next blocker is
-  `BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001`
+  `run_joinir_via_vm` is now gated behind `vm-reference` while bridge conversion
+  modules remain available. no-default VM import errors are down to two, both in
+  keep/vm common helpers. The next blocker is
+  `BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -95,9 +96,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1133-BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1132-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1135-BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1133-BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

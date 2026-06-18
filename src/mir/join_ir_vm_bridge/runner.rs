@@ -1,5 +1,10 @@
-use super::{bridge_joinir_to_mir, join_func_name, JoinIrVmBridgeError};
-use crate::backend::{MirInterpreter, VMValue};
+#[cfg(feature = "vm-reference")]
+use super::{bridge_joinir_to_mir, join_func_name};
+use super::JoinIrVmBridgeError;
+#[cfg(feature = "vm-reference")]
+use crate::backend::VMValue;
+#[cfg(feature = "vm-reference")]
+use crate::backend::MirInterpreter;
 use crate::mir::join_ir::JoinFuncId;
 use crate::mir::join_ir::JoinModule;
 use crate::mir::join_ir_ops::JoinValue;
@@ -30,6 +35,16 @@ pub fn run_joinir_via_vm(
     entry_func: JoinFuncId,
     args: &[JoinValue],
 ) -> Result<JoinValue, JoinIrVmBridgeError> {
+    #[cfg(not(feature = "vm-reference"))]
+    {
+        let _ = (join_module, entry_func, args);
+        return Err(JoinIrVmBridgeError::new(
+            "JoinIR VM bridge execution requires the vm-reference feature",
+        ));
+    }
+
+    #[cfg(feature = "vm-reference")]
+    {
     debug_log!("[joinir_vm_bridge] Phase 27-shortterm S-4.3");
     debug_log!("[joinir_vm_bridge] Converting JoinIR to MIR for VM execution");
 
@@ -77,4 +92,5 @@ pub fn run_joinir_via_vm(
     debug_log!("[joinir_vm_bridge] Execution succeeded: {:?}", join_result);
 
     Ok(join_result)
+    }
 }

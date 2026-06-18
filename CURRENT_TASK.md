@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1133-BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1132-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1135-BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1133-BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -77,9 +77,10 @@ Scope: current lane / next lane / restart order only.
   exits are preserved. Direct VM import families remain in JoinIR, REPL, and
   common VM helpers. The isolated REPL VM direct import is gated, and the
   structure-only JoinIR runner API/executor is now gated behind `vm-reference`.
-  The next direct caller selection chose JoinIR VM bridge execution while
-  keeping bridge conversion modules available. The next blocker is
-  `BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001`.
+  `run_joinir_via_vm` is now gated behind `vm-reference` while bridge conversion
+  modules remain available. no-default VM import errors are down to two, both in
+  keep/vm common helpers. The next blocker is
+  `BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,

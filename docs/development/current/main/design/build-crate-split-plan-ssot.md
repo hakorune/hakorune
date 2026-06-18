@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003
-next_task=BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001
-purpose=gate run_joinir_via_vm while leaving bridge conversion modules available
-implementation_allowed=join_ir_bridge_runner_only
+latest_done=BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001
+next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
+purpose=select the remaining keep/vm common helper gate family
+implementation_allowed=selection_only
 ```
 
 ## Stage 0 Result
@@ -599,6 +599,18 @@ selected_family=join_ir_vm_bridge_reference_gate
 selected_next_task=BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001
 reason=single_public_run_joinir_via_vm_entry_can_fail_fast_without_retyping_bridge_conversion
 default_off_claim=0
+```
+
+## VM JoinIR Bridge Reference Gate Result
+
+```text
+implementation_card=BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001
+run_joinir_via_vm_cfg_split=1
+bridge_conversion_modules_gated=0
+join_ir_bridge_vm_import_outside_cfg=0
+default_behavior_changed=0
+no_default_features_vm_error_count_after=2
+selected_next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
