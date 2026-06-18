@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001
-next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
-purpose=select the remaining keep/vm common helper gate family
-implementation_allowed=selection_only
+latest_done=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
+next_task=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
+purpose=gate vm_execution and vm_user_factory while preserving emit routes
+implementation_allowed=keep_vm_common_helpers_only
 ```
 
 ## Stage 0 Result
@@ -611,6 +611,16 @@ join_ir_bridge_vm_import_outside_cfg=0
 default_behavior_changed=0
 no_default_features_vm_error_count_after=2
 selected_next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
+```
+
+## VM Direct Caller Gate Selection 004 Result
+
+```text
+selection_card=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
+selected_family=runner_common_vm_helpers_reference_gate
+selected_next_task=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
+reason=last_remaining_vm_direct_import_family_and_owned_by_keep_vm_routes
+default_off_claim=0
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
