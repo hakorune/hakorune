@@ -5,7 +5,9 @@
 //! the extracted crate.
 
 pub mod build_cfg;
+pub mod build_config;
 pub use build_cfg::BuildGateExplainReport;
+pub use build_config::{BuildMode, ParserBuildConfig};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ParserBoundary;

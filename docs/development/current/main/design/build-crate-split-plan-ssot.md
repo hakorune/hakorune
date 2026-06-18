@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001
-next_task=BUILD-FRONTEND-PARSER-BUILD-CONFIG-PASSIVE-SPLIT-001
-purpose=move BuildMode and ParserBuildConfig into hakorune-frontend-parser behind compatibility facade
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-PARSER-BUILD-CONFIG-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-002
+purpose=select the next parser-side passive boundary after build config ownership moved
+implementation_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Build Config Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/parser/build_config.rs
+compat_facade=src/parser/mod.rs
+types_moved=BuildMode,ParserBuildConfig
+active_build_cfg_impls_moved=0
+selected_next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-002
 ```
 
 ## Frontend Parser Next Boundary Preflight Result
