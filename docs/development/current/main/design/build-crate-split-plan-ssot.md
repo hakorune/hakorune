@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008
-purpose=re-check active parser entry modules and parser env/gate wrappers after sugar transform ownership moved
+latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008
+next_task=BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001
+purpose=close the current passive parser split series before any active NyashParser owner-bundle move
 implementation_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Next Boundary Preflight 008 Result
+
+```text
+selected_next_boundary=none
+remaining_src_parser_file_count=54
+frontend_parser_owned_parser_file_count=12
+selected_next_task=BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001
+active_parser_impl_move_allowed=0
 ```
 
 ## Frontend Parser Sugar Transform Passive Split Result

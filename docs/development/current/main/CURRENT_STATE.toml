@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1214-BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1215-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008.md"
 
-latest_card = "BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1214-BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001.md"
-latest_card_summary = """Moved the AST-to-AST sugar transform into
-hakorune-frontend-parser behind the historical main-crate parser facade.
-sugar_gate and entry_sugar stay in the main crate."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008"
+latest_card = "BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1215-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008.md"
+latest_card_summary = """Selected no further thin passive parser boundary in
+this series. Remaining parser candidates are active NyashParser owner bundles
+or main-crate env/gate adapters."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
