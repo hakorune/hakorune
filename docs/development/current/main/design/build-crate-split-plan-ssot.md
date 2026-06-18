@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
-next_task=BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001
-purpose=design a narrow mir_interpreter feature boundary while keeping VMValue/VMError always available
-implementation_allowed=design_only_until_runner_and_test_callers_are_classified
+latest_done=BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001
+next_task=BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001
+purpose=add a default-on vm-reference feature seam while preserving current behavior
+implementation_allowed=feature_scaffold_only_default_on
 ```
 
 ## Stage 0 Result
@@ -480,6 +480,19 @@ vm_types_live_outside_interpreter=1
 immediate_mir_interpreter_delete_selected=0
 immediate_mir_interpreter_feature_gate_selected=0
 selected_next_task=BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001
+```
+
+## VM MIR Interpreter Feature Gate Design Result
+
+```text
+design_card=BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001
+feature_name=vm-reference
+initial_feature_default=on
+vm_types_feature_gated=0
+mir_interpreter_feature_gated=planned
+backend_vm_alias_feature_gated=planned
+default_off_selected_now=0
+selected_next_task=BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
