@@ -129,14 +129,69 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001
-next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-001
-purpose=select the next build-time crate boundary after the frontend parser passive split series measurement
+latest_done=BUILD-BOX-CORE-CONFIG-POST-SPLIT-MEASUREMENT-001
+next_task=BUILD-BOX-CORE-CONFIG-NEXT-SEAM-SELECTION-001
+purpose=decide whether to continue box-core/config passive seams or return to global crate-boundary selection
 implementation_allowed=0
 measurement_allowed=0
 selection_allowed=1
+audit_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Box Core Config Post-Split Measurement Result
+
+```text
+new_crate_compiled=hakorune-box-core
+cold_release_build_green=1
+cold_build_real_sec=150.16
+cold_build_user_sec=203.50
+cold_build_sys_sec=8.77
+single_run_visible_improvement=1
+build_time_winner_claim=0
+selected_next_task=BUILD-BOX-CORE-CONFIG-NEXT-SEAM-SELECTION-001
+```
+
+## Box Core Config Passive Split Result
+
+```text
+new_crate=hakorune-box-core
+new_crate_scope=box_factory_policy_vocabulary
+passive_owner_types=FactoryPolicy,FactoryType
+main_crate_facade=src/box_factory/policy.rs
+behavior_changed=0
+selected_next_task=BUILD-BOX-CORE-CONFIG-POST-SPLIT-MEASUREMENT-001
+```
+
+## Box Core Config Seam Design Result
+
+```text
+new_crate=hakorune-box-core
+new_crate_scope=box_factory_policy_vocabulary
+first_owner_types=FactoryPolicy,FactoryType
+main_crate_facade=src/box_factory/policy.rs
+selected_next_task=BUILD-BOX-CORE-CONFIG-PASSIVE-SPLIT-001
+```
+
+## Box Core Config Boundary Audit Result
+
+```text
+full_box_core_config_split_selected=0
+selected_first_slice=box_factory_policy_vocabulary
+candidate_file=src/box_factory/policy.rs
+candidate_lines=32
+selected_next_task=BUILD-BOX-CORE-CONFIG-SEAM-DESIGN-001
+```
+
+## Next Boundary Selection Result
+
+```text
+selected_next_boundary=box_core_config
+selected_next_task=BUILD-BOX-CORE-CONFIG-BOUNDARY-AUDIT-001
+selection_only=1
+implementation_allowed=0
+reason=next_ranked_boundary_after_frontend_and_requires_audit_before_move
 ```
 
 ## Frontend Parser Post-Split Measurement Result
