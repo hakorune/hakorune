@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001
-next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004
-purpose=rerun parser/tokenizer crate extraction preflight after host boundary wiring
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004
+next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001
+purpose=define crate root layout and compatibility imports before moving parser/tokenizer files
+implementation_allowed=design_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser/Tokenizer Crate Preflight v4 Result
+
+```text
+parser_tokenizer_direct_config_refs=0
+parser_tokenizer_direct_runtime_refs=0
+host_runtime_refs_owner=src/frontend_host.rs
+crate_parser_refs=275
+crate_ast_refs=121
+crate_tokenizer_refs=67
+future_crate_root_modules=ast,parser,tokenizer,frontend_env,frontend_log,frontend_host
+selected_next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001
 ```
 
 ## Frontend Host Boundary Wiring Result
