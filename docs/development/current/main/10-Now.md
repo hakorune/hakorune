@@ -65,9 +65,8 @@ Related:
   now has passive root and function summary wiring. The export-model seam is
   closed, direct `mir_json_emit` extraction is still blocked by direct MIR
   references, and the DTO boundary now has passive JSON-ready construction. The
-  full backend_aot split is blocked by MirModule/WasmBackend coupling; passive
-  AOT config/error/executable support is selected first, and the next blocker is
-  `BUILD-BACKEND-AOT-PASSIVE-CRATE-SCAFFOLD-001`
+  `hakorune-backend-aot` is scaffolded for passive AOT support, and the next
+  blocker is `BUILD-BACKEND-AOT-PASSIVE-FACADE-WIRING-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -84,9 +83,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1120-BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1121-BUILD-BACKEND-AOT-PASSIVE-CRATE-SCAFFOLD-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1120-BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

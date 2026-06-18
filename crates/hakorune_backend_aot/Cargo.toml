@@ -1,0 +1,12 @@
+[package]
+name = "hakorune-backend-aot"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hakorune_backend_aot"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+wasmtime = "35.0.0"
