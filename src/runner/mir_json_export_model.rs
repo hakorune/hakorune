@@ -6,7 +6,7 @@
 
 #![allow(dead_code)] // Passive boundary vocabulary; wired by later split rows.
 
-use serde_json::Value;
+use serde_json::{json, Value};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum MirJsonExportSchema {
@@ -144,6 +144,60 @@ impl MirJsonExportDocument {
     }
 }
 
+pub(crate) fn serialize_document(document: &MirJsonExportDocument) -> Value {
+    let functions: Vec<_> = document
+        .functions
+        .iter()
+        .map(|function| {
+            json!({
+                "name": function.name.clone(),
+                "params": function.params.clone(),
+                "blocks": function
+                    .blocks
+                    .iter()
+                    .map(|block| {
+                        json!({
+                            "id": block.id,
+                            "instructions": block
+                                .instructions
+                                .iter()
+                                .map(|instruction| instruction.payload.clone())
+                                .collect::<Vec<_>>()
+                        })
+                    })
+                    .collect::<Vec<_>>(),
+                "metadata": surfaces_to_object(&function.metadata),
+                "attrs": function.attrs.clone()
+            })
+        })
+        .collect();
+
+    let mut root = match document.root_kind {
+        MirJsonExportRootKind::FunctionsOnly => json!({ "functions": functions }),
+        MirJsonExportRootKind::SchemaVersioned => json!({
+            "schema_version": 1,
+            "kind": "MirModule",
+            "functions": functions
+        }),
+    };
+
+    if let Some(obj) = root.as_object_mut() {
+        for surface in &document.root_metadata {
+            obj.insert(surface.key.clone(), surface.value.clone());
+        }
+    }
+
+    root
+}
+
+fn surfaces_to_object(surfaces: &[MirJsonExportSurface]) -> Value {
+    let mut object = serde_json::Map::new();
+    for surface in surfaces {
+        object.insert(surface.key.clone(), surface.value.clone());
+    }
+    Value::Object(object)
+}
+
 impl MirJsonFunctionExportSummary {
     pub(crate) fn new(
         name: impl Into<String>,
@@ -221,7 +275,6 @@ pub(crate) fn summarize_root(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
 
     #[test]
     fn export_schema_names_are_stable() {
@@ -317,5 +370,47 @@ mod tests {
             document.functions[0].blocks[0].instructions[0].payload["op"],
             "const"
         );
+    }
+
+    #[test]
+    fn serialize_document_matches_legacy_root_shape() {
+        let document = MirJsonExportDocument::new(
+            MirJsonExportSchema::LegacyV0,
+            MirJsonExportRootKind::FunctionsOnly,
+            vec![MirJsonExportSurface::new("cfg", json!({"blocks": []}))],
+            vec![MirJsonExportFunction::new(
+                "main",
+                vec![0],
+                vec![MirJsonExportBlock::new(
+                    0,
+                    vec![MirJsonExportInstruction::new(json!({"op": "ret"}))],
+                )],
+                vec![MirJsonExportSurface::new("lowering_plan", json!([]))],
+                json!({"runes": []}),
+            )],
+        );
+
+        let root = serialize_document(&document);
+
+        assert!(root.get("schema_version").is_none());
+        assert_eq!(root["cfg"], json!({"blocks": []}));
+        assert_eq!(root["functions"][0]["name"], "main");
+        assert_eq!(root["functions"][0]["metadata"]["lowering_plan"], json!([]));
+    }
+
+    #[test]
+    fn serialize_document_matches_v1_root_shape() {
+        let document = MirJsonExportDocument::new(
+            MirJsonExportSchema::V1,
+            MirJsonExportRootKind::SchemaVersioned,
+            vec![],
+            vec![],
+        );
+
+        let root = serialize_document(&document);
+
+        assert_eq!(root["schema_version"], 1);
+        assert_eq!(root["kind"], "MirModule");
+        assert_eq!(root["functions"], json!([]));
     }
 }
