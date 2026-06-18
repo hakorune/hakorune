@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1182-BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1181-BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1180-BUILD-FRONTEND-LOGGING-SHARED-FACADE-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1183-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1182-BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1181-BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -144,8 +144,10 @@ Scope: current lane / next lane / restart order only.
   local facades. Stage-3 feature parsing and alias warnings now live in
   `src/frontend_env.rs`. Parser/tokenizer runtime logging access now goes
   through `src/frontend_log.rs`. The low-risk CLI verbose config delegate is
-  now local, so the next blocker is
-  `BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003`.
+  now local. Parser/tokenizer crate preflight v3 found config/runtime scattered
+  refs closed, but direct extraction is still blocked by the frontend env/log
+  host seam; the next blocker is
+  `BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -381,9 +383,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1182-BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1181-BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1180-BUILD-FRONTEND-LOGGING-SHARED-FACADE-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1183-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1182-BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1181-BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

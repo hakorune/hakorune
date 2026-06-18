@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001
-next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003
-purpose=rerun parser/tokenizer crate extraction preflight after env/log host seams were centralized
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003
+next_task=BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001
+purpose=define frontend env/log host boundary for future parser-tokenizer crate extraction
+implementation_allowed=design_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser/Tokenizer Crate Preflight v3 Result
+
+```text
+parser_tokenizer_rust_file_count=93
+parser_tokenizer_total_lines=15280
+parser_tokenizer_direct_config_refs=0
+parser_tokenizer_direct_runtime_refs=0
+frontend_env_refs_from_parser_tokenizer=4
+frontend_log_refs_from_parser_tokenizer=5
+parser_ast_tokenizer_parser_crate_path_refs=463
+direct_parser_tokenizer_crate_extraction_allowed=0
+selected_next_task=BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001
 ```
 
 ## Frontend CLI Verbose Local Seam Result
