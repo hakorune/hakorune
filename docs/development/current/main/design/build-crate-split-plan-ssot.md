@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
-next_task=BUILD-MIR-JSON-DTO-SCAFFOLD-001
-purpose=add passive DTO vocabulary in the main crate before any mir_json_emit crate split attempt
+latest_done=BUILD-MIR-JSON-DTO-SCAFFOLD-001
+next_task=BUILD-MIR-JSON-DTO-ROOT-PROJECTION-WIRING-001
+purpose=construct the passive DTO in build_mir_json_root without changing emitted JSON
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -332,6 +332,16 @@ projection_owner=main_crate
 serialization_owner=future_hakorune_mir_json_emit_crate
 future_crate_reads_mir_directly=0
 selected_next_task=BUILD-MIR-JSON-DTO-SCAFFOLD-001
+```
+
+## MIR JSON DTO Scaffold Result
+
+```text
+scaffold_card=BUILD-MIR-JSON-DTO-SCAFFOLD-001
+new_vocabulary=MirJsonExportDocument,MirJsonExportFunction,MirJsonExportBlock,MirJsonExportInstruction,MirJsonExportSurface
+instruction_payload_type=serde_json::Value
+json_output_changed=0
+future_crate_created=0
 ```
 
 ## MIR JSON Export Model Function Summary Scaffold Result

@@ -1057,14 +1057,13 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1106-BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1107-BUILD-MIR-JSON-DTO-SCAFFOLD-001.md"
 
-latest_card = "BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1106-BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001.md"
-latest_card_summary = """Defined the MIR-agnostic DTO boundary required before
-mir_json_emit crate extraction; the first DTO scaffold remains passive and
-payload-compatible."""
-current_blocker_token = "BUILD-MIR-JSON-DTO-SCAFFOLD-001"
+latest_card = "BUILD-MIR-JSON-DTO-SCAFFOLD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1107-BUILD-MIR-JSON-DTO-SCAFFOLD-001.md"
+latest_card_summary = """Added passive JSON-ready MIR export DTO vocabulary
+without wiring projection, changing emitted JSON, or creating the future crate."""
+current_blocker_token = "BUILD-MIR-JSON-DTO-ROOT-PROJECTION-WIRING-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1095,6 +1094,7 @@ landed_tail = [
   "2026-06-18: 296x-1104 wires passive MIR JSON function export summary construction without changing emitted JSON.",
   "2026-06-18: 296x-1105 closes the initial MIR JSON export model seam and selects a MIR-agnostic DTO boundary before crate extraction.",
   "2026-06-18: 296x-1106 defines the MIR JSON DTO boundary as JSON-ready data owned by the main-crate projection until extraction.",
+  "2026-06-18: 296x-1107 adds passive JSON-ready MIR export DTO vocabulary without changing emitted JSON.",
   "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
   "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",

@@ -6,6 +6,8 @@
 
 #![allow(dead_code)] // Passive boundary vocabulary; wired by later split rows.
 
+use serde_json::Value;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum MirJsonExportSchema {
     LegacyV0,
@@ -51,6 +53,95 @@ pub(crate) struct MirJsonFunctionExportSummary {
     pub block_count: usize,
     pub instruction_count: usize,
     pub metadata_entry_count: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct MirJsonExportSurface {
+    pub key: String,
+    pub value: Value,
+}
+
+impl MirJsonExportSurface {
+    pub(crate) fn new(key: impl Into<String>, value: Value) -> Self {
+        Self {
+            key: key.into(),
+            value,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct MirJsonExportInstruction {
+    pub payload: Value,
+}
+
+impl MirJsonExportInstruction {
+    pub(crate) fn new(payload: Value) -> Self {
+        Self { payload }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct MirJsonExportBlock {
+    pub id: u32,
+    pub instructions: Vec<MirJsonExportInstruction>,
+}
+
+impl MirJsonExportBlock {
+    pub(crate) fn new(id: u32, instructions: Vec<MirJsonExportInstruction>) -> Self {
+        Self { id, instructions }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct MirJsonExportFunction {
+    pub name: String,
+    pub params: Vec<u32>,
+    pub blocks: Vec<MirJsonExportBlock>,
+    pub metadata: Vec<MirJsonExportSurface>,
+    pub attrs: Value,
+}
+
+impl MirJsonExportFunction {
+    pub(crate) fn new(
+        name: impl Into<String>,
+        params: Vec<u32>,
+        blocks: Vec<MirJsonExportBlock>,
+        metadata: Vec<MirJsonExportSurface>,
+        attrs: Value,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            params,
+            blocks,
+            metadata,
+            attrs,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct MirJsonExportDocument {
+    pub schema: MirJsonExportSchema,
+    pub root_kind: MirJsonExportRootKind,
+    pub root_metadata: Vec<MirJsonExportSurface>,
+    pub functions: Vec<MirJsonExportFunction>,
+}
+
+impl MirJsonExportDocument {
+    pub(crate) fn new(
+        schema: MirJsonExportSchema,
+        root_kind: MirJsonExportRootKind,
+        root_metadata: Vec<MirJsonExportSurface>,
+        functions: Vec<MirJsonExportFunction>,
+    ) -> Self {
+        Self {
+            schema,
+            root_kind,
+            root_metadata,
+            functions,
+        }
+    }
 }
 
 impl MirJsonFunctionExportSummary {
@@ -130,6 +221,7 @@ pub(crate) fn summarize_root(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn export_schema_names_are_stable() {
@@ -194,5 +286,36 @@ mod tests {
         assert_eq!(summary.block_count, 3);
         assert_eq!(summary.instruction_count, 11);
         assert_eq!(summary.metadata_entry_count, 6);
+    }
+
+    #[test]
+    fn export_document_dto_keeps_json_ready_payloads_without_mir_types() {
+        let instruction = MirJsonExportInstruction::new(json!({
+            "op": "const",
+            "dst": 1,
+            "value": {"type": "i64", "value": 42}
+        }));
+        let block = MirJsonExportBlock::new(0, vec![instruction]);
+        let function = MirJsonExportFunction::new(
+            "main",
+            vec![0],
+            vec![block],
+            vec![MirJsonExportSurface::new("lowering_plan", json!([]))],
+            json!({"runes": []}),
+        );
+        let document = MirJsonExportDocument::new(
+            MirJsonExportSchema::V1,
+            MirJsonExportRootKind::SchemaVersioned,
+            vec![MirJsonExportSurface::new("cfg", json!({"blocks": []}))],
+            vec![function],
+        );
+
+        assert_eq!(document.schema, MirJsonExportSchema::V1);
+        assert_eq!(document.root_metadata[0].key, "cfg");
+        assert_eq!(document.functions[0].name, "main");
+        assert_eq!(
+            document.functions[0].blocks[0].instructions[0].payload["op"],
+            "const"
+        );
     }
 }
