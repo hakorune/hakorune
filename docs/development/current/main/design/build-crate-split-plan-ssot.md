@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EXPORT-MODEL-FUNCTION-SUMMARY-WIRING-001
-next_task=BUILD-MIR-JSON-EXPORT-MODEL-CLOSEOUT-001
-purpose=decide whether the export-model seam is sufficient before the next crate split attempt
+latest_done=BUILD-MIR-JSON-EXPORT-MODEL-CLOSEOUT-001
+next_task=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
+purpose=define MIR-agnostic DTO boundary before the next mir_json_emit crate split attempt
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -310,6 +310,17 @@ summary_helper=mir_json_export_model::summarize_root
 summary_consumer=src/runner/mir_json_emit/root.rs
 json_output_changed=0
 future_crate_created=0
+```
+
+## MIR JSON Export Model Closeout Result
+
+```text
+closeout_card=BUILD-MIR-JSON-EXPORT-MODEL-CLOSEOUT-001
+export_model_seam_closed=1
+mir_json_emit_direct_mir_reference_count=378
+direct_crate_extraction_selected=0
+selected_next_task=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
+behavior_changed=0
 ```
 
 ## MIR JSON Export Model Function Summary Scaffold Result
