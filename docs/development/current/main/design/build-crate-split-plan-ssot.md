@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008
-next_task=BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001
-purpose=close the current passive parser split series before any active NyashParser owner-bundle move
+latest_done=BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001
+next_task=BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001
+purpose=measure the build-time effect after closing the frontend parser passive split series
 implementation_allowed=0
+measurement_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Split Series Closeout Result
+
+```text
+parser_split_series_closed=1
+remaining_src_parser_file_count=54
+frontend_parser_owned_parser_file_count=12
+active_parser_impl_move_allowed=0
+selected_next_task=BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001
 ```
 
 ## Frontend Parser Next Boundary Preflight 008 Result
