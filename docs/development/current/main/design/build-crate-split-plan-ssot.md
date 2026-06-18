@@ -129,12 +129,21 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-TOKENIZER-KINDS-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001
-purpose=choose the next tokenizer/parser movement unit after TokenType ownership moved
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001
+purpose=design the NyashTokenizer owner-bundle move before moving inherent impl modules
+implementation_allowed=design_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Tokenizer Next Move Preflight Result
+
+```text
+remaining_tokenizer_impl_files=cursor,engine,lex_ident,lex_number,lex_string,whitespace
+remaining_tokenizer_impl_owner=NyashTokenizer
+single_impl_file_move_allowed=0
+selected_next_task=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001
 ```
 
 ## Frontend Tokenizer Kinds Passive Split Result
