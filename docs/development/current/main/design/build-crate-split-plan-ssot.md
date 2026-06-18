@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001
-next_task=BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001
-purpose=isolate tokenizer config/runtime logging access behind tokenizer-local facades
-implementation_allowed=seam_only
+latest_done=BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001
+next_task=BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001
+purpose=choose grammar engine access boundary for parser/tokenizer crate extraction
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Tokenizer Env/Logging Seam Result
+
+```text
+tokenizer_env_facade=src/tokenizer/env.rs
+tokenizer_log_facade=src/tokenizer/log.rs
+tokenizer_direct_config_env_refs_after=0
+tokenizer_direct_runtime_log_refs_after=0
+tokenizer_direct_grammar_engine_refs=1
+parser_direct_grammar_engine_refs=5
+cargo_check_default_green=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001
 ```
 
 ## Frontend Parser Crate Preflight Result

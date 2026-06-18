@@ -1,4 +1,4 @@
-use super::{NyashTokenizer, TokenizeError};
+use super::{env, NyashTokenizer, TokenizeError};
 
 impl NyashTokenizer {
     /// 文字列リテラルを読み取り（区切り文字 quote を指定可: '"' or '\''）
@@ -30,7 +30,7 @@ impl NyashTokenizer {
                     Some('/') => string_value.push('/'),   // \/ を許容
                     Some('u') => {
                         // Unicode decode (optional; default OFF)
-                        if crate::config::env::parser_decode_unicode() {
+                        if env::parser_decode_unicode() {
                             let base = self.position; // index of 'u'
                                                       // read 4 hex digits without consuming; then advance position in bulk
                             let read_hex4 = |input: &Vec<char>, start: usize| -> Option<u32> {

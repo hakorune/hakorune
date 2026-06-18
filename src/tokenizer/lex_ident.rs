@@ -1,4 +1,4 @@
-use super::{NyashTokenizer, TokenType};
+use super::{env, log, NyashTokenizer, TokenType};
 use crate::grammar::engine;
 
 impl NyashTokenizer {
@@ -77,7 +77,7 @@ impl NyashTokenizer {
         };
 
         // Stage-3 gate: LOCAL/FLOW/TRY/CATCH/THROW require Stage-3 parser (default ON)
-        let stage3_enabled = crate::config::env::parser_stage3_enabled();
+        let stage3_enabled = env::parser_stage3_enabled();
         if !stage3_enabled {
             let is_stage3 = matches!(
                 tok,
@@ -92,8 +92,8 @@ impl NyashTokenizer {
                     | TokenType::IN
             );
             if is_stage3 {
-                if crate::config::env::tok_trace() {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
+                if env::tok_trace() {
+                    log::debug(&format!(
                         "[tok-stage3] Degrading {:?} to IDENTIFIER (stage3_enabled={})",
                         tok, stage3_enabled
                     ));
@@ -101,7 +101,7 @@ impl NyashTokenizer {
                 tok = TokenType::IDENTIFIER(identifier.clone());
             }
         } else {
-            if crate::config::env::tok_trace() {
+            if env::tok_trace() {
                 let is_stage3 = matches!(
                     tok,
                     TokenType::LOCAL
@@ -115,7 +115,7 @@ impl NyashTokenizer {
                         | TokenType::IN
                 );
                 if is_stage3 {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
+                    log::debug(&format!(
                         "[tok-stage3] Keeping {:?} as keyword (stage3_enabled={})",
                         tok, stage3_enabled
                     ));
@@ -142,16 +142,16 @@ impl NyashTokenizer {
         }
 
         // 統一文法エンジンとの差分チェック（動作は変更しない）
-        if crate::config::env::grammar_diff() {
+        if env::grammar_diff() {
             if let Some(kw) = engine::get().is_keyword_str(&identifier) {
                 if let TokenType::IDENTIFIER(_) = tok {
-                    crate::runtime::get_global_ring0().log.warn(&format!(
+                    log::warn(&format!(
                         "[GRAMMAR-DIFF] tokenizer=IDENT, grammar=KEYWORD({}) word='{}'",
                         kw, identifier
                     ));
                 }
             } else if !matches!(tok, TokenType::IDENTIFIER(_)) {
-                crate::runtime::get_global_ring0().log.warn(&format!(
+                log::warn(&format!(
                     "[GRAMMAR-DIFF] tokenizer=KEYWORD, grammar=IDENT word='{}'",
                     identifier
                 ));

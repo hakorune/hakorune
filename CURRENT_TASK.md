@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1162-BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1161-BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1160-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1163-BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1162-BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1161-BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -116,8 +116,10 @@ Scope: current lane / next lane / restart order only.
   runtime literal Box bridge. The frontend AST split is closed. Parser crate
   preflight found 90 parser/tokenizer Rust files and 15,091 total lines, but
   rejected direct parser extraction because tokenizer config/runtime logging
-  seams and parser grammar/syntax/prelude seams remain. The next blocker is
-  `BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001`.
+  seams and parser grammar/syntax/prelude seams remain. Tokenizer env/logging
+  access is now isolated behind tokenizer-local facades, leaving zero direct
+  tokenizer config/runtime logger refs. The next blocker is
+  `BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -353,9 +355,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1162-BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1161-BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1160-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1163-BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1162-BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1161-BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

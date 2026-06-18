@@ -1,16 +1,16 @@
-use super::{NyashTokenizer, Token, TokenType, TokenizeError};
+use super::{env, log, NyashTokenizer, Token, TokenType, TokenizeError};
 
 impl NyashTokenizer {
     #[inline]
     pub(crate) fn allow_semicolon() -> bool {
         // Default: ON (semicolon is an optional statement separator)
         // Allow opt-out via NYASH_PARSER_ALLOW_SEMICOLON=0|false|off
-        crate::config::env::parser_allow_semicolon()
+        env::parser_allow_semicolon()
     }
 
     #[inline]
     pub(crate) fn strict_12_7() -> bool {
-        crate::config::env::strict_12_7()
+        env::strict_12_7()
     }
 
     /// 新しいトークナイザーを作成
@@ -56,10 +56,8 @@ impl NyashTokenizer {
 
             // 次のトークンを読み取り
             let token = self.tokenize_next()?;
-            if crate::config::env::tok_trace() {
-                crate::runtime::get_global_ring0()
-                    .log
-                    .debug(&format!("[tok] {:?}", token.token_type));
+            if env::tok_trace() {
+                log::debug(&format!("[tok] {:?}", token.token_type));
             }
             tokens.push(token);
         }
@@ -77,7 +75,7 @@ impl NyashTokenizer {
 
         match self.current_char() {
             Some('@') => {
-                if crate::config::env::parser_metadata_annotations_enabled() {
+                if env::parser_metadata_annotations_enabled() {
                     self.advance();
                     return Ok(Token::new(TokenType::AT, start_line, start_column));
                 }
@@ -172,7 +170,7 @@ impl NyashTokenizer {
                 ))
             }
             // Stage‑3: シングルクォート文字列（オプトイン、現行デフォルトON）
-            Some('\'') if crate::config::env::parser_stage3_enabled() => {
+            Some('\'') if env::parser_stage3_enabled() => {
                 let string_value = self.read_single_quoted_string()?;
                 Ok(Token::new(
                     TokenType::STRING(string_value),

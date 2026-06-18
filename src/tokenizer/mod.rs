@@ -4,9 +4,11 @@
 
 mod cursor;
 mod engine;
+mod env;
 mod kinds;
 mod lex_ident;
 mod lex_number;
+mod log;
 mod lex_string;
 mod whitespace;
 
