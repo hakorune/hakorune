@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1171-BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1172-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002.md"
 
-latest_card = "BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1171-BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001.md"
-latest_card_summary = """Switched parser Result/Option prelude initialization
-to hakorune_frontend_ast::result_option_prelude. Parser direct prelude facade
-refs are now zero."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002"
+latest_card = "BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1172-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002.md"
+latest_card_summary = """Re-ran parser/tokenizer crate extraction preflight
+after grammar/sugar/prelude seams. Direct extraction is still blocked by env/log
+facades that delegate to main-crate config/runtime."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

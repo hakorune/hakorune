@@ -129,12 +129,28 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001
-next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002
-purpose=rerun parser/tokenizer extraction preflight after grammar/sugar/prelude seams were split
+latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002
+next_task=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001
+purpose=choose standalone parser/tokenizer env and logging boundary before crate extraction
 implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser/Tokenizer Crate Preflight v2 Result
+
+```text
+parser_tokenizer_rust_file_count=92
+parser_tokenizer_total_lines=15144
+parser_direct_grammar_refs=0
+parser_direct_sugar_refs=0
+parser_direct_prelude_refs=0
+parser_ast_facade_refs=121
+parser_tokenizer_refs=67
+parser_internal_crate_path_refs=259
+parser_tokenizer_env_log_facade_refs=present
+direct_parser_tokenizer_crate_extraction_allowed=0
+selected_next_task=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001
 ```
 
 ## Frontend Parser Prelude Consumer Import Switch Result
