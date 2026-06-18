@@ -7,8 +7,10 @@
 //! factory registry logic and concrete Box construction stay in the main crate.
 
 pub mod policy;
+pub mod plugin;
 
 pub use policy::{FactoryPolicy, FactoryType};
+pub use plugin::PluginExecMode;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BoxCoreBoundary;

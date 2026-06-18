@@ -4,17 +4,11 @@
 //! Prevents direct std::env::{var,set_var,remove_var} access (AGENTS.md 5.3)
 
 use crate::box_factory::FactoryPolicy;
+pub use hakorune_box_core::PluginExecMode;
 use std::sync::atomic::{AtomicU8, Ordering};
 
 const BOX_FACTORY_POLICY_MODE_UNSET: u8 = u8::MAX;
 static BOX_FACTORY_POLICY_MODE_CACHE: AtomicU8 = AtomicU8::new(BOX_FACTORY_POLICY_MODE_UNSET);
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum PluginExecMode {
-    ModuleFirst,
-    DynamicOnly,
-    DynamicFirst,
-}
 
 /// NYASH_BOX_FACTORY_POLICY: builtin_first, compat_plugin_first, strict_plugin_first
 pub fn box_factory_policy() -> Option<String> {

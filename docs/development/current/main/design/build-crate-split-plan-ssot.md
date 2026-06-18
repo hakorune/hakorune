@@ -129,15 +129,58 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-BOX-CORE-CONFIG-POST-SPLIT-MEASUREMENT-001
-next_task=BUILD-BOX-CORE-CONFIG-NEXT-SEAM-SELECTION-001
-purpose=decide whether to continue box-core/config passive seams or return to global crate-boundary selection
+latest_done=BUILD-BOX-CORE-CONFIG-CLOSEOUT-001
+next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
+purpose=select the next build-time crate boundary after closing the first box-core/config passive seam burst
 implementation_allowed=0
 measurement_allowed=0
 selection_allowed=1
+closeout_allowed=0
 audit_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Box Core Config Closeout Result
+
+```text
+current_box_core_config_burst_closed=1
+new_crate=hakorune-box-core
+moved_owner_types=FactoryPolicy,FactoryType,PluginExecMode
+behavior_changed=0
+build_time_winner_claim=0
+selected_next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
+```
+
+## Box Core Config PluginExecMode Post-Split Measurement Result
+
+```text
+passive_owner_type=PluginExecMode
+cold_release_build_green=1
+cold_build_real_sec=159.44
+cold_build_user_sec=221.35
+cold_build_sys_sec=10.85
+build_time_winner_claim=0
+selected_next_task=BUILD-BOX-CORE-CONFIG-CLOSEOUT-001
+```
+
+## Box Core Config PluginExecMode Passive Split Result
+
+```text
+passive_owner_crate=hakorune-box-core
+passive_owner_type=PluginExecMode
+main_crate_facade=src/config/env/box_factory_flags.rs
+behavior_changed=0
+selected_next_task=BUILD-BOX-CORE-CONFIG-PLUGIN-EXEC-MODE-POST-SPLIT-MEASUREMENT-001
+```
+
+## Box Core Config Next Seam Selection Result
+
+```text
+selected_next_seam=plugin_exec_mode_vocabulary
+selected_next_task=BUILD-BOX-CORE-CONFIG-PLUGIN-EXEC-MODE-SEAM-DESIGN-001
+selection_only=1
+implementation_allowed=0
 ```
 
 ## Box Core Config Post-Split Measurement Result

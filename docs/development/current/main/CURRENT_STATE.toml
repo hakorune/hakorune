@@ -26,13 +26,13 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1222-BUILD-BOX-CORE-CONFIG-POST-SPLIT-MEASUREMENT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1227-BUILD-BOX-CORE-CONFIG-CLOSEOUT-001.md"
 
-latest_card = "BUILD-BOX-CORE-CONFIG-POST-SPLIT-MEASUREMENT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1222-BUILD-BOX-CORE-CONFIG-POST-SPLIT-MEASUREMENT-001.md"
-latest_card_summary = """Recorded cold release build after hakorune-box-core
-passive split: real=150.16s, winner claim=0."""
-current_blocker_token = "BUILD-BOX-CORE-CONFIG-NEXT-SEAM-SELECTION-001"
+latest_card = "BUILD-BOX-CORE-CONFIG-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1227-BUILD-BOX-CORE-CONFIG-CLOSEOUT-001.md"
+latest_card_summary = """Closed the first box-core/config passive seam burst:
+hakorune-box-core owns FactoryPolicy, FactoryType, and PluginExecMode."""
+current_blocker_token = "BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -54,4 +54,7 @@ landed_tail = [
   "2026-06-18: 296x-1219/1220 select the first box-core seam: move FactoryPolicy / FactoryType into hakorune-box-core behind a facade.",
   "2026-06-18: 296x-1221 moves FactoryPolicy / FactoryType into hakorune-box-core while preserving crate::box_factory compatibility imports.",
   "2026-06-18: 296x-1222 records box-core/config post-split cold release build at real=150.16s with build_time_winner_claim=0.",
+  "2026-06-18: 296x-1223..1225 move PluginExecMode into hakorune-box-core while preserving crate::config::env compatibility imports.",
+  "2026-06-18: 296x-1226 records PluginExecMode post-split cold release build at real=159.44s with build_time_winner_claim=0.",
+  "2026-06-18: 296x-1227 closes the first box-core/config passive seam burst and returns to global boundary selection.",
 ]
