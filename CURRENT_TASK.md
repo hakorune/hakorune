@@ -13,33 +13,18 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1093-BUILD-MIR-PLANS-OBJECT-STATE-PASSIVE-BUNDLE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1092-BUILD-MIR-PLANS-NEXT-PASSIVE-FAMILY-SELECTION-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1091-BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SPLIT-001.md`
-5. `docs/development/current/main/phases/phase-296x/296x-1090-BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SELECTION-001.md`
-6. `docs/development/current/main/phases/phase-296x/296x-1089-BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001.md`
-7. `docs/development/current/main/phases/phase-296x/296x-1088-BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001.md`
-8. `docs/development/current/main/phases/phase-296x/296x-1087-BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001.md`
-9. `docs/development/current/main/phases/phase-296x/296x-1086-BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001.md`
-10. `docs/development/current/main/phases/phase-296x/296x-1085-BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001.md`
-11. `docs/development/current/main/phases/phase-296x/296x-1084-BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001.md`
-12. `docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md`
-13. `docs/development/current/main/phases/phase-296x/296x-1082-BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001.md`
-14. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
-15. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
-16. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
-17. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
-18. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
-19. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
-20. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
-21. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
-22. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
-23. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-24. `docs/development/current/main/05-Restart-Quick-Resume.md`
-25. `docs/development/current/main/10-Now.md`
-26. `git status -sb`
-27. `bash tools/checks/current_state_pointer_guard.sh`
-28. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+2. `docs/development/current/main/phases/phase-296x/296x-1095-BUILD-MIR-PLANS-FUNCTION-FACT-PASSIVE-BUNDLE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1094-BUILD-MIR-PLANS-STAGE1-CLOSEOUT-CANDIDATE-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1093-BUILD-MIR-PLANS-OBJECT-STATE-PASSIVE-BUNDLE-SPLIT-001.md`
+5. `docs/development/current/main/phases/phase-296x/296x-1092-BUILD-MIR-PLANS-NEXT-PASSIVE-FAMILY-SELECTION-001.md`
+6. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+7. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
+8. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+9. `docs/development/current/main/05-Restart-Quick-Resume.md`
+10. `docs/development/current/main/10-Now.md`
+11. `git status -sb`
+12. `bash tools/checks/current_state_pointer_guard.sh`
+13. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -70,8 +55,9 @@ Scope: current lane / next lane / restart order only.
   ArrayRecord / PackedArray passive metadata rows while leaving producer logic
   in the main crate; the seventh split moved typed-object / direct-state /
   record-state passive rows while leaving declaration inventory and producers
-  in the main crate. The next blocker is
-  `BUILD-MIR-PLANS-STAGE1-CLOSEOUT-CANDIDATE-001`.
+  in the main crate; the eighth split moved loop/range/direct-array/span
+  function fact vocabulary while leaving producers and refresh logic in the
+  main crate. The next blocker is `BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
