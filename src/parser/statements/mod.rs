@@ -378,7 +378,7 @@ impl NyashParser {
         // Non-invasive syntax rule check
         if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
             if let Some(k) = Self::grammar_keyword_for(&start_tok) {
-                let ok = crate::grammar::engine::get().syntax_is_allowed_statement(k);
+                let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_statement(k);
                 if !ok {
                     crate::parser::log::warn(&format!(
                         "[GRAMMAR-DIFF][Parser] statement '{}' not allowed by syntax rules",

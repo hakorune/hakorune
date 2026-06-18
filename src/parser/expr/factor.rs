@@ -24,7 +24,7 @@ impl NyashParser {
                     BinaryOperator::Divide => "div",
                     _ => "mod",
                 };
-                let ok = crate::grammar::engine::get().syntax_is_allowed_binop(name);
+                let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_binop(name);
                 if !ok {
                     crate::parser::log::warn(&format!(
                         "[GRAMMAR-DIFF][Parser] binop '{}' not allowed by syntax rules",

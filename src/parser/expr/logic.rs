@@ -11,7 +11,7 @@ impl NyashParser {
             self.advance();
             let right = self.expr_parse_and()?;
             if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
-                let ok = crate::grammar::engine::get().syntax_is_allowed_binop("or");
+                let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_binop("or");
                 if !ok {
                     crate::parser::log::warn(
                         "[GRAMMAR-DIFF][Parser] binop 'or' not allowed by syntax rules",
@@ -35,7 +35,7 @@ impl NyashParser {
             self.advance();
             let right = self.expr_parse_equality()?;
             if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
-                let ok = crate::grammar::engine::get().syntax_is_allowed_binop("and");
+                let ok = hakorune_frontend_grammar::engine::get().syntax_is_allowed_binop("and");
                 if !ok {
                     crate::parser::log::warn(
                         "[GRAMMAR-DIFF][Parser] binop 'and' not allowed by syntax rules",

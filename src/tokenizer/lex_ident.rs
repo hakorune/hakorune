@@ -1,5 +1,5 @@
 use super::{env, log, NyashTokenizer, TokenType};
-use crate::grammar::engine;
+use hakorune_frontend_grammar::engine;
 
 impl NyashTokenizer {
     /// キーワードまたは識別子を読み取り

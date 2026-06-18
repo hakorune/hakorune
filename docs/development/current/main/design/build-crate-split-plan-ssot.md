@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001
-next_task=BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001
-purpose=switch parser/tokenizer grammar engine imports to hakorune_frontend_grammar
-implementation_allowed=import_switch_only
+latest_done=BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001
+next_task=BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001
+purpose=choose boundaries for parser sugar config and result/option prelude inputs
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Grammar Consumer Import Switch Result
+
+```text
+parser_tokenizer_crate_grammar_imports_before=6
+parser_tokenizer_crate_grammar_imports_after=0
+consumer_import_target=hakorune_frontend_grammar::engine
+cargo_check_default_green=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001
 ```
 
 ## Frontend Grammar Crate Scaffold Result
