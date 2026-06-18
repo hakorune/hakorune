@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 mod attrs;
+mod literal_box_bridge;
 mod span;
 mod syntax;
 pub use attrs::{DeclarationAttrs, RuneAttr};

@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1145-BUILD-FRONTEND-CRATE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1144-BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1143-BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1146-BUILD-FRONTEND-AST-PASSIVE-SEAM-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1145-BUILD-FRONTEND-CRATE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1144-BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -92,8 +92,10 @@ Scope: current lane / next lane / restart order only.
   remains available through explicit `--features vm-reference`. The next build
   split boundary selected is `hakorune-frontend`. Frontend preflight found zero
   MIR/backend refs, but direct extraction is blocked by AST literal runtime Box
-  conversion and parser logging/config refs. The next blocker is
-  `BUILD-FRONTEND-AST-PASSIVE-SEAM-001`.
+  conversion and parser logging/config refs. The AST passive seam is now split:
+  `LiteralValue` stays in `syntax.rs`, runtime Box conversion lives in
+  `ast/literal_box_bridge.rs`. The next blocker is
+  `BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
