@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-PREFLIGHT-001
-next_task=BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001
-purpose=define main-crate tokenizer wrapper before moving NyashTokenizer into the frontend parser crate
-implementation_allowed=design_only
+latest_done=BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001
+next_task=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-001
+purpose=move NyashTokenizer and tokenizer impl modules into hakorune-frontend-parser behind main wrapper
+implementation_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Tokenizer Facade Wrapper Design Result
+
+```text
+main_facade_type=src/tokenizer/mod.rs::NyashTokenizer
+inner_type=hakorune_frontend_parser::tokenizer::NyashTokenizer
+wrapper_new_installs_runtime_host=1
+wrapper_delegates_tokenize=1
+selected_next_task=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-001
 ```
 
 ## Frontend Tokenizer Owner Bundle Move Preflight Result
