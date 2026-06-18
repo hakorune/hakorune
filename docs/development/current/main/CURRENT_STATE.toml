@@ -1057,15 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1096-BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1097-BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001.md"
 
-latest_card = "BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1096-BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001.md"
-latest_card_summary = """hakorune-mir-plans Stage 1 closed after eight
-low-risk passive splits. Remaining candidates are either declaration
-inventory, source-span/fastmem dependent, active producer logic, or deeper
-backend/frontend/lowering split candidates."""
-current_blocker_token = "BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001"
+latest_card = "BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1097-BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001.md"
+latest_card_summary = """Post-stage1 cold build measured real=158.95s,
+user=212.73s, sys=11.59s. This is not a build-time winner versus the 157.37s
+baseline, so the next owner must be a larger crate boundary."""
+current_blocker_token = "BUILD-BACKEND-CRATE-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1086,6 +1085,7 @@ landed_tail = [
   "2026-06-18: 296x-1092/1093 move typed-object / direct-state / record-state passive rows into hakorune-mir-plans while leaving declaration inventory and producers in the main crate.",
   "2026-06-18: 296x-1094/1095 move loop/range/direct-array/span function fact vocabulary into hakorune-mir-plans while leaving producers and refresh logic in the main crate.",
   "2026-06-18: 296x-1096 closes hakorune-mir-plans Stage 1 and moves the lane to post-stage1 build-time measurement before the next crate split selection.",
+  "2026-06-18: 296x-1097 measures post-stage1 cold build at real=158.95s and selects backend crate preflight because Stage 1 is structural, not a cold-build winner.",
   "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
   "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",

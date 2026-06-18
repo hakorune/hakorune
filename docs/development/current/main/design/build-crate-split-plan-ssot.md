@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001
-next_task=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
-purpose=measure post-stage1 build-time baseline before selecting the next crate split stage
+latest_done=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
+next_task=BUILD-BACKEND-CRATE-PREFLIGHT-001
+purpose=preflight the next ranked crate split after Stage 1 did not move cold build time
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -243,4 +243,17 @@ closed_stage=hakorune_mir_plans_stage_1
 remaining_low_risk_passive_bundle_count=0
 next_task=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
 behavior_changed=0
+```
+
+## Post Stage 1 Measurement Result
+
+```text
+post_stage1_card=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
+cold_build_real_sec=158.95
+cold_build_user_sec=212.73
+cold_build_sys_sec=11.59
+baseline_cold_build_real_sec=157.37
+build_time_winner_claim=0
+main_crate_still_dominant=1
+recommended_next_stage=hakorune_backend_preflight
 ```
