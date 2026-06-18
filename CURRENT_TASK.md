@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1208-BUILD-FRONTEND-PARSER-EXPR-CURSOR-OWNER-BUNDLE-MOVE-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1207-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1206-BUILD-FRONTEND-PARSER-CURSOR-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1209-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-005.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1208-BUILD-FRONTEND-PARSER-EXPR-CURSOR-OWNER-BUNDLE-MOVE-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1207-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -176,8 +176,10 @@ Scope: current lane / next lane / restart order only.
   in `hakorune-frontend-parser` behind the main crate cursor facade.
   Next-boundary preflight 004 selected `ExprParserWithCursor` and helper
   modules as the next owner bundle move. That owner bundle now lives in
-  `hakorune-frontend-parser` behind the main crate parser facade. The next
-  blocker is `BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-005`.
+  `hakorune-frontend-parser` behind the main crate parser facade.
+  Next-boundary preflight 005 selected `ParserMetadata` as the next passive
+  parser boundary. The next blocker is
+  `BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
