@@ -100,8 +100,10 @@ Related:
   family selected is `UnaryOperator` / `BinaryOperator` / `BuildPredicate`;
   those types now live in `hakorune-frontend-ast` behind the syntax facade.
   `RuneAttr`, `DeclarationAttrs`, and rune Profile vocabulary now live in
-  `hakorune-frontend-ast` behind compatibility re-exports. The next blocker is
-  `BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001`
+  `hakorune-frontend-ast` behind compatibility re-exports. `LiteralValue`
+  split design selected free-function runtime Box conversion because inherent
+  methods cannot be preserved after moving the type to a frontend crate. The
+  next blocker is `BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -118,9 +120,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1153-BUILD-FRONTEND-AST-ATTRS-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1152-BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1151-BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1154-BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1153-BUILD-FRONTEND-AST-ATTRS-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1152-BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

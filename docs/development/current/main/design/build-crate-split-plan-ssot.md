@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-ATTRS-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001
-purpose=design how LiteralValue can leave the main crate without carrying runtime Box conversion inherent methods
-implementation_allowed=design_only
+latest_done=BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001
+next_task=BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001
+purpose=move LiteralValue and Display to hakorune-frontend-ast while keeping runtime Box conversion in main-crate free functions
+implementation_allowed=passive_type_split_plus_bridge_function_rename
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST LiteralValue Bridge Design Result
+
+```text
+literal_data_owner_selected=hakorune-frontend-ast
+runtime_conversion_owner=src/ast/literal_box_bridge.rs
+orphan_rule_blocks_inherent_method_compat=1
+internal_to_nyash_box_callsite_count=0
+internal_literal_from_nyash_box_callsite_count=0
+bridge_api=literal_to_nyash_box,literal_from_nyash_box
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001
 ```
 
 ## Frontend AST Attrs Passive Split Result
