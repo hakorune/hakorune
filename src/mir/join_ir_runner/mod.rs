@@ -28,7 +28,9 @@
 //! - JoinValue / JoinIrOpError は join_ir_ops から再エクスポート
 //! - eval_binop() / eval_compare() を使用（実装を一箇所に集約）
 
+#[cfg(feature = "vm-reference")]
 mod api;
+#[cfg(feature = "vm-reference")]
 mod exec;
 #[cfg(test)]
 mod tests;
@@ -39,4 +41,5 @@ pub use crate::mir::join_ir_ops::{JoinIrOpError, JoinValue};
 // Phase 27.8: 互換性のため JoinRuntimeError を JoinIrOpError の別名として保持
 pub type JoinRuntimeError = JoinIrOpError;
 
+#[cfg(feature = "vm-reference")]
 pub use api::run_joinir_function;
