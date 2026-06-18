@@ -1,6 +1,16 @@
 // EscapeUtils — JSON文字列エスケープ処理（美しいモジュラー設計）
 // 責務: JSON文字列のエスケープ・アンエスケープ・妥当性検証
 
+box JsonUnescapeResult {
+    value: StringBox
+    advance: i64
+
+    birth(result_value: StringBox, advance_count: i64) {
+        me.value = result_value
+        me.advance = advance_count
+    }
+}
+
 static box EscapeUtils {
     
     // ===== JSON文字列エスケープ =====
@@ -114,6 +124,9 @@ static box EscapeUtils {
     
     // エスケープされたJSON文字列を元に戻す
     unescape_string(s) {
+        if not s.contains("\\") {
+            return s
+        }
         local result = ""
         local i = 0
         
@@ -134,72 +147,47 @@ static box EscapeUtils {
         return result
     }
     
-    // エスケープシーケンスを解釈（オブジェクトリテラル未対応環境のため MapBox で返す）
+    // エスケープシーケンスを解釈する内部結果。
     unescape_sequence(next_ch, full_string, pos) {
-        local out = new MapBox()
         if next_ch == "\"" {
-            out.set("value", "\"")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\"", 2)
         }
         if next_ch == "\\" {
-            out.set("value", "\\")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\\", 2)
         }
         if next_ch == "/" {
-            out.set("value", "/")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("/", 2)
         }
         if next_ch == "b" {
-            out.set("value", "\b")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\b", 2)
         }
         if next_ch == "f" {
-            out.set("value", "\f")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\f", 2)
         }
         if next_ch == "n" {
-            out.set("value", "\n")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\n", 2)
         }
         if next_ch == "r" {
-            out.set("value", "\r")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\r", 2)
         }
         if next_ch == "t" {
-            out.set("value", "\t")
-            out.set("advance", 2)
-            return out
+            return new JsonUnescapeResult("\t", 2)
         }
         if next_ch == "u" {
             // Unicodeエスケープ \\uXXXX
             if pos + 5 < full_string.length() {
                 local hex = full_string.substring(pos + 2, pos + 6)
                 if this.is_valid_hex4(hex) {
-                    out.set("value", this.hex_to_char(hex))
-                    out.set("advance", 6)
-                    return out
+                    return new JsonUnescapeResult(this.hex_to_char(hex), 6)
                 } else {
-                    out.set("value", "\\u")
-                    out.set("advance", 2)
-                    return out
+                    return new JsonUnescapeResult("\\u", 2)
                 }
             } else {
-                out.set("value", "\\u")
-                out.set("advance", 2)
-                return out
+                return new JsonUnescapeResult("\\u", 2)
             }
         }
         // 不明なエスケープはそのまま残す
-        out.set("value", "\\" + next_ch)
-        out.set("advance", 2)
-        return out
+        return new JsonUnescapeResult("\\" + next_ch, 2)
     }
     
     // 4桁の16進数文字列が有効かどうか判定
@@ -402,7 +390,14 @@ static box EscapeUtils {
     // JSON文字列リテラルからクォートを除去してアンエスケープ
     unquote_string(s) {
         if s.length() >= 2 and s.substring(0, 1) == "\"" and s.substring(s.length() - 1, s.length()) == "\"" {
-            local content = s.substring(1, s.length() - 1)
+            // Avoid dynamic-end substring here; build the quoted body with
+            // one-character slices so EXE/AOT and interpreter semantics stay aligned.
+            local content = ""
+            local i = 1
+            loop(i + 1 < s.length()) {
+                content = content + s.substring(i, i + 1)
+                i = i + 1
+            }
             return this.unescape_string(content)
         } else {
             return s  // クォートされていない場合はそのまま

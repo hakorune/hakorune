@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1217-BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1216-BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1215-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1229-RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001.md`
+3. `apps/rust-subset-to-hako/STATUS.md`
+4. `apps/rust-subset-to-hako/README.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

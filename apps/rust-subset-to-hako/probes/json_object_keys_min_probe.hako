@@ -1,0 +1,13 @@
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local parsed = JsonParserUtils.parse_json("{\"kind\":\"Program\"}")
+        local keys = parsed.object_keys()
+        print(keys.length())
+        if keys.length() > 0 {
+            print(keys.get(0))
+        }
+        return 0
+    }
+}

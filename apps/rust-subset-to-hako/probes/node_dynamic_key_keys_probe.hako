@@ -1,0 +1,16 @@
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local obj = JsonNode.create_object()
+        local src = "kind"
+        local key = src.substring(0, src.length())
+        obj.object_set(key, JsonNode.create_string("Program"))
+        local keys = obj.object_keys()
+        print(keys.length())
+        if keys.length() > 0 {
+            print(keys.get(0))
+        }
+        return 0
+    }
+}

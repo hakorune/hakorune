@@ -1,0 +1,20 @@
+static box Main {
+    main() {
+        local m = new MapBox()
+        local src = "kind"
+        local key = src.substring(0, src.length())
+        m.set(key, "Program")
+        local keys = m.keys()
+        print(keys.length())
+        if keys.length() > 0 {
+            print(keys.get(0))
+        }
+        local got = m.get("kind")
+        if got == null {
+            print("lookup=null")
+        } else {
+            print(got)
+        }
+        return 0
+    }
+}

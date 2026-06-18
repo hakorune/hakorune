@@ -1,0 +1,20 @@
+box StringProducer {
+    make() {
+        return "hello"
+    }
+
+    make_concat() {
+        return "he" + "llo"
+    }
+}
+
+static box Main {
+    main() {
+        local p = new StringProducer()
+        local a = p.make()
+        local b = p.make_concat()
+        print("a=" + a)
+        print("b=" + b)
+        return 0
+    }
+}

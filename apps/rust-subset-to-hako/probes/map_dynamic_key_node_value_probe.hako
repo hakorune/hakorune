@@ -1,0 +1,18 @@
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local m = new MapBox()
+        local src = "kind"
+        local key = src.substring(0, src.length())
+        m.set(key, JsonNode.create_string("Program"))
+        local got = m.get("kind")
+        if got == null {
+            print("lookup=null")
+            return 1
+        }
+        print(got.get_kind())
+        print(got.as_string())
+        return 0
+    }
+}

@@ -8,14 +8,14 @@ static box Main {
             return 1
         }
         print("kind=" + parsed.get_kind())
-        local kind = parsed.get("kind")
+        local kind = parsed.get_node("kind")
         if kind == null {
             print("field.kind=null")
             return 2
         }
         print("field.kind.type=" + kind.get_kind())
         print("field.kind.value=" + kind.as_string())
-        local items = parsed.get("items")
+        local items = parsed.get_node("items")
         if items == null {
             print("items=null")
             return 3

@@ -1,0 +1,28 @@
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local direct = JsonNode.create_string("Direct")
+        print("direct.kind=" + direct.get_kind())
+        print("direct.value=" + direct.as_string())
+
+        local n = JsonParserUtils.parse_json("null")
+        print("null.parse.kind=" + n.get_kind())
+
+        local s = JsonParserUtils.parse_json("\"Program\"")
+        print("string.parse.kind=" + s.get_kind())
+        print("string.parse.value=" + s.as_string())
+
+        local obj = JsonParserUtils.parse_json("{\"kind\":\"Program\"}")
+        print("object.parse.kind=" + obj.get_kind())
+        local kind = obj.get_node("kind")
+        if kind == null {
+            print("object.kind=language-null")
+            return 2
+        }
+        print("object.kind.kind=" + kind.get_kind())
+        print("object.kind.value=" + kind.as_string())
+        return 0
+    }
+}

@@ -8,31 +8,32 @@
 status = "Active"
 date = "2026-06-18"
 
-active_lane = "COMPILER-CONSTRUCTION-AFTER-FASTPATH-PAUSE compiler construction / selfhost app front"
+active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused by
 EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001: no fresh compiler optimization owner
 is selected, user-box fastpath gaps are closed, and residue audit is clean.
 Rust VM / .hako VM product-route app validation is retired by
 VM-ACTIVE-LANE-RETIRE-001; EXE/AOT is the primary app/selfhost validation route.
-The active lane is build-time compiler construction. Build crate split planning
-is anchored in build-crate-split-plan-ssot.md. mir_core growth and
-hakorune-mir-plans Stage 1 are closed. The frontend AST split is closed. The
-frontend parser passive split series is closed, and its post-split cold release
-measurement is recorded as real=157.63s with build_time_winner_claim=0.
-Current blocker: select the next build-time crate boundary before implementation.
+The active app front is rust-subset-to-hako. The Python reference converter
+passes, the native .hako converter emits MIR JSON, and the first embedded
+fixture EXE/AOT slice now matches simple_expected.hako. The next blocker is
+selecting the input route: FileBox/stdin acceptance, host-generated embedded
+fixture handoff, or an external adapter boundary. Build crate split planning
+remains available but is paused while this app-front lane is active.
 Detailed landed history lives in the referenced phase cards and design SSOTs,
 not in CURRENT_STATE.toml."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
+method_anchor = "apps/rust-subset-to-hako/HAKO_JSON_PLAN.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1227-BUILD-BOX-CORE-CONFIG-CLOSEOUT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1229-RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001.md"
 
-latest_card = "BUILD-BOX-CORE-CONFIG-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1227-BUILD-BOX-CORE-CONFIG-CLOSEOUT-001.md"
-latest_card_summary = """Closed the first box-core/config passive seam burst:
-hakorune-box-core owns FactoryPolicy, FactoryType, and PluginExecMode."""
-current_blocker_token = "BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002"
+latest_card = "RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1229-RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001.md"
+latest_card_summary = """Closed the first rust-subset-to-hako EXE/AOT slice:
+json_native probe and embedded converter parity are green; next blocker is the
+input route selection."""
+current_blocker_token = "RUST-SUBSET-TO-HAKO-INPUT-ROUTE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -57,4 +58,6 @@ landed_tail = [
   "2026-06-18: 296x-1223..1225 move PluginExecMode into hakorune-box-core while preserving crate::config::env compatibility imports.",
   "2026-06-18: 296x-1226 records PluginExecMode post-split cold release build at real=159.44s with build_time_winner_claim=0.",
   "2026-06-18: 296x-1227 closes the first box-core/config passive seam burst and returns to global boundary selection.",
+  "2026-06-18: 296x-1228 reopens rust-subset-to-hako and pins the EXE/AOT blocker at JsonParser.parse/1.",
+  "2026-06-18: 296x-1229 closes the embedded rust-subset-to-hako EXE/AOT parity slice; next is input route selection.",
 ]

@@ -107,7 +107,8 @@ static box JsonNode {
     create_array() {
         local node = new JsonNodeInstance()
         node.kind = "array"
-        node.value = new ArrayBox()
+        node.array_value = new ArrayBox()
+        node.value = node.array_value
         return node
     }
     
@@ -115,7 +116,8 @@ static box JsonNode {
     create_object() {
         local node = new JsonNodeInstance()
         node.kind = "object"
-        node.value = new MapBox()
+        node.object_value = new MapBox()
+        node.value = node.object_value
         return node
     }
     
@@ -218,21 +220,25 @@ static box JsonNode {
 box JsonNodeInstance {
     kind: StringBox
     value: Box
+    array_value: ArrayBox
+    object_value: MapBox
     
     birth() {
         me.kind = "null"
         me.value = null
+        me.array_value = new ArrayBox()
+        me.object_value = new MapBox()
     }
 
     // インスタンス用: オブジェクトに値を設定
     object_set(key, node) {
         if me.kind == "object" {
-            me.value.set(key, node)
+            me.object_value.set(key, node)
         }
     }
 
     // インスタンスメソッドとして静的メソッドを呼び出し
-    get_kind() { return me.kind }
+    get_kind(): StringBox { return me.kind }
     as_bool() { 
         if me.kind == "bool" {
             return me.value
@@ -245,7 +251,7 @@ box JsonNodeInstance {
         }
         return 0
     }
-    as_string() { 
+    as_string(): StringBox { 
         if me.kind == "string" {
             return me.value
         }
@@ -271,8 +277,8 @@ box JsonNodeInstance {
         if me.kind == "array" {
             local parts = new ArrayBox()
             local i = 0
-            loop(i < me.value.length()) {
-                local elem = me.value.get(i)
+            loop(i < me.array_value.length()) {
+                local elem = me.array_value.get(i)
                 parts.push(elem.stringify())
                 i = i + 1
             }
@@ -280,7 +286,7 @@ box JsonNodeInstance {
         }
         if me.kind == "object" {
             // 安定出力のためキーを辞書順で整列
-            local keys = me.value.keys()
+            local keys = me.object_keys()
             local n = keys.length()
             local i = 0
             loop(i < n) {
@@ -300,7 +306,7 @@ box JsonNodeInstance {
             local k = 0
             loop(k < keys.length()) {
                 local key = keys.get(k)
-                local val = me.value.get(key)
+                local val = me.object_get(key)
                 local pair = EscapeUtils.quote_string(key) + ":" + val.stringify()
                 parts.push(pair)
                 k = k + 1
@@ -318,14 +324,14 @@ box JsonNodeInstance {
     // Instance helper: push element into array value
     array_push(node) {
         if me.kind == "array" {
-            me.value.push(node)
+            me.array_value.push(node)
         }
     }
 
     // Instance helper: array size
     array_size() {
         if me.kind == "array" {
-            return me.value.length()
+            return me.array_value.length()
         }
         return 0
     }
@@ -333,8 +339,8 @@ box JsonNodeInstance {
     // Instance helper: array get（欠損時は null を返す）
     array_get(index) {
         if me.kind == "array" {
-            if index >= 0 and index < me.value.length() {
-                return me.value.get(index)
+            if index >= 0 and index < me.array_value.length() {
+                return me.array_value.get(index)
             } else {
                 return null
             }
@@ -345,25 +351,28 @@ box JsonNodeInstance {
     // Instance helper: object get（欠損時は null を返す）
     object_get(key) {
         if me.kind == "object" {
-            if me.value.has(key) {
-                return me.value.get(key)
-            } else {
-                return null
-            }
+            return me.object_value.get(key)
         }
         return null
     }
 
-    // Thin convenience alias for script consumers.
-    // Object nodes use string keys; array nodes use integer indexes.
-    get(key) {
+    // Typed navigation for EXE/AOT consumers: always return a JsonNodeInstance.
+    // Missing keys, out-of-range indexes, and non-container nodes become a JSON null node.
+    get_node(key): JsonNodeInstance {
         if me.kind == "object" {
-            return me.object_get(key)
+            local node = me.object_get(key)
+            if node != null {
+                return node
+            }
+            return JsonNode.create_null()
         }
         if me.kind == "array" {
-            return me.array_get(key)
+            if key >= 0 and key < me.array_value.length() {
+                return me.array_value.get(key)
+            }
+            return JsonNode.create_null()
         }
-        return null
+        return JsonNode.create_null()
     }
 
     // Thin convenience alias matching ArrayBox/MapBox-style call sites.
@@ -379,7 +388,7 @@ box JsonNodeInstance {
 
     object_keys() {
         if me.kind == "object" {
-            return me.value.keys()
+            return me.object_value.keys()
         }
         return new ArrayBox()
     }

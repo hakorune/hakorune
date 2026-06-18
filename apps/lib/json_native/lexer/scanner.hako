@@ -18,7 +18,7 @@ box JsonScanner {
     column: IntegerBox     // 現在列番号
     _tmp_pos: IntegerBox   // 一時保持（ループ跨ぎの開始位置など）
     
-    birth(input_text) {
+    birth(input_text: StringBox) {
         me.text = input_text
         me.position = 0
         me.length = input_text.length()
@@ -28,7 +28,7 @@ box JsonScanner {
     }
 
     // Runtime-safe initializer (bypass constructor arg loss on some VM paths)
-    reset_text(input_text) {
+    reset_text(input_text: StringBox) {
         me.text = input_text
         me.position = 0
         me.length = input_text.length()
@@ -290,20 +290,17 @@ box JsonScanner {
         return me.text.substring(me._tmp_pos, me.position)
     }
     
-    // 文字列リテラルを読み取り（クォート含む）
+    // 文字列リテラルを読み取り（クォートを除いた body を返す）
     read_string_literal() {
         local start_pos = me.position
-        // Save starting position to _tmp_pos so that substring/range checks
-        // do not depend on a previous reader's value (PHI-safe, loop-safe).
-        // Other high-level readers (read_number/read_identifier) already
-        // initialize _tmp_pos; string literal must do the same.
-        me._tmp_pos = me.position
         
         // 開始クォート
         if me.current() != "\"" {
             return null
         }
         me.advance()
+        local body_start = me.position
+        me._tmp_pos = -1
         
         // 文字列内容
         loop(not me.is_eof()) {
@@ -311,40 +308,15 @@ box JsonScanner {
             
             if ch == "\"" {
                 // 終了クォート
+                me._tmp_pos = me.position
                 me.advance()
-                // Safety: literal must include both quotes → length >= 2
-                // PHIに依存せず、開始位置はフィールドから読む
-                if me.position - me._tmp_pos < 2 {
-                    return null
-                }
-                return me.text.substring(me._tmp_pos, me.position)
+                break
             } else {
                 if ch == "\\" {
-                    // エスケープシーケンス
-                    me.advance()
-                    if me.is_eof() {
-                        return null  // 不完全なエスケープ
-                    }
-                    
-                    local escaped = me.current()
-                    if escaped == "u" {
-                        // Unicode エスケープ \uXXXX
-                        me.advance()
-                        local i = 0
-                        loop(i < 4) {
-                            if me.is_eof() or not me.is_hex_digit_char(me.current()) {
-                                return null  // 無効なUnicodeエスケープ
-                            }
-                            me.advance()
-                            i = i + 1
-                        }
-                    } else {
-                        // 通常のエスケープ（\" \\ \/ \b \f \n \r \t のみ）
-                        if not (escaped == "\"" or escaped == "\\" or escaped == "/" or escaped == "b" or escaped == "f" or escaped == "n" or escaped == "r" or escaped == "t") {
-                            return null
-                        }
-                        me.advance()
-                    }
+                    // v0 EXE/AOT path: escaped JSON strings require a string-builder
+                    // shape that is not accepted yet. Fail fast instead of corrupting
+                    // the token value.
+                    return null
                 } else {
                     if ch == "\n" or ch == "\r" {
                         return null  // 文字列内の生の改行は無効
@@ -354,7 +326,13 @@ box JsonScanner {
             }
         }
         
-        return null  // 終了クォートが見つからない
+        if me._tmp_pos == -1 {
+            return null  // 終了クォートが見つからない
+        }
+        if me.position - start_pos < 2 {
+            return null
+        }
+        return me.text.substring(body_start, me._tmp_pos)
     }
     
     // ===== プライベートメソッド =====

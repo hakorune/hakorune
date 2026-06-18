@@ -39,6 +39,12 @@ Related:
 - VM product-route app validation is retired by
   `VM-ACTIVE-LANE-RETIRE-001`; EXE/AOT is the primary route for app/selfhost
   validation
+- rust-subset-to-hako is the active app front. Its Python reference converter
+  passes, the JSON native probe runs through EXE/AOT, and the embedded
+  `.hako` converter output matches `simple_expected.hako`. Reproduce with
+  `bash apps/rust-subset-to-hako/smoke.sh`. The next blocker is input route
+  selection: FileBox/stdin acceptance, host-generated embedded JSON handoff, or
+  an external adapter boundary.
 - compiler construction now includes build-time reduction planning from
   `BUILD-CRATE-SPLIT-PLAN-001`; the first `mir_core` growth slice moved
   control-flow ID newtypes into `hakorune-mir-core`; the first

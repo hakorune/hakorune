@@ -1,0 +1,13 @@
+using apps.lib.json_native.lexer.scanner as JsonScanner
+
+static box Main {
+    main() {
+        local literal = "\"kind\""
+        local scanner = new JsonScanner(literal)
+        scanner.reset_text(literal)
+        local scanned = scanner.read_string_literal()
+        print(scanned.length())
+        print(scanned)
+        return 0
+    }
+}

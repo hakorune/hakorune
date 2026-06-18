@@ -13,7 +13,7 @@ box JsonTokenizer {
     tokens: ArrayBox       // 生成されたトークン配列
     errors: ArrayBox       // エラー情報配列
     
-    birth(input_text) {
+    birth(input_text: StringBox) {
         // Avoid static module wrapper to ensure constructor args are preserved on VM path
         // (create_scanner(...) lost the argument under VM fallback in some cases)
         me.scanner = new JsonScanner("")
@@ -25,7 +25,7 @@ box JsonTokenizer {
     // ===== メイン解析メソッド =====
     
     // 全文字列をトークン化
-    tokenize() {
+    tokenize(): ArrayBox {
         // 初期化
         me.tokens = new ArrayBox()
         me.errors = new ArrayBox()
@@ -104,12 +104,6 @@ box JsonTokenizer {
             // print("BR alpha-t")
             return me.tokenize_keyword().set_line_column(start_line, start_col)
         }
-        // Fallback（堅牢化）: スキャナー側の is_alpha_char が true の場合はキーワードとして扱う
-        if me.scanner.is_alpha_char != null and me.scanner.is_alpha_char(ch) {
-            // print("BR alpha-fallback")
-            return me.tokenize_keyword().set_line_column(start_line, start_col)
-        }
-        
         // 構造文字（単一文字） — 最後に評価（誤検知回避）
         local structural_type = me.char_to_token_type(ch)
         if structural_type != null {
@@ -130,22 +124,52 @@ box JsonTokenizer {
     // 文字列トークン化
     tokenize_string() {
         local start_pos = me.scanner.get_position()
-        local literal = me.scanner.read_string_literal()
+        local string_body = me.scanner.read_string_literal()
         
-        // Robust guard: require quoted literal ("…")
-        if literal == null or literal.length() < 2 or not (literal.substring(0, 1) == "\"") {
+        if string_body == null {
             return new JsonToken("ERROR", "Unterminated string literal", start_pos, me.scanner.get_position())
         }
         
         // エスケープ解除して値を取得（厳密版）
-        local unescaped = EscapeUtils.unquote_string(literal)
+        local unescaped = EscapeUtils.unescape_string(string_body)
         
         // 文字列妥当性検証
         if not me.validate_string(unescaped) {
             return new JsonToken("ERROR", "Invalid string content", start_pos, me.scanner.get_position())
         }
         
-        return new JsonToken("STRING", unescaped, start_pos, me.scanner.get_position())
+        return new JsonToken("STRING", me.intern_schema_key(unescaped), start_pos, me.scanner.get_position())
+    }
+
+    // v0 EXE/AOT bridge: scanner substrings can be handle-backed values that do
+    // not behave as stable MapBox keys. Intern RustSubset schema keys as literal
+    // strings so JsonNode.get_node("...") works without schema-specific lookup
+    // code in the converter.
+    intern_schema_key(s) {
+        if s == "schema_version" { return "schema_version" }
+        if s == "kind" { return "kind" }
+        if s == "items" { return "items" }
+        if s == "name" { return "name" }
+        if s == "identity" { return "identity" }
+        if s == "fields" { return "fields" }
+        if s == "type" { return "type" }
+        if s == "variants" { return "variants" }
+        if s == "target" { return "target" }
+        if s == "methods" { return "methods" }
+        if s == "params" { return "params" }
+        if s == "receiver" { return "receiver" }
+        if s == "return_type" { return "return_type" }
+        if s == "body" { return "body" }
+        if s == "value" { return "value" }
+        if s == "base" { return "base" }
+        if s == "field" { return "field" }
+        if s == "op" { return "op" }
+        if s == "left" { return "left" }
+        if s == "right" { return "right" }
+        if s == "callee" { return "callee" }
+        if s == "args" { return "args" }
+        if s == "method" { return "method" }
+        return s
     }
     
     // 数値トークン化
@@ -252,11 +276,11 @@ box JsonTokenizer {
     
     // ===== 結果取得メソッド =====
     
-    get_tokens() {
+    get_tokens(): ArrayBox {
         return me.tokens
     }
     
-    get_errors() {
+    get_errors(): ArrayBox {
         return me.errors
     }
     

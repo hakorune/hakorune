@@ -1,0 +1,10 @@
+static box Main {
+    main() {
+        local src = "kind"
+        local key = src.substring(0, src.length())
+        print(key)
+        local s = key.toString()
+        print(s)
+        return 0
+    }
+}

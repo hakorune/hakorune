@@ -1,0 +1,24 @@
+using apps.lib.json_native.parser.parser as JsonParserModule
+
+static box Main {
+    main() {
+        local parser = new JsonParser()
+        local result = parser.parse("null")
+        print("parse.null.errors=" + parser.get_errors().length())
+        if result != null {
+            print("parse.null.kind=" + result.get_kind())
+        } else {
+            print("parse.null.result=null")
+        }
+
+        local parser2 = new JsonParser()
+        local result2 = parser2.parse("{\"kind\":\"Program\"}")
+        print("parse.object.errors=" + parser2.get_errors().length())
+        if result2 != null {
+            print("parse.object.kind=" + result2.get_kind())
+        } else {
+            print("parse.object.result=null")
+        }
+        return 0
+    }
+}

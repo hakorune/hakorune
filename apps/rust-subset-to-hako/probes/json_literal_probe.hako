@@ -1,0 +1,11 @@
+static box Main {
+    main() {
+        local s = "\"Program\""
+        local obj = "{\"kind\":\"Program\"}"
+        print("s.len=" + s.length())
+        print("s.value=" + s)
+        print("obj.len=" + obj.length())
+        print("obj.value=" + obj)
+        return 0
+    }
+}

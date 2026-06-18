@@ -1,0 +1,13 @@
+using apps.lib.json_native.parser.parser as JsonParserModule
+
+static box Main {
+    main() {
+        local parser = new JsonParser()
+        local errors0 = parser.get_errors()
+        print("errors.initial=" + errors0.length())
+        parser.add_error("manual")
+        local errors1 = parser.get_errors()
+        print("errors.after_manual=" + errors1.length())
+        return 0
+    }
+}

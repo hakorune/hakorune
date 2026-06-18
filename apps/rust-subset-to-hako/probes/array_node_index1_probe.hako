@@ -1,0 +1,17 @@
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local a = new ArrayBox()
+        a.push(JsonNode.create_string("zero"))
+        a.push(JsonNode.create_string("one"))
+        local got = a.get(1)
+        if got == null {
+            print("got=null")
+            return 1
+        }
+        print(got.get_kind())
+        print(got.as_string())
+        return 0
+    }
+}

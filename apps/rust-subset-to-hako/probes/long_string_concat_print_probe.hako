@@ -1,0 +1,10 @@
+static box Main {
+    main() {
+        local s = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        local t = s + "\n"
+        print(s)
+        print(t)
+        print("x=" + t)
+        return 0
+    }
+}

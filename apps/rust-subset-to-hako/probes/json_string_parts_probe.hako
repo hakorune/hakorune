@@ -1,0 +1,26 @@
+using apps.lib.json_native.lexer.scanner as JsonScanner
+using apps.lib.json_native.utils.escape as EscapeUtils
+
+static box Main {
+    main() {
+        local literal = "\"Program\""
+        print("literal.len=" + literal.length())
+        print("literal=" + literal)
+        local direct_unescaped = EscapeUtils.unescape_string("Program")
+        print("direct.unescaped.len=" + direct_unescaped.length())
+        print("direct.unescaped=" + direct_unescaped)
+        local unquoted = EscapeUtils.unquote_string(literal)
+        print("unquoted.len=" + unquoted.length())
+        print("unquoted=" + unquoted)
+
+        local scanner = new JsonScanner(literal)
+        scanner.reset_text(literal)
+        local scanned = scanner.read_string_literal()
+        print("scanned.body.len=" + scanned.length())
+        print("scanned.body=" + scanned)
+        local scanned_unescaped = EscapeUtils.unescape_string(scanned)
+        print("scanned.unescaped.len=" + scanned_unescaped.length())
+        print("scanned.unescaped=" + scanned_unescaped)
+        return 0
+    }
+}

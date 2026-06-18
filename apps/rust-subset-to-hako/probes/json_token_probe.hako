@@ -1,0 +1,18 @@
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("{\"kind\":\"Program\",\"items\":[]}")
+        tokenizer.set_input("{\"kind\":\"Program\",\"items\":[]}")
+        local tokens = tokenizer.tokenize()
+        print("tokens.length=" + tokens.length())
+        local i = 0
+        loop(i < tokens.length()) {
+            local token = tokens.get(i)
+            print("token." + i + "=" + token.get_type() + ":" + token.get_value())
+            i = i + 1
+        }
+        print("errors=" + tokenizer.get_error_count())
+        return tokenizer.get_error_count()
+    }
+}

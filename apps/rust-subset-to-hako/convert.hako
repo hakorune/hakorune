@@ -2,32 +2,30 @@
 // .hako native implementation (matches Python convert.py behavior for v0)
 //
 // Pipeline:
-//   FileBox.open(path) -> read() -> close()
+//   embedded RustSubset JSON v0 fixture
 //   -> JsonParserUtils.parse_json(text)
 //   -> navigate items -> emit .hako skeleton
 //   -> print(result)
 //
 // Usage:
 //   ./target/release/hakorune --backend vm apps/rust-subset-to-hako/convert.hako
-//   (reads apps/rust-subset-to-hako/examples/simple_subset.json for v0)
+//   (uses the embedded simple_subset.json fixture for the first AOT slice)
 
 using apps.lib.json_native.parser.parser as JsonParserUtils
 
 static box Main {
     main() {
-        // v0: hardcoded path for testing
-        local path = "apps/rust-subset-to-hako/examples/simple_subset.json"
-        local f = new FileBox()
-        if f.open(path, "r") == 0 {
-            print("// error: cannot open " + path)
-            return 1
-        }
-        local text = f.read()
-        f.close()
-
-        local result = me.convert(text)
+        local converter = new RustSubsetConverter()
+        local text = converter.sample_json()
+        local result = converter.convert(text)
         print(result)
         return 0
+    }
+}
+
+box RustSubsetConverter {
+    sample_json() {
+        return "{\"schema_version\":0,\"kind\":\"RustSubsetModule\",\"module\":\"simple\",\"items\":[{\"kind\":\"Struct\",\"name\":\"Point\",\"identity\":false,\"fields\":[{\"name\":\"x\",\"type\":\"i64\"},{\"name\":\"y\",\"type\":\"i64\"}]},{\"kind\":\"Impl\",\"target\":\"Point\",\"methods\":[{\"kind\":\"Function\",\"name\":\"len2\",\"receiver\":\"self_ref\",\"params\":[],\"return_type\":\"i64\",\"body\":[{\"kind\":\"Return\",\"value\":{\"kind\":\"Binary\",\"op\":\"+\",\"left\":{\"kind\":\"Binary\",\"op\":\"*\",\"left\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"x\"},\"right\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"x\"}},\"right\":{\"kind\":\"Binary\",\"op\":\"*\",\"left\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"y\"},\"right\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"y\"}}}}]}]},{\"kind\":\"Function\",\"name\":\"add\",\"params\":[{\"name\":\"a\",\"type\":\"i64\"},{\"name\":\"b\",\"type\":\"i64\"}],\"return_type\":\"i64\",\"body\":[{\"kind\":\"Return\",\"value\":{\"kind\":\"Binary\",\"op\":\"+\",\"left\":{\"kind\":\"Name\",\"name\":\"a\"},\"right\":{\"kind\":\"Name\",\"name\":\"b\"}}}]}]}"
     }
 
     // ── main entry ──────────────────────────────────────
@@ -39,12 +37,12 @@ static box Main {
         }
 
         // Validate schema_version
-        local sv = doc.get("schema_version")
+        local sv = doc.get_node("schema_version")
         if sv == null {
             return "// error: missing schema_version"
         }
 
-        local items = doc.get("items")
+        local items = doc.get_node("items")
         if items == null {
             return "// empty module"
         }
@@ -54,50 +52,54 @@ static box Main {
         local i = 0
 
         loop(i < item_count) {
-            local item = items.get(i)
-            local kind = me.node_str(item.get("kind"))
-
-            if kind == "Struct" {
-                output = output + me.emit_struct(item)
-            }
-            if kind == "Enum" {
-                output = output + me.emit_enum(item)
-            }
-            if kind == "Impl" {
-                output = output + me.emit_impl(item)
-            }
-            if kind == "Function" {
-                output = output + me.emit_function(item, "")
-            }
-
-            i = i + 1
-            if i < item_count {
+            local item = items.get_node(i)
+            local item_text = me.emit_item(item)
+            if output != "" {
                 output = output + "\n\n"
             }
+            output = output + item_text
+            i = i + 1
         }
 
-        return output + "\n"
+        return output
     }
 
     // ── item emitters ───────────────────────────────────
 
+    emit_item(item) {
+        local kind = me.node_str(item.get_node("kind"))
+        if kind == "Struct" {
+            return me.emit_struct(item)
+        }
+        if kind == "Enum" {
+            return me.emit_enum(item)
+        }
+        if kind == "Impl" {
+            return me.emit_impl(item)
+        }
+        if kind == "Function" {
+            return me.emit_function(item, "")
+        }
+        return "// TODO: " + kind
+    }
+
     emit_struct(item) {
-        local name = me.node_str(item.get("name"))
-        local identity = me.node_str(item.get("identity"))
+        local name = me.node_str(item.get_node("name"))
+        local identity = me.node_str(item.get_node("identity"))
         local keyword = "record"
         if identity == "true" {
             keyword = "box"
         }
 
-        local fields = item.get("fields")
+        local fields = item.get_node("fields")
         local body = ""
         if fields != null {
             local fc = fields.length()
             local fi = 0
             loop(fi < fc) {
-                local field = fields.get(fi)
-                local fname = me.node_str(field.get("name"))
-                local ftype = me.node_str(field.get("type"))
+                local field = fields.get_node(fi)
+                local fname = me.node_str(field.get_node("name"))
+                local ftype = me.node_str(field.get_node("type"))
                 body = body + "    " + fname + ": " + ftype
                 fi = fi + 1
                 if fi < fc {
@@ -110,15 +112,15 @@ static box Main {
     }
 
     emit_enum(item) {
-        local name = me.node_str(item.get("name"))
+        local name = me.node_str(item.get_node("name"))
         local result = "// enum " + name
-        local variants = item.get("variants")
+        local variants = item.get_node("variants")
         if variants != null {
             local vc = variants.length()
             local vi = 0
             loop(vi < vc) {
-                local variant = variants.get(vi)
-                local vname = me.node_str(variant.get("name"))
+                local variant = variants.get_node(vi)
+                local vname = me.node_str(variant.get_node("name"))
                 result = result + "\n//   " + vname
                 vi = vi + 1
             }
@@ -127,14 +129,14 @@ static box Main {
     }
 
     emit_impl(item) {
-        local target = me.node_str(item.get("target"))
-        local methods = item.get("methods")
+        local target = me.node_str(item.get_node("target"))
+        local methods = item.get_node("methods")
         local result = ""
         if methods != null {
             local mc = methods.length()
             local mi = 0
             loop(mi < mc) {
-                local method = methods.get(mi)
+                local method = methods.get_node(mi)
                 result = result + me.emit_function(method, target)
                 mi = mi + 1
                 if mi < mc {
@@ -146,7 +148,7 @@ static box Main {
     }
 
     emit_function(func, target_prefix) {
-        local name = me.node_str(func.get("name"))
+        local name = me.node_str(func.get_node("name"))
         if target_prefix != "" {
             name = target_prefix + "_" + name
         }
@@ -155,20 +157,20 @@ static box Main {
         local params = ""
 
         // Receiver: self_ref/self_mut/self_value -> me: TargetType
-        local receiver = me.node_str(func.get("receiver"))
+        local receiver = me.node_str(func.get_node("receiver"))
         if receiver != "none" && receiver != "" && target_prefix != "" {
             params = "me: " + target_prefix
         }
 
         // Explicit params
-        local param_arr = func.get("params")
+        local param_arr = func.get_node("params")
         if param_arr != null {
             local pc = param_arr.length()
             local pi = 0
             loop(pi < pc) {
-                local p = param_arr.get(pi)
-                local pname = me.node_str(p.get("name"))
-                local ptype = me.node_str(p.get("type"))
+                local p = param_arr.get_node(pi)
+                local pname = me.node_str(p.get_node("name"))
+                local ptype = me.node_str(p.get_node("type"))
                 if params != "" { params = params + ", " }
                 params = params + pname + ": " + ptype
                 pi = pi + 1
@@ -176,17 +178,17 @@ static box Main {
         }
 
         // Return type
-        local return_type = me.node_str(func.get("return_type"))
+        local return_type = me.node_str(func.get_node("return_type"))
         if return_type == "" { return_type = "void" }
 
         // Body
-        local body_arr = func.get("body")
+        local body_arr = func.get_node("body")
         local body = ""
         if body_arr != null {
             local bc = body_arr.length()
             local bi = 0
             loop(bi < bc) {
-                local stmt = body_arr.get(bi)
+                local stmt = body_arr.get_node(bi)
                 body = body + "    " + me.emit_stmt(stmt)
                 bi = bi + 1
                 if bi < bc { body = body + "\n" }
@@ -200,10 +202,10 @@ static box Main {
     // ── statement emitter ───────────────────────────────
 
     emit_stmt(stmt) {
-        local kind = me.node_str(stmt.get("kind"))
+        local kind = me.node_str(stmt.get_node("kind"))
 
         if kind == "Return" {
-            local val = stmt.get("value")
+            local val = stmt.get_node("value")
             if val != null {
                 return "return " + me.emit_expr(val)
             }
@@ -211,14 +213,14 @@ static box Main {
         }
 
         if kind == "Let" {
-            local lname = me.node_str(stmt.get("name"))
-            local ltype = me.node_str(stmt.get("type"))
-            local lval = stmt.get("value")
+            local lname = me.node_str(stmt.get_node("name"))
+            local ltype = me.node_str(stmt.get_node("type"))
+            local lval = stmt.get_node("value")
             return "local " + lname + ": " + ltype + " = " + me.emit_expr(lval)
         }
 
         if kind == "Expr" {
-            return me.emit_expr(stmt.get("value"))
+            return me.emit_expr(stmt.get_node("value"))
         }
 
         return "// TODO: " + kind
@@ -229,41 +231,41 @@ static box Main {
     emit_expr(expr) {
         if expr == null { return "null" }
 
-        local kind = me.node_str(expr.get("kind"))
+        local kind = me.node_str(expr.get_node("kind"))
 
         if kind == "Literal" {
-            return me.node_str(expr.get("value"))
+            return me.node_str(expr.get_node("value"))
         }
 
         if kind == "Name" {
-            local n = me.node_str(expr.get("name"))
+            local n = me.node_str(expr.get_node("name"))
             if n == "self" { return "me" }
             return n
         }
 
         if kind == "Field" {
-            local base = me.emit_expr(expr.get("base"))
-            local field = me.node_str(expr.get("field"))
+            local base = me.emit_expr(expr.get_node("base"))
+            local field = me.node_str(expr.get_node("field"))
             return base + "." + field
         }
 
         if kind == "Binary" {
-            local op = me.node_str(expr.get("op"))
-            local left = me.emit_expr(expr.get("left"))
-            local right = me.emit_expr(expr.get("right"))
+            local op = me.node_str(expr.get_node("op"))
+            local left = me.emit_expr(expr.get_node("left"))
+            local right = me.emit_expr(expr.get_node("right"))
             return left + " " + op + " " + right
         }
 
         if kind == "Call" {
-            local callee = me.node_str(expr.get("callee"))
-            local args = expr.get("args")
+            local callee = me.node_str(expr.get_node("callee"))
+            local args = expr.get_node("args")
             local args_str = ""
             if args != null {
                 local ac = args.length()
                 local ai = 0
                 loop(ai < ac) {
                     if args_str != "" { args_str = args_str + ", " }
-                    args_str = args_str + me.emit_expr(args.get(ai))
+                    args_str = args_str + me.emit_expr(args.get_node(ai))
                     ai = ai + 1
                 }
             }
@@ -271,16 +273,16 @@ static box Main {
         }
 
         if kind == "MethodCall" {
-            local recv = me.emit_expr(expr.get("receiver"))
-            local method = me.node_str(expr.get("method"))
-            local args = expr.get("args")
+            local recv = me.emit_expr(expr.get_node("receiver"))
+            local method = me.node_str(expr.get_node("method"))
+            local args = expr.get_node("args")
             local args_str = ""
             if args != null {
                 local ac = args.length()
                 local ai = 0
                 loop(ai < ac) {
                     if args_str != "" { args_str = args_str + ", " }
-                    args_str = args_str + me.emit_expr(args.get(ai))
+                    args_str = args_str + me.emit_expr(args.get_node(ai))
                     ai = ai + 1
                 }
             }
@@ -303,6 +305,6 @@ static box Main {
             return "false"
         }
         if kind == "null" { return "" }
-        return node.stringify()
+        return ""
     }
 }

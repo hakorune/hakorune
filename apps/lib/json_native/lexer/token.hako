@@ -30,6 +30,7 @@ static box TokenType {
 box JsonToken {
     token_type: StringBox  // トークンタイプ
     value: StringBox       // トークンの値
+    text_value: StringBox  // EXE/AOT-safe string payload owner
     start: IntegerBox      // 開始位置
     end: IntegerBox        // 終了位置
     line: IntegerBox       // 行番号（エラー報告用）
@@ -38,6 +39,7 @@ box JsonToken {
     birth(token_type, token_value, start_pos, end_pos) {
         me.token_type = token_type
         me.value = token_value
+        me.text_value = token_value
         me.start = start_pos
         me.end = end_pos
         me.line = 1
@@ -47,7 +49,7 @@ box JsonToken {
     // ===== アクセッサーメソッド =====
     
     get_type() { return me.token_type }
-    get_value() { return me.value }
+    get_value() { return me.text_value }
     get_start() { return me.start }
     get_end() { return me.end }
     get_line() { return me.line }

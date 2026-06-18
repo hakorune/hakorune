@@ -1,0 +1,13 @@
+using apps.lib.json_native.lexer.token as JsonToken
+
+static box Main {
+    main() {
+        local a = new ArrayBox()
+        a.push(new JsonToken("STRING", "zero", 0, 6))
+        a.push(new JsonToken("STRING", "kind", 1, 7))
+        local t = a.get(1)
+        print(t.get_type())
+        print(t.get_value())
+        return 0
+    }
+}

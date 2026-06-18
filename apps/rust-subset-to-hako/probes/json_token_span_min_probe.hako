@@ -1,0 +1,19 @@
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local input = "{\"kind\":\"Program\"}"
+        local tokenizer = new JsonTokenizer(input)
+        tokenizer.set_input(input)
+        local tokens = tokenizer.tokenize()
+        local t1 = tokens.get(1)
+        local t3 = tokens.get(3)
+        print(t1.get_start())
+        print(t1.get_end())
+        print(input.substring(t1.get_start() + 1, t1.get_end() - 1))
+        print(t3.get_start())
+        print(t3.get_end())
+        print(input.substring(t3.get_start() + 1, t3.get_end() - 1))
+        return 0
+    }
+}

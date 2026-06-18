@@ -1,0 +1,19 @@
+using apps.lib.json_native.lexer.token as JsonToken
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local token = new JsonToken("STRING", "kind", 1, 7)
+        local key = token.get_value()
+        local m = new MapBox()
+        m.set(key, JsonNode.create_string("Program"))
+        local got = m.get("kind")
+        if got == null {
+            print("lookup=null")
+            return 1
+        }
+        print(got.get_kind())
+        print(got.as_string())
+        return 0
+    }
+}

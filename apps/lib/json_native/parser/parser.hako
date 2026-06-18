@@ -24,11 +24,13 @@ box JsonParser {
     tokens: ArrayBox       // トークン配列
     position: IntegerBox   // 現在のトークン位置
     errors: ArrayBox       // 構文エラー配列
+    source_text: StringBox // token spans point into this input
     
     birth() {
         me.tokens = new ArrayBox()
         me.position = 0
         me.errors = new ArrayBox()
+        me.source_text = ""
     }
     
     // ===== メイン解析メソッド =====
@@ -38,6 +40,7 @@ box JsonParser {
         // 初期化
         me.position = 0
         me.errors = new ArrayBox()
+        me.source_text = json_text
         
         // Step 1: 字句解析
         local tokenizer = new JsonTokenizer(json_text)
@@ -131,18 +134,15 @@ box JsonParser {
         local number_str = token.get_value()
         me.advance()
         
-        // 数値変換（簡易版）
-        local info = me.convert_number(number_str)
-        if info.get("kind") == "int" {
-            return JsonNode.create_int(info.get("value"))
-        } else {
-            if info.get("kind") == "float" {
-                return JsonNode.create_float(info.get("value"))
-            } else {
-                // フォールバック（到達しない想定）
-                return JsonNode.create_int(0)
-            }
+        // 数値変換（MVP）: 整数は i64、浮動小数点/指数表記は文字列保持。
+        if StringUtils.is_integer(number_str) {
+            return JsonNode.create_int(StringUtils.parse_integer(number_str))
         }
+        if StringUtils.contains(number_str, ".") or StringUtils.contains(number_str, "e") or StringUtils.contains(number_str, "E") {
+            return JsonNode.create_float(number_str)
+        }
+        // Lexer validation should prevent this route; keep a deterministic error node.
+        return JsonNode.create_int(0)
     }
     
     // 文字列解析
@@ -273,7 +273,7 @@ box JsonParser {
     // ===== トークン操作メソッド =====
     
     // 現在のトークンを取得
-    current_token() {
+    current_token(): JsonToken {
         if me.position >= me.tokens.length() {
             return null
         }
@@ -281,7 +281,7 @@ box JsonParser {
     }
     
     // 次のトークンを先読み
-    peek_token() {
+    peek_token(): JsonToken {
         if me.position + 1 >= me.tokens.length() {
             return null
         }
@@ -349,12 +349,12 @@ box JsonParser {
     }
     
     // エラー情報を取得
-    get_errors() {
+    get_errors(): ArrayBox {
         return me.errors
     }
     
     // エラーを文字列として取得
-    get_error_messages() {
+    get_error_messages(): ArrayBox {
         local messages = new ArrayBox()
         local i = 0
         
@@ -369,30 +369,6 @@ box JsonParser {
     }
     
     // ===== ユーティリティメソッド =====
-    
-    // 数値文字列を数値情報に変換（MVP）
-    // 返り値: MapBox { kind:"int"|"float", value: <int|float_str> }
-    convert_number(number_str) {
-        local out = new MapBox()
-        if StringUtils.is_integer(number_str) {
-            out.set("kind", "int")
-            out.set("value", StringUtils.parse_integer(number_str))
-            return out
-        }
-        // 浮動小数点: 小数点または指数表記を含むものは文字列のまま保持
-        if number_str.indexOf != null {
-            // indexOfが提供されていない環境向けフォールバック
-        }
-        if StringUtils.contains(number_str, ".") or StringUtils.contains(number_str, "e") or StringUtils.contains(number_str, "E") {
-            out.set("kind", "float")
-            out.set("value", StringUtils.parse_float(number_str))
-            return out
-        }
-        // 不正な数値表現（エラー済みのはず）: フォールバック
-        out.set("kind", "int")
-        out.set("value", 0)
-        return out
-    }
     
     // ===== デバッグメソッド =====
     
@@ -432,14 +408,14 @@ box JsonParser {
 static box JsonParserUtils {
     
     // 文字列を直接パース（エラー処理込み）
-    parse_json(json_text) {
+    parse_json(json_text: StringBox): JsonNodeInstance {
         local parser = new JsonParser()
         local result = parser.parse(json_text)
         
         if parser.has_errors() {
             print("JSON Parse Errors:")
             parser.print_errors()
-            return null
+            return JsonNode.create_null()
         }
         
         return result

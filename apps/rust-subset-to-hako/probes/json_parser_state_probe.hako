@@ -1,0 +1,24 @@
+using apps.lib.json_native.parser.parser as JsonParser
+
+static box Main {
+    main() {
+        local parser = new JsonParser()
+        local result = parser.parse("{\"kind\":\"Program\"}")
+        print("result.kind=" + result.get_kind())
+        print("errors=" + parser.get_errors().length())
+        print("position=" + parser.position)
+        local t0 = parser.tokens.get(0)
+        local t1 = parser.tokens.get(1)
+        local t2 = parser.tokens.get(2)
+        local t3 = parser.tokens.get(3)
+        local t4 = parser.tokens.get(4)
+        local t5 = parser.tokens.get(5)
+        print("t0=" + t0.get_type() + ":" + t0.get_value())
+        print("t1=" + t1.get_type() + ":" + t1.get_value())
+        print("t2=" + t2.get_type() + ":" + t2.get_value())
+        print("t3=" + t3.get_type() + ":" + t3.get_value())
+        print("t4=" + t4.get_type() + ":" + t4.get_value())
+        print("t5=" + t5.get_type() + ":" + t5.get_value())
+        return parser.get_errors().length()
+    }
+}

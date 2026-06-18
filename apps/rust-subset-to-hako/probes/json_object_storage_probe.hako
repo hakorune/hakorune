@@ -1,0 +1,20 @@
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local m = new MapBox()
+        local s = JsonNode.create_string("Program")
+        m.set("kind", s)
+        print("map.has.kind=" + m.has("kind"))
+        local mv = m.get("kind")
+        print("map.value.kind=" + mv.get_kind())
+        print("map.value.value=" + mv.as_string())
+
+        local obj = JsonNode.create_object()
+        obj.object_set("kind", s)
+        local got = obj.get_node("kind")
+        print("obj.kind.kind=" + got.get_kind())
+        print("obj.kind.value=" + got.as_string())
+        return 0
+    }
+}

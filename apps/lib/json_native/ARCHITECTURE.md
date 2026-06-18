@@ -83,7 +83,7 @@ box JsonError {
 ```nyash
 // lexer/token.hako - トークン定義
 box JsonToken {
-    type: StringBox     // "STRING"|"NUMBER"|"LBRACE"|"RBRACE"等
+    token_type: StringBox // "STRING"|"NUMBER"|"LBRACE"|"RBRACE"等
     value: StringBox    // トークンの値
     start: IntegerBox   // 開始位置
     end: IntegerBox     // 終了位置

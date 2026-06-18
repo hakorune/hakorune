@@ -1,0 +1,14 @@
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local input = "\"kind\""
+        local tokenizer = new JsonTokenizer(input)
+        tokenizer.set_input(input)
+        local tokens = tokenizer.tokenize()
+        local t = tokens.get(0)
+        print(t.get_type())
+        print(t.get_value())
+        return 0
+    }
+}
