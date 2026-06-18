@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-LOGGING-SHARED-FACADE-001
-next_task=BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001
-purpose=decide whether frontend env/log host access stays main-crate facade or moves behind a crate-ready host adapter
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001
+next_task=BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001
+purpose=replace parser env cli_verbose config delegate with local env read
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Host Seam Preflight Result
+
+```text
+parser_env_remaining_config_ref=cli_verbose_enabled
+frontend_env_runtime_ref_for_alias_warning=1
+frontend_log_runtime_refs=3
+selected_next_shape=cli_verbose_local_env_seam
+host_adapter_introduction=defer
+selected_next_task=BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001
 ```
 
 ## Frontend Logging Shared Facade Result
