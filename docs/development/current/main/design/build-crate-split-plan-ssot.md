@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-003
-next_task=BUILD-FRONTEND-PARSER-CURSOR-PASSIVE-SPLIT-001
-purpose=move TokenCursor and NewlineMode into hakorune-frontend-parser behind compatibility facade
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-PARSER-CURSOR-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004
+purpose=re-check expr_cursor helpers and parser metadata/rune boundaries after cursor ownership moved
+implementation_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Cursor Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/parser/cursor.rs
+compat_facade=src/parser/cursor.rs
+types_moved=TokenCursor,NewlineMode
+newline_policy_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-004
 ```
 
 ## Frontend Parser Next Boundary Preflight 003 Result

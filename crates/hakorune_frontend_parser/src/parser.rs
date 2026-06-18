@@ -6,9 +6,11 @@
 
 pub mod build_cfg;
 pub mod build_config;
+pub mod cursor;
 pub mod error;
 pub use build_cfg::BuildGateExplainReport;
 pub use build_config::{BuildMode, ParserBuildConfig};
+pub use cursor::{NewlineMode, TokenCursor};
 pub use error::ParseError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
