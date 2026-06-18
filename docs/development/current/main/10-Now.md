@@ -142,9 +142,9 @@ Related:
   facade simple flags first; those simple flags now live in parser/tokenizer
   local facades. Stage-3 feature parsing and alias warnings now live in
   `src/frontend_env.rs`. Parser/tokenizer runtime logging access now goes
-  through `src/frontend_log.rs`. Host seam preflight selected the low-risk
-  CLI verbose local env seam first, so the next blocker is
-  `BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001`
+  through `src/frontend_log.rs`. The low-risk CLI verbose config delegate is
+  now local, so the next blocker is
+  `BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -161,9 +161,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1181-BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1180-BUILD-FRONTEND-LOGGING-SHARED-FACADE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1179-BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1182-BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1181-BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1180-BUILD-FRONTEND-LOGGING-SHARED-FACADE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

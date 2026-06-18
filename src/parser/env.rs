@@ -66,7 +66,7 @@ pub(crate) fn grammar_diff() -> bool {
 }
 
 pub(crate) fn cli_verbose_enabled() -> bool {
-    crate::config::env::cli_verbose_enabled()
+    matches!(std::env::var("NYASH_CLI_VERBOSE").ok().as_deref(), Some("1" | "2"))
 }
 
 pub(crate) fn expr_postfix_catch() -> bool {

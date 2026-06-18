@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-HOST-SEAM-PREFLIGHT-001
-next_task=BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001
-purpose=replace parser env cli_verbose config delegate with local env read
-implementation_allowed=seam_only
+latest_done=BUILD-FRONTEND-CLI-VERBOSE-LOCAL-SEAM-001
+next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003
+purpose=rerun parser/tokenizer crate extraction preflight after env/log host seams were centralized
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend CLI Verbose Local Seam Result
+
+```text
+parser_tokenizer_direct_config_refs_after=0
+parser_env_cli_verbose_config_delegate_after=0
+parser_tokenizer_direct_runtime_refs_after=0
+frontend_env_runtime_ref_for_alias_warning=1
+frontend_log_runtime_refs=3
+selected_next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003
 ```
 
 ## Frontend Host Seam Preflight Result
