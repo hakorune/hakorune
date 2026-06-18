@@ -186,8 +186,9 @@ Related:
   `hakorune-frontend-parser` behind the main crate parser facade.
   Next-boundary preflight 008 selected no further thin passive parser boundary
   in this series. The parser passive split series is now closed; active parser
-  implementation moves require a new design row. The next blocker is
-  `BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001`
+  implementation moves require a new design row. The post-split cold release
+  build measured real=157.63s with no build-time winner claim. The next
+  blocker is `BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -204,9 +205,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1216-BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1215-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1214-BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1217-BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1216-BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1215-BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

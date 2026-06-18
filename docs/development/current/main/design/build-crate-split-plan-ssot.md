@@ -129,13 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-SPLIT-SERIES-CLOSEOUT-001
-next_task=BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001
-purpose=measure the build-time effect after closing the frontend parser passive split series
+latest_done=BUILD-FRONTEND-PARSER-POST-SPLIT-MEASUREMENT-001
+next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-001
+purpose=select the next build-time crate boundary after the frontend parser passive split series measurement
 implementation_allowed=0
-measurement_allowed=1
+measurement_allowed=0
+selection_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Post-Split Measurement Result
+
+```text
+frontend_parser_split_series_closed=1
+cold_release_build_green=1
+cold_build_real_sec=157.63
+cold_build_user_sec=214.27
+cold_build_sys_sec=12.15
+build_time_winner_claim=0
+selected_next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-001
 ```
 
 ## Frontend Parser Split Series Closeout Result
