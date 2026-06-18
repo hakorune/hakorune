@@ -226,8 +226,8 @@ impl NyashParser {
             pending_runes: Vec::new(),
             pending_build_gate: None,
             rune_metadata: Vec::new(),
-            known_enums: crate::semantics::result_option_prelude::result_option_prelude_enum_decls(
-            ),
+            known_enums:
+                hakorune_frontend_ast::result_option_prelude::result_option_prelude_enum_decls(),
             build_config: ParserBuildConfig::default(),
         }
     }

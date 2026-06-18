@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1171-BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -132,9 +132,10 @@ Scope: current lane / next lane / restart order only.
   `crate::syntax::sugar_config` facade. Parser sugar consumers now read the
   frontend grammar crate directly, leaving zero parser direct syntax sugar
   facade refs. Passive Result/Option prelude enum declaration construction now
-  lives in `hakorune-frontend-ast` behind the historical semantics facade. The
-  next blocker is
-  `BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001`.
+  lives in `hakorune-frontend-ast` behind the historical semantics facade.
+  Parser initialization now reads that frontend AST owner directly, leaving
+  zero parser direct prelude facade refs. The next blocker is
+  `BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -370,9 +371,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1171-BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

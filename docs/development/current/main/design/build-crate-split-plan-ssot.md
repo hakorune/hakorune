@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001
-purpose=switch parser Result/Option prelude import to hakorune_frontend_ast
-implementation_allowed=import_switch_only
+latest_done=BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001
+next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002
+purpose=rerun parser/tokenizer extraction preflight after grammar/sugar/prelude seams were split
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Prelude Consumer Import Switch Result
+
+```text
+parser_direct_result_option_prelude_refs_before=1
+parser_direct_result_option_prelude_refs_after=0
+consumer_import_target=hakorune_frontend_ast::result_option_prelude
+cargo_check_default_green=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002
 ```
 
 ## Frontend Result/Option Prelude Passive Split Result
