@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
-next_task=BUILD-FRONTEND-CRATE-PREFLIGHT-001
-purpose=preflight parser/ast extraction into hakorune-frontend by classifying cross-layer references
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-CRATE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-AST-PASSIVE-SEAM-001
+purpose=separate passive AST data from runtime Box conversion before any frontend crate extraction
+implementation_allowed=seam_design_or_refactor_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Crate Preflight Result
+
+```text
+parser_ast_total_lines=16308
+parser_ast_file_count=92
+parser_ast_mir_ref_count=0
+parser_ast_backend_ref_count=0
+parser_ast_runtime_ref_count=28
+parser_ast_config_box_runner_ref_count=37
+full_frontend_crate_split_selected=0
+selected_first_slice=ast_passive_data_boundary
+selected_next_task=BUILD-FRONTEND-AST-PASSIVE-SEAM-001
 ```
 
 ## Crate Split Next Boundary Selection Result
