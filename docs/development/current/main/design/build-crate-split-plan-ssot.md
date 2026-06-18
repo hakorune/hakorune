@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-BACKEND-CRATE-PREFLIGHT-001
-next_task=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
-purpose=audit MIR JSON emission as the first backend-side crate split candidate
+latest_done=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
+next_task=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
+purpose=define the MIR JSON emitter input/view boundary before crate extraction
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -266,5 +266,17 @@ src_backend_wholesale_split_selected=0
 selected_next_boundary=runner_mir_json_emit
 selected_next_task=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
 reason=product_exe_route_uses_mir_json_emit_before_ny_llvmc
+behavior_changed=0
+```
+
+## MIR JSON Emit Preflight Result
+
+```text
+preflight_card=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
+src_runner_mir_json_emit_rs_total_lines=10033
+crate_mir_reference_count=372
+direct_crate_extraction_selected=0
+selected_next_task=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
+reason=emitter_input_view_boundary_required
 behavior_changed=0
 ```
