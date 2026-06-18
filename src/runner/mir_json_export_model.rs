@@ -64,6 +64,26 @@ impl MirJsonExportModelSummary {
     }
 }
 
+pub(crate) fn summarize_root(
+    schema_v1_enabled: bool,
+    function_count: usize,
+    root_metadata_entry_count: usize,
+) -> MirJsonExportModelSummary {
+    let (schema, root_kind) = if schema_v1_enabled {
+        (
+            MirJsonExportSchema::V1,
+            MirJsonExportRootKind::SchemaVersioned,
+        )
+    } else {
+        (
+            MirJsonExportSchema::LegacyV0,
+            MirJsonExportRootKind::FunctionsOnly,
+        )
+    };
+
+    MirJsonExportModelSummary::new(schema, root_kind, function_count, root_metadata_entry_count)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,5 +114,20 @@ mod tests {
         assert!(summary.is_schema_versioned());
         assert_eq!(summary.function_count, 3);
         assert_eq!(summary.root_metadata_entry_count, 17);
+    }
+
+    #[test]
+    fn summarize_root_tracks_schema_switch_without_json_projection() {
+        let legacy = summarize_root(false, 2, 5);
+        assert_eq!(legacy.schema, MirJsonExportSchema::LegacyV0);
+        assert_eq!(legacy.root_kind, MirJsonExportRootKind::FunctionsOnly);
+        assert!(!legacy.is_schema_versioned());
+
+        let v1 = summarize_root(true, 2, 5);
+        assert_eq!(v1.schema, MirJsonExportSchema::V1);
+        assert_eq!(v1.root_kind, MirJsonExportRootKind::SchemaVersioned);
+        assert!(v1.is_schema_versioned());
+        assert_eq!(v1.function_count, 2);
+        assert_eq!(v1.root_metadata_entry_count, 5);
     }
 }

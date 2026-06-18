@@ -16,6 +16,7 @@ use super::emitters;
 use super::helpers;
 use super::metadata::build_function_metadata_json;
 use super::order::ordered_harness_functions;
+use crate::runner::mir_json_export_model;
 use serde_json::json;
 
 fn insert_root_metadata(
@@ -171,6 +172,13 @@ pub(super) fn build_mir_json_root(
         ),
         ("enum_decls", json!(collect_sorted_enum_decl_values(module))),
     ];
+    let export_summary =
+        mir_json_export_model::summarize_root(use_v1_schema, funs.len(), root_metadata.len());
+    debug_assert_eq!(export_summary.function_count, funs.len());
+    debug_assert_eq!(
+        export_summary.root_metadata_entry_count,
+        root_metadata.len()
+    );
 
     let mut root = if use_v1_schema {
         helpers::create_json_v1_root(json!(funs))
