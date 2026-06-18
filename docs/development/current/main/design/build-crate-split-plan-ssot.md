@@ -129,12 +129,27 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001
-next_task=BUILD-FRONTEND-AST-ATTRS-PASSIVE-SPLIT-001
-purpose=move RuneAttr and DeclarationAttrs into hakorune-frontend-ast behind the existing attrs facade
-implementation_allowed=passive_type_split_only
+latest_done=BUILD-FRONTEND-AST-ATTRS-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001
+purpose=design how LiteralValue can leave the main crate without carrying runtime Box conversion inherent methods
+implementation_allowed=design_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Attrs Passive Split Result
+
+```text
+moved_types=RuneAttr,DeclarationAttrs,RuneProfileExpansion
+new_owner=crates/hakorune_frontend_ast/src/attrs.rs
+new_owner=crates/hakorune_frontend_ast/src/rune_profile.rs
+compat_reexport=src/ast/attrs.rs
+compat_reexport=src/rune_profile_registry.rs
+historical_import_path_preserved=crate::ast::{RuneAttr,DeclarationAttrs}
+historical_profile_path_preserved=crate::rune_profile_registry::*
+old_ast_rune_profile_bridge_retired=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001
 ```
 
 ## Frontend AST Attrs Profile Seam Result
