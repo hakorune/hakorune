@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-003
-next_task=BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001
-purpose=define frontend env/log host boundary for future parser-tokenizer crate extraction
-implementation_allowed=design_only
+latest_done=BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001
+next_task=BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001
+purpose=add passive FrontendHostBoundary vocabulary without changing parser/tokenizer call sites
+implementation_allowed=passive_vocab_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Host Adapter Design Result
+
+```text
+selected_shape=FrontendHostBoundary
+host_owns_logging=1
+host_owns_alias_warning_sink=1
+frontend_owns_feature_parsing=1
+parser_struct_threading_now=0
+selected_next_task=BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001
 ```
 
 ## Frontend Parser/Tokenizer Crate Preflight v3 Result
