@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-BACKEND-AOT-PASSIVE-FACADE-WIRING-001
-next_task=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
-purpose=close passive AOT support split and decide whether to measure or select another boundary
+latest_done=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
+next_task=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
+purpose=audit default-compiled mir_interpreter surface before any VM compile gating or split
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -455,6 +455,16 @@ passive_aot_support_owner=hakorune_backend_aot
 compiler_pipeline_owner=main_crate
 removed_main_crate_files=src/backend/aot/config.rs,src/backend/aot/executable.rs
 selected_next_task=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
+```
+
+## Backend AOT Passive Closeout Result
+
+```text
+closeout_card=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
+passive_aot_support_split_closed=1
+post_split_default_cold_build_measure_selected=0
+reason=aot_boundary_is_optional_feature_not_default_build_owner
+selected_next_task=BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
