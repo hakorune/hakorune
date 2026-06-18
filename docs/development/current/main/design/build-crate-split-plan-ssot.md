@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-BUILD-MEASURE-001
-next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001
-purpose=preflight removing vm-reference from Cargo default features after the no-vm cli/plugins build candidate measured green
-implementation_allowed=preflight_only
-default_feature_change_allowed=0
+latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001
+next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001
+purpose=remove vm-reference from Cargo default features while preserving the explicit reference feature
+implementation_allowed=default_feature_edit_only
+default_feature_change_allowed=1
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## VM Reference Default-Off Preflight Result
+
+```text
+candidate_default_features=["cli","plugins"]
+removed_default_feature=vm-reference
+vm_reference_feature_remains_available=1
+full_no_default_support_claim=0
+plugin_stub_fix_in_scope=0
+selected_next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001
 ```
 
 ## VM Reference Build Measure Result
