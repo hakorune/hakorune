@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1188-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1191-BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -152,8 +152,9 @@ Scope: current lane / next lane / restart order only.
   through it. Parser/tokenizer crate preflight v4 found the host seam blocker
   closed; the remaining root references are layout-compatible. Scaffold design
   selected a passive `hakorune-frontend-parser` crate with root compatibility
-  modules, and the passive crate scaffold is now in place. The next blocker is
-  `BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001`.
+  modules, and the passive crate scaffold is now in place. File-move preflight
+  selected tokenizer kinds as the first safe passive split. The next blocker is
+  `BUILD-FRONTEND-TOKENIZER-KINDS-PASSIVE-SPLIT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -389,9 +390,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1188-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1191-BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

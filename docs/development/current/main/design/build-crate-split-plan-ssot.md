@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001
-next_task=BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001
-purpose=select the smallest parser/tokenizer file family that can move behind the scaffold
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-TOKENIZER-KINDS-PASSIVE-SPLIT-001
+purpose=move TokenType/Token/TokenizeError to hakorune-frontend-parser behind compatibility facade
+implementation_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser/Tokenizer File Move Preflight Result
+
+```text
+selected_family=tokenizer_kinds
+selected_source=src/tokenizer/kinds.rs
+selected_destination=crates/hakorune_frontend_parser/src/tokenizer/kinds.rs
+selected_types=TokenType,Token,TokenizeError
+direct_crate_refs=0
+selected_next_task=BUILD-FRONTEND-TOKENIZER-KINDS-PASSIVE-SPLIT-001
 ```
 
 ## Frontend Parser/Tokenizer Crate Scaffold Result
