@@ -31,6 +31,7 @@ pub mod hv1_inline;
 pub(crate) mod json_artifact;
 pub mod keep;
 pub mod mir_json_emit;
+pub(crate) mod mir_json_export_model;
 mod mir_json_v0;
 pub mod modes;
 mod pipe_io;

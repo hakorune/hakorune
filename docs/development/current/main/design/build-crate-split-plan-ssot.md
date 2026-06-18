@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
-next_task=BUILD-MIR-JSON-EXPORT-MODEL-SCAFFOLD-001
-purpose=scaffold the in-main-crate MIR JSON export model before future crate extraction
+latest_done=BUILD-MIR-JSON-EXPORT-MODEL-SCAFFOLD-001
+next_task=BUILD-MIR-JSON-EXPORT-MODEL-ROOT-SUMMARY-WIRING-001
+purpose=optionally wire passive summary construction without changing emitted JSON
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -290,4 +290,14 @@ serialization_owner=future_hakorune_mir_json_emit_crate
 future_crate_reads_mir_directly=0
 selected_next_task=BUILD-MIR-JSON-EXPORT-MODEL-SCAFFOLD-001
 behavior_changed=0
+```
+
+## MIR JSON Export Model Scaffold Result
+
+```text
+scaffold_card=BUILD-MIR-JSON-EXPORT-MODEL-SCAFFOLD-001
+new_owner=src/runner/mir_json_export_model.rs
+new_vocabulary=MirJsonExportSchema,MirJsonExportRootKind,MirJsonExportModelSummary
+mir_json_emit_behavior_changed=0
+future_crate_created=0
 ```
