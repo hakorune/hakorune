@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004
-next_task=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
-purpose=gate vm_execution and vm_user_factory while preserving emit routes
-implementation_allowed=keep_vm_common_helpers_only
+latest_done=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
+next_task=BUILD-VM-REFERENCE-GATE-CLOSEOUT-001
+purpose=close the vm-reference gate scaffold and choose whether to address plugin-stub no-default surface or measure build impact
+implementation_allowed=closeout_only
 ```
 
 ## Stage 0 Result
@@ -621,6 +621,20 @@ selected_family=runner_common_vm_helpers_reference_gate
 selected_next_task=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
 reason=last_remaining_vm_direct_import_family_and_owned_by_keep_vm_routes
 default_off_claim=0
+```
+
+## VM Common Helpers Reference Gate Result
+
+```text
+implementation_card=BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001
+vm_user_factory_mirinterpreter_import_cfg_split=1
+vm_execution_mirinterpreter_import_cfg_split=1
+vm_execution_no_feature_failfast=1
+emit_mir_json_early_exit_preserved=1
+emit_exe_early_exit_preserved=1
+no_default_features_vm_error_count_after=0
+remaining_no_default_failure=plugins_disabled_stub_surface
+selected_next_task=BUILD-VM-REFERENCE-GATE-CLOSEOUT-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result

@@ -6,10 +6,12 @@
  * - Keep static user-box registration and fallback factory setup under one thin owner.
  */
 
-use crate::backend::MirInterpreter;
 use crate::core::model::BoxDeclaration as CoreBoxDecl;
 use nyash_rust::ast::ASTNode;
 use std::collections::HashMap;
+
+#[cfg(feature = "vm-reference")]
+use crate::backend::MirInterpreter;
 
 pub(crate) struct VmUserFactoryState {
     static_box_decls: HashMap<String, CoreBoxDecl>,
@@ -20,6 +22,7 @@ impl VmUserFactoryState {
         self.static_box_decls.len()
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(crate) fn register_static_box_decls(&self, vm: &mut MirInterpreter) {
         for (name, decl) in &self.static_box_decls {
             vm.register_static_box_decl(name.clone(), decl.clone());

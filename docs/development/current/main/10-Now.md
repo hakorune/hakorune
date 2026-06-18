@@ -77,9 +77,10 @@ Related:
   common VM helpers. The isolated REPL VM direct import is gated, and the
   structure-only JoinIR runner API/executor is now gated behind `vm-reference`.
   `run_joinir_via_vm` is now gated behind `vm-reference` while bridge conversion
-  modules remain available. The remaining keep/vm common helper family is
-  selected next: `vm_execution` and `vm_user_factory`. The next blocker is
-  `BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001`
+  modules remain available. The final keep/vm common helper imports are now
+  gated while preserving MIR JSON / EXE emit early exits. no-default VM import
+  errors are zero; remaining no-default failures belong to the plugins-disabled
+  stub surface. The next blocker is `BUILD-VM-REFERENCE-GATE-CLOSEOUT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -96,9 +97,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1136-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1135-BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1137-BUILD-VM-COMMON-HELPERS-REFERENCE-GATE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1136-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-004.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1135-BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

@@ -1,10 +1,15 @@
-use crate::backend::MirInterpreter;
-use crate::box_trait::{BoolBox, IntegerBox};
 use crate::mir::{MirModule, VerificationError};
 use crate::runner::modes::common_util::{
-    emit_direct, safety_gate, verifier_gate, vm_user_factory::VmUserFactoryState,
+    emit_direct, vm_user_factory::VmUserFactoryState,
 };
 use std::process;
+
+#[cfg(feature = "vm-reference")]
+use crate::backend::MirInterpreter;
+#[cfg(feature = "vm-reference")]
+use crate::box_trait::{BoolBox, IntegerBox};
+#[cfg(feature = "vm-reference")]
+use crate::runner::modes::common_util::{safety_gate, verifier_gate};
 
 /// Execute a compiled VM module with the shared post-compile gates and exit handling.
 pub(crate) fn run_vm_compiled_module(
@@ -78,6 +83,17 @@ pub(crate) fn run_vm_compiled_module(
             .debug(&p.print_module(&module_vm));
     }
 
+    #[cfg(not(feature = "vm-reference"))]
+    {
+        let _ = (vm_user_factory, run_joinir_bridge, emit_trace);
+        eprintln!(
+            "❌ VM keep/reference execution is not available in this build. Rebuild with --features vm-reference or use an explicit EXE/AOT emit route."
+        );
+        process::exit(2);
+    }
+
+    #[cfg(feature = "vm-reference")]
+    {
     // Execute via MIR interpreter
     let mut vm = MirInterpreter::new();
 
@@ -185,5 +201,6 @@ pub(crate) fn run_vm_compiled_module(
             ring0.log.error(&format!("❌ [{}] VM error: {}", route, e));
             process::exit(1);
         }
+    }
     }
 }
