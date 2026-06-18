@@ -112,8 +112,11 @@ Related:
   `ASTNode`, ASTNode-containing metadata, wrapper structs, and inherent ASTNode
   utility methods together. The recursive graph now lives in
   `hakorune-frontend-ast`; `src/ast` is only a compatibility facade plus
-  runtime literal Box bridge. The frontend AST split is closed. The next
-  blocker is `BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001`
+  runtime literal Box bridge. The frontend AST split is closed. Parser crate
+  preflight found 90 parser/tokenizer Rust files and 15,091 total lines, but
+  rejected direct parser extraction because tokenizer config/runtime logging
+  seams and parser grammar/syntax/prelude seams remain. The next blocker is
+  `BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -130,9 +133,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1161-BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1160-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1162-BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1161-BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1160-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

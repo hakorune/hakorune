@@ -129,12 +129,28 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001
-next_task=BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001
-purpose=audit parser/tokenizer extraction now that AST data is externalized
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001
+purpose=isolate tokenizer config/runtime logging access behind tokenizer-local facades
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Crate Preflight Result
+
+```text
+parser_tokenizer_rust_file_count=90
+parser_tokenizer_total_lines=15091
+direct_parser_crate_extraction_allowed=0
+tokenizer_direct_config_env_refs=present
+tokenizer_direct_runtime_log_refs=present
+tokenizer_direct_grammar_engine_refs=present
+parser_direct_grammar_engine_refs=present
+parser_direct_syntax_sugar_refs=present
+parser_direct_result_option_prelude_refs=present
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001
 ```
 
 ## Frontend AST Split Closeout Result
