@@ -7,6 +7,7 @@
  */
 
 pub mod engine;
+pub mod sugar_config;
 
 // Generated tables from grammar/unified-grammar.toml
 pub mod generated;
