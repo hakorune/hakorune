@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001
-purpose=close the frontend AST passive split and select the next frontend/parser boundary
-implementation_allowed=closeout_only
+latest_done=BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001
+next_task=BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001
+purpose=audit parser/tokenizer extraction now that AST data is externalized
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Split Closeout Result
+
+```text
+new_crate=hakorune-frontend-ast
+src_ast_mod_rs_lines=11
+src_ast_literal_box_bridge_rs_lines=50
+src_ast_facade_file_count=2
+frontend_ast_crate_main_crate_refs=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-CRATE-PREFLIGHT-001
 ```
 
 ## Frontend AST Recursive Graph Passive Split Result
