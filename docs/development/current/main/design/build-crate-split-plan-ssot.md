@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SPLIT-001
-next_task=BUILD-MIR-PLANS-NEXT-PASSIVE-FAMILY-SELECTION-001
-purpose=select the next passive MIR plan family after ArrayRecord bundle split
+latest_done=BUILD-MIR-PLANS-OBJECT-STATE-PASSIVE-BUNDLE-SPLIT-001
+next_task=BUILD-MIR-PLANS-STAGE1-CLOSEOUT-CANDIDATE-001
+purpose=decide whether hakorune-mir-plans stage 1 is ready for closeout
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -210,6 +210,17 @@ behavior_changed=0
 sixth_family=array_record_passive_bundle
 owner=crates/hakorune_mir_plans/src/array_record_plan.rs
 main_crate_compat_reexport=crate::mir::function::*
+producer_logic_moved=0
+behavior_changed=0
+```
+
+## Stage 1 Seventh Slice Result
+
+```text
+seventh_family=object_state_passive_bundle
+owner=crates/hakorune_mir_plans/src/object_state_plan.rs
+main_crate_compat_reexport=crate::mir::function::*
+declaration_inventory_moved=0
 producer_logic_moved=0
 behavior_changed=0
 ```
