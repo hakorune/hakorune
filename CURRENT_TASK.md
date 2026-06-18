@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1147-BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1146-BUILD-FRONTEND-AST-PASSIVE-SEAM-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1145-BUILD-FRONTEND-CRATE-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1148-BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1147-BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1146-BUILD-FRONTEND-AST-PASSIVE-SEAM-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -95,8 +95,9 @@ Scope: current lane / next lane / restart order only.
   conversion and parser logging/config refs. The AST passive seam is now split:
   `LiteralValue` stays in `syntax.rs`, runtime Box conversion lives in
   `ast/literal_box_bridge.rs`. Parser config/env and runtime logging access now
-  go through parser-local facades. The next blocker is
-  `BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001`.
+  go through parser-local facades. The `hakorune-frontend-ast` passive crate
+  scaffold is created with no active AST moved yet. The next blocker is
+  `BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,

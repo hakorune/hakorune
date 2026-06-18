@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001
-next_task=BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001
-purpose=create the frontend passive AST crate scaffold after external AST refs are isolated
-implementation_allowed=crate_scaffold_only
+latest_done=BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001
+next_task=BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001
+purpose=move the first pure passive AST data type into hakorune-frontend-ast behind the existing main-crate facade
+implementation_allowed=passive_type_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Passive Crate Scaffold Result
+
+```text
+new_crate=hakorune-frontend-ast
+new_crate_scope=passive_frontend_ast_data
+root_dependency_added=1
+active_ast_moved=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001
 ```
 
 ## Frontend Parser Env/Logging Seam Result
