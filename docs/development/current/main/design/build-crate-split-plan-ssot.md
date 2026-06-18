@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001
-next_task=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001
-purpose=design the NyashTokenizer owner-bundle move before moving inherent impl modules
-implementation_allowed=design_only
+latest_done=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001
+next_task=BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001
+purpose=add host installation seam before moving NyashTokenizer owner bundle
+implementation_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Tokenizer Owner Bundle Design Result
+
+```text
+selected_shape=NyashTokenizer_owner_bundle
+move_together=mod,cursor,engine,env,log,lex_ident,lex_number,lex_string,whitespace
+host_install_seam_first=1
+frontend_parser_depends_on_runtime=0
+selected_next_task=BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001
 ```
 
 ## Frontend Tokenizer Next Move Preflight Result
