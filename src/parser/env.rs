@@ -4,6 +4,43 @@
 //! of importing `crate::config::env` directly. This keeps the parser surface
 //! closer to a future frontend crate boundary.
 
+fn env_flag(var: &str) -> Option<bool> {
+    std::env::var(var).ok().map(|value| {
+        let value = value.to_ascii_lowercase();
+        value == "1" || value == "true" || value == "on"
+    })
+}
+
+fn nyash_features_list() -> Option<Vec<String>> {
+    let raw = std::env::var("NYASH_FEATURES").ok()?;
+    let list: Vec<String> = raw
+        .split(',')
+        .filter_map(|item| {
+            let item = item.trim();
+            if item.is_empty() {
+                None
+            } else {
+                Some(item.to_ascii_lowercase())
+            }
+        })
+        .collect();
+    if list.is_empty() {
+        None
+    } else {
+        Some(list)
+    }
+}
+
+fn feature_enabled<const N: usize>(targets: [&str; N]) -> bool {
+    let Some(list) = nyash_features_list() else {
+        return false;
+    };
+    list.into_iter().any(|item| {
+        let normalized = item.replace(['-', '_'], "");
+        targets.iter().any(|target| normalized == *target)
+    })
+}
+
 pub(crate) fn block_postfix_catch() -> bool {
     crate::config::env::block_postfix_catch()
 }
@@ -41,7 +78,14 @@ pub(crate) fn method_catch() -> bool {
 }
 
 pub(crate) fn parser_allow_semicolon() -> bool {
-    crate::config::env::parser_allow_semicolon()
+    match std::env::var("NYASH_PARSER_ALLOW_SEMICOLON")
+        .ok()
+        .as_deref()
+    {
+        Some("0") | Some("false") | Some("off") => false,
+        Some(_) => true,
+        None => true,
+    }
 }
 
 pub(crate) fn parser_allow_semicolon_raw() -> bool {
@@ -55,7 +99,7 @@ pub(crate) fn parser_allow_semicolon_raw() -> bool {
 }
 
 pub(crate) fn parser_method_body_strict_enabled() -> bool {
-    crate::config::env::parser_method_body_strict_enabled()
+    env_flag("NYASH_PARSER_METHOD_BODY_STRICT").unwrap_or(false)
 }
 
 pub(crate) fn parser_method_body_strict_raw() -> bool {
@@ -70,19 +114,19 @@ pub(crate) fn parser_stage3_enabled() -> bool {
 }
 
 pub(crate) fn parser_static_init_strict_enabled() -> bool {
-    crate::config::env::parser_static_init_strict_enabled()
+    env_flag("NYASH_PARSER_STATIC_INIT_STRICT").unwrap_or(false)
 }
 
 pub(crate) fn parser_static_seam_break_on_static_enabled() -> bool {
-    crate::config::env::parser_static_seam_break_on_static_enabled()
+    env_flag("NYASH_PARSER_SEAM_BREAK_ON_STATIC").unwrap_or(false)
 }
 
 pub(crate) fn parser_static_seam_tolerant_enabled() -> bool {
-    crate::config::env::parser_static_seam_tolerant_enabled()
+    env_flag("NYASH_PARSER_SEAM_TOLERANT").unwrap_or(false)
 }
 
 pub(crate) fn parser_static_trace_enabled() -> bool {
-    crate::config::env::parser_static_trace_enabled()
+    env_flag("NYASH_PARSER_TRACE_STATIC").unwrap_or(false)
 }
 
 pub(crate) fn parser_trace_blocks() -> bool {
@@ -93,11 +137,11 @@ pub(crate) fn parser_trace_blocks() -> bool {
 }
 
 pub(crate) fn parser_token_cursor_enabled() -> bool {
-    crate::config::env::parser_token_cursor_enabled()
+    env_flag("NYASH_PARSER_TOKEN_CURSOR").unwrap_or(false)
 }
 
 pub(crate) fn parser_try_compat_enabled() -> bool {
-    crate::config::env::parser_try_compat_enabled()
+    !feature_enabled(["notrycompat"])
 }
 
 pub(crate) fn syntax_sugar_level_raw() -> Option<String> {
@@ -105,5 +149,11 @@ pub(crate) fn syntax_sugar_level_raw() -> Option<String> {
 }
 
 pub(crate) fn unified_members() -> bool {
-    crate::config::env::unified_members()
+    match std::env::var("NYASH_ENABLE_UNIFIED_MEMBERS").ok() {
+        Some(value) => {
+            let value = value.to_ascii_lowercase();
+            !(value == "0" || value == "false" || value == "off")
+        }
+        None => true,
+    }
 }

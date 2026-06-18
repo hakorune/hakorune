@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-002
-next_task=BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001
-purpose=replace simple parser/tokenizer facade config delegates with local env helpers while preserving behavior
-implementation_allowed=seam_only
+latest_done=BUILD-FRONTEND-PARSER-STANDALONE-ENV-SIMPLE-FLAGS-001
+next_task=BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001
+purpose=decide the Stage-3/env-alias warning seam before parser crate extraction
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Standalone Env Simple Flags Result
+
+```text
+parser_env_facade_main_config_refs_before=11
+parser_env_facade_main_config_refs_after=5
+tokenizer_env_facade_main_config_refs_before=7
+tokenizer_env_facade_main_config_refs_after=1
+stage3_alias_warning_behavior_preserved=1
+runtime_logger_behavior_preserved=1
+cargo_check_default_green=1
+selected_next_task=BUILD-FRONTEND-PARSER-STAGE3-ENV-SEAM-PREFLIGHT-001
 ```
 
 ## Frontend Parser Env/Log Abstraction Preflight v2 Result
