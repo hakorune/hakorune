@@ -47,8 +47,10 @@ Related:
   passive split moved `aggregate_storage_plan`; the third split moved
   `map_repr_plan` pure data while leaving refresh logic in the main crate; the
   fourth split moved `local_fastpath_fact` pure aggregation while leaving
-  `MirFunction` metadata assignment in the main crate, and the next blocker is
-  `BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001`
+  `MirFunction` metadata assignment in the main crate; the fifth split moved
+  `TypedObjectFieldStorage` while preserving the existing
+  `crate::mir::function` import path, and the next blocker is
+  `BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SELECTION-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -65,22 +67,24 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1087-BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1086-BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1085-BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001.md`
-5. `docs/development/current/main/phases/phase-296x/296x-1084-BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001.md`
-6. `docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md`
-7. `docs/development/current/main/phases/phase-296x/296x-1082-BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001.md`
-8. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
-9. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
-10. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
-11. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
-12. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
-13. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
-14. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
-15. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
-16. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
-17. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1089-BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1088-BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1087-BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001.md`
+5. `docs/development/current/main/phases/phase-296x/296x-1086-BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001.md`
+6. `docs/development/current/main/phases/phase-296x/296x-1085-BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001.md`
+7. `docs/development/current/main/phases/phase-296x/296x-1084-BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001.md`
+8. `docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md`
+9. `docs/development/current/main/phases/phase-296x/296x-1082-BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001.md`
+10. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
+11. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
+12. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
+13. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
+14. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
+15. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
+16. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
+17. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+18. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
+19. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 

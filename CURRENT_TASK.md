@@ -13,27 +13,29 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1087-BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1086-BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1085-BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001.md`
-5. `docs/development/current/main/phases/phase-296x/296x-1084-BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001.md`
-6. `docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md`
-7. `docs/development/current/main/phases/phase-296x/296x-1082-BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001.md`
-8. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
-9. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
-10. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
-11. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
-12. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
-13. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
-14. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
-15. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
-16. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
-17. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-18. `docs/development/current/main/05-Restart-Quick-Resume.md`
-19. `docs/development/current/main/10-Now.md`
-20. `git status -sb`
-21. `bash tools/checks/current_state_pointer_guard.sh`
-22. `tools/checks/dev_gate.sh quick` only when a code slice is ready
+2. `docs/development/current/main/phases/phase-296x/296x-1089-BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1088-BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1087-BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001.md`
+5. `docs/development/current/main/phases/phase-296x/296x-1086-BUILD-MIR-PLANS-FOURTH-FAMILY-SELECTION-001.md`
+6. `docs/development/current/main/phases/phase-296x/296x-1085-BUILD-MIR-PLANS-MAP-REPR-DATA-SPLIT-001.md`
+7. `docs/development/current/main/phases/phase-296x/296x-1084-BUILD-MIR-PLANS-THIRD-FAMILY-SELECTION-001.md`
+8. `docs/development/current/main/phases/phase-296x/296x-1083-BUILD-MIR-PLANS-AGGREGATE-STORAGE-SPLIT-001.md`
+9. `docs/development/current/main/phases/phase-296x/296x-1082-BUILD-MIR-PLANS-NEXT-FAMILY-SELECTION-001.md`
+10. `docs/development/current/main/phases/phase-296x/296x-1081-BUILD-TIME-BASELINE-MEASURE-001.md`
+11. `docs/development/current/main/phases/phase-296x/296x-1080-BUILD-MIR-PLANS-OBJECT-STORAGE-SPLIT-001.md`
+12. `docs/development/current/main/phases/phase-296x/296x-1079-BUILD-MIR-PLANS-CRATE-PREFLIGHT-001.md`
+13. `docs/development/current/main/phases/phase-296x/296x-1078-BUILD-MIR-CORE-GROWTH-ID-SLICE-001.md`
+14. `docs/development/current/main/phases/phase-296x/296x-1077-BUILD-MIR-CORE-GROWTH-PREFLIGHT-001.md`
+15. `docs/development/current/main/phases/phase-296x/296x-1076-BUILD-CRATE-SPLIT-PLAN-001.md`
+16. `docs/development/current/main/phases/phase-296x/296x-1075-VM-ACTIVE-LANE-RETIRE-001.md`
+17. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+18. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
+19. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+20. `docs/development/current/main/05-Restart-Quick-Resume.md`
+21. `docs/development/current/main/10-Now.md`
+22. `git status -sb`
+23. `bash tools/checks/current_state_pointer_guard.sh`
+24. `tools/checks/dev_gate.sh quick` only when a code slice is ready
 
 ## Current Lane
 
@@ -58,8 +60,10 @@ Scope: current lane / next lane / restart order only.
   passive split moved `aggregate_storage_plan`; the third split moved
   `map_repr_plan` pure data while leaving refresh logic in the main crate; the
   fourth split moved `local_fastpath_fact` pure aggregation while leaving
-  `MirFunction` metadata assignment in the main crate. The next blocker is
-  `BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001`.
+  `MirFunction` metadata assignment in the main crate; the fifth split moved
+  `TypedObjectFieldStorage` while preserving the existing
+  `crate::mir::function` import path. The next blocker is
+  `BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SELECTION-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,

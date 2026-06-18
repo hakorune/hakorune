@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-PLANS-LOCAL-FASTPATH-AGGREGATOR-SPLIT-001
-next_task=BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001
-purpose=select the next passive MIR plan family after local fastpath aggregator split
+latest_done=BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001
+next_task=BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SELECTION-001
+purpose=select ArrayRecord passive data bundle after typed field storage split
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -191,5 +191,15 @@ owner=crates/hakorune_mir_plans/src/local_fastpath_fact.rs
 main_crate_assignment_facade=src/mir/local_fastpath_fact.rs
 moved_function=build_local_fastpath_facts_from_map_repr_plans
 mirfunction_assignment_owner_preserved=1
+behavior_changed=0
+```
+
+## Stage 1 Fifth Slice Result
+
+```text
+fifth_family=typed_field_storage_vocabulary
+owner=crates/hakorune_mir_plans/src/typed_field_storage.rs
+main_crate_compat_reexport=crate::mir::function::TypedObjectFieldStorage
+storage_inference_moved=0
 behavior_changed=0
 ```
