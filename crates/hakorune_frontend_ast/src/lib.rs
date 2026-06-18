@@ -8,6 +8,9 @@
 
 pub const FRONTEND_AST_CRATE_READY: bool = true;
 
+mod span;
+pub use span::Span;
+
 /// Passive boundary marker for the first frontend AST split.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FrontendAstBoundary;

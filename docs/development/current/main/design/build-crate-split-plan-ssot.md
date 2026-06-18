@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001
-next_task=BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001
-purpose=move the first pure passive AST data type into hakorune-frontend-ast behind the existing main-crate facade
-implementation_allowed=passive_type_split_only
+latest_done=BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001
+purpose=select the next passive AST type family to move after Span
+implementation_allowed=selection_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Span Passive Split Result
+
+```text
+moved_type=Span
+new_owner=crates/hakorune_frontend_ast/src/span.rs
+compat_reexport=src/ast/span.rs
+historical_import_path_preserved=crate::ast::Span
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001
 ```
 
 ## Frontend AST Passive Crate Scaffold Result
