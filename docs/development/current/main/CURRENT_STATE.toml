@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1131-BUILD-VM-REPL-REFERENCE-GATE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1132-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002.md"
 
-latest_card = "BUILD-VM-REPL-REFERENCE-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1131-BUILD-VM-REPL-REFERENCE-GATE-001.md"
-latest_card_summary = """Gated the isolated REPL VM direct import. Default
-behavior remains unchanged; no-default VM import errors drop to five, with
-JoinIR and common VM helpers remaining."""
-current_blocker_token = "BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002"
+latest_card = "BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1132-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002.md"
+latest_card_summary = """Selected the structure-only JoinIR runner as the next
+VM direct import family. JoinIR VM bridge and keep/vm common helpers remain
+separate rows."""
+current_blocker_token = "BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

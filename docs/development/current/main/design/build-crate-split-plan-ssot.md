@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REPL-REFERENCE-GATE-001
-next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002
-purpose=select the next remaining VM direct import family after REPL gate
-implementation_allowed=selection_only
+latest_done=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002
+next_task=BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001
+purpose=gate the structure-only JoinIR runner VM direct imports
+implementation_allowed=join_ir_runner_only
 ```
 
 ## Stage 0 Result
@@ -567,6 +567,16 @@ repl_vm_import_outside_cfg=0
 default_behavior_changed=0
 no_default_features_vm_error_count_after=5
 selected_next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002
+```
+
+## VM Direct Caller Gate Selection 002 Result
+
+```text
+selection_card=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002
+selected_family=join_ir_runner_vm_reference_gate
+selected_next_task=BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001
+reason=structure_only_runner_has_small_public_api_and_is_separate_from_joinir_vm_bridge
+default_off_claim=0
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
