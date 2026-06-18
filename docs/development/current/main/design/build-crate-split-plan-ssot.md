@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001
-purpose=decide how FieldDecl can move despite default_value carrying Option<Box<ASTNode>>
-implementation_allowed=design_only
+latest_done=BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001
+next_task=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001
+purpose=check whether remaining AST recursive graph can move as one compatibility-facade bundle
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST FieldDecl Boundary Design Result
+
+```text
+fielddecl_standalone_split_selected=0
+generic_field_signature_split_selected=0
+reason=FieldDecl.default_value carries ASTNode
+recursive_graph_bundle=FieldDecl,CatchClause,ContractClause,EnumVariantDecl,EnumMatchArm,CheckItem,ASTNode
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001
 ```
 
 ## Frontend AST Simple Decls Passive Split Result
