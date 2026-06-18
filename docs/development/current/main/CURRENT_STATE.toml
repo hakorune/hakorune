@@ -1057,14 +1057,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1158-BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md"
 
-latest_card = "BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1158-BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001.md"
-latest_card_summary = """Rejected standalone FieldDecl split because
-default_value carries ASTNode. FieldDecl should move with the remaining
-recursive AST graph instead of creating a parallel field-signature truth."""
-current_blocker_token = "BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001"
+latest_card = "BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md"
+latest_card_summary = """Selected the recursive AST graph split. ASTNode,
+ASTNode-containing declarations, wrapper structs, and inherent ASTNode utility
+methods must move together because inherent impls cannot stay in the main
+crate after ASTNode moves."""
+current_blocker_token = "BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -129,12 +129,29 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001
-next_task=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001
-purpose=check whether remaining AST recursive graph can move as one compatibility-facade bundle
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001
+next_task=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001
+purpose=move remaining recursive AST graph, wrappers, and inherent ASTNode utility methods into hakorune-frontend-ast
+implementation_allowed=recursive_graph_plus_inherent_utils_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Recursive Graph Preflight Result
+
+```text
+src_ast_mod_rs_lines=550
+src_ast_nodes_rs_lines=263
+src_ast_utils_impl_lines=956
+remaining_graph_uses_main_crate_runtime=0
+remaining_graph_uses_main_crate_parser=0
+remaining_graph_uses_main_crate_mir=0
+selected_bundle=ast_recursive_graph_with_methods
+move_types=FieldDecl,CatchClause,ContractClause,EnumVariantDecl,EnumMatchArm,CheckItem,ASTNode
+move_wrappers=AssignStmt,ReturnStmt,IfStmt,BinaryExpr,CallExpr,MethodCallExpr
+move_inherent_utils=span,node_type,info,classification,traversal,analysis
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001
 ```
 
 ## Frontend AST FieldDecl Boundary Design Result
