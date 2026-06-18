@@ -17,7 +17,7 @@ use super::helpers;
 use super::metadata::build_function_metadata_json;
 use super::order::ordered_harness_functions;
 use crate::runner::mir_json_export_model;
-use serde_json::json;
+use serde_json::{json, Value};
 
 fn insert_root_metadata(
     root: &mut serde_json::Value,
@@ -30,12 +30,27 @@ fn insert_root_metadata(
     }
 }
 
+fn export_surfaces_from_object(value: &Value) -> Vec<mir_json_export_model::MirJsonExportSurface> {
+    value
+        .as_object()
+        .map(|obj| {
+            obj.iter()
+                .map(|(key, value)| {
+                    mir_json_export_model::MirJsonExportSurface::new(key.clone(), value.clone())
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 pub(super) fn build_mir_json_root(
     module: &crate::mir::MirModule,
 ) -> Result<serde_json::Value, String> {
     let mut funs = Vec::new();
+    let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
         let mut blocks = Vec::new();
+        let mut export_blocks = Vec::new();
         let mut instruction_count = 0usize;
         let mut ids: Vec<_> = f.blocks.keys().copied().collect();
         ids.sort();
@@ -56,6 +71,15 @@ pub(super) fn build_mir_json_root(
                     insts.push(term);
                 }
                 instruction_count += insts.len();
+                let export_instructions = insts
+                    .iter()
+                    .cloned()
+                    .map(mir_json_export_model::MirJsonExportInstruction::new)
+                    .collect();
+                export_blocks.push(mir_json_export_model::MirJsonExportBlock::new(
+                    bid.as_u32(),
+                    export_instructions,
+                ));
                 blocks.push(json!({"id": bid.as_u32(), "instructions": insts}));
             }
         }
@@ -88,6 +112,13 @@ pub(super) fn build_mir_json_root(
                 .map(|rune| json!({"name": rune.name, "args": rune.args}))
                 .collect::<Vec<_>>()
         });
+        export_functions.push(mir_json_export_model::MirJsonExportFunction::new(
+            name.clone(),
+            params.clone(),
+            export_blocks,
+            export_surfaces_from_object(&metadata_json),
+            attrs_json.clone(),
+        ));
         funs.push(json!({
             "name": name,
             "params": params,
@@ -197,6 +228,19 @@ pub(super) fn build_mir_json_root(
         export_summary.root_metadata_entry_count,
         root_metadata.len()
     );
+    let export_document = mir_json_export_model::MirJsonExportDocument::new(
+        export_summary.schema,
+        export_summary.root_kind,
+        root_metadata
+            .iter()
+            .map(|(key, value)| {
+                mir_json_export_model::MirJsonExportSurface::new(*key, value.clone())
+            })
+            .collect(),
+        export_functions,
+    );
+    debug_assert_eq!(export_document.functions.len(), funs.len());
+    debug_assert_eq!(export_document.root_metadata.len(), root_metadata.len());
 
     let mut root = if use_v1_schema {
         helpers::create_json_v1_root(json!(funs))

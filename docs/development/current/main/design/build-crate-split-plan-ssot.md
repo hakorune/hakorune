@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-SCAFFOLD-001
-next_task=BUILD-MIR-JSON-DTO-ROOT-PROJECTION-WIRING-001
-purpose=construct the passive DTO in build_mir_json_root without changing emitted JSON
+latest_done=BUILD-MIR-JSON-DTO-ROOT-PROJECTION-WIRING-001
+next_task=BUILD-MIR-JSON-DTO-CLOSEOUT-001
+purpose=decide whether DTO wiring is sufficient before selecting the next crate split step
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -308,6 +308,16 @@ future_crate_created=0
 wiring_card=BUILD-MIR-JSON-EXPORT-MODEL-ROOT-SUMMARY-WIRING-001
 summary_helper=mir_json_export_model::summarize_root
 summary_consumer=src/runner/mir_json_emit/root.rs
+json_output_changed=0
+future_crate_created=0
+```
+
+## MIR JSON DTO Root Projection Wiring Result
+
+```text
+wiring_card=BUILD-MIR-JSON-DTO-ROOT-PROJECTION-WIRING-001
+dto_document_constructed=1
+dto_source=current_json_ready_values
 json_output_changed=0
 future_crate_created=0
 ```
