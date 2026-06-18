@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1178-BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1179-BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001.md"
 
-latest_card = "BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1178-BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001.md"
-latest_card_summary = """Moved Stage-3 feature parsing and legacy alias
-warnings into src/frontend_env.rs. Remaining blocker is parser/tokenizer
-logging and CLI verbose host access."""
-current_blocker_token = "BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001"
+latest_card = "BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1179-BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001.md"
+latest_card_summary = """Selected a shared frontend_log facade because
+parser/tokenizer logging calls are already centralized in parser/log.rs and
+tokenizer/log.rs."""
+current_blocker_token = "BUILD-FRONTEND-LOGGING-SHARED-FACADE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

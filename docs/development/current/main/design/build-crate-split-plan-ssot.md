@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-STAGE3-ENV-SHARED-FACADE-001
-next_task=BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001
-purpose=decide parser/tokenizer logging and CLI verbose host seam before parser crate extraction
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-LOGGING-FACADE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-LOGGING-SHARED-FACADE-001
+purpose=move parser/tokenizer runtime logging access behind shared frontend_log facade
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Logging Facade Preflight Result
+
+```text
+selected_shape=shared_frontend_log_facade
+new_owner=src/frontend_log.rs
+parser_tokenizer_direct_runtime_refs_outside_log_facades=0
+call_site_rewrite_required=0
+selected_next_task=BUILD-FRONTEND-LOGGING-SHARED-FACADE-001
 ```
 
 ## Frontend Stage-3 Env Shared Facade Result
