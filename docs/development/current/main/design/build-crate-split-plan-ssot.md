@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001
-next_task=BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001
-purpose=classify live runner VM callers before removing vm-reference from default
-implementation_allowed=classification_only
+latest_done=BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001
+next_task=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
+purpose=design non-VM terminal execution for product/bridge routes that still fan into execute_mir_module_quiet_exit
+implementation_allowed=design_only
 ```
 
 ## Stage 0 Result
@@ -508,6 +508,18 @@ backend_vm_alias_feature_gated=1
 default_off_claim=0
 no_default_features_check_green=0
 selected_next_task=BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001
+```
+
+## VM Runner Caller Classification Result
+
+```text
+classification_card=BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001
+terminal_vm_execution_owner=NyashRunner::execute_mir_module_quiet_exit
+terminal_vm_execution_owner_fan_in=high
+explicit_vm_repl_keep_joinir_classified_as_vm_reference=1
+product_and_bridge_routes_still_use_vm_terminal=1
+vm_reference_remove_from_default_allowed=0
+selected_next_task=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result

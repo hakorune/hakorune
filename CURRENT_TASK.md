@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1124-BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1127-BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -72,7 +72,10 @@ Scope: current lane / next lane / restart order only.
   next row selected a default-on `vm-reference` feature ladder. The scaffold is
   now in place: VMValue / VMError stay always available, while mir_interpreter
   and backend VM aliases are feature-gated. Default-off is not claimed yet. The
-  next blocker is `BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001`.
+  runner callers are now classified. Explicit VM, REPL, keep/vm, and JoinIR VM
+  bridge remain `vm-reference` routes, while product and bridge paths still
+  share `execute_mir_module_quiet_exit` as a VM terminal. The next blocker is
+  `BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
