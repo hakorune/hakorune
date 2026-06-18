@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1199-BUILD-FRONTEND-PARSER-TOKENIZER-POST-TOKENIZER-MOVE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1198-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1197-BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1200-BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1199-BUILD-FRONTEND-PARSER-TOKENIZER-POST-TOKENIZER-MOVE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1198-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -165,8 +165,9 @@ Scope: current lane / next lane / restart order only.
   `NyashTokenizer` and tokenizer impl modules now live in
   `hakorune-frontend-parser` behind the main crate wrapper facade. Post-move
   preflight selected `BuildGateExplainReport` as the next passive parser-side
-  split. The next blocker is
-  `BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001`.
+  split, and that report now lives in `hakorune-frontend-parser` behind the
+  main crate facade. The next blocker is
+  `BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -402,9 +403,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1199-BUILD-FRONTEND-PARSER-TOKENIZER-POST-TOKENIZER-MOVE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1198-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1197-BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1200-BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1199-BUILD-FRONTEND-PARSER-TOKENIZER-POST-TOKENIZER-MOVE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1198-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

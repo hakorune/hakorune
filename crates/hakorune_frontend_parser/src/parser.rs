@@ -4,6 +4,9 @@
 //! exists so future file-move rows can preserve `crate::parser::*` paths inside
 //! the extracted crate.
 
+pub mod build_cfg;
+pub use build_cfg::BuildGateExplainReport;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ParserBoundary;
 

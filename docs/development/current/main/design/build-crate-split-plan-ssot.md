@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-POST-TOKENIZER-MOVE-PREFLIGHT-001
-next_task=BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001
-purpose=move BuildGateExplainReport to hakorune-frontend-parser while active build_cfg impls stay in main crate
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-BUILD-GATE-REPORT-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001
+purpose=choose next parser split boundary after tokenizer and build-gate report movement
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Build Gate Report Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/parser/build_cfg.rs
+compat_facade=src/parser/build_cfg.rs
+type_moved=BuildGateExplainReport
+active_build_cfg_impls_moved=0
+selected_next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-001
 ```
 
 ## Frontend Post-Tokenizer Move Preflight Result
