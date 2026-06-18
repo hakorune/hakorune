@@ -255,5 +255,5 @@ pub(super) fn build_mir_json_root(
     // (tools/hakorune_emit_mir.sh) rather than at raw MIR emit time. This keeps
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
-    Ok(root)
+    Ok(serialized_export_document)
 }

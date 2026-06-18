@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001
-next_task=BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001
-purpose=return serializer payload from build_mir_json_root after parity gate remains green
+latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001
+next_task=BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001
+purpose=close serializer seam and select the next crate-split boundary
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -340,6 +340,17 @@ serializer_called_from_root_builder=1
 serializer_parity_debug_assert=1
 root_builder_returns_existing_payload=1
 json_output_changed=0
+```
+
+## MIR JSON DTO Serializer Return Switch Result
+
+```text
+wiring_card=BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001
+serializer_payload_returned_from_root_builder=1
+serializer_parity_debug_assert=1
+legacy_root_builder_payload_kept_as_parity_oracle=1
+json_output_changed=0
+future_crate_created=0
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result

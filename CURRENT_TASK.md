@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1112-BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1111-BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1110-BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1113-BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1112-BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1111-BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -66,8 +66,8 @@ Scope: current lane / next lane / restart order only.
   now has passive root and function summary wiring. The export-model seam is
   closed, direct `mir_json_emit` extraction is still blocked by direct MIR
   references, and the DTO boundary now has passive JSON-ready construction. The
-  serializer seam has parity wiring, and the next blocker is
-  `BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001`.
+  serializer seam now owns the returned root payload under parity assertion, and
+  the next blocker is `BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -303,10 +303,10 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-951-EXPR-STMT-RUST-MIRBUILDER-CLEANUP-001.md`
-3. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
-4. `docs/development/current/main/phases/phase-296x/296x-661-BOOL-SCALAR-LOWERING-001.md`
-5. `docs/development/current/main/phases/phase-293x/293x-1040-COMPILER-FOUNDATION-CHECKPOINT-001.md`
-6. `docs/development/current/main/workstreams/compiler-foundation-current.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1113-BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1112-BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1111-BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001.md`
+5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
