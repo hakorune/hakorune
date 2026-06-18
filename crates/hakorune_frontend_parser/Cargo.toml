@@ -1,0 +1,13 @@
+[package]
+name = "hakorune-frontend-parser"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hakorune_frontend_parser"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+hakorune-frontend-ast = { path = "../hakorune_frontend_ast" }
+hakorune-frontend-grammar = { path = "../hakorune_frontend_grammar" }

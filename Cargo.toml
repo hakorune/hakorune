@@ -183,6 +183,7 @@ hakorune-mir-plans = { path = "crates/hakorune_mir_plans" }
 hakorune-mir-json-emit = { path = "crates/hakorune_mir_json_emit" }
 hakorune-frontend-ast = { path = "crates/hakorune_frontend_ast" }
 hakorune-frontend-grammar = { path = "crates/hakorune_frontend_grammar" }
+hakorune-frontend-parser = { path = "crates/hakorune_frontend_parser" }
 hakorune-backend-aot = { path = "crates/hakorune_backend_aot", optional = true }
 tempfile = "3.10"
 

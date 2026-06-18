@@ -151,8 +151,8 @@ Related:
   through it. Parser/tokenizer crate preflight v4 found the host seam blocker
   closed; the remaining root references are layout-compatible. Scaffold design
   selected a passive `hakorune-frontend-parser` crate with root compatibility
-  modules. The next blocker is
-  `BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001`
+  modules, and the passive crate scaffold is now in place. The next blocker is
+  `BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -169,9 +169,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1188-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1187-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1188-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md"
 
-latest_card = "BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1189-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-DESIGN-001.md"
-latest_card_summary = """Selected a passive hakorune-frontend-parser crate
-scaffold that preserves root modules ast/parser/tokenizer/frontend_env/
-frontend_log/frontend_host before any parser/tokenizer file move."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001"
+latest_card = "BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1190-BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-SCAFFOLD-001.md"
+latest_card_summary = """Created passive hakorune-frontend-parser crate
+scaffold with root compatibility modules and no parser/tokenizer file move.
+Next step is selecting the smallest file-move family."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-TOKENIZER-FILE-MOVE-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
