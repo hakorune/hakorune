@@ -12,6 +12,7 @@ pub mod error;
 pub mod expr_cursor;
 pub mod lifecycle;
 pub mod metadata;
+pub mod sugar;
 pub use build_cfg::BuildGateExplainReport;
 pub use build_config::{BuildMode, ParserBuildConfig};
 pub use cursor::{NewlineMode, TokenCursor};

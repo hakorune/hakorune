@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-007
-next_task=BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001
-purpose=move AST-to-AST sugar transform into hakorune-frontend-parser behind compatibility facade
-implementation_allowed=1
+latest_done=BUILD-FRONTEND-PARSER-SUGAR-TRANSFORM-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008
+purpose=re-check active parser entry modules and parser env/gate wrappers after sugar transform ownership moved
+implementation_allowed=0
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Sugar Transform Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_parser/src/parser/sugar.rs
+compat_facade=src/parser/sugar.rs
+entrypoint=apply_sugar
+sugar_semantics_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-008
 ```
 
 ## Frontend Parser Next Boundary Preflight 007 Result
