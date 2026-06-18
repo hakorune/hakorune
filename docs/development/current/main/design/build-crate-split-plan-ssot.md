@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
-next_task=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
-purpose=define the MIR JSON emitter input/view boundary before crate extraction
+latest_done=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
+next_task=BUILD-MIR-JSON-EXPORT-MODEL-SCAFFOLD-001
+purpose=scaffold the in-main-crate MIR JSON export model before future crate extraction
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -278,5 +278,16 @@ crate_mir_reference_count=372
 direct_crate_extraction_selected=0
 selected_next_task=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
 reason=emitter_input_view_boundary_required
+behavior_changed=0
+```
+
+## MIR JSON Emit Boundary SSOT Result
+
+```text
+boundary_card=BUILD-MIR-JSON-EMIT-BOUNDARY-SSOT-001
+projection_owner=main_crate
+serialization_owner=future_hakorune_mir_json_emit_crate
+future_crate_reads_mir_directly=0
+selected_next_task=BUILD-MIR-JSON-EXPORT-MODEL-SCAFFOLD-001
 behavior_changed=0
 ```
