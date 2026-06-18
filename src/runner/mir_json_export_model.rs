@@ -44,6 +44,33 @@ pub(crate) struct MirJsonExportModelSummary {
     pub root_metadata_entry_count: usize,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct MirJsonFunctionExportSummary {
+    pub name: String,
+    pub param_count: usize,
+    pub block_count: usize,
+    pub instruction_count: usize,
+    pub metadata_entry_count: usize,
+}
+
+impl MirJsonFunctionExportSummary {
+    pub(crate) fn new(
+        name: impl Into<String>,
+        param_count: usize,
+        block_count: usize,
+        instruction_count: usize,
+        metadata_entry_count: usize,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            param_count,
+            block_count,
+            instruction_count,
+            metadata_entry_count,
+        }
+    }
+}
+
 impl MirJsonExportModelSummary {
     pub(crate) fn new(
         schema: MirJsonExportSchema,
@@ -129,5 +156,16 @@ mod tests {
         assert!(v1.is_schema_versioned());
         assert_eq!(v1.function_count, 2);
         assert_eq!(v1.root_metadata_entry_count, 5);
+    }
+
+    #[test]
+    fn function_export_summary_is_passive_boundary_vocabulary() {
+        let summary = MirJsonFunctionExportSummary::new("Main.main/0", 0, 2, 7, 4);
+
+        assert_eq!(summary.name, "Main.main/0");
+        assert_eq!(summary.param_count, 0);
+        assert_eq!(summary.block_count, 2);
+        assert_eq!(summary.instruction_count, 7);
+        assert_eq!(summary.metadata_entry_count, 4);
     }
 }
