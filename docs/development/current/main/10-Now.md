@@ -106,8 +106,9 @@ Related:
   `LiteralValue` and `Display` now live in `hakorune-frontend-ast`; runtime
   Box conversion remains in public `ast::literal_box_bridge` functions. The
   AST node preflight rejected direct `ASTNode` extraction and selected simple
-  declaration metadata as the next safe passive bundle. The next blocker is
-  `BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001`
+  declaration metadata as the next safe passive bundle. That bundle now lives
+  in `hakorune-frontend-ast`. The next blocker is
+  `BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -124,9 +125,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1156-BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1155-BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1154-BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1157-BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1156-BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1155-BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

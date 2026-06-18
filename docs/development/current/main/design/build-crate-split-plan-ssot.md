@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001
-next_task=BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001
-purpose=move AST simple declaration metadata without ASTNode fields into hakorune-frontend-ast
-implementation_allowed=passive_type_split_only
+latest_done=BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001
+purpose=decide how FieldDecl can move despite default_value carrying Option<Box<ASTNode>>
+implementation_allowed=design_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Simple Decls Passive Split Result
+
+```text
+moved_types=ParamDecl,DelegateExposeDecl,DelegateDecl,TransitionDecl,ContractKind
+new_owner=crates/hakorune_frontend_ast/src/decls.rs
+compat_reexport=src/ast/decls.rs
+deferred_types=CatchClause,FieldDecl,ContractClause,EnumVariantDecl,EnumMatchArm,CheckItem,ASTNode
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001
 ```
 
 ## Frontend AST Nodes Passive Preflight Result
