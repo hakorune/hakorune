@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EXPORT-MODEL-CLOSEOUT-001
-next_task=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
-purpose=define MIR-agnostic DTO boundary before the next mir_json_emit crate split attempt
+latest_done=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
+next_task=BUILD-MIR-JSON-DTO-SCAFFOLD-001
+purpose=add passive DTO vocabulary in the main crate before any mir_json_emit crate split attempt
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -321,6 +321,17 @@ mir_json_emit_direct_mir_reference_count=378
 direct_crate_extraction_selected=0
 selected_next_task=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
 behavior_changed=0
+```
+
+## MIR JSON DTO Boundary Design Result
+
+```text
+design_card=BUILD-MIR-JSON-DTO-BOUNDARY-DESIGN-001
+dto_boundary_required=1
+projection_owner=main_crate
+serialization_owner=future_hakorune_mir_json_emit_crate
+future_crate_reads_mir_directly=0
+selected_next_task=BUILD-MIR-JSON-DTO-SCAFFOLD-001
 ```
 
 ## MIR JSON Export Model Function Summary Scaffold Result
