@@ -261,6 +261,7 @@ impl NyashRunner {
     /// - Integer: value as i64, truncated to 0..=255 (two's complement wrap)
     /// - Bool:    true=1, false=0
     /// - Float:   floor toward zero (as i64), truncated to 0..=255
+    #[cfg(feature = "vm-reference")]
     pub(crate) fn execute_mir_module_quiet_exit(&self, module: &crate::mir::MirModule) -> i32 {
         use crate::backend::MirInterpreter;
         use crate::box_trait::{BoolBox, IntegerBox, StringBox};
@@ -337,6 +338,16 @@ impl NyashRunner {
             }
         }
     }
+
+    #[cfg(not(feature = "vm-reference"))]
+    pub(crate) fn execute_mir_module_quiet_exit(&self, _module: &crate::mir::MirModule) -> i32 {
+        eprintln!(
+            "❌ MIR VM reference execution is not available in this build. Rebuild with --features vm-reference or use an explicit EXE/AOT emit route."
+        );
+        2
+    }
+
+    #[cfg(feature = "vm-reference")]
     pub(crate) fn execute_mir_module(&self, module: &crate::mir::MirModule) {
         // If CLI requested MIR JSON emit, write to file and exit immediately.
         let groups = self.config.as_groups();
@@ -419,5 +430,39 @@ impl NyashRunner {
                 std::process::exit(1);
             }
         }
+    }
+
+    #[cfg(not(feature = "vm-reference"))]
+    pub(crate) fn execute_mir_module(&self, module: &crate::mir::MirModule) {
+        // If CLI requested MIR JSON emit, write to file and exit immediately.
+        let groups = self.config.as_groups();
+        if let Some(path) = groups.emit.emit_mir_json.as_ref() {
+            let p = std::path::Path::new(path);
+            if let Err(e) = crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, p) {
+                eprintln!("❌ MIR JSON emit error: {}", e);
+                std::process::exit(1);
+            }
+            println!("MIR JSON written: {}", p.display());
+            std::process::exit(0);
+        }
+        // If CLI requested EXE emit, generate JSON then invoke ny-llvmc to link NyRT and exit.
+        if let Some(exe_out) = groups.emit.emit_exe.as_ref() {
+            if let Err(e) = crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_bin(
+                module,
+                exe_out,
+                groups.emit.emit_exe_nyrt.as_deref(),
+                groups.emit.emit_exe_libs.as_deref(),
+            ) {
+                eprintln!("❌ {}", e);
+                std::process::exit(1);
+            }
+            println!("EXE written: {}", exe_out);
+            std::process::exit(0);
+        }
+
+        eprintln!(
+            "❌ MIR VM reference execution is not available in this build. Rebuild with --features vm-reference or use --emit-exe / --emit-mir-json."
+        );
+        std::process::exit(2);
     }
 }

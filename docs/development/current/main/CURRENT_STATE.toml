@@ -1057,14 +1057,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1128-BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1129-BUILD-VM-TERMINAL-FAILFAST-SEAM-001.md"
 
-latest_card = "BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1128-BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001.md"
-latest_card_summary = """Selected fail-fast terminal behavior when
-vm-reference is unavailable. execute_mir_module_quiet_exit remains a VM
-reference terminal; it must not silently launch AOT."""
-current_blocker_token = "BUILD-VM-TERMINAL-FAILFAST-SEAM-001"
+latest_card = "BUILD-VM-TERMINAL-FAILFAST-SEAM-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1129-BUILD-VM-TERMINAL-FAILFAST-SEAM-001.md"
+latest_card_summary = """Added central fail-fast terminal behavior for
+vm-reference disabled builds while preserving emit-mir-json / emit-exe early
+exits. Direct VM import families still remain in JoinIR, REPL, and common VM
+helpers."""
+current_blocker_token = "BUILD-VM-DIRECT-CALLER-GATE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

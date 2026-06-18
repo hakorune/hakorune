@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
-next_task=BUILD-VM-TERMINAL-FAILFAST-SEAM-001
-purpose=add central fail-fast terminal methods for vm-reference disabled builds without hidden AOT fallback
-implementation_allowed=central_terminal_seam_only
+latest_done=BUILD-VM-TERMINAL-FAILFAST-SEAM-001
+next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-001
+purpose=select the next direct VM import family to gate or retire
+implementation_allowed=selection_only
 ```
 
 ## Stage 0 Result
@@ -532,6 +532,20 @@ vm_reference_disabled_terminal_behavior=fail_fast
 silent_vm_to_aot_fallback=0
 silent_aot_to_vm_fallback=0
 selected_next_task=BUILD-VM-TERMINAL-FAILFAST-SEAM-001
+```
+
+## VM Terminal Fail-Fast Seam Result
+
+```text
+implementation_card=BUILD-VM-TERMINAL-FAILFAST-SEAM-001
+central_terminal_failfast_added=1
+execute_mir_module_quiet_exit_cfg_split=1
+execute_mir_module_cfg_split=1
+emit_mir_json_early_exit_preserved=1
+emit_exe_early_exit_preserved=1
+hidden_aot_fallback_added=0
+no_default_features_vm_error_count_after=6
+selected_next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
