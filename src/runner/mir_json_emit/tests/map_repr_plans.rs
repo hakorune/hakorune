@@ -35,10 +35,8 @@ fn method_call(
 #[test]
 fn build_mir_json_root_emits_local_fastpath_facts() {
     let mut function = make_function("main", true);
-    function
-        .metadata
-        .local_fastpath_facts
-        .push(LocalFastPathFact::known_receiver_direct_call(
+    function.metadata.local_fastpath_facts.push(
+        LocalFastPathFact::known_receiver_direct_call(
             LocalFastPathSiteId(8),
             ObjectBasicBlockId(5),
             ObjectInstructionIndex(9),
@@ -47,7 +45,8 @@ fn build_mir_json_root_emits_local_fastpath_facts() {
             "map_repr.generic_hash_runtime",
             RoutePlanId(4),
         )
-        .with_storage_plan(ObjectStoragePlanId(5)));
+        .with_storage_plan(ObjectStoragePlanId(5)),
+    );
 
     let mut module = MirModule::new("json_local_fastpath_fact_test".to_string());
     module.add_function(function);

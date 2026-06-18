@@ -152,15 +152,15 @@ fn extract_payload_rewrites_global_mir_call_to_call_in_main_payload() {
         .expect("main instructions");
 
     assert!(
-        insts
-            .iter()
-            .any(|inst| inst["op"].as_str() == Some("call")
-                && inst["callee"]["type"].as_str() == Some("Global")
-                && inst["callee"]["name"].as_str() == Some("Helper.echo/1")),
+        insts.iter().any(|inst| inst["op"].as_str() == Some("call")
+            && inst["callee"]["type"].as_str() == Some("Global")
+            && inst["callee"]["name"].as_str() == Some("Helper.echo/1")),
         "main global mir_call must normalize to call(Global) for the S0 named-function runner"
     );
     assert!(
-        insts.iter().all(|inst| inst["op"].as_str() != Some("mir_call")),
+        insts
+            .iter()
+            .all(|inst| inst["op"].as_str() != Some("mir_call")),
         "main payload should not retain global mir_call after normalization"
     );
 }
@@ -238,15 +238,15 @@ fn extract_payload_rewrites_global_mir_call_inside_reachable_function() {
         .expect("mid instructions");
 
     assert!(
-        insts
-            .iter()
-            .any(|inst| inst["op"].as_str() == Some("call")
-                && inst["callee"]["type"].as_str() == Some("Global")
-                && inst["callee"]["name"].as_str() == Some("Helper.leaf/1")),
+        insts.iter().any(|inst| inst["op"].as_str() == Some("call")
+            && inst["callee"]["type"].as_str() == Some("Global")
+            && inst["callee"]["name"].as_str() == Some("Helper.leaf/1")),
         "reachable helper global mir_call must normalize to call(Global)"
     );
     assert!(
-        insts.iter().all(|inst| inst["op"].as_str() != Some("mir_call")),
+        insts
+            .iter()
+            .all(|inst| inst["op"].as_str() != Some("mir_call")),
         "reachable helper payload should not retain global mir_call after normalization"
     );
 }
