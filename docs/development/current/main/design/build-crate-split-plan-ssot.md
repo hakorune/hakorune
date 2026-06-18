@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001
-next_task=BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001
-purpose=close serializer seam and select the next crate-split boundary
+latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001
+next_task=BUILD-MIR-JSON-EMIT-CRATE-SCAFFOLD-001
+purpose=scaffold future hakorune-mir-json-emit crate for JSON-ready DTO serialization only
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -351,6 +351,18 @@ serializer_parity_debug_assert=1
 legacy_root_builder_payload_kept_as_parity_oracle=1
 json_output_changed=0
 future_crate_created=0
+```
+
+## MIR JSON DTO Serializer Closeout Result
+
+```text
+closeout_card=BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001
+serializer_seam_closed=1
+mir_json_emit_direct_mir_reference_count=378
+direct_mir_json_emit_crate_extraction_selected=0
+future_crate_package_name=hakorune-mir-json-emit
+future_crate_scope=json_ready_dto_serializer_only
+selected_next_task=BUILD-MIR-JSON-EMIT-CRATE-SCAFFOLD-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
