@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001
-next_task=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
-purpose=design non-VM terminal execution for product/bridge routes that still fan into execute_mir_module_quiet_exit
-implementation_allowed=design_only
+latest_done=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
+next_task=BUILD-VM-TERMINAL-FAILFAST-SEAM-001
+purpose=add central fail-fast terminal methods for vm-reference disabled builds without hidden AOT fallback
+implementation_allowed=central_terminal_seam_only
 ```
 
 ## Stage 0 Result
@@ -520,6 +520,18 @@ explicit_vm_repl_keep_joinir_classified_as_vm_reference=1
 product_and_bridge_routes_still_use_vm_terminal=1
 vm_reference_remove_from_default_allowed=0
 selected_next_task=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
+```
+
+## VM Terminal Execution Route Design Result
+
+```text
+design_card=BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001
+terminal_owner=NyashRunner::execute_mir_module_quiet_exit
+terminal_owner_role=vm_reference_terminal
+vm_reference_disabled_terminal_behavior=fail_fast
+silent_vm_to_aot_fallback=0
+silent_aot_to_vm_fallback=0
+selected_next_task=BUILD-VM-TERMINAL-FAILFAST-SEAM-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result

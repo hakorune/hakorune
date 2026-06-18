@@ -71,10 +71,10 @@ Related:
   next row selected a default-on `vm-reference` feature ladder. The scaffold is
   now in place: VMValue / VMError stay always available, while mir_interpreter
   and backend VM aliases are feature-gated. Default-off is not claimed yet. The
-  runner callers are now classified. Explicit VM, REPL, keep/vm, and JoinIR VM
-  bridge remain `vm-reference` routes, while product and bridge paths still
-  share `execute_mir_module_quiet_exit` as a VM terminal. The next blocker is
-  `BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001`
+  runner callers are now classified. Terminal route design keeps
+  `execute_mir_module_quiet_exit` as a VM reference terminal and selects
+  fail-fast when `vm-reference` is unavailable, rather than silently launching
+  AOT. The next blocker is `BUILD-VM-TERMINAL-FAILFAST-SEAM-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -91,9 +91,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1127-BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1128-BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1127-BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
