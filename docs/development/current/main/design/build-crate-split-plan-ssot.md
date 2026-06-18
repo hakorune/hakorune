@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-CLOSEOUT-001
-next_task=BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001
-purpose=design serializer from MirJsonExportDocument to payload before future crate split
+latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001
+next_task=BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001
+purpose=add pure serializer from MirJsonExportDocument to serde_json::Value
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -310,6 +310,16 @@ dto_document_constructed=1
 mir_json_emit_direct_mir_reference_count=378
 direct_crate_extraction_selected=0
 selected_next_task=BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001
+```
+
+## MIR JSON DTO Serializer Design Result
+
+```text
+design_card=BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001
+serializer_input=MirJsonExportDocument
+serializer_output=serde_json::Value
+serializer_reads_mir_directly=0
+selected_next_task=BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
