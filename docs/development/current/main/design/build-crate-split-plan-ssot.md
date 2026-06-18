@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-ROOT-PROJECTION-WIRING-001
-next_task=BUILD-MIR-JSON-DTO-CLOSEOUT-001
-purpose=decide whether DTO wiring is sufficient before selecting the next crate split step
+latest_done=BUILD-MIR-JSON-DTO-CLOSEOUT-001
+next_task=BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001
+purpose=design serializer from MirJsonExportDocument to payload before future crate split
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -300,6 +300,16 @@ new_owner=src/runner/mir_json_export_model.rs
 new_vocabulary=MirJsonExportSchema,MirJsonExportRootKind,MirJsonExportModelSummary
 mir_json_emit_behavior_changed=0
 future_crate_created=0
+```
+
+## MIR JSON DTO Closeout Result
+
+```text
+closeout_card=BUILD-MIR-JSON-DTO-CLOSEOUT-001
+dto_document_constructed=1
+mir_json_emit_direct_mir_reference_count=378
+direct_crate_extraction_selected=0
+selected_next_task=BUILD-MIR-JSON-DTO-SERIALIZER-DESIGN-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
