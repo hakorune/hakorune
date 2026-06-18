@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001
-purpose=select the next passive AST type family to move after Span
-implementation_allowed=selection_only
+latest_done=BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001
+next_task=BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001
+purpose=move UnaryOperator BinaryOperator and BuildPredicate into hakorune-frontend-ast behind the existing syntax facade
+implementation_allowed=passive_type_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Next Passive Type Selection Result
+
+```text
+selected_type_family=syntax_operator_predicate
+selected_types=UnaryOperator,BinaryOperator,BuildPredicate
+literal_value_moved=0
+literal_value_deferred_reason=main_crate_runtime_box_conversion_inherent_impl
+selected_next_task=BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001
 ```
 
 ## Frontend AST Span Passive Split Result
