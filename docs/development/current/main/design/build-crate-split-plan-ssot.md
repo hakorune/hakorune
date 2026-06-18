@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001
-next_task=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-PREFLIGHT-001
-purpose=verify host seam and root facade shape before moving NyashTokenizer bundle
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001
+purpose=define main-crate tokenizer wrapper before moving NyashTokenizer into the frontend parser crate
+implementation_allowed=design_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Tokenizer Owner Bundle Move Preflight Result
+
+```text
+direct_owner_bundle_move_allowed=0
+selected_shape=main_crate_tokenizer_wrapper
+wrapper_owner=src/tokenizer/mod.rs
+inner_owner=crates/hakorune_frontend_parser/src/tokenizer/mod.rs
+wrapper_new_installs_runtime_host=1
+selected_next_task=BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001
 ```
 
 ## Frontend Tokenizer Host Install Seam Result

@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1195-BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1194-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1193-BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1196-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1195-BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1194-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -159,8 +159,9 @@ Scope: current lane / next lane / restart order only.
   remaining tokenizer implementation files are inherent impls for
   `NyashTokenizer`. Owner-bundle design selected a host install seam before
   moving tokenizer implementation; that runtime-free host registry and main
-  runtime adapter seam is now in place. The next blocker is
-  `BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-PREFLIGHT-001`.
+  runtime adapter seam is now in place. Owner-bundle move preflight selected a
+  main-crate tokenizer wrapper instead of direct `NyashTokenizer` re-export.
+  The next blocker is `BUILD-FRONTEND-TOKENIZER-FACADE-WRAPPER-DESIGN-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -396,9 +397,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1195-BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1194-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1193-BUILD-FRONTEND-TOKENIZER-NEXT-MOVE-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1196-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-MOVE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1195-BUILD-FRONTEND-TOKENIZER-HOST-INSTALL-SEAM-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1194-BUILD-FRONTEND-TOKENIZER-OWNER-BUNDLE-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
