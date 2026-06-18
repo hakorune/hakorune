@@ -1043,19 +1043,25 @@ main crate. BUILD-MIR-PLANS-FIFTH-FAMILY-SELECTION-001 selects shared
 `TypedObjectFieldStorage` as the prerequisite for the ArrayRecord passive
 bundle, and BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001 moves that vocabulary
 into `hakorune-mir-plans` while preserving the existing
-`crate::mir::function::TypedObjectFieldStorage` import path."""
+`crate::mir::function::TypedObjectFieldStorage` import path.
+BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SELECTION-001 selects the
+record-layout / ArrayRecord / PackedArray passive metadata bundle, and
+BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SPLIT-001 moves those rows into
+`hakorune-mir-plans` while keeping all producer/classifier logic in the main
+crate."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1089-BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1091-BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SPLIT-001.md"
 
-latest_card = "BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1089-BUILD-MIR-PLANS-TYPED-FIELD-STORAGE-SPLIT-001.md"
-latest_card_summary = """Fifth hakorune-mir-plans passive split:
-TypedObjectFieldStorage moved into hakorune-mir-plans while the existing
-crate::mir::function import path stays as a compatibility re-export."""
-current_blocker_token = "BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SELECTION-001"
+latest_card = "BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SPLIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1091-BUILD-MIR-PLANS-ARRAY-RECORD-PASSIVE-BUNDLE-SPLIT-001.md"
+latest_card_summary = """Sixth hakorune-mir-plans passive split:
+record-layout / ArrayRecord / PackedArray passive metadata rows moved into
+hakorune-mir-plans while producer logic and compatibility imports stay in the
+main crate."""
+current_blocker_token = "BUILD-MIR-PLANS-NEXT-PASSIVE-FAMILY-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1072,6 +1078,7 @@ landed_tail = [
   "2026-06-18: 296x-1084/1085 move map_repr_plan pure data vocabulary into hakorune-mir-plans while leaving refresh/candidate logic in the main crate.",
   "2026-06-18: 296x-1086/1087 move local_fastpath_fact pure aggregation into hakorune-mir-plans while leaving MirFunction metadata assignment in the main crate.",
   "2026-06-18: 296x-1088/1089 move TypedObjectFieldStorage into hakorune-mir-plans while preserving the crate::mir::function compatibility import path.",
+  "2026-06-18: 296x-1090/1091 move record-layout / ArrayRecord / PackedArray passive metadata rows into hakorune-mir-plans while leaving producer logic in the main crate.",
   "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
   "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",
