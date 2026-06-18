@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-PLANS-FUNCTION-FACT-PASSIVE-BUNDLE-SPLIT-001
-next_task=BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001
-purpose=close hakorune-mir-plans stage 1 after the final low-risk passive split
+latest_done=BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001
+next_task=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
+purpose=measure post-stage1 build-time baseline before selecting the next crate split stage
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -233,5 +233,14 @@ owner=crates/hakorune_mir_plans/src/function_fact_plan.rs
 main_crate_compat_reexport=crate::mir::function::*
 producer_logic_moved=0
 refresh_logic_moved=0
+behavior_changed=0
+```
+
+## Stage 1 Closeout Result
+
+```text
+closed_stage=hakorune_mir_plans_stage_1
+remaining_low_risk_passive_bundle_count=0
+next_task=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
 behavior_changed=0
 ```

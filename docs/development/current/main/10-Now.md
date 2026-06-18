@@ -55,7 +55,8 @@ Related:
   record-state passive rows while leaving declaration inventory and producers
   in the main crate; the eighth split moved loop/range/direct-array/span
   function fact vocabulary while leaving producers and refresh logic in the
-  main crate, and the next blocker is `BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001`
+  main crate; Stage 1 is now closed, and the next blocker is
+  `BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -72,13 +73,12 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1095-BUILD-MIR-PLANS-FUNCTION-FACT-PASSIVE-BUNDLE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1094-BUILD-MIR-PLANS-STAGE1-CLOSEOUT-CANDIDATE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1093-BUILD-MIR-PLANS-OBJECT-STATE-PASSIVE-BUNDLE-SPLIT-001.md`
-5. `docs/development/current/main/phases/phase-296x/296x-1092-BUILD-MIR-PLANS-NEXT-PASSIVE-FAMILY-SELECTION-001.md`
-6. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
-7. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
-8. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1096-BUILD-MIR-PLANS-STAGE1-CLOSEOUT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1095-BUILD-MIR-PLANS-FUNCTION-FACT-PASSIVE-BUNDLE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1094-BUILD-MIR-PLANS-STAGE1-CLOSEOUT-CANDIDATE-001.md`
+5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
+6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
+7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Proof Bundle
 
