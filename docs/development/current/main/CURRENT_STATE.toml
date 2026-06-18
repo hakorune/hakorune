@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1133-BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md"
 
-latest_card = "BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1133-BUILD-VM-JOINIR-RUNNER-REFERENCE-GATE-001.md"
-latest_card_summary = """Gated the structure-only JoinIR runner API/executor
-behind vm-reference. no-default VM import errors drop to three; JoinIR VM
-bridge and keep/vm common helpers remain."""
-current_blocker_token = "BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003"
+latest_card = "BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1134-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-003.md"
+latest_card_summary = """Selected JoinIR VM bridge execution as the next VM
+direct import family. Bridge conversion modules remain available; only
+run_joinir_via_vm needs a vm-reference execution branch."""
+current_blocker_token = "BUILD-VM-JOINIR-BRIDGE-REFERENCE-GATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
