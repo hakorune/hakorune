@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001
-next_task=BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001
-purpose=move passive Result/Option enum declaration construction into hakorune-frontend-ast
-implementation_allowed=passive_split_only
+latest_done=BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001
+purpose=switch parser Result/Option prelude import to hakorune_frontend_ast
+implementation_allowed=import_switch_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Result/Option Prelude Passive Split Result
+
+```text
+new_owner=crates/hakorune_frontend_ast/src/result_option_prelude.rs
+compat_facade=src/semantics/result_option_prelude.rs
+compat_import_path_preserved=1
+cargo_check_default_green=1
+cargo_test_frontend_ast_green=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001
 ```
 
 ## Frontend Sugar Consumer Import Switch Result

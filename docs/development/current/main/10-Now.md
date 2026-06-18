@@ -130,8 +130,10 @@ Related:
   now live in `hakorune-frontend-grammar` behind the historical
   `crate::syntax::sugar_config` facade. Parser sugar consumers now read the
   frontend grammar crate directly, leaving zero parser direct syntax sugar
-  facade refs. The next blocker is
-  `BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001`
+  facade refs. Passive Result/Option prelude enum declaration construction now
+  lives in `hakorune-frontend-ast` behind the historical semantics facade. The
+  next blocker is
+  `BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -148,9 +150,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1167-BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

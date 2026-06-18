@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md"
 
-latest_card = "BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md"
-latest_card_summary = """Switched parser sugar consumers to
-hakorune_frontend_grammar::sugar_config. Parser direct syntax sugar facade refs
-are now zero."""
-current_blocker_token = "BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001"
+latest_card = "BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1170-BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001.md"
+latest_card_summary = """Moved passive Result/Option enum declaration
+construction into hakorune-frontend-ast behind the historical semantics
+facade."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-PRELUDE-CONSUMER-IMPORT-SWITCH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -15,6 +15,7 @@ mod decls;
 mod literal;
 mod node_wrappers;
 mod operators;
+pub mod result_option_prelude;
 pub mod rune_profile;
 mod span;
 mod utils;
