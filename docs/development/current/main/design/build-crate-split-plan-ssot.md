@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001
-next_task=BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001
-purpose=choose boundaries for parser sugar config and result/option prelude inputs
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001
+next_task=BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001
+purpose=move SugarConfig/SugarLevel into hakorune-frontend-grammar
+implementation_allowed=passive_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Syntax/Prelude Seam Preflight Result
+
+```text
+syntax_sugar_config_lines=95
+result_option_prelude_lines=39
+parser_direct_syntax_sugar_refs=2
+parser_direct_result_option_prelude_refs=1
+sugar_config_owner=hakorune-frontend-grammar
+result_option_prelude_owner=hakorune-frontend-ast
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001
 ```
 
 ## Frontend Grammar Consumer Import Switch Result

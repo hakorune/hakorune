@@ -123,8 +123,11 @@ Related:
   engine and generated tables now live in `hakorune-frontend-grammar` behind
   the historical `crate::grammar` facade. Parser/tokenizer grammar consumers
   now read `hakorune_frontend_grammar::engine` directly, leaving zero
-  parser/tokenizer `crate::grammar` imports. The next blocker is
-  `BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001`
+  parser/tokenizer `crate::grammar` imports. Syntax/prelude seam preflight
+  selected moving `SugarConfig` / `SugarLevel` into
+  `hakorune-frontend-grammar`, then passive Result/Option prelude enum
+  declarations into `hakorune-frontend-ast`. The next blocker is
+  `BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -141,9 +144,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1166-BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1165-BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1164-BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1167-BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1166-BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1165-BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
