@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-002
-next_task=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001
-purpose=choose standalone parser/tokenizer env and logging boundary before crate extraction
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-PARSER-ENV-LOG-ABSTRACTION-PREFLIGHT-001
+next_task=BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001
+purpose=move parser direct std::env reads behind parser env facade
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Env/Log Abstraction Preflight Result
+
+```text
+parser_env_facade=src/parser/env.rs
+parser_log_facade=src/parser/log.rs
+tokenizer_env_facade=src/tokenizer/env.rs
+tokenizer_log_facade=src/tokenizer/log.rs
+parser_direct_std_env_reads=present
+parser_env_facade_complete=0
+env_log_abstraction_allowed=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-PARSER-DIRECT-ENV-SEAM-001
 ```
 
 ## Frontend Parser/Tokenizer Crate Preflight v2 Result
