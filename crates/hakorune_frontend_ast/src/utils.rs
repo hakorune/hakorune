@@ -1,4 +1,4 @@
-//! Utility helpers for Nyash AST nodes extracted from `ast.rs`.
+//! Inherent utility methods for `ASTNode`.
 
 mod analysis;
 mod classify;

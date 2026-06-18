@@ -5,7 +5,7 @@
 //! gradual refactors in builders by converting once at the boundary and
 //! then matching on small, typed wrappers.
 
-use super::{ASTNode, Span};
+use crate::{ASTNode, Span};
 
 // ----------------
 // Statements
@@ -116,7 +116,7 @@ impl From<IfStmt> for ASTNode {
 
 #[derive(Debug, Clone)]
 pub struct BinaryExpr {
-    pub operator: super::BinaryOperator,
+    pub operator: crate::BinaryOperator,
     pub left: Box<ASTNode>,
     pub right: Box<ASTNode>,
     pub span: Span,

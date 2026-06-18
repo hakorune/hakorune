@@ -1,4 +1,4 @@
-use crate::ast::ASTNode;
+use crate::ASTNode;
 
 impl ASTNode {
     /// True for AST nodes that can appear as expression values.

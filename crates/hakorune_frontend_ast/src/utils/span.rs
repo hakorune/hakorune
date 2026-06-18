@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, Span};
+use crate::{ASTNode, Span};
 
 impl ASTNode {
     /// ASTノードからSpan情報を取得

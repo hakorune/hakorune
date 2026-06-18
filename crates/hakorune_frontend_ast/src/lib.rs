@@ -9,16 +9,23 @@
 pub const FRONTEND_AST_CRATE_READY: bool = true;
 
 mod attrs;
+mod ast_node;
 mod build_predicate;
 mod decls;
 mod literal;
+mod node_wrappers;
 mod operators;
 pub mod rune_profile;
 mod span;
+mod utils;
+pub use ast_node::{
+    ASTNode, CatchClause, CheckItem, ContractClause, EnumMatchArm, EnumVariantDecl, FieldDecl,
+};
 pub use attrs::{DeclarationAttrs, RuneAttr};
 pub use build_predicate::BuildPredicate;
 pub use decls::{ContractKind, DelegateDecl, DelegateExposeDecl, ParamDecl, TransitionDecl};
 pub use literal::LiteralValue;
+pub use node_wrappers::*;
 pub use operators::{BinaryOperator, UnaryOperator};
 pub use span::Span;
 

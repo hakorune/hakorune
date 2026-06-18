@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1158-BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1157-BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1160-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1158-BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -111,8 +111,10 @@ Scope: current lane / next lane / restart order only.
   in `hakorune-frontend-ast`. Standalone `FieldDecl` split is rejected because
   `default_value` carries `ASTNode`. Recursive graph preflight selected moving
   `ASTNode`, ASTNode-containing metadata, wrapper structs, and inherent ASTNode
-  utility methods together. The next blocker is
-  `BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001`.
+  utility methods together. The recursive graph now lives in
+  `hakorune-frontend-ast`; `src/ast` is only a compatibility facade plus
+  runtime literal Box bridge. The next blocker is
+  `BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -348,9 +350,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1158-BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1157-BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1160-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1159-BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1158-BUILD-FRONTEND-AST-FIELD-DECL-BOUNDARY-DESIGN-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

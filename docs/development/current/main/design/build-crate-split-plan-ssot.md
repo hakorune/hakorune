@@ -129,12 +129,27 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PREFLIGHT-001
-next_task=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001
-purpose=move remaining recursive AST graph, wrappers, and inherent ASTNode utility methods into hakorune-frontend-ast
-implementation_allowed=recursive_graph_plus_inherent_utils_split_only
+latest_done=BUILD-FRONTEND-AST-RECURSIVE-GRAPH-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001
+purpose=close the frontend AST passive split and select the next frontend/parser boundary
+implementation_allowed=closeout_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Recursive Graph Passive Split Result
+
+```text
+moved_types=FieldDecl,CatchClause,ContractClause,EnumVariantDecl,EnumMatchArm,CheckItem,ASTNode
+moved_wrappers=AssignStmt,ReturnStmt,IfStmt,BinaryExpr,CallExpr,MethodCallExpr
+moved_inherent_utils=span,node_type,info,classification,traversal,analysis
+new_owner=crates/hakorune_frontend_ast/src/ast_node.rs
+new_owner=crates/hakorune_frontend_ast/src/node_wrappers.rs
+new_owner=crates/hakorune_frontend_ast/src/utils/**
+src_ast_facade_file_count=2
+frontend_ast_main_crate_refs=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-SPLIT-CLOSEOUT-001
 ```
 
 ## Frontend AST Recursive Graph Preflight Result
