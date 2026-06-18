@@ -1,0 +1,12 @@
+[package]
+name = "hakorune-mir-json-emit"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hakorune_mir_json_emit"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+serde_json = "1.0"
