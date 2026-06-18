@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-BACKEND-AOT-PASSIVE-CRATE-SCAFFOLD-001
-next_task=BUILD-BACKEND-AOT-PASSIVE-FACADE-WIRING-001
-purpose=wire main-crate AOT passive support facade to the new crate API
+latest_done=BUILD-BACKEND-AOT-PASSIVE-FACADE-WIRING-001
+next_task=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
+purpose=close passive AOT support split and decide whether to measure or select another boundary
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -443,6 +443,18 @@ new_crate_reads_mir_directly=0
 new_crate_depends_on_wasm_backend=0
 main_crate_dependency_added=0
 selected_next_task=BUILD-BACKEND-AOT-PASSIVE-FACADE-WIRING-001
+```
+
+## Backend AOT Passive Facade Wiring Result
+
+```text
+wiring_card=BUILD-BACKEND-AOT-PASSIVE-FACADE-WIRING-001
+main_crate_dependency_added=1
+dependency_feature_gate=wasm-backend
+passive_aot_support_owner=hakorune_backend_aot
+compiler_pipeline_owner=main_crate
+removed_main_crate_files=src/backend/aot/config.rs,src/backend/aot/executable.rs
+selected_next_task=BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result

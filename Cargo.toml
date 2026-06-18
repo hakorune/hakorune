@@ -29,7 +29,7 @@ gui = ["dep:egui", "dep:eframe", "dep:egui_extras", "dep:image"]
 gui-examples = ["gui"]
 all-examples = ["gui-examples"]
 dynamic-file = []
-wasm-backend = ["dep:wasmtime", "dep:wabt"]
+wasm-backend = ["dep:wasmtime", "dep:wabt", "dep:hakorune-backend-aot"]
 # TLV C shim wiring (default OFF): enables optional dependency `nyash-tlv`
 tlv-shim = ["dep:nyash-tlv"]
 # Core C shims (design-stage; default OFF)
@@ -177,6 +177,7 @@ hakorune-mir-builder = { path = "crates/hakorune_mir_builder" }
 hakorune-mir-joinir = { path = "crates/hakorune_mir_joinir" }
 hakorune-mir-plans = { path = "crates/hakorune_mir_plans" }
 hakorune-mir-json-emit = { path = "crates/hakorune_mir_json_emit" }
+hakorune-backend-aot = { path = "crates/hakorune_backend_aot", optional = true }
 tempfile = "3.10"
 
 # 日時処理
