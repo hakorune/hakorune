@@ -10,11 +10,13 @@ pub const FRONTEND_AST_CRATE_READY: bool = true;
 
 mod attrs;
 mod build_predicate;
+mod literal;
 mod operators;
 pub mod rune_profile;
 mod span;
 pub use attrs::{DeclarationAttrs, RuneAttr};
 pub use build_predicate::BuildPredicate;
+pub use literal::LiteralValue;
 pub use operators::{BinaryOperator, UnaryOperator};
 pub use span::Span;
 

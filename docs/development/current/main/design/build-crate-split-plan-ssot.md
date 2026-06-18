@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-LITERAL-VALUE-BRIDGE-DESIGN-001
-next_task=BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001
-purpose=move LiteralValue and Display to hakorune-frontend-ast while keeping runtime Box conversion in main-crate free functions
-implementation_allowed=passive_type_split_plus_bridge_function_rename
+latest_done=BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001
+next_task=BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001
+purpose=audit remaining AST node passive data versus main-crate dependencies before moving larger node shapes
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST LiteralValue Passive Split Result
+
+```text
+moved_type=LiteralValue
+new_owner=crates/hakorune_frontend_ast/src/literal.rs
+display_impl_owner=hakorune-frontend-ast
+compat_reexport=src/ast/syntax.rs
+runtime_conversion_owner=src/ast/literal_box_bridge.rs
+bridge_api=literal_to_nyash_box,literal_from_nyash_box
+inherent_runtime_conversion_methods_preserved=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001
 ```
 
 ## Frontend AST LiteralValue Bridge Design Result
