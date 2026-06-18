@@ -11,3 +11,4 @@ crate-type = ["rlib"]
 [dependencies]
 hakorune-frontend-ast = { path = "../hakorune_frontend_ast" }
 hakorune-frontend-grammar = { path = "../hakorune_frontend_grammar" }
+thiserror = "2.0"
