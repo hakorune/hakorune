@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-LITERAL-VALUE-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001
-purpose=audit remaining AST node passive data versus main-crate dependencies before moving larger node shapes
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-AST-NODES-PASSIVE-PREFLIGHT-001
+next_task=BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001
+purpose=move AST simple declaration metadata without ASTNode fields into hakorune-frontend-ast
+implementation_allowed=passive_type_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend AST Nodes Passive Preflight Result
+
+```text
+src_ast_mod_rs_lines=627
+src_ast_nodes_rs_lines=263
+astnode_direct_extraction_allowed=0
+selected_type_family=ast_simple_decls
+selected_types=ParamDecl,DelegateExposeDecl,DelegateDecl,TransitionDecl,ContractKind
+deferred_types=CatchClause,FieldDecl,ContractClause,EnumVariantDecl,EnumMatchArm,CheckItem,ASTNode
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-SIMPLE-DECLS-PASSIVE-SPLIT-001
 ```
 
 ## Frontend AST LiteralValue Passive Split Result
