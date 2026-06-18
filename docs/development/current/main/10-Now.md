@@ -65,8 +65,9 @@ Related:
   now has passive root and function summary wiring. The export-model seam is
   closed, direct `mir_json_emit` extraction is still blocked by direct MIR
   references, and the DTO boundary now has passive JSON-ready construction. The
-  `hakorune-mir-json-emit` is scaffolded for JSON-ready DTO serialization only,
-  and the next blocker is `BUILD-MIR-JSON-EMIT-CRATE-FACADE-WIRING-001`
+  `hakorune-mir-json-emit` now owns JSON-ready DTO serialization behind the
+  main-crate facade, and the next blocker is
+  `BUILD-MIR-JSON-EMIT-CRATE-CLOSEOUT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -83,9 +84,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1115-BUILD-MIR-JSON-EMIT-CRATE-SCAFFOLD-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1114-BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1113-BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1116-BUILD-MIR-JSON-EMIT-CRATE-FACADE-WIRING-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1115-BUILD-MIR-JSON-EMIT-CRATE-SCAFFOLD-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1114-BUILD-MIR-JSON-DTO-SERIALIZER-CLOSEOUT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

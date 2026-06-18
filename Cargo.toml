@@ -176,6 +176,7 @@ hakorune-mir-defs = { path = "crates/hakorune_mir_defs" }
 hakorune-mir-builder = { path = "crates/hakorune_mir_builder" }
 hakorune-mir-joinir = { path = "crates/hakorune_mir_joinir" }
 hakorune-mir-plans = { path = "crates/hakorune_mir_plans" }
+hakorune-mir-json-emit = { path = "crates/hakorune_mir_json_emit" }
 tempfile = "3.10"
 
 # 日時処理
