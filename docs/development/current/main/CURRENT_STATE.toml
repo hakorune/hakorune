@@ -1057,14 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1163-BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1164-BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001.md"
 
-latest_card = "BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1163-BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001.md"
-latest_card_summary = """Isolated tokenizer config and runtime logging access
-behind tokenizer-local env/log facades. Tokenizer direct config/runtime logger
-references are now zero."""
-current_blocker_token = "BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001"
+latest_card = "BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1164-BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001.md"
+latest_card_summary = """Audited the grammar engine seam. The engine is
+dependency-light and crate-splittable, but generated table ownership must move
+with it."""
+current_blocker_token = "BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

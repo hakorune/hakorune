@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-TOKENIZER-ENV-LOGGING-SEAM-001
-next_task=BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001
-purpose=choose grammar engine access boundary for parser/tokenizer crate extraction
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-GRAMMAR-ENGINE-SEAM-PREFLIGHT-001
+next_task=BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001
+purpose=move dependency-light grammar engine and generated tables into a frontend grammar crate
+implementation_allowed=passive_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Grammar Engine Seam Preflight Result
+
+```text
+grammar_rust_file_count=3
+grammar_total_lines=168
+main_crate_dependency_count=0
+parser_grammar_engine_callsite_count=5
+tokenizer_grammar_engine_callsite_count=1
+grammar_crate_scaffold_selected=1
+build_rs_generated_path_update_required=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-GRAMMAR-CRATE-SCAFFOLD-001
 ```
 
 ## Frontend Tokenizer Env/Logging Seam Result
