@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001
-next_task=BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001
-purpose=add passive FrontendHostBoundary vocabulary without changing parser/tokenizer call sites
-implementation_allowed=passive_vocab_only
+latest_done=BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001
+next_task=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001
+purpose=decide whether to wire frontend_env/frontend_log through FrontendHostBoundary now or defer until parser crate scaffold
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Host Boundary Vocabulary Result
+
+```text
+new_owner=src/frontend_host.rs
+new_type=FrontendLogLevel
+new_trait=FrontendHostBoundary
+new_default=NoopFrontendHost
+frontend_env_wiring_changed=0
+frontend_log_wiring_changed=0
+selected_next_task=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001
 ```
 
 ## Frontend Host Adapter Design Result
