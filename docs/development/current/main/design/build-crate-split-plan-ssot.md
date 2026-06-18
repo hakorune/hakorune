@@ -129,12 +129,22 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-PARSER-METADATA-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006
-purpose=re-check active parser module boundaries after passive metadata ownership moved
-implementation_allowed=0
+latest_done=BUILD-FRONTEND-PARSER-NEXT-BOUNDARY-PREFLIGHT-006
+next_task=BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001
+purpose=move delegate exposes lowering into hakorune-frontend-parser behind compatibility facade
+implementation_allowed=1
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Next Boundary Preflight 006 Result
+
+```text
+selected_family=parser_delegate_lowering
+selected_owner_bundle=lower_delegate_exposes
+selected_destination=crates/hakorune_frontend_parser/src/parser/delegate_lowering.rs
+NyashParser_owner_required=0
+selected_next_task=BUILD-FRONTEND-PARSER-DELEGATE-LOWERING-OWNER-BUNDLE-MOVE-001
 ```
 
 ## Frontend Parser Metadata Passive Split Result
