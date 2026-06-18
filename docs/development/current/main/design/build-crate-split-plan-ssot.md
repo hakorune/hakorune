@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-EMIT-CRATE-CLOSEOUT-001
-next_task=BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001
-purpose=measure cold release build after the JSON-ready serializer crate split
+latest_done=BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001
+next_task=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
+purpose=select the next backend-adjacent crate-split boundary from dependency evidence
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -398,6 +398,19 @@ serialization_owner=hakorune_mir_json_emit
 projection_owner=main_crate
 new_crate_reads_mir_directly=0
 selected_next_task=BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001
+```
+
+## MIR JSON Emit Post-Split Measurement Result
+
+```text
+measure_card=BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001
+cold_build_real_sec=161.28
+cold_build_user_sec=213.71
+cold_build_sys_sec=10.49
+baseline_cold_build_real_sec=157.37
+post_stage1_cold_build_real_sec=158.95
+build_time_winner_claim=0
+selected_next_task=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
