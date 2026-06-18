@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001
-next_task=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001
-purpose=decide whether to wire frontend_env/frontend_log through FrontendHostBoundary now or defer until parser crate scaffold
-implementation_allowed=preflight_only
+latest_done=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001
+next_task=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001
+purpose=wire frontend_env/frontend_log through RuntimeFrontendHost adapter
+implementation_allowed=seam_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Host Boundary Wiring Preflight Result
+
+```text
+selected_shape=RuntimeFrontendHost_adapter
+adapter_owner=src/frontend_host.rs
+frontend_env_direct_runtime_ref_after_target=0
+frontend_log_direct_runtime_refs_after_target=0
+runtime_logger_behavior_preserved=1
+selected_next_task=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001
 ```
 
 ## Frontend Host Boundary Vocabulary Result
