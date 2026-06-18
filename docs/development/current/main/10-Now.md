@@ -68,10 +68,10 @@ Related:
   optional AOT passive split is closed. The default-compiled `mir_interpreter`
   surface was audited at 12,944 lines across 66 files; VMValue / VMError are
   live outside the interpreter, so immediate deletion/gating is rejected. The
-  next row selected a default-on `vm-reference` feature ladder: VMValue /
-  VMError stay always available, mir_interpreter and VM aliases become the gated
-  reference engine, and default-off is deferred until runner/test callers are
-  classified. The next blocker is `BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001`
+  next row selected a default-on `vm-reference` feature ladder. The scaffold is
+  now in place: VMValue / VMError stay always available, while mir_interpreter
+  and backend VM aliases are feature-gated. Default-off is not claimed yet. The
+  next blocker is `BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -88,9 +88,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1124-BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1123-BUILD-BACKEND-AOT-PASSIVE-CLOSEOUT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1124-BUILD-VM-MIR-INTERPRETER-COMPILE-AUDIT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

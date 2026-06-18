@@ -10,11 +10,13 @@ pub mod vm_types;
 // Compatibility shim module - always provide vm module with core types
 pub mod vm {
     pub use super::vm_types::{VMError, VMValue};
+    #[cfg(feature = "vm-reference")]
     pub use super::VM; // Re-export VM type for backward compatibility
 }
 // Core backend modules
 pub mod abi_util; // Shared ABI/utility helpers
 pub mod gc_helpers;
+#[cfg(feature = "vm-reference")]
 pub mod mir_interpreter;
 pub mod runtime_type_spec; // Runtime type spec (semantic SSOT for type matching)
 pub mod runtime_type_tag; // Runtime type tag (entry classification) // Lightweight MIR interpreter (Rust VM core)
@@ -27,10 +29,13 @@ pub mod wasm;
 pub mod wasm_v2;
 
 // Public aliases to make the role of the VM clear in runner/tests
+#[cfg(feature = "vm-reference")]
 pub use mir_interpreter::MirInterpreter;
 /// Primary Rust VM executor alias (preferred name)
+#[cfg(feature = "vm-reference")]
 pub type NyashVm = mir_interpreter::MirInterpreter;
 /// Back-compat shim used across runner/tests
+#[cfg(feature = "vm-reference")]
 pub type VM = NyashVm;
 // Always re-export VMError/VMValue from vm_types
 pub use vm_types::{VMError, VMValue};

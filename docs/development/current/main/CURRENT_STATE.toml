@@ -1057,15 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md"
 
-latest_card = "BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1125-BUILD-VM-MIR-INTERPRETER-FEATURE-GATE-DESIGN-001.md"
-latest_card_summary = """Selected a default-on `vm-reference` feature ladder:
-VMValue/VMError stay always available, mir_interpreter and VM aliases become
-the gated reference engine, and default-off is deferred until runner/test
-callers are classified."""
-current_blocker_token = "BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001"
+latest_card = "BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1126-BUILD-VM-REFERENCE-FEATURE-SCAFFOLD-001.md"
+latest_card_summary = """Added the default-on `vm-reference` feature seam:
+VMValue/VMError remain always available, while mir_interpreter and backend VM
+aliases are now behind the feature. Default-off is not claimed yet."""
+current_blocker_token = "BUILD-VM-RUNNER-CALLER-CLASSIFICATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
