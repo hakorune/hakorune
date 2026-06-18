@@ -1,8 +1,8 @@
 //! Parser environment switch facade.
 //!
 //! Parser code should read feature/debug switches through this module instead
-//! of importing `crate::config::env` directly. This keeps the parser surface
-//! closer to a future frontend crate boundary.
+//! of importing main-crate configuration directly. This keeps the parser
+//! surface closer to a future frontend crate boundary.
 
 fn env_flag(var: &str) -> Option<bool> {
     std::env::var(var).ok().map(|value| {

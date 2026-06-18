@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1186-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1185-BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1184-BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1187-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1186-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1185-BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -148,8 +148,9 @@ Scope: current lane / next lane / restart order only.
   refs closed, but direct extraction is still blocked by the frontend env/log
   host seam. Host adapter design selected a small `FrontendHostBoundary`
   vocabulary, now added passively in `src/frontend_host.rs`. Wiring preflight
-  selected `RuntimeFrontendHost`, so the next blocker is
-  `BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001`.
+  selected `RuntimeFrontendHost`, and `frontend_env` / `frontend_log` now route
+  through it. The next blocker is
+  `BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -385,9 +386,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1186-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1185-BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1184-BUILD-FRONTEND-HOST-ADAPTER-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1187-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1186-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1185-BUILD-FRONTEND-HOST-BOUNDARY-VOCAB-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

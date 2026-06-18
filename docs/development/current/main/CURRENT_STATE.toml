@@ -1057,13 +1057,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1186-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1187-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001.md"
 
-latest_card = "BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1186-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001.md"
-latest_card_summary = """Selected RuntimeFrontendHost adapter wiring for
-frontend_env/frontend_log while preserving parser/tokenizer call sites."""
-current_blocker_token = "BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001"
+latest_card = "BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1187-BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001.md"
+latest_card_summary = """Wired frontend_env/frontend_log through
+RuntimeFrontendHost. Parser/tokenizer config/runtime scattered refs remain
+closed."""
+current_blocker_token = "BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

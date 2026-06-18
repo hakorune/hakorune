@@ -129,12 +129,25 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-PREFLIGHT-001
-next_task=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001
-purpose=wire frontend_env/frontend_log through RuntimeFrontendHost adapter
-implementation_allowed=seam_only
+latest_done=BUILD-FRONTEND-HOST-BOUNDARY-WIRING-001
+next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004
+purpose=rerun parser/tokenizer crate extraction preflight after host boundary wiring
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Host Boundary Wiring Result
+
+```text
+adapter_owner=src/frontend_host.rs
+runtime_adapter=RuntimeFrontendHost
+frontend_env_direct_runtime_refs_after=0
+frontend_log_direct_runtime_refs_after=0
+frontend_host_runtime_refs=2
+parser_tokenizer_direct_config_refs_after=0
+parser_tokenizer_direct_runtime_refs_after=0
+selected_next_task=BUILD-FRONTEND-PARSER-TOKENIZER-CRATE-PREFLIGHT-004
 ```
 
 ## Frontend Host Boundary Wiring Preflight Result

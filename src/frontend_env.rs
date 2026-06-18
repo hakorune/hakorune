@@ -6,6 +6,8 @@
 use std::collections::HashSet;
 use std::sync::{Mutex, OnceLock};
 
+use crate::frontend_host::FrontendHostBoundary;
+
 static WARNED_ALIASES: OnceLock<Mutex<HashSet<&'static str>>> = OnceLock::new();
 
 fn nyash_features_list() -> Option<Vec<String>> {
@@ -54,11 +56,7 @@ fn warn_alias_once(alias: &'static str, primary: &'static str) {
         return;
     }
 
-    let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
-    ring0.log.warn(&format!(
-        "[deprecate/env] '{}' is deprecated; use '{}'",
-        alias, primary
-    ));
+    crate::frontend_host::runtime_host().warn_alias_once(alias, primary);
 }
 
 /// Core frontend Stage-3 gate (default ON).

@@ -25,3 +25,29 @@ impl FrontendHostBoundary for NoopFrontendHost {
 
     fn warn_alias_once(&self, _alias: &'static str, _primary: &'static str) {}
 }
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct RuntimeFrontendHost;
+
+impl FrontendHostBoundary for RuntimeFrontendHost {
+    fn log(&self, level: FrontendLogLevel, message: &str) {
+        let logger = &crate::runtime::get_global_ring0().log;
+        match level {
+            FrontendLogLevel::Debug => logger.debug(message),
+            FrontendLogLevel::Warn => logger.warn(message),
+            FrontendLogLevel::Error => logger.error(message),
+        }
+    }
+
+    fn warn_alias_once(&self, alias: &'static str, primary: &'static str) {
+        let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+        ring0.log.warn(&format!(
+            "[deprecate/env] '{}' is deprecated; use '{}'",
+            alias, primary
+        ));
+    }
+}
+
+pub(crate) fn runtime_host() -> RuntimeFrontendHost {
+    RuntimeFrontendHost
+}

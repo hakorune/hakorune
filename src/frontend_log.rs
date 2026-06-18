@@ -2,17 +2,19 @@
 //!
 //! This keeps parser/tokenizer modules from owning the runtime logger route.
 
+use crate::frontend_host::{FrontendHostBoundary, FrontendLogLevel};
+
 #[inline]
 pub(crate) fn debug(message: &str) {
-    crate::runtime::get_global_ring0().log.debug(message);
+    crate::frontend_host::runtime_host().log(FrontendLogLevel::Debug, message);
 }
 
 #[inline]
 pub(crate) fn warn(message: &str) {
-    crate::runtime::get_global_ring0().log.warn(message);
+    crate::frontend_host::runtime_host().log(FrontendLogLevel::Warn, message);
 }
 
 #[inline]
 pub(crate) fn error(message: &str) {
-    crate::runtime::get_global_ring0().log.error(message);
+    crate::frontend_host::runtime_host().log(FrontendLogLevel::Error, message);
 }

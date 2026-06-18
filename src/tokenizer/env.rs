@@ -1,7 +1,7 @@
 //! Tokenizer-local environment facade.
 //!
 //! Crate-split preparation rule: tokenizer modules should depend on this
-//! facade instead of importing `crate::config::env` directly.
+//! facade instead of importing main-crate configuration directly.
 
 fn env_bool(key: &str) -> bool {
     match std::env::var(key).ok() {
