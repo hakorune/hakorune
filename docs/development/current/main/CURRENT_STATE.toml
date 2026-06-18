@@ -1057,15 +1057,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1142-BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1143-BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001.md"
 
-latest_card = "BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1142-BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001.md"
-latest_card_summary = """Measured the default profile after removing
-vm-reference from Cargo defaults: cold release real=149.82s versus the latest
-default baseline real=161.28s. This is a visible build-time win while the Rust
-VM remains available through --features vm-reference."""
-current_blocker_token = "BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001"
+latest_card = "BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1143-BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001.md"
+latest_card_summary = """Closed the vm-reference default-off row. Product
+default builds no longer compile VM reference execution by default; cold release
+real=149.82s versus latest default baseline real=161.28s. The next row returns
+to crate split boundary selection."""
+current_blocker_token = "BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

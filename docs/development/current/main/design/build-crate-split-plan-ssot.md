@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001
-next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001
-purpose=close the vm-reference default-off row and select the next crate split boundary
-implementation_allowed=closeout_only
+latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001
+next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
+purpose=select the next build-time reduction boundary after vm-reference default-off is closed
+implementation_allowed=selection_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## VM Reference Default-Off Closeout Result
+
+```text
+vm_reference_default_off_closed=1
+default_features=["cli","plugins"]
+vm_reference_feature_remains_available=1
+rust_vm_product_route_reopened=0
+default_off_cold_build_real_sec=149.82
+latest_default_baseline_cold_build_real_sec=161.28
+default_off_real_delta_sec=-11.46
+build_time_winner_claim=1
+selected_next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
 ```
 
 ## VM Reference Default-Off Measure Result
