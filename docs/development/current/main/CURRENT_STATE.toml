@@ -1057,15 +1057,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1140-BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1141-BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001.md"
 
-latest_card = "BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1140-BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001.md"
-latest_card_summary = """Preflighted removing vm-reference from Cargo default
-features. Candidate default is cli+plugins; vm-reference remains available as
-an explicit reference feature, and full no-default plugin-stub work stays out of
-scope."""
-current_blocker_token = "BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001"
+latest_card = "BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1141-BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001.md"
+latest_card_summary = """Removed vm-reference from Cargo default features
+while keeping it available explicitly. Default/no-vm checks are green,
+explicit vm-reference checks are green, MIR JSON emit still works, and VM
+execution now fail-fasts in the default build."""
+current_blocker_token = "BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

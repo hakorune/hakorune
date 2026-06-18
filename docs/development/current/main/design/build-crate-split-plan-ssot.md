@@ -129,12 +129,26 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-PREFLIGHT-001
-next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001
-purpose=remove vm-reference from Cargo default features while preserving the explicit reference feature
-implementation_allowed=default_feature_edit_only
-default_feature_change_allowed=1
+latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001
+next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001
+purpose=measure cold release build after vm-reference is removed from Cargo defaults
+implementation_allowed=measurement_only
+default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## VM Reference Default-Off Implementation Result
+
+```text
+default_features=["cli","plugins"]
+vm_reference_removed_from_default=1
+vm_reference_feature_removed=0
+cargo_check_default_green=1
+cargo_check_features_vm_reference_green=1
+cargo_check_no_default_cli_plugins_green=1
+emit_mir_json_default_no_vm_green=1
+vm_terminal_without_feature_failfast=1
+selected_next_task=BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001
 ```
 
 ## VM Reference Default-Off Preflight Result
