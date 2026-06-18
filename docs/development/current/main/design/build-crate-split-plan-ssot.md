@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-CRATE-SPLIT-POST-STAGE1-MEASURE-001
-next_task=BUILD-BACKEND-CRATE-PREFLIGHT-001
-purpose=preflight the next ranked crate split after Stage 1 did not move cold build time
+latest_done=BUILD-BACKEND-CRATE-PREFLIGHT-001
+next_task=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
+purpose=audit MIR JSON emission as the first backend-side crate split candidate
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -256,4 +256,15 @@ baseline_cold_build_real_sec=157.37
 build_time_winner_claim=0
 main_crate_still_dominant=1
 recommended_next_stage=hakorune_backend_preflight
+```
+
+## Backend Split Preflight Result
+
+```text
+preflight_card=BUILD-BACKEND-CRATE-PREFLIGHT-001
+src_backend_wholesale_split_selected=0
+selected_next_boundary=runner_mir_json_emit
+selected_next_task=BUILD-MIR-JSON-EMIT-CRATE-PREFLIGHT-001
+reason=product_exe_route_uses_mir_json_emit_before_ny_llvmc
+behavior_changed=0
 ```
