@@ -25,7 +25,7 @@ impl NyashParser {
     pub(super) fn parse_expression(&mut self) -> Result<ASTNode, ParseError> {
         // Experimental bridge: Opt-in TokenCursor path (Phase 15.5 newline refactor)
         // Guard: NYASH_PARSER_TOKEN_CURSOR=1
-        if crate::config::env::parser_token_cursor_enabled() {
+        if crate::parser::env::parser_token_cursor_enabled() {
             let mut cursor = TokenCursor::new(&self.tokens);
             cursor.set_position(self.current);
             let ast = ExprParserWithCursor::parse_expression(&mut cursor)?;

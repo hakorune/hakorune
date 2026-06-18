@@ -66,7 +66,7 @@ impl NyashParser {
 
     /// Parse try-catch statement
     pub(super) fn parse_try_catch(&mut self) -> Result<ASTNode, ParseError> {
-        if !crate::config::env::parser_try_compat_enabled() {
+        if !crate::parser::env::parser_try_compat_enabled() {
             return Err(ParseError::UnexpectedToken {
                 found: self.current_token().token_type.clone(),
                 expected: "[freeze:contract][parser/try_reserved] 'try' is legacy/prohibited; use postfix catch/cleanup or enable compatibility only during migration".to_string(),

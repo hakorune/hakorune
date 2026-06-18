@@ -83,7 +83,7 @@ impl NyashParser {
         // Parse the block body first
         let try_body = self.parse_block_statements()?;
 
-        if crate::config::env::block_postfix_catch()
+        if crate::parser::env::block_postfix_catch()
             && (self.match_token(&TokenType::CATCH) || self.match_token(&TokenType::CLEANUP))
         {
             // Parse at most one catch, then optional cleanup
@@ -131,7 +131,7 @@ impl NyashParser {
     pub(super) fn parse_block_statements(&mut self) -> Result<Vec<ASTNode>, ParseError> {
         let trace_blocks = std::env::var("NYASH_PARSER_TRACE_BLOCKS").ok().as_deref() == Some("1");
         if trace_blocks {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            crate::parser::log::debug(&format!(
                 "[parser][block] enter '{{' at line {}",
                 self.current_token().line
             ));
@@ -162,7 +162,7 @@ impl NyashParser {
             statements.push(statement);
         }
         if trace_blocks {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            crate::parser::log::debug(&format!(
                 "[parser][block] exit '}}' at line {}",
                 self.current_token().line
             ));
@@ -179,7 +179,7 @@ impl NyashParser {
         // Reuse block entry tracing
         let trace_blocks = std::env::var("NYASH_PARSER_TRACE_BLOCKS").ok().as_deref() == Some("1");
         if trace_blocks {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            crate::parser::log::debug(&format!(
                 "[parser][block] enter '{{' (method) at line {}",
                 self.current_token().line
             ));
@@ -257,7 +257,7 @@ impl NyashParser {
             statements.push(statement);
         }
         if trace_blocks {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            crate::parser::log::debug(&format!(
                 "[parser][block] exit '}}' (method) at line {}",
                 self.current_token().line
             ));
@@ -279,7 +279,7 @@ impl NyashParser {
                 });
             }
         }
-        if !crate::config::env::parser_stage3_enabled() {
+        if !crate::parser::env::parser_stage3_enabled() {
             if let TokenType::IDENTIFIER(name) = &start_tok {
                 let is_stage3_keyword = matches!(
                     name.as_str(),
@@ -380,7 +380,7 @@ impl NyashParser {
             if let Some(k) = Self::grammar_keyword_for(&start_tok) {
                 let ok = crate::grammar::engine::get().syntax_is_allowed_statement(k);
                 if !ok {
-                    crate::runtime::get_global_ring0().log.warn(&format!(
+                    crate::parser::log::warn(&format!(
                         "[GRAMMAR-DIFF][Parser] statement '{}' not allowed by syntax rules",
                         k
                     ));

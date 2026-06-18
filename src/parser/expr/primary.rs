@@ -198,7 +198,7 @@ impl NyashParser {
                 let line = self.current_token().line;
                 let column = self.current_token().column;
                 if std::env::var("NYASH_DEPRECATE_THIS").ok().as_deref() == Some("1") {
-                    crate::runtime::get_global_ring0().log.warn(&format!(
+                    crate::parser::log::warn(&format!(
                         "[deprecate:this] 'this' is deprecated; use 'me' instead (line {})",
                         self.current_token().line
                     ));

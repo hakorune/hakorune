@@ -1057,15 +1057,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1146-BUILD-FRONTEND-AST-PASSIVE-SEAM-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1147-BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001.md"
 
-latest_card = "BUILD-FRONTEND-AST-PASSIVE-SEAM-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1146-BUILD-FRONTEND-AST-PASSIVE-SEAM-001.md"
-latest_card_summary = """Separated passive AST literal data from runtime Box
-conversion helpers. LiteralValue remains in syntax.rs, while NyashBox
-conversion lives in ast/literal_box_bridge.rs; syntax.rs now has zero runtime
-Box refs."""
-current_blocker_token = "BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001"
+latest_card = "BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1147-BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001.md"
+latest_card_summary = """Isolated parser config/env and runtime logging
+references behind parser-local facades. Parser implementation files no longer
+read crate::config::env or runtime ring0 logging directly; passive AST data has
+zero external refs outside the literal box bridge."""
+current_blocker_token = "BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

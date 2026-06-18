@@ -453,7 +453,7 @@ impl NyashParser {
 
     /// Helper: env-gated Stage-3 enable check.
     fn is_stage3_enabled() -> bool {
-        crate::config::env::parser_stage3_enabled()
+        crate::parser::env::parser_stage3_enabled()
     }
 
     /// Parse break statement

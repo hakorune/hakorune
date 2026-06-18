@@ -31,7 +31,7 @@ pub(crate) fn validate_birth_once_cycles(
     p: &mut NyashParser,
     methods: &HashMap<String, ASTNode>,
 ) -> Result<(), ParseError> {
-    if !crate::config::env::unified_members() {
+    if !crate::parser::env::unified_members() {
         return Ok(());
     }
     // Collect birth_once compute bodies

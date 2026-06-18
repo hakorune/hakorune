@@ -154,8 +154,8 @@ impl NyashParser {
             if let ASTNode::FunctionDeclaration { is_override, .. } = method_ast {
                 if *is_override {
                     // 将来的にここで親クラスのメソッドが存在するかチェック
-                    if crate::config::env::cli_verbose_enabled() {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
+                    if crate::parser::env::cli_verbose_enabled() {
+                        crate::parser::log::debug(&format!(
                             "🔍 Validating override method '{}' in '{}' from '{}'",
                             method_name, child_name, parent_name
                         ));

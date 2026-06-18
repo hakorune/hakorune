@@ -32,7 +32,7 @@ impl NyashParser {
     /// ```
     pub(crate) fn try_parse_grouped_assignment(&mut self) -> Result<Option<ASTNode>, ParseError> {
         // Stage-3 gate check
-        if !crate::config::env::parser_stage3_enabled() {
+        if !crate::parser::env::parser_stage3_enabled() {
             return Ok(None);
         }
 

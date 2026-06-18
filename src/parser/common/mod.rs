@@ -52,9 +52,9 @@ pub trait ParserUtils {
 
             // 改行スキップは Cursor 無効時のみ最小限で行う（互換用）。
             // NYASH_PARSER_TOKEN_CURSOR=1 の場合は Cursor 側で一元管理する。
-            let cursor_on = crate::config::env::parser_token_cursor_enabled();
+            let cursor_on = crate::parser::env::parser_token_cursor_enabled();
             if !cursor_on {
-                let allow_sc = crate::config::env::parser_allow_semicolon();
+                let allow_sc = crate::parser::env::parser_allow_semicolon();
                 loop {
                     let is_nl = matches!(self.current_token().token_type, TokenType::NEWLINE);
                     let is_sc =

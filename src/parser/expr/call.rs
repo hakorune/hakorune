@@ -19,7 +19,7 @@ impl NyashParser {
             // Example: foo(bar) catch(Type e) { ... } cleanup { ... }
             //          foo(bar) catch { ... }
             // Guarded by Stage-3 gate to avoid surprising Stage-2 programs.
-            if crate::config::env::expr_postfix_catch()
+            if crate::parser::env::expr_postfix_catch()
                 && (self.match_token(&TokenType::CATCH) || self.match_token(&TokenType::CLEANUP))
             {
                 use crate::ast::{CatchClause, Span};

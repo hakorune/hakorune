@@ -10,7 +10,7 @@ fn has_postfix(p: &NyashParser) -> bool {
 }
 
 fn member_postfix_enabled() -> bool {
-    crate::config::env::method_catch()
+    crate::parser::env::method_catch()
 }
 
 fn require_member_postfix_enabled(p: &NyashParser) -> Result<(), ParseError> {

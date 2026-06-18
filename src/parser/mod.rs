@@ -23,6 +23,7 @@ mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
 mod delegate_lowering;
+pub(crate) mod env;
 // depth_tracking.rs was a legacy depth counter for Smart advance.
 // Phase 15.5: removed in favor of TokenCursor-centric newline handling.
 pub mod entry_sugar; // helper to parse with sugar level
@@ -31,6 +32,7 @@ mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
 mod items;
 mod lifecycle;
+pub(crate) mod log;
 mod runes;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
@@ -98,16 +100,16 @@ macro_rules! must_advance {
         // デバッグ燃料がSomeの場合のみ制限チェック
         if let Some(ref mut limit) = $parser.debug_fuel {
             if *limit == 0 {
-                crate::runtime::get_global_ring0().log.error(&format!(
+                $crate::parser::log::error(&format!(
                     "🚨 PARSER INFINITE LOOP DETECTED at {}",
                     $location
                 ));
-                crate::runtime::get_global_ring0().log.error(&format!(
+                $crate::parser::log::error(&format!(
                     "🔍 Current token: {:?} at line {}",
                     $parser.current_token().token_type,
                     $parser.current_token().line
                 ));
-                crate::runtime::get_global_ring0().log.error(&format!(
+                $crate::parser::log::error(&format!(
                     "🔍 Parser position: {}/{}",
                     $parser.current,
                     $parser.tokens.len()

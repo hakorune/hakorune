@@ -30,7 +30,7 @@ pub(crate) fn try_parse_get_computed_property(
     get_line: usize,
     methods: &mut HashMap<String, ASTNode>,
 ) -> Result<Option<String>, ParseError> {
-    if !crate::config::env::unified_members() {
+    if !crate::parser::env::unified_members() {
         return Ok(None);
     }
     let TokenType::IDENTIFIER(fname) = &p.current_token().token_type else {
@@ -125,7 +125,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
     }
 
     // Unified members gate behavior
-    if crate::config::env::unified_members() {
+    if crate::parser::env::unified_members() {
         if try_parse_computed_body(p, fname.clone(), methods)? {
             return Ok(true);
         }
@@ -247,7 +247,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
     }
     if let TokenType::IDENTIFIER(n) = &p.current_token().token_type {
         let n = n.clone();
-        if crate::config::env::unified_members() && n == "get" {
+        if crate::parser::env::unified_members() && n == "get" {
             let get_line = p.current_token().line;
             p.advance();
             if let Some(property_name) = try_parse_get_computed_property(p, get_line, methods)? {

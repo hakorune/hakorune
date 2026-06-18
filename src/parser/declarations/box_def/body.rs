@@ -325,7 +325,7 @@ pub(crate) fn parse_box_member_body(
                 continue;
             }
 
-            if crate::config::env::unified_members() && field_or_method == "get" {
+            if crate::parser::env::unified_members() && field_or_method == "get" {
                 if let Some(_property_name) =
                     crate::parser::declarations::box_def::members::fields::try_parse_get_computed_property(
                         p,
@@ -339,7 +339,7 @@ pub(crate) fn parse_box_member_body(
                 }
             }
 
-            if crate::config::env::unified_members()
+            if crate::parser::env::unified_members()
                 && (field_or_method == "once" || field_or_method == "birth_once")
             {
                 p.ensure_no_pending_runes("unified property")?;

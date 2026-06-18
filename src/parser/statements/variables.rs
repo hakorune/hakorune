@@ -33,7 +33,7 @@ impl NyashParser {
         let debug_parse_local =
             std::env::var("NYASH_DEBUG_PARSE_LOCAL").ok().as_deref() == Some("1");
         if debug_parse_local {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            crate::parser::log::debug(&format!(
                 "[parse_local] entry: current_token={:?} at line {}",
                 self.current_token().token_type,
                 self.current_token().line
@@ -59,7 +59,7 @@ impl NyashParser {
         }
 
         if debug_parse_local {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            crate::parser::log::debug(&format!(
                 "[parse_local] after advance: current_token={:?} at line {}",
                 self.current_token().token_type,
                 self.current_token().line
@@ -143,21 +143,20 @@ impl NyashParser {
         } else {
             // Enhanced error message for debugging
             if debug_parse_local {
-                crate::runtime::get_global_ring0().log.error(&format!(
+                crate::parser::log::error(&format!(
                     "[parse_local] ERROR: Expected IDENTIFIER, found {:?} at line {}",
                     self.current_token().token_type,
                     self.current_token().line
                 ));
-                crate::runtime::get_global_ring0()
-                    .log
-                    .error("[parse_local] ERROR: Previous 3 tokens:");
+                crate::parser::log::error("[parse_local] ERROR: Previous 3 tokens:");
                 for i in 1..=3 {
                     if self.current >= i {
                         let idx = self.current - i;
                         if idx < self.tokens.len() {
-                            crate::runtime::get_global_ring0()
-                                .log
-                                .error(&format!("  [-{}] {:?}", i, self.tokens[idx].token_type));
+                            crate::parser::log::error(&format!(
+                                "  [-{}] {:?}",
+                                i, self.tokens[idx].token_type
+                            ));
                         }
                     }
                 }

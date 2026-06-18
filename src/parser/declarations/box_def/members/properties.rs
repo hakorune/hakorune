@@ -80,7 +80,7 @@ pub(crate) fn try_parse_block_first_property(
     methods: &mut HashMap<String, ASTNode>,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
-    if !(crate::config::env::unified_members() && p.match_token(&TokenType::LBRACE)) {
+    if !(crate::parser::env::unified_members() && p.match_token(&TokenType::LBRACE)) {
         return Ok(false);
     }
     // 1) Parse block body first

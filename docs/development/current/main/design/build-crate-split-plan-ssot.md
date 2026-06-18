@@ -129,12 +129,24 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-AST-PASSIVE-SEAM-001
-next_task=BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001
-purpose=classify and isolate parser config/env and runtime logging references before frontend crate extraction
-implementation_allowed=seam_refactor_only
+latest_done=BUILD-FRONTEND-PARSER-ENV-LOGGING-SEAM-001
+next_task=BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001
+purpose=create the frontend passive AST crate scaffold after external AST refs are isolated
+implementation_allowed=crate_scaffold_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Parser Env/Logging Seam Result
+
+```text
+new_module=src/parser/env.rs
+new_module=src/parser/log.rs
+parser_config_env_direct_refs_outside_facade=0
+parser_runtime_logger_direct_refs_outside_facade=0
+ast_external_refs_outside_literal_box_bridge=0
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-AST-PASSIVE-CRATE-SCAFFOLD-001
 ```
 
 ## Frontend AST Passive Seam Result

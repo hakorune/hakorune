@@ -24,7 +24,7 @@ impl NyashParser {
                 };
                 let ok = crate::grammar::engine::get().syntax_is_allowed_binop(name);
                 if !ok {
-                    crate::runtime::get_global_ring0().log.warn(&format!(
+                    crate::parser::log::warn(&format!(
                         "[GRAMMAR-DIFF][Parser] binop '{}' not allowed by syntax rules",
                         name
                     ));

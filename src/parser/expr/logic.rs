@@ -13,9 +13,9 @@ impl NyashParser {
             if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
                 let ok = crate::grammar::engine::get().syntax_is_allowed_binop("or");
                 if !ok {
-                    crate::runtime::get_global_ring0()
-                        .log
-                        .warn("[GRAMMAR-DIFF][Parser] binop 'or' not allowed by syntax rules");
+                    crate::parser::log::warn(
+                        "[GRAMMAR-DIFF][Parser] binop 'or' not allowed by syntax rules",
+                    );
                 }
             }
             expr = ASTNode::BinaryOp {
@@ -37,9 +37,9 @@ impl NyashParser {
             if std::env::var("NYASH_GRAMMAR_DIFF").ok().as_deref() == Some("1") {
                 let ok = crate::grammar::engine::get().syntax_is_allowed_binop("and");
                 if !ok {
-                    crate::runtime::get_global_ring0()
-                        .log
-                        .warn("[GRAMMAR-DIFF][Parser] binop 'and' not allowed by syntax rules");
+                    crate::parser::log::warn(
+                        "[GRAMMAR-DIFF][Parser] binop 'and' not allowed by syntax rules",
+                    );
                 }
             }
             expr = ASTNode::BinaryOp {
