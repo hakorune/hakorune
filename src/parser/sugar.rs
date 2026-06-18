@@ -3,7 +3,7 @@
 //! Note: This is a shallow AST-to-AST transform; semantic phases remain unchanged.
 
 use crate::ast::ASTNode;
-use crate::syntax::sugar_config::{SugarConfig, SugarLevel};
+use hakorune_frontend_grammar::sugar_config::{SugarConfig, SugarLevel};
 
 pub fn apply_sugar(ast: ASTNode, cfg: &SugarConfig) -> ASTNode {
     match cfg.level {

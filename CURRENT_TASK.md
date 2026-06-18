@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1167-BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1166-BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1167-BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -129,8 +129,10 @@ Scope: current lane / next lane / restart order only.
   `hakorune-frontend-grammar`, then passive Result/Option prelude enum
   declarations into `hakorune-frontend-ast`. `SugarConfig` and `SugarLevel`
   now live in `hakorune-frontend-grammar` behind the historical
-  `crate::syntax::sugar_config` facade. The next blocker is
-  `BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001`.
+  `crate::syntax::sugar_config` facade. Parser sugar consumers now read the
+  frontend grammar crate directly, leaving zero parser direct syntax sugar
+  facade refs. The next blocker is
+  `BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -366,9 +368,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1167-BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1166-BUILD-FRONTEND-GRAMMAR-CONSUMER-IMPORT-SWITCH-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1169-BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1168-BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1167-BUILD-FRONTEND-PARSER-SYNTAX-PRELUDE-SEAM-PREFLIGHT-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

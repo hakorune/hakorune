@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-FRONTEND-SUGAR-CONFIG-PASSIVE-SPLIT-001
-next_task=BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001
-purpose=switch parser sugar config imports to hakorune_frontend_grammar
-implementation_allowed=import_switch_only
+latest_done=BUILD-FRONTEND-SUGAR-CONSUMER-IMPORT-SWITCH-001
+next_task=BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001
+purpose=move passive Result/Option enum declaration construction into hakorune-frontend-ast
+implementation_allowed=passive_split_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Frontend Sugar Consumer Import Switch Result
+
+```text
+parser_direct_syntax_sugar_refs_before=2
+parser_direct_syntax_sugar_refs_after=0
+consumer_import_target=hakorune_frontend_grammar::sugar_config
+cargo_check_default_green=1
+behavior_changed=0
+selected_next_task=BUILD-FRONTEND-RESULT-OPTION-PRELUDE-PASSIVE-SPLIT-001
 ```
 
 ## Frontend Sugar Config Passive Split Result

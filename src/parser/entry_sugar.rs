@@ -1,6 +1,6 @@
 use crate::parser::sugar_gate;
 use crate::parser::{NyashParser, ParseError};
-use crate::syntax::sugar_config::{SugarConfig, SugarLevel};
+use hakorune_frontend_grammar::sugar_config::{SugarConfig, SugarLevel};
 
 /// Parse code and apply sugar based on a provided level (None/Basic/Full)
 pub fn parse_with_sugar_level(
