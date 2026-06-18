@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1143-BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1142-BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1141-BUILD-VM-REFERENCE-DEFAULT-OFF-IMPLEMENTATION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1144-BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1143-BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1142-BUILD-VM-REFERENCE-DEFAULT-OFF-MEASURE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -89,8 +89,9 @@ Scope: current lane / next lane / restart order only.
   works, and VM execution fail-fasts in the default build. The default-off cold
   release build measured real=149.82s versus the latest default baseline
   real=161.28s. The vm-reference default-off row is closed; Rust VM execution
-  remains available through explicit `--features vm-reference`, and the next
-  blocker is `BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002`.
+  remains available through explicit `--features vm-reference`. The next build
+  split boundary selected is `hakorune-frontend` preflight; the next blocker is
+  `BUILD-FRONTEND-CRATE-PREFLIGHT-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,

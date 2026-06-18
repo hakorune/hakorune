@@ -129,12 +129,23 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-REFERENCE-DEFAULT-OFF-CLOSEOUT-001
-next_task=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
-purpose=select the next build-time reduction boundary after vm-reference default-off is closed
-implementation_allowed=selection_only
+latest_done=BUILD-CRATE-SPLIT-NEXT-BOUNDARY-SELECTION-002
+next_task=BUILD-FRONTEND-CRATE-PREFLIGHT-001
+purpose=preflight parser/ast extraction into hakorune-frontend by classifying cross-layer references
+implementation_allowed=preflight_only
 default_feature_change_allowed=0
 full_no_default_plugin_stub_fix_allowed=0
+```
+
+## Crate Split Next Boundary Selection Result
+
+```text
+selected_next_boundary=hakorune_frontend
+parser_ast_frontend_total_lines=16308
+parser_ast_file_count=92
+parser_ast_cross_layer_reference_count=356
+direct_extraction_allowed=0
+selected_next_task=BUILD-FRONTEND-CRATE-PREFLIGHT-001
 ```
 
 ## VM Reference Default-Off Closeout Result
