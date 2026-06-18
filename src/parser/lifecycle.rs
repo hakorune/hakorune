@@ -1,13 +1,1 @@
-use crate::parser::ParseError;
-use crate::tokenizer::TokenType;
-
-pub(crate) const DIRECT_BIRTH_CALL_EXPECTED: &str =
-    "direct receiver `birth(...)` calls are forbidden; `birth` is a constructor hook fired only by `new`; use `new Box(...)` for construction";
-
-pub(crate) fn direct_birth_call_error(found: TokenType, line: usize) -> ParseError {
-    ParseError::UnexpectedToken {
-        found,
-        expected: DIRECT_BIRTH_CALL_EXPECTED.to_string(),
-        line,
-    }
-}
+pub(crate) use hakorune_frontend_parser::parser::lifecycle::direct_birth_call_error;
