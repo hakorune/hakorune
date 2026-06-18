@@ -98,6 +98,7 @@ impl ReplRunnerBox {
     }
 
     /// 1行評価（内部メソッド）
+    #[cfg(feature = "vm-reference")]
     fn eval_line(&self, line: &str) -> Result<String, String> {
         use crate::backend::mir_interpreter::MirInterpreter;
         use crate::mir::MirCompiler;
@@ -168,6 +169,12 @@ impl ReplRunnerBox {
         }
 
         Ok(display_output)
+    }
+
+    /// REPL execution is a VM reference route until a non-VM REPL terminal is designed.
+    #[cfg(not(feature = "vm-reference"))]
+    fn eval_line(&self, _line: &str) -> Result<String, String> {
+        Err("REPL execution requires the vm-reference feature in this build".to_string())
     }
 
     /// Phase 288.1: Format VMValue for auto-display

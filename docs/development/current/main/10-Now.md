@@ -74,9 +74,9 @@ Related:
   runner callers are now classified. The central terminal fail-fast seam is in
   place for `vm-reference` disabled builds, while emit-mir-json / emit-exe early
   exits are preserved. Direct VM import families remain in JoinIR, REPL, and
-  common VM helpers. The next direct caller selection chose the isolated REPL
-  VM entry because it does not overlap the product EXE/AOT terminal. The next
-  blocker is `BUILD-VM-REPL-REFERENCE-GATE-001`
+  common VM helpers. The isolated REPL VM direct import is now gated; default
+  behavior is unchanged, and no-default VM import errors drop to five. The next
+  blocker is `BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -93,9 +93,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1130-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1129-BUILD-VM-TERMINAL-FAILFAST-SEAM-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1128-BUILD-VM-TERMINAL-EXECUTION-ROUTE-DESIGN-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1131-BUILD-VM-REPL-REFERENCE-GATE-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1130-BUILD-VM-DIRECT-CALLER-GATE-SELECTION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1129-BUILD-VM-TERMINAL-FAILFAST-SEAM-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

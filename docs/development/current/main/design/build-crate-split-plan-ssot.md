@@ -129,10 +129,10 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-001
-next_task=BUILD-VM-REPL-REFERENCE-GATE-001
-purpose=gate the isolated REPL VM direct import with a vm-reference fail-fast path
-implementation_allowed=repl_only
+latest_done=BUILD-VM-REPL-REFERENCE-GATE-001
+next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002
+purpose=select the next remaining VM direct import family after REPL gate
+implementation_allowed=selection_only
 ```
 
 ## Stage 0 Result
@@ -556,6 +556,17 @@ selected_family=runner_repl_vm_reference_gate
 selected_next_task=BUILD-VM-REPL-REFERENCE-GATE-001
 reason=single_public_entry_and_no_product_exe_aot_terminal_overlap
 default_off_claim=0
+```
+
+## VM REPL Reference Gate Result
+
+```text
+implementation_card=BUILD-VM-REPL-REFERENCE-GATE-001
+repl_eval_line_cfg_split=1
+repl_vm_import_outside_cfg=0
+default_behavior_changed=0
+no_default_features_vm_error_count_after=5
+selected_next_task=BUILD-VM-DIRECT-CALLER-GATE-SELECTION-002
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
