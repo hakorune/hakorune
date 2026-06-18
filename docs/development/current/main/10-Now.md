@@ -98,8 +98,9 @@ Related:
   scaffold is created, and `Span` is now owned by `hakorune-frontend-ast`
   behind the historical `crate::ast::Span` re-export. The next passive AST
   family selected is `UnaryOperator` / `BinaryOperator` / `BuildPredicate`;
-  those types now live in `hakorune-frontend-ast` behind the syntax facade. The
-  next blocker is `BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001`
+  those types now live in `hakorune-frontend-ast` behind the syntax facade.
+  `RuneAttr` profile validation now goes through `ast/rune_profile_bridge.rs`.
+  The next blocker is `BUILD-FRONTEND-AST-ATTRS-PASSIVE-SPLIT-001`
 - current manual entry points now route through current record/box,
   concurrency/thread, and object-storage SSOTs instead of stale historical
   Box-only or thread-spawn readings
@@ -116,9 +117,9 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1151-BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1150-BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1149-BUILD-FRONTEND-AST-SPAN-PASSIVE-SPLIT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1152-BUILD-FRONTEND-AST-ATTRS-PROFILE-SEAM-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1151-BUILD-FRONTEND-AST-SYNTAX-PASSIVE-SPLIT-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1150-BUILD-FRONTEND-AST-NEXT-PASSIVE-TYPE-SELECTION-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

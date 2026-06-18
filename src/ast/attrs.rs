@@ -84,9 +84,9 @@ impl RuneAttr {
             "Lowering" if arg0 != "inline_required" => Some(
                 "[freeze:contract][parser/rune] Lowering(inline_required)".to_string(),
             ),
-            "Profile" if !crate::rune_profile_registry::supported_name(arg0) => Some(format!(
+            "Profile" if !super::rune_profile_bridge::supported_name(arg0) => Some(format!(
                 "[freeze:contract][parser/rune] Profile({})",
-                crate::rune_profile_registry::SUPPORTED_PROFILE_NAMES_MSG
+                super::rune_profile_bridge::supported_names_msg()
             )),
             "FastMemory" if arg0.is_empty() => Some(
                 "[freeze:contract][parser/rune] FastMemory(\"contract\") with non-empty contract"
