@@ -157,7 +157,7 @@ Expected: `[tok-stage3] Degrading LOCAL to IDENTIFIER (NYASH_PARSER_STAGE3=false
 
 ## References
 
-- **Tokenizer Stage-3 Gate**: `src/tokenizer/lex_ident.rs:69-89`
+- **Tokenizer Stage-3 Gate**: `crates/hakorune_frontend_parser/src/tokenizer/lex_ident.rs`
 - **Parser Stage-3 Check**: `src/config/env.rs:495-504`
 - **Builder Error Generation**: `src/mir/builder.rs:382-406`
 - **AotPrep Documentation**: `lang/src/llvm_ir/boxes/aot_prep/README.md`

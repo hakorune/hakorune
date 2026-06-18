@@ -1,25 +1,31 @@
 /*!
- * Nyash Tokenizer — split modules (kinds/cursor/whitespace/lexers/engine)
+ * Nyash Tokenizer compatibility facade.
  */
 
-mod cursor;
-mod engine;
-mod env;
 mod kinds;
-mod lex_ident;
-mod lex_number;
-mod log;
-mod lex_string;
-mod whitespace;
 
 pub use kinds::{Token, TokenType, TokenizeError};
 
-/// Nyashトークナイザー
+/// Main-crate tokenizer facade.
+///
+/// The implementation lives in `hakorune-frontend-parser`; this wrapper keeps
+/// the historical `crate::tokenizer::NyashTokenizer` API and installs the main
+/// runtime host before tokenization.
 pub struct NyashTokenizer {
-    pub(crate) input: Vec<char>,
-    pub(crate) position: usize,
-    pub(crate) line: usize,
-    pub(crate) column: usize,
+    inner: hakorune_frontend_parser::tokenizer::NyashTokenizer,
 }
 
-// Public API and core logic are implemented in submodules via impl NyashTokenizer
+impl NyashTokenizer {
+    /// Create a tokenizer through the main crate host boundary.
+    pub fn new(input: impl Into<String>) -> Self {
+        crate::frontend_host::install_frontend_parser_host();
+        Self {
+            inner: hakorune_frontend_parser::tokenizer::NyashTokenizer::new(input),
+        }
+    }
+
+    /// Tokenize the input.
+    pub fn tokenize(&mut self) -> Result<Vec<Token>, TokenizeError> {
+        self.inner.tokenize()
+    }
+}

@@ -1,17 +1,21 @@
-//! Tokenizer compatibility root scaffold.
-//!
-//! Active tokenizer implementation still lives in the main crate. This module
-//! exists so future file-move rows can preserve `crate::tokenizer::*` paths
-//! inside the extracted crate.
+//! Tokenizer implementation root.
 
+mod cursor;
+mod engine;
+mod env;
 pub mod kinds;
+mod lex_ident;
+mod lex_number;
+mod lex_string;
+mod log;
+mod whitespace;
+
 pub use kinds::{Token, TokenType, TokenizeError};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct TokenizerBoundary;
-
-impl TokenizerBoundary {
-    pub const fn name(self) -> &'static str {
-        "tokenizer"
-    }
+/// Nyash tokenizer.
+pub struct NyashTokenizer {
+    pub(crate) input: Vec<char>,
+    pub(crate) position: usize,
+    pub(crate) line: usize,
+    pub(crate) column: usize,
 }
