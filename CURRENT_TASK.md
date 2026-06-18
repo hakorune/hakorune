@@ -13,9 +13,9 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1117-BUILD-MIR-JSON-EMIT-CRATE-CLOSEOUT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1120-BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
@@ -66,8 +66,9 @@ Scope: current lane / next lane / restart order only.
   now has passive root and function summary wiring. The export-model seam is
   closed, direct `mir_json_emit` extraction is still blocked by direct MIR
   references, and the DTO boundary now has passive JSON-ready construction. The
-  backend_aot is selected as the next low-dependency backend-adjacent split
-  boundary, and the next blocker is `BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001`.
+  full backend_aot split is blocked by MirModule/WasmBackend coupling; passive
+  AOT config/error/executable support is selected first, and the next blocker is
+  `BUILD-BACKEND-AOT-PASSIVE-CRATE-SCAFFOLD-001`.
 - historical optimization work moved from boot-amortized exact-kernel selection through
   `MIMALLOC-BODY-TIMING-FRONT-SELECT-001` to
   `EXPRESSION-MATERIALIZATION-COPY-ORIGIN-PROBE-002`,
@@ -303,9 +304,9 @@ Scope: current lane / next lane / restart order only.
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md`
-3. `docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md`
-4. `docs/development/current/main/phases/phase-296x/296x-1117-BUILD-MIR-JSON-EMIT-CRATE-CLOSEOUT-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1120-BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001.md`
+3. `docs/development/current/main/phases/phase-296x/296x-1119-BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001.md`
+4. `docs/development/current/main/phases/phase-296x/296x-1118-BUILD-MIR-JSON-EMIT-POST-SPLIT-MEASURE-001.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`
 6. `docs/development/current/main/design/vm-active-lane-retirement-ssot.md`
 7. `docs/development/current/main/design/compiler-expressivity-first-policy.md`

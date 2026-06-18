@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-BACKEND-NEXT-BOUNDARY-SELECTION-001
-next_task=BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001
-purpose=audit backend_aot dependencies before deciding full split or passive first slice
+latest_done=BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001
+next_task=BUILD-BACKEND-AOT-PASSIVE-CRATE-SCAFFOLD-001
+purpose=scaffold passive AOT config/error/executable support crate before moving compiler pipeline
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -421,6 +421,16 @@ selected_next_boundary=backend_aot
 backend_aot_lines=950
 backend_aot_dependency_refs=4
 selected_next_task=BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001
+```
+
+## Backend AOT Crate Preflight Result
+
+```text
+preflight_card=BUILD-BACKEND-AOT-CRATE-PREFLIGHT-001
+full_backend_aot_crate_split_selected=0
+full_split_blocked_by=MirModule,WasmBackend
+selected_first_slice=aot_passive_config_executable_error
+selected_next_task=BUILD-BACKEND-AOT-PASSIVE-CRATE-SCAFFOLD-001
 ```
 
 ## MIR JSON Export Model Root Summary Wiring Result
