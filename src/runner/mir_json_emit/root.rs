@@ -248,6 +248,8 @@ pub(super) fn build_mir_json_root(
         json!({ "functions": funs })
     };
     insert_root_metadata(&mut root, root_metadata);
+    let serialized_export_document = mir_json_export_model::serialize_document(&export_document);
+    debug_assert_eq!(serialized_export_document, root);
 
     // NOTE: numeric_core strict validation is applied on the AotPrep output
     // (tools/hakorune_emit_mir.sh) rather than at raw MIR emit time. This keeps

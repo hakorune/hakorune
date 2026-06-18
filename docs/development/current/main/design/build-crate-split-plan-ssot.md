@@ -129,9 +129,9 @@ mixed into the crate split commits.
 ## Next Task
 
 ```text
-latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001
-next_task=BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001
-purpose=debug-assert serializer output matches existing root payload before returning it
+latest_done=BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001
+next_task=BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001
+purpose=return serializer payload from build_mir_json_root after parity gate remains green
 implementation_allowed=selection_only_until_dependency_audit
 ```
 
@@ -329,6 +329,16 @@ scaffold_card=BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001
 serializer_function=mir_json_export_model::serialize_document
 serializer_reads_mir_directly=0
 root_builder_wired_to_serializer=0
+json_output_changed=0
+```
+
+## MIR JSON DTO Serializer Parity Wiring Result
+
+```text
+wiring_card=BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001
+serializer_called_from_root_builder=1
+serializer_parity_debug_assert=1
+root_builder_returns_existing_payload=1
 json_output_changed=0
 ```
 

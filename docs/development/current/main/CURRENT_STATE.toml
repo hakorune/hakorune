@@ -1057,13 +1057,13 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/build-crate-split-plan-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1111-BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1112-BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001.md"
 
-latest_card = "BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1111-BUILD-MIR-JSON-DTO-SERIALIZER-SCAFFOLD-001.md"
-latest_card_summary = """Added pure serializer from MirJsonExportDocument to
-serde_json::Value without wiring root emission to it or changing emitted JSON."""
-current_blocker_token = "BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001"
+latest_card = "BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1112-BUILD-MIR-JSON-DTO-SERIALIZER-PARITY-WIRING-001.md"
+latest_card_summary = """Wired DTO serializer parity assertion in build_mir_json_root
+while still returning the existing payload."""
+current_blocker_token = "BUILD-MIR-JSON-DTO-SERIALIZER-RETURN-SWITCH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1099,6 +1099,7 @@ landed_tail = [
   "2026-06-18: 296x-1109 closes passive MIR JSON DTO construction and selects DTO serializer design before crate extraction.",
   "2026-06-18: 296x-1110 defines the MIR JSON DTO serializer seam from MirJsonExportDocument to serde_json::Value.",
   "2026-06-18: 296x-1111 adds pure MIR JSON DTO serializer scaffolding without changing emitted JSON.",
+  "2026-06-18: 296x-1112 wires DTO serializer parity assertion while keeping build_mir_json_root return unchanged.",
   "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution and keeps VM work as semantic-reference / small-subset only.",
   "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains and user-box fastpath gaps are closed.",
   "2026-06-09: 296x-649 selects the userbox/counter-heavy exact-front optimization lane with kilo_micro_userbox_counter_step_chain as the primary front.",

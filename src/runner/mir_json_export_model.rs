@@ -175,8 +175,19 @@ pub(crate) fn serialize_document(document: &MirJsonExportDocument) -> Value {
     let mut root = match document.root_kind {
         MirJsonExportRootKind::FunctionsOnly => json!({ "functions": functions }),
         MirJsonExportRootKind::SchemaVersioned => json!({
-            "schema_version": 1,
-            "kind": "MirModule",
+            "schema_version": "1.0",
+            "capabilities": [
+                "unified_call",
+                "phi",
+                "effects",
+                "callee_typing"
+            ],
+            "metadata": {
+                "generator": "nyash-rust",
+                "phase": "15.5",
+                "build_time": "Phase 15.5 Development",
+                "features": ["mir_call_unification", "json_v1_schema"]
+            },
             "functions": functions
         }),
     };
@@ -409,8 +420,12 @@ mod tests {
 
         let root = serialize_document(&document);
 
-        assert_eq!(root["schema_version"], 1);
-        assert_eq!(root["kind"], "MirModule");
+        assert_eq!(root["schema_version"], "1.0");
+        assert_eq!(
+            root["capabilities"],
+            json!(["unified_call", "phi", "effects", "callee_typing"])
+        );
+        assert_eq!(root["metadata"]["generator"], "nyash-rust");
         assert_eq!(root["functions"], json!([]));
     }
 }
