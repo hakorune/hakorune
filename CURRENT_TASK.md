@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002
+HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task before opening another
-implementation slice.
+Materialize the selected `hakorune_mir_core::value_kind` RustSubset module
+bundle and wrapper.
 ```
 
 Current evidence:
@@ -86,6 +86,7 @@ RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001 is closed by 296x-1338.
 RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001 is closed by 296x-1339.
 RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001 is closed by 296x-1340.
 HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001 is closed by 296x-1341.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002 is closed by 296x-1342.
 ```
 
 Acceptance for the current slice:
@@ -94,26 +95,27 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus any focused selection/inventory command chosen by the new row.
+# plus the focused value_kind bundle/wrapper commands from the new row.
 ```
 
 ## Task Order
 
-1. Review the next app-front candidates listed in 296x-1342.
-2. Select one next implementation row.
-3. Keep implementation_started=0 in the selection row.
-4. Do not add Rust name resolution, `use` resolution, trait/generic semantics,
-   or generated-program execution claims in the selection row.
+1. Generate the selected `value_kind` bundle from the external syn adapter.
+2. Check in the selected manifest, module artifact, generated skeleton, and
+   focused wrapper.
+3. Verify checked-in generated skeleton MIR emit.
+4. Verify wrapper EXE emit.
+5. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002
+HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001
 ```
 
-296x-1341 materialized the selected ID-module bundle and guards it through
-generated-skeleton MIR emit plus wrapper EXE parity. The next step is task
-selection, not implementation.
+296x-1342 selected `hakorune_mir_core::value_kind` as the next single-module
+materialization task. It already has generated-skeleton MIR emit green in the
+selection probe.
 
 ## Pointers
 

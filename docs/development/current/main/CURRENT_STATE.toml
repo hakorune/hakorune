@@ -62,22 +62,23 @@ the next app-front or crate pilot task. The next selected pilot is a focused
 `value_id`. Tuple-struct constructor expressions, compound assignment, and
 Self-qualified calls are skeleton-safe. The selected ID-module bundle is now
 checked in and guarded through generated-skeleton MIR emit and wrapper EXE
-parity. The next blocker is selecting the next app-front task before further
-implementation."""
+parity. The next selected app-front task is materializing the
+`hakorune_mir_core::value_kind` single-module slice."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1342-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1343-HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001.md"
 
-latest_card = "296x-1342-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1342-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002.md"
-latest_card_summary = """296x-1342 selects the next rust-subset-to-hako
-app-front task after the hakorune_mir_core ID-module bundle is materialized and
-guarded."""
+latest_card = "296x-1343-HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1343-HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001.md"
+latest_card_summary = """296x-1343 materializes the selected
+hakorune_mir_core::value_kind single-module RustSubset bundle after 296x-1342
+selected it as the next smallest compiler module with generated-skeleton MIR
+acceptance already green."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002"
+current_blocker_token = "HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -132,4 +133,5 @@ landed_tail = [
   "2026-06-20: 296x-1339 makes compound assignment skeleton-safe as a statement-level Unsupported handoff; next blocker is Self-qualified call skeleton safety.",
   "2026-06-20: 296x-1340 makes Self-qualified calls skeleton-safe and verifies the selected hakorune_mir_core ID-module generated skeleton reaches MIR emit.",
   "2026-06-20: 296x-1341 materializes the selected hakorune_mir_core ID-module bundle and guards it through generated-skeleton MIR emit plus wrapper EXE parity.",
+  "2026-06-20: 296x-1342 selects hakorune_mir_core::value_kind as the next single-module RustSubset materialization task.",
 ]

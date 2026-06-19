@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002
+HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -29,18 +29,19 @@ lane status. The current rust-subset app-front lane is on the selected
 expressions, 296x-1339 cleared compound assignment, and 296x-1340 cleared
 Self-qualified calls as explicit Unsupported handoffs in the external adapter.
 296x-1341 checks in the selected ID-module bundle and guards it through
-generated-skeleton MIR emit plus wrapper EXE parity.
+generated-skeleton MIR emit plus wrapper EXE parity. 296x-1342 selects
+`hakorune_mir_core::value_kind` as the next single-module materialization task.
 
-The next row is 296x-1342. It is a selection row: choose the next app-front task
-before opening another implementation slice.
+The next row is 296x-1343. It should check in the selected `value_kind`
+manifest/module bundle, generated skeleton, and wrapper without adding Rust
+name resolution, runtime semantics, or generated-program execution claims.
 
 ## Next
 
-1. Evaluate next app-front candidates.
-2. Select one next implementation row.
-3. Keep implementation_started=0.
-4. Do not add Rust name resolution, `use` resolution, trait/generic semantics,
-   or generated-program execution claims in the selection row.
+1. Generate and check in the selected `value_kind` bundle.
+2. Add/update the focused wrapper.
+3. Verify checked-in generated skeleton MIR emit.
+4. Verify wrapper EXE emit.
 5. Run:
 
 ```bash
