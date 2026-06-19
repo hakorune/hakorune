@@ -52,24 +52,24 @@ generated top-level function skeletons are accepted as declarations for MIR
 emit without enabling Rust name resolution or generated-program execution. The
 next crate pilot is selected as a focused `hakorune_mir_core` slice:
 `crate::control_ids` plus `crate::types`. That selected slice is now checked in
-and reaches generated-skeleton MIR emit; crate-wrapper EXE still hits the
-existing unsupported pure-shape route shared by earlier crate wrappers."""
+and reaches generated-skeleton MIR emit. Crate-wrapper EXE is unblocked by
+recovering user-box receiver origin from global factory route result box names;
+the next blocker is the pure-route unsupported-shape diagnostic surface."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1332-HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1333-RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001.md"
 
-latest_card = "296x-1332-HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1332-HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001.md"
-latest_card_summary = """296x-1332 checks in the selected `hakorune_mir_core`
-slice (`crate::control_ids` plus `crate::types`), makes unsupported expression
-handoff parse/MIR-safe with a `null` placeholder plus TODO comment, and verifies
-the generated skeleton plus focused wrapper through MIR emit. The next blocker
-is the existing crate-wrapper EXE unsupported-pure-shape route."""
+latest_card = "296x-1333-RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1333-RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001.md"
+latest_card_summary = """296x-1333 unblocks the shared crate-wrapper EXE pure
+route by using GlobalCallRoute.target_result_box_name() to recover user-box
+receiver origin for factory-created JsonNodeInstance values. The next blocker
+is diagnostic hardening for unsupported pure-shape failures."""
 
-current_blocker_token = "RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001"
+current_blocker_token = "PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -115,4 +115,5 @@ landed_tail = [
   "2026-06-20: 296x-1330 accepts generated top-level function skeletons at MIR emit level; next blocker is next crate pilot selection.",
   "2026-06-20: 296x-1331 selects a focused hakorune_mir_core crate pilot slice: crate::control_ids plus crate::types.",
   "2026-06-20: 296x-1332 checks in the hakorune_mir_core selected slice and verifies generated skeleton MIR emit; next blocker is crate-wrapper EXE pure-route unblock.",
+  "2026-06-20: 296x-1333 unblocks crate-wrapper EXE by recovering user-box receiver origins from global factory route result box names; next blocker is unsupported pure-shape diagnostic hardening.",
 ]

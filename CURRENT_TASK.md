@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001
+PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001
 ```
 
 Purpose:
 
 ```text
-Diagnose and unblock the existing `unsupported pure shape` failure for
-RustSubset crate handoff wrappers on the EXE/AOT route.
+Improve the diagnostic surface for `unsupported pure shape` failures so the
+next pure-route blocker reports the relevant callee, route reason, and origin
+evidence without manual MIR JSON walking.
 ```
 
 Current evidence:
@@ -77,6 +78,7 @@ HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1329.
 RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001 is closed by 296x-1330.
 RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001 is closed by 296x-1331.
 HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1332.
+RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001 is closed by 296x-1333.
 ```
 
 Acceptance for the current slice:
@@ -86,29 +88,30 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 # plus a focused crate-wrapper EXE diagnostic command selected by the new row.
+# plus a focused unsupported-pure-shape diagnostic fixture/command selected by the row.
 ```
 
 ## Task Order
 
-1. Reproduce the existing `unsupported pure shape` failure on crate wrappers.
-2. Compare `--emit-mir-json` green vs `--emit-exe` failure to locate the route
-   boundary.
-3. Keep converter core, Rust parser ownership, and crate graph discovery out of
-   the fix.
-4. Add the smallest route/diagnostic fixture needed to make the failure local.
-5. Do not start another crate pilot until crate-wrapper EXE route is understood.
+1. Find the owner of the current pure-route unsupported-shape report fields.
+2. Add callee / route reason / receiver-origin detail without changing route
+   selection.
+3. Prefer a focused unit fixture or diagnostic sample over broad app-front
+   rewrites.
+4. Keep converter core, Rust parser ownership, crate graph discovery, and
+   `json_native` source out of the fix.
+5. After diagnostics are hardened, add a stable crate-wrapper EXE smoke row.
 6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001
+PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001
 ```
 
-The preceding `hakorune_mir_core` selected slice is now checked in and reaches
-generated-skeleton MIR emit. Existing crate wrappers still fail on EXE with
-`unsupported pure shape`, including mini-crate and `hakorune_box_core`, so the
-next row should focus on that shared route.
+The shared crate wrappers now pass EXE after 296x-1333. The next row should
+harden diagnostics so future pure-route unsupported-shape blockers expose the
+local callee / route reason / origin gap directly.
 
 ## Pointers
 

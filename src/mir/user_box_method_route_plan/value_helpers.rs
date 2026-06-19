@@ -71,7 +71,10 @@ pub(crate) fn box_name_from_type(ty: &MirType) -> Option<&str> {
     }
 }
 
-pub(crate) fn global_call_route_result_box_name(route: &GlobalCallRoute) -> Option<&'static str> {
+pub(crate) fn global_call_route_result_box_name(route: &GlobalCallRoute) -> Option<&str> {
+    if let Some(box_name) = route.target_result_box_name() {
+        return Some(box_name);
+    }
     if route.result_origin() == "string" {
         return Some("StringBox");
     }

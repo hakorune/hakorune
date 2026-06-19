@@ -362,6 +362,133 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_resu
 }
 
 #[test]
+fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_object_result() {
+    let mut module = MirModule::new("user_box_global_object_result_receiver_route_test".to_string());
+    module
+        .metadata
+        .user_box_decls
+        .insert("JsonNodeInstance".to_string(), Vec::new());
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "JsonNodeInstance".to_string(),
+        type_id: 31,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+
+    let mut object_set = MirFunction::new(
+        FunctionSignature {
+            name: "JsonNodeInstance.object_set/2".to_string(),
+            params: vec![
+                MirType::Box("JsonNodeInstance".to_string()),
+                MirType::Box("StringBox".to_string()),
+                MirType::Box("JsonNodeInstance".to_string()),
+            ],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    object_set.params = vec![ValueId::new(0), ValueId::new(1), ValueId::new(2)];
+    let mut object_set_block = BasicBlock::new(BasicBlockId::new(0));
+    object_set_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Void,
+    });
+    object_set_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    object_set.add_block(object_set_block);
+
+    let mut create_object = MirFunction::new(
+        FunctionSignature {
+            name: "JsonNode.create_object/0".to_string(),
+            params: vec![],
+            return_type: MirType::Box("JsonNodeInstance".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let mut create_object_block = BasicBlock::new(BasicBlockId::new(0));
+    create_object_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "JsonNodeInstance".to_string(),
+        args: Vec::new(),
+    });
+    create_object_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    create_object.add_block(create_object_block);
+
+    let mut main = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+    main_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(1)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global("JsonNode.create_object/0".to_string())),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    main_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::String("k".to_string()),
+    });
+    main_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(3)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global("JsonNode.create_object/0".to_string())),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    main_block.add_instruction(MirInstruction::Call {
+        dst: None,
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "RuntimeDataBox".to_string(),
+            method: "object_set".to_string(),
+            receiver: Some(ValueId::new(1)),
+            certainty: TypeCertainty::Union,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+        }),
+        args: vec![ValueId::new(2), ValueId::new(3)],
+        effects: EffectMask::PURE,
+    });
+    main_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(4),
+        value: ConstValue::Void,
+    });
+    main_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    main.add_block(main_block);
+
+    module.add_function(object_set);
+    module.add_function(create_object);
+    module.add_function(main);
+
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module);
+
+    let main = module.get_function("main").expect("main");
+    let route = main
+        .metadata
+        .user_box_method_routes
+        .iter()
+        .find(|route| route.method() == "object_set")
+        .expect("JsonNodeInstance.object_set route");
+    assert_eq!(route.box_name(), "JsonNodeInstance");
+    assert_eq!(route.reason(), None, "{route:?}");
+    assert_eq!(route.return_shape(), Some("void_sentinel_i64_zero"));
+}
+
+#[test]
 fn refresh_module_user_box_method_routes_propagates_callee_param_box_to_caller_param() {
     let mut module = MirModule::new("user_box_callee_param_origin_backprop_test".to_string());
     for name in ["Handle", "Page", "Heap"] {
