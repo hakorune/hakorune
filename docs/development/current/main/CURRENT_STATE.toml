@@ -9,28 +9,14 @@ status = "Active"
 date = "2026-06-19"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
-active_lane_status = """Exact-AOT fastpath optimization is paused by
-EXACT-AOT-FASTPATH-PAUSE-CHECKPOINT-001: no fresh compiler optimization owner
-is selected, user-box fastpath gaps are closed, and residue audit is clean.
-Rust VM / .hako VM product-route app validation is retired by
-VM-ACTIVE-LANE-RETIRE-001; EXE/AOT is the primary app/selfhost validation route.
-The active app front is rust-subset-to-hako. The Python reference converter
-passes, the native .hako converter emits MIR JSON, and the embedded fixture,
-FileBox-input, and adapter-fixture EXE/AOT slices now match their expected
-`.hako` outputs, including a nonzero integer literal in the adapter fixture.
-The external Rust parser adapter boundary is documented. The RustSubset
-source-shape coverage batch is closed until a new real input blocker appears.
-JSON native object-key equality is fixed and the temporary critical-key bridge
-is retired. The scan-methods focused blocker for
-`ParserBox.static_const_bitand/2` is green after compile-time owner reductions
-and user-box route-flow origin memoization. The read_next_number_literal family
-stays queued, and the B-lite loop resolver seam remains the structural north
-star; only minimal old-route compatibility patches are allowed when a real gate
-requires them.
-Build crate split planning remains available
-but is paused while this app-front lane is active.
-Detailed landed history lives in the referenced phase cards and design SSOTs,
-not in CURRENT_STATE.toml."""
+active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
+compiler optimization owner is selected. Rust VM / .hako VM product-route app
+validation is retired; EXE/AOT is the primary app/selfhost validation route.
+The active app front is rust-subset-to-hako, with build crate split planning
+available but paused while this app-front lane is active. The latest focused
+scan-methods compiler slice is green, but a touched-module
+`string_corridor_sink` regression is now the active cleanup blocker."""
+
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
@@ -39,8 +25,16 @@ latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1
 
 latest_card = "296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
-latest_card_summary = """The active scan_methods_loop blocker started as a multi-candidate loop shape in `ParserBox.static_const_bitand/2`: `loop(a > 0 || b > 0)` gave `generic_loop_v1` both `a` and `b` candidates. Local implementation probes advanced the original ambiguous-loop freeze and subsequent PHI/origin cycle failures. Follow-up compile-time reductions now share semantic-refresh def maps, batch string-kernel consumer scans, use worklist propagation in DCE/memory-effect, reduce simplify_cfg reachable recomputation, repair value-origin/copy-chain SSOT via ValueOriginQueryContext, reduce DCE liveness/alias membership cost with dense private containers, replace string-corridor use-count HashMap updates with a local dense UseCounts, cache typed-object param/collection def maps, add a shared typed-object StorageQueryContext, make BoxOriginQueryContext use a function-local copy-origin index, and split/memoize user-box route-flow origin inference. The focused direct command now passes with result=0. B-lite remains a legacy registry observer, not a route-selection owner. Next task is commit/closeout of the green scan-methods focused slice; no function-name/source rewrite workaround was used."""
-current_blocker_token = "COREPLAN-SCAN-METHODS-FOCUSED-GATE-CLOSEOUT-001"
+latest_card_summary = """296x-1304 closed the scan-methods focused timeout slice:
+the direct `ParserBox.static_const_bitand/2` VM command now passes result=0
+after compile-time owner reductions and user-box route-flow origin memoization.
+B-lite remains a legacy registry observer, not a route-selection owner. A
+touched-module regression is now active: `cargo test -q string_corridor_sink`
+has two benchmark failures after the dense string-corridor use-count slice.
+Next work is to restore those benchmark routes without source/function-name
+workarounds, then rerun the focused module checks."""
+
+current_blocker_token = "STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -49,76 +43,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-06-18: 296x-1074 pauses exact-AOT fastpath optimization after no fresh compiler owner remains.",
-  "2026-06-18: 296x-1075 retires Rust VM / .hako VM from product-level app execution; EXE/AOT is primary for app/selfhost validation.",
-  "2026-06-18: 296x-1076 starts the build crate split plan: mir_core growth, hakorune-mir-plans, backend, frontend, deeper lowering, then runtime.",
-  "2026-06-18: 296x-1081 records the first cold release build baseline: real=157.37s, user=208.27s, sys=9.49s.",
-  "2026-06-18: 296x-1097 measures post-stage1 cold build at real=158.95s and keeps the split structural rather than a build-time winner.",
-  "2026-06-18: 296x-1142 records vm-reference default-off cold release build at real=149.82s; VM remains explicit-feature semantic reference.",
-  "2026-06-18: frontend AST split is closed; src/ast is now a compatibility facade plus runtime literal Box bridge.",
-  "2026-06-18: frontend parser passive split series is closed; active parser implementation moves require a new design row.",
-  "2026-06-18: 296x-1217 records frontend parser post-split cold release build at real=157.63s with build_time_winner_claim=0.",
-  "2026-06-18: 296x-1218 selects box-core + config as the next build split boundary, audit-only before any passive seam.",
-  "2026-06-18: 296x-1219/1220 select the first box-core seam: move FactoryPolicy / FactoryType into hakorune-box-core behind a facade.",
-  "2026-06-18: 296x-1221 moves FactoryPolicy / FactoryType into hakorune-box-core while preserving crate::box_factory compatibility imports.",
-  "2026-06-18: 296x-1222 records box-core/config post-split cold release build at real=150.16s with build_time_winner_claim=0.",
-  "2026-06-18: 296x-1223..1225 move PluginExecMode into hakorune-box-core while preserving crate::config::env compatibility imports.",
-  "2026-06-18: 296x-1226 records PluginExecMode post-split cold release build at real=159.44s with build_time_winner_claim=0.",
-  "2026-06-18: 296x-1227 closes the first box-core/config passive seam burst and returns to global boundary selection.",
-  "2026-06-18: 296x-1228 reopens rust-subset-to-hako and pins the EXE/AOT blocker at JsonParser.parse/1.",
-  "2026-06-18: 296x-1229 closes the embedded rust-subset-to-hako EXE/AOT parity slice; next is input route selection.",
-  "2026-06-19: rust-subset-to-hako FileBox input wrapper closes on EXE/AOT parity; next is external adapter boundary.",
-  "2026-06-19: rust-subset-to-hako external adapter boundary is documented as file-based RustSubset JSON v0 handoff.",
-  "2026-06-19: rust-subset-to-hako adapter fixture handoff closes on EXE/AOT parity; next is JSON nonzero integer parse hardening.",
-  "2026-06-19: bool-returning user/global calls now normalize ABI i64 results to i1 before branch/not use on EXE/AOT.",
-  "2026-06-19: JSON nonzero integer parsing is stable for accepted v0 fixture values; adapter fixture restores value + 1 parity.",
-  "2026-06-19: App-front boundary template SSOT fixes Main/App/InputRoute/EXE-AOT acceptance structure before next input work.",
-  "2026-06-19: rust-subset-to-hako selects a syn-based host adapter and scaffolds the first Rust source -> RustSubset JSON v0 producer.",
-  "2026-06-19: syn adapter coverage normalizes Rust tail-expression returns and adds optional simple_input semantic parity smoke.",
-  "2026-06-19: syn adapter unsupported-shape probe preserves unsupported trait items as explicit Unsupported handoff nodes.",
-  "2026-06-19: rust-subset-to-hako adds RustSubset If statement support through schema, syn adapter, Python/.hako converters, and EXE/AOT fixture parity.",
-  "2026-06-19: rust-subset-to-hako adds RustSubset Assign statement support through schema, syn adapter, Python/.hako converters, and EXE/AOT fixture parity.",
-  "2026-06-19: rust-subset taskboard now records syn_adapter module split planning and the separate CorePlan loop/break recipe acceptance backlog.",
-  "2026-06-19: syn adapter module split closes behavior-unchanged; main.rs is now a thin facade over cli/items/functions/stmts/exprs/types.",
-  "2026-06-19: rust-subset-to-hako adds RustSubset While statement support mapped to .hako loop(cond) with EXE/AOT fixture parity.",
-  "2026-06-19: rust-subset-to-hako adds Rust vec![...] literal transport as RustSubset ArrayLiteral with EXE/AOT fixture parity.",
-  "2026-06-19: read_next_number_literal staged loop/break acceptance is taskized as a compiler-only Recipe/CorePlan backlog, separate from rust-subset app-front shapes.",
-  "2026-06-19: read_next_number_literal staged loop/break source canary is captured and default EXE/AOT-green; planner_required gap inventory remains next.",
-  "2026-06-19: read_next_number_literal staged loop/break canary is planner_required-green via existing LoopSimpleWhile + flowbox/adopt break route; json_native restore probe is next.",
-  "2026-06-19: json_native read_number route is active, but out-of-materializer NUMBER payloads still fail after token ArrayBox publication; next owner is token payload stability.",
-  "2026-06-19: json_native NUMBER token payload app-level candidates are non-keepers; next task is lower-substrate owner selection before more implementation.",
-  "2026-06-19: json_native NUMBER payload owner selection picks JsonToken text payload publication; next probe is token get_value after ArrayBox storage.",
-  "2026-06-19: direct JsonToken dynamic text payload survives ArrayBox storage; owner moves to tokenizer/scanner NUMBER production shape.",
-  "2026-06-19: tokenizer/scanner NUMBER production shape is taskized as a probe ladder while token payload stability remains active.",
-  "2026-06-19: JsonScanner.read_number direct substring route is EXE/AOT green; next probe is JsonTokenizer.next_token NUMBER.",
-  "2026-06-19: JsonTokenizer.next_token NUMBER route is EXE/AOT green; next task inventories tokenize()->ArrayBox shape.",
-  "2026-06-19: tokenize()->ArrayBox NUMBER shape inventory selects returned token-array element route recovery.",
-  "2026-06-19: token-array route owner selection picks ArrayBox element-origin metadata propagation; next hardening task is shadow-only origin metadata.",
-  "2026-06-19: recursive Recipe/CorePlan shape backlog is audited; read_next_number_literal canary is green, so future Recipe work requires a new minimal failing fixture.",
-  "2026-06-19: method-returned ArrayBox element-origin shadow metadata is green; next hardening task is backend consumption.",
-  "2026-06-19: backend consumes ArrayBox.get result_origin_box metadata; tokenizer NUMBER payload storage probe is EXE/AOT green.",
-  "2026-06-19: read_next_number_literal real-shape intake is taskized; recursive Recipe/CorePlan implementation still requires a minimal failing fixture.",
-  "2026-06-19: tokenizer NUMBER payload storage probe is promoted to regression with type/value self-checks.",
-  "2026-06-19: number materializer retire is rejected; adapter fixture still needs numeric value conversion owner selection.",
-  "2026-06-19: numeric value conversion owner selection picks JsonNode int_text_value object publication/retrieval as the next probe.",
-  "2026-06-19: recursive Recipe/CorePlan unsupported-shape taskboard is refreshed; implementation still requires a minimal failing fixture.",
-  "2026-06-19: JSON numeric conversion moves to parser source-span integer scanning and retires JsonNumberTextMaterializer.",
-  "2026-06-19: critical JSON key bridge retire probe is rejected; next owner is critical string value publication.",
-  "2026-06-19: critical JSON key bridge retire retry is rejected by full converter parity; next json_native owner is object-key equality.",
-  "2026-06-19: recursive Recipe/CorePlan unsupported-shape taskboard is refreshed with read_next_number_literal full shape first and minimal failing fixture required.",
-  "2026-06-19: rust-subset-to-hako adds Rust else-if support as recursive RustSubset If with EXE/AOT fixture parity.",
-  "2026-06-19: rust-subset-to-hako hardens returnless void function bodies with EXE/AOT fixture parity.",
-  "2026-06-19: rust-subset-to-hako fixture-guards Vec method calls through existing MethodCall transport.",
-  "2026-06-19: rust-subset-to-hako accepts Rust loop without break/continue through existing While true transport.",
-  "2026-06-19: after-loop rust-subset taskboard refresh keeps app-front source transport and compiler Recipe/CorePlan loop/break intake separate.",
-  "2026-06-19: rust-subset-to-hako fixture-guards Rust match as explicit Unsupported handoff without match semantics.",
-  "2026-06-19: rust-subset-to-hako fixture-guards explicit Rust unit return type as void without adapter code changes.",
-  "2026-06-19: rust-subset-to-hako fixture-guards Rust for-loop as explicit Unsupported handoff without iterator semantics.",
-  "2026-06-19: rust-subset source-shape coverage batch is closed; active next lane returns to JSON object-key equality owner selection.",
-  "2026-06-19: generic_loop_v1 accepts scanner multi-exit loop bodies via ThenOnlyExit; next compiler candidate is continue-in-staged-loop.",
-  "2026-06-19: continue-in-staged-loop fixture is captured as expected-fail; next owner is partial carrier PHI handling.",
-  "2026-06-19: real-shape taskboard refresh keeps read_next_number_literal queued and narrows active implementation to COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001.",
-  "2026-06-19: compiler loop tasks are re-aggregated around route-owner debt and a B-lite loop resolver path before further named-shape patching.",
-  "2026-06-19: partial-carrier continue fixture is promoted to green by making generic_loop_v1 pass loop-var next values through edge-local ContinueWithPhiArgs.",
-  "2026-06-19: B-lite loop resolver shadow is wired and registry candidate suppression is selected as the first route-retire target.",
+  "2026-06-19: rust-subset source-shape coverage batch is closed; source transport waits for a new real input blocker.",
+  "2026-06-19: generic_loop_v1 accepts scanner multi-exit loop bodies via ThenOnlyExit.",
+  "2026-06-19: continue-in-staged-loop is promoted green through edge-local ContinueWithPhiArgs.",
+  "2026-06-19: compiler loop tasks are re-aggregated around route-owner debt and B-lite loop resolver shadowing.",
+  "2026-06-19: B-lite loop resolver shadow is wired; it remains an observer, not a selection owner.",
+  "2026-06-19: registry candidate suppression is selected as the first route-retire target, gated by focused evidence.",
+  "2026-06-19: scan-methods focused blocker moves from loop-route ambiguity to compile-time owner reduction.",
+  "2026-06-19: def-map sharing, dense DCE/string-corridor containers, typed-object query contexts, and route-flow memoization reduce the focused timeout.",
+  "2026-06-19: 296x-1304 closes the focused scan-methods command with result=0.",
+  "2026-06-19: active cleanup task is the touched-module `string_corridor_sink` regression before further compiler route work.",
 ]

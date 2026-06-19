@@ -15,7 +15,7 @@ pub(super) fn collect_retained_len_plans(
                 continue;
             };
             let receiver_root = resolve_value_origin(function, def_map, receiver);
-            if use_counts.get(&receiver_root).copied().unwrap_or(0) != 1 {
+            if !has_single_observable_corridor_use(function, use_counts, receiver_root) {
                 continue;
             }
 

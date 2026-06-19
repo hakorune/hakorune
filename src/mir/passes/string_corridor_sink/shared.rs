@@ -51,6 +51,75 @@ pub(super) fn build_use_counts(function: &MirFunction) -> UseCounts {
     uses
 }
 
+fn observable_corridor_use_count(function: &MirFunction, value: ValueId) -> usize {
+    fn count_value(
+        function: &MirFunction,
+        value: ValueId,
+        visited: &mut BTreeSet<ValueId>,
+    ) -> usize {
+        if !visited.insert(value) {
+            return 2;
+        }
+
+        let mut count = 0usize;
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                match inst {
+                    MirInstruction::Copy { dst, src } if *src == value => {
+                        count += count_value(function, *dst, visited);
+                    }
+                    _ => {
+                        count += inst
+                            .used_values()
+                            .into_iter()
+                            .filter(|used| *used == value)
+                            .count();
+                    }
+                }
+                if count > 1 {
+                    return count;
+                }
+            }
+
+            if let Some(term) = &block.terminator {
+                count += term
+                    .used_values()
+                    .into_iter()
+                    .filter(|used| *used == value)
+                    .count();
+                if count > 1 {
+                    return count;
+                }
+            }
+
+            for edge in block.out_edges() {
+                if let Some(args) = edge.args {
+                    count += args.values.iter().filter(|used| **used == value).count();
+                    if count > 1 {
+                        return count;
+                    }
+                }
+            }
+        }
+
+        count
+    }
+
+    count_value(function, value, &mut BTreeSet::new())
+}
+
+pub(super) fn has_single_observable_corridor_use(
+    function: &MirFunction,
+    use_counts: &UseCounts,
+    value: ValueId,
+) -> bool {
+    match use_counts.get(&value).copied().unwrap_or(0) {
+        1 => true,
+        0 => false,
+        _ => observable_corridor_use_count(function, value) == 1,
+    }
+}
+
 pub(super) fn placement_effect_string_window_for_value(
     function: &MirFunction,
     value: ValueId,
@@ -98,7 +167,7 @@ pub(super) fn collect_plans(
             };
 
             let receiver_root = resolve_value_origin(function, def_map, receiver);
-            if use_counts.get(&receiver_root).copied().unwrap_or(0) != 1 {
+            if !has_single_observable_corridor_use(function, use_counts, receiver_root) {
                 continue;
             }
 

@@ -165,16 +165,13 @@ pub(crate) fn match_substring_call(
             args,
             effects,
             ..
-        } if is_slice_method_name(method)
-            && ((args.len() == 2)
-                || (args.len() == 3 && args.first().is_some_and(|arg| arg == receiver))) =>
-        {
-            let (start, end) = if args.len() == 3 {
-                (args[1], args[2])
+        } if is_slice_method_name(method) && matches!(args.len(), 2 | 3) => {
+            let (source, start, end) = if args.len() == 3 {
+                (args[0], args[1], args[2])
             } else {
-                (args[0], args[1])
+                (*receiver, args[0], args[1])
             };
-            Some((*dst, *receiver, start, end, *effects))
+            Some((*dst, source, start, end, *effects))
         }
         MirInstruction::Call {
             dst: Some(dst),
@@ -247,16 +244,13 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
                 }),
             args,
             ..
-        } if is_slice_method_name(method)
-            && ((args.len() == 2)
-                || (args.len() == 3 && args.first().is_some_and(|arg| arg == source))) =>
-        {
-            let (start, end) = if args.len() == 3 {
-                (args[1], args[2])
+        } if is_slice_method_name(method) && matches!(args.len(), 2 | 3) => {
+            let (source, start, end) = if args.len() == 3 {
+                (args[0], args[1], args[2])
             } else {
-                (args[0], args[1])
+                (*source, args[0], args[1])
             };
-            Some((*source, start, end))
+            Some((source, start, end))
         }
         MirInstruction::Call {
             callee: Some(Callee::Extern(name)),
