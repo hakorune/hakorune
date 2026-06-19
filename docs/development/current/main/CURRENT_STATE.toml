@@ -14,27 +14,28 @@ compiler optimization owner is selected. Rust VM / .hako VM product-route app
 validation is retired; EXE/AOT is the primary app/selfhost validation route.
 The active app front is rust-subset-to-hako, with build crate split planning
 available but paused while this app-front lane is active. The focused
-scan-methods compiler slice, touched-module string-corridor regression, and
-PHI input rematerialization operand memo slice are green. String-corridor
-stable-length hint fallback retirement is also green. The active blocker is now
-loop-route actual selection tracing before suppression retirement / app-front
-work."""
+scan-methods compiler slice, touched-module string-corridor regression, PHI
+input rematerialization operand memo slice, and string-corridor stable-length
+hint fallback retirement are green. The rust-subset app-front smoke is green
+again after reopening the `JsonParser.parse_array` loop(true) shape through
+loop_true_break_continue. The active blocker is app-front next-task selection."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1308-RUST-SUBSET-APP-FRONT-LOOP-TRUE-BREAK-CONTINUE-SMOKE-CLOSEOUT-001.md"
 
-latest_card = "296x-1307-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1307-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-CLOSEOUT-001.md"
-latest_card_summary = """296x-1307 closes
-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE: string-corridor planning now
-reads typed StringCorridorRelation stable-length evidence and no longer parses
-optimization_hints strings as correctness evidence. Focused string-corridor and
-cargo-check gates are green. Next work is COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001."""
+latest_card = "296x-1308-RUST-SUBSET-APP-FRONT-LOOP-TRUE-BREAK-CONTINUE-SMOKE-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1308-RUST-SUBSET-APP-FRONT-LOOP-TRUE-BREAK-CONTINUE-SMOKE-CLOSEOUT-001.md"
+latest_card_summary = """296x-1308 closes the rust-subset app-front smoke
+reopen: JsonParser.parse_array/0 is owned by loop_true_break_continue via the
+recipe-first ExitAllowed path, including effectful continue-prelude branches.
+Focused loop-route tests, cargo-check, release build, and
+apps/rust-subset-to-hako/smoke.sh are green. Next work is app-front task
+selection."""
 
-current_blocker_token = "COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001"
+current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -55,4 +56,5 @@ landed_tail = [
   "2026-06-19: 296x-1305 closes the touched-module `string_corridor_sink` regression; next blocker is PHI input remat operand memoization.",
   "2026-06-19: 296x-1306 closes PHI input remat operand memoization; next blocker is string-corridor stable-length hint fallback retirement.",
   "2026-06-19: 296x-1307 retires stable-length hint parsing as correctness evidence; next blocker is loop actual-selection trace.",
+  "2026-06-19: 296x-1308 restores rust-subset app-front smoke through loop_true_break_continue ExitAllowed coverage for parse_array-class loop(true) shapes.",
 ]

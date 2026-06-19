@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, Span};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::stmt_view::flatten_scope_boxes;
 use crate::mir::builder::control_flow::generic_loop_canon::{
@@ -27,7 +27,10 @@ use super::super::super::body_check::step_validation::{
 };
 use super::super::super::facts_helpers::reject_or_none;
 use super::super::super::facts_types::GenericLoopV1Facts;
-use super::collection::{body_has_break_or_continue_stmt, collect_loop_var_candidates_from_body};
+use super::collection::{
+    body_has_break_or_continue_stmt, collect_increment_loop_var_candidates_from_body,
+    collect_loop_var_candidates_from_body,
+};
 
 #[derive(Default)]
 struct V1RejectCounters {
@@ -90,7 +93,11 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
 
     let mut loop_var_candidates = canon.loop_var_candidates;
     if loop_var_candidates.is_empty() {
-        loop_var_candidates = collect_loop_var_candidates_from_body(&flat_body);
+        loop_var_candidates = if is_bool_literal_condition(condition) {
+            collect_increment_loop_var_candidates_from_body(&flat_body)
+        } else {
+            collect_loop_var_candidates_from_body(&flat_body)
+        };
     }
 
     let raw_candidates = loop_var_candidates.len();
@@ -367,6 +374,16 @@ fn preferred_loop_var_from_condition(condition: &ASTNode) -> Option<String> {
         ASTNode::BinaryOp { left, .. } => extract_var_candidate_from_expr(left),
         _ => None,
     }
+}
+
+fn is_bool_literal_condition(condition: &ASTNode) -> bool {
+    matches!(
+        condition,
+        ASTNode::Literal {
+            value: LiteralValue::Bool(_),
+            ..
+        }
+    )
 }
 
 fn extract_var_candidate_from_expr(expr: &ASTNode) -> Option<String> {

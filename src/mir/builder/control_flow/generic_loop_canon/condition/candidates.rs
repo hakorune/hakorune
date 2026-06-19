@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 
 pub(in crate::mir::builder) fn collect_candidates_from_top_level_comparison(
     condition: &ASTNode,
@@ -35,6 +35,10 @@ pub(in crate::mir::builder) fn collect_candidates_from_condition(
             operand,
             ..
         } => collect_candidates_from_condition(operand, candidates),
+        ASTNode::Literal {
+            value: LiteralValue::Bool(_),
+            ..
+        } => true,
         ASTNode::MethodCall { .. } | ASTNode::FunctionCall { .. } => true,
         ASTNode::BinaryOp {
             operator: BinaryOperator::And | BinaryOperator::Or,

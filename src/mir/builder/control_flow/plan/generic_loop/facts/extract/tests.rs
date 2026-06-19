@@ -71,6 +71,13 @@ mod tests {
         }
     }
 
+    fn lit_b(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: Span::unknown(),
+        }
+    }
+
     fn bin(op: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
         ASTNode::BinaryOp {
             operator: op,
@@ -215,6 +222,39 @@ mod tests {
                 .expect("no freeze")
                 .expect("should match");
             assert_eq!(facts.loop_var, "j");
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_allows_true_condition_with_body_step_candidate() {
+        with_joinir_env(None, None, || {
+            let cond = lit_b(true);
+            let body = vec![assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1)))];
+
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("v1: no freeze")
+                .expect("v1 should match body-derived loop var under loop(true)");
+            assert_eq!(facts.loop_var, "i");
+            assert_is_loop_var_plus_one(&facts.loop_increment, "i");
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_true_condition_ignores_receiver_method_noise() {
+        with_joinir_env(None, None, || {
+            let cond = lit_b(true);
+            let body = vec![
+                local_init("value", me_method_call("parse_value")),
+                method_call("array_node", "array_push"),
+                me_method_call("match_token"),
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
+
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("v1: no freeze")
+                .expect("v1 should ignore receiver method noise under loop(true)");
+            assert_eq!(facts.loop_var, "i");
+            assert_is_loop_var_plus_one(&facts.loop_increment, "i");
         });
     }
 

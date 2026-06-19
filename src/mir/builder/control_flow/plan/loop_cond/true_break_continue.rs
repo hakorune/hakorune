@@ -48,12 +48,7 @@ pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
     // This is critical for Stage-B parser loops such as `parse_block` where the body may contain
     // nested loops (e.g. whitespace skipping) and join-bearing `if` statements.
     let allow_extended = true;
-    let continue_prelude_effect = body_has_continue_prelude_effect(body);
-    let body_exit_allowed = if continue_prelude_effect {
-        None
-    } else {
-        try_build_exit_allowed_block_recipe(body, allow_extended)
-    };
+    let body_exit_allowed = try_build_exit_allowed_block_recipe(body, allow_extended);
     if let Some(body_exit_allowed) = body_exit_allowed {
         return Ok(Some(LoopTrueBreakContinueFacts {
             recipe: LoopCondRecipe::new(body.to_vec(), Vec::new()),
@@ -264,58 +259,6 @@ fn is_general_if_body(body: &[ASTNode]) -> bool {
     true
 }
 
-fn body_has_continue_prelude_effect(body: &[ASTNode]) -> bool {
-    branch_has_continue_prelude_effect(body) || body.iter().any(stmt_has_continue_prelude_effect)
-}
-
-fn stmt_has_continue_prelude_effect(stmt: &ASTNode) -> bool {
-    match stmt {
-        ASTNode::If {
-            then_body,
-            else_body,
-            ..
-        } => {
-            branch_has_continue_prelude_effect(then_body)
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| branch_has_continue_prelude_effect(body))
-                || body_has_continue_prelude_effect(then_body)
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| body_has_continue_prelude_effect(body))
-        }
-        ASTNode::Program { statements, .. } => body_has_continue_prelude_effect(statements),
-        ASTNode::ScopeBox { body, .. } => body_has_continue_prelude_effect(body),
-        ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => false,
-        _ => false,
-    }
-}
-
-fn branch_has_continue_prelude_effect(body: &[ASTNode]) -> bool {
-    let Some(ASTNode::Continue { .. }) = body.last() else {
-        return false;
-    };
-    body[..body.len().saturating_sub(1)]
-        .iter()
-        .any(stmt_is_effectful_continue_prelude)
-}
-
-fn stmt_is_effectful_continue_prelude(stmt: &ASTNode) -> bool {
-    match stmt {
-        ASTNode::Assignment { .. }
-        | ASTNode::Local { .. }
-        | ASTNode::MethodCall { .. }
-        | ASTNode::FunctionCall { .. }
-        | ASTNode::Call { .. }
-        | ASTNode::Print { .. } => true,
-        ASTNode::Program { statements, .. } => {
-            statements.iter().any(stmt_is_effectful_continue_prelude)
-        }
-        ASTNode::ScopeBox { body, .. } => body.iter().any(stmt_is_effectful_continue_prelude),
-        _ => false,
-    }
-}
-
 fn is_if_tail_exit_pair(stmt: &ASTNode, next: Option<&ASTNode>) -> bool {
     let ASTNode::If {
         then_body,
@@ -496,6 +439,76 @@ mod tests {
         }
     }
 
+    fn null_lit() -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Null,
+            span: Span::unknown(),
+        }
+    }
+
+    fn str_lit(value: &str) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::String(value.to_string()),
+            span: Span::unknown(),
+        }
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn me_call(method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+        ASTNode::MethodCall {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            method: method.to_string(),
+            arguments,
+            span: Span::unknown(),
+        }
+    }
+
+    fn receiver_call(receiver: &str, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+        ASTNode::MethodCall {
+            object: Box::new(var(receiver)),
+            method: method.to_string(),
+            arguments,
+            span: Span::unknown(),
+        }
+    }
+
+    fn local(name: &str, value: ASTNode) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![Some(Box::new(value))],
+            declared_type_names: vec![None],
+            span: Span::unknown(),
+        }
+    }
+
+    fn ret(value: ASTNode) -> ASTNode {
+        ASTNode::Return {
+            value: Some(Box::new(value)),
+            span: Span::unknown(),
+        }
+    }
+
+    fn if_stmt(
+        condition: ASTNode,
+        then_body: Vec<ASTNode>,
+        else_body: Option<Vec<ASTNode>>,
+    ) -> ASTNode {
+        ASTNode::If {
+            condition: Box::new(condition),
+            then_body,
+            else_body,
+            span: Span::unknown(),
+        }
+    }
+
     fn binop(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
         ASTNode::BinaryOp {
             operator,
@@ -543,6 +556,56 @@ mod tests {
                 else_body: None,
                 span: Span::unknown(),
             }];
+
+            let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
+                .expect("no freeze")
+                .expect("facts");
+
+            assert!(matches!(
+                facts.lowering,
+                LoopTrueBreakContinueLowering::ExitAllowed(_)
+            ));
+        });
+    }
+
+    #[test]
+    fn policy_exit_allowed_accepts_continue_prelude_with_else_exit_tree() {
+        with_loop_true_break_continue_env(|| {
+            std::env::remove_var("NYASH_JOINIR_DEV");
+            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
+
+            let condition = bool_lit(true);
+            let body = vec![
+                local("value", me_call("parse_value", vec![])),
+                if_stmt(
+                    binop(BinaryOperator::Equal, var("value"), null_lit()),
+                    vec![ret(null_lit())],
+                    None,
+                ),
+                receiver_call("array_node", "array_push", vec![var("value")]),
+                if_stmt(
+                    me_call("match_token", vec![str_lit("COMMA")]),
+                    vec![
+                        receiver_call("JsonParserTrace", "log", vec![str_lit("array comma")]),
+                        ASTNode::Continue {
+                            span: Span::unknown(),
+                        },
+                    ],
+                    Some(vec![if_stmt(
+                        me_call("match_token", vec![str_lit("RBRACKET")]),
+                        vec![
+                            receiver_call("JsonParserTrace", "log", vec![str_lit("exit array")]),
+                            ASTNode::Break {
+                                span: Span::unknown(),
+                            },
+                        ],
+                        Some(vec![
+                            me_call("add_error_expected", vec![str_lit("',' or ']' in array")]),
+                            ret(null_lit()),
+                        ]),
+                    )]),
+                ),
+            ];
 
             let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
                 .expect("no freeze")

@@ -20,29 +20,29 @@ Related:
 ## Active Blocker
 
 ```text
-COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
 ```
 
-The scan-methods focused timeout slice is closed by 296x-1304, and the touched
-string-corridor regression is closed by 296x-1305. PHI input rematerialization
-identity is closed by 296x-1306. String-corridor stable-length hint fallback
-retirement is closed by 296x-1307. Record actual legacy loop route selection
-before suppression retirement / app-front work.
+The scan-methods focused timeout slice is closed by 296x-1304, the touched
+string-corridor regression is closed by 296x-1305, PHI input rematerialization
+identity is closed by 296x-1306, and string-corridor stable-length hint fallback
+retirement is closed by 296x-1307. The rust-subset app-front smoke reopen is
+closed by 296x-1308; `JsonParser.parse_array/0` is owned by
+loop_true_break_continue via the recipe-first ExitAllowed path.
 
 ## Next
 
-1. Locate the legacy loop route registry / handler success seam.
-2. Record the actual route whose handler returned success.
-3. Keep B-lite resolver shadow read-only.
+1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
+2. Select the next rust-subset-to-hako app-front slice.
+3. Keep converter core separate from input routes.
 4. Run:
 
 ```bash
-cargo test -q loop_route
 cargo check -q --lib
-cargo test -q string_corridor_sink
+bash apps/rust-subset-to-hako/smoke.sh
 ```
 
-5. Commit the actual-selection trace slice separately.
+5. Update current pointers when the next slice is chosen.
 
 ## Recently Closed
 
@@ -58,6 +58,10 @@ cargo test -q string_corridor_sink
   - string-corridor planning reads typed stable-length relations
   - diagnostic stable-length hints remain output-only
   - hint parsing as correctness evidence retired
+- `RUST-SUBSET-APP-FRONT-LOOP-TRUE-BREAK-CONTINUE-SMOKE-CLOSEOUT-001`
+  - `parse_array`-class loop(true) shapes use loop_true_break_continue
+  - effectful continue-prelude branches are accepted through ExitAllowed
+  - full rust-subset app-front smoke is green
 
 Closeout evidence:
 
@@ -70,6 +74,7 @@ cargo test -q string_kernel_plan
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+bash apps/rust-subset-to-hako/smoke.sh
 ```
 
 ## Paused Lanes

@@ -54,6 +54,7 @@ else_if_fixture_parity=ok
 returnless_void_body_fixture_parity=ok
 vec_method_fixture_parity=ok
 loop_without_break_fixture_parity=ok
+full_smoke_exe_aot=ok
 ```
 
 ## Current Scope Boundary
@@ -97,6 +98,11 @@ retired, and converter call sites do not carry schema-specific lookup logic.
 payloads remain transport/diagnostic text, while `JsonParser.parse_number()`
 constructs semantic integer values by scanning `source_text[token.start..end]`
 directly.
+
+The app-front smoke also exercises parser `loop(true)` bodies such as
+`JsonParser.parse_array()`. These are compiler-owned loop route shapes:
+`loop_true_break_continue` owns loop-variable-free parser loops, while
+`generic_loop_v1` remains the loop-variable route.
 
 ## Task Board
 

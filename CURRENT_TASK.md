@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Record the actual legacy loop route whose handler succeeds, so B-lite resolver
-shadow diagnostics can compare against the real selected route instead of raw
-candidate lists.
+Choose the next rust-subset-to-hako app-front slice after the EXE/AOT smoke
+returned to green.
 ```
 
 Current evidence:
@@ -50,26 +49,24 @@ Current evidence:
 STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001 is closed by 296x-1305.
 PHI-INPUT-REMAT-OPERAND-MEMO-001 is closed by 296x-1306.
 STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001 is closed by 296x-1307.
-The next cleanup is loop actual-selection trace.
+RUST-SUBSET-APP-FRONT-LOOP-TRUE-BREAK-CONTINUE-SMOKE-CLOSEOUT-001 is closed by
+296x-1308. `apps/rust-subset-to-hako/smoke.sh` reports `summary=ok`.
 ```
 
 Acceptance for the current slice:
 
 ```bash
-cargo test -q loop_route
 cargo check -q --lib
-cargo test -q string_corridor_sink
+bash apps/rust-subset-to-hako/smoke.sh
 ```
 
 ## Task Order
 
-1. Locate the legacy loop route registry / handler success seam.
-2. Add typed actual-selected-route observation without changing selection.
-3. Keep B-lite resolver shadow read-only and do not delete suppression
-   branches in this row.
-4. Re-run the focused checks above.
-5. Commit separately from later suppression retirement or rust-subset-to-hako
-   app-front work.
+1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
+2. Select the next app-front slice without reopening fastpath/perf work.
+3. Keep converter core separate from input routes.
+4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
+5. Update `CURRENT_STATE.toml` when the next slice is chosen.
 
 ## Pointers
 

@@ -101,6 +101,76 @@ pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(
     out
 }
 
+pub(in crate::mir::builder) fn collect_increment_loop_var_candidates_from_body(
+    body: &[ASTNode],
+) -> Vec<String> {
+    let mut out = Vec::new();
+    fn walk(stmt: &ASTNode, out: &mut Vec<String>) {
+        match stmt {
+            ASTNode::Assignment { target, value, .. } => {
+                if let ASTNode::Variable { name, .. } = target.as_ref() {
+                    if assignment_value_increments_var(value.as_ref(), name)
+                        && !out.iter().any(|v| v == name)
+                    {
+                        out.push(name.clone());
+                    }
+                }
+            }
+            ASTNode::Local { initial_values, .. } => {
+                for init in initial_values.iter().flatten() {
+                    walk(init.as_ref(), out);
+                }
+            }
+            ASTNode::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                for s in then_body {
+                    walk(s, out);
+                }
+                if let Some(eb) = else_body {
+                    for s in eb {
+                        walk(s, out);
+                    }
+                }
+            }
+            ASTNode::Loop { body, .. } => {
+                for s in body {
+                    walk(s, out);
+                }
+            }
+            ASTNode::Program { statements, .. } => {
+                for s in statements {
+                    walk(s, out);
+                }
+            }
+            _ => {}
+        }
+    }
+    for stmt in body {
+        walk(stmt, &mut out);
+    }
+    out
+}
+
+fn assignment_value_increments_var(value: &ASTNode, name: &str) -> bool {
+    let ASTNode::BinaryOp {
+        operator,
+        left,
+        right,
+        ..
+    } = value
+    else {
+        return false;
+    };
+    matches!(
+        operator,
+        crate::ast::BinaryOperator::Add | crate::ast::BinaryOperator::Subtract
+    ) && (matches!(left.as_ref(), ASTNode::Variable { name: ln, .. } if ln == name)
+        || matches!(right.as_ref(), ASTNode::Variable { name: rn, .. } if rn == name))
+}
+
 fn receiver_candidate_name(object: &ASTNode) -> Option<String> {
     match object {
         ASTNode::Variable { name, .. } => Some(name.clone()),
