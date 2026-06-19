@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001
+COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001
 ```
 
 Purpose:
 
 ```text
-Retire string-corridor planning/correctness dependence on diagnostic
-optimization_hints string parsing where typed string-corridor relation / plan
-evidence already covers the route. Keep diagnostic hints output-only.
+Record the actual legacy loop route whose handler succeeds, so B-lite resolver
+shadow diagnostics can compare against the real selected route instead of raw
+candidate lists.
 ```
 
 Current evidence:
@@ -49,26 +49,27 @@ Current evidence:
 ```text
 STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001 is closed by 296x-1305.
 PHI-INPUT-REMAT-OPERAND-MEMO-001 is closed by 296x-1306.
-The next cleanup is stable-length hint fallback retirement.
+STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001 is closed by 296x-1307.
+The next cleanup is loop actual-selection trace.
 ```
 
 Acceptance for the current slice:
 
 ```bash
-cargo test -q string_corridor_sink
-cargo test -q string_kernel_plan
+cargo test -q loop_route
 cargo check -q --lib
+cargo test -q string_corridor_sink
 ```
 
 ## Task Order
 
-1. Inventory `optimization_hints` parsing used as planning/correctness
-   evidence.
-2. Identify typed relation / plan evidence that can replace the fallback.
-3. Retire only the proven fallback path.
+1. Locate the legacy loop route registry / handler success seam.
+2. Add typed actual-selected-route observation without changing selection.
+3. Keep B-lite resolver shadow read-only and do not delete suppression
+   branches in this row.
 4. Re-run the focused checks above.
-5. Commit separately from later loop-route or rust-subset-to-hako app-front
-   work.
+5. Commit separately from later suppression retirement or rust-subset-to-hako
+   app-front work.
 
 ## Pointers
 

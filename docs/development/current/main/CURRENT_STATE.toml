@@ -15,9 +15,10 @@ validation is retired; EXE/AOT is the primary app/selfhost validation route.
 The active app front is rust-subset-to-hako, with build crate split planning
 available but paused while this app-front lane is active. The focused
 scan-methods compiler slice, touched-module string-corridor regression, and
-PHI input rematerialization operand memo slice are green. The active cleanup
-blocker is now string-corridor stable-length hint fallback retirement, before
-returning to loop resolver / app-front work."""
+PHI input rematerialization operand memo slice are green. String-corridor
+stable-length hint fallback retirement is also green. The active blocker is now
+loop-route actual selection tracing before suppression retirement / app-front
+work."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -25,15 +26,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
 
-latest_card = "296x-1306-PHI-INPUT-REMAT-OPERAND-MEMO-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1306-PHI-INPUT-REMAT-OPERAND-MEMO-CLOSEOUT-001.md"
-latest_card_summary = """296x-1306 closes PHI-INPUT-REMAT-OPERAND-MEMO:
-PHI input rematerialization now uses predecessor-local memoization so the same
-predecessor plus same original ValueId reuses the same materialized ValueId.
-Focused PHI materializer, string-corridor, and cargo-check gates are green. Next
-work is STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001."""
+latest_card = "296x-1307-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1307-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-CLOSEOUT-001.md"
+latest_card_summary = """296x-1307 closes
+STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE: string-corridor planning now
+reads typed StringCorridorRelation stable-length evidence and no longer parses
+optimization_hints strings as correctness evidence. Focused string-corridor and
+cargo-check gates are green. Next work is COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001."""
 
-current_blocker_token = "STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001"
+current_blocker_token = "COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -53,4 +54,5 @@ landed_tail = [
   "2026-06-19: 296x-1304 closes the focused scan-methods command with result=0.",
   "2026-06-19: 296x-1305 closes the touched-module `string_corridor_sink` regression; next blocker is PHI input remat operand memoization.",
   "2026-06-19: 296x-1306 closes PHI input remat operand memoization; next blocker is string-corridor stable-length hint fallback retirement.",
+  "2026-06-19: 296x-1307 retires stable-length hint parsing as correctness evidence; next blocker is loop actual-selection trace.",
 ]

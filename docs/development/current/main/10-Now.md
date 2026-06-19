@@ -20,29 +20,29 @@ Related:
 ## Active Blocker
 
 ```text
-STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001
+COREPLAN-LOOP-ACTUAL-SELECTION-TRACE-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, and the touched
 string-corridor regression is closed by 296x-1305. PHI input rematerialization
-identity is closed by 296x-1306. Retire diagnostic hint parsing as
-string-corridor correctness evidence before returning to loop resolver /
-app-front work.
+identity is closed by 296x-1306. String-corridor stable-length hint fallback
+retirement is closed by 296x-1307. Record actual legacy loop route selection
+before suppression retirement / app-front work.
 
 ## Next
 
-1. Inventory `optimization_hints` parsing used by string-corridor planning.
-2. Replace proven fallback evidence with typed relation / plan evidence.
-3. Keep diagnostic hints output-only.
+1. Locate the legacy loop route registry / handler success seam.
+2. Record the actual route whose handler returned success.
+3. Keep B-lite resolver shadow read-only.
 4. Run:
 
 ```bash
-cargo test -q string_corridor_sink
-cargo test -q string_kernel_plan
+cargo test -q loop_route
 cargo check -q --lib
+cargo test -q string_corridor_sink
 ```
 
-5. Commit the stable-length fallback retirement slice separately.
+5. Commit the actual-selection trace slice separately.
 
 ## Recently Closed
 
@@ -54,12 +54,17 @@ cargo check -q --lib
   - predecessor-local rematerialization memo
   - receiver-prefixed substring remat identity preserved
   - accepted remat shapes unchanged
+- `STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001`
+  - string-corridor planning reads typed stable-length relations
+  - diagnostic stable-length hints remain output-only
+  - hint parsing as correctness evidence retired
 
 Closeout evidence:
 
 ```bash
 cargo test -q operand_view
 cargo test -q phi_input_materializer
+cargo test -q string_corridor_relation
 cargo test -q string_corridor_sink
 cargo test -q string_kernel_plan
 cargo check -q --lib
