@@ -1,6 +1,6 @@
 # 296x-1366 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,22 @@ candidate_C=closure unsupported handoff hardening
 candidate_D=next green module inventory
 ```
 
+## Selection Result
+
+```text
+selected_next_task=HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
+selected_scope=materialize crate::type_context single-module RustSubset bundle
+selected_reason=type_context already reaches generated-skeleton MIR emit after reference type spelling was fixed; metadata_context still has a source-shape blocker
+implementation_allowed=0
+next_card_name=296x-1367-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
+summary=ok
+```
+
+`type_context` is the highest-value green candidate because it is a
+MirBuilder-owned context module and now reaches generated-skeleton MIR emit.
+`metadata_context` remains a source-shape blocker lane because its next
+boundary is undefined `Self` value in `HintSink_new`.
+
 ## Selection Rules
 
 ```text
@@ -76,11 +92,11 @@ fixture_or_manifest_gate_available=1
 Produce a decision with:
 
 ```text
-selected_next_task=<token>
-selected_scope=<short description>
-selected_reason=<short reason>
+selected_next_task=HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
+selected_scope=materialize crate::type_context single-module RustSubset bundle
+selected_reason=type_context already reaches generated-skeleton MIR emit; metadata_context still has undefined Self boundary
 implementation_allowed=0
-next_card_name=<card>
+next_card_name=296x-1367-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
 summary=ok
 ```
 

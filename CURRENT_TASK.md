@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013
+HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after reference type
-spelling skeleton-safety was closed.
+Materialize the selected `hakorune_mir_builder::type_context` RustSubset
+single-module bundle.
 ```
 
 Current evidence:
@@ -110,6 +110,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011 is closed by 296x-1362.
 RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001 is closed by 296x-1363.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012 is closed by 296x-1364.
 RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001 is closed by 296x-1365.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013 is closed by 296x-1366.
 ```
 
 Acceptance for the current slice:
@@ -122,22 +123,22 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1366.
-2. Recheck `type_context` materialization readiness and `metadata_context`
-   next-boundary evidence.
-3. Select the next source-shape blocker or materialization row.
-4. Keep generated-program execution claim at 0.
+1. Read 296x-1367.
+2. Check in the selected `type_context` manifest/module bundle.
+3. Add a focused converter wrapper and expected generated `.hako`.
+4. Verify generated-skeleton MIR emit and wrapper EXE parity.
+5. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013
+HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
 ```
 
-296x-1365 closed reference type spelling skeleton-safety. `type_context`
-reaches generated-skeleton MIR emit, while `metadata_context` advances to an
-undefined `Self` value boundary. 296x-1366 selects the next app-front task
-before implementation.
+296x-1366 selected `hakorune_mir_builder::type_context` because it is the next
+green MirBuilder-owned context module after reference type spelling was fixed.
+296x-1367 materializes that bundle only; it must not touch the
+`metadata_context` undefined-Self boundary.
 
 ## Pointers
 
