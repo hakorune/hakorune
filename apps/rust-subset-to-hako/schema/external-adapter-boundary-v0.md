@@ -151,6 +151,17 @@ The preferred next formal contract is a crate manifest JSON that points at
 per-module `RustSubsetModule` JSON artifacts. The manifest is a transport
 index, not a semantic AST replacement for `RustSubsetModule`.
 
+Before a real crate pilot, the adapter/schema layer must preserve Rust path and
+emitted-name identity. This is not a new `.hako` syntax task:
+
+```text
+crate::model::Config must not collapse to Config
+source_name and emitted_name may differ
+reserved-word escaping is adapter-owned
+tuple fields must not emit numeric Hako identifiers
+duplicate emitted_name is fail-fast
+```
+
 Candidate crate-level artifacts and stop lines are documented in:
 
 ```text

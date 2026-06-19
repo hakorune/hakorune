@@ -161,6 +161,20 @@ schema_version != 0 -> fail-fast
 root kind != RustSubsetModule -> fail-fast
 ```
 
+Before a real crate pilot, also close the Rust name/path identity gap:
+
+```text
+crate::model::Config must not collapse to Config
+source_name and emitted_name must be distinct when needed
+.hako reserved-word collisions must be normalized by the adapter
+tuple/unnamed fields must not emit invalid numeric Hako identifiers
+non-identifier Rust patterns must fail or become explicit Unsupported
+duplicate emitted_name must be detected before conversion
+```
+
+This does not require new `.hako` syntax. It is RustSubset schema / adapter
+normalization work.
+
 ## Stop Lines
 
 ```text
@@ -182,6 +196,9 @@ do not add creat-specific names or paths to schema/converter logic
 ```text
 RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
   align .hako converter validation with Python reference before crate handoff
+
+RUST-SUBSET-PATH-NAME-NORMALIZATION-001
+  preserve Rust path identity and deterministic emitted Hako names before crate pilot
 
 RUST-SUBSET-CRATE-MANIFEST-V0-001
   decide B-prime manifest + per-module artifact contract

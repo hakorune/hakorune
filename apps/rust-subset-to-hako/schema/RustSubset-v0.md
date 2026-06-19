@@ -288,3 +288,67 @@ unknown expression kind -> fail-fast
 known unsupported Rust construct -> represent as Unsupported node
 Unsupported node -> emit TODO comment
 ```
+
+## Crate-skeleton P0 Gaps
+
+The current v0 schema is enough for the accepted single-file fixtures. Before
+crate-wide skeleton generation, the adapter/schema layer must stop losing Rust
+path and emitted-name identity.
+
+P0 before crate pilot:
+
+```text
+structured path / symbol reference
+source_name vs emitted_name
+reserved-word escaping policy
+tuple field normalization
+duplicate emitted_name detection
+non-identifier pattern fail-fast / Unsupported
+```
+
+Current limitation:
+
+```text
+crate::model::Config may collapse to Config
+other::Config may also collapse to Config
+```
+
+That is acceptable for existing single-file fixtures but not for multi-module
+handoff.
+
+Candidate direction:
+
+```json
+{
+  "kind": "NameRef",
+  "source_path": ["crate", "model", "Config"],
+  "symbol_id": "crate::model::Config",
+  "emitted_name": "crate_model_Config"
+}
+```
+
+The converter must not perform Rust name resolution. The external adapter owns
+source-path observation and deterministic emitted-name selection; the converter
+prints `emitted_name`.
+
+Tuple structs and unnamed fields must not produce invalid `.hako` identifiers:
+
+```text
+field 0 -> _0
+field 1 -> _1
+```
+
+Alternatively, a future row may classify tuple structs as `Unsupported`. Until
+that row is accepted, do not emit numeric field names such as `0: i64`.
+
+Rust identifiers that collide with `.hako` reserved words must carry both names:
+
+```json
+{
+  "source_name": "type",
+  "emitted_name": "rust_type"
+}
+```
+
+The adapter owns this deterministic normalization. The converter must not grow
+a scattered rename table.

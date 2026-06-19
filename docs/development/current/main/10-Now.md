@@ -36,16 +36,20 @@ function skeleton transport is closed by 296x-1312. Unsupported trait handoff
 hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
 table-driven by 296x-1314. Crate/multi-file handoff boundaries are inventoried
 by 296x-1315; the preferred next contract is manifest plus per-module
-`RustSubsetModule` artifacts, but it is not implemented yet.
+`RustSubsetModule` artifacts, but it is not implemented yet. The next
+crate-skeleton P0 gap is RustSubset path/name normalization, not new `.hako`
+syntax.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
 2. Close `RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001` before crate
    manifest implementation.
-3. Keep converter core separate from input routes and crate/file graph
+3. Then close `RUST-SUBSET-PATH-NAME-NORMALIZATION-001` before a creat-style
+   pilot.
+4. Keep converter core separate from input routes and crate/file graph
    discovery.
-4. Run:
+5. Run:
 
 ```bash
 cargo check -q --lib
@@ -53,7 +57,7 @@ bash apps/rust-subset-to-hako/smoke.sh
 bash apps/rust-subset-to-hako/smoke_adapter.sh
 ```
 
-5. Update current pointers when the next slice is chosen.
+6. Update current pointers when the next slice is chosen.
 
 ## Recently Closed
 
@@ -100,6 +104,7 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - current syn adapter is documented as single-file only
   - crate handoff is scoped toward manifest plus per-module artifacts
   - crate graph discovery remains external to `converter_core.hako`
+  - path/name normalization is identified as P0 before crate pilot
 
 Closeout evidence:
 

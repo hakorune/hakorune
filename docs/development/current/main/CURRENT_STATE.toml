@@ -28,8 +28,9 @@ trait handoff is hardened with RustSubset JSON and `.hako` EXE/AOT fixture
 parity. The rust-subset smoke script is table-driven so future fixture rows do
 not duplicate MIR/EXE/adapter boilerplate. Crate/multi-file handoff is now
 inventoried as an external-adapter boundary concern before any `creat`-style
-pilot. The active blocker is module schema validation parity before crate
-manifest implementation."""
+pilot. The P0 crate-skeleton gap is RustSubset path/name normalization, not new
+`.hako` syntax. The active blocker is module schema validation parity before
+crate manifest implementation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -41,8 +42,8 @@ latest_card = "296x-1315-RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1315-RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001.md"
 latest_card_summary = """296x-1315 inventories crate/multi-file RustSubset
 handoff before any `creat`-style pilot. The current syn adapter remains
-single-file; crate discovery and module/file graph ownership stay external to
-converter_core.hako."""
+single-file; crate discovery stays external to converter_core.hako. The next
+P0 gaps are module validation parity and Rust path/name normalization."""
 
 current_blocker_token = "RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -72,5 +73,5 @@ landed_tail = [
   "2026-06-19: 296x-1312 fixture-guards generic function skeleton transport as type-spelling preservation only; generic semantics are not claimed.",
   "2026-06-19: 296x-1313 hardens unsupported trait handoff with RustSubset JSON and .hako EXE/AOT parity; trait semantics are not claimed.",
   "2026-06-19: 296x-1314 refactors rust-subset smoke fixture handling into table-driven runners; behavior is unchanged.",
-  "2026-06-19: 296x-1315 inventories crate/multi-file handoff boundaries before any creat-style pilot; converter core ownership stays narrow.",
+  "2026-06-19: 296x-1315 inventories crate/multi-file handoff boundaries before any creat-style pilot; next P0 gaps are validation parity and path/name normalization.",
 ]

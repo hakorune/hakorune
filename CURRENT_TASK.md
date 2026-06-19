@@ -40,7 +40,8 @@ Purpose:
 
 ```text
 Close module schema validation parity between the Python reference and the
-`.hako` converter before crate manifest implementation.
+`.hako` converter before crate manifest implementation. After that, close
+RustSubset path/name normalization before any `creat`-style pilot.
 ```
 
 Current evidence:
@@ -81,6 +82,12 @@ Recommended next row:
 
 ```text
 RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
+```
+
+Then:
+
+```text
+RUST-SUBSET-PATH-NAME-NORMALIZATION-001
 ```
 
 ## Pointers

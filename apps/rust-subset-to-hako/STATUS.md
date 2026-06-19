@@ -217,6 +217,7 @@ closed:
     owner=external adapter boundary / app-front input route
     current_adapter_single_file=1
     preferred_next_contract=manifest_plus_per_module_RustSubsetModule_artifacts
+    p0_before_crate_pilot=module_schema_validation_parity,path_name_normalization
     crate_handoff_schema_accepted=0
     converter_core_changed=0
     card=docs/development/current/main/phases/phase-296x/296x-1315-RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001.md
