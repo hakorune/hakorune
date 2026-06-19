@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -31,18 +31,18 @@ Self-qualified calls as explicit Unsupported handoffs in the external adapter.
 296x-1341 checks in the selected ID-module bundle and guards it through
 generated-skeleton MIR emit plus wrapper EXE parity. 296x-1342 selects
 `hakorune_mir_core::value_kind` as the next single-module materialization task.
+296x-1343 materializes that value_kind bundle and guards it through
+generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-The next row is 296x-1343. It should check in the selected `value_kind`
-manifest/module bundle, generated skeleton, and wrapper without adding Rust
-name resolution, runtime semantics, or generated-program execution claims.
+The next row is 296x-1344. It should select the next app-front task before
+starting implementation.
 
 ## Next
 
-1. Generate and check in the selected `value_kind` bundle.
-2. Add/update the focused wrapper.
-3. Verify checked-in generated skeleton MIR emit.
-4. Verify wrapper EXE emit.
-5. Run:
+1. Read 296x-1344.
+2. Evaluate next app-front task candidates.
+3. Select the next implementation row without starting implementation.
+4. Run:
 
 ```bash
 cargo check -q --lib
@@ -51,7 +51,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-6. Update current pointers when the implementation row closes.
+5. Update current pointers when the selection row closes.
 
 ## Recently Closed
 

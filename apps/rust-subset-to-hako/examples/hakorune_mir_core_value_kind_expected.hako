@@ -1,0 +1,108 @@
+// module crate::value_kind
+// source src/value_kind.rs
+// TODO: Use items are out of v0 scope
+
+// enum MirValueKind
+//   Parameter
+//   Local
+//   Constant
+//   Temporary
+//   Pinned
+//   LoopCarrier
+
+function MirValueKind_is_parameter(receiver: MirValueKind): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function MirValueKind_is_local(receiver: MirValueKind): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function MirValueKind_is_constant(receiver: MirValueKind): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function MirValueKind_is_temporary(receiver: MirValueKind): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function MirValueKind_is_pinned(receiver: MirValueKind): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function MirValueKind_is_loop_carrier(receiver: MirValueKind): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function MirValueKind_parameter_index(receiver: MirValueKind): Option<u32> {
+    return null /* TODO: Rust match expression is out of v0 scope */
+}
+
+function MirValueKind_local_index(receiver: MirValueKind): Option<u32> {
+    return null /* TODO: Rust match expression is out of v0 scope */
+}
+
+record TypedValueId {
+    id: ValueId
+    kind: MirValueKind
+}
+
+function TypedValueId_new(id: ValueId, kind: MirValueKind): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function TypedValueId_is_parameter(receiver: TypedValueId): bool {
+    return receiver.kind.is_parameter()
+}
+
+function TypedValueId_is_local(receiver: TypedValueId): bool {
+    return receiver.kind.is_local()
+}
+
+function TypedValueId_is_constant(receiver: TypedValueId): bool {
+    return receiver.kind.is_constant()
+}
+
+function TypedValueId_is_temporary(receiver: TypedValueId): bool {
+    return receiver.kind.is_temporary()
+}
+
+function TypedValueId_is_pinned(receiver: TypedValueId): bool {
+    return receiver.kind.is_pinned()
+}
+
+function TypedValueId_is_loop_carrier(receiver: TypedValueId): bool {
+    return receiver.kind.is_loop_carrier()
+}
+
+function TypedValueId_value_id(receiver: TypedValueId): ValueId {
+    return receiver.id
+}
+
+function TypedValueId_kind(receiver: TypedValueId): MirValueKind {
+    return receiver.kind
+}
+
+function TypedValueId_parameter_index(receiver: TypedValueId): Option<u32> {
+    return receiver.kind.parameter_index()
+}
+
+function TypedValueId_local_index(receiver: TypedValueId): Option<u32> {
+    return receiver.kind.local_index()
+}
+
+function ValueId_from(typed: TypedValueId): ValueId {
+    return typed.id
+}
+
+function TypedValueId_eq(receiver: TypedValueId, other: Self): bool {
+    return receiver.id == other.id
+}
+
+
+
+function TypedValueId_hash(receiver: TypedValueId, state: H): void {
+    receiver.id.hash(state)
+}
+
+// TODO: Mod items are out of v0 scope

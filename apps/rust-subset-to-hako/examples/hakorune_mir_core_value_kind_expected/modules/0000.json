@@ -1,0 +1,593 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "kind": "Enum",
+      "name": "MirValueKind",
+      "variants": [
+        {
+          "fields": [
+            {
+              "type": "u32"
+            }
+          ],
+          "name": "Parameter"
+        },
+        {
+          "fields": [
+            {
+              "type": "u32"
+            }
+          ],
+          "name": "Local"
+        },
+        {
+          "fields": [],
+          "name": "Constant"
+        },
+        {
+          "fields": [],
+          "name": "Temporary"
+        },
+        {
+          "fields": [],
+          "name": "Pinned"
+        },
+        {
+          "fields": [],
+          "name": "LoopCarrier"
+        }
+      ]
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_parameter",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_local",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_constant",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_temporary",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_pinned",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_loop_carrier",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Rust match expression is out of v0 scope"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "parameter_index",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "Option<u32>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Rust match expression is out of v0 scope"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "local_index",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "Option<u32>"
+        }
+      ],
+      "target": "MirValueKind"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "ValueId"
+        },
+        {
+          "name": "kind",
+          "type": "MirValueKind"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "TypedValueId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Struct"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [
+            {
+              "name": "id",
+              "type": "ValueId"
+            },
+            {
+              "name": "kind",
+              "type": "MirValueKind"
+            }
+          ],
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "is_parameter",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_parameter",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "is_local",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_local",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "is_constant",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_constant",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "is_temporary",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_temporary",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "is_pinned",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_pinned",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "is_loop_carrier",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_loop_carrier",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "id",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "value_id",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "ValueId"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "kind",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "kind",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "MirValueKind"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "parameter_index",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "parameter_index",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "Option<u32>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "local_index",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "kind",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "local_index",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "Option<u32>"
+        }
+      ],
+      "target": "TypedValueId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "typed"
+                },
+                "field": "id",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "from",
+          "params": [
+            {
+              "name": "typed",
+              "type": "TypedValueId"
+            }
+          ],
+          "return_type": "ValueId"
+        }
+      ],
+      "target": "ValueId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Binary",
+                "left": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "id",
+                  "kind": "Field"
+                },
+                "op": "==",
+                "right": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "other"
+                  },
+                  "field": "id",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "eq",
+          "params": [
+            {
+              "name": "other",
+              "type": "Self"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        }
+      ],
+      "target": "TypedValueId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [],
+      "target": "TypedValueId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "state"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "hash",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "id",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "hash",
+          "params": [
+            {
+              "name": "state",
+              "type": "H"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "void"
+        }
+      ],
+      "target": "TypedValueId"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Mod",
+      "summary": "Mod items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::value_kind",
+  "schema_version": 0
+}

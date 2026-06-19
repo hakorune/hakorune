@@ -39,4 +39,8 @@ run_wrapper_exe \
   "hakorune_mir_core_id_modules" \
   "$APP_DIR/convert_hakorune_mir_core_id_modules_crate_file.hako"
 
+run_wrapper_exe \
+  "hakorune_mir_core_value_kind" \
+  "$APP_DIR/convert_hakorune_mir_core_value_kind_crate_file.hako"
+
 echo "[rust-subset/crate-wrapper-exe] summary=ok"

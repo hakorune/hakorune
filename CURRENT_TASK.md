@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
 ```
 
 Purpose:
 
 ```text
-Materialize the selected `hakorune_mir_core::value_kind` RustSubset module
-bundle and wrapper.
+Select the next rust-subset-to-hako app-front task after the
+`hakorune_mir_core::value_kind` materialization row closed green.
 ```
 
 Current evidence:
@@ -87,6 +87,7 @@ RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001 is closed by 296x-1339.
 RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001 is closed by 296x-1340.
 HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001 is closed by 296x-1341.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002 is closed by 296x-1342.
+HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001 is closed by 296x-1343.
 ```
 
 Acceptance for the current slice:
@@ -95,27 +96,24 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused value_kind bundle/wrapper commands from the new row.
 ```
 
 ## Task Order
 
-1. Generate the selected `value_kind` bundle from the external syn adapter.
-2. Check in the selected manifest, module artifact, generated skeleton, and
-   focused wrapper.
-3. Verify checked-in generated skeleton MIR emit.
-4. Verify wrapper EXE emit.
-5. Keep generated-program execution claim at 0.
+1. Read 296x-1344.
+2. Evaluate the next app-front task candidates.
+3. Select the next implementation row without starting implementation.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
 ```
 
-296x-1342 selected `hakorune_mir_core::value_kind` as the next single-module
-materialization task. It already has generated-skeleton MIR emit green in the
-selection probe.
+296x-1343 materialized `hakorune_mir_core::value_kind` and guarded it through
+generated-skeleton MIR emit, wrapper EXE parity, and the full rust-subset smoke.
+296x-1344 is the next design/selection row.
 
 ## Pointers
 
