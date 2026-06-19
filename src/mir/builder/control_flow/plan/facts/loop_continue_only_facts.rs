@@ -25,7 +25,7 @@ pub(in crate::mir::builder) fn try_extract_loop_continue_only_facts(
     };
 
     let continue_count = count_control_flow(body, ControlFlowDetector::default()).continue_count;
-    if continue_count == 0 {
+    if continue_count != 1 {
         return Ok(None);
     }
 
@@ -252,6 +252,20 @@ mod tests {
     fn facts_rejects_missing_continue() {
         let condition = condition_lt("i", 6);
         let body = vec![carrier_update("sum", v("i")), increment("i")];
+
+        let facts = try_extract_loop_continue_only_facts(&condition, &body).expect("Ok");
+        assert!(facts.is_none());
+    }
+
+    #[test]
+    fn facts_rejects_multiple_continue_sites() {
+        let condition = condition_lt("i", 6);
+        let body = vec![
+            if_continue(v("skip_one")),
+            if_continue(v("skip_two")),
+            carrier_update("sum", v("i")),
+            increment("i"),
+        ];
 
         let facts = try_extract_loop_continue_only_facts(&condition, &body).expect("Ok");
         assert!(facts.is_none());

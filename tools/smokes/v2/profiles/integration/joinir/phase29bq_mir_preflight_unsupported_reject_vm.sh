@@ -10,7 +10,7 @@ source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
 
 TEST_FILTER="vm_preflight_rejects_unsupported_throw_under_strict_gate"
-CARGO_ARGS=(test -q "$TEST_FILTER" -- --test-threads=1)
+CARGO_ARGS=(test -q --features vm-reference "$TEST_FILTER" -- --test-threads=1)
 PRELOAD_LIB="$ROOT_DIR/tmp/exdev/librename_copy_fallback.so"
 
 set +e

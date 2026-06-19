@@ -112,15 +112,15 @@ fn try_build_loop_facts_inner(
     } else {
         false
     };
-    let loop_cond_break_continue = if has_generic_v1_recipe_hint {
+    let keep_loop_cond_break_continue = loop_cond_break_continue
+        .as_ref()
+        .is_some_and(loop_cond_break_continue_requires_recipe_owner);
+    let loop_cond_break_continue = if has_generic_v1_recipe_hint && !keep_loop_cond_break_continue {
         None
     } else {
         loop_cond_break_continue
     };
     let loop_cond_break_blocks_generic = loop_cond_break_continue.as_ref().is_some_and(|facts| {
-        if has_generic_v1_recipe_hint {
-            return false;
-        }
         if matches!(
             facts.accept_kind,
             LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
@@ -230,6 +230,20 @@ fn try_build_loop_facts_inner(
         ));
     }
     Ok(Some(facts))
+}
+
+fn loop_cond_break_continue_requires_recipe_owner(facts: &LoopCondBreakContinueFacts) -> bool {
+    if matches!(
+        facts.accept_kind,
+        LoopCondBreakAcceptKind::ConditionalUpdate
+    ) {
+        return true;
+    }
+    facts.continue_branches.len() > 1
+        && facts
+            .continue_branches
+            .iter()
+            .any(|sig| sig.has_assignment || sig.has_local)
 }
 
 /// Table-driven cluster facts extraction (SSOT: nested_loop_profile::CLUSTER_PROFILES).
