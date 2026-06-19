@@ -42,8 +42,9 @@ synthetic multi-module adapter probe is closed by 296x-1319. Crate handoff MIR
 acceptance is closed by 296x-1320. OrderedMapBox is documented as a `.hako`
 library deterministic-map boundary by 296x-1321. OrderedMapBox v0 and its
 focused EXE/AOT smoke are closed by 296x-1322. The focused BindingContext-style
-OrderedMapBox probe is closed by 296x-1323. The active blocker returns to creat
-subset pilot selection.
+OrderedMapBox probe is closed by 296x-1323. Constructor lifecycle is guarded
+separately by 296x-1324 without moving meaningful birth logic into field
+initializers. The active blocker remains creat subset pilot selection.
 
 ## Next
 
@@ -139,6 +140,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - focused EXE/AOT probe verifies OrderedMapBox as a BindingContext-style name-to-id map
   - deterministic binding snapshot, duplicate update, and missing lookup are fixed
   - MirBuilder, BindingContext, MapBox, ring0, and ring1 remain unchanged
+- `CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001`
+  - constructor lifecycle is guarded separately from OrderedMapBox API work
+  - birth(value), constructor args, and per-instance ArrayBox defaults are smoke-checked
+  - OrderedMapBox keeps explicit v0 create-time initialization as a route-compatibility choice
 
 Closeout evidence:
 

@@ -136,6 +136,43 @@ EXE/AOT can lose ArrayBox element type information through `keys().get(i)`;
 `key_at` lets tests and compiler probes verify deterministic key order without
 turning `keys()` into a backend-specific contract.
 
+## Construction Boundary
+
+`OrderedMapBox` internal arrays are simple per-instance defaults. Semantically,
+they belong to declaration-site stored field initializers, not to `birth`.
+
+Current v0 implementation initializes them in `OrderedMap.create()` as a
+route-compatibility choice:
+
+```text
+birth_dispatch_dependency=0
+new_construction_lifecycle_dependency=1
+field_initializer_semantics_required=1
+```
+
+This must not be generalized into moving meaningful constructor logic out of
+`birth`. The split is:
+
+```text
+stored field initializer:
+  simple per-instance defaults
+  no constructor args
+  no external side effects
+
+birth(args...):
+  constructor argument handling
+  validation
+  multi-field invariant creation
+  external resource setup
+```
+
+The constructor lifecycle contract is owned by:
+
+```text
+docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md
+docs/reference/language/lifecycle.md
+```
+
 ## MirBuilder Migration Boundary
 
 `OrderedMapBox` may support BindingContext-like migration probes, but it is not
@@ -170,7 +207,11 @@ claim Rust BTreeMap parity beyond String-key deterministic iteration
    use OrderedMapBox in a BindingContext-style probe
    no broad MirBuilder rewrite
 
-4. ORDERED-MAP-RING1-PROMOTION-INVENTORY-001
+4. CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001
+   guard field-initializer/birth lifecycle separately
+   do not change OrderedMap API
+
+5. ORDERED-MAP-RING1-PROMOTION-INVENTORY-001
    open only if multiple real users justify promotion
 ```
 

@@ -1,0 +1,41 @@
+box BirthProbeBox {
+    values: ArrayBox = new ArrayBox()
+    marker: i64 = 0
+
+    birth(value) {
+        me.values.push(value)
+        me.marker = 7
+    }
+}
+
+static box Main {
+    main() {
+        local probe = new BirthProbeBox(42)
+
+        if probe.marker != 7 {
+            print("birth_marker=fail")
+            return 1
+        }
+        if probe.values.length() != 1 {
+            print("birth_values_length=fail")
+            return 2
+        }
+        if probe.values.get(0) != 42 {
+            print("birth_arg=fail")
+            return 3
+        }
+
+        local second = new BirthProbeBox(10)
+        if second.values.length() != 1 {
+            print("birth_second_length=fail")
+            return 4
+        }
+        if probe.values.length() != 1 {
+            print("birth_shared_initializer=fail")
+            return 5
+        }
+
+        print("constructor_lifecycle_probe=ok")
+        return 0
+    }
+}

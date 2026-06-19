@@ -1,6 +1,6 @@
 # OrderedMapBox Reference
 
-Status: provisional reference, no implementation yet.
+Status: live reference for v0.
 
 `OrderedMapBox` is a deterministic ordered key/value collection for `.hako`
 apps and compiler-construction support code. It is not a replacement for
@@ -149,6 +149,40 @@ contract is ordered storage, not dynamic-map behavior.
 v0 does not coerce keys. Callers pass String keys directly. This avoids mixing
 OrderedMapBox with MapBox key-publication/canonicalization semantics.
 
+## Construction State
+
+`OrderedMapBox` owns two per-instance ArrayBox slots:
+
+```hako
+keys_value: ArrayBox
+values_value: ArrayBox
+```
+
+The canonical language contract permits these defaults to be expressed as
+declaration-site stored field initializers:
+
+```hako
+keys_value: ArrayBox = new ArrayBox()
+values_value: ArrayBox = new ArrayBox()
+```
+
+Stored field initializers are evaluated for each `new`, before `birth`, and
+must not create shared mutable defaults between instances.
+
+Current v0 implementation keeps initialization inside `OrderedMap.create()`:
+
+```hako
+local map = new OrderedMapBox()
+map.keys_value = new ArrayBox()
+map.values_value = new ArrayBox()
+return map
+```
+
+This is a route-compatibility choice, not a different semantic contract.
+Do not mechanically move meaningful `birth(args...)` logic into field
+initializers. Use field initializers only for simple per-instance defaults that
+do not depend on constructor arguments and have no external side effects.
+
 ## Non-Goals
 
 ```text
@@ -174,6 +208,17 @@ get_missing_returns_null=1
 values_follow_key_order=1
 length_updates_after_insert_only=1
 key_at_reports_ordered_string_keys=1
+fresh_per_instance_arrays=1
+```
+
+The constructor lifecycle itself is guarded outside OrderedMapBox by a focused
+probe that checks:
+
+```text
+field_initializer_runs_before_birth=1
+birth_runs_once=1
+constructor_args_reach_birth=1
+birth_arrays_are_fresh_per_instance=1
 ```
 
 ## Related Design

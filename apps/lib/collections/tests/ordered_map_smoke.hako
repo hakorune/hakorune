@@ -68,6 +68,25 @@ static box Main {
             return 12
         }
 
+        local other = OrderedMap.create()
+        other.set("z", 99)
+        if m.length() != 3 {
+            print("fresh_instance_original=fail")
+            return 14
+        }
+        if other.length() != 1 {
+            print("fresh_instance_other=fail")
+            return 15
+        }
+        if other.get("z") != 99 {
+            print("fresh_instance_lookup=fail")
+            return 16
+        }
+        if m.get("z") != null {
+            print("fresh_instance_shared=fail")
+            return 17
+        }
+
         print("ordered_map_smoke=ok")
         return 0
     }

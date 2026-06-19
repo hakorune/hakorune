@@ -39,22 +39,26 @@ green. OrderedMapBox is now documented as a `.hako` library collection for
 deterministic String-key iteration, not a MapBox or ring0 substrate change. The
 small OrderedMapBox v0 library and EXE/AOT smoke are green. A focused
 BindingContext-style OrderedMapBox probe is also green without rewriting
-MirBuilder, changing MapBox, or touching ring provider registration. The next
-blocker returns to creat subset pilot selection."""
+MirBuilder, changing MapBox, or touching ring provider registration. The
+constructor lifecycle boundary is guarded separately: OrderedMap keeps explicit
+v0 create-time initialization while a focused birth/field-initializer EXE/AOT
+probe verifies constructor args and per-instance default state. The next blocker
+returns to creat subset pilot selection."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1323-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1324-CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001.md"
 
-latest_card = "296x-1323-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1323-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001.md"
-latest_card_summary = """296x-1323 adds a focused BindingContext-style
-OrderedMapBox probe. The probe verifies deterministic String-key binding
-iteration, duplicate binding update behavior, and missing lookup behavior
-through EXE/AOT while keeping MirBuilder, BindingContext, MapBox, ring0, and
-ring1 unchanged. The next blocker returns to creat subset pilot selection."""
+latest_card = "296x-1324-CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1324-CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001.md"
+latest_card_summary = """296x-1324 documents the OrderedMap construction
+boundary and adds a focused constructor lifecycle probe. OrderedMap keeps
+explicit create-time initialization in v0, while the separate EXE/AOT probe
+checks birth(value), constructor-argument delivery, and per-instance ArrayBox
+field-initializer state. The next blocker returns to creat subset pilot
+selection."""
 
 current_blocker_token = "CREAT-SUBSET-PILOT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -93,4 +97,5 @@ landed_tail = [
   "2026-06-20: 296x-1321 documents OrderedMapBox as a .hako library deterministic-map boundary; next blocker is OrderedMapBox v0.",
   "2026-06-20: 296x-1322 implements OrderedMapBox v0 with focused EXE/AOT smoke; next blocker is BindingContext-style OrderedMapBox probe.",
   "2026-06-20: 296x-1323 closes the BindingContext-style OrderedMapBox probe; next blocker returns to creat subset pilot selection.",
+  "2026-06-20: 296x-1324 guards constructor lifecycle separately from OrderedMap v0 initialization; next blocker remains creat subset pilot selection.",
 ]
