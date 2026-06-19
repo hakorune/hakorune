@@ -39,11 +39,25 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1294-COREPLAN-PARSE-STMT-SKIPWS-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1295-COREPLAN-PARSE-PROGRAM2-LOOP-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1294-COREPLAN-PARSE-STMT-SKIPWS-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1294-COREPLAN-PARSE-STMT-SKIPWS-OWNER-SELECTION-001.md"
-latest_card_summary = """The existing
+latest_card = "296x-1295-COREPLAN-PARSE-PROGRAM2-LOOP-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1295-COREPLAN-PARSE-PROGRAM2-LOOP-OWNER-SELECTION-001.md"
+latest_card_summary = """The
+`phase29bq_selfhost_blocker_parse_program2_loop_min` route owner is selected
+as `generic_loop_v1`. The fixture was already semantically green (`stdout=1`,
+rc 0), and actual route tracing shows
+`[plan/trace:loop_legacy_selected] route=generic_loop_v1`. The previous
+LoopCondBreak planner-first tag was stale, so the joinir and selfhost subset
+gate expectations now use the stable flowbox adoption tag while debug logs keep
+the actual selected-route trace. No compiler code is changed in this row. The
+full phase29bq gate now progresses to
+`phase29bq_selfhost_blocker_parse_program2_loop_if_return_local_min`, where the
+output is already empty/rc 0 but the expected LoopCondBreak tag is missing and
+the observed stable tag is `[flowbox/adopt box_kind=Loop features=return
+via=shadow]`.
+
+The existing
 `phase29bq_selfhost_blocker_parse_stmt_skipws_min` gate debt is closed by
 selecting `loop_cond_break_continue` / `ElseOnlyBreak` as the real owner.
 `generic_loop_v1` selected that shape before and produced `2` instead of `1`.
@@ -243,7 +257,7 @@ partial-carrier continue fixture, renames the B-lite shadow to a legacy
 observer, adds actual legacy route selection tracing, and adds a fail-closed
 full suppression inventory entry that stops on the existing multidelta loop
 debt."""
-current_blocker_token = "COREPLAN-PARSE-PROGRAM2-LOOP-OWNER-SELECTION-001"
+current_blocker_token = "COREPLAN-PARSE-PROGRAM2-LOOP-IF-RETURN-LOCAL-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
