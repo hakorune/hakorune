@@ -69,23 +69,24 @@ parity, and the full rust-subset smoke. The next selected blocker is making
 enum variant value references skeleton-safe after `crate::effect` exposed
 `Effect_Mut` as an undefined generated symbol. Enum variant value references
 are now skeleton-safe as unsupported expression handoffs; `crate::effect` now
-advances to the next first failure, `Vec_new`. The next blocker is making
-`Vec::new()` call expressions skeleton-safe without implementing Vec runtime
-semantics."""
+advances to the next first failure, `Vec_new`. `Vec::new()` calls are now
+skeleton-safe as unsupported expression handoffs, and `crate::effect` reaches
+generated-skeleton MIR emit. The next blocker is materializing the
+`hakorune_mir_core::effect` single-module bundle."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1346-RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1347-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001.md"
 
-latest_card = "296x-1346-RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1346-RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001.md"
-latest_card_summary = """296x-1346 makes Rust Vec::new() call expressions
-skeleton-safe after crate::effect advances past enum variant value references
-to unresolved Vec_new."""
+latest_card = "296x-1347-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1347-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001.md"
+latest_card_summary = """296x-1347 materializes the
+hakorune_mir_core::effect single-module RustSubset bundle after 296x-1346
+made Vec::new() skeleton-safe and the effect probe reached MIR emit."""
 
-current_blocker_token = "RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001"
+current_blocker_token = "HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -144,4 +145,5 @@ landed_tail = [
   "2026-06-20: 296x-1343 materializes the hakorune_mir_core::value_kind bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
   "2026-06-20: 296x-1344 selects enum variant value skeleton-safety as the next app-front blocker after crate::effect exposes Effect_Mut as an undefined symbol.",
   "2026-06-20: 296x-1345 makes enum variant value references skeleton-safe as unsupported expression handoffs; crate::effect now advances to unresolved Vec_new.",
+  "2026-06-20: 296x-1346 makes Vec::new calls skeleton-safe as unsupported expression handoffs; crate::effect now reaches generated-skeleton MIR emit.",
 ]

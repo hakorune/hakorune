@@ -1,6 +1,6 @@
 # 296x-1346 RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -87,6 +87,63 @@ cargo check -q --lib
 RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Result
+
+```text
+small_fixture_added=1
+vec_new_call_unsupported_handoff=1
+python_reference_parity=green
+hako_converter_exe_parity=green
+fixture_generated_skeleton_mir_emit=green
+full_rust_subset_smoke=green
+effect_first_failure_before=Unresolved function: Vec_new
+effect_generated_skeleton_mir_emit=green
+general_vec_runtime_semantics=0
+generated_program_execution_claim=0
+summary=ok
+```
+
+Files:
+
+```text
+apps/rust-subset-to-hako/examples/vec_new_call_input.rs
+apps/rust-subset-to-hako/examples/vec_new_call_subset.json
+apps/rust-subset-to-hako/examples/vec_new_call_expected.hako
+apps/rust-subset-to-hako/convert_vec_new_call_fixture.hako
+```
+
+Closeout checks:
+
+```bash
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml --quiet -- \
+  apps/rust-subset-to-hako/examples/vec_new_call_input.rs \
+  --module vec_new_call_fixture \
+  -o /tmp/vec_new_call_subset.json
+
+NYASH_FILEBOX_MODE=core-ro ./target/release/hakorune --emit-mir-json \
+  /tmp/vec_new_call_expected.mir.json \
+  apps/rust-subset-to-hako/examples/vec_new_call_expected.hako
+
+NYASH_FILEBOX_MODE=core-ro ./target/release/hakorune --emit-exe \
+  /tmp/convert_vec_new_call_fixture \
+  apps/rust-subset-to-hako/convert_vec_new_call_fixture.hako
+
+NYASH_FILEBOX_MODE=core-ro ./target/release/hakorune --emit-mir-json \
+  /tmp/hakorune_mir_core_effect_probe.mir.json \
+  /tmp/hakorune_mir_core_effect_probe.hako
+
+cargo check -q --lib
+RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Next row:
+
+```text
+296x-1347-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
 ```
 
 ## Stop Line

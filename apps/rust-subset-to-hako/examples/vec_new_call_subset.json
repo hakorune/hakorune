@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "Vec::new call expression is out of v0 skeleton scope"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "new_numbers",
+      "params": [],
+      "return_type": "Vec<i64>"
+    },
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "values",
+          "type": "Unknown",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "Vec::new call expression is out of v0 skeleton scope"
+          }
+        },
+        {
+          "kind": "Expr",
+          "value": {
+            "args": [
+              {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 0
+              }
+            ],
+            "kind": "MethodCall",
+            "method": "push",
+            "receiver": {
+              "kind": "Name",
+              "name": "values"
+            }
+          }
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "values"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "push_zero",
+      "params": [],
+      "return_type": "Vec<i64>"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "vec_new_call_fixture",
+  "schema_version": 0
+}

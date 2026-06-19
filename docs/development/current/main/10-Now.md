@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
+HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -38,16 +38,20 @@ blocker after `crate::effect` exposes `Effect_Mut` as an undefined generated
 symbol. 296x-1345 makes enum variant value references skeleton-safe as
 unsupported expression handoffs; `crate::effect` now advances to unresolved
 `Vec_new`.
+296x-1346 makes `Vec::new()` calls skeleton-safe as unsupported expression
+handoffs, and `crate::effect` now reaches generated-skeleton MIR emit.
 
-The next row is 296x-1346. It should make Rust `Vec::new()` calls
-skeleton-safe without claiming Vec runtime semantics.
+The next row is 296x-1347. It should materialize the selected
+`hakorune_mir_core::effect` bundle and wrapper without generated-program
+execution claims.
 
 ## Next
 
-1. Add a focused `Vec::new()` fixture.
-2. Make `Vec::new()` calls skeleton-safe.
-3. Verify `hakorune_mir_core::effect` advances past `Vec_new`.
-4. Run:
+1. Generate and check in the selected `effect` bundle.
+2. Add/update the focused wrapper.
+3. Verify checked-in generated skeleton MIR emit.
+4. Verify wrapper EXE emit.
+5. Run:
 
 ```bash
 cargo check -q --lib
@@ -56,7 +60,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-5. Update current pointers when the implementation row closes.
+6. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 

@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
+HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Make Rust `Vec::new()` call expressions skeleton-safe after
-`hakorune_mir_core::effect` advanced from `Effect_Mut` to unresolved `Vec_new`.
+Materialize the selected `hakorune_mir_core::effect` RustSubset module bundle
+and wrapper.
 ```
 
 Current evidence:
@@ -90,6 +90,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002 is closed by 296x-1342.
 HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001 is closed by 296x-1343.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003 is closed by 296x-1344.
 RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001 is closed by 296x-1345.
+RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001 is closed by 296x-1346.
 ```
 
 Acceptance for the current slice:
@@ -102,21 +103,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Add a small `Vec::new()` fixture that reproduces the unresolved `Vec_new`
-   skeleton.
-2. Make `Vec::new()` calls skeleton-safe without claiming Vec runtime
-   semantics.
-3. Verify `hakorune_mir_core::effect` advances past `Vec_new`.
-4. Keep generated-program execution claim at 0.
+1. Generate the selected `effect` bundle from the external syn adapter.
+2. Check in the selected manifest, module artifact, generated skeleton, and
+   focused wrapper.
+3. Verify checked-in generated skeleton MIR emit.
+4. Verify wrapper EXE emit.
+5. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
+HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
 ```
 
-296x-1345 closed enum variant value skeleton-safety. `crate::effect` now
-advances to `Vec_new`, generated from Rust `Vec::new()`.
+296x-1346 made `Vec::new()` calls skeleton-safe. `crate::effect` now reaches
+generated-skeleton MIR emit and is selected for materialization.
 
 ## Pointers
 

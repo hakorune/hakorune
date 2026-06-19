@@ -1,0 +1,9 @@
+function new_numbers(): Array {
+    return null /* TODO: Vec::new call expression is out of v0 skeleton scope */
+}
+
+function push_zero(): Array {
+    local values: Unknown = null /* TODO: Vec::new call expression is out of v0 skeleton scope */
+    values.push(0)
+    return values
+}

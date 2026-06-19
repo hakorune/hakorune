@@ -100,6 +100,9 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                         segments.join("::")
                     ));
                 }
+                if segments.as_slice() == ["Vec", "new"] {
+                    return unsupported_expr("Vec::new call expression is out of v0 skeleton scope");
+                }
             }
             if context.is_tuple_struct_constructor(&callee) {
                 return unsupported_expr(format!(
