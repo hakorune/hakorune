@@ -1,0 +1,7 @@
+record Counter {
+    next_id: i64
+}
+
+function Counter_next(receiver: Counter): void {
+    /* TODO: Rust compound assignment expression is out of v0 scope: += */
+}

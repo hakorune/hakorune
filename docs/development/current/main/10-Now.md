@@ -20,27 +20,28 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
+RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. The current rust-subset app-front lane is on the selected
 `hakorune_mir_core` ID-module slice. 296x-1338 cleared tuple-struct constructor
-expressions by converting them to an explicit Unsupported skeleton handoff in
-the external adapter. The re-probe now fails at compound assignment skeleton
-output:
+expressions, and 296x-1339 cleared compound assignment by converting it to an
+explicit Unsupported statement handoff in the external adapter. The re-probe
+now fails at `Self::new()` skeleton output:
 
 ```hako
-receiver.next_id unsupported_op 1
+return Self_new()
 ```
 
-The next row is 296x-1339. It should make compound assignment skeleton-safe
-without adding runtime semantics, Rust name resolution, or new `.hako` syntax.
+The next row is 296x-1340. It should make Self-qualified calls skeleton-safe
+without adding self-type resolution, associated-function runtime semantics, Rust
+name resolution, or new `.hako` syntax.
 
 ## Next
 
-1. Add a focused compound-assignment fixture.
-2. Make generated skeleton output MIR-safe for `+=`-style Rust statements.
+1. Add a focused Self-qualified call fixture.
+2. Make generated skeleton output MIR-safe for `Self::new()`-style calls.
 3. Re-run the selected ID-module generated skeleton MIR probe.
 4. Do not check in the ID-module bundle until the skeleton is MIR-safe.
 5. Run:

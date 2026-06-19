@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "name": "next_id",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "Counter"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Unsupported",
+              "reason": "Rust compound assignment expression is out of v0 scope: +="
+            }
+          ],
+          "kind": "Function",
+          "name": "next",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "void"
+        }
+      ],
+      "target": "Counter"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "compound_assign_fixture",
+  "schema_version": 0
+}

@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
+RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001
 ```
 
 Purpose:
 
 ```text
-Make Rust compound assignment expressions skeleton-safe in generated output so
-the selected `hakorune_mir_core` ID-module slice can continue toward MIR
-acceptance.
+Make Rust `Self::...` call expressions skeleton-safe in generated output so the
+selected `hakorune_mir_core` ID-module slice can continue toward MIR acceptance.
 ```
 
 Current evidence:
@@ -84,6 +83,7 @@ RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001 is closed by 296x-1335.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001 is closed by 296x-1336.
 HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001 is blocked by 296x-1337.
 RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001 is closed by 296x-1338.
+RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001 is closed by 296x-1339.
 ```
 
 Acceptance for the current slice:
@@ -92,15 +92,14 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused compound-assignment skeleton command from the new row.
+# plus the focused Self-qualified call skeleton command from the new row.
 ```
 
 ## Task Order
 
-1. Add a focused RustSubset fixture for compound assignment such as
-   `self.next_id += 1`.
-2. Make generated skeleton output MIR-safe without adding executable compound
-   assignment semantics.
+1. Add a focused RustSubset fixture for `Self::new()` style calls.
+2. Make generated skeleton output MIR-safe without adding Rust self-type
+   resolution or associated-function runtime semantics.
 3. Verify Python reference parity and `.hako` converter parity for the new
    fixture.
 4. Re-run the selected ID-module generated skeleton MIR probe.
@@ -110,12 +109,11 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
+RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001
 ```
 
-296x-1338 cleared tuple-struct constructor calls. The selected ID-module
-re-probe now fails on an invalid `unsupported_op` skeleton statement emitted
-from Rust compound assignment.
+296x-1339 cleared compound assignment handoff. The selected ID-module
+re-probe now fails on unresolved `Self_new()` emitted from Rust `Self::new()`.
 
 ## Pointers
 

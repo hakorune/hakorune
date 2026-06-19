@@ -1,6 +1,6 @@
 # 296x-1339 RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -115,10 +115,71 @@ new_hako_syntax_added=0
 generated_program_execution_claim=0
 ```
 
+## Result
+
+```text
+focused_fixture_added=1
+adapter_compound_assign_handoff_updated=1
+generated_skeleton_mir_safe_for_compound_assign=1
+compound_assignment_runtime_semantics=0
+rust_name_resolution_enabled=0
+new_hako_syntax_added=0
+generated_program_execution_claim=0
+summary=ok
+```
+
+Implementation:
+
+```text
+apps/rust-subset-to-hako/tools/syn_adapter/src/stmts.rs
+```
+
+Compound assignment now becomes a statement-level `Unsupported` handoff instead
+of an expression-level `Binary(op=unsupported_op)` node. The converter core
+remains unchanged and does not claim executable `+=` semantics.
+
+Focused fixtures:
+
+```text
+apps/rust-subset-to-hako/examples/compound_assign_input.rs
+apps/rust-subset-to-hako/examples/compound_assign_subset.json
+apps/rust-subset-to-hako/examples/compound_assign_expected.hako
+apps/rust-subset-to-hako/convert_compound_assign_fixture.hako
+```
+
+Verification:
+
+```text
+python_reference_compound_assign_fixture=green
+syn_adapter_compound_assign_fixture=green
+hako_converter_compound_assign_fixture_exe_parity=green
+RUST_SUBSET_RUN_ADAPTER=1 apps/rust-subset-to-hako/smoke.sh=green
+cargo_check_lib=green
+current_state_pointer_guard=green
+git_diff_check=green
+```
+
+Selected ID-module re-probe:
+
+```text
+unsupported_op_skeleton_statement=cleared
+next_failure=Unresolved function: 'Self_new'
+next_blocker=RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001
+```
+
 ## Next
 
 After this skeleton-safety row is closed, resume:
 
 ```text
 HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001
+```
+
+The selected ID-module pilot is still blocked, but by the next skeleton source
+shape:
+
+```hako
+function BasicBlockIdGenerator_default(): Self {
+    return Self_new()
+}
 ```

@@ -1,5 +1,5 @@
 use serde_json::{json, Value};
-use syn::{Expr, Pat, Stmt};
+use syn::{BinOp, Expr, Pat, Stmt};
 
 use crate::exprs::{expr_to_json_with_context, unsupported_expr, ExprContext};
 use crate::types::{insert_pat_name_metadata, item_kind, pat_name, type_name};
@@ -61,6 +61,15 @@ fn stmt_to_json(stmt: &Stmt, is_tail: bool, context: &ExprContext) -> Option<Val
             "kind": "Expr",
             "value": unsupported_expr("Rust for loop expression is out of v0 scope"),
         })),
+        Stmt::Expr(Expr::Binary(binary), _) if compound_assign_op(&binary.op).is_some() => {
+            Some(json!({
+                "kind": "Unsupported",
+                "reason": format!(
+                    "Rust compound assignment expression is out of v0 scope: {}",
+                    compound_assign_op(&binary.op).unwrap_or("unknown"),
+                ),
+            }))
+        }
         Stmt::Expr(Expr::Assign(assign), _) => Some(assign_to_json(assign, context)),
         Stmt::Expr(expr, None) if is_tail => Some(json!({
             "kind": "Return",
@@ -137,6 +146,22 @@ fn assign_to_json(expr: &syn::ExprAssign, context: &ExprContext) -> Value {
         "target": expr_to_json_with_context(expr.left.as_ref(), context),
         "value": expr_to_json_with_context(expr.right.as_ref(), context),
     })
+}
+
+fn compound_assign_op(op: &BinOp) -> Option<&'static str> {
+    match op {
+        BinOp::AddAssign(_) => Some("+="),
+        BinOp::SubAssign(_) => Some("-="),
+        BinOp::MulAssign(_) => Some("*="),
+        BinOp::DivAssign(_) => Some("/="),
+        BinOp::RemAssign(_) => Some("%="),
+        BinOp::BitXorAssign(_) => Some("^="),
+        BinOp::BitAndAssign(_) => Some("&="),
+        BinOp::BitOrAssign(_) => Some("|="),
+        BinOp::ShlAssign(_) => Some("<<="),
+        BinOp::ShrAssign(_) => Some(">>="),
+        _ => None,
+    }
 }
 
 fn local_type(local: &syn::Local) -> String {
