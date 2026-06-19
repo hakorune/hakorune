@@ -1,0 +1,11 @@
+// enum Status
+//   Ready
+//   Waiting
+
+function current_status(): Status {
+    return null /* TODO: enum variant value reference is out of v0 skeleton scope: Status_Ready */
+}
+
+function is_ready(status: Status): bool {
+    return status == null /* TODO: enum variant value reference is out of v0 skeleton scope: Status_Ready */
+}

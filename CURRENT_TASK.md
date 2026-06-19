@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
+RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
 ```
 
 Purpose:
 
 ```text
-Make RustSubset enum variant value references skeleton-safe after
-`hakorune_mir_core::effect` exposed `Effect_Mut` as an undefined generated
-symbol.
+Make Rust `Vec::new()` call expressions skeleton-safe after
+`hakorune_mir_core::effect` advanced from `Effect_Mut` to unresolved `Vec_new`.
 ```
 
 Current evidence:
@@ -90,6 +89,7 @@ HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001 is closed by 296x-1341.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002 is closed by 296x-1342.
 HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001 is closed by 296x-1343.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003 is closed by 296x-1344.
+RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001 is closed by 296x-1345.
 ```
 
 Acceptance for the current slice:
@@ -102,21 +102,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Add a small enum-variant-value fixture that reproduces the undefined symbol.
-2. Make enum variant value references skeleton-safe without claiming full enum
-   runtime semantics.
-3. Verify `hakorune_mir_core::effect` generated skeleton reaches MIR emit.
+1. Add a small `Vec::new()` fixture that reproduces the unresolved `Vec_new`
+   skeleton.
+2. Make `Vec::new()` calls skeleton-safe without claiming Vec runtime
+   semantics.
+3. Verify `hakorune_mir_core::effect` advances past `Vec_new`.
 4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
+RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
 ```
 
-296x-1344 selected enum variant value skeleton-safety as the next blocker:
-`crate::effect` currently emits references like `Effect_Mut` while enum output
-is comment-only.
+296x-1345 closed enum variant value skeleton-safety. `crate::effect` now
+advances to `Vec_new`, generated from Rust `Vec::new()`.
 
 ## Pointers
 

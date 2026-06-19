@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
+RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -35,16 +35,18 @@ generated-skeleton MIR emit plus wrapper EXE parity. 296x-1342 selects
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 296x-1344 selects enum variant value skeleton-safety as the next app-front
 blocker after `crate::effect` exposes `Effect_Mut` as an undefined generated
-symbol.
+symbol. 296x-1345 makes enum variant value references skeleton-safe as
+unsupported expression handoffs; `crate::effect` now advances to unresolved
+`Vec_new`.
 
-The next row is 296x-1345. It should make enum variant value references
-skeleton-safe without claiming full enum runtime semantics.
+The next row is 296x-1346. It should make Rust `Vec::new()` calls
+skeleton-safe without claiming Vec runtime semantics.
 
 ## Next
 
-1. Add a focused enum-variant-value fixture.
-2. Make enum variant value references skeleton-safe.
-3. Verify `hakorune_mir_core::effect` generated skeleton MIR emit.
+1. Add a focused `Vec::new()` fixture.
+2. Make `Vec::new()` calls skeleton-safe.
+3. Verify `hakorune_mir_core::effect` advances past `Vec_new`.
 4. Run:
 
 ```bash

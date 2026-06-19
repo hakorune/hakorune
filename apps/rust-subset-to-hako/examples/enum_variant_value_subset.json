@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "kind": "Enum",
+      "name": "Status",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Ready"
+        },
+        {
+          "fields": [],
+          "name": "Waiting"
+        }
+      ]
+    },
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "enum variant value reference is out of v0 skeleton scope: Status_Ready"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "current_status",
+      "params": [],
+      "return_type": "Status"
+    },
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Binary",
+            "left": {
+              "kind": "Name",
+              "name": "status"
+            },
+            "op": "==",
+            "right": {
+              "kind": "Unsupported",
+              "reason": "enum variant value reference is out of v0 skeleton scope: Status_Ready"
+            }
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "is_ready",
+      "params": [
+        {
+          "name": "status",
+          "type": "Status"
+        }
+      ],
+      "return_type": "bool"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "enum_variant_value_fixture",
+  "schema_version": 0
+}

@@ -5,7 +5,7 @@ use syn::{Fields, ImplItem, Item};
 
 use crate::exprs::ExprContext;
 use crate::functions::function_to_json_with_context;
-use crate::names::{assert_unique_names, insert_name_metadata};
+use crate::names::{assert_unique_names, emitted_ident, insert_name_metadata};
 use crate::types::{item_kind, type_name};
 
 pub(crate) fn file_to_json(file: &syn::File, module: String) -> Value {
@@ -17,7 +17,10 @@ pub(crate) fn file_to_json_for_crate(file: &syn::File, module: String) -> Value 
 }
 
 fn file_to_json_inner(file: &syn::File, module: String, include_external_mods: bool) -> Value {
-    let expr_context = ExprContext::new(tuple_struct_names(&file.items));
+    let expr_context = ExprContext::new(
+        tuple_struct_names(&file.items),
+        enum_variant_values(&file.items),
+    );
     let items = file
         .items
         .iter()
@@ -55,6 +58,21 @@ fn tuple_struct_names(items: &[Item]) -> BTreeSet<String> {
             _ => None,
         })
         .collect()
+}
+
+fn enum_variant_values(items: &[Item]) -> BTreeSet<String> {
+    let mut values = BTreeSet::new();
+    for item in items {
+        let Item::Enum(item) = item else {
+            continue;
+        };
+        let enum_name = emitted_ident(&item.ident.to_string());
+        for variant in &item.variants {
+            let variant_name = emitted_ident(&variant.ident.to_string());
+            values.insert(format!("{enum_name}_{variant_name}"));
+        }
+    }
+    values
 }
 
 fn item_to_json(item: &Item, expr_context: &ExprContext) -> Value {

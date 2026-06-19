@@ -11,15 +11,26 @@ use crate::types::field_name;
 #[derive(Default)]
 pub(crate) struct ExprContext {
     tuple_struct_names: BTreeSet<String>,
+    enum_variant_values: BTreeSet<String>,
 }
 
 impl ExprContext {
-    pub(crate) fn new(tuple_struct_names: BTreeSet<String>) -> Self {
-        Self { tuple_struct_names }
+    pub(crate) fn new(
+        tuple_struct_names: BTreeSet<String>,
+        enum_variant_values: BTreeSet<String>,
+    ) -> Self {
+        Self {
+            tuple_struct_names,
+            enum_variant_values,
+        }
     }
 
     fn is_tuple_struct_constructor(&self, callee: &str) -> bool {
         self.tuple_struct_names.contains(callee)
+    }
+
+    fn is_enum_variant_value(&self, name: &str) -> bool {
+        self.enum_variant_values.contains(name)
     }
 }
 
@@ -49,6 +60,12 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
             if path.path.segments.is_empty() {
                 unsupported_expr("empty path expression")
             } else {
+                let emitted = emitted_path(&path.path);
+                if context.is_enum_variant_value(&emitted) {
+                    return unsupported_expr(format!(
+                        "enum variant value reference is out of v0 skeleton scope: {emitted}"
+                    ));
+                }
                 let mut value = json!({"kind": "Name"});
                 insert_path_name_metadata(&mut value, &path.path);
                 value

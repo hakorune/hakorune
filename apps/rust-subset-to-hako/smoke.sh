@@ -192,6 +192,7 @@ if [[ "${RUST_SUBSET_RUN_ADAPTER:-0}" == "1" ]]; then
     "tuple struct constructor fixture|tuple_struct_constructor|tuple_struct_constructor_fixture"
     "compound assignment unsupported handoff fixture|compound_assign|compound_assign_fixture"
     "Self-qualified call unsupported handoff fixture|self_qualified_call|self_qualified_call_fixture"
+    "enum variant value unsupported handoff fixture|enum_variant_value|enum_variant_value_fixture"
   )
 
   for entry in "${ADAPTER_FIXTURES[@]}"; do
@@ -236,6 +237,7 @@ CONVERTER_FIXTURES=(
   "tuple struct constructor fixture converter|$APP_DIR/convert_tuple_struct_constructor_fixture.hako|$EXAMPLES_DIR/tuple_struct_constructor_expected.hako|convert_tuple_struct_constructor_fixture"
   "compound assignment fixture converter|$APP_DIR/convert_compound_assign_fixture.hako|$EXAMPLES_DIR/compound_assign_expected.hako|convert_compound_assign_fixture"
   "Self-qualified call fixture converter|$APP_DIR/convert_self_qualified_call_fixture.hako|$EXAMPLES_DIR/self_qualified_call_expected.hako|convert_self_qualified_call_fixture"
+  "enum variant value fixture converter|$APP_DIR/convert_enum_variant_value_fixture.hako|$EXAMPLES_DIR/enum_variant_value_expected.hako|convert_enum_variant_value_fixture"
   "crate handoff fixture converter|$APP_DIR/convert_crate_file.hako|$EXAMPLES_DIR/mini_crate_expected.hako|convert_crate_file"
   "hakorune_mir_core ID modules fixture converter|$APP_DIR/convert_hakorune_mir_core_id_modules_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_id_modules_expected.hako|convert_hakorune_mir_core_id_modules_crate_file"
   "hakorune_mir_core value_kind fixture converter|$APP_DIR/convert_hakorune_mir_core_value_kind_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_value_kind_expected.hako|convert_hakorune_mir_core_value_kind_crate_file"
