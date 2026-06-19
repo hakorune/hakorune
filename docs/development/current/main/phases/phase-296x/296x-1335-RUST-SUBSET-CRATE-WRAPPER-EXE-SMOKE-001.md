@@ -1,6 +1,6 @@
 # 296x-1335 RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -66,6 +66,33 @@ json_native_changed=0
 rust_subset_converter_changed=0
 route_selection_changed=0
 generated_program_execution_claim=0
+```
+
+## Result
+
+Closed by adding a focused wrapper-only EXE smoke:
+
+```text
+apps/rust-subset-to-hako/smoke_crate_wrappers_exe.sh
+```
+
+Verified wrappers:
+
+```text
+convert_crate_file.hako
+convert_hakorune_box_core_crate_file.hako
+convert_hakorune_mir_core_selected_crate_file.hako
+```
+
+The smoke checks only that the converter wrapper entrypoints compile through
+`--emit-exe`. It does not execute or claim generated `.hako` programs.
+
+Result:
+
+```text
+converter_wrapper_exe_route_pinned=1
+generated_program_exe_aot_claim=0
+summary=ok
 ```
 
 ## Next

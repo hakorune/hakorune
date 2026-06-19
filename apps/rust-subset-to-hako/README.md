@@ -89,6 +89,8 @@ V0 does not implement:
 - `convert_generic_function_fixture.hako`: startup wrapper for the generic function skeleton fixture
 - `convert_hakorune_box_core_crate_file.hako`: focused wrapper for the
   `hakorune_box_core` crate pilot
+- `smoke_crate_wrappers_exe.sh`: focused EXE route smoke for the current crate
+  wrapper entrypoints; this does not claim generated-program execution
 - `fixtures/simple_subset_embedded.hako`: host-generated embedded JSON fixture
 - `tools/embed_fixture.py`: host tool that generates embedded fixture modules
 - `tools/crate_inventory.py`: host tool that inventories an existing

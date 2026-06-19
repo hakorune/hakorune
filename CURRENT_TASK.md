@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Pin the crate-wrapper EXE route as a stable app-front smoke after 296x-1333
-unblocked the route and 296x-1334 hardened unsupported-shape diagnostics.
+Select the next RustSubset app-front / crate pilot task now that crate-wrapper
+EXE route stability is pinned.
 ```
 
 Current evidence:
@@ -79,6 +79,7 @@ RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001 is closed by 296x-1331.
 HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1332.
 RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001 is closed by 296x-1333.
 PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001 is closed by 296x-1334.
+RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001 is closed by 296x-1335.
 ```
 
 Acceptance for the current slice:
@@ -88,29 +89,29 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 # plus a focused crate-wrapper EXE diagnostic command selected by the new row.
-# plus the focused crate-wrapper EXE smoke selected by the new row.
+# plus a focused selection/inventory command selected by the new row.
 ```
 
 ## Task Order
 
-1. Add a focused smoke/check for the three existing crate-wrapper entrypoints.
-2. Verify `--emit-exe` success for the wrappers only.
-3. Keep converter core, Rust parser ownership, crate graph discovery, and
-   `json_native` source out of the smoke.
-4. Do not claim generated `.hako` programs are executable applications.
-5. Keep route selection unchanged.
-6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+1. Review the rust-subset app-front state after wrapper EXE smoke pinning.
+2. Select the next concrete task before opening implementation.
+3. Prefer source-shape or crate-pilot work only when a focused blocker exists.
+4. Do not reopen route/fastpath/constructor lifecycle work without a new
+   blocker.
+5. Keep converter core, Rust parser ownership, crate graph discovery, and
+   `json_native` boundaries explicit.
+6. Stop at design selection before implementation if the next owner is unclear.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
 ```
 
-The shared crate wrappers pass EXE after 296x-1333, and 296x-1334 makes future
-pure-route unsupported-shape blockers easier to diagnose. The next row should
-pin wrapper EXE success as a stable smoke before moving to another crate or
-source-shape pilot.
+The shared crate wrappers are now pinned by a focused EXE smoke. The next row
+should select whether to continue with another crate pilot, a source-shape
+blocker, or app-front cleanup.
 
 ## Pointers
 
