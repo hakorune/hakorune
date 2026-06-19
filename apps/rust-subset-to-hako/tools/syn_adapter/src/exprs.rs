@@ -75,6 +75,15 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                 Expr::Path(path) => emitted_path(&path.path),
                 _ => "unsupported_callee".to_string(),
             };
+            if let Expr::Path(path) = call.func.as_ref() {
+                let segments = crate::names::path_segments(&path.path);
+                if matches!(segments.first().map(String::as_str), Some("Self")) {
+                    return unsupported_expr(format!(
+                        "Self-qualified call expression is out of v0 skeleton scope: {}",
+                        segments.join("::")
+                    ));
+                }
+            }
             if context.is_tuple_struct_constructor(&callee) {
                 return unsupported_expr(format!(
                     "tuple struct constructor expression is out of v0 skeleton scope: {callee}"

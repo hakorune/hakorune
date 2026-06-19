@@ -1,6 +1,6 @@
 # 296x-1340 RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -114,6 +114,60 @@ associated_function_runtime_semantics=0
 rust_name_resolution_enabled=0
 new_hako_syntax_added=0
 generated_program_execution_claim=0
+```
+
+## Result
+
+```text
+focused_fixture_added=1
+adapter_self_qualified_call_handoff_updated=1
+generated_skeleton_mir_safe_for_self_qualified_call=1
+self_type_resolution_enabled=0
+associated_function_runtime_semantics=0
+rust_name_resolution_enabled=0
+new_hako_syntax_added=0
+generated_program_execution_claim=0
+summary=ok
+```
+
+Implementation:
+
+```text
+apps/rust-subset-to-hako/tools/syn_adapter/src/exprs.rs
+```
+
+`Self::...` call paths now become explicit `Unsupported` expression handoffs
+before emitted Hako call names such as `Self_new()` can reach generated
+skeleton output. The converter core remains unchanged and does not infer the
+self type.
+
+Focused fixtures:
+
+```text
+apps/rust-subset-to-hako/examples/self_qualified_call_input.rs
+apps/rust-subset-to-hako/examples/self_qualified_call_subset.json
+apps/rust-subset-to-hako/examples/self_qualified_call_expected.hako
+apps/rust-subset-to-hako/convert_self_qualified_call_fixture.hako
+```
+
+Verification:
+
+```text
+python_reference_self_qualified_call_fixture=green
+syn_adapter_self_qualified_call_fixture=green
+hako_converter_self_qualified_call_fixture_exe_parity=green
+RUST_SUBSET_RUN_ADAPTER=1 apps/rust-subset-to-hako/smoke.sh=green
+cargo_check_lib=green
+current_state_pointer_guard=green
+git_diff_check=green
+```
+
+Selected ID-module re-probe:
+
+```text
+self_new_unresolved_call=cleared
+hakorune_mir_core_id_modules_generated_skeleton_mir_emit=green
+next_blocker=HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001
 ```
 
 ## Next

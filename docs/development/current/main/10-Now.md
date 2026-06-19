@@ -20,30 +20,26 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001
+HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. The current rust-subset app-front lane is on the selected
 `hakorune_mir_core` ID-module slice. 296x-1338 cleared tuple-struct constructor
-expressions, and 296x-1339 cleared compound assignment by converting it to an
-explicit Unsupported statement handoff in the external adapter. The re-probe
-now fails at `Self::new()` skeleton output:
+expressions, 296x-1339 cleared compound assignment, and 296x-1340 cleared
+Self-qualified calls as explicit Unsupported handoffs in the external adapter.
+The selected ID-module generated skeleton now reaches MIR emit.
 
-```hako
-return Self_new()
-```
-
-The next row is 296x-1340. It should make Self-qualified calls skeleton-safe
-without adding self-type resolution, associated-function runtime semantics, Rust
-name resolution, or new `.hako` syntax.
+The next row is 296x-1341. It should check in the selected manifest/module
+bundle, generated skeleton, and wrapper without adding Rust name resolution,
+runtime semantics, or generated-program execution claims.
 
 ## Next
 
-1. Add a focused Self-qualified call fixture.
-2. Make generated skeleton output MIR-safe for `Self::new()`-style calls.
-3. Re-run the selected ID-module generated skeleton MIR probe.
-4. Do not check in the ID-module bundle until the skeleton is MIR-safe.
+1. Generate and check in the selected ID-module bundle.
+2. Add/update the focused wrapper.
+3. Verify checked-in generated skeleton MIR emit.
+4. Verify wrapper EXE emit.
 5. Run:
 
 ```bash

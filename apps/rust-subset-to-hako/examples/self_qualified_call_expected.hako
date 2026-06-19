@@ -1,0 +1,11 @@
+record Counter {
+    next_id: i64
+}
+
+function Counter_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function Counter_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}

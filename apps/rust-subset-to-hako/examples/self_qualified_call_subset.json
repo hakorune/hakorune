@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "name": "next_id",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "Counter"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Struct"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        }
+      ],
+      "target": "Counter"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self-qualified call expression is out of v0 skeleton scope: Self::new"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "default",
+          "params": [],
+          "return_type": "Self"
+        }
+      ],
+      "target": "Counter"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "self_qualified_call_fixture",
+  "schema_version": 0
+}
