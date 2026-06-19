@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
+HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Select the next RustSubset app-front / crate pilot task now that crate-wrapper
-EXE route stability is pinned.
+Materialize the selected `hakorune_mir_core` ID-module slice and run it through
+the existing RustSubset skeleton pipeline.
 ```
 
 Current evidence:
@@ -80,6 +80,7 @@ HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1332.
 RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001 is closed by 296x-1333.
 PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001 is closed by 296x-1334.
 RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001 is closed by 296x-1335.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001 is closed by 296x-1336.
 ```
 
 Acceptance for the current slice:
@@ -89,29 +90,29 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 # plus a focused crate-wrapper EXE diagnostic command selected by the new row.
-# plus a focused selection/inventory command selected by the new row.
+# plus the focused selected-slice commands from the new row.
 ```
 
 ## Task Order
 
-1. Review the rust-subset app-front state after wrapper EXE smoke pinning.
-2. Select the next concrete task before opening implementation.
-3. Prefer source-shape or crate-pilot work only when a focused blocker exists.
-4. Do not reopen route/fastpath/constructor lifecycle work without a new
-   blocker.
-5. Keep converter core, Rust parser ownership, crate graph discovery, and
-   `json_native` boundaries explicit.
-6. Stop at design selection before implementation if the next owner is unclear.
+1. Materialize a focused `hakorune_mir_core` bundle for:
+   `crate::basic_block_id`, `crate::binding_id`, `crate::value_id`.
+2. Check in the selected RustSubset JSON bundle and expected skeleton output.
+3. Add or update a crate wrapper for the selected ID-module slice.
+4. Verify generated skeleton parse / MIR emit and wrapper `--emit-exe`.
+5. Keep generated-program execution claim at 0.
+6. If a source-shape blocker appears, capture it as the next row instead of
+   pre-implementing broad Rust semantics.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
+HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001
 ```
 
-The shared crate wrappers are now pinned by a focused EXE smoke. The next row
-should select whether to continue with another crate pilot, a source-shape
-blocker, or app-front cleanup.
+296x-1336 selected the next slice as `hakorune_mir_core` ID modules:
+`basic_block_id`, `binding_id`, and `value_id`. The next row should materialize
+that slice and run it through the existing skeleton pipeline.
 
 ## Pointers
 

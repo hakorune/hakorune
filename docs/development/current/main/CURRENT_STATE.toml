@@ -57,22 +57,24 @@ recovering user-box receiver origin from global factory route result box names;
 pure-route unsupported-shape diagnostics now report callee and receiver-origin
 detail; the next blocker is pinning the crate-wrapper EXE route as a stable
 smoke. The crate-wrapper EXE smoke is now pinned; the next blocker is selecting
-the next app-front or crate pilot task."""
+the next app-front or crate pilot task. The next selected pilot is a focused
+`hakorune_mir_core` ID-module slice: `basic_block_id`, `binding_id`, and
+`value_id`."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1335-RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1336-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001.md"
 
-latest_card = "296x-1335-RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1335-RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001.md"
-latest_card_summary = """296x-1335 pins the crate-wrapper EXE route with a
-focused wrapper-only smoke for mini_crate, hakorune_box_core, and the selected
-hakorune_mir_core slice. The next blocker is selecting the next app-front or
-crate pilot task."""
+latest_card = "296x-1336-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1336-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001.md"
+latest_card_summary = """296x-1336 selects the next RustSubset app-front task:
+a focused hakorune_mir_core ID-module slice covering basic_block_id,
+binding_id, and value_id. The next blocker is materializing that selected
+bundle through the existing skeleton pipeline."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001"
+current_blocker_token = "HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -121,4 +123,5 @@ landed_tail = [
   "2026-06-20: 296x-1333 unblocks crate-wrapper EXE by recovering user-box receiver origins from global factory route result box names; next blocker is unsupported pure-shape diagnostic hardening.",
   "2026-06-20: 296x-1334 hardens unsupported pure-shape diagnostics with callee/receiver-origin detail in a dedicated shim helper; next blocker is crate-wrapper EXE smoke pinning.",
   "2026-06-20: 296x-1335 pins crate-wrapper EXE success with a focused wrapper-only smoke; next blocker is rust-subset next app-front task selection.",
+  "2026-06-20: 296x-1336 selects the next rust-subset task as the hakorune_mir_core ID-module slice: basic_block_id, binding_id, and value_id.",
 ]
