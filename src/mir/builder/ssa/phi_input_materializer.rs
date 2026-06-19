@@ -14,6 +14,27 @@ struct PhiInputMaterializationAnalysis {
     dominators: crate::mir::verification::utils::DominatorTree,
 }
 
+struct PhiInputRematContext {
+    pred: BasicBlockId,
+    memo: HashMap<ValueId, ValueId>,
+    visiting: HashSet<ValueId>,
+}
+
+impl PhiInputRematContext {
+    fn new(pred: BasicBlockId) -> Self {
+        Self {
+            pred,
+            memo: HashMap::new(),
+            visiting: HashSet::new(),
+        }
+    }
+
+    fn remember(&mut self, original: ValueId, materialized: ValueId) {
+        self.visiting.remove(&original);
+        self.memo.insert(original, materialized);
+    }
+}
+
 impl PhiInputMaterializationAnalysis {
     fn new(func: &mut MirFunction) -> Self {
         func.update_cfg();
@@ -51,12 +72,16 @@ fn find_def_inst(
 fn rematerialize_for_pred(
     func: &mut MirFunction,
     analysis: &PhiInputMaterializationAnalysis,
-    pred: BasicBlockId,
     value: ValueId,
     context: &str,
     edge_kind: &str,
-    visited: &mut HashSet<ValueId>,
+    remat_ctx: &mut PhiInputRematContext,
 ) -> Result<ValueId, String> {
+    if let Some(cached) = remat_ctx.memo.get(&value).copied() {
+        return Ok(cached);
+    }
+
+    let pred = remat_ctx.pred;
     let dominates_pred = analysis
         .def_blocks
         .get(&value)
@@ -64,7 +89,7 @@ fn rematerialize_for_pred(
         .map(|def_bb| analysis.dominators.dominates(def_bb, pred))
         .unwrap_or(false);
 
-    if !visited.insert(value) {
+    if !remat_ctx.visiting.insert(value) {
         return Err(format!(
             "[freeze:contract][ssa/phi_input/remat_cycle] fn={} pred={:?} context={} edge={} value=%{}",
             func.signature.name, pred, context, edge_kind, value.0
@@ -80,7 +105,7 @@ fn rematerialize_for_pred(
 
     let Some(def_inst) = def_inst else {
         if dominates_pred {
-            visited.remove(&value);
+            remat_ctx.remember(value, value);
             return Ok(value);
         }
         return Err(format!(
@@ -90,11 +115,11 @@ fn rematerialize_for_pred(
     };
 
     if def_bb == pred {
-        visited.remove(&value);
+        remat_ctx.remember(value, value);
         return Ok(value);
     }
 
-    let remat = match def_inst {
+    let remat_inst = match def_inst {
         MirInstruction::Const {
             value: const_value, ..
         } => {
@@ -105,30 +130,25 @@ fn rematerialize_for_pred(
             }
         }
         MirInstruction::Copy { src, .. } => {
-            let src =
-                rematerialize_for_pred(func, analysis, pred, src, context, edge_kind, visited)?;
+            let src = rematerialize_for_pred(func, analysis, src, context, edge_kind, remat_ctx)?;
             let dst = func.next_value_id();
             MirInstruction::Copy { dst, src }
         }
         MirInstruction::BinOp { op, lhs, rhs, .. } => {
-            let lhs =
-                rematerialize_for_pred(func, analysis, pred, lhs, context, edge_kind, visited)?;
-            let rhs =
-                rematerialize_for_pred(func, analysis, pred, rhs, context, edge_kind, visited)?;
+            let lhs = rematerialize_for_pred(func, analysis, lhs, context, edge_kind, remat_ctx)?;
+            let rhs = rematerialize_for_pred(func, analysis, rhs, context, edge_kind, remat_ctx)?;
             let dst = func.next_value_id();
             MirInstruction::BinOp { dst, op, lhs, rhs }
         }
         MirInstruction::Compare { op, lhs, rhs, .. } => {
-            let lhs =
-                rematerialize_for_pred(func, analysis, pred, lhs, context, edge_kind, visited)?;
-            let rhs =
-                rematerialize_for_pred(func, analysis, pred, rhs, context, edge_kind, visited)?;
+            let lhs = rematerialize_for_pred(func, analysis, lhs, context, edge_kind, remat_ctx)?;
+            let rhs = rematerialize_for_pred(func, analysis, rhs, context, edge_kind, remat_ctx)?;
             let dst = func.next_value_id();
             MirInstruction::Compare { dst, op, lhs, rhs }
         }
         MirInstruction::UnaryOp { op, operand, .. } => {
             let operand =
-                rematerialize_for_pred(func, analysis, pred, operand, context, edge_kind, visited)?;
+                rematerialize_for_pred(func, analysis, operand, context, edge_kind, remat_ctx)?;
             let dst = func.next_value_id();
             MirInstruction::UnaryOp { dst, op, operand }
         }
@@ -138,14 +158,11 @@ fn rematerialize_for_pred(
             else_val,
             ..
         } => {
-            let cond =
-                rematerialize_for_pred(func, analysis, pred, cond, context, edge_kind, visited)?;
-            let then_val = rematerialize_for_pred(
-                func, analysis, pred, then_val, context, edge_kind, visited,
-            )?;
-            let else_val = rematerialize_for_pred(
-                func, analysis, pred, else_val, context, edge_kind, visited,
-            )?;
+            let cond = rematerialize_for_pred(func, analysis, cond, context, edge_kind, remat_ctx)?;
+            let then_val =
+                rematerialize_for_pred(func, analysis, then_val, context, edge_kind, remat_ctx)?;
+            let else_val =
+                rematerialize_for_pred(func, analysis, else_val, context, edge_kind, remat_ctx)?;
             let dst = func.next_value_id();
             MirInstruction::Select {
                 dst,
@@ -164,11 +181,11 @@ fn rematerialize_for_pred(
             let args = args
                 .into_iter()
                 .map(|arg| {
-                    rematerialize_for_pred(func, analysis, pred, arg, context, edge_kind, visited)
+                    rematerialize_for_pred(func, analysis, arg, context, edge_kind, remat_ctx)
                 })
                 .collect::<Result<Vec<_>, _>>()?;
             let callee = rematerialize_callee_for_pred(
-                func, analysis, pred, callee, context, edge_kind, visited,
+                func, analysis, callee, context, edge_kind, remat_ctx,
             )?;
             let dst = func.next_value_id();
             MirInstruction::Call {
@@ -181,7 +198,7 @@ fn rematerialize_for_pred(
         }
         other => {
             if dominates_pred {
-                visited.remove(&value);
+                remat_ctx.remember(value, value);
                 return Ok(value);
             }
             return Err(format!(
@@ -191,7 +208,7 @@ fn rematerialize_for_pred(
         }
     };
 
-    let dst = remat
+    let dst = remat_inst
         .dst_value()
         .ok_or_else(|| "[ssa/phi_input] rematerialized instruction missing dst".to_string())?;
     let fn_name = func.signature.name.clone();
@@ -201,8 +218,8 @@ fn rematerialize_for_pred(
             fn_name, pred, context, edge_kind, value.0
         )
     })?;
-    block.add_instruction_before_terminator(remat);
-    visited.remove(&value);
+    block.add_instruction_before_terminator(remat_inst);
+    remat_ctx.remember(value, dst);
     Ok(dst)
 }
 
@@ -222,11 +239,10 @@ fn is_rematerializable_string_method_call(callee: &Option<Callee>) -> bool {
 fn rematerialize_callee_for_pred(
     func: &mut MirFunction,
     analysis: &PhiInputMaterializationAnalysis,
-    pred: BasicBlockId,
     callee: Option<Callee>,
     context: &str,
     edge_kind: &str,
-    visited: &mut HashSet<ValueId>,
+    remat_ctx: &mut PhiInputRematContext,
 ) -> Result<Option<Callee>, String> {
     match callee {
         Some(Callee::Method {
@@ -238,7 +254,7 @@ fn rematerialize_callee_for_pred(
         }) => {
             let receiver = receiver
                 .map(|value| {
-                    rematerialize_for_pred(func, analysis, pred, value, context, edge_kind, visited)
+                    rematerialize_for_pred(func, analysis, value, context, edge_kind, remat_ctx)
                 })
                 .transpose()?;
             Ok(Some(Callee::Method {
@@ -261,14 +277,14 @@ pub(in crate::mir::builder) fn for_pred(
     edge_kind: &str,
 ) -> Result<ValueId, String> {
     let analysis = PhiInputMaterializationAnalysis::new(func);
+    let mut remat_ctx = PhiInputRematContext::new(pred);
     rematerialize_for_pred(
         func,
         &analysis,
-        pred,
         value,
         context,
         edge_kind,
-        &mut HashSet::new(),
+        &mut remat_ctx,
     )
 }
 
@@ -290,15 +306,18 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
     }
 
     let analysis = PhiInputMaterializationAnalysis::new(func);
+    let mut remat_contexts: HashMap<BasicBlockId, PhiInputRematContext> = HashMap::new();
     for (block_id, inst_idx, input_idx, pred, incoming) in work {
+        let remat_ctx = remat_contexts
+            .entry(pred)
+            .or_insert_with(|| PhiInputRematContext::new(pred));
         let materialized = rematerialize_for_pred(
             func,
             &analysis,
-            pred,
             incoming,
             context,
             "phi",
-            &mut HashSet::new(),
+            remat_ctx,
         )?;
         if materialized == incoming {
             continue;
@@ -724,7 +743,7 @@ mod tests {
                     certainty: TypeCertainty::Union,
                     box_kind: CalleeBoxKind::RuntimeData,
                 }),
-                args: vec![start, end],
+                args: vec![text, start, end],
                 effects: EffectMask::READ,
             });
 
@@ -737,9 +756,16 @@ mod tests {
             pred.instructions.last(),
             Some(MirInstruction::Call {
                 dst: Some(dst),
-                callee: Some(Callee::Method { method, .. }),
+                callee: Some(Callee::Method {
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+                args,
                 ..
-            }) if *dst == materialized && method == "substring"
+            }) if *dst == materialized
+                && method == "substring"
+                && args.first() == Some(receiver)
         ));
     }
 }

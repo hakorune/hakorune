@@ -35,7 +35,7 @@ rematerialization identity before returning to loop resolver / app-front work.
 4. Run:
 
 ```bash
-cargo test -q phi
+cargo test -q phi_input_materializer
 cargo test -q string_corridor_sink
 cargo check -q --lib
 ```

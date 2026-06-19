@@ -55,7 +55,7 @@ The next cleanup is upstream PHI rematerialization identity stabilization.
 Acceptance for the current slice:
 
 ```bash
-cargo test -q phi
+cargo test -q phi_input_materializer
 cargo test -q string_corridor_sink
 cargo check -q --lib
 ```
