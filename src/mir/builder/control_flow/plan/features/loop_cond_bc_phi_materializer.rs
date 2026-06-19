@@ -17,6 +17,7 @@ pub(in crate::mir::builder) struct LoopCondBreakContinuePhiMaterializer {
     break_phi_dsts: BTreeMap<String, ValueId>,
     continue_target: BasicBlockId,
     use_header_continue_target: bool,
+    has_continue_edges: bool,
 }
 
 pub(in crate::mir::builder) struct LoopCondBreakContinuePhiClosure {
@@ -46,6 +47,7 @@ impl LoopCondBreakContinuePhiMaterializer {
         builder: &mut MirBuilder,
         carrier_vars: &[String],
         use_header_continue_target: bool,
+        has_continue_edges: bool,
         header_bb: BasicBlockId,
         step_bb: BasicBlockId,
         error_prefix: &str,
@@ -93,6 +95,7 @@ impl LoopCondBreakContinuePhiMaterializer {
             break_phi_dsts,
             continue_target,
             use_header_continue_target,
+            has_continue_edges,
         })
     }
 
@@ -135,7 +138,10 @@ impl LoopCondBreakContinuePhiMaterializer {
                 continue;
             };
 
-            if self.use_header_continue_target || body_exits_all_paths {
+            let needs_step_join = !self.use_header_continue_target
+                && (!body_exits_all_paths || self.has_continue_edges);
+
+            if !needs_step_join {
                 phis.push(loop_carriers::build_preheader_only_phi_info(
                     header_bb,
                     preheader_bb,
@@ -191,6 +197,7 @@ mod tests {
             break_phi_dsts: BTreeMap::from([("i".to_string(), ValueId(4))]),
             continue_target: BasicBlockId(12),
             use_header_continue_target: false,
+            has_continue_edges: true,
         };
 
         let closure = materializer

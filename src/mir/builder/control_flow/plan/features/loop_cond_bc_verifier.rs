@@ -18,6 +18,7 @@ pub(in crate::mir::builder) fn verify_loop_cond_break_continue_phi_closure(
     step_bb: BasicBlockId,
     use_header_continue_target: bool,
     body_exits_all_paths: bool,
+    has_continue_edges: bool,
     carrier_count: usize,
     error_prefix: &str,
 ) -> Result<(), String> {
@@ -64,10 +65,12 @@ pub(in crate::mir::builder) fn verify_loop_cond_break_continue_phi_closure(
         }
     }
 
-    let expected_phi_count = if use_header_continue_target || body_exits_all_paths {
-        carrier_count * 2
-    } else {
+    let needs_step_join =
+        !use_header_continue_target && (!body_exits_all_paths || has_continue_edges);
+    let expected_phi_count = if needs_step_join {
         carrier_count * 3
+    } else {
+        carrier_count * 2
     };
     if phi_closure.phis().len() != expected_phi_count {
         return Err(format!(
@@ -132,6 +135,7 @@ mod tests {
             BasicBlockId(12),
             false,
             false,
+            true,
             1,
             "loop_cond_break_continue",
         )
@@ -155,6 +159,7 @@ mod tests {
             BasicBlockId(12),
             false,
             false,
+            true,
             1,
             "loop_cond_break_continue",
         )
@@ -179,6 +184,7 @@ mod tests {
             BasicBlockId(12),
             true,
             true,
+            false,
             1,
             "loop_cond_break_continue",
         )

@@ -56,25 +56,6 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_condition_step_handoff(
     )?;
 
     builder.variable_ctx.variable_map = carrier_orchestration.post_body_map().clone();
-    let loop_var_step_src =
-        carrier_orchestration.loop_var_step_src(&facts.loop_var, skeleton.loop_var_current);
-    builder
-        .variable_ctx
-        .variable_map
-        .insert(facts.loop_var.clone(), loop_var_step_src);
-    if carrier_orchestration.body_has_continue_edge() {
-        generic_loop_step::apply_generic_loop_step(
-            builder,
-            skeleton,
-            &facts.loop_increment,
-            &facts.loop_var,
-            GENERIC_LOOP_ERR,
-        )?;
-        crate::mir::builder::control_flow::joinir::trace::trace().varmap(
-            "generic_loop_v1_post_step",
-            &builder.variable_ctx.variable_map,
-        );
-    }
 
     Ok(())
 }

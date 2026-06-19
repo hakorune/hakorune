@@ -57,6 +57,35 @@ This keeps:
 - strict/dev-only enablement,
 - and local verifier checks (missing PHI inputs fail-fast in the lowerer).
 
+### Partial-carrier continue contract
+
+When a continue branch updates only part of the loop-carried state, that edge
+still owns incoming values for **all** carrier PHIs.
+
+```text
+updated carrier:
+  use the edge-local updated value
+
+preserved carrier:
+  use the predecessor-dominating value visible on that continue edge
+
+forbidden:
+  using a value defined only by a sibling/fallthrough path
+  treating the edge as if missing carriers can be filled by later joins
+```
+
+Therefore partial-carrier continue edges must go through the per-edge
+`ContinueWithPhiArgs` / `step_bb` join contract. A route may not bypass this by
+sending such an edge directly to `header_bb` PHIs.
+
+Current active blocker:
+
+```text
+COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001
+owner=loop_cond_break_continue
+fixture=apps/tests/phase29bq_selfhost_blocker_read_number_continue_staged_min.hako
+```
+
 ## Gates (SSOT)
 
 - `tools/smokes/v2/profiles/integration/joinir/phase29bq_loop_cond_multi_exit_planner_required_vm.sh`

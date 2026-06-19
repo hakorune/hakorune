@@ -121,6 +121,8 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
         &mut body_plans,
         carrier_step_phis,
         &current_bindings,
+        &facts.loop_var,
+        &facts.loop_increment,
         GENERIC_LOOP_ERR,
     )?;
 

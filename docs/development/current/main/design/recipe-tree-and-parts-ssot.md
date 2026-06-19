@@ -15,6 +15,46 @@ Related:
 Facts → Recipe → Lower の境界を壊さず、再帰的な構造処理を Recipe 層に集約する。
 Lower は Parts と RecipeTree だけを見る構造に寄せる。
 
+## Current BoxShape Cleanup Queue
+
+Current active acceptance work must stay focused on the concrete blocker named
+in `CURRENT_STATE.toml`. The following items are structural cleanup work and
+must not be mixed into a BoxCount acceptance row:
+
+- `recipe_tree/verified.rs` still carries multiple concerns:
+  - verified wrapper entry
+  - block contract checks
+  - port signature construction
+  - exit-shape checks
+- `parts/stmt.rs` still owns more than simple statement lowering:
+  - if join lowering
+  - return prelude handling
+  - Program/ScopeBox/container handling
+  - BlockExpr prelude loop handling
+- `parts/loop_/loop_v0.rs` still concentrates carrier discovery, frame setup,
+  body dispatch, PHI wiring, and final binding restoration.
+- NoExit still carries nested `LoopV0` during the transition. Final cleanup may
+  move nested-loop segmentation behind a narrower builder/segmenter seam, but
+  not as part of an unrelated acceptance fix.
+
+Recommended order:
+
+```text
+1. split recipe_tree/verified.rs into port_sig / block_contract / exit_shape
+2. split parts/stmt.rs into simple / if_join / return_prelude /
+   blockexpr_prelude / containers
+3. split parts/loop_/loop_v0.rs into carriers / frame / body_dispatch /
+   phis / final_values
+4. only after those splits, revisit NoExit LoopV0 transition cleanup
+```
+
+Stop line:
+
+```text
+do not combine these BoxShape splits with
+COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001
+```
+
 ## Recipe-first entry policy (SSOT)
 
 - 現行 runtime 主経路は **`Facts -> Recipe -> Verifier -> Lower`** に固定する。

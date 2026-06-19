@@ -58,14 +58,20 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         after_bb,
     } = blocks;
 
-    let carrier_sets = carriers::collect_from_body(&facts.recipe.body.body);
+    let carrier_sets = carriers::collect_outer_from_body(builder, &facts.recipe.body.body);
     let mut carrier_vars = carrier_sets.vars;
-    if carrier_vars.is_empty() {
-        carrier_vars = collect_carrier_vars_from_condition(builder, &facts.condition);
-    }
+    extend_unique_carriers(
+        &mut carrier_vars,
+        collect_carrier_vars_from_condition(builder, &facts.condition),
+    );
+    let continue_branch_has_prelude_effect = facts
+        .continue_branches
+        .iter()
+        .any(|sig| sig.has_assignment || sig.has_local);
     let use_header_continue_target = crate::config::env::joinir_dev::strict_enabled()
         && crate::config::env::joinir_dev::planner_required_enabled()
-        && !facts.continue_branches.is_empty();
+        && !facts.continue_branches.is_empty()
+        && !continue_branch_has_prelude_effect;
     if crate::config::env::joinir_trace_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
@@ -94,6 +100,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         builder,
         &carrier_vars,
         use_header_continue_target,
+        !facts.continue_branches.is_empty(),
         header_bb,
         step_bb,
         LOOP_COND_ERR,
@@ -243,6 +250,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         step_bb,
         use_header_continue_target,
         body_exits_all_paths,
+        !facts.continue_branches.is_empty(),
         carrier_phis.len(),
         LOOP_COND_ERR,
     )?;
@@ -317,6 +325,14 @@ pub(super) fn sync_carrier_bindings(
         }
         if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
             current_bindings.insert(name.clone(), *value_id);
+        }
+    }
+}
+
+fn extend_unique_carriers(carrier_vars: &mut Vec<String>, more: Vec<String>) {
+    for name in more {
+        if !carrier_vars.iter().any(|existing| existing == &name) {
+            carrier_vars.push(name);
         }
     }
 }

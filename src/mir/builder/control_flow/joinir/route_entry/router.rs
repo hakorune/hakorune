@@ -254,6 +254,10 @@ pub(crate) fn route_loop(
                 "[plan/trace:entry_candidates] ctx=loop_router candidates={}",
                 list
             ));
+            let resolver_shadow = registry::collect_b_lite_shadow_report(outcome.facts.as_ref());
+            let _ = ring0
+                .io
+                .stderr_write(format!("{}\n", resolver_shadow.trace_line()).as_bytes());
         }
         if candidates.len() > 1 {
             return Err(Freeze::contract(&format!(

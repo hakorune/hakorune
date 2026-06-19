@@ -303,6 +303,9 @@ Additional plan trace tags (SSOT):
 - `[plan/trace:entry_route]`
   - Purpose: Observe which loop entry route was taken (recipe_first / none).
   - Output fields (1 line): `ctx=<...> route=<...>`
+- `[plan/trace:loop_resolver_b_lite]`
+  - Purpose: Observe B-lite resolver decision next to existing named loop routes without changing route selection.
+  - Output fields (1 line): `decision=<allow|deny> raw=<list|none> effective=<list|none> suppressed=<list|none> disagreement=<bool>`
 - `[plan/trace:loopcond_flags]`
   - Purpose: Summarize LoopCondBreak facts flags before accept/reject.
   - Output fields (1 line): `break=<n> continue=<n> return=<n> exit_if=<n> continue_if=<n> cond_update=<n> nested=<n> no_break_or_continue=<bool> allow_cluster_without_exit=<bool>`

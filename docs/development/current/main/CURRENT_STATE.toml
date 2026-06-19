@@ -25,10 +25,12 @@ is retired. The current blocker is the separate compiler Recipe/CorePlan
 real-shape intake for read_next_number_literal-style staged loops with break;
 the sign/break and decimal/exponent fixtures are planner_required green, and
 the scanner multi-exit fixture is now accepted by generic_loop_v1 through the
-ThenOnlyExit Recipe shape. The continue-in-staged-loop fixture is captured as
-an expected-fail contract. The taskboard now keeps the read_next_number_literal
-family queued while narrowing immediate implementation to the partial-carrier
-continue PHI fix.
+ThenOnlyExit Recipe shape. The continue-in-staged-loop fixture is now green
+through edge-local ContinueWithPhiArgs for partial carriers. The latest
+compiler re-aggregation cards record that the remaining issue is route-owner /
+named-loop-shape debt rather than a new PHI SSOT. The read_next_number_literal
+family stays queued, while immediate work moves to the B-lite loop resolver
+seam; only a minimal old-route compatibility patch is allowed if needed.
 Build crate split planning remains available
 but is paused while this app-front lane is active.
 Detailed landed history lives in the referenced phase cards and design SSOTs,
@@ -37,11 +39,23 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001.md"
 
-latest_card = "296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003.md"
-latest_card_summary = """Pinned and applied the `.hako` app-front template:
+latest_card = "296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001.md"
+latest_card_summary = """The partial-carrier continue fixture is green.
+generic_loop_v1 no longer evaluates the loop-var increment as a shared step_bb
+expression when continue edges are present. Fallthrough cleanup now lowers the
+tail loop increment edge-locally before appending ContinueWithPhiArgs, and
+carrier finalization creates the loop-var step PHI plus header PHI through the
+same edge-local step-join contract as other carriers. The promoted fast-gate
+case `selfhost_read_number_continue_staged_min` now expects output `3`, rc 0,
+and the break/continue flowbox adoption tag. The B-lite loop resolver seam is documented and wired as a debug-only shadow
+observer. The first retire candidate is now selected: the registry candidate
+suppression seam, starting with loop_cond_break_continue global suppression.
+The next blocker is implementing only that selected retire row.
+
+Pinned and applied the `.hako` app-front template:
 Main is startup-only, converter core is separate from the embedded fixture
 handoff, probes are split into stable/regression/investigations, JSON object
 lookup uses generic entry-table key equality without a critical-key bridge,
@@ -194,10 +208,10 @@ generic_loop_v1 Recipe/CorePlan path now accepts that scanner multi-exit body
 via `IfMode::ThenOnlyExit`, and the fixture is flipped to a normal green gate
 case. The continue-in-staged-loop fixture is now captured as an expected-fail
 contract; its owner is loop_cond_break_continue partial carrier PHI handling.
-The latest taskboard refresh keeps read_next_number_literal queued and the
-active implementation target narrowed to the partial-carrier continue PHI
-fixture."""
-current_blocker_token = "COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001"
+The latest implementation keeps read_next_number_literal queued, closes the
+partial-carrier continue fixture, wires the B-lite loop resolver shadow, and
+selects registry candidate suppression as the first route-retire target."""
+current_blocker_token = "COREPLAN-LOOP-ROUTE-RETIRE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -275,4 +289,7 @@ landed_tail = [
   "2026-06-19: generic_loop_v1 accepts scanner multi-exit loop bodies via ThenOnlyExit; next compiler candidate is continue-in-staged-loop.",
   "2026-06-19: continue-in-staged-loop fixture is captured as expected-fail; next owner is partial carrier PHI handling.",
   "2026-06-19: real-shape taskboard refresh keeps read_next_number_literal queued and narrows active implementation to COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001.",
+  "2026-06-19: compiler loop tasks are re-aggregated around route-owner debt and a B-lite loop resolver path before further named-shape patching.",
+  "2026-06-19: partial-carrier continue fixture is promoted to green by making generic_loop_v1 pass loop-var next values through edge-local ContinueWithPhiArgs.",
+  "2026-06-19: B-lite loop resolver shadow is wired and registry candidate suppression is selected as the first route-retire target.",
 ]

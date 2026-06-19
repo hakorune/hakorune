@@ -48,7 +48,12 @@ pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
     // This is critical for Stage-B parser loops such as `parse_block` where the body may contain
     // nested loops (e.g. whitespace skipping) and join-bearing `if` statements.
     let allow_extended = true;
-    let body_exit_allowed = try_build_exit_allowed_block_recipe(body, allow_extended);
+    let continue_prelude_effect = body_has_continue_prelude_effect(body);
+    let body_exit_allowed = if continue_prelude_effect {
+        None
+    } else {
+        try_build_exit_allowed_block_recipe(body, allow_extended)
+    };
     if let Some(body_exit_allowed) = body_exit_allowed {
         return Ok(Some(LoopTrueBreakContinueFacts {
             recipe: LoopCondRecipe::new(body.to_vec(), Vec::new()),
@@ -257,6 +262,58 @@ fn is_general_if_body(body: &[ASTNode]) -> bool {
         }
     }
     true
+}
+
+fn body_has_continue_prelude_effect(body: &[ASTNode]) -> bool {
+    branch_has_continue_prelude_effect(body) || body.iter().any(stmt_has_continue_prelude_effect)
+}
+
+fn stmt_has_continue_prelude_effect(stmt: &ASTNode) -> bool {
+    match stmt {
+        ASTNode::If {
+            then_body,
+            else_body,
+            ..
+        } => {
+            branch_has_continue_prelude_effect(then_body)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|body| branch_has_continue_prelude_effect(body))
+                || body_has_continue_prelude_effect(then_body)
+                || else_body
+                    .as_ref()
+                    .is_some_and(|body| body_has_continue_prelude_effect(body))
+        }
+        ASTNode::Program { statements, .. } => body_has_continue_prelude_effect(statements),
+        ASTNode::ScopeBox { body, .. } => body_has_continue_prelude_effect(body),
+        ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => false,
+        _ => false,
+    }
+}
+
+fn branch_has_continue_prelude_effect(body: &[ASTNode]) -> bool {
+    let Some(ASTNode::Continue { .. }) = body.last() else {
+        return false;
+    };
+    body[..body.len().saturating_sub(1)]
+        .iter()
+        .any(stmt_is_effectful_continue_prelude)
+}
+
+fn stmt_is_effectful_continue_prelude(stmt: &ASTNode) -> bool {
+    match stmt {
+        ASTNode::Assignment { .. }
+        | ASTNode::Local { .. }
+        | ASTNode::MethodCall { .. }
+        | ASTNode::FunctionCall { .. }
+        | ASTNode::Call { .. }
+        | ASTNode::Print { .. } => true,
+        ASTNode::Program { statements, .. } => {
+            statements.iter().any(stmt_is_effectful_continue_prelude)
+        }
+        ASTNode::ScopeBox { body, .. } => body.iter().any(stmt_is_effectful_continue_prelude),
+        _ => false,
+    }
 }
 
 fn is_if_tail_exit_pair(stmt: &ASTNode, next: Option<&ASTNode>) -> bool {

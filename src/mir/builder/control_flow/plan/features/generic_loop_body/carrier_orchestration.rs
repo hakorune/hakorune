@@ -18,27 +18,12 @@ pub(in crate::mir::builder) struct GenericLoopV1CarrierOrchestration {
 }
 
 impl GenericLoopV1CarrierOrchestration {
-    pub(in crate::mir::builder) fn body_has_continue_edge(&self) -> bool {
-        self.body_has_continue_edge
-    }
-
     pub(in crate::mir::builder) fn post_body_map(&self) -> &BTreeMap<String, ValueId> {
         &self.post_body_map
     }
 
     pub(in crate::mir::builder) fn take_body_plans(&mut self) -> Vec<LoweredRecipe> {
         std::mem::take(&mut self.body_plans)
-    }
-
-    pub(in crate::mir::builder) fn loop_var_step_src(
-        &self,
-        loop_var: &str,
-        fallback: ValueId,
-    ) -> ValueId {
-        self.post_body_map
-            .get(loop_var)
-            .copied()
-            .unwrap_or(fallback)
     }
 
     pub(in crate::mir::builder) fn finalize(
@@ -116,27 +101,23 @@ mod tests {
     use crate::mir::ValueId;
 
     #[test]
-    fn generic_loop_v1_carrier_orchestration_uses_post_body_step_src() {
+    fn generic_loop_v1_carrier_orchestration_exposes_post_body_map() {
         let orchestration = GenericLoopV1CarrierOrchestration::new_for_tests(
             BTreeMap::from([("i".to_string(), ValueId::new(7))]),
             true,
         );
 
         assert_eq!(
-            orchestration.loop_var_step_src("i", ValueId::new(3)),
-            ValueId::new(7)
+            orchestration.post_body_map().get("i").copied(),
+            Some(ValueId::new(7))
         );
     }
 
     #[test]
-    fn generic_loop_v1_carrier_orchestration_falls_back_to_current_value() {
+    fn generic_loop_v1_carrier_orchestration_can_have_empty_post_body_map() {
         let orchestration =
             GenericLoopV1CarrierOrchestration::new_for_tests(BTreeMap::new(), false);
 
-        assert_eq!(
-            orchestration.loop_var_step_src("i", ValueId::new(3)),
-            ValueId::new(3)
-        );
-        assert!(!orchestration.body_has_continue_edge());
+        assert!(orchestration.post_body_map().is_empty());
     }
 }

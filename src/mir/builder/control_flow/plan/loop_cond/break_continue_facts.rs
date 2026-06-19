@@ -273,16 +273,20 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
         .iter()
         .any(|item| matches!(item, LoopCondBreakContinueItem::ThenOnlyBreakIf { .. }));
     let is_parse_string2 = matches_parse_string2_shape(body);
+    let continue_branch_has_prelude_effect = continue_branches
+        .iter()
+        .any(|sig| sig.has_assignment || sig.has_local);
     let body_lowering_policy = if !allow_extended
         || has_then_only_break
         || is_parse_string2
         || program_block_seen
         || nested_seen > 0
+        || continue_branch_has_prelude_effect
     {
-        // ProgramBlock and nested-loop items are lowered item-by-item via recipe path.
-        // Forcing ExitAllowed here can reject valid recipes when the whole-body
-        // exit_allowed block is unavailable or when nested bodies depend on a
-        // preceding sibling statement's value.
+        // ProgramBlock, nested-loop, and continue-prelude items are lowered
+        // item-by-item via recipe path. Forcing ExitAllowed here can reject
+        // valid recipes or lose the branch-local prelude value that must be
+        // passed to ContinueWithPhiArgs.
         BodyLoweringPolicy::RecipeOnly
     } else {
         BodyLoweringPolicy::ExitAllowed {

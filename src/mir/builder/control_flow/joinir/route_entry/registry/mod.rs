@@ -10,6 +10,7 @@ use super::router::LoopRouteContext;
 
 mod handlers;
 mod predicates;
+mod resolver;
 mod types;
 mod utils;
 
@@ -17,6 +18,12 @@ use handlers::*;
 use predicates::*;
 use types::entry_keys;
 pub(crate) use types::{Entry, RouterEnv};
+
+pub(crate) fn collect_b_lite_shadow_report(
+    facts: Option<&CanonicalLoopFacts>,
+) -> resolver::LoopRouteShadowReport {
+    resolver::shadow_report(facts)
+}
 
 pub(crate) const ENTRIES: &[Entry] = &[
     Entry {

@@ -75,16 +75,21 @@ pub(in crate::mir::builder) fn finalize_generic_loop_v1_carriers(
     let mut phis = loop_plan.phis.clone();
     let mut final_values = loop_plan.final_values.clone();
     if body_has_continue_edge {
-        let loop_var_step_input = post_body_map
-            .get(loop_var)
-            .copied()
-            .unwrap_or(loop_var_current);
         phis.push(CorePhiInfo {
             block: loop_plan.step_bb,
             dst: carrier_state.loop_var_step_phi,
-            inputs: vec![(loop_plan.body_bb, loop_var_step_input)],
+            inputs: Vec::new(),
             tag: format!("loop_step_in_{}", loop_var),
         });
+        phis.push(loop_carriers::build_loop_phi_info(
+            loop_plan.header_bb,
+            loop_plan.preheader_bb,
+            loop_plan.step_bb,
+            loop_var_current,
+            loop_var_init,
+            carrier_state.loop_var_step_phi,
+            format!("loop_var_{}", loop_var),
+        ));
     } else {
         phis.push(loop_carriers::build_preheader_only_phi_info(
             loop_plan.header_bb,
