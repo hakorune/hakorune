@@ -135,6 +135,21 @@ box RustSubsetConverter {
                 local variant = variants.get_node(vi)
                 local vname = me.node_str(variant.get_node("emitted_name"))
                 if vname == "" { vname = me.node_str(variant.get_node("name")) }
+                local fields = variant.get_node("fields")
+                if fields != null {
+                    local fc = fields.length()
+                    if fc > 0 {
+                        local types = ""
+                        local fi = 0
+                        loop(fi < fc) {
+                            local field = fields.get_node(fi)
+                            if types != "" { types = types + ", " }
+                            types = types + me.node_str(field.get_node("type"))
+                            fi = fi + 1
+                        }
+                        vname = vname + "(" + types + ")"
+                    }
+                }
                 result = result + "\n//   " + vname
                 vi = vi + 1
             }

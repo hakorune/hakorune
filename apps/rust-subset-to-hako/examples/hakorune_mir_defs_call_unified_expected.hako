@@ -1,0 +1,115 @@
+// module crate::call_unified
+// source src/call_unified.rs
+// TODO: Use items are out of v0 scope
+
+// enum TypeCertainty
+//   Known
+//   Union
+
+// enum CalleeBoxKind
+//   StaticCompiler
+//   RuntimeData
+//   UserDefined
+
+// enum Callee
+//   Global(String)
+//   Method(String, String, Option<ValueId>, TypeCertainty, CalleeBoxKind)
+//   Constructor(String)
+//   Closure(Vec<String>, Vec<UnsupportedType>, Option<ValueId>)
+//   Value(ValueId)
+//   Extern(String)
+
+function Callee_is_constructor(receiver: Callee): bool {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function Callee_has_receiver(receiver: Callee): bool {
+    return null /* TODO: Rust match expression is out of v0 scope */
+}
+
+function Callee_receiver(receiver: Callee): Option<ValueId> {
+    return null /* TODO: Rust match expression is out of v0 scope */
+}
+
+record CallFlags {
+    tail_call: bool
+    no_return: bool
+    can_inline: bool
+    is_constructor: bool
+}
+
+function CallFlags_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function CallFlags_constructor(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function CallFlags_no_return(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function CallFlags_with_tail_call(receiver: CallFlags): Self {
+    receiver.tail_call = true
+    return receiver
+}
+
+function CallFlags_with_inline(receiver: CallFlags): Self {
+    receiver.can_inline = true
+    return receiver
+}
+
+function CallFlags_default(): Self {
+    return null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::new */
+}
+
+record MirCall {
+    dst: Option<ValueId>
+    callee: Callee
+    args: Array
+    flags: CallFlags
+    effects: EffectMask
+}
+
+function MirCall_new(dst: Option<ValueId>, callee: Callee, args: Array): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function MirCall_global(dst: Option<ValueId>, name: String, args: Array): Self {
+    return null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+}
+
+function MirCall_method(dst: Option<ValueId>, box_name: String, method: String, receiver: ValueId, args: Array): Self {
+    return null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+}
+
+function MirCall_external(dst: Option<ValueId>, name: String, args: Array): Self {
+    local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+    call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::IO */
+    return call
+}
+
+function MirCall_constructor(dst: ValueId, box_type: String, args: Array): Self {
+    local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+    call.flags = null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::constructor */
+    call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::PURE */.add(null /* TODO: associated const/value path expression is out of v0 skeleton scope: Effect::Alloc */)
+    return call
+}
+
+function MirCall_closure(dst: ValueId, params: Array, captures: Array, me_capture: Option<ValueId>): Self {
+    local call: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: MirCall::new */
+    call.flags = null /* TODO: associated function call expression is out of v0 skeleton scope: CallFlags::constructor */
+    call.effects = null /* TODO: associated const/value path expression is out of v0 skeleton scope: EffectMask::PURE */.add(null /* TODO: associated const/value path expression is out of v0 skeleton scope: Effect::Alloc */)
+    return call
+}
+
+function MirCall_with_tail_call(receiver: MirCall): Self {
+    receiver.flags.tail_call = true
+    return receiver
+}
+
+function MirCall_with_effects(receiver: MirCall, effects: EffectMask): Self {
+    receiver.effects = effects
+    return receiver
+}

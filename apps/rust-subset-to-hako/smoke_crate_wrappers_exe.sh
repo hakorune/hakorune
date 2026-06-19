@@ -48,6 +48,10 @@ run_wrapper_exe \
   "$APP_DIR/convert_hakorune_mir_core_effect_crate_file.hako"
 
 run_wrapper_exe \
+  "hakorune_mir_defs_call_unified" \
+  "$APP_DIR/convert_hakorune_mir_defs_call_unified_crate_file.hako"
+
+run_wrapper_exe \
   "hakorune_mir_builder_binding_context" \
   "$APP_DIR/convert_hakorune_mir_builder_binding_context_crate_file.hako"
 

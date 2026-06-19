@@ -110,21 +110,25 @@ MIR emit, wrapper EXE parity, and full rust-subset smoke. The next blocker is
 selecting the next app-front task before implementation. The next selected
 task is materializing the `hakorune_mir_defs::call_unified` single-module
 bundle because it now reaches generated-skeleton MIR emit after prior
-skeleton-safety blockers were closed."""
+skeleton-safety blockers were closed. That call_unified bundle is now checked
+in and guarded through generated-skeleton MIR emit, wrapper EXE parity, and
+full rust-subset smoke. Enum payload comments are now aligned between the
+Python reference and `.hako` converter. The next blocker is selecting the next
+app-front task before implementation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1361-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1362-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011.md"
 
-latest_card = "296x-1361-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1361-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001.md"
-latest_card_summary = """296x-1361 materializes the selected
-hakorune_mir_defs::call_unified single-module bundle after 296x-1360 selected
-it as the next app-front task."""
+latest_card = "296x-1362-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1362-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011.md"
+latest_card_summary = """296x-1362 selects the next rust-subset-to-hako
+app-front task after the hakorune_mir_defs::call_unified bundle was
+materialized and guarded."""
 
-current_blocker_token = "HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001"
+current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -198,4 +202,5 @@ landed_tail = [
   "2026-06-20: 296x-1358 selects hakorune_mir_builder::context as the next builder-owned context materialization task.",
   "2026-06-20: 296x-1359 materializes the hakorune_mir_builder::context bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
   "2026-06-20: 296x-1360 selects hakorune_mir_defs::call_unified as the next green materialization task.",
+  "2026-06-20: 296x-1361 materializes the hakorune_mir_defs::call_unified bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
 ]

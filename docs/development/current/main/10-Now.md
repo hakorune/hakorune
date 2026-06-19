@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -74,15 +74,17 @@ context materialization task.
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 296x-1360 selects `hakorune_mir_defs::call_unified` as the next green
 materialization task after previous skeleton-safety blockers were closed.
+296x-1361 materializes that call_unified bundle and guards it through
+generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-The next row is 296x-1361. It should materialize the selected `call_unified`
-bundle and keep generated-program execution claims disabled.
+The next row is 296x-1362. It should select the next app-front task before
+implementation and keep generated-program execution claims disabled.
 
 ## Next
 
-1. Read 296x-1361.
-2. Check in the selected `call_unified` manifest/artifact/expected output.
-3. Add focused wrapper and smoke coverage.
+1. Read 296x-1362.
+2. Recheck remaining source-shape blocker candidates.
+3. Select the next app-front task before implementation.
 4. Run:
 
 ```bash

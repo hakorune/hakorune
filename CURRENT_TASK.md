@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011
 ```
 
 Purpose:
 
 ```text
-Materialize the selected `hakorune_mir_defs::call_unified` single-module
-RustSubset bundle after 296x-1360 selected it as the next green app-front
-task.
+Select the next rust-subset-to-hako app-front task after the
+`hakorune_mir_defs::call_unified` single-module bundle was materialized and
+guarded.
 ```
 
 Current evidence:
@@ -106,6 +106,7 @@ HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001 is closed by 296x-1357.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009 is closed by 296x-1358.
 HAKORUNE-MIR-BUILDER-CONTEXT-MATERIALIZATION-001 is closed by 296x-1359.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-010 is closed by 296x-1360.
+HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001 is closed by 296x-1361.
 ```
 
 Acceptance for the current slice:
@@ -118,20 +119,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1361.
-2. Materialize the selected `crate::call_unified` bundle.
-3. Add the focused wrapper and smoke entries.
+1. Read 296x-1362.
+2. Recheck remaining source-shape blocker candidates.
+3. Select the next task before implementation.
 4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011
 ```
 
-296x-1360 selected `hakorune_mir_defs::call_unified` because its generated
-skeleton already reaches MIR emit after previous skeleton-safety blockers were
-closed. 296x-1361 is the implementation row.
+296x-1361 materialized `hakorune_mir_defs::call_unified`. 296x-1362 is the
+selection row for the next app-front task; implementation must not start in
+that row.
 
 ## Pointers
 

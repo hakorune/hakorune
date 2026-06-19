@@ -3,8 +3,8 @@
 // TODO: Use items are out of v0 scope
 
 // enum MirValueKind
-//   Parameter
-//   Local
+//   Parameter(u32)
+//   Local(u32)
 //   Constant
 //   Temporary
 //   Pinned
