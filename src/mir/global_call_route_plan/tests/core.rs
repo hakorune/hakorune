@@ -21,6 +21,18 @@ fn refresh_function_global_call_routes_records_unsupported_global_call() {
     assert_eq!(route.target_return_type(), None);
     assert_eq!(route.target_shape(), None);
     assert_eq!(route.reason(), Some("unknown_global_callee"));
+    assert_eq!(
+        route.reason_detail().as_deref(),
+        Some(
+            "callee `Stage1ModeContractBox.resolve_mode/0` is not present in the current MIR module"
+        )
+    );
+    assert_eq!(
+        route.reason_hint(),
+        Some(
+            "if this is an imported static-box call, verify the import target is registered in hako.toml module_roots and that the import bundle merged its functions"
+        )
+    );
 }
 
 #[test]

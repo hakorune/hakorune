@@ -125,6 +125,8 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
             "emit_trace_consumer": route.emit_trace_consumer(),
             "publication_policy": serde_json::Value::Null,
             "reason": route.reason(),
+            "reason_detail": route.reason_detail(),
+            "reason_hint": route.reason_hint(),
             "effects": route.effect_tags(),
         })
     }));
@@ -225,6 +227,8 @@ pub(super) fn build_global_call_route_json(
         "definition_owner": route.definition_owner(),
         "emit_trace_consumer": route.emit_trace_consumer(),
         "reason": route.reason(),
+        "reason_detail": route.reason_detail(),
+        "reason_hint": route.reason_hint(),
         "effects": route.effect_tags(),
     })
 }

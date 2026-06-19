@@ -299,6 +299,44 @@ impl GlobalCallRoute {
         }
     }
 
+    pub fn reason_detail(&self) -> Option<String> {
+        match self.reason()? {
+            "missing_multi_function_emitter" => Some(format!(
+                "callee `{}` exists with matching arity {}, but the backend has no multi-function emitter for this route",
+                self.callee_name(),
+                self.arity()
+            )),
+            "global_call_arity_mismatch" => Some(format!(
+                "callee `{}` exists, but call arity {} does not match target arity {}",
+                self.callee_name(),
+                self.arity(),
+                self.target_arity()
+                    .map(|arity| arity.to_string())
+                    .unwrap_or_else(|| "unknown".to_string())
+            )),
+            "unknown_global_callee" => Some(format!(
+                "callee `{}` is not present in the current MIR module",
+                self.callee_name()
+            )),
+            _ => None,
+        }
+    }
+
+    pub fn reason_hint(&self) -> Option<&'static str> {
+        match self.reason()? {
+            "missing_multi_function_emitter" => Some(
+                "target exists; keep route metadata and implement or select a backend function-emission owner",
+            ),
+            "global_call_arity_mismatch" => {
+                Some("target exists; compare source call arguments with the lowered function signature")
+            }
+            "unknown_global_callee" => Some(
+                "if this is an imported static-box call, verify the import target is registered in hako.toml module_roots and that the import bundle merged its functions",
+            ),
+            _ => None,
+        }
+    }
+
     pub fn effect_tags(&self) -> &'static [&'static str] {
         if let Some(lowering_override) = self.lowering_override {
             lowering_override.effect_tags()

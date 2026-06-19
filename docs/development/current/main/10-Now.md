@@ -48,8 +48,9 @@ initializers. Field-initializer library route probing is closed by 296x-1325:
 same-file initializer routes are green. Imported static factory field
 initializer routes are fixed by 296x-1326: App-mode import bundle lowering
 now defers non-Main static methods until instance box constructors are lowered,
-so `new Box(args)` can inject `Box.birth/arity`. The active blocker returns to
-creat subset pilot selection.
+so `new Box(args)` can inject `Box.birth/arity`. Unknown global-callee
+diagnostics are improved by 296x-1327 with callee-aware `reason_detail` and
+`reason_hint` fields. The active blocker remains creat subset pilot selection.
 
 ## Next
 
@@ -74,6 +75,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - imported static factory field-initializer routes preserve `new -> birth`
   - App-mode static method lowering is deferred until instance constructors are lowered
   - focused field-initializer, OrderedMap, and constructor-lifecycle smokes are green
+- `GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001`
+  - `reason=unknown_global_callee` remains stable
+  - MIR route metadata adds `reason_detail` and `reason_hint`
+  - route selection and backend lowering are unchanged
 - `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`

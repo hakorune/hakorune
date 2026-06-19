@@ -50,6 +50,14 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(route["definition_owner"], "none");
     assert_eq!(route["emit_trace_consumer"], "mir_call_global_unknown_emit");
     assert_eq!(route["reason"], "unknown_global_callee");
+    assert_eq!(
+        route["reason_detail"],
+        "callee `Stage1ModeContractBox.resolve_mode/0` is not present in the current MIR module"
+    );
+    assert_eq!(
+        route["reason_hint"],
+        "if this is an imported static-box call, verify the import target is registered in hako.toml module_roots and that the import bundle merged its functions"
+    );
     assert_eq!(route["effects"], serde_json::json!(["call.global"]));
 
     let lowering_plan = root["functions"][0]["metadata"]["lowering_plan"]
@@ -87,6 +95,14 @@ fn build_mir_json_root_emits_global_call_routes_and_unsupported_plan() {
     assert_eq!(plan["emit_trace_consumer"], "mir_call_global_unknown_emit");
     assert_eq!(plan["publication_policy"], serde_json::Value::Null);
     assert_eq!(plan["reason"], "unknown_global_callee");
+    assert_eq!(
+        plan["reason_detail"],
+        "callee `Stage1ModeContractBox.resolve_mode/0` is not present in the current MIR module"
+    );
+    assert_eq!(
+        plan["reason_hint"],
+        "if this is an imported static-box call, verify the import target is registered in hako.toml module_roots and that the import bundle merged its functions"
+    );
     assert_eq!(plan["effects"], serde_json::json!(["call.global"]));
 }
 
