@@ -1,6 +1,6 @@
 # 296x-1344 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -92,6 +92,53 @@ implementation_allowed=0
 next_card_name=<card>
 summary=ok
 ```
+
+## Probe
+
+Fresh `hakorune_mir_core` module probe after 296x-1343:
+
+```text
+crate:
+  generated_skeleton_mir_emit=green
+  hako_lines=15
+  content=Use comments only
+  selected=0
+  reason=low_forward_value
+
+crate::effect:
+  generated_skeleton_mir_emit=fail
+  first_failure=Undefined variable: Effect_Mut
+  blocker_kind=enum_variant_value_reference_without_value_surface
+  selected_blocker=1
+```
+
+Already materialized or selected earlier:
+
+```text
+crate::control_ids
+crate::types
+crate::basic_block_id
+crate::binding_id
+crate::value_id
+crate::value_kind
+```
+
+## Decision
+
+Select the smallest source-shape blocker exposed by the next real compiler
+module:
+
+```text
+selected_next_task=RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
+selected_scope=make RustSubset enum variant value references skeleton-safe
+selected_reason=crate::effect fails because expression output references Effect_Mut while enum output is comment-only
+implementation_allowed=0
+next_card_name=296x-1345-RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
+summary=ok
+```
+
+The next row must not implement full enum semantics. It should only remove the
+undefined-symbol skeleton hazard for enum variant references used as values.
 
 General checks:
 

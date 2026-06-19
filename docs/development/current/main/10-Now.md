@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
+RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -33,15 +33,18 @@ generated-skeleton MIR emit plus wrapper EXE parity. 296x-1342 selects
 `hakorune_mir_core::value_kind` as the next single-module materialization task.
 296x-1343 materializes that value_kind bundle and guards it through
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
+296x-1344 selects enum variant value skeleton-safety as the next app-front
+blocker after `crate::effect` exposes `Effect_Mut` as an undefined generated
+symbol.
 
-The next row is 296x-1344. It should select the next app-front task before
-starting implementation.
+The next row is 296x-1345. It should make enum variant value references
+skeleton-safe without claiming full enum runtime semantics.
 
 ## Next
 
-1. Read 296x-1344.
-2. Evaluate next app-front task candidates.
-3. Select the next implementation row without starting implementation.
+1. Add a focused enum-variant-value fixture.
+2. Make enum variant value references skeleton-safe.
+3. Verify `hakorune_mir_core::effect` generated skeleton MIR emit.
 4. Run:
 
 ```bash
@@ -51,7 +54,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-5. Update current pointers when the selection row closes.
+5. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 

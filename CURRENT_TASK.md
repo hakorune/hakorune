@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
+RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after the
-`hakorune_mir_core::value_kind` materialization row closed green.
+Make RustSubset enum variant value references skeleton-safe after
+`hakorune_mir_core::effect` exposed `Effect_Mut` as an undefined generated
+symbol.
 ```
 
 Current evidence:
@@ -88,6 +89,7 @@ RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001 is closed by 296x-1340.
 HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001 is closed by 296x-1341.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002 is closed by 296x-1342.
 HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001 is closed by 296x-1343.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003 is closed by 296x-1344.
 ```
 
 Acceptance for the current slice:
@@ -100,20 +102,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1344.
-2. Evaluate the next app-front task candidates.
-3. Select the next implementation row without starting implementation.
+1. Add a small enum-variant-value fixture that reproduces the undefined symbol.
+2. Make enum variant value references skeleton-safe without claiming full enum
+   runtime semantics.
+3. Verify `hakorune_mir_core::effect` generated skeleton reaches MIR emit.
 4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003
+RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001
 ```
 
-296x-1343 materialized `hakorune_mir_core::value_kind` and guarded it through
-generated-skeleton MIR emit, wrapper EXE parity, and the full rust-subset smoke.
-296x-1344 is the next design/selection row.
+296x-1344 selected enum variant value skeleton-safety as the next blocker:
+`crate::effect` currently emits references like `Effect_Mut` while enum output
+is comment-only.
 
 ## Pointers
 
