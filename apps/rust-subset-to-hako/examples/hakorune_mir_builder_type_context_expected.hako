@@ -1,0 +1,68 @@
+// module crate::type_context
+// source src/type_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record TypeContext {
+    value_types: BTreeMap<ValueId, MirType>
+    value_kinds: HashMap<ValueId, MirValueKind>
+    value_origin_newbox: BTreeMap<ValueId, String>
+    string_literals: BTreeMap<ValueId, String>
+    map_value_types: BTreeMap<ValueId, MirType>
+    map_literal_value_types: BTreeMap<UnsupportedType, MirType>
+}
+
+record TypeContextSnapshot {
+    value_types: BTreeMap<ValueId, MirType>
+    value_kinds: HashMap<ValueId, MirValueKind>
+    value_origin_newbox: BTreeMap<ValueId, String>
+    string_literals: BTreeMap<ValueId, String>
+    map_value_types: BTreeMap<ValueId, MirType>
+    map_literal_value_types: BTreeMap<UnsupportedType, MirType>
+}
+
+function TypeContext_new(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::default */
+}
+
+function TypeContext_get_type(receiver: TypeContext, value_id: ValueId): Option<MirType> {
+    return receiver.value_types.get(value_id)
+}
+
+function TypeContext_set_type(receiver: TypeContext, value_id: ValueId, ty: MirType): void {
+    receiver.value_types.insert(value_id, ty)
+}
+
+function TypeContext_get_kind(receiver: TypeContext, value_id: ValueId): MirValueKind {
+    return receiver.value_kinds.get(value_id).copied().unwrap_or(null /* TODO: associated const/value path expression is out of v0 skeleton scope: MirValueKind::Temporary */)
+}
+
+function TypeContext_set_kind(receiver: TypeContext, value_id: ValueId, kind: MirValueKind): void {
+    receiver.value_kinds.insert(value_id, kind)
+}
+
+function TypeContext_get_origin_box(receiver: TypeContext, value_id: ValueId): Option<String> {
+    return receiver.value_origin_newbox.get(value_id).map(null /* TODO: unsupported expression: Closure */)
+}
+
+function TypeContext_set_origin_box(receiver: TypeContext, value_id: ValueId, class_name: String): void {
+    receiver.value_origin_newbox.insert(value_id, class_name)
+}
+
+function TypeContext_clear_origin_boxes(receiver: TypeContext): void {
+    receiver.value_origin_newbox.clear()
+}
+
+function TypeContext_take_snapshot(receiver: TypeContext): TypeContextSnapshot {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function TypeContext_restore_snapshot(receiver: TypeContext, snapshot: TypeContextSnapshot): void {
+    receiver.value_types = snapshot.value_types
+    receiver.value_kinds = snapshot.value_kinds
+    receiver.value_origin_newbox = snapshot.value_origin_newbox
+    receiver.string_literals = snapshot.string_literals
+    receiver.map_value_types = snapshot.map_value_types
+    receiver.map_literal_value_types = snapshot.map_literal_value_types
+}

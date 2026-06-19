@@ -125,20 +125,23 @@ unsupported expression handoff. Reference type spelling is now parser-safe;
 `type_context` reaches generated-skeleton MIR emit and `metadata_context`
 advances to the undefined `Self` value boundary. 296x-1366 selects
 `hakorune_mir_builder::type_context` materialization as the next task because
-it is the next green MirBuilder-owned context module."""
+it is the next green MirBuilder-owned context module. That type_context bundle
+is now checked in and guarded through generated-skeleton MIR emit, wrapper EXE
+parity, and full rust-subset smoke. The next blocker is selecting the next
+app-front task before implementation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1367-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1368-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014.md"
 
-latest_card = "296x-1367-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1367-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001.md"
-latest_card_summary = """296x-1367 materializes the
-hakorune_mir_builder::type_context single-module RustSubset bundle."""
+latest_card = "296x-1368-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1368-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014.md"
+latest_card_summary = """296x-1368 selects the next rust-subset-to-hako
+app-front task after hakorune_mir_builder::type_context materialization."""
 
-current_blocker_token = "HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001"
+current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -218,4 +221,5 @@ landed_tail = [
   "2026-06-20: 296x-1364 selects reference type spelling skeleton-safety after metadata_context and type_context both fail first on Option<&str>.",
   "2026-06-20: 296x-1365 makes reference type spelling parser-safe; type_context reaches MIR emit and metadata_context advances to undefined Self.",
   "2026-06-20: 296x-1366 selects hakorune_mir_builder::type_context as the next green MirBuilder context materialization task.",
+  "2026-06-20: 296x-1367 materializes hakorune_mir_builder::type_context and guards it through generated-skeleton MIR emit plus wrapper EXE parity.",
 ]

@@ -253,6 +253,7 @@ CONVERTER_FIXTURES=(
   "hakorune_mir_defs call_unified fixture converter|$APP_DIR/convert_hakorune_mir_defs_call_unified_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_defs_call_unified_expected.hako|convert_hakorune_mir_defs_call_unified_crate_file"
   "hakorune_mir_builder binding_context fixture converter|$APP_DIR/convert_hakorune_mir_builder_binding_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_binding_context_expected.hako|convert_hakorune_mir_builder_binding_context_crate_file"
   "hakorune_mir_builder variable_context fixture converter|$APP_DIR/convert_hakorune_mir_builder_variable_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_variable_context_expected.hako|convert_hakorune_mir_builder_variable_context_crate_file"
+  "hakorune_mir_builder type_context fixture converter|$APP_DIR/convert_hakorune_mir_builder_type_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_type_context_expected.hako|convert_hakorune_mir_builder_type_context_crate_file"
   "hakorune_mir_builder core_context fixture converter|$APP_DIR/convert_hakorune_mir_builder_core_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_core_context_expected.hako|convert_hakorune_mir_builder_core_context_crate_file"
   "hakorune_mir_builder context fixture converter|$APP_DIR/convert_hakorune_mir_builder_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_context_expected.hako|convert_hakorune_mir_builder_context_crate_file"
 )
@@ -311,6 +312,11 @@ run_generated_hako_mir_acceptance \
   "hakorune_mir_builder variable_context generated skeleton" \
   "$APP_DIR/convert_hakorune_mir_builder_variable_context_crate_file.hako" \
   "hakorune_mir_builder_variable_context_handoff"
+
+run_generated_hako_mir_acceptance \
+  "hakorune_mir_builder type_context generated skeleton" \
+  "$APP_DIR/convert_hakorune_mir_builder_type_context_crate_file.hako" \
+  "hakorune_mir_builder_type_context_handoff"
 
 run_generated_hako_mir_acceptance \
   "hakorune_mir_builder core_context generated skeleton" \

@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014
 ```
 
 Purpose:
 
 ```text
-Materialize the selected `hakorune_mir_builder::type_context` RustSubset
-single-module bundle.
+Select the next rust-subset-to-hako app-front task after
+`hakorune_mir_builder::type_context` materialization was closed.
 ```
 
 Current evidence:
@@ -111,6 +111,7 @@ RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001 is closed by 296x-1363.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012 is closed by 296x-1364.
 RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001 is closed by 296x-1365.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013 is closed by 296x-1366.
+HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001 is closed by 296x-1367.
 ```
 
 Acceptance for the current slice:
@@ -123,22 +124,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1367.
-2. Check in the selected `type_context` manifest/module bundle.
-3. Add a focused converter wrapper and expected generated `.hako`.
-4. Verify generated-skeleton MIR emit and wrapper EXE parity.
-5. Keep generated-program execution claim at 0.
+1. Read 296x-1368.
+2. Recheck `metadata_context` next-boundary evidence and remaining green
+   module candidates.
+3. Select the next source-shape blocker or materialization row.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014
 ```
 
-296x-1366 selected `hakorune_mir_builder::type_context` because it is the next
-green MirBuilder-owned context module after reference type spelling was fixed.
-296x-1367 materializes that bundle only; it must not touch the
-`metadata_context` undefined-Self boundary.
+296x-1367 materialized `hakorune_mir_builder::type_context`. 296x-1368
+selects the next app-front task before implementation.
 
 ## Pointers
 

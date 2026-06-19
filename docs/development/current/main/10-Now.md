@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -77,15 +77,16 @@ materialization task after previous skeleton-safety blockers were closed.
 296x-1361 materializes that call_unified bundle and guards it through
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-296x-1366 selects `hakorune_mir_builder::type_context` as the next green
-MirBuilder-owned context module. The active row is 296x-1367, which should
-materialize that bundle and keep generated-program execution claims disabled.
+296x-1367 materializes `hakorune_mir_builder::type_context` and guards it
+through generated-skeleton MIR emit plus wrapper EXE parity. The active row is
+296x-1368, which should select the next app-front task before implementation.
 
 ## Next
 
-1. Read 296x-1367.
-2. Check in the selected `type_context` manifest/module bundle.
-3. Add focused wrapper and generated skeleton expected output.
+1. Read 296x-1368.
+2. Recheck `metadata_context` next-boundary evidence and remaining green
+   module candidates.
+3. Select the next app-front task before implementation.
 4. Run:
 
 ```bash
