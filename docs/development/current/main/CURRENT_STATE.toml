@@ -99,21 +99,24 @@ generated-skeleton MIR emit. The next blocker is selecting the next app-front
 task before implementation. The next selected task is materializing the
 `hakorune_mir_builder::core_context` single-module bundle because it already
 reaches generated-skeleton MIR emit and is directly relevant to MirBuilder ID
-generation migration."""
+generation migration. That core_context bundle is now checked in and guarded
+through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset
+smoke. The next blocker is selecting the next app-front task before
+implementation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1357-HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1358-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009.md"
 
-latest_card = "296x-1357-HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1357-HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001.md"
-latest_card_summary = """296x-1357 materializes the selected
-hakorune_mir_builder::core_context single-module bundle after 296x-1356
-selected it as the next MirBuilder-relevant app-front task."""
+latest_card = "296x-1358-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1358-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009.md"
+latest_card_summary = """296x-1358 selects the next rust-subset-to-hako
+app-front task after the hakorune_mir_builder::core_context bundle was
+materialized and guarded."""
 
-current_blocker_token = "HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001"
+current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -183,4 +186,5 @@ landed_tail = [
   "2026-06-20: 296x-1354 selects associated const/value path skeleton-safety after EffectMask::IO exposed EffectMask_IO as an undefined generated variable.",
   "2026-06-20: 296x-1355 makes associated const/value paths skeleton-safe as explicit Unsupported handoffs; call_unified reaches generated-skeleton MIR emit.",
   "2026-06-20: 296x-1356 selects hakorune_mir_builder::core_context as the next MirBuilder-relevant single-module materialization task.",
+  "2026-06-20: 296x-1357 materializes the hakorune_mir_builder::core_context bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
 ]

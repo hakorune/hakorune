@@ -1,0 +1,56 @@
+// module crate::core_context
+// source src/core_context.rs
+// TODO: Use items are out of v0 scope
+
+record CoreContext {
+    value_gen: ValueIdGenerator
+    block_gen: BasicBlockIdGenerator
+    next_binding_id: i64
+    temp_slot_counter: i64
+    debug_join_counter: i64
+}
+
+function CoreContext_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function CoreContext_next_value(receiver: CoreContext): ValueId {
+    return receiver.value_gen.next()
+}
+
+function CoreContext_next_block(receiver: CoreContext): BasicBlockId {
+    return receiver.block_gen.next()
+}
+
+function CoreContext_next_binding(receiver: CoreContext): BindingId {
+    local id: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: BindingId::new */
+    receiver.next_binding_id = receiver.next_binding_id.saturating_add(1)
+    /* TODO: statement macro out of v0 scope */
+    return id
+}
+
+function CoreContext_next_temp_slot(receiver: CoreContext): i64 {
+    local id: Unknown = receiver.temp_slot_counter
+    receiver.temp_slot_counter = receiver.temp_slot_counter.saturating_add(1)
+    return id
+}
+
+function CoreContext_next_debug_join(receiver: CoreContext): i64 {
+    local id: Unknown = receiver.debug_join_counter
+    receiver.debug_join_counter = receiver.debug_join_counter.saturating_add(1)
+    return id
+}
+
+function CoreContext_peek_next_value(receiver: CoreContext): ValueId {
+    return receiver.value_gen.peek_next()
+}
+
+function CoreContext_peek_next_block(receiver: CoreContext): BasicBlockId {
+    return receiver.block_gen.peek_next()
+}
+
+function CoreContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+// TODO: Mod items are out of v0 scope
