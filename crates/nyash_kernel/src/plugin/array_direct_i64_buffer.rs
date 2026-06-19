@@ -366,7 +366,8 @@ mod tests {
                 break;
             }
         }
-        let public_handle = colliding_handle.expect("test should create a low-bit colliding handle");
+        let public_handle =
+            colliding_handle.expect("test should create a low-bit colliding handle");
 
         assert_eq!(direct_array_i64_push_i64(public_handle, 7), None);
         assert!(!direct_array_i64_store_i64(public_handle, 0, 7));
