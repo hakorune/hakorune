@@ -25,20 +25,21 @@ syn-adapter handoff, and `.hako` EXE/AOT converter parity. Loop
 without changing compiler Recipe/CorePlan semantics. Generic Rust function
 skeleton transport is green as type-spelling preservation only. The unsupported
 trait handoff is hardened with RustSubset JSON and `.hako` EXE/AOT fixture
-parity. The active blocker is app-front next-task selection."""
+parity. The rust-subset smoke script is table-driven so future fixture rows do
+not duplicate MIR/EXE/adapter boilerplate. The active blocker is app-front
+next-task selection."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1313-RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1314-RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001.md"
 
-latest_card = "296x-1313-RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1313-RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001.md"
-latest_card_summary = """296x-1313 hardens the existing unsupported Rust trait
-item handoff with checked-in RustSubset JSON and `.hako` EXE/AOT fixture parity.
-The Python reference converter, syn-adapter handoff, smoke, and adapter smoke
-are green. No trait semantics or new schema node are introduced."""
+latest_card = "296x-1314-RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1314-RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001.md"
+latest_card_summary = """296x-1314 refactors the rust-subset-to-hako smoke
+script into table-driven fixture runners. Behavior is unchanged; Python
+selftest, cargo check, smoke, and adapter smoke are green."""
 
 current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -67,4 +68,5 @@ landed_tail = [
   "2026-06-19: 296x-1311 fixture-guards loop break/continue as an explicit Unsupported handoff; compiler Recipe/CorePlan semantics are unchanged.",
   "2026-06-19: 296x-1312 fixture-guards generic function skeleton transport as type-spelling preservation only; generic semantics are not claimed.",
   "2026-06-19: 296x-1313 hardens unsupported trait handoff with RustSubset JSON and .hako EXE/AOT parity; trait semantics are not claimed.",
+  "2026-06-19: 296x-1314 refactors rust-subset smoke fixture handling into table-driven runners; behavior is unchanged.",
 ]

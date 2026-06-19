@@ -33,7 +33,8 @@ syn-adapter smoke wrapper is closed by 296x-1309. RustSubset `Index`
 expression transport is closed by 296x-1310. Loop `break` / `continue` is
 fixture-guarded as an explicit Unsupported handoff by 296x-1311. Generic
 function skeleton transport is closed by 296x-1312. Unsupported trait handoff
-hardening is closed by 296x-1313.
+hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
+table-driven by 296x-1314.
 
 ## Next
 
@@ -88,6 +89,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - unsupported trait handoff now has RustSubset JSON and `.hako` EXE/AOT parity
   - no trait semantics or new schema node are introduced
   - Python reference, syn adapter, and `.hako` EXE/AOT parity are green
+- `RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001`
+  - smoke fixture handling is table-driven
+  - behavior, converter core, schema, and input routes are unchanged
+  - Python reference, smoke, and adapter smoke are green
 
 Closeout evidence:
 

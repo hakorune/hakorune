@@ -58,6 +58,7 @@ index_fixture_parity=ok
 loop_without_break_fixture_parity=ok
 break_continue_unsupported_handoff_parity=ok
 generic_function_fixture_parity=ok
+smoke_fixture_table_refactor=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
 ```
@@ -200,6 +201,15 @@ closed:
     trait_semantics_enabled=0
     schema_node_added=0
     card=docs/development/current/main/phases/phase-296x/296x-1313-RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001.md
+
+  RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001
+    result=smoke fixture handling is table-driven
+    owner=app-front smoke maintainability
+    behavior_changed=0
+    converter_core_changed=0
+    input_route_changed=0
+    evidence=apps/rust-subset-to-hako/smoke.sh
+    card=docs/development/current/main/phases/phase-296x/296x-1314-RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001.md
 
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape
