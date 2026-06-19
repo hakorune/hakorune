@@ -53,6 +53,7 @@ adapter_fixture_handoff_parity=ok
 else_if_fixture_parity=ok
 returnless_void_body_fixture_parity=ok
 vec_method_fixture_parity=ok
+index_fixture_parity=ok
 loop_without_break_fixture_parity=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
@@ -243,6 +244,13 @@ closed:
     schema_node_added=0
     converter_core_changed=0
     card=docs/development/current/main/phases/phase-296x/296x-1267-RUST-SUBSET-SYN-ADAPTER-VEC-METHOD-CALLS-001.md
+
+  RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-012
+    result=Index expression selected and implemented as RustSubset Index transport
+    owner=RustSubset expression schema / converter emit / syn adapter lowering
+    evidence=index_input.rs + index_subset.json + index_expected.hako + convert_index_fixture.hako
+    caveat=Array storage/bounds semantics remain owned by the Hakorune compiler/runtime
+    card=docs/development/current/main/phases/phase-296x/296x-1310-RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001.md
 
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-008
     result=Loop without break selected and implemented through existing While schema with cond=true

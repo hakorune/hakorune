@@ -287,6 +287,12 @@ box RustSubsetConverter {
             return base + "." + field
         }
 
+        if kind == "Index" {
+            local target = me.emit_expr(expr.get_node("target"))
+            local index = me.emit_expr(expr.get_node("index"))
+            return target + "[" + index + "]"
+        }
+
         if kind == "Binary" {
             local op = me.node_str(expr.get_node("op"))
             local left = me.emit_expr(expr.get_node("left"))

@@ -29,12 +29,13 @@ identity is closed by 296x-1306, and string-corridor stable-length hint fallback
 retirement is closed by 296x-1307. The rust-subset app-front smoke reopen is
 closed by 296x-1308; `JsonParser.parse_array/0` is owned by
 loop_true_break_continue via the recipe-first ExitAllowed path. A dedicated
-syn-adapter smoke wrapper is closed by 296x-1309.
+syn-adapter smoke wrapper is closed by 296x-1309. RustSubset `Index`
+expression transport is closed by 296x-1310.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Select the next rust-subset-to-hako app-front slice.
+2. Select the next rust-subset-to-hako app-front slice after Index.
 3. Keep converter core separate from input routes.
 4. Run:
 
@@ -67,6 +68,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
 - `RUST-SUBSET-SYN-ADAPTER-SMOKE-ENTRY-001`
   - dedicated wrapper for `RUST_SUBSET_RUN_ADAPTER=1`
   - converter core remains input-route agnostic
+- `RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001`
+  - Rust `xs[i]` lowers to RustSubset `Index`
+  - Python reference, syn adapter, and `.hako` EXE/AOT parity are green
+  - Array storage/bounds semantics remain compiler/runtime-owned
 
 Closeout evidence:
 
@@ -80,6 +85,7 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 bash apps/rust-subset-to-hako/smoke.sh
+bash apps/rust-subset-to-hako/smoke_adapter.sh
 ```
 
 ## Paused Lanes

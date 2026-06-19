@@ -120,6 +120,21 @@ V0 maps all receivers to explicit `me: TargetType` in emitted `.hako`.
 {"kind": "Field", "base": {"kind": "Name", "name": "self"}, "field": "x"}
 ```
 
+### Index
+
+```json
+{
+  "kind": "Index",
+  "target": {"kind": "Name", "name": "xs"},
+  "index": {"kind": "Name", "name": "i"}
+}
+```
+
+Rust `xs[i]` maps to RustSubset `Index` in v0. The converter emits `.hako`
+`xs[i]`. Array storage, bounds, and element semantics remain owned by the
+Hakorune compiler/runtime; this app-front row only transports the expression
+shape.
+
 ### Binary
 
 ```json

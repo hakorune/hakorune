@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "index": {
+              "kind": "Name",
+              "name": "i"
+            },
+            "kind": "Index",
+            "target": {
+              "kind": "Name",
+              "name": "xs"
+            }
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "pick",
+      "params": [
+        {
+          "name": "xs",
+          "type": "Vec<i64>"
+        },
+        {
+          "name": "i",
+          "type": "usize"
+        }
+      ],
+      "return_type": "i64"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "index_fixture",
+  "schema_version": 0
+}

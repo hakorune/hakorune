@@ -43,6 +43,7 @@ V0 accepts:
 - simple `return`
 - method call / function call skeletons
 - field access skeletons
+- index access skeletons
 - integer, string, bool, null-like placeholder literals
 
 V0 emits:
@@ -81,6 +82,7 @@ V0 does not implement:
 - `convert_adapter_fixture.hako`: startup wrapper for host-produced adapter fixture handoff
 - `convert_if_fixture.hako`: startup wrapper for the selected `If` statement fixture
 - `convert_assign_fixture.hako`: startup wrapper for the selected assignment fixture
+- `convert_index_fixture.hako`: startup wrapper for the selected index expression fixture
 - `fixtures/simple_subset_embedded.hako`: host-generated embedded JSON fixture
 - `tools/embed_fixture.py`: host tool that generates embedded fixture modules
 - `tools/syn_adapter/`: external Rust parser adapter selected for v0 source
@@ -244,6 +246,7 @@ embedded_fixture_handoff=ok
 file_input_enabled=1
 file_input_converter_parity=ok
 adapter_fixture_handoff_parity=ok
+index_fixture_parity=ok
 syn_adapter_smoke=ok
 schema_key_dictionary_enabled=1
 generic_unknown_key_fallback_enabled=1

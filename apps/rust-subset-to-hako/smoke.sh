@@ -16,6 +16,7 @@ VEC_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_vec_fixture.hako"
 ELSE_IF_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_else_if_fixture.hako"
 VOID_BODY_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_void_body_fixture.hako"
 VEC_METHOD_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_vec_method_fixture.hako"
+INDEX_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_index_fixture.hako"
 LOOP_FOREVER_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_loop_forever_fixture.hako"
 MATCH_UNSUPPORTED_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_match_unsupported_fixture.hako"
 UNIT_RETURN_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_unit_return_fixture.hako"
@@ -119,6 +120,14 @@ PY
   diff -u apps/rust-subset-to-hako/examples/vec_method_subset.json \
     /tmp/rust_subset_syn_vec_method_fixture.json
 
+  echo "[rust-subset/smoke] host adapter: index expression fixture"
+  cargo run --manifest-path "$SYN_ADAPTER_MANIFEST" --quiet -- \
+    apps/rust-subset-to-hako/examples/index_input.rs \
+    --module index_fixture \
+    -o /tmp/rust_subset_syn_index_fixture.json
+  diff -u apps/rust-subset-to-hako/examples/index_subset.json \
+    /tmp/rust_subset_syn_index_fixture.json
+
   echo "[rust-subset/smoke] host adapter: loop-without-break fixture"
   cargo run --manifest-path "$SYN_ADAPTER_MANIFEST" --quiet -- \
     apps/rust-subset-to-hako/examples/loop_forever_input.rs \
@@ -195,6 +204,10 @@ NYASH_FILEBOX_MODE=core-ro \
 echo "[rust-subset/smoke] emit MIR JSON: Vec method-call fixture converter"
 NYASH_FILEBOX_MODE=core-ro \
   ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_vec_method_fixture.mir.json "$VEC_METHOD_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_vec_method_fixture.emit.log
+
+echo "[rust-subset/smoke] emit MIR JSON: index fixture converter"
+NYASH_FILEBOX_MODE=core-ro \
+  ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_index_fixture.mir.json "$INDEX_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_index_fixture.emit.log
 
 echo "[rust-subset/smoke] emit MIR JSON: loop-without-break fixture converter"
 NYASH_FILEBOX_MODE=core-ro \
@@ -350,6 +363,19 @@ sed '/^Result: /d' /tmp/hako_rust_subset_convert_vec_method_fixture.out.raw \
   >/tmp/hako_rust_subset_convert_vec_method_fixture.out
 diff -u apps/rust-subset-to-hako/examples/vec_method_expected.hako \
   /tmp/hako_rust_subset_convert_vec_method_fixture.out
+
+echo "[rust-subset/smoke] EXE: index fixture converter parity"
+rm -f /tmp/hako_rust_subset_convert_index_fixture
+NYASH_FILEBOX_MODE=core-ro \
+  ./target/release/hakorune --emit-exe /tmp/hako_rust_subset_convert_index_fixture "$INDEX_FIXTURE_CONVERTER" \
+  >/tmp/hako_rust_subset_convert_index_fixture.exe.log 2>&1
+/tmp/hako_rust_subset_convert_index_fixture \
+  >/tmp/hako_rust_subset_convert_index_fixture.out.raw \
+  2>/tmp/hako_rust_subset_convert_index_fixture.err
+sed '/^Result: /d' /tmp/hako_rust_subset_convert_index_fixture.out.raw \
+  >/tmp/hako_rust_subset_convert_index_fixture.out
+diff -u apps/rust-subset-to-hako/examples/index_expected.hako \
+  /tmp/hako_rust_subset_convert_index_fixture.out
 
 echo "[rust-subset/smoke] EXE: loop-without-break fixture converter parity"
 rm -f /tmp/hako_rust_subset_convert_loop_forever_fixture

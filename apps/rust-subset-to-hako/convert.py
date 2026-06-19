@@ -86,6 +86,12 @@ def emit_expr(expr: dict) -> str:
         field = require_key(expr, "field", "Field")
         return f"{base}.{field}"
 
+    if kind == "Index":
+        # { "kind": "Index", "target": {...}, "index": {...} }
+        target = emit_expr(require_key(expr, "target", "Index"))
+        index = emit_expr(require_key(expr, "index", "Index"))
+        return f"{target}[{index}]"
+
     if kind == "Binary":
         # { "kind": "Binary", "op": "+", "left": {...}, "right": {...} }
         op = require_key(expr, "op", "Binary")

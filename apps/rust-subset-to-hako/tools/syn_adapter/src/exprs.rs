@@ -38,6 +38,11 @@ pub(crate) fn expr_to_json(expr: &Expr) -> Value {
             "base": expr_to_json(field.base.as_ref()),
             "field": field_name(&field.member),
         }),
+        Expr::Index(index) => json!({
+            "kind": "Index",
+            "target": expr_to_json(index.expr.as_ref()),
+            "index": expr_to_json(index.index.as_ref()),
+        }),
         Expr::Binary(binary) => json!({
             "kind": "Binary",
             "op": binop(&binary.op),
