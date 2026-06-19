@@ -39,11 +39,24 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1299-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1300-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1299-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1299-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-OWNER-SELECTION-001.md"
+latest_card = "296x-1300-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1300-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001.md"
 latest_card_summary = """The
+`phase29bq_selfhost_blocker_scan_methods_nested_loop_depth1_no_break_or_continue_pure_min`
+fixture is already semantically green (`stdout=0`, rc 0). The old gate expected
+a LoopCondBreak planner-first tag, but the stable observed tag is
+`[flowbox/adopt box_kind=Loop features=break,nested_loop via=shadow]`. This row
+updates the joinir and selfhost subset gate expectations to that stable adoption
+tag without changing compiler code. The focused gate is green, and the full
+phase29bq gate now progresses to
+`phase29bq_selfhost_blocker_scan_methods_nested_loop_state_machine_min`, where
+the expected output is `2` but the compiler fails under planner_required:
+`generic_loop_v1` has no valid loop-var candidate because
+`control_flow_after_step=1`.
+
+The
 `phase29bq_selfhost_blocker_scan_methods_nested_loop_depth1_no_break_or_continue_min`
 fixture is already semantically green (`stdout=0`, rc 0). The old gate expected
 a LoopCondBreak planner-first tag, but the stable observed tag is
@@ -308,7 +321,7 @@ partial-carrier continue fixture, renames the B-lite shadow to a legacy
 observer, adds actual legacy route selection tracing, and adds a fail-closed
 full suppression inventory entry that stops on the existing multidelta loop
 debt."""
-current_blocker_token = "COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001"
+current_blocker_token = "COREPLAN-SCAN-METHODS-NESTED-LOOP-STATE-MACHINE-STEP-PLACEMENT-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
