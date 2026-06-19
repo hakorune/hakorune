@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+HAKO-ORDERED-MAP-BOX-V0-001
 ```
 
 Purpose:
 
 ```text
-Select a small real `creat` subset by inventory after crate manifest v0,
-synthetic multi-module adapter output, and `.hako` crate handoff MIR acceptance
-are closed.
+Implement the first `.hako` OrderedMapBox library for deterministic String-key
+iteration before using it in BindingContext-style MirBuilder migration probes.
 ```
 
 Current evidence:
@@ -66,28 +65,31 @@ RUST-SUBSET-PATH-NAME-NORMALIZATION-001 is closed by 296x-1317.
 RUST-SUBSET-CRATE-MANIFEST-V0-001 is closed by 296x-1318.
 RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001 is closed by 296x-1319.
 RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001 is closed by 296x-1320.
+HAKO-ORDERED-MAP-BOX-SSOT-001 is closed by 296x-1321.
 ```
 
 Acceptance for the current slice:
 
 ```bash
-cargo check -q --lib
-bash apps/rust-subset-to-hako/smoke.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+# plus the focused OrderedMapBox smoke added by HAKO-ORDERED-MAP-BOX-V0-001
 ```
 
 ## Task Order
 
-1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Inventory a small `creat` subset before adding schema nodes or language
-   surface.
-3. Keep converter core separate from input routes and crate graph discovery.
-4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
-5. Update `CURRENT_STATE.toml` when the next slice is chosen.
+1. Implement `apps/lib/collections/ordered_map.hako`.
+2. Keep v0 String-key only and deterministic lexical ordering only.
+3. Add a focused smoke for insert order, update-without-duplicate, missing get,
+   values-in-key-order, and length.
+4. Do not change `MapBox`, ring0, ring1 provider registration, or MirBuilder in
+   this row.
+5. Update `CURRENT_STATE.toml` when the implementation row closes.
 
 Recommended next row:
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+HAKO-ORDERED-MAP-BOX-V0-001
 ```
 
 ## Pointers

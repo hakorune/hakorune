@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+HAKO-ORDERED-MAP-BOX-V0-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -39,25 +39,26 @@ by 296x-1315. Module schema validation parity is closed by 296x-1316.
 RustSubset path/name normalization is closed by 296x-1317 without adding
 `.hako` syntax. The crate manifest v0 contract is accepted by 296x-1318. The
 synthetic multi-module adapter probe is closed by 296x-1319. Crate handoff MIR
-acceptance is closed by 296x-1320. The active crate-skeleton blocker is
-`creat` subset pilot selection.
+acceptance is closed by 296x-1320. OrderedMapBox is documented as a `.hako`
+library deterministic-map boundary by 296x-1321. The active blocker is the
+small OrderedMapBox v0 implementation.
 
 ## Next
 
-1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Inventory a small `creat` subset before adding schema nodes or language
-   surface.
-3. Keep converter core separate from input routes and crate/file graph
-   discovery.
-4. Run:
+1. Implement `apps/lib/collections/ordered_map.hako`.
+2. Keep v0 String-key only and deterministic lexical ordering only.
+3. Add focused smoke coverage for sorted keys, update-without-duplicate,
+   missing get, values order, and length.
+4. Do not change `MapBox`, ring0, ring1 provider registration, or MirBuilder in
+   this row.
+5. Run:
 
 ```bash
-cargo check -q --lib
-bash apps/rust-subset-to-hako/smoke.sh
-bash apps/rust-subset-to-hako/smoke_adapter.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
 ```
 
-5. Update current pointers when the next slice is chosen.
+6. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 
@@ -126,6 +127,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - `.hako` crate wrapper validates the synthetic manifest and module ids
   - module artifacts are read through FileBox without converter_core ownership
   - generated skeleton MIR emit is smoke-guarded
+- `HAKO-ORDERED-MAP-BOX-SSOT-001`
+  - OrderedMapBox v0 is documented as a `.hako` library utility
+  - v0 owns deterministic String-key order only
+  - `MapBox`, ring0, ring1 provider registration, and MirBuilder remain unchanged
 
 Closeout evidence:
 

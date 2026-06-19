@@ -33,6 +33,11 @@ Nyash時代の「Everything is Box」の解説。現在読む場合は historica
 まず `FileBox.open(path, "r") -> read() -> close()` を使い、DLL/externcall
 追加へ進む前にこの route を試す。
 
+#### [ordered-mapbox.md](ordered-mapbox.md)
+決定的な key order が必要な `.hako` app/compiler utility 向けの
+provisional reference。v0 は `apps/lib/collections/ordered_map.hako`
+で始め、`MapBox` や ring0 substrate とは混ぜない。
+
 ### 🔄 システム設計
 
 #### [delegation-system.md](delegation-system.md)
