@@ -130,9 +130,17 @@ impl super::MirBuilder {
         match ast {
             ASTNode::Program { statements, .. } => {
                 use crate::ast::ASTNode as N;
-                // First pass: lower declarations (static boxes except Main, and instance boxes)
+                // First pass: lower instance declarations before static methods.
+                //
+                // Static methods may allocate instance boxes. Birth-call injection
+                // checks for already-lowered `Box.birth/N` functions, so App mode
+                // must not lower static methods before the instance constructors.
                 let mut main_static: Option<(String, std::collections::HashMap<String, ASTNode>)> =
                     None;
+                let mut deferred_static_boxes: Vec<(
+                    String,
+                    std::collections::HashMap<String, ASTNode>,
+                )> = Vec::new();
                 for st in &statements {
                     if let N::BoxDeclaration {
                         name,
@@ -152,54 +160,7 @@ impl super::MirBuilder {
                             } else {
                                 // Script/Test モードでは static box の lowering は exprs.rs 側に任せる
                                 if is_app_mode {
-                                    // Dev: trace which static box is being lowered (env-gated)
-                                    self.trace_compile(format!("lower static box {}", name));
-                                    // 🎯 箱理論: 各static boxに専用のコンパイルコンテキストを作成
-                                    // これにより、using文や前のboxからのメタデータ汚染を構造的に防止
-                                    // スコープを抜けると自動的にコンテキストが破棄される
-                                    {
-                                        let ctx = BoxCompilationContext::new();
-                                        self.comp_ctx.compilation_context = Some(ctx);
-
-                                        // Lower all static methods into standalone functions: BoxName.method/Arity
-                                        for (mname, mast) in sorted_method_entries(methods) {
-                                            if let N::FunctionDeclaration {
-                                                params,
-                                                param_decls,
-                                                return_type_name,
-                                                body,
-                                                uses,
-                                                attrs,
-                                                ..
-                                            } = mast
-                                            {
-                                                let func_name = format!(
-                                                    "{}.{}{}",
-                                                    name,
-                                                    mname,
-                                                    format!("/{}", params.len())
-                                                );
-                                                self.lower_static_method_as_function(
-                                                    func_name,
-                                                    params.clone(),
-                                                    param_decls.clone(),
-                                                    return_type_name.clone(),
-                                                    body.clone(),
-                                                    uses.clone(),
-                                                    attrs.clone(),
-                                                )?;
-                                                self.comp_ctx
-                                                    .static_method_index
-                                                    .entry(mname.to_string())
-                                                    .or_insert_with(Vec::new)
-                                                    .push((name.clone(), params.len()));
-                                            }
-                                        }
-                                    }
-
-                                    // 🎯 箱理論: コンテキストをクリア（スコープ終了で自動破棄）
-                                    // これにより、次のstatic boxは汚染されていない状態から開始される
-                                    self.comp_ctx.compilation_context = None;
+                                    deferred_static_boxes.push((name.clone(), methods.clone()));
                                 }
                             }
                         } else {
@@ -278,6 +239,52 @@ impl super::MirBuilder {
                             }
                         }
                     }
+                }
+                for (name, methods) in deferred_static_boxes {
+                    // Dev: trace which static box is being lowered (env-gated)
+                    self.trace_compile(format!("lower static box {}", name));
+                    // 🎯 箱理論: 各static boxに専用のコンパイルコンテキストを作成
+                    // これにより、using文や前のboxからのメタデータ汚染を構造的に防止
+                    // スコープを抜けると自動的にコンテキストが破棄される
+                    {
+                        let ctx = BoxCompilationContext::new();
+                        self.comp_ctx.compilation_context = Some(ctx);
+
+                        // Lower all static methods into standalone functions: BoxName.method/Arity
+                        for (mname, mast) in sorted_method_entries(&methods) {
+                            if let N::FunctionDeclaration {
+                                params,
+                                param_decls,
+                                return_type_name,
+                                body,
+                                uses,
+                                attrs,
+                                ..
+                            } = mast
+                            {
+                                let func_name =
+                                    format!("{}.{}{}", name, mname, format!("/{}", params.len()));
+                                self.lower_static_method_as_function(
+                                    func_name,
+                                    params.clone(),
+                                    param_decls.clone(),
+                                    return_type_name.clone(),
+                                    body.clone(),
+                                    uses.clone(),
+                                    attrs.clone(),
+                                )?;
+                                self.comp_ctx
+                                    .static_method_index
+                                    .entry(mname.to_string())
+                                    .or_insert_with(Vec::new)
+                                    .push((name.clone(), params.len()));
+                            }
+                        }
+                    }
+
+                    // 🎯 箱理論: コンテキストをクリア（スコープ終了で自動破棄）
+                    // これにより、次のstatic boxは汚染されていない状態から開始される
+                    self.comp_ctx.compilation_context = None;
                 }
 
                 // Second pass: mode-dependent entry lowering

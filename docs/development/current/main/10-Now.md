@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -45,29 +45,35 @@ focused EXE/AOT smoke are closed by 296x-1322. The focused BindingContext-style
 OrderedMapBox probe is closed by 296x-1323. Constructor lifecycle is guarded
 separately by 296x-1324 without moving meaningful birth logic into field
 initializers. Field-initializer library route probing is closed by 296x-1325:
-same-file initializer routes are green, while imported static factories stop at
-`unknown_global_callee` before runtime. The active blocker is imported
-static/global callee route investigation.
+same-file initializer routes are green. Imported static factory field
+initializer routes are fixed by 296x-1326: App-mode import bundle lowering
+now defers non-Main static methods until instance box constructors are lowered,
+so `new Box(args)` can inject `Box.birth/arity`. The active blocker returns to
+creat subset pilot selection.
 
 ## Next
 
-1. Compare route metadata for `FieldInitRouteLib.createDefault/0` and
-   `OrderedMap.create/0`.
-2. Identify the route owner that produces `unknown_global_callee`.
-3. Add the smallest focused route fixture or guard.
-4. Do not change field-initializer semantics in this row.
-5. Run:
+1. Inventory candidate creat/source modules without adding new `.hako` syntax.
+2. Count unsupported RustSubset families and graph blockers.
+3. Select a 2-3 module pilot slice.
+4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+6. Run:
 
 ```bash
-bash apps/field_initializer_route_probe/smoke.sh
+cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-6. Update current pointers when the implementation row closes.
+7. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 
+- `IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001`
+  - imported static factory field-initializer routes preserve `new -> birth`
+  - App-mode static method lowering is deferred until instance constructors are lowered
+  - focused field-initializer, OrderedMap, and constructor-lifecycle smokes are green
 - `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`

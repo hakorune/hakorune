@@ -44,9 +44,9 @@ cat >"$EXPECTED" <<'EOF_EXPECTED'
 same_file_direct_default=ok
 same_file_factory_default=ok
 same_file_birth=ok
-imported_factory_default=unsupported_pure_shape
-imported_factory_birth=unsupported_pure_shape
-imported_factory_ordered_like=unsupported_pure_shape
+imported_factory_default=ok
+imported_factory_birth=ok
+imported_factory_ordered_like=ok
 summary=observed
 EOF_EXPECTED
 

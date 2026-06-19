@@ -33,16 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Determine why local app-library static factories such as
-FieldInitRouteLib.createDefault/0 are classified as unknown_global_callee while
-existing imported library factories such as OrderedMap.create/0 resolve to a
-direct function route.
+Select the first creat-style RustSubset pilot slice after closing the
+constructor lifecycle and imported field-initializer route blockers.
 ```
 
 Current evidence:
@@ -72,32 +70,31 @@ HAKO-ORDERED-MAP-BOX-V0-001 is closed by 296x-1322.
 MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001 is closed by 296x-1323.
 CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001 is closed by 296x-1324.
 FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001 is closed by 296x-1325.
+IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001 is closed by 296x-1326.
 ```
 
 Acceptance for the current slice:
 
 ```bash
-bash apps/field_initializer_route_probe/smoke.sh
+cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused MIR route comparison selected by
-# IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
+# plus the focused inventory/adapter command selected by
+# CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 ## Task Order
 
-1. Compare route metadata for `FieldInitRouteLib.createDefault/0` and
-   `OrderedMap.create/0`.
-2. Identify the owner of imported static/global callee classification.
-3. Add the smallest focused fixture or guard for the route seam.
-4. Do not change field-initializer semantics in this row.
-5. Return to `CREAT-SUBSET-PILOT-SELECTION-001` only after the route seam is
-   classified or fixed.
+1. Inventory candidate creat/source modules without adding new `.hako` syntax.
+2. Count unsupported RustSubset families and graph blockers.
+3. Select a 2-3 module pilot slice.
+4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 ## Pointers

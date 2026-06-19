@@ -42,29 +42,26 @@ BindingContext-style OrderedMapBox probe is also green without rewriting
 MirBuilder, changing MapBox, or touching ring provider registration. The
 constructor lifecycle boundary is guarded separately: OrderedMap keeps explicit
 v0 create-time initialization while a focused birth/field-initializer EXE/AOT
-probe verifies constructor args and per-instance default state. A focused
-field-initializer library route probe shows same-file direct new,
-static-factory initializer, and explicit birth routes are green, while imported
-static factory cases stop before runtime. Imported static factories are
-classified as unknown_global_callee. The next blocker is the imported
-static/global callee route seam."""
+probe verifies constructor args and per-instance default state. Imported static
+factory field-initializer routes now preserve normal `new -> birth` lifecycle
+semantics through the app import bundle path. The next blocker returns to creat
+subset pilot selection."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1325-FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1326-IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001.md"
 
-latest_card = "296x-1325-FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1325-FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001.md"
-latest_card_summary = """296x-1325 adds a focused field-initializer route
-probe. Same-file direct new, same-file static factory new, and same-file
-birth(value) routes are green. Imported static factory cases currently stop at
-unsupported_pure_shape with route metadata reason=unknown_global_callee, so
-imported field-initializer runtime behavior is not yet observable. The next
-blocker is imported static/global callee route investigation."""
+latest_card = "296x-1326-IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1326-IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001.md"
+latest_card_summary = """296x-1326 fixes imported static factory
+field-initializer routes. The app import bundle path now defers non-Main static
+method lowering until instance box constructors are lowered, so `new Box(args)`
+can inject the existing `Box.birth/arity` call. The focused field-initializer,
+OrderedMap, and constructor-lifecycle EXE/AOT smokes are green."""
 
-current_blocker_token = "IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001"
+current_blocker_token = "CREAT-SUBSET-PILOT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -103,4 +100,5 @@ landed_tail = [
   "2026-06-20: 296x-1323 closes the BindingContext-style OrderedMapBox probe; next blocker returns to creat subset pilot selection.",
   "2026-06-20: 296x-1324 guards constructor lifecycle separately from OrderedMap v0 initialization; next blocker remains creat subset pilot selection.",
   "2026-06-20: 296x-1325 observes same-file field initializers as green and imported static factory routes as unknown_global_callee; next blocker is imported static/global callee route investigation.",
+  "2026-06-20: 296x-1326 fixes imported static factory field-initializer routes by deferring App-mode static method lowering until instance constructors are lowered; next blocker returns to creat subset pilot selection.",
 ]
