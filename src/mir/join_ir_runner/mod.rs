@@ -32,7 +32,7 @@
 mod api;
 #[cfg(feature = "vm-reference")]
 mod exec;
-#[cfg(test)]
+#[cfg(all(test, feature = "vm-reference"))]
 mod tests;
 
 // Phase 27.8: ops box からの再エクスポート

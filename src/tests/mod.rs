@@ -3,6 +3,7 @@ pub mod helpers;
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub mod box_tests;
+#[cfg(feature = "vm-reference")]
 pub mod core13_smoke_array;
 pub mod exec_parity;
 // Legacy PHI-off flow shape tests (pre-JoinIR). Disable by default.
@@ -13,16 +14,20 @@ pub mod host_reverse_slot;
 // Legacy PHI-off if/merge shape tests (pre-JoinIR). Disable by default.
 #[cfg(feature = "legacy-tests")]
 pub mod if_no_phi;
+#[cfg(feature = "vm-reference")]
 pub mod if_return_exec;
 // Legacy StringUtils VM parity smoke (pre-JoinIR). Disable by default.
 #[cfg(feature = "legacy-tests")]
 pub mod json_lint_stringutils_min_vm; // Phase 21.7++: using StringUtils alias resolution fix
+#[cfg(feature = "vm-reference")]
 pub mod llvm_bitops_test;
 pub mod macro_tests;
 pub mod mir;
 pub mod mir_direct_route_decode_escapes;
+#[cfg(feature = "vm-reference")]
 pub mod mir_numeric_shift_semantics;
 pub mod namingbox_static_method_id; // Phase 21.7++ Phase 1: StaticMethodId structure tests
+#[cfg(feature = "vm-reference")]
 pub mod nyash_abi_basic;
 pub mod parser;
 pub mod phase61_if_in_loop_dryrun; // Phase 61-2: If-in-loop JoinIR dry-run tests
@@ -35,7 +40,9 @@ pub mod refcell_assignment_test;
 pub mod stage1_cli_entry_ssa_smoke;
 pub mod sugar;
 pub mod typebox_tlv_diff;
+#[cfg(feature = "vm-reference")]
 pub mod vm;
+#[cfg(feature = "vm-reference")]
 pub mod vtable;
 
 // Phase 34-2: JoinIR Frontend (AST→JoinIR) and related components

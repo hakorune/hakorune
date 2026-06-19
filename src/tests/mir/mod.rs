@@ -61,10 +61,13 @@ pub mod mir_peek_lower;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_phi_basic_verify.rs"]
 pub mod mir_phi_basic_verify;
+#[cfg(feature = "vm-reference")]
 #[path = "../mir_pure_e2e_arith.rs"]
 pub mod mir_pure_e2e_arith;
+#[cfg(feature = "vm-reference")]
 #[path = "../mir_pure_e2e_branch.rs"]
 pub mod mir_pure_e2e_branch;
+#[cfg(feature = "vm-reference")]
 #[path = "../mir_pure_e2e_vm.rs"]
 pub mod mir_pure_e2e_vm;
 #[path = "../mir_pure_envbox.rs"]
@@ -82,8 +85,10 @@ pub mod mir_pure_only_core13;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_qmark_lower.rs"]
 pub mod mir_qmark_lower;
+#[cfg(feature = "vm-reference")]
 #[path = "../mir_scope_exit_fini_vm.rs"]
 pub mod mir_scope_exit_fini_vm;
+#[cfg(feature = "vm-reference")]
 #[path = "../mir_stage1_cli_emit_program_min.rs"]
 pub mod mir_stage1_cli_emit_program_min;
 #[cfg(feature = "legacy-tests")]
@@ -107,6 +112,7 @@ pub mod mir_stageb_string_utils_skip_ws;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_static_box_naming.rs"]
 pub mod mir_static_box_naming;
+#[cfg(feature = "vm-reference")]
 #[path = "../mir_static_const_table_load.rs"]
 pub mod mir_static_const_table_load;
 #[path = "../mir_unified_members_property_read.rs"]
@@ -115,5 +121,6 @@ pub mod mir_unified_members_property_read;
 pub mod mir_user_box_method_determinism;
 #[path = "../mir_value_kind.rs"]
 pub mod mir_value_kind;
+#[cfg(feature = "vm-reference")]
 #[path = "../record_construction_ergonomics.rs"]
 pub mod record_construction_ergonomics;

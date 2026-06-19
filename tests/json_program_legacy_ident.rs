@@ -1,3 +1,5 @@
+#![cfg(feature = "vm-reference")]
+
 use serde_json::json;
 use std::collections::BTreeMap;
 

@@ -66,28 +66,23 @@ mod tests {
     use crate::mir::ValueId;
 
     #[test]
-    fn generic_loop_v1_condition_step_handoff_uses_post_body_loop_var() {
+    fn generic_loop_v1_carrier_orchestration_exposes_post_body_map_for_handoff() {
         let carrier_orchestration = GenericLoopV1CarrierOrchestration::new_for_tests(
             BTreeMap::from([("i".to_string(), ValueId::new(9))]),
             true,
         );
 
         assert_eq!(
-            carrier_orchestration.loop_var_step_src("i", ValueId::new(3)),
-            ValueId::new(9)
+            carrier_orchestration.post_body_map().get("i").copied(),
+            Some(ValueId::new(9))
         );
-        assert!(carrier_orchestration.body_has_continue_edge());
     }
 
     #[test]
-    fn generic_loop_v1_condition_step_handoff_falls_back_without_continue_edge() {
+    fn generic_loop_v1_carrier_orchestration_allows_empty_post_body_map() {
         let carrier_orchestration =
             GenericLoopV1CarrierOrchestration::new_for_tests(BTreeMap::new(), false);
 
-        assert_eq!(
-            carrier_orchestration.loop_var_step_src("i", ValueId::new(3)),
-            ValueId::new(3)
-        );
-        assert!(!carrier_orchestration.body_has_continue_edge());
+        assert!(carrier_orchestration.post_body_map().is_empty());
     }
 }

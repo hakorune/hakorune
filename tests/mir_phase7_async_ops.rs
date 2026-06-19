@@ -4,6 +4,8 @@
  * Tests AST → MIR lowering and VM execution for Phase 7 async operations
  */
 
+#![cfg(feature = "vm-reference")]
+
 use nyash_rust::ast::{ASTNode, LiteralValue, Span};
 use nyash_rust::backend::VM;
 use nyash_rust::mir::{MirBuilder, MirPrinter};

@@ -4,6 +4,8 @@
  * Tests VM execution of hand-built MIR with RefNew + BoxCall(getField/setField)
  */
 
+#![cfg(feature = "vm-reference")]
+
 use nyash_rust::backend::VM;
 use nyash_rust::box_trait::IntegerBox;
 use nyash_rust::mir::definitions::call_unified::TypeCertainty;
