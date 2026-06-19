@@ -14,9 +14,10 @@ Related:
 
 ## Decision
 
-Add a small B-lite loop resolver seam beside the existing named route
-registry. It is not a new lowering route. It is a read-only observer that
-turns existing route facts into:
+Add a small B-lite loop legacy observer seam beside the existing named route
+registry. It is not a new lowering route and it is not yet an independent
+semantic resolver. It is a read-only observer that turns existing legacy
+registry candidate facts into:
 
 ```text
 Allow(LoopRouteFact)
@@ -24,14 +25,15 @@ or
 Deny(LoopRouteDenyReason)
 ```
 
-The resolver exists to make route ownership debt visible before retiring named
-routes. It must not become another route priority layer.
+The observer exists to make route ownership debt visible before retiring named
+routes. It must not become another route priority layer or be promoted as-is to
+route selection.
 
 ## Contract
 
 ```text
 facts_freeze_before_resolver=1
-resolver_reads_facts_only=1
+observer_reads_frozen_facts_and_legacy_registry=1
 resolver_mutates_facts=0
 resolver_returns_allow_or_deny=1
 bool_only_predicate=0
@@ -45,7 +47,7 @@ backend_lowering_changed=0
 Code seam:
 
 ```text
-src/mir/builder/control_flow/joinir/route_entry/registry/resolver.rs
+src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs
 ```
 
 Implemented vocabulary:
@@ -60,14 +62,14 @@ LoopRouteShadowReport
 The resolver compares:
 
 ```text
-raw_candidates:
-  every registry entry whose predicate matches before suppression
+legacy_matched_candidates:
+  every registry entry whose predicate matches before registry-level suppression
 
-effective_candidates:
+legacy_effective_candidates:
   current registry candidates after existing suppression/priority filters
 
-suppressed_candidates:
-  raw minus effective
+legacy_suppressed_candidates:
+  legacy_matched minus legacy_effective
 ```
 
 Decision policy:
@@ -105,21 +107,21 @@ When JoinIR debug logging is enabled under strict/planner-required candidate
 checking, the router emits one stable line:
 
 ```text
-[plan/trace:loop_resolver_b_lite]
+[plan/trace:loop_legacy_observer]
 ```
 
-The line reports:
+The current line reports:
 
 ```text
 decision=<allow|deny>
-raw=<routes|none>
-effective=<routes|none>
-suppressed=<routes|none>
-disagreement=<0|1>
+legacy_matched=<routes|none>
+legacy_effective=<routes|none>
+legacy_suppressed=<routes|none>
 ```
 
 This trace is diagnostic only. The existing ordered registry still selects the
-lowering route.
+lowering route. It does not prove independent resolver parity because it still
+observes legacy registry candidates.
 
 ## Acceptance
 
@@ -151,11 +153,11 @@ do not replace existing named-route predicates in this row
 output_contract=coreplan-loop-resolver-b-lite-ssot-v0
 implementation_changed=1
 behavior_changed=0
-resolver_reads_facts_only=1
+observer_reads_frozen_facts_and_legacy_registry=1
 resolver_returns_allow_or_deny=1
-raw_candidates_reported=1
-effective_candidates_reported=1
-suppressed_candidates_reported=1
+legacy_matched_candidates_reported=1
+legacy_effective_candidates_reported=1
+legacy_suppressed_candidates_reported=1
 reachability_feedback_to_resolver=0
 route_selection_changed=0
 summary=ok

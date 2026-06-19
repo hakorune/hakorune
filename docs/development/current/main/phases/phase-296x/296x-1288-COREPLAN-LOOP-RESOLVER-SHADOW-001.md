@@ -13,17 +13,17 @@ Related:
 
 ## Decision
 
-The B-lite resolver now runs as a shadow observer when JoinIR debug logging is
-enabled. It does not select or alter the lowering route.
+The B-lite legacy observer now runs as a shadow observer when JoinIR debug
+logging is enabled. It does not select or alter the lowering route, and it is
+not an independent semantic resolver yet.
 
 The shadow trace reports:
 
 ```text
-raw_candidates
-effective_candidates
-suppressed_candidates
+legacy_matched_candidates
+legacy_effective_candidates
+legacy_suppressed_candidates
 resolver_decision
-route_disagreement
 ```
 
 ## Evidence
@@ -48,13 +48,13 @@ HAKO_SHOW_CALL_LOGS=0 \
 HAKO_SILENT_TAGS=0 \
 ./target/release/hakorune --backend vm \
   apps/tests/phase29bq_selfhost_blocker_read_number_continue_staged_min.hako \
-  2>&1 | rg "loop_resolver_b_lite|entry_candidates"
+  2>&1 | rg "loop_legacy_observer|entry_candidates"
 ```
 
 Observed output:
 
 ```text
-[plan/trace:loop_resolver_b_lite] decision=allow:generic_loop_v1 raw=generic_loop_v1 effective=generic_loop_v1 suppressed=none disagreement=false
+[plan/trace:loop_legacy_observer] decision=allow:generic_loop_v1 legacy_matched=generic_loop_v1 legacy_effective=generic_loop_v1 legacy_suppressed=none
 ```
 
 Interpretation:
@@ -62,8 +62,7 @@ Interpretation:
 ```text
 selected_named_route=generic_loop_v1
 resolver_decision=allow
-resolver_would_select=generic_loop_v1
-route_disagreement=0
+legacy_effective_singleton=generic_loop_v1
 suppression_visible_for_target_fixture=0
 ```
 
@@ -99,10 +98,9 @@ behavior_changed=0
 shadow_loop_resolver_enabled=1
 selected_named_route=generic_loop_v1
 resolver_decision=allow
-resolver_would_select=generic_loop_v1
-route_disagreement=0
-raw_candidates=generic_loop_v1
-effective_candidates=generic_loop_v1
-suppressed_candidates=none
+legacy_effective_singleton=generic_loop_v1
+legacy_matched_candidates=generic_loop_v1
+legacy_effective_candidates=generic_loop_v1
+legacy_suppressed_candidates=none
 summary=ok
 ```

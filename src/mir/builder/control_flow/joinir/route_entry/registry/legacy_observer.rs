@@ -1,13 +1,14 @@
-//! B-lite loop route resolver vocabulary and shadow decision.
+//! Legacy loop route observer vocabulary and shadow decision.
 //!
 //! This module is intentionally read-only over already-built loop facts and
 //! the existing registry predicates. It does not select the runtime lowering
-//! route; the router still uses the historical ordered registry. The purpose is
-//! to make route ownership debt visible before retiring named routes.
+//! route and it is not an independent semantic resolver yet; the router still
+//! uses the historical ordered registry. The purpose is to make route ownership
+//! debt visible before retiring named routes.
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 
-use super::{collect_candidates, ENTRIES};
+use super::{collect_candidates, types::LoopRouteId, ENTRIES};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopRouteDenyReason {
@@ -36,7 +37,7 @@ impl LoopRouteDenyReason {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct LoopRouteFact {
-    pub(crate) selected_route: &'static str,
+    pub(crate) selected_route: LoopRouteId,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -59,53 +60,46 @@ impl LoopRouteDecision {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopRouteShadowReport {
     pub(crate) decision: LoopRouteDecision,
-    pub(crate) raw_candidates: Vec<&'static str>,
-    pub(crate) effective_candidates: Vec<&'static str>,
-    pub(crate) suppressed_candidates: Vec<&'static str>,
+    pub(crate) legacy_matched_candidates: Vec<LoopRouteId>,
+    pub(crate) legacy_effective_candidates: Vec<LoopRouteId>,
+    pub(crate) legacy_suppressed_candidates: Vec<LoopRouteId>,
 }
 
 impl LoopRouteShadowReport {
-    pub(crate) fn route_disagreement(&self) -> bool {
-        match self.decision {
-            LoopRouteDecision::Allow(fact) => {
-                self.effective_candidates.first().copied() != Some(fact.selected_route)
-            }
-            LoopRouteDecision::Deny(_) => !self.effective_candidates.is_empty(),
-        }
-    }
-
     pub(crate) fn trace_line(&self) -> String {
         format!(
-            "[plan/trace:loop_resolver_b_lite] decision={} raw={} effective={} suppressed={} disagreement={}",
+            "[plan/trace:loop_legacy_observer] decision={} legacy_matched={} legacy_effective={} legacy_suppressed={}",
             self.decision.summary(),
-            join_or_none(&self.raw_candidates),
-            join_or_none(&self.effective_candidates),
-            join_or_none(&self.suppressed_candidates),
-            self.route_disagreement()
+            join_or_none(&self.legacy_matched_candidates),
+            join_or_none(&self.legacy_effective_candidates),
+            join_or_none(&self.legacy_suppressed_candidates)
         )
     }
 }
 
 pub(crate) fn shadow_report(facts: Option<&CanonicalLoopFacts>) -> LoopRouteShadowReport {
-    let raw_candidates = raw_candidates(facts);
-    let effective_candidates = collect_candidates(facts);
-    let suppressed_candidates = raw_candidates
+    let legacy_matched_candidates = legacy_matched_candidates(facts);
+    let legacy_effective_candidates = collect_candidates(facts)
+        .into_iter()
+        .filter_map(route_id_from_str)
+        .collect::<Vec<_>>();
+    let legacy_suppressed_candidates = legacy_matched_candidates
         .iter()
         .copied()
-        .filter(|candidate| !effective_candidates.contains(candidate))
+        .filter(|candidate| !legacy_effective_candidates.contains(candidate))
         .collect::<Vec<_>>();
-    let decision = resolve_from_effective(facts, &effective_candidates);
+    let decision = resolve_from_effective(facts, &legacy_effective_candidates);
     LoopRouteShadowReport {
         decision,
-        raw_candidates,
-        effective_candidates,
-        suppressed_candidates,
+        legacy_matched_candidates,
+        legacy_effective_candidates,
+        legacy_suppressed_candidates,
     }
 }
 
 fn resolve_from_effective(
     facts: Option<&CanonicalLoopFacts>,
-    effective_candidates: &[&'static str],
+    effective_candidates: &[LoopRouteId],
 ) -> LoopRouteDecision {
     if facts.is_none() {
         return LoopRouteDecision::Deny(LoopRouteDenyReason::NoFacts);
@@ -113,34 +107,46 @@ fn resolve_from_effective(
     match effective_candidates {
         [] => LoopRouteDecision::Deny(LoopRouteDenyReason::NoCandidate),
         [selected] => LoopRouteDecision::Allow(LoopRouteFact {
-            selected_route: selected,
+            selected_route: *selected,
         }),
         _ => LoopRouteDecision::Deny(LoopRouteDenyReason::OverlappingNamedRoutes),
     }
 }
 
-fn raw_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'static str> {
+fn legacy_matched_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<LoopRouteId> {
     let Some(facts) = facts else {
         return Vec::new();
     };
     ENTRIES
         .iter()
         .filter(|entry| (entry.predicate)(facts))
-        .map(|entry| entry.name)
+        .map(|entry| entry.id)
         .collect()
 }
 
-fn join_or_none(items: &[&'static str]) -> String {
+fn route_id_from_str(name: &str) -> Option<LoopRouteId> {
+    ENTRIES
+        .iter()
+        .find(|entry| entry.name == name)
+        .map(|entry| entry.id)
+}
+
+fn join_or_none(items: &[LoopRouteId]) -> String {
     if items.is_empty() {
         "none".to_string()
     } else {
-        items.join(",")
+        items
+            .iter()
+            .map(|item| item.as_str())
+            .collect::<Vec<_>>()
+            .join(",")
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{join_or_none, LoopRouteDecision, LoopRouteDenyReason};
+    use crate::mir::builder::control_flow::joinir::route_entry::registry::types::LoopRouteId;
 
     #[test]
     fn b_lite_deny_reason_maps_to_owner() {
@@ -162,6 +168,9 @@ mod tests {
     #[test]
     fn join_or_none_uses_none_for_empty_lists() {
         assert_eq!(join_or_none(&[]), "none");
-        assert_eq!(join_or_none(&["a", "b"]), "a,b");
+        assert_eq!(
+            join_or_none(&[LoopRouteId::IfPhiJoin, LoopRouteId::LoopContinueOnly]),
+            "if_phi_join,loop_continue_only"
+        );
     }
 }

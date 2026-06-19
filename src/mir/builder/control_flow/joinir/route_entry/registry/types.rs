@@ -27,6 +27,61 @@ pub(crate) mod entry_keys {
     pub(crate) const GENERIC_LOOP_V1: &str = "generic_loop_v1";
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub(crate) enum LoopRouteId {
+    LoopBreakRecipe,
+    IfPhiJoin,
+    LoopContinueOnly,
+    LoopTrueEarlyExit,
+    LoopSimpleWhile,
+    LoopCharMap,
+    LoopArrayJoin,
+    ScanWithInit,
+    SplitScan,
+    BoolPredicateScan,
+    AccumConstLoop,
+    NestedLoopMinimal,
+    LoopTrueBreakContinue,
+    LoopCondBreakContinue,
+    LoopCondContinueOnly,
+    LoopCondContinueWithReturn,
+    LoopCondReturnInBody,
+    GenericLoopV0,
+    GenericLoopV1,
+}
+
+impl LoopRouteId {
+    pub(crate) fn as_str(self) -> &'static str {
+        match self {
+            Self::LoopBreakRecipe => entry_keys::LOOP_BREAK_RECIPE,
+            Self::IfPhiJoin => entry_keys::IF_PHI_JOIN,
+            Self::LoopContinueOnly => entry_keys::LOOP_CONTINUE_ONLY,
+            Self::LoopTrueEarlyExit => entry_keys::LOOP_TRUE_EARLY_EXIT,
+            Self::LoopSimpleWhile => entry_keys::LOOP_SIMPLE_WHILE,
+            Self::LoopCharMap => entry_keys::LOOP_CHAR_MAP,
+            Self::LoopArrayJoin => entry_keys::LOOP_ARRAY_JOIN,
+            Self::ScanWithInit => entry_keys::SCAN_WITH_INIT,
+            Self::SplitScan => entry_keys::SPLIT_SCAN,
+            Self::BoolPredicateScan => entry_keys::BOOL_PREDICATE_SCAN,
+            Self::AccumConstLoop => entry_keys::ACCUM_CONST_LOOP,
+            Self::NestedLoopMinimal => entry_keys::NESTED_LOOP_MINIMAL,
+            Self::LoopTrueBreakContinue => entry_keys::LOOP_TRUE_BREAK_CONTINUE,
+            Self::LoopCondBreakContinue => entry_keys::LOOP_COND_BREAK_CONTINUE,
+            Self::LoopCondContinueOnly => entry_keys::LOOP_COND_CONTINUE_ONLY,
+            Self::LoopCondContinueWithReturn => entry_keys::LOOP_COND_CONTINUE_WITH_RETURN,
+            Self::LoopCondReturnInBody => entry_keys::LOOP_COND_RETURN_IN_BODY,
+            Self::GenericLoopV0 => entry_keys::GENERIC_LOOP_V0,
+            Self::GenericLoopV1 => entry_keys::GENERIC_LOOP_V1,
+        }
+    }
+}
+
+impl std::fmt::Display for LoopRouteId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 pub(crate) mod route_labels {
     pub(crate) const LOOP_CHAR_MAP: &str = "loop_char_map";
     pub(crate) const LOOP_ARRAY_JOIN: &str = "loop_array_join";
@@ -50,9 +105,16 @@ pub(crate) type RouteFn = fn(
 ) -> Result<Option<ValueId>, String>;
 
 pub(crate) struct Entry {
+    pub id: LoopRouteId,
     pub name: &'static str,
     pub predicate: PredicateFn,
     pub route: Option<RouteFn>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct LegacyRouteSuccess {
+    pub route: LoopRouteId,
+    pub value: ValueId,
 }
 
 #[derive(Clone, Copy)]

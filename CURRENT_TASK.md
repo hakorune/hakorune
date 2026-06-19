@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1292-COREPLAN-LOOP-SUPPRESSION-FULL-INVENTORY-001.md`
 3. `apps/rust-subset-to-hako/STATUS.md`
 4. `apps/rust-subset-to-hako/README.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`

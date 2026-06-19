@@ -19,21 +19,26 @@ loop lowering route.
 
 ```text
 selected_retire_candidate=registry_candidate_suppression
-first_branch=loop_cond_break_continue_global_suppression
+first_branch=loop_cond_continue_only_redundant_suppression
 implementation_started=0
 ```
 
 Rationale:
 
 ```text
-1. The active continue fixture now has no route disagreement:
-   generic_loop_v1 is both raw and effective.
+1. The active continue fixture now has a single legacy effective candidate:
+   generic_loop_v1 is both legacy matched and legacy effective.
 
 2. A debug sweep over existing phase29bq fast-gate fixtures found no
-   `suppressed != none` B-lite shadow lines.
+   `legacy_suppressed != none` B-lite observer lines.
 
-3. The remaining visible debt is therefore the global suppression mechanism
+3. The remaining visible debt is therefore the registry suppression mechanism
    itself, not a proven wrong named-route lowering implementation.
+
+4. The safest first branch is the statically redundant
+   `loop_cond_continue_only` suppression. `pred_loop_cond_continue_only`
+   already rejects `pred_loop_continue_only`, so suppressing
+   `loop_cond_continue_only` again at registry level is duplicate policy.
 ```
 
 This selection intentionally avoids changing loop behavior in this row. The
@@ -46,7 +51,7 @@ owning route predicate.
 Target fixture shadow:
 
 ```text
-[plan/trace:loop_resolver_b_lite] decision=allow:generic_loop_v1 raw=generic_loop_v1 effective=generic_loop_v1 suppressed=none disagreement=false
+[plan/trace:loop_legacy_observer] decision=allow:generic_loop_v1 legacy_matched=generic_loop_v1 legacy_effective=generic_loop_v1 legacy_suppressed=none
 ```
 
 Fast-gate fixture sweep command shape:
@@ -66,7 +71,7 @@ awk -F '\t' 'NF>=5 && $1 !~ /^#/ {print $1 "\t" $5}' \
     HAKO_SHOW_CALL_LOGS=0 \
     HAKO_SILENT_TAGS=0 \
     timeout 10 ./target/release/hakorune --backend vm "$file" 2>&1 \
-      | rg "loop_resolver_b_lite" || true
+      | rg "loop_legacy_observer" || true
   done
 ```
 
@@ -74,7 +79,7 @@ Observed selection signal:
 
 ```text
 suppressed_non_none_count=0
-active_fixture_route_disagreement=0
+active_fixture_legacy_effective_singleton=generic_loop_v1
 wrong_named_route_owner_selected=0
 ```
 
@@ -88,7 +93,7 @@ Scope:
 
 ```text
 target=registry_candidate_suppression
-first_branch=loop_cond_break_continue_global_suppression
+first_branch=loop_cond_continue_only_redundant_suppression
 ```
 
 Allowed implementation:
@@ -123,8 +128,8 @@ do not modify VM product route policy
 output_contract=coreplan-loop-route-retire-selection-v0
 implementation_changed=0
 selected_retire_candidate=registry_candidate_suppression
-first_branch=loop_cond_break_continue_global_suppression
-active_fixture_route_disagreement=0
+first_branch=loop_cond_continue_only_redundant_suppression
+active_fixture_legacy_effective_singleton=generic_loop_v1
 suppressed_non_none_count=0
 next_task=COREPLAN-LOOP-ROUTE-RETIRE-001
 summary=ok

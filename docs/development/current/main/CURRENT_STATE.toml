@@ -39,10 +39,10 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1292-COREPLAN-LOOP-SUPPRESSION-FULL-INVENTORY-001.md"
 
-latest_card = "296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1289-COREPLAN-LOOP-ROUTE-RETIRE-SELECTION-001.md"
+latest_card = "296x-1292-COREPLAN-LOOP-SUPPRESSION-FULL-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1292-COREPLAN-LOOP-SUPPRESSION-FULL-INVENTORY-001.md"
 latest_card_summary = """The partial-carrier continue fixture is green.
 generic_loop_v1 no longer evaluates the loop-var increment as a shared step_bb
 expression when continue edges are present. Fallthrough cleanup now lowers the
@@ -50,10 +50,13 @@ tail loop increment edge-locally before appending ContinueWithPhiArgs, and
 carrier finalization creates the loop-var step PHI plus header PHI through the
 same edge-local step-join contract as other carriers. The promoted fast-gate
 case `selfhost_read_number_continue_staged_min` now expects output `3`, rc 0,
-and the break/continue flowbox adoption tag. The B-lite loop resolver seam is documented and wired as a debug-only shadow
-observer. The first retire candidate is now selected: the registry candidate
-suppression seam, starting with loop_cond_break_continue global suppression.
-The next blocker is implementing only that selected retire row.
+and the break/continue flowbox adoption tag. The B-lite shadow is now explicitly
+named as a legacy registry observer, not an independent semantic resolver, and
+route selection remains unchanged. The router now records the actual legacy route whose handler returns
+Some(value), using LegacyRouteSuccess and [plan/trace:loop_legacy_selected]. A
+fail-closed full suppression inventory entry is added; its first blocker is the
+existing loop_continue_only_multidelta_min gate debt, also present on pushed
+HEAD. Suppression deletion remains disabled until that owner is selected.
 
 Pinned and applied the `.hako` app-front template:
 Main is startup-only, converter core is separate from the embedded fixture
@@ -209,9 +212,11 @@ via `IfMode::ThenOnlyExit`, and the fixture is flipped to a normal green gate
 case. The continue-in-staged-loop fixture is now captured as an expected-fail
 contract; its owner is loop_cond_break_continue partial carrier PHI handling.
 The latest implementation keeps read_next_number_literal queued, closes the
-partial-carrier continue fixture, wires the B-lite loop resolver shadow, and
-selects registry candidate suppression as the first route-retire target."""
-current_blocker_token = "COREPLAN-LOOP-ROUTE-RETIRE-001"
+partial-carrier continue fixture, renames the B-lite shadow to a legacy
+observer, adds actual legacy route selection tracing, and adds a fail-closed
+full suppression inventory entry that stops on the existing multidelta loop
+debt."""
+current_blocker_token = "COREPLAN-LOOP-MULTIDELTA-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

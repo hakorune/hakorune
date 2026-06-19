@@ -233,6 +233,14 @@ pub(crate) fn route_loop(
             ));
         }
     };
+    let trace_legacy_selected = |route: &str| {
+        if debug_enabled {
+            let ring0 = crate::runtime::get_global_ring0();
+            let _ = ring0.io.stderr_write(
+                format!("[plan/trace:loop_legacy_selected] route={}\n", route).as_bytes(),
+            );
+        }
+    };
 
     if strict_or_dev && planner_required {
         if debug_enabled {
@@ -281,9 +289,12 @@ pub(crate) fn route_loop(
     };
     let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
     if recipe_first_allowed {
-        if let Some(value) = registry::try_route_recipe_first(builder, ctx, &outcome, &env)? {
+        if let Some(success) =
+            registry::try_route_recipe_first_with_success(builder, ctx, &outcome, &env)?
+        {
+            trace_legacy_selected(success.route.as_str());
             trace_entry_route("recipe_first");
-            return Ok(Some(value));
+            return Ok(Some(success.value));
         }
     }
 
