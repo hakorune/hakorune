@@ -127,7 +127,7 @@ def emit_expr(expr: dict) -> str:
 
     if kind == "Unsupported":
         reason = expr.get("reason", "unsupported")
-        return f"/* TODO: {reason} */"
+        return f"null /* TODO: {reason} */"
 
     fail_fast(f"unknown expression kind: {kind}")
 

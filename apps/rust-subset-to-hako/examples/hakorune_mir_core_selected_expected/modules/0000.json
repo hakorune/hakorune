@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "LoopId"
+    },
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "ExitEdgeId"
+    },
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "ContinueEdgeId"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::control_ids",
+  "schema_version": 0
+}

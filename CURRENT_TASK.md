@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001
+RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001
 ```
 
 Purpose:
 
 ```text
-Materialize the selected `hakorune_mir_core` RustSubset module slice and run it
-through the existing skeleton pipeline.
+Diagnose and unblock the existing `unsupported pure shape` failure for
+RustSubset crate handoff wrappers on the EXE/AOT route.
 ```
 
 Current evidence:
@@ -76,6 +76,7 @@ CREAT-SUBSET-PILOT-SELECTION-001 is closed by 296x-1328.
 HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1329.
 RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001 is closed by 296x-1330.
 RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001 is closed by 296x-1331.
+HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1332.
 ```
 
 Acceptance for the current slice:
@@ -84,24 +85,30 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused hakorune_mir_core pilot command selected by 296x-1331.
+# plus a focused crate-wrapper EXE diagnostic command selected by the new row.
 ```
 
 ## Task Order
 
-1. Generate the `hakorune_mir_core` crate bundle with the external syn adapter.
-2. Materialize the selected `crate::control_ids` and `crate::types` module
-   slice as checked-in fixtures.
-3. Run generated skeletons through parse / MIR emit where supported.
-4. Keep Rust parser/crate graph discovery in the external adapter boundary.
-5. Do not implement Rust name resolution or `use` resolution in this row.
+1. Reproduce the existing `unsupported pure shape` failure on crate wrappers.
+2. Compare `--emit-mir-json` green vs `--emit-exe` failure to locate the route
+   boundary.
+3. Keep converter core, Rust parser ownership, and crate graph discovery out of
+   the fix.
+4. Add the smallest route/diagnostic fixture needed to make the failure local.
+5. Do not start another crate pilot until crate-wrapper EXE route is understood.
 6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001
+RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001
 ```
+
+The preceding `hakorune_mir_core` selected slice is now checked in and reaches
+generated-skeleton MIR emit. Existing crate wrappers still fail on EXE with
+`unsupported pure shape`, including mini-crate and `hakorune_box_core`, so the
+next row should focus on that shared route.
 
 ## Pointers
 

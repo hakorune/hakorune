@@ -328,7 +328,8 @@ unknown schema_version -> fail-fast
 unknown item kind -> fail-fast
 unknown expression kind -> fail-fast
 known unsupported Rust construct -> represent as Unsupported node
-Unsupported node -> emit TODO comment
+Unsupported statement/item node -> emit TODO comment
+Unsupported expression node -> emit null placeholder plus TODO comment
 ```
 
 ## Crate-skeleton P0 Gaps

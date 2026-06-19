@@ -372,7 +372,7 @@ box RustSubsetConverter {
         if kind == "Unsupported" {
             local reason = me.node_str(expr.get_node("reason"))
             if reason == "" { reason = "unsupported" }
-            return "/* TODO: " + reason + " */"
+            return "null /* TODO: " + reason + " */"
         }
 
         return me.fail("unknown expression kind: " + kind)

@@ -1,0 +1,287 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "kind": "Enum",
+      "name": "ConstValue",
+      "variants": [
+        {
+          "fields": [
+            {
+              "type": "i64"
+            }
+          ],
+          "name": "Integer"
+        },
+        {
+          "fields": [
+            {
+              "type": "f64"
+            }
+          ],
+          "name": "Float"
+        },
+        {
+          "fields": [
+            {
+              "type": "bool"
+            }
+          ],
+          "name": "Bool"
+        },
+        {
+          "fields": [
+            {
+              "type": "String"
+            }
+          ],
+          "name": "String"
+        },
+        {
+          "fields": [],
+          "name": "Null"
+        },
+        {
+          "fields": [],
+          "name": "Void"
+        }
+      ]
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Rust match expression is out of v0 scope"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "fmt",
+          "params": [
+            {
+              "name": "f",
+              "type": "fmt_Formatter"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "fmt_Result"
+        }
+      ],
+      "target": "ConstValue"
+    },
+    {
+      "kind": "Enum",
+      "name": "BinaryOp",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Add"
+        },
+        {
+          "fields": [],
+          "name": "Sub"
+        },
+        {
+          "fields": [],
+          "name": "Mul"
+        },
+        {
+          "fields": [],
+          "name": "Div"
+        },
+        {
+          "fields": [],
+          "name": "Mod"
+        },
+        {
+          "fields": [],
+          "name": "BitAnd"
+        },
+        {
+          "fields": [],
+          "name": "BitOr"
+        },
+        {
+          "fields": [],
+          "name": "BitXor"
+        },
+        {
+          "fields": [],
+          "name": "Shl"
+        },
+        {
+          "fields": [],
+          "name": "Shr"
+        },
+        {
+          "fields": [],
+          "name": "And"
+        },
+        {
+          "fields": [],
+          "name": "Or"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "UnaryOp",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Neg"
+        },
+        {
+          "fields": [],
+          "name": "Not"
+        },
+        {
+          "fields": [],
+          "name": "BitNot"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "CompareOp",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Eq"
+        },
+        {
+          "fields": [],
+          "name": "Ne"
+        },
+        {
+          "fields": [],
+          "name": "Lt"
+        },
+        {
+          "fields": [],
+          "name": "Le"
+        },
+        {
+          "fields": [],
+          "name": "Gt"
+        },
+        {
+          "fields": [],
+          "name": "Ge"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "MirType",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Integer"
+        },
+        {
+          "fields": [],
+          "name": "Float"
+        },
+        {
+          "fields": [],
+          "name": "Bool"
+        },
+        {
+          "fields": [],
+          "name": "String"
+        },
+        {
+          "fields": [
+            {
+              "type": "String"
+            }
+          ],
+          "name": "Box"
+        },
+        {
+          "fields": [
+            {
+              "type": "Box<MirType>"
+            }
+          ],
+          "name": "Array"
+        },
+        {
+          "fields": [
+            {
+              "type": "Box<MirType>"
+            }
+          ],
+          "name": "Future"
+        },
+        {
+          "fields": [],
+          "name": "WeakRef"
+        },
+        {
+          "fields": [],
+          "name": "Void"
+        },
+        {
+          "fields": [],
+          "name": "Unknown"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "TypeOpKind",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Check"
+        },
+        {
+          "fields": [],
+          "name": "Cast"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "WeakRefOp",
+      "variants": [
+        {
+          "fields": [],
+          "name": "New"
+        },
+        {
+          "fields": [],
+          "name": "Load"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "BarrierOp",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Read"
+        },
+        {
+          "fields": [],
+          "name": "Write"
+        }
+      ]
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::types",
+  "schema_version": 0
+}
