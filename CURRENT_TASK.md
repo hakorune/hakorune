@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-005
+HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after
-`hakorune_mir_builder::binding_context` materialization closed green.
+Materialize the selected `hakorune_mir_builder::variable_context`
+single-module RustSubset bundle after 296x-1350 selected it as the next
+MirBuilder-relevant app-front task.
 ```
 
 Current evidence:
@@ -94,6 +95,7 @@ RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001 is closed by 296x-1346.
 HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001 is closed by 296x-1347.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004 is closed by 296x-1348.
 HAKORUNE-MIR-BUILDER-BINDING-CONTEXT-MATERIALIZATION-001 is closed by 296x-1349.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-005 is closed by 296x-1350.
 ```
 
 Acceptance for the current slice:
@@ -106,20 +108,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1350.
-2. Evaluate the next app-front task candidates.
-3. Select the next implementation row without starting implementation.
+1. Read 296x-1351.
+2. Materialize the selected `crate::variable_context` bundle.
+3. Add the focused wrapper and smoke entries.
 4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-005
+HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001
 ```
 
-296x-1349 materialized `hakorune_mir_builder::binding_context` and guarded it
-through generated-skeleton MIR emit, wrapper EXE parity, and the full
-rust-subset smoke. 296x-1350 is the next design/selection row.
+296x-1350 selected `hakorune_mir_builder::variable_context` because its
+generated skeleton already reaches MIR emit and it has direct MirBuilder
+variable-map relevance. 296x-1351 is the implementation row.
 
 ## Pointers
 

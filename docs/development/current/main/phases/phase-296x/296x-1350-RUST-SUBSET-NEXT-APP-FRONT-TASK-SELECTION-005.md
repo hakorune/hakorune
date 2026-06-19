@@ -1,6 +1,6 @@
 # 296x-1350 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-005
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -99,6 +99,81 @@ General checks:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Probe
+
+Regenerated `hakorune_mir_builder` RustSubset artifacts and tested generated
+`.hako` skeleton MIR emit for the next small modules.
+
+```text
+hakorune_mir_builder::context:
+  source_path=src/context.rs
+  generated_hako_lines=23
+  generated_skeleton_mir_emit=green
+  selected=0
+  reason=lower_forward_value_than_variable_context
+
+hakorune_mir_builder::variable_context:
+  source_path=src/variable_context.rs
+  generated_hako_lines=61
+  generated_skeleton_mir_emit=green
+  selected=1
+  reason=MirBuilder variable_map / SSA carrier relevance
+
+hakorune_mir_builder::core_context:
+  generated_skeleton_mir_emit=fail
+  first_failure=Unresolved function: BindingId_new
+
+hakorune_mir_builder::metadata_context:
+  generated_skeleton_mir_emit=fail
+  first_failure=generic function name spelling is not parser-safe
+
+hakorune_mir_builder::type_context:
+  generated_skeleton_mir_emit=fail
+  first_failure=unsupported reference type spelling / closure handoff
+```
+
+Focused checks:
+
+```bash
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml --quiet -- \
+  --crate-root crates/hakorune_mir_builder \
+  --out-dir /tmp/rust_subset_hakorune_mir_builder_1350 \
+  --crate-name hakorune_mir_builder \
+  --target-kind lib \
+  --target-name hakorune_mir_builder
+
+python3 apps/rust-subset-to-hako/convert.py \
+  /tmp/rust_subset_hakorune_mir_builder_1350/modules/0006.json \
+  > /tmp/hakorune_mir_builder_variable_context_1350.hako
+
+./target/release/hakorune --emit-mir-json \
+  /tmp/hakorune_mir_builder_variable_context_1350.mir.json \
+  /tmp/hakorune_mir_builder_variable_context_1350.hako
+```
+
+## Result
+
+```text
+selected_next_task=HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001
+selected_scope=hakorune_mir_builder::variable_context single-module bundle
+selected_reason=green generated-skeleton MIR emit with direct MirBuilder variable_map relevance
+implementation_allowed=0
+new_hako_syntax_added=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+generated_program_execution_claim=0
+next_card_name=296x-1351-HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001
+summary=ok
+```
+
+Next row:
+
+```text
+296x-1351-HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001
 ```
 
 ## Stop Line
