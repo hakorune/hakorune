@@ -207,30 +207,56 @@ fn refresh_function_skips_phi_scan_when_no_string_corridor_anchors_exist() {
 }
 
 #[test]
-fn refresh_function_records_stable_length_scalar_on_substring_concat_loop() {
-    ensure_ring0_initialized();
-    let path = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/benchmarks/bench_kilo_micro_substring_concat.hako"
+fn refresh_function_preserves_typed_stable_length_relation() {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "typed_stable_length".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId(0),
     );
-    let source = std::fs::read_to_string(path).expect("benchmark source");
-    let prepared = prepare_source_minimal(&source, path).expect("prepare benchmark source");
-    let ast = NyashParser::parse_from_string(&prepared).expect("parse benchmark");
-    let mut compiler = MirCompiler::with_options(true);
-    let result = compiler
-        .compile_with_source(ast, Some(path))
-        .expect("compile benchmark");
-    let main = result.module.functions.get("main").expect("main");
-    let source_relations = main
+    let base = ValueId(1);
+    let witness = ValueId(2);
+    function
+        .get_block_mut(BasicBlockId(0))
+        .expect("entry")
+        .instructions
+        .extend([
+            MirInstruction::Const {
+                dst: base,
+                value: ConstValue::String("abc".to_string()),
+            },
+            MirInstruction::Const {
+                dst: witness,
+                value: ConstValue::Integer(3),
+            },
+        ]);
+    function
         .metadata
         .string_corridor_relations
-        .get(&ValueId(19))
-        .expect("source %19 relations");
+        .entry(base)
+        .or_default()
+        .push(StringCorridorRelation {
+            kind: StringCorridorRelationKind::StableLengthScalar,
+            base_value: base,
+            witness_value: Some(witness),
+            window_contract: StringCorridorWindowContract::PreservePlanWindow,
+            reason: "typed stable length relation from producer",
+        });
 
-    assert!(source_relations.iter().any(|relation| {
+    refresh_function_string_corridor_relations(&mut function);
+
+    let relations = function
+        .metadata
+        .string_corridor_relations
+        .get(&base)
+        .expect("typed relation should survive refresh");
+    assert!(relations.iter().any(|relation| {
         relation.kind == StringCorridorRelationKind::StableLengthScalar
-            && relation.base_value == ValueId(19)
-            && relation.witness_value == Some(ValueId(5))
+            && relation.base_value == base
+            && relation.witness_value == Some(witness)
             && relation.window_contract == StringCorridorWindowContract::PreservePlanWindow
     }));
 }

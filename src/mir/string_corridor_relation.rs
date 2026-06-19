@@ -330,22 +330,6 @@ fn stable_length_relation_for_direct_length_call(
     })
 }
 
-fn stable_length_relation_from_hint(hint: &str) -> Option<StringCorridorRelation> {
-    let payload = hint.strip_prefix("string_corridor_sink:stable_length_scalar:")?;
-    let (base_part, witness_part) = payload.split_once(':')?;
-    let base_value = ValueId(base_part.strip_prefix('%')?.parse().ok()?);
-    let witness_value = ValueId(witness_part.strip_prefix('%')?.parse().ok()?);
-
-    Some(StringCorridorRelation {
-        kind: StringCorridorRelationKind::StableLengthScalar,
-        base_value,
-        witness_value: Some(witness_value),
-        window_contract: StringCorridorWindowContract::PreservePlanWindow,
-        reason:
-            "string corridor sink preserved a direct source length witness in optimization hints",
-    })
-}
-
 fn push_relation_if_absent(
     relations: &mut Vec<StringCorridorRelation>,
     relation: StringCorridorRelation,
@@ -369,6 +353,7 @@ pub fn refresh_module_string_corridor_relations(module: &mut MirModule) {
 }
 
 pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
+    let preserved_stable_length = preserved_stable_length_relations(function);
     function.metadata.string_corridor_relations.clear();
     let anchors = function
         .metadata
@@ -380,7 +365,33 @@ pub fn refresh_function_string_corridor_relations(function: &mut MirFunction) {
 
     collect_phi_carry_relations_into(function, &def_map, &anchors);
     collect_direct_length_relations_into(function, &def_map);
-    collect_hint_relations_into(function);
+    collect_preserved_stable_length_relations_into(function, preserved_stable_length);
+}
+
+fn preserved_stable_length_relations(function: &MirFunction) -> Vec<StringCorridorRelation> {
+    let def_map = build_value_def_map(function);
+    function
+        .metadata
+        .string_corridor_relations
+        .values()
+        .flatten()
+        .copied()
+        .filter(|relation| relation.kind == StringCorridorRelationKind::StableLengthScalar)
+        .filter(|relation| value_is_defined_or_param(function, &def_map, relation.base_value))
+        .filter(|relation| {
+            relation
+                .witness_value
+                .is_some_and(|witness| value_is_defined_or_param(function, &def_map, witness))
+        })
+        .collect()
+}
+
+fn value_is_defined_or_param(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> bool {
+    function.params.contains(&value) || def_map.contains_key(&value)
 }
 
 /// Phase 1: phi-carry base relations and stable-length witnesses for merged phis.
@@ -453,12 +464,12 @@ fn collect_direct_length_relations_into(function: &mut MirFunction, def_map: &Va
     }
 }
 
-/// Phase 3: stable-length relations recovered from optimization hints.
-fn collect_hint_relations_into(function: &mut MirFunction) {
-    for hint in &function.metadata.optimization_hints {
-        let Some(relation) = stable_length_relation_from_hint(hint) else {
-            continue;
-        };
+/// Phase 3: carry forward typed stable-length relations that survived refresh.
+fn collect_preserved_stable_length_relations_into(
+    function: &mut MirFunction,
+    preserved: Vec<StringCorridorRelation>,
+) {
+    for relation in preserved {
         let relations = function
             .metadata
             .string_corridor_relations

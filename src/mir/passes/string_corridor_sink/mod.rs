@@ -28,6 +28,9 @@ use crate::mir::{
         ConcatTripletShape, MethodSetCallShape, StringSourceIdentity, SubstringCallProducerShape,
         SubstringConcat3HelperShape,
     },
+    string_corridor_relation::{
+        StringCorridorRelation, StringCorridorRelationKind, StringCorridorWindowContract,
+    },
     string_kernel_plan::StringKernelPlanTextConsumer,
     BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, MirModule,
     MirType, ValueId,
@@ -94,11 +97,19 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     let mut def_map = build_value_def_map(function);
     let mut use_counts = build_use_counts(function);
 
-    // --- Phase 1: collect direct stable-length hints ---
-    let stable_length_hints = collect_direct_stable_length_hints(function, &def_map);
-    for hint in stable_length_hints {
+    // --- Phase 1: collect direct stable-length observations ---
+    let stable_length_observations = collect_direct_stable_length_observations(function, &def_map);
+    for (hint, relation) in stable_length_observations {
         if !function.metadata.optimization_hints.contains(&hint) {
             function.metadata.optimization_hints.push(hint);
+        }
+        let relations = function
+            .metadata
+            .string_corridor_relations
+            .entry(relation.base_value)
+            .or_default();
+        if !relations.contains(&relation) {
+            relations.push(relation);
         }
     }
 
@@ -189,11 +200,11 @@ fn apply_string_corridor_transforms(function: &mut MirFunction) -> usize {
     rewritten
 }
 
-fn collect_direct_stable_length_hints(
+fn collect_direct_stable_length_observations(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-) -> Vec<String> {
-    let mut hints = Vec::new();
+) -> Vec<(String, StringCorridorRelation)> {
+    let mut observations = Vec::new();
 
     for block in function.blocks.values() {
         for inst in &block.instructions {
@@ -226,15 +237,24 @@ fn collect_direct_stable_length_hints(
             ) {
                 continue;
             }
-            hints.push(format!(
-                "string_corridor_sink:stable_length_scalar:%{}:%{}",
-                receiver_root.0,
-                resolve_value_origin(function, def_map, dst).0
+            let witness_value = resolve_value_origin(function, def_map, dst);
+            observations.push((
+                format!(
+                    "string_corridor_sink:stable_length_scalar:%{}:%{}",
+                    receiver_root.0, witness_value.0
+                ),
+                StringCorridorRelation {
+                    kind: StringCorridorRelationKind::StableLengthScalar,
+                    base_value: receiver_root,
+                    witness_value: Some(witness_value),
+                    window_contract: StringCorridorWindowContract::PreservePlanWindow,
+                    reason: "string corridor sink preserved a direct source length witness",
+                },
             ));
         }
     }
 
-    hints
+    observations
 }
 
 fn remove_unused_substring_view_producers(
