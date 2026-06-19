@@ -1,0 +1,67 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "i64"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "Id"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "tuple struct constructor expression is out of v0 skeleton scope: Id"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [
+            {
+              "name": "value",
+              "type": "i64"
+            }
+          ],
+          "return_type": "Self"
+        }
+      ],
+      "target": "Id"
+    },
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "associated function call expression is out of v0 skeleton scope: Id::new"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "make_id",
+      "params": [
+        {
+          "name": "value",
+          "type": "i64"
+        }
+      ],
+      "return_type": "Id"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "associated_function_call_input",
+  "schema_version": 0
+}
+

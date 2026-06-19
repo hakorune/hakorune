@@ -240,6 +240,7 @@ CONVERTER_FIXTURES=(
   "Self-qualified call fixture converter|$APP_DIR/convert_self_qualified_call_fixture.hako|$EXAMPLES_DIR/self_qualified_call_expected.hako|convert_self_qualified_call_fixture"
   "enum variant value fixture converter|$APP_DIR/convert_enum_variant_value_fixture.hako|$EXAMPLES_DIR/enum_variant_value_expected.hako|convert_enum_variant_value_fixture"
   "Vec::new call fixture converter|$APP_DIR/convert_vec_new_call_fixture.hako|$EXAMPLES_DIR/vec_new_call_expected.hako|convert_vec_new_call_fixture"
+  "associated function call fixture converter|$APP_DIR/convert_associated_function_call_fixture.hako|$EXAMPLES_DIR/associated_function_call_expected.hako|convert_associated_function_call_fixture"
   "crate handoff fixture converter|$APP_DIR/convert_crate_file.hako|$EXAMPLES_DIR/mini_crate_expected.hako|convert_crate_file"
   "hakorune_mir_core ID modules fixture converter|$APP_DIR/convert_hakorune_mir_core_id_modules_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_id_modules_expected.hako|convert_hakorune_mir_core_id_modules_crate_file"
   "hakorune_mir_core value_kind fixture converter|$APP_DIR/convert_hakorune_mir_core_value_kind_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_value_kind_expected.hako|convert_hakorune_mir_core_value_kind_crate_file"

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-ASSOCIATED-FUNCTION-CALL-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -54,15 +54,18 @@ generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 296x-1352 selects associated function call skeleton-safety because
 `BindingId::new` and `CallFlags::new` currently emit unresolved generated
 globals.
+296x-1353 makes those calls explicit Unsupported handoffs, keeps module-path
+calls like `crate::util::add1` intact, and advances real modules:
+`core_context` is green while `call_unified` now stops at `EffectMask_IO`.
 
-The next row is 296x-1353. It should make type-qualified associated calls an
-explicit Unsupported handoff without enabling Rust name/use resolution.
+The next row is 296x-1354. It should select the next app-front task before
+starting implementation.
 
 ## Next
 
-1. Read 296x-1353.
-2. Add a focused associated-function-call fixture.
-3. Recheck `core_context` / `call_unified` advance beyond unresolved globals.
+1. Read 296x-1354.
+2. Evaluate next app-front task candidates.
+3. Select the next implementation row without starting implementation.
 4. Run:
 
 ```bash

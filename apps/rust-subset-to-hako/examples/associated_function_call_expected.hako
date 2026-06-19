@@ -1,0 +1,11 @@
+record Id {
+    _0: i64
+}
+
+function Id_new(value: i64): Self {
+    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: Id */
+}
+
+function make_id(value: i64): Id {
+    return null /* TODO: associated function call expression is out of v0 skeleton scope: Id::new */
+}

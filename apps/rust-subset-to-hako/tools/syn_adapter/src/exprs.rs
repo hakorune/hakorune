@@ -103,6 +103,12 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                 if segments.as_slice() == ["Vec", "new"] {
                     return unsupported_expr("Vec::new call expression is out of v0 skeleton scope");
                 }
+                if is_type_qualified_call_path(&segments) {
+                    return unsupported_expr(format!(
+                        "associated function call expression is out of v0 skeleton scope: {}",
+                        segments.join("::")
+                    ));
+                }
             }
             if context.is_tuple_struct_constructor(&callee) {
                 return unsupported_expr(format!(
@@ -171,6 +177,20 @@ fn vec_macro_to_json(expr: &syn::ExprMacro, context: &ExprContext) -> Value {
         "kind": "ArrayLiteral",
         "elements": elements,
     })
+}
+
+fn is_type_qualified_call_path(segments: &[String]) -> bool {
+    if segments.len() <= 1 {
+        return false;
+    }
+    match segments.first().map(String::as_str) {
+        Some("crate" | "super" | "self") | None => false,
+        Some(first) => first
+            .chars()
+            .next()
+            .map(char::is_uppercase)
+            .unwrap_or(false),
+    }
 }
 
 fn binop(op: &BinOp) -> &'static str {
