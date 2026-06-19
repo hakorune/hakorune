@@ -49,6 +49,7 @@ def main() -> None:
     assert_golden("index")
     assert_golden("break_continue")
     assert_golden("generic_function")
+    assert_golden("unsupported_trait")
     assert_fail_fast()
     print("summary=ok")
 

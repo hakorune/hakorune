@@ -32,13 +32,14 @@ loop_true_break_continue via the recipe-first ExitAllowed path. A dedicated
 syn-adapter smoke wrapper is closed by 296x-1309. RustSubset `Index`
 expression transport is closed by 296x-1310. Loop `break` / `continue` is
 fixture-guarded as an explicit Unsupported handoff by 296x-1311. Generic
-function skeleton transport is closed by 296x-1312.
+function skeleton transport is closed by 296x-1312. Unsupported trait handoff
+hardening is closed by 296x-1313.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Select the next rust-subset-to-hako app-front slice after generic function
-   skeleton transport.
+2. Select the next rust-subset-to-hako app-front slice after unsupported trait
+   handoff hardening.
 3. Keep converter core separate from input routes.
 4. Run:
 
@@ -82,6 +83,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
 - `RUST-SUBSET-SYN-ADAPTER-GENERIC-FUNCTION-SKELETON-001`
   - generic Rust function type spellings are preserved in skeleton output
   - no type-parameter model or generic semantics are claimed
+  - Python reference, syn adapter, and `.hako` EXE/AOT parity are green
+- `RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001`
+  - unsupported trait handoff now has RustSubset JSON and `.hako` EXE/AOT parity
+  - no trait semantics or new schema node are introduced
   - Python reference, syn adapter, and `.hako` EXE/AOT parity are green
 
 Closeout evidence:

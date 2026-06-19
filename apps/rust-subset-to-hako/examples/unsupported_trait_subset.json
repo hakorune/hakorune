@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Trait",
+      "summary": "Trait items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "unsupported_trait",
+  "schema_version": 0
+}

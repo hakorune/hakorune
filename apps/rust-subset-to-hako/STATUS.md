@@ -50,6 +50,7 @@ embedded_handoff_core_separated=ok
 filebox_minimal_exe_aot=ok
 file_input_converter_parity=ok
 adapter_fixture_handoff_parity=ok
+unsupported_trait_fixture_parity=ok
 else_if_fixture_parity=ok
 returnless_void_body_fixture_parity=ok
 vec_method_fixture_parity=ok
@@ -189,8 +190,16 @@ closed:
   RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-SHAPE-PROBE-001
     result=unsupported Rust trait item is explicit Unsupported handoff and converter TODO comment
     owner=syn adapter unsupported item lowering / converter Unsupported emission
-    evidence=unsupported_trait_input.rs + unsupported_trait_expected.hako + optional adapter smoke
+    evidence=unsupported_trait_input.rs + unsupported_trait_subset.json + unsupported_trait_expected.hako + convert_unsupported_trait_fixture.hako + adapter smoke
     card=docs/development/current/main/phases/phase-296x/296x-1234-RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-SHAPE-PROBE-001.md
+
+  RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001
+    result=unsupported trait handoff now has checked-in RustSubset JSON and `.hako` EXE/AOT fixture parity
+    owner=syn adapter unsupported item lowering / converter Unsupported emission
+    evidence=unsupported_trait_subset.json + convert_unsupported_trait_fixture.hako
+    trait_semantics_enabled=0
+    schema_node_added=0
+    card=docs/development/current/main/phases/phase-296x/296x-1313-RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001.md
 
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape

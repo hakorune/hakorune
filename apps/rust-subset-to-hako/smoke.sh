@@ -9,6 +9,7 @@ JSON_PROBE="apps/rust-subset-to-hako/probes/stable/json_probe.hako"
 CONVERTER="apps/rust-subset-to-hako/convert.hako"
 FILE_CONVERTER="apps/rust-subset-to-hako/convert_file.hako"
 ADAPTER_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_adapter_fixture.hako"
+UNSUPPORTED_TRAIT_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_unsupported_trait_fixture.hako"
 IF_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_if_fixture.hako"
 ASSIGN_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_assign_fixture.hako"
 WHILE_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_while_fixture.hako"
@@ -60,6 +61,8 @@ PY
     apps/rust-subset-to-hako/examples/unsupported_trait_input.rs \
     --module unsupported_trait \
     -o /tmp/rust_subset_syn_unsupported_trait.json
+  diff -u apps/rust-subset-to-hako/examples/unsupported_trait_subset.json \
+    /tmp/rust_subset_syn_unsupported_trait.json
   python3 apps/rust-subset-to-hako/convert.py \
     /tmp/rust_subset_syn_unsupported_trait.json \
     -o /tmp/rust_subset_syn_unsupported_trait.hako
@@ -195,6 +198,10 @@ echo "[rust-subset/smoke] emit MIR JSON: adapter fixture converter"
 NYASH_FILEBOX_MODE=core-ro \
   ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_adapter_fixture.mir.json "$ADAPTER_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_adapter_fixture.emit.log
 
+echo "[rust-subset/smoke] emit MIR JSON: unsupported trait fixture converter"
+NYASH_FILEBOX_MODE=core-ro \
+  ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_unsupported_trait_fixture.mir.json "$UNSUPPORTED_TRAIT_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_unsupported_trait_fixture.emit.log
+
 echo "[rust-subset/smoke] emit MIR JSON: if fixture converter"
 NYASH_FILEBOX_MODE=core-ro \
   ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_if_fixture.mir.json "$IF_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_if_fixture.emit.log
@@ -298,6 +305,19 @@ sed '/^Result: /d' /tmp/hako_rust_subset_convert_adapter_fixture.out.raw \
   >/tmp/hako_rust_subset_convert_adapter_fixture.out
 diff -u apps/rust-subset-to-hako/examples/adapter_fixture_expected.hako \
   /tmp/hako_rust_subset_convert_adapter_fixture.out
+
+echo "[rust-subset/smoke] EXE: unsupported trait fixture converter parity"
+rm -f /tmp/hako_rust_subset_convert_unsupported_trait_fixture
+NYASH_FILEBOX_MODE=core-ro \
+  ./target/release/hakorune --emit-exe /tmp/hako_rust_subset_convert_unsupported_trait_fixture "$UNSUPPORTED_TRAIT_FIXTURE_CONVERTER" \
+  >/tmp/hako_rust_subset_convert_unsupported_trait_fixture.exe.log 2>&1
+/tmp/hako_rust_subset_convert_unsupported_trait_fixture \
+  >/tmp/hako_rust_subset_convert_unsupported_trait_fixture.out.raw \
+  2>/tmp/hako_rust_subset_convert_unsupported_trait_fixture.err
+sed '/^Result: /d' /tmp/hako_rust_subset_convert_unsupported_trait_fixture.out.raw \
+  >/tmp/hako_rust_subset_convert_unsupported_trait_fixture.out
+diff -u apps/rust-subset-to-hako/examples/unsupported_trait_expected.hako \
+  /tmp/hako_rust_subset_convert_unsupported_trait_fixture.out
 
 echo "[rust-subset/smoke] EXE: if fixture converter parity"
 rm -f /tmp/hako_rust_subset_convert_if_fixture

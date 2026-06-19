@@ -80,6 +80,7 @@ V0 does not implement:
 - `convert.hako`: startup wrapper for the current embedded input route
 - `convert_file.hako`: startup wrapper for the current FileBox input route
 - `convert_adapter_fixture.hako`: startup wrapper for host-produced adapter fixture handoff
+- `convert_unsupported_trait_fixture.hako`: startup wrapper for unsupported trait handoff
 - `convert_if_fixture.hako`: startup wrapper for the selected `If` statement fixture
 - `convert_assign_fixture.hako`: startup wrapper for the selected assignment fixture
 - `convert_index_fixture.hako`: startup wrapper for the selected index expression fixture
@@ -248,6 +249,7 @@ embedded_fixture_handoff=ok
 file_input_enabled=1
 file_input_converter_parity=ok
 adapter_fixture_handoff_parity=ok
+unsupported_trait_fixture_parity=ok
 index_fixture_parity=ok
 break_continue_unsupported_handoff_parity=ok
 generic_function_fixture_parity=ok
