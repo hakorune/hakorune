@@ -1375,10 +1375,10 @@ Retired:
 loop_scan_v0
 ```
 
-Replacement owner:
+Current coverage route:
 
 ```text
-loop_cond_break_continue
+generic_loop_v1 plus flowbox adoption
 ```
 
 Proof:

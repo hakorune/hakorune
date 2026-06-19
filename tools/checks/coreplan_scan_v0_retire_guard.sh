@@ -69,5 +69,5 @@ rm -f /tmp/coreplan-scan-v0-retire.refs
 bash "$ACTIVE_GUARD"
 
 echo "[$TAG] retired_box=loop_scan_v0"
-echo "[$TAG] replacement_owner=loop_cond_break_continue"
+echo "[$TAG] replacement_route=generic_loop_v1_plus_flowbox_adoption"
 echo "[$TAG] ok"
