@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
+RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Accept or deliberately reframe generated top-level function skeletons so the
-`hakorune_box_core` root module can progress from parse-only to MIR emit.
+Select the next RustSubset crate/module pilot after closing `hakorune_box_core`
+root-module MIR acceptance.
 ```
 
 Current evidence:
@@ -74,6 +74,7 @@ IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001 is closed by 296x-1326.
 GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001 is closed by 296x-1327.
 CREAT-SUBSET-PILOT-SELECTION-001 is closed by 296x-1328.
 HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1329.
+RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001 is closed by 296x-1330.
 ```
 
 Acceptance for the current slice:
@@ -82,25 +83,22 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused generated-function MIR acceptance command selected by
-# 296x-1329.
+# plus the focused next-crate inventory command selected by 296x-1330.
 ```
 
 ## Task Order
 
-1. Reproduce the root-module MIR failure on
-   `hakorune_box_core_expected.hako`.
-2. Decide whether generated top-level functions should be MIR-accepted or
-   emitted as comments until function declarations are in scope.
-3. Keep `Use` as explicit Unsupported handoff; do not implement Rust name
-   resolution.
-4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+1. Inventory the next small crate/module candidates with `crate_inventory.py`.
+2. Prefer a 2-3 module slice that adds one new unsupported family at most.
+3. Keep Rust parser/crate graph discovery in the external adapter boundary.
+4. Do not implement Rust name resolution or `use` resolution as part of
+   selection.
 5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
+RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001
 ```
 
 ## Pointers

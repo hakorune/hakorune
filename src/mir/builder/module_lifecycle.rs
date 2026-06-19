@@ -238,8 +238,33 @@ impl super::MirBuilder {
                                 }
                             }
                         }
+                    } else if let N::FunctionDeclaration {
+                        name,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                        ..
+                    } = st
+                    {
+                        let func_name = format!("{}/{}", name, params.len());
+                        self.lower_static_method_as_function(
+                            func_name,
+                            params.clone(),
+                            param_decls.clone(),
+                            return_type_name.clone(),
+                            body.clone(),
+                            uses.clone(),
+                            attrs.clone(),
+                        )?;
                     }
                 }
+                let runtime_statements: Vec<N> = statements
+                    .into_iter()
+                    .filter(|st| !matches!(st, N::FunctionDeclaration { .. }))
+                    .collect();
                 for (name, methods) in deferred_static_boxes {
                     // Dev: trace which static box is being lowered (env-gated)
                     self.trace_compile(format!("lower static box {}", name));
@@ -294,11 +319,11 @@ impl super::MirBuilder {
                         self.build_static_main_box(box_name, methods)
                     } else {
                         // 理論上は起こりにくいが、安全のため Script モードと同じ lowering にする
-                        self.cf_block(statements)
+                        self.cf_block(runtime_statements)
                     }
                 } else {
                     // Script/Test モード: トップレベル Program をそのまま順次実行
-                    self.cf_block(statements)
+                    self.cf_block(runtime_statements)
                 }
             }
             other => self.build_expression(other),

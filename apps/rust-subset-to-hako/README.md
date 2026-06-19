@@ -243,10 +243,10 @@ is:
 apps/rust-subset-to-hako/examples/hakorune_box_core_expected/
 ```
 
-The full generated skeleton parses. The leaf modules emit MIR. The root module
-contains a generated top-level function skeleton, so full-root MIR acceptance is
-tracked by the follow-up `RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001`
-task instead of being hidden inside crate handoff.
+The full generated skeleton now emits MIR. Top-level function declarations are
+accepted as declarations, not executable statements. This is still skeleton
+transport only: cross-module linking, `use` resolution, and generated-program
+EXE/AOT claims remain out of v0 scope.
 
 The dedicated adapter handoff gate is:
 

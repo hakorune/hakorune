@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
+RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -56,17 +56,16 @@ a read-only crate inventory tool. The selected first real pilot is
 `Use` handoffs in the root module. The crate pilot is closed by 296x-1329:
 the bundle is checked in, the full generated skeleton parses, and leaf modules
 emit MIR. The remaining blocker is generated top-level function MIR acceptance
-for the root module.
+for the root module. Generated top-level functions are accepted at MIR emit
+level by 296x-1330; the next blocker is selecting the next crate pilot.
 
 ## Next
 
-1. Reproduce the root-module MIR failure on
-   `hakorune_box_core_expected.hako`.
-2. Decide whether generated top-level functions should be MIR-accepted or
-   emitted as comments until function declarations are in scope.
-3. Keep `Use` as explicit Unsupported handoff; do not implement Rust name
-   resolution.
-4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+1. Inventory the next small crate/module candidates with `crate_inventory.py`.
+2. Prefer a 2-3 module slice that adds one new unsupported family at most.
+3. Keep Rust parser/crate graph discovery in the external adapter boundary.
+4. Do not implement Rust name resolution or `use` resolution as part of
+   selection.
 5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 7. Run:
 
@@ -96,6 +95,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - `hakorune_box_core` manifest bundle is checked in
   - empty struct and impl receiver skeleton output are made parser-safe
   - full skeleton parse and leaf-module MIR emit are verified
+- `RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001`
+  - top-level generated functions lower as standalone MIR declarations
+  - runtime script statements exclude top-level FunctionDeclaration nodes
+  - `hakorune_box_core_expected.hako` emits MIR
 - `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`
