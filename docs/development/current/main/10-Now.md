@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -41,15 +41,16 @@ RustSubset path/name normalization is closed by 296x-1317 without adding
 synthetic multi-module adapter probe is closed by 296x-1319. Crate handoff MIR
 acceptance is closed by 296x-1320. OrderedMapBox is documented as a `.hako`
 library deterministic-map boundary by 296x-1321. OrderedMapBox v0 and its
-focused EXE/AOT smoke are closed by 296x-1322. The active blocker is a focused
-BindingContext-style OrderedMapBox probe.
+focused EXE/AOT smoke are closed by 296x-1322. The focused BindingContext-style
+OrderedMapBox probe is closed by 296x-1323. The active blocker returns to creat
+subset pilot selection.
 
 ## Next
 
-1. Add a focused BindingContext-style probe that uses OrderedMapBox.
-2. Verify deterministic String-key iteration against a small expected output.
-3. Do not rewrite MirBuilder or replace BindingContext in this row.
-4. Keep `MapBox`, ring0, and ring1 provider registration unchanged.
+1. Inventory candidate creat files/modules before adding schema nodes.
+2. Count unsupported RustSubset families by reason/code.
+3. Select a 2-3 module pilot slice with minimal new semantics.
+4. Do not add creat-specific schema or converter branches in the selection row.
 5. Run:
 
 ```bash
@@ -134,6 +135,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - OrderedMapBox v0 is implemented in `apps/lib/collections/ordered_map.hako`
   - focused EXE/AOT smoke verifies deterministic order and update behavior
   - `MapBox`, ring0, ring1 provider registration, and MirBuilder remain unchanged
+- `MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001`
+  - focused EXE/AOT probe verifies OrderedMapBox as a BindingContext-style name-to-id map
+  - deterministic binding snapshot, duplicate update, and missing lookup are fixed
+  - MirBuilder, BindingContext, MapBox, ring0, and ring1 remain unchanged
 
 Closeout evidence:
 

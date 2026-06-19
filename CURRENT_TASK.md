@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Use OrderedMapBox in a focused BindingContext-style probe before any broad
-MirBuilder rewrite.
+Inventory and select a small real creat subset pilot now that the synthetic
+crate handoff and OrderedMapBox detour are closed.
 ```
 
 Current evidence:
@@ -67,6 +67,7 @@ RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001 is closed by 296x-1319.
 RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001 is closed by 296x-1320.
 HAKO-ORDERED-MAP-BOX-SSOT-001 is closed by 296x-1321.
 HAKO-ORDERED-MAP-BOX-V0-001 is closed by 296x-1322.
+MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001 is closed by 296x-1323.
 ```
 
 Acceptance for the current slice:
@@ -74,22 +75,22 @@ Acceptance for the current slice:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused probe smoke added by
-# MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
+# plus the focused inventory/probe commands selected by
+# CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 ## Task Order
 
-1. Add a focused BindingContext-style probe that uses OrderedMapBox.
-2. Verify deterministic String-key iteration against a small expected output.
-3. Do not rewrite MirBuilder or replace BindingContext in this row.
-4. Keep `MapBox`, ring0, and ring1 provider registration unchanged.
-5. Update `CURRENT_STATE.toml` when the implementation row closes.
+1. Inventory candidate creat files/modules before adding schema nodes.
+2. Count unsupported RustSubset families by reason/code.
+3. Select a 2-3 module pilot slice with minimal new semantics.
+4. Do not add creat-specific schema or converter branches in the selection row.
+5. Update `CURRENT_STATE.toml` when the selection row closes.
 
 Recommended next row:
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 ## Pointers

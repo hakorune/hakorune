@@ -1,0 +1,53 @@
+using apps.lib.collections.ordered_map as OrderedMap
+
+static box Main {
+    main() {
+        local bindings = OrderedMap.create()
+
+        bindings.set("gamma", 30)
+        bindings.set("alpha", 10)
+        bindings.set("beta", 20)
+        bindings.set("beta", 21)
+
+        if bindings.length() != 3 {
+            print("binding_count=fail")
+            return 1
+        }
+        if bindings.key_at(0) != "alpha" {
+            print("binding_key0=fail")
+            return 2
+        }
+        if bindings.key_at(1) != "beta" {
+            print("binding_key1=fail")
+            return 3
+        }
+        if bindings.key_at(2) != "gamma" {
+            print("binding_key2=fail")
+            return 4
+        }
+        if bindings.get("alpha") != 10 {
+            print("binding_alpha=fail")
+            return 5
+        }
+        if bindings.get("beta") != 21 {
+            print("binding_beta_update=fail")
+            return 6
+        }
+        if bindings.get("gamma") != 30 {
+            print("binding_gamma=fail")
+            return 7
+        }
+        if bindings.get("missing") != null {
+            print("binding_missing=fail")
+            return 8
+        }
+
+        print("binding_count=3")
+        print("binding[0]=alpha:10")
+        print("binding[1]=beta:21")
+        print("binding[2]=gamma:30")
+        print("lookup.missing=null")
+        print("summary=ok")
+        return 0
+    }
+}

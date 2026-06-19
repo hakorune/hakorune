@@ -37,25 +37,26 @@ transport index plus per-module `RustSubsetModule` artifacts. The synthetic
 multi-module adapter probe and `.hako` crate handoff MIR acceptance wrapper are
 green. OrderedMapBox is now documented as a `.hako` library collection for
 deterministic String-key iteration, not a MapBox or ring0 substrate change. The
-small OrderedMapBox v0 library and EXE/AOT smoke are green. The next blocker is
-using OrderedMapBox in a focused BindingContext-style MirBuilder migration
-probe without rewriting the MirBuilder owner."""
+small OrderedMapBox v0 library and EXE/AOT smoke are green. A focused
+BindingContext-style OrderedMapBox probe is also green without rewriting
+MirBuilder, changing MapBox, or touching ring provider registration. The next
+blocker returns to creat subset pilot selection."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1322-HAKO-ORDERED-MAP-BOX-V0-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1323-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001.md"
 
-latest_card = "296x-1322-HAKO-ORDERED-MAP-BOX-V0-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1322-HAKO-ORDERED-MAP-BOX-V0-001.md"
-latest_card_summary = """296x-1322 implements OrderedMapBox v0 as a `.hako`
-library collection with String keys, deterministic lexical ordering, and a
-focused EXE/AOT smoke. It keeps MapBox, ring0, ring1 provider registration, and
-MirBuilder unchanged. The next blocker is a BindingContext-style OrderedMapBox
-probe."""
+latest_card = "296x-1323-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1323-MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001.md"
+latest_card_summary = """296x-1323 adds a focused BindingContext-style
+OrderedMapBox probe. The probe verifies deterministic String-key binding
+iteration, duplicate binding update behavior, and missing lookup behavior
+through EXE/AOT while keeping MirBuilder, BindingContext, MapBox, ring0, and
+ring1 unchanged. The next blocker returns to creat subset pilot selection."""
 
-current_blocker_token = "MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001"
+current_blocker_token = "CREAT-SUBSET-PILOT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -91,4 +92,5 @@ landed_tail = [
   "2026-06-20: 296x-1320 closes crate handoff MIR acceptance; next blocker is creat subset pilot selection.",
   "2026-06-20: 296x-1321 documents OrderedMapBox as a .hako library deterministic-map boundary; next blocker is OrderedMapBox v0.",
   "2026-06-20: 296x-1322 implements OrderedMapBox v0 with focused EXE/AOT smoke; next blocker is BindingContext-style OrderedMapBox probe.",
+  "2026-06-20: 296x-1323 closes the BindingContext-style OrderedMapBox probe; next blocker returns to creat subset pilot selection.",
 ]
