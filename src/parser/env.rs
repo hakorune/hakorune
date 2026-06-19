@@ -66,7 +66,10 @@ pub(crate) fn grammar_diff() -> bool {
 }
 
 pub(crate) fn cli_verbose_enabled() -> bool {
-    matches!(std::env::var("NYASH_CLI_VERBOSE").ok().as_deref(), Some("1" | "2"))
+    matches!(
+        std::env::var("NYASH_CLI_VERBOSE").ok().as_deref(),
+        Some("1" | "2")
+    )
 }
 
 pub(crate) fn expr_postfix_catch() -> bool {
@@ -130,10 +133,7 @@ pub(crate) fn parser_static_trace_enabled() -> bool {
 }
 
 pub(crate) fn parser_trace_blocks() -> bool {
-    std::env::var("NYASH_PARSER_TRACE_BLOCKS")
-        .ok()
-        .as_deref()
-        == Some("1")
+    std::env::var("NYASH_PARSER_TRACE_BLOCKS").ok().as_deref() == Some("1")
 }
 
 pub(crate) fn parser_token_cursor_enabled() -> bool {

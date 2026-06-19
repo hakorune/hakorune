@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-18"
+date = "2026-06-19"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused by
@@ -15,25 +15,189 @@ is selected, user-box fastpath gaps are closed, and residue audit is clean.
 Rust VM / .hako VM product-route app validation is retired by
 VM-ACTIVE-LANE-RETIRE-001; EXE/AOT is the primary app/selfhost validation route.
 The active app front is rust-subset-to-hako. The Python reference converter
-passes, the native .hako converter emits MIR JSON, and the first embedded
-fixture EXE/AOT slice now matches simple_expected.hako. The next blocker is
-selecting the input route: FileBox/stdin acceptance, host-generated embedded
-fixture handoff, or an external adapter boundary. Build crate split planning
-remains available but is paused while this app-front lane is active.
+passes, the native .hako converter emits MIR JSON, and the embedded fixture,
+FileBox-input, and adapter-fixture EXE/AOT slices now match their expected
+`.hako` outputs, including a nonzero integer literal in the adapter fixture.
+The external Rust parser adapter boundary is documented. The RustSubset
+source-shape coverage batch is closed until a new real input blocker appears.
+JSON native object-key equality is fixed and the temporary critical-key bridge
+is retired. The current blocker is the separate compiler Recipe/CorePlan
+real-shape intake for read_next_number_literal-style staged loops with break;
+the sign/break and decimal/exponent fixtures are planner_required green, and
+the scanner multi-exit fixture is now accepted by generic_loop_v1 through the
+ThenOnlyExit Recipe shape. The continue-in-staged-loop fixture is captured as
+an expected-fail contract. The taskboard now keeps the read_next_number_literal
+family queued while narrowing immediate implementation to the partial-carrier
+continue PHI fix.
+Build crate split planning remains available
+but is paused while this app-front lane is active.
 Detailed landed history lives in the referenced phase cards and design SSOTs,
 not in CURRENT_STATE.toml."""
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-method_anchor = "apps/rust-subset-to-hako/HAKO_JSON_PLAN.md"
+method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1229-RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003.md"
 
-latest_card = "RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1229-RUST-SUBSET-TO-HAKO-EMBEDDED-AOT-PARITY-001.md"
-latest_card_summary = """Closed the first rust-subset-to-hako EXE/AOT slice:
-json_native probe and embedded converter parity are green; next blocker is the
-input route selection."""
-current_blocker_token = "RUST-SUBSET-TO-HAKO-INPUT-ROUTE-SELECTION-001"
+latest_card = "296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003.md"
+latest_card_summary = """Pinned and applied the `.hako` app-front template:
+Main is startup-only, converter core is separate from the embedded fixture
+handoff, probes are split into stable/regression/investigations, JSON object
+lookup uses generic entry-table key equality without a critical-key bridge,
+and the rust-subset app task board now separates closed work, the active
+external adapter boundary row, and hardening queue. The bool-returning schema
+helper plus `not` call-site backend shape, the minimal FileBox
+new/open/read/close route, and the FileBox-backed converter input wrapper are
+now covered by EXE/AOT smoke or regression probes. The external Rust parser
+adapter boundary is fixed as a file-based RustSubset JSON v0 producer
+contract. The adapter fixture handoff wrapper now passes EXE/AOT parity with a
+nonzero integer literal, user/global bool-return calls are normalized from ABI
+i64 to i1 before branch/not use, and JSON nonzero integer payloads are guarded
+by a regression probe. The external adapter tool selection row selects a
+host-side syn adapter, adds the first Rust source -> RustSubset JSON v0
+producer scaffold, and keeps converter_core.hako unchanged. The first syn
+adapter coverage row normalizes Rust tail-expression returns to RustSubset
+Return and adds optional adapter smoke coverage. Unsupported Rust trait items
+now hand off as explicit Unsupported nodes and convert to TODO comments without
+claiming trait support. If statements are now selected, represented in
+RustSubset JSON v0, emitted by Python and .hako converters, and covered by an
+EXE/AOT fixture wrapper. Assignment statements are now represented in
+RustSubset JSON v0, emitted by Python and .hako converters, and covered by an
+EXE/AOT fixture wrapper. The next-task card separates the read_next_number_literal
+staged loop/break acceptance request into compiler Recipe/CorePlan backlog.
+The syn adapter is now split into cli/items/functions/stmts/exprs/types modules
+with unchanged adapter fixture JSON output and full adapter smoke green. While
+statements are now represented in RustSubset JSON v0, emitted by Python and
+.hako converters as `loop(cond)`, and covered by an EXE/AOT fixture wrapper.
+Rust `vec![...]` literals now transport as RustSubset `ArrayLiteral`, emit as
+`.hako` array literals, map `Vec<T>` type spelling to `Array`, and are covered
+by an EXE/AOT fixture wrapper. The read_next_number_literal staged loop/break
+request is now split into a compiler-only Recipe/CorePlan task ladder: capture
+a minimal fixture, inventory the planner_required gap, add recursive recipe
+acceptance, then restore/probe the json_native route. The minimal staged
+loop/break compiler canary is captured and default EXE/AOT-green; it is not a
+planner_required acceptance claim. The planner_required inventory then found
+the captured canary is already green through existing LoopSimpleWhile plus
+flowbox/adopt break handling, so no new Recipe/CorePlan acceptance code is
+needed for that canary. The dedicated json_native restore probe then found the
+scanner read_number route is active, but scanner-derived NUMBER payloads outside
+the small numeric materializer table do not yet survive the tokenizer ArrayBox
+publication path. The next owner is
+JSON-NATIVE-NUMBER-TOKEN-PAYLOAD-STABILITY-001 before the number materializer
+can be retired. The token payload stability inventory tried parser source-span
+recovery, JsonToken primitive sidecar, JsonNode source-span/object sidecar, and
+character-by-character number materialization; all were non-keepers or regressed
+the accepted small-number route. The next row must select a lower substrate
+owner before further implementation. The owner selection row picks
+JsonToken text payload publication as the next seam: a NUMBER token with
+scanner-derived dynamic text must survive token ArrayBox storage before parser
+or JsonNode changes continue. The direct JsonToken dynamic text payload storage
+probe is green, so JsonToken storage is rejected as the owner. The remaining
+owner moves to tokenizer/scanner NUMBER production shape; the attempted direct
+tokenizer-number probe currently fails at backend pure-shape compilation. The
+next row taskizes that production-shape ladder without blocking bool-return
+validation: keep the token-payload/small-number-materializer stability route,
+probe scanner.read_number first, then next_token NUMBER, then tokenize()->ArrayBox,
+and only open Recipe/CorePlan acceptance if the smaller probes prove a compiler
+owner. The scanner.read_number-only probe is EXE/AOT green, so scanner substring
+production is rejected as the owner; the next probe is JsonTokenizer.next_token()
+for a single NUMBER without tokenize() or token ArrayBox publication. That
+next_token NUMBER probe is also EXE/AOT green, so the remaining owner is
+tokenize()->ArrayBox NUMBER production shape or the backend pure shape required
+by that full tokenizer probe. The shape inventory shows the first stop after
+`tokenize()` is `ArrayBox.get` followed by a receiver typed as RuntimeDataBox;
+`get_type` and `get_value` then have no route. The selected next owner is
+returned token-array element route recovery, not number payload production.
+The active app-front blocker remains selecting the following source shape.
+The token-array owner selection row picks ArrayBox element-origin metadata
+propagation as the next json_native hardening owner. The recursive Recipe
+shape backlog audit keeps read_next_number_literal-style compiler acceptance
+visible, but records that the captured canary is already green; future compiler
+Recipe work requires a new minimal failing fixture. The token-array
+element-origin shadow row now carries same-module method-returned ArrayBox
+element origin into later ArrayBox.get route metadata without backend behavior
+changes. The backend now consumes positive generic_method.get
+result_origin_box metadata, so the tokenizer NUMBER payload storage probe is
+EXE/AOT green; next hardening task is promoting that probe to regression before
+number materializer retirement. The reported read_next_number_literal
+multi-stage loop/break shape is now taskized as real-shape intake: no new
+Recipe/CorePlan implementation opens until a minimal failing fixture proves a
+compiler owner. The tokenizer NUMBER payload storage probe is now promoted from
+investigation to regression and self-checks both token type and value; next
+json_native hardening is number materializer retirement. That retire attempt is
+rejected: token storage is stable without the bridge, but adapter fixture
+numeric conversion regresses from `value + 1` to `value + 0`. The temporary
+JsonNumberTextMaterializer remains small and tokenizer-contextual; the next
+owner is JSON-NATIVE-NUMERIC-VALUE-CONVERSION-OWNER-SELECTION-001. Numeric
+owner selection rejects scanner parse_integer and tokenizer payload storage as
+owners; the remaining selected candidate is JsonNode int_text_value publication
+through object storage/retrieval. The recursive Recipe/CorePlan unsupported
+shape taskboard is refreshed: read_next_number_literal full multi-stage
+loop/break remains the leading compiler-side candidate, but implementation is
+still blocked on a minimal failing fixture. RustSubset app-front shapes and
+json_native hardening tasks stay separate from compiler Recipe acceptance.
+JSON numeric semantic conversion now belongs to JsonParser source-span integer
+scanning rather than token payload parsing, so JsonNumberTextMaterializer and
+the JsonNode int_text sidecar are retired. Regression smoke remains green; the
+remaining JSON bridge work is critical/unknown object-key materialization.
+Critical key bridge retirement remains rejected after the full converter smoke:
+focused key probes pass without the bridge, but full fixture parity can still
+misroute same-length object keys through `JsonNode.object_key_equals`. The
+parser-contextual key materializer stays temporary, and the next json_native
+hardening owner is object-key equality owner selection. The recursive
+Recipe/CorePlan unsupported-shape taskboard is refreshed again:
+read_next_number_literal full multi-stage loop/break is the leading
+compiler-side candidate, but implementation remains blocked on a minimal
+failing fixture. Adjacent unsupported compiler shapes are queued separately from
+rust-subset app-front source-shape transport. Else-if statements are now
+accepted as recursive RustSubset If inside the parent else array, with Python
+and .hako converters using the existing nested If emitter. The next app-front
+blocker is selecting the source shape after else-if support. Returnless void
+function bodies are now fixture-guarded as `return_type=\"void\"` plus ordinary
+statements, without adding synthetic returns or converter-core changes. The
+next app-front blocker is selecting the source shape after returnless void body
+hardening. Vec method calls are now fixture-guarded through the existing
+MethodCall schema; no Vec-specific schema or converter special-case was added.
+The next app-front blocker is selecting the source shape after Vec method call
+support. Rust `loop { ... }` without break/continue is now accepted by reusing
+the existing While schema with a literal true condition, and break/continue stay
+in the compiler Recipe/CorePlan backlog. The next app-front blocker is
+selecting the source shape after loop-without-break support. The after-loop
+taskboard refresh keeps app-front source transport and compiler Recipe/CorePlan
+loop/break intake separate, recommends match unsupported handoff next, and
+requires a minimal failing fixture before read_next_number_literal Recipe
+implementation. Rust match expressions now hand off as explicit Unsupported
+nodes with stable TODO reasons; no Match schema node or match semantics were
+added. The next app-front blocker is selecting the source shape after match
+unsupported handoff. Explicit Rust unit return type `-> ()` is now fixture
+guarded as RustSubset `return_type=\"void\"` through the existing tuple-unit type
+mapping, without adapter code changes or synthetic returns. The next app-front
+blocker is selecting the source shape after explicit unit return hardening.
+Rust for-loops now hand off as explicit Unsupported nodes without iterator
+semantics, while-desugaring, or tail-return TODO emission. The next blocker is
+closing the current source-shape coverage batch and selecting the next lane.
+The source-shape coverage batch is now closed; further RustSubset syntax rows
+require a new real input blocker. JSON native object-key equality is now fixed:
+the same-length dynamic key false positive is regression-guarded, and
+JsonObjectKeyMaterializer is removed.
+The recursive Recipe/CorePlan unsupported-shape taskboard is refreshed again:
+read_next_number_literal remains a compiler-side real-shape intake candidate,
+but token payload route recovery and nonzero number stability stay json_native
+hardening concerns, not compiler Recipe evidence. The real-shape intake is now
+split into a concrete ladder. The sign/break full-ish fixture is captured and
+planner_required green, so no Recipe/CorePlan implementation is opened for that
+slice. The decimal/exponent staged-number fixture is also captured and
+planner_required green. The scanner multi-exit fixture is captured as an
+expected-fail contract with selected_owner=generic_loop_v1_recipe_body. The
+generic_loop_v1 Recipe/CorePlan path now accepts that scanner multi-exit body
+via `IfMode::ThenOnlyExit`, and the fixture is flipped to a normal green gate
+case. The continue-in-staged-loop fixture is now captured as an expected-fail
+contract; its owner is loop_cond_break_continue partial carrier PHI handling.
+The latest taskboard refresh keeps read_next_number_literal queued and the
+active implementation target narrowed to the partial-carrier continue PHI
+fixture."""
+current_blocker_token = "COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -60,4 +224,55 @@ landed_tail = [
   "2026-06-18: 296x-1227 closes the first box-core/config passive seam burst and returns to global boundary selection.",
   "2026-06-18: 296x-1228 reopens rust-subset-to-hako and pins the EXE/AOT blocker at JsonParser.parse/1.",
   "2026-06-18: 296x-1229 closes the embedded rust-subset-to-hako EXE/AOT parity slice; next is input route selection.",
+  "2026-06-19: rust-subset-to-hako FileBox input wrapper closes on EXE/AOT parity; next is external adapter boundary.",
+  "2026-06-19: rust-subset-to-hako external adapter boundary is documented as file-based RustSubset JSON v0 handoff.",
+  "2026-06-19: rust-subset-to-hako adapter fixture handoff closes on EXE/AOT parity; next is JSON nonzero integer parse hardening.",
+  "2026-06-19: bool-returning user/global calls now normalize ABI i64 results to i1 before branch/not use on EXE/AOT.",
+  "2026-06-19: JSON nonzero integer parsing is stable for accepted v0 fixture values; adapter fixture restores value + 1 parity.",
+  "2026-06-19: App-front boundary template SSOT fixes Main/App/InputRoute/EXE-AOT acceptance structure before next input work.",
+  "2026-06-19: rust-subset-to-hako selects a syn-based host adapter and scaffolds the first Rust source -> RustSubset JSON v0 producer.",
+  "2026-06-19: syn adapter coverage normalizes Rust tail-expression returns and adds optional simple_input semantic parity smoke.",
+  "2026-06-19: syn adapter unsupported-shape probe preserves unsupported trait items as explicit Unsupported handoff nodes.",
+  "2026-06-19: rust-subset-to-hako adds RustSubset If statement support through schema, syn adapter, Python/.hako converters, and EXE/AOT fixture parity.",
+  "2026-06-19: rust-subset-to-hako adds RustSubset Assign statement support through schema, syn adapter, Python/.hako converters, and EXE/AOT fixture parity.",
+  "2026-06-19: rust-subset taskboard now records syn_adapter module split planning and the separate CorePlan loop/break recipe acceptance backlog.",
+  "2026-06-19: syn adapter module split closes behavior-unchanged; main.rs is now a thin facade over cli/items/functions/stmts/exprs/types.",
+  "2026-06-19: rust-subset-to-hako adds RustSubset While statement support mapped to .hako loop(cond) with EXE/AOT fixture parity.",
+  "2026-06-19: rust-subset-to-hako adds Rust vec![...] literal transport as RustSubset ArrayLiteral with EXE/AOT fixture parity.",
+  "2026-06-19: read_next_number_literal staged loop/break acceptance is taskized as a compiler-only Recipe/CorePlan backlog, separate from rust-subset app-front shapes.",
+  "2026-06-19: read_next_number_literal staged loop/break source canary is captured and default EXE/AOT-green; planner_required gap inventory remains next.",
+  "2026-06-19: read_next_number_literal staged loop/break canary is planner_required-green via existing LoopSimpleWhile + flowbox/adopt break route; json_native restore probe is next.",
+  "2026-06-19: json_native read_number route is active, but out-of-materializer NUMBER payloads still fail after token ArrayBox publication; next owner is token payload stability.",
+  "2026-06-19: json_native NUMBER token payload app-level candidates are non-keepers; next task is lower-substrate owner selection before more implementation.",
+  "2026-06-19: json_native NUMBER payload owner selection picks JsonToken text payload publication; next probe is token get_value after ArrayBox storage.",
+  "2026-06-19: direct JsonToken dynamic text payload survives ArrayBox storage; owner moves to tokenizer/scanner NUMBER production shape.",
+  "2026-06-19: tokenizer/scanner NUMBER production shape is taskized as a probe ladder while token payload stability remains active.",
+  "2026-06-19: JsonScanner.read_number direct substring route is EXE/AOT green; next probe is JsonTokenizer.next_token NUMBER.",
+  "2026-06-19: JsonTokenizer.next_token NUMBER route is EXE/AOT green; next task inventories tokenize()->ArrayBox shape.",
+  "2026-06-19: tokenize()->ArrayBox NUMBER shape inventory selects returned token-array element route recovery.",
+  "2026-06-19: token-array route owner selection picks ArrayBox element-origin metadata propagation; next hardening task is shadow-only origin metadata.",
+  "2026-06-19: recursive Recipe/CorePlan shape backlog is audited; read_next_number_literal canary is green, so future Recipe work requires a new minimal failing fixture.",
+  "2026-06-19: method-returned ArrayBox element-origin shadow metadata is green; next hardening task is backend consumption.",
+  "2026-06-19: backend consumes ArrayBox.get result_origin_box metadata; tokenizer NUMBER payload storage probe is EXE/AOT green.",
+  "2026-06-19: read_next_number_literal real-shape intake is taskized; recursive Recipe/CorePlan implementation still requires a minimal failing fixture.",
+  "2026-06-19: tokenizer NUMBER payload storage probe is promoted to regression with type/value self-checks.",
+  "2026-06-19: number materializer retire is rejected; adapter fixture still needs numeric value conversion owner selection.",
+  "2026-06-19: numeric value conversion owner selection picks JsonNode int_text_value object publication/retrieval as the next probe.",
+  "2026-06-19: recursive Recipe/CorePlan unsupported-shape taskboard is refreshed; implementation still requires a minimal failing fixture.",
+  "2026-06-19: JSON numeric conversion moves to parser source-span integer scanning and retires JsonNumberTextMaterializer.",
+  "2026-06-19: critical JSON key bridge retire probe is rejected; next owner is critical string value publication.",
+  "2026-06-19: critical JSON key bridge retire retry is rejected by full converter parity; next json_native owner is object-key equality.",
+  "2026-06-19: recursive Recipe/CorePlan unsupported-shape taskboard is refreshed with read_next_number_literal full shape first and minimal failing fixture required.",
+  "2026-06-19: rust-subset-to-hako adds Rust else-if support as recursive RustSubset If with EXE/AOT fixture parity.",
+  "2026-06-19: rust-subset-to-hako hardens returnless void function bodies with EXE/AOT fixture parity.",
+  "2026-06-19: rust-subset-to-hako fixture-guards Vec method calls through existing MethodCall transport.",
+  "2026-06-19: rust-subset-to-hako accepts Rust loop without break/continue through existing While true transport.",
+  "2026-06-19: after-loop rust-subset taskboard refresh keeps app-front source transport and compiler Recipe/CorePlan loop/break intake separate.",
+  "2026-06-19: rust-subset-to-hako fixture-guards Rust match as explicit Unsupported handoff without match semantics.",
+  "2026-06-19: rust-subset-to-hako fixture-guards explicit Rust unit return type as void without adapter code changes.",
+  "2026-06-19: rust-subset-to-hako fixture-guards Rust for-loop as explicit Unsupported handoff without iterator semantics.",
+  "2026-06-19: rust-subset source-shape coverage batch is closed; active next lane returns to JSON object-key equality owner selection.",
+  "2026-06-19: generic_loop_v1 accepts scanner multi-exit loop bodies via ThenOnlyExit; next compiler candidate is continue-in-staged-loop.",
+  "2026-06-19: continue-in-staged-loop fixture is captured as expected-fail; next owner is partial carrier PHI handling.",
+  "2026-06-19: real-shape taskboard refresh keeps read_next_number_literal queued and narrows active implementation to COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001.",
 ]

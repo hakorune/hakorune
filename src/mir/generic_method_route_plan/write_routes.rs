@@ -45,9 +45,10 @@ pub(super) fn match_generic_push_route(
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
         .or_else(|| (box_name == "ArrayBox").then(|| "ArrayBox".to_string()));
-    if receiver_origin_box.as_deref() != Some("ArrayBox")
-        || !matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox")
-    {
+    if !matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox" | "Box") {
+        return None;
+    }
+    if !matches!(box_name.as_str(), "Box") && receiver_origin_box.as_deref() != Some("ArrayBox") {
         return None;
     }
     if args.len() == 2 {
@@ -55,10 +56,13 @@ pub(super) fn match_generic_push_route(
             receiver_origin_box_name(function, def_map, args[0]).or_else(|| {
                 generic_array_flow_origin_box_name(function, def_map, field_handle_origins, args[0])
             });
-        if receiver_arg_origin_box.as_deref() != Some("ArrayBox")
-            || resolve_value_origin(function, def_map, args[0])
-                != resolve_value_origin(function, def_map, *receiver)
-        {
+        let receiver_arg_matches = resolve_value_origin(function, def_map, args[0])
+            == resolve_value_origin(function, def_map, *receiver);
+        if matches!(box_name.as_str(), "Box") {
+            if !receiver_arg_matches {
+                return None;
+            }
+        } else if receiver_arg_origin_box.as_deref() != Some("ArrayBox") || !receiver_arg_matches {
             return None;
         }
     }
@@ -125,7 +129,7 @@ pub(super) fn match_generic_set_route(
             GenericMethodRouteKind::ArrayStoreAny,
             CoreMethodOp::ArraySet,
         ),
-        ("MapBox", _) | ("RuntimeDataBox", Some("MapBox")) => {
+        ("MapBox", _) | ("Box", _) | ("RuntimeDataBox", Some("MapBox")) => {
             (GenericMethodRouteKind::MapStoreAny, CoreMethodOp::MapSet)
         }
         _ => return None,

@@ -327,6 +327,10 @@ fn verify_block_contract(
                             // ElseOnlyExit is handled via IfContractKind::ExitAllowed,
                             // not ExitOnly, so this branch should not be reached.
                         }
+                        IfMode::ThenOnlyExit => {
+                            // ThenOnlyExit is handled via IfContractKind::ExitAllowed,
+                            // not ExitOnly, so this branch should not be reached.
+                        }
                     }
                 }
             }

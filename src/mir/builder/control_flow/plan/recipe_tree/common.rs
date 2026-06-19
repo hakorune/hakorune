@@ -13,6 +13,9 @@ pub(in crate::mir::builder) enum IfMode {
     /// then=fallthrough (no exit), else=exit-only
     /// Used for patterns like: if cond { stmts } else { break }
     ElseOnlyExit,
+    /// then=exit-only, else=fallthrough.
+    /// Used for scanner loops like: if cond { break } else { stmts }
+    ThenOnlyExit,
 }
 
 /// Exit kind (Return/Break/Continue + depth).

@@ -352,10 +352,115 @@ fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
         route.route_kind(),
         GenericMethodRouteKind::RuntimeDataContainsAny
     );
-    assert!(route.core_method().is_none());
+    let core_method = route.core_method().expect("AnyHas carrier");
+    assert_eq!(core_method.op, CoreMethodOp::AnyHas);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
     assert_eq!(route.return_shape(), None);
     assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
     assert_eq!(route.publication_policy(), None);
+}
+
+#[test]
+fn records_box_has_as_any_runtime_data_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(4), "Box", "has", 1, vec![3]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.route_id(), "generic_method.has");
+    assert_eq!(
+        route.route_kind(),
+        GenericMethodRouteKind::RuntimeDataContainsAny
+    );
+    assert_eq!(
+        route.route_kind().helper_symbol(),
+        "nyash.runtime_data.has_hh"
+    );
+    assert_eq!(route.receiver_origin_box(), Some("Box"));
+    let core_method = route.core_method().expect("AnyHas carrier");
+    assert_eq!(core_method.op, CoreMethodOp::AnyHas);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+}
+
+#[test]
+fn records_runtime_data_get_without_receiver_origin_as_any_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(4), "RuntimeDataBox", "get", 1, vec![3]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.route_id(), "generic_method.get");
+    assert_eq!(
+        route.route_kind(),
+        GenericMethodRouteKind::RuntimeDataLoadAny
+    );
+    assert_eq!(
+        route.route_kind().helper_symbol(),
+        "nyash.runtime_data.get_hh"
+    );
+    assert_eq!(route.receiver_origin_box(), None);
+    let core_method = route.core_method().expect("AnyGet carrier");
+    assert_eq!(core_method.op, CoreMethodOp::AnyGet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::ColdFallback
+    );
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+    );
+    assert_eq!(
+        route.value_demand(),
+        GenericMethodValueDemand::RuntimeI64OrHandle
+    );
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::RuntimeDataFacade)
+    );
+}
+
+#[test]
+fn records_box_get_as_any_runtime_data_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(4), "Box", "get", 1, vec![3]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.route_id(), "generic_method.get");
+    assert_eq!(
+        route.route_kind(),
+        GenericMethodRouteKind::RuntimeDataLoadAny
+    );
+    assert_eq!(route.receiver_origin_box(), Some("Box"));
+    let core_method = route.core_method().expect("AnyGet carrier");
+    assert_eq!(core_method.op, CoreMethodOp::AnyGet);
 }
 
 #[test]

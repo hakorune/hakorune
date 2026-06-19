@@ -27,9 +27,7 @@ use super::super::super::body_check::step_validation::{
 };
 use super::super::super::facts_helpers::reject_or_none;
 use super::super::super::facts_types::GenericLoopV1Facts;
-use super::collection::{
-    body_has_break_or_continue_stmt, collect_loop_var_candidates_from_body,
-};
+use super::collection::{body_has_break_or_continue_stmt, collect_loop_var_candidates_from_body};
 
 #[derive(Default)]
 struct V1RejectCounters {
@@ -416,9 +414,7 @@ fn has_receiver_method_call_recursive(body: &[ASTNode], loop_var: &str) -> bool 
 fn stmt_has_receiver_method_call(stmt: &ASTNode, loop_var: &str) -> bool {
     match stmt {
         ASTNode::MethodCall {
-            object,
-            arguments,
-            ..
+            object, arguments, ..
         } => {
             receiver_name_matches_loop_var(object.as_ref(), loop_var)
                 || arguments
@@ -448,16 +444,23 @@ fn stmt_has_receiver_method_call(stmt: &ASTNode, loop_var: &str) -> bool {
                         .any(|inner| stmt_has_receiver_method_call(inner, loop_var))
                 })
         }
-        ASTNode::Loop { condition, body, .. } => {
+        ASTNode::Loop {
+            condition, body, ..
+        } => {
             stmt_has_receiver_method_call(condition.as_ref(), loop_var)
                 || body
                     .iter()
                     .any(|inner| stmt_has_receiver_method_call(inner, loop_var))
         }
-        ASTNode::Program { statements, .. } | ASTNode::ScopeBox { body: statements, .. } => statements
+        ASTNode::Program { statements, .. }
+        | ASTNode::ScopeBox {
+            body: statements, ..
+        } => statements
             .iter()
             .any(|inner| stmt_has_receiver_method_call(inner, loop_var)),
-        ASTNode::UnaryOp { operand, .. } => stmt_has_receiver_method_call(operand.as_ref(), loop_var),
+        ASTNode::UnaryOp { operand, .. } => {
+            stmt_has_receiver_method_call(operand.as_ref(), loop_var)
+        }
         ASTNode::BinaryOp { left, right, .. } => {
             stmt_has_receiver_method_call(left.as_ref(), loop_var)
                 || stmt_has_receiver_method_call(right.as_ref(), loop_var)

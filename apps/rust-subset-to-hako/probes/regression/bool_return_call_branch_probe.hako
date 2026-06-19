@@ -1,0 +1,34 @@
+// bool_return_call_branch_probe.hako
+//
+// Protects EXE/AOT lowering for user/global calls that return bool values.
+// The ABI still transports user function returns as i64, so the backend must
+// normalize the call result to i1 before it is used by branch/not shapes.
+
+static box BoolReturnCallProbe {
+    no() {
+        return false
+    }
+
+    yes() {
+        return true
+    }
+}
+
+static box Main {
+    main() {
+        local probe = new BoolReturnCallProbe()
+
+        if probe.no() {
+            print("bool.return=bad-false")
+            return 1
+        }
+
+        if not probe.yes() {
+            print("bool.return=bad-true")
+            return 2
+        }
+
+        print("bool.return=ok")
+        return 0
+    }
+}

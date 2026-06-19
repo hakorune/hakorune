@@ -1,0 +1,64 @@
+// Scanner multi-exit fixture for recursive Recipe/CorePlan intake.
+//
+// Shape:
+// - loop(cond) over scanner cursor
+// - value exit by break when closing quote is found
+// - error exits by return for escape/newline
+// - EOF error after loop when no closing quote was found
+// - shared loop-carried cursor and marker state
+//
+// This models the control-flow shape of json_native read_string_literal()
+// without depending on json_native runtime objects.
+static box Main {
+    current(text, pos, len) {
+        if pos >= len {
+            return ""
+        }
+        return text.substring(pos, pos + 1)
+    }
+
+    scan_string_body_end(text, len) {
+        local pos = 0
+        if Main.current(text, pos, len) != "\"" {
+            return -1
+        }
+        pos = pos + 1
+        local body_start = pos
+        local body_end = -1
+
+        loop(pos < len) {
+            local ch = Main.current(text, pos, len)
+            if ch == "\"" {
+                body_end = pos
+                pos = pos + 1
+                break
+            } else {
+                if ch == "\\" {
+                    return -2
+                } else {
+                    if ch == "\n" or ch == "\r" {
+                        return -3
+                    }
+                    pos = pos + 1
+                }
+            }
+        }
+
+        if body_end == -1 {
+            return -4
+        }
+        if pos - body_start < 1 {
+            return -5
+        }
+        return body_end
+    }
+
+    parse_sample() {
+        return Main.scan_string_body_end("\"abc\"x", 6)
+    }
+
+    main() {
+        print(Main.parse_sample())
+        return 0
+    }
+}

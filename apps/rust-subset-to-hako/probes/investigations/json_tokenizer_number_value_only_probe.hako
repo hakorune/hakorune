@@ -1,0 +1,24 @@
+// json_tokenizer_number_value_only_probe.hako
+//
+// Investigation for tokenize()->ArrayBox NUMBER readback without calling
+// token.get_type() after ArrayBox.get().
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("")
+        tokenizer.set_input("123")
+        local tokens = tokenizer.tokenize()
+        local token = tokens.get(0)
+
+        print(token.get_value())
+        if token.get_value() != "123" {
+            print("json.tokenizer.number.value-only=bad-value")
+            return 3
+        }
+
+        print("json.tokenizer.number.value-only=ok")
+        return 0
+    }
+}

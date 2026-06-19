@@ -297,16 +297,30 @@ static box StringUtils {
         }
 
         local acc = 0
-        local digits = "0123456789"
         loop(i < s.length()) {
             local ch = s.substring(i, i + 1)
-            // '0'..'9' → 位置で数値化
-            local d = this.index_of(digits, ch)
+            local d = this.digit_value(ch)
             if d < 0 { break }
             acc = acc * 10 + d
             i = i + 1
         }
         if neg { return 0 - acc } else { return acc }
+    }
+
+    // 1桁の十進数字を整数化する。JSON number parsing の hot/acceptance
+    // pathなので、文字列検索に依存せず明示的に扱う。
+    digit_value(ch) {
+        if ch == "0" { return 0 }
+        if ch == "1" { return 1 }
+        if ch == "2" { return 2 }
+        if ch == "3" { return 3 }
+        if ch == "4" { return 4 }
+        if ch == "5" { return 5 }
+        if ch == "6" { return 6 }
+        if ch == "7" { return 7 }
+        if ch == "8" { return 8 }
+        if ch == "9" { return 9 }
+        return -1
     }
 
     // ===== ユーティリティ =====

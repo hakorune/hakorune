@@ -1,0 +1,49 @@
+// json_dynamic_kind_key_and_value_probe.hako
+//
+// Probe critical-key instability without changing parser behavior. It bypasses
+// JsonObjectKeyMaterializer by reading key/value strings directly from tokens.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("{\"kind\":\"RustSubsetModule\"}")
+        tokenizer.set_input("{\"kind\":\"RustSubsetModule\"}")
+        local tokens = tokenizer.tokenize()
+
+        local key = tokens.get(1).get_value()
+        local value = tokens.get(3).get_value()
+
+        print("key=" + key)
+        print("value=" + value)
+
+        if key != "kind" {
+            print("json.dynamic.kind=bad-key-eq")
+            return 2
+        }
+        if value != "RustSubsetModule" {
+            print("json.dynamic.kind=bad-value-eq")
+            return 3
+        }
+
+        local obj = JsonNode.create_object()
+        obj.object_set(key, JsonNode.create_string(value))
+        local got = obj.get_node("kind")
+
+        print("got.kind=" + got.get_kind())
+        print("got.value=" + got.as_string())
+
+        if got.get_kind() != "string" {
+            print("json.dynamic.kind=bad-lookup")
+            return 4
+        }
+        if got.as_string() != "RustSubsetModule" {
+            print("json.dynamic.kind=bad-stored-value")
+            return 5
+        }
+
+        print("json.dynamic.kind=ok")
+        return 0
+    }
+}

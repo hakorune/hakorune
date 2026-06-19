@@ -1,0 +1,34 @@
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"kind\":\"RustSubsetModule\",\"value\":\"kind\"}")
+        if doc == null {
+            print("key.materialization=parse-null")
+            return 1
+        }
+
+        local kind_node = doc.get_node("kind")
+        if kind_node == null {
+            print("key.materialization=missing-kind")
+            return 2
+        }
+        if kind_node.as_string() != "RustSubsetModule" {
+            print("key.materialization=bad-kind")
+            return 3
+        }
+
+        local value_node = doc.get_node("value")
+        if value_node == null {
+            print("key.materialization=missing-value")
+            return 4
+        }
+        if value_node.as_string() != "kind" {
+            print("key.materialization=value-mutated")
+            return 5
+        }
+
+        print("key.materialization=ok")
+        return 0
+    }
+}

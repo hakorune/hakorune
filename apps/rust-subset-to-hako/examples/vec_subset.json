@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "xs",
+          "type": "Vec<i64>",
+          "value": {
+            "elements": [
+              {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 1
+              },
+              {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 2
+              },
+              {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 3
+              }
+            ],
+            "kind": "ArrayLiteral"
+          }
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "xs"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "make_vec",
+      "params": [],
+      "return_type": "Vec<i64>"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "vec_fixture",
+  "schema_version": 0
+}

@@ -70,6 +70,7 @@ fn same_module_instruction_supported(
             op,
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
+        MirInstruction::UnaryOp { .. } => true,
         MirInstruction::Compare { .. } | MirInstruction::Select { .. } => true,
         MirInstruction::VariantMake { .. }
         | MirInstruction::VariantTag { .. }
@@ -87,6 +88,10 @@ fn same_module_instruction_supported(
                         && route.reason().is_none()
                 })
         }
+        MirInstruction::Call {
+            callee: Some(Callee::Extern(_)),
+            ..
+        } => true,
         MirInstruction::Call {
             callee: Some(Callee::Method {
                 box_name, method, ..
@@ -111,6 +116,65 @@ fn same_module_instruction_supported(
                 || known_user_defined_method_call(instruction)
         }
         _ => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{
+        BasicBlock, Callee, EffectMask, FunctionSignature, MirFunction, MirType, UnaryOp, ValueId,
+    };
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn same_module_body_accepts_unary_op_when_backend_can_emit_it() {
+        let entry = BasicBlockId::new(0);
+        let signature = FunctionSignature {
+            name: "UnaryBox.flip/1".to_string(),
+            params: vec![MirType::Bool],
+            return_type: MirType::Bool,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, entry);
+        let mut block = BasicBlock::new(entry);
+        block.instructions.push(MirInstruction::UnaryOp {
+            dst: ValueId::new(1),
+            op: UnaryOp::Not,
+            operand: ValueId::new(0),
+        });
+        block.instructions.push(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        function.blocks.insert(entry, block);
+
+        assert!(same_module_body_supported(&function, &BTreeMap::new()));
+    }
+
+    #[test]
+    fn same_module_body_accepts_extern_call_when_backend_shell_can_emit_it() {
+        let entry = BasicBlockId::new(0);
+        let signature = FunctionSignature {
+            name: "DebugBox.log/1".to_string(),
+            params: vec![MirType::String],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, entry);
+        let mut block = BasicBlock::new(entry);
+        block.instructions.push(MirInstruction::Call {
+            dst: None,
+            func: ValueId::new(0),
+            callee: Some(Callee::Extern("env.console.log".to_string())),
+            args: vec![ValueId::new(0)],
+            effects: EffectMask::IO,
+        });
+        block.instructions.push(MirInstruction::Return {
+            value: Some(ValueId::new(0)),
+        });
+        function.blocks.insert(entry, block);
+
+        assert!(same_module_body_supported(&function, &BTreeMap::new()));
     }
 }
 

@@ -31,7 +31,8 @@ pub(super) fn generic_hash_runtime_plan(route: &GenericMethodRoute) -> Option<Ma
         route.key_route().map(|route| route.as_metadata_name()),
         route.return_shape().map(|shape| shape.as_metadata_name()),
         route.value_demand().as_metadata_name(),
-        route.publication_policy()
+        route
+            .publication_policy()
             .map(|policy| policy.as_metadata_name()),
         route.proof_tag(),
         route.lowering_tier().map(|tier| tier.as_json_name()),
@@ -63,7 +64,8 @@ pub(super) fn local_i64_key_map_shadow_plan(
         route.key_route().map(|route| route.as_metadata_name()),
         route.return_shape().map(|shape| shape.as_metadata_name()),
         route.value_demand().as_metadata_name(),
-        route.publication_policy()
+        route
+            .publication_policy()
             .map(|policy| policy.as_metadata_name()),
         "local_i64_key_map_shadow",
         None,

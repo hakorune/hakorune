@@ -1,0 +1,103 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "i",
+          "type": "i64",
+          "value": {
+            "kind": "Literal",
+            "type": "i64",
+            "value": 0
+          }
+        },
+        {
+          "kind": "Let",
+          "name": "sum",
+          "type": "i64",
+          "value": {
+            "kind": "Literal",
+            "type": "i64",
+            "value": 0
+          }
+        },
+        {
+          "body": [
+            {
+              "kind": "Assign",
+              "target": {
+                "kind": "Name",
+                "name": "sum"
+              },
+              "value": {
+                "kind": "Binary",
+                "left": {
+                  "kind": "Name",
+                  "name": "sum"
+                },
+                "op": "+",
+                "right": {
+                  "kind": "Name",
+                  "name": "i"
+                }
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "kind": "Name",
+                "name": "i"
+              },
+              "value": {
+                "kind": "Binary",
+                "left": {
+                  "kind": "Name",
+                  "name": "i"
+                },
+                "op": "+",
+                "right": {
+                  "kind": "Literal",
+                  "type": "i64",
+                  "value": 1
+                }
+              }
+            }
+          ],
+          "cond": {
+            "kind": "Binary",
+            "left": {
+              "kind": "Name",
+              "name": "i"
+            },
+            "op": "<",
+            "right": {
+              "kind": "Name",
+              "name": "limit"
+            }
+          },
+          "kind": "While"
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "sum"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "count_to",
+      "params": [
+        {
+          "name": "limit",
+          "type": "i64"
+        }
+      ],
+      "return_type": "i64"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "while_fixture",
+  "schema_version": 0
+}

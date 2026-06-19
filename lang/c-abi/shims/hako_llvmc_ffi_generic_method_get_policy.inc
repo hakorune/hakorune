@@ -9,6 +9,7 @@
       struct GenericMethodGetRouteMetadata {
         int invalid;
         enum GenericMethodGetRouteKind route;
+        const char* result_origin_box;
       };
 
 #include "hako_llvmc_ffi_local_i64_map_entry_table_metadata.inc"
@@ -29,6 +30,41 @@
           default:
             return NULL;
         }
+      }
+
+      auto int generic_method_get_publish_result_origin_box(
+          long long reg,
+          const char* box_name) {
+        int typed_plan_index = -1;
+        if (!box_name) return 1;
+        if (!reg) return 1;
+        if (!strcmp(box_name, "StringBox")) {
+          set_type(reg, T_I64);
+          set_origin(reg, ORG_STRING);
+          set_scan_origin(reg, ORG_STRING);
+          return 1;
+        }
+        if (!strcmp(box_name, "ArrayBox") ||
+            !strcmp(box_name, "DirectArrayI64")) {
+          set_type(reg, T_I64);
+          set_origin(reg, ORG_ARRAY_BIRTH);
+          set_scan_origin(reg, ORG_ARRAY_BIRTH);
+          return 1;
+        }
+        if (!strcmp(box_name, "MapBox")) {
+          set_type(reg, T_I64);
+          set_origin(reg, ORG_MAP_BIRTH);
+          set_scan_origin(reg, ORG_MAP_BIRTH);
+          return 1;
+        }
+        if (!find_typed_object_plan_index(box_name, &typed_plan_index)) {
+          return 0;
+        }
+        set_type(reg, T_I64);
+        set_origin(reg, ORG_TYPED_OBJECT);
+        set_scan_origin(reg, ORG_TYPED_OBJECT);
+        set_typed_object_binding(reg, typed_plan_index);
+        return 1;
       }
 
       auto enum GenericMethodGetRouteKind generic_method_get_route_kind_from_metadata(
@@ -72,7 +108,7 @@
         op = read_str(core_method, "op");
         proof = read_core_method_proof_metadata(core_method, invalid);
         lowering_tier = read_core_method_lowering_tier_metadata(core_method, invalid);
-        if (op && !strcmp(op, "MapGet") &&
+        if (op && (!strcmp(op, "MapGet") || !strcmp(op, "AnyGet")) &&
             core_method_metadata_proof_is_contract_manifest(proof) &&
             core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY;
@@ -105,13 +141,18 @@
       auto int generic_method_get_receiver_origin_valid(
           enum GenericMethodGetRouteKind route,
           const char* receiver_origin_box) {
-        if (!receiver_origin_box) return 0;
         switch (route) {
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY:
+            if (!receiver_origin_box) return 1;
+            return !strcmp(receiver_origin_box, "MapBox") ||
+                   !strcmp(receiver_origin_box, "ArrayBox") ||
+                   !strcmp(receiver_origin_box, "Box");
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64:
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
+            if (!receiver_origin_box) return 0;
             return !strcmp(receiver_origin_box, "MapBox");
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
+            if (!receiver_origin_box) return 0;
             return !strcmp(receiver_origin_box, "ArrayBox");
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE:
           default:
@@ -196,7 +237,8 @@
         route = generic_method_get_route_kind_from_metadata(view.route_kind);
         if (!(view.route_id && !strcmp(view.route_id, "generic_method.get")) ||
             !(view.core_op &&
-              (!strcmp(view.core_op, "MapGet") ||
+              (!strcmp(view.core_op, "AnyGet") ||
+               !strcmp(view.core_op, "MapGet") ||
                !strcmp(view.core_op, "ArrayGet"))) ||
             !generic_method_get_route_proof_valid(view.route_proof) ||
             !generic_method_get_key_route_valid(view.key_route) ||
@@ -220,7 +262,8 @@
           if (out) out->invalid = 1;
           return 0;
         }
-        if (!strcmp(view.core_op, "MapGet") &&
+        if ((!strcmp(view.core_op, "MapGet") ||
+             !strcmp(view.core_op, "AnyGet")) &&
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY &&
             !lowering_plan_tier_is_cold_runtime(view.tier)) {
           if (out) out->invalid = 1;
@@ -246,6 +289,7 @@
         }
         if (out) {
           out->route = route;
+          out->result_origin_box = view.result_origin_box;
         }
         trace_lowering_plan_entry_hit(entry, "generic_method_get");
         return 1;
@@ -289,6 +333,7 @@
           const char* route_box = NULL;
           const char* method = NULL;
           const char* receiver_origin_box = NULL;
+          const char* result_origin_box = NULL;
           const char* key_route = NULL;
           const char* emit_kind = NULL;
           const char* route_kind_raw = NULL;
@@ -322,6 +367,7 @@
           route_box = read_str(route, "box_name");
           method = read_str(route, "method");
           receiver_origin_box = read_str(route, "receiver_origin_box");
+          result_origin_box = read_str(route, "result_origin_box");
           key_route = read_str(route, "key_route");
           emit_kind = read_str(route, "emit_kind");
           route_kind_raw = read_str(route, "route_kind");
@@ -373,6 +419,7 @@
           }
           if (out) {
             out->route = route_kind;
+            out->result_origin_box = result_origin_box;
           }
           return 1;
         }
@@ -565,6 +612,11 @@
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.runtime_data.get_hh\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
+              if (!generic_method_get_publish_result_origin_box(
+                      dst,
+                      metadata.result_origin_box)) {
+                return -1;
+              }
             } else {
               fprintf(f, "  call i64 @\"nyash.runtime_data.get_hh\"(%s)\n", ab);
             }
@@ -581,7 +633,15 @@
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
-              set_origin(dst, ORG_MAP_GET);
+              if (metadata.result_origin_box) {
+                if (!generic_method_get_publish_result_origin_box(
+                        dst,
+                        metadata.result_origin_box)) {
+                  return -1;
+                }
+              } else {
+                set_origin(dst, ORG_MAP_GET);
+              }
             } else {
               fprintf(f, "  call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);
             }
@@ -596,6 +656,11 @@
                     (hako_llvmc_emit_direct_array_i64_get_unchecked(f, bid, ii, dst, recv, a0) ||
                      hako_llvmc_emit_direct_array_i64_get(f, bid, ii, dst, recv, a0)))) {
                 hako_llvmc_emit_array_slot_load(f, dst, ab, demand);
+              }
+              if (!generic_method_get_publish_result_origin_box(
+                      dst,
+                      metadata.result_origin_box)) {
+                return -1;
               }
             } else {
               hako_llvmc_emit_array_slot_load(

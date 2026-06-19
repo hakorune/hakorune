@@ -1,0 +1,33 @@
+// json_object_number_token_payload_probe.hako
+//
+// Owner-selection probe for NUMBER token payloads inside object JSON text.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("{\"value\":123,\"edge\":13}")
+        tokenizer.set_input("{\"value\":123,\"edge\":13}")
+        local tokens = tokenizer.tokenize()
+
+        local value_number = tokens.get(3)
+        local edge_number = tokens.get(7)
+
+        print("value.type=" + value_number.get_type())
+        print("value.value=" + value_number.get_value())
+        print("edge.type=" + edge_number.get_type())
+        print("edge.value=" + edge_number.get_value())
+
+        if value_number.get_type() != "NUMBER" or value_number.get_value() != "123" {
+            print("json.object.number.token=bad-value")
+            return 2
+        }
+        if edge_number.get_type() != "NUMBER" or edge_number.get_value() != "13" {
+            print("json.object.number.token=bad-edge")
+            return 3
+        }
+
+        print("json.object.number.token=ok")
+        return 0
+    }
+}

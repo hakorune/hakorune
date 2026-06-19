@@ -56,6 +56,7 @@ pub(super) fn generic_pure_string_instruction_reject_reason(
         | MirInstruction::BinOp { .. }
         | MirInstruction::Compare { .. }
         | MirInstruction::UnaryOp { .. }
+        | MirInstruction::FieldGet { .. }
         | MirInstruction::Phi { .. }
         | MirInstruction::Select { .. } => {
             value_transfer::generic_pure_string_value_instruction_reject_reason(

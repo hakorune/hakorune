@@ -16,15 +16,23 @@
           set_type(dst, T_I64);
           return 1;
         }
-        if (same_module_method_view_is_direct_array_push(method_view)) {
+        if (same_module_method_view_is_direct_any_len(method_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (same_module_method_view_is_direct_array_push(method_view) ||
+            same_module_method_view_is_direct_any_array_push(method_view)) {
           long long recv = same_module_function_call_receiver(op, cal);
           long long value = 0;
           if (dst) set_type(dst, T_I64);
           if (!same_module_function_read_array_push_value(args, recv, &value)) return -1;
-          same_module_function_promote_array_string_push(recv, value);
+          if (same_module_method_view_is_direct_array_push(method_view)) {
+            same_module_function_promote_array_string_push(recv, value);
+          }
           return 1;
         }
         if (same_module_method_view_is_direct_mir_json_flags_keys(method_view) ||
+            same_module_method_view_is_direct_any_map_keys(method_view) ||
             same_module_method_view_is_direct_map_keys(method_view)) {
           same_module_function_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
           return 1;
@@ -128,14 +136,24 @@
         return 0;
       }
 
-      auto int same_module_function_prepass_print_global_call_surface(
+      auto int same_module_function_prepass_print_call_surface(
           const char* ctype,
           const char* mname,
           yyjson_val* args) {
-        return ctype && !strcmp(ctype, "Global") &&
-               classify_mir_call_global_surface(mname) ==
-                   HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT &&
-               args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1;
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1)) {
+          return 0;
+        }
+        if (ctype && !strcmp(ctype, "Global") &&
+            classify_mir_call_global_surface(mname) ==
+                HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT) {
+          return 1;
+        }
+        if (ctype && !strcmp(ctype, "Extern") &&
+            classify_mir_call_string_extern_surface(mname) ==
+                HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONSOLE_LOG) {
+          return 1;
+        }
+        return 0;
       }
 
       auto int same_module_function_prepass_global_call_view(
@@ -147,7 +165,7 @@
         if (global_call_definition_prepass_view(dst, global_view)) {
           return 1;
         }
-        if (same_module_function_prepass_print_global_call_surface(
+        if (same_module_function_prepass_print_call_surface(
                 ctype,
                 mname,
                 args)) {

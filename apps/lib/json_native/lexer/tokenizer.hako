@@ -138,38 +138,7 @@ box JsonTokenizer {
             return new JsonToken("ERROR", "Invalid string content", start_pos, me.scanner.get_position())
         }
         
-        return new JsonToken("STRING", me.intern_schema_key(unescaped), start_pos, me.scanner.get_position())
-    }
-
-    // v0 EXE/AOT bridge: scanner substrings can be handle-backed values that do
-    // not behave as stable MapBox keys. Intern RustSubset schema keys as literal
-    // strings so JsonNode.get_node("...") works without schema-specific lookup
-    // code in the converter.
-    intern_schema_key(s) {
-        if s == "schema_version" { return "schema_version" }
-        if s == "kind" { return "kind" }
-        if s == "items" { return "items" }
-        if s == "name" { return "name" }
-        if s == "identity" { return "identity" }
-        if s == "fields" { return "fields" }
-        if s == "type" { return "type" }
-        if s == "variants" { return "variants" }
-        if s == "target" { return "target" }
-        if s == "methods" { return "methods" }
-        if s == "params" { return "params" }
-        if s == "receiver" { return "receiver" }
-        if s == "return_type" { return "return_type" }
-        if s == "body" { return "body" }
-        if s == "value" { return "value" }
-        if s == "base" { return "base" }
-        if s == "field" { return "field" }
-        if s == "op" { return "op" }
-        if s == "left" { return "left" }
-        if s == "right" { return "right" }
-        if s == "callee" { return "callee" }
-        if s == "args" { return "args" }
-        if s == "method" { return "method" }
-        return s
+        return new JsonToken("STRING", unescaped, start_pos, me.scanner.get_position())
     }
     
     // 数値トークン化

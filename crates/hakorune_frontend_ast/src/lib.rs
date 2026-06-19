@@ -8,8 +8,8 @@
 
 pub const FRONTEND_AST_CRATE_READY: bool = true;
 
-mod attrs;
 mod ast_node;
+mod attrs;
 mod build_predicate;
 mod decls;
 mod literal;

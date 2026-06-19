@@ -8,6 +8,7 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_STRING,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
+        HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ANY_LENGTH,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF,
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS,
@@ -23,6 +24,7 @@
         int runtime_string_lastindexof;
         int runtime_string_contains;
         int runtime_array_string;
+        int runtime_any_length;
         int array_store_string_source_preserve;
         int array_store_string_identity_demand_stable_object;
         int array_store_string_publication_demand_publish_handle;
@@ -58,6 +60,13 @@
         static const struct LoweringPlanRouteRule rules[] = {
           {
             "generic_method.get",
+            "AnyGet",
+            "runtime_data_load_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
+          },
+          {
+            "generic_method.get",
             "MapGet",
             "runtime_data_load_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
@@ -83,6 +92,13 @@
             "array_slot_load_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET,
+          },
+          {
+            "generic_method.has",
+            "AnyHas",
+            "runtime_data_contains_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS,
           },
           {
             "generic_method.has",
@@ -118,6 +134,13 @@
             "array_append_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH,
+          },
+          {
+            "generic_method.len",
+            "AnyLen",
+            "any_length",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ANY_LENGTH,
           },
           {
             "generic_method.len",
@@ -338,6 +361,9 @@
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING:
             route->runtime_string = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ANY_LENGTH:
+            route->runtime_any_length = 1;
             break;
           case HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF:
             route->runtime_string = 1;

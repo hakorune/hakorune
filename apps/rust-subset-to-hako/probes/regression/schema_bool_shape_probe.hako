@@ -1,0 +1,17 @@
+// schema_bool_shape_probe.hako — protects bool-returning schema helper shape.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.rust_subset_to_hako.schema.rust_subset_schema as RustSubsetSchemaV0
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"kind\":\"RustSubsetModule\",\"items\":[]}")
+        local schema = new RustSubsetSchemaV0()
+        if not schema.root_is_module(doc) {
+            print("schema.bool=fail")
+            return 1
+        }
+        print("schema.bool=ok")
+        return 0
+    }
+}

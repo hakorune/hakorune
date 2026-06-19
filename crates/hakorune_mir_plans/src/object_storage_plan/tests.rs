@@ -274,7 +274,9 @@ fn local_fastpath_fact_is_positive_permission_vocabulary() {
     assert_eq!(fact.route_plan, RoutePlanId(40));
     assert_eq!(fact.storage_plan, None);
     assert_eq!(
-        fact.clone().with_storage_plan(ObjectStoragePlanId(50)).storage_plan,
+        fact.clone()
+            .with_storage_plan(ObjectStoragePlanId(50))
+            .storage_plan,
         Some(ObjectStoragePlanId(50))
     );
     assert_eq!(fact.plan_epoch, PlanEpoch::INITIAL);

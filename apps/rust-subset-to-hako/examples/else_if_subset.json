@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "cond": {
+            "kind": "Binary",
+            "left": {
+              "kind": "Name",
+              "name": "x"
+            },
+            "op": "==",
+            "right": {
+              "kind": "Literal",
+              "type": "i64",
+              "value": 0
+            }
+          },
+          "else": [
+            {
+              "cond": {
+                "kind": "Binary",
+                "left": {
+                  "kind": "Name",
+                  "name": "x"
+                },
+                "op": "==",
+                "right": {
+                  "kind": "Literal",
+                  "type": "i64",
+                  "value": 1
+                }
+              },
+              "else": [
+                {
+                  "kind": "Return",
+                  "value": {
+                    "kind": "Literal",
+                    "type": "i64",
+                    "value": 20
+                  }
+                }
+              ],
+              "kind": "If",
+              "then": [
+                {
+                  "kind": "Return",
+                  "value": {
+                    "kind": "Literal",
+                    "type": "i64",
+                    "value": 10
+                  }
+                }
+              ]
+            }
+          ],
+          "kind": "If",
+          "then": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 0
+              }
+            }
+          ]
+        }
+      ],
+      "kind": "Function",
+      "name": "classify3",
+      "params": [
+        {
+          "name": "x",
+          "type": "i64"
+        }
+      ],
+      "return_type": "i64"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "else_if_fixture",
+  "schema_version": 0
+}

@@ -191,6 +191,48 @@
         }
         return 0;
       }
+
+      auto int lowering_plan_global_call_view_returns_bool_abi_i64(
+          const struct LoweringPlanGlobalCallView* view) {
+        return view &&
+               view->target_return_type &&
+               (!strcmp(view->target_return_type, "i1") ||
+                !strcmp(view->target_return_type, "bool") ||
+                !strcmp(view->target_return_type, "Bool"));
+      }
+
+      auto void emit_global_call_i64_or_bool_result(
+          FILE* f,
+          long long bid,
+          size_t ii,
+          long long dst,
+          const struct LoweringPlanGlobalCallView* view,
+          const char* args) {
+        if (!dst) {
+          fprintf(f, "  call i64 @\"%s\"(%s)\n", view->target_symbol, args);
+          return;
+        }
+        if (lowering_plan_global_call_view_returns_bool_abi_i64(view)) {
+          fprintf(
+              f,
+              "  %%global_call_bool_raw_%lld_%zu = call i64 @\"%s\"(%s)\n",
+              bid,
+              ii,
+              view->target_symbol,
+              args);
+          fprintf(
+              f,
+              "  %%r%lld = icmp ne i64 %%global_call_bool_raw_%lld_%zu, 0\n",
+              dst,
+              bid,
+              ii);
+          set_type(dst, T_I1);
+          return;
+        }
+        fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view->target_symbol, args);
+        set_type(dst, T_I64);
+      }
+
       auto int emit_global_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
@@ -227,21 +269,8 @@
             return -1;
           }
           source_base = resolve_copy_source_reg(source_reg);
-          if (dst) {
-            fprintf(
-                f,
-                "  %%r%lld = call i64 @\"%s\"(i64 %%r%lld)\n",
-                dst,
-                view.target_symbol,
-                source_base);
-            set_type(dst, T_I64);
-          } else {
-            fprintf(
-                f,
-                "  call i64 @\"%s\"(i64 %%r%lld)\n",
-                view.target_symbol,
-                source_base);
-          }
+          snprintf(ab, sizeof(ab), "i64 %%r%lld", source_base);
+          emit_global_call_i64_or_bool_result(f, bid, ii, dst, &view, ab);
           mark_global_call_result_origin_from_view(&view, dst);
           trace_lowering_plan_entry_hit(
               entry,
@@ -261,12 +290,7 @@
               arg_reg,
               ai == 0);
         }
-        if (dst) {
-          fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
-          set_type(dst, T_I64);
-        } else {
-          fprintf(f, "  call i64 @\"%s\"(%s)\n", view.target_symbol, ab);
-        }
+        emit_global_call_i64_or_bool_result(f, bid, ii, dst, &view, ab);
         mark_global_call_result_origin_from_view(&view, dst);
         trace_lowering_plan_entry_hit(
             entry,

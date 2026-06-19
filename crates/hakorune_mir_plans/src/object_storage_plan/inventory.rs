@@ -104,13 +104,7 @@ impl LocalKnownReceiverDirectCallShadowRow {
             route_plan,
             fallback_reason,
         ) {
-            (
-                true,
-                Some(alias_class),
-                Some(route_plan_label),
-                Some(route_plan),
-                None,
-            ) => {
+            (true, Some(alias_class), Some(route_plan_label), Some(route_plan), None) => {
                 Some(LocalFastPathFact::known_receiver_direct_call(
                     inventory.site_id,
                     inventory.block_id(),

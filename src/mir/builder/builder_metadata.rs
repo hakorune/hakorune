@@ -82,6 +82,18 @@ impl MirBuilder {
         declared_return_type_name: Option<String>,
     ) {
         if let Some(function) = self.scope_ctx.current_function.as_mut() {
+            for (index, decl) in declared_param_decls.iter().enumerate() {
+                let Some(param_type) = decl
+                    .declared_type_name
+                    .as_deref()
+                    .map(source_type_name_to_mir)
+                else {
+                    continue;
+                };
+                if index < function.signature.params.len() {
+                    function.signature.params[index] = param_type;
+                }
+            }
             if let Some(return_type) = declared_return_type_name
                 .as_deref()
                 .map(source_type_name_to_mir)

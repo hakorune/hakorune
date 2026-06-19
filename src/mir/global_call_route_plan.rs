@@ -238,6 +238,19 @@ fn classify_global_call_target_shape(
     }
     if is_mir_schema_map_constructor_body_candidate(function, targets) {
         if let Some(reject) = mir_schema_map_constructor_body_reject_reason(function, targets) {
+            if let Some((proof, return_contract)) =
+                infer_same_module_static_helper_return_contract(function, typed_plan_type_ids)
+            {
+                if same_module_body_supported(function, typed_plan_type_ids)
+                    && same_module_static_helper_contract_allowed(
+                        function,
+                        return_contract,
+                        typed_plan_type_ids,
+                    )
+                {
+                    return GlobalCallTargetClassification::direct_contract(proof, return_contract);
+                }
+            }
             return if let Some(blocker) = reject.blocker {
                 GlobalCallTargetClassification::unknown_with_blocker(
                     reject.reason,
@@ -407,11 +420,18 @@ fn same_module_static_helper_return_type_contract(
     match return_type {
         MirType::Integer | MirType::Bool => Some(GlobalCallReturnContract::ScalarI64),
         MirType::Void => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
-        MirType::Box(name) if typed_plan_type_ids.contains_key(name) => {
+        MirType::Box(name)
+            if same_module_static_helper_builtin_handle_return(name)
+                || typed_plan_type_ids.contains_key(name) =>
+        {
             Some(GlobalCallReturnContract::ObjectHandle)
         }
         _ => None,
     }
+}
+
+fn same_module_static_helper_builtin_handle_return(box_name: &str) -> bool {
+    matches!(box_name, "ArrayBox" | "DirectArrayI64" | "MapBox")
 }
 
 fn same_module_static_helper_route_return_contract(
@@ -421,6 +441,9 @@ fn same_module_static_helper_route_return_contract(
     match return_shape {
         Some("scalar_i64") => Some(GlobalCallReturnContract::ScalarI64),
         Some("void_sentinel_i64_zero") => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+        Some("mixed_runtime_i64_or_handle") => {
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
+        }
         Some("object_handle") if target_result_box_name.is_some() => {
             Some(GlobalCallReturnContract::ObjectHandle)
         }
@@ -474,6 +497,14 @@ fn merge_same_module_static_helper_contract(
     match (current, next) {
         (None, Some(next)) => Some(Some(next)),
         (Some(current), Some(next)) if current == next => Some(Some(current)),
+        (
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+            Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+        )
+        | (
+            Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+        ) => Some(Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)),
         (Some(current), None) => Some(Some(current)),
         (None, None) => Some(None),
         (Some(_), Some(_)) => None,
@@ -485,6 +516,9 @@ fn same_module_static_helper_contract_proof(contract: GlobalCallReturnContract) 
         GlobalCallReturnContract::ScalarI64 => GlobalCallProof::SameModuleScalarI64,
         GlobalCallReturnContract::VoidSentinelI64Zero => GlobalCallProof::SameModuleVoidSentinel,
         GlobalCallReturnContract::ObjectHandle => GlobalCallProof::SameModuleObjectHandle,
+        GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
+            GlobalCallProof::SameModuleMixedRuntime
+        }
         _ => GlobalCallProof::ContractMissing,
     }
 }
@@ -497,37 +531,19 @@ fn same_module_static_helper_contract_allowed(
     match contract {
         GlobalCallReturnContract::ObjectHandle => matches!(
             function.signature.return_type,
-            MirType::Box(ref name) if typed_plan_type_ids.contains_key(name)
+            MirType::Box(ref name)
+                if same_module_static_helper_builtin_handle_return(name)
+                    || typed_plan_type_ids.contains_key(name)
         ),
-        GlobalCallReturnContract::ScalarI64 | GlobalCallReturnContract::VoidSentinelI64Zero => {
-            same_module_body_has_known_user_defined_method_call(function)
+        GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
+            matches!(
+                function.signature.return_type,
+                MirType::Void | MirType::Unknown
+            )
         }
+        GlobalCallReturnContract::ScalarI64 | GlobalCallReturnContract::VoidSentinelI64Zero => true,
         _ => false,
     }
-}
-
-fn same_module_body_has_known_user_defined_method_call(function: &MirFunction) -> bool {
-    function.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .chain(block.terminator.iter())
-            .any(known_user_defined_method_instruction)
-    })
-}
-
-fn known_user_defined_method_instruction(instruction: &MirInstruction) -> bool {
-    matches!(
-        instruction,
-        MirInstruction::Call {
-            callee: Some(Callee::Method {
-                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
-                ..
-            }),
-            ..
-        }
-    )
 }
 
 fn is_numeric_i64_leaf_function(function: &MirFunction) -> bool {

@@ -9,6 +9,12 @@ pub(super) fn generic_pure_string_route_value_class(
     block: BasicBlockId,
     instruction_index: usize,
 ) -> Option<GenericPureValueClass> {
+    if let Some(class) =
+        generic_pure_string_global_route_value_class(function, block, instruction_index)
+    {
+        return Some(class);
+    }
+
     let route = function
         .metadata
         .generic_method_routes
@@ -33,6 +39,24 @@ pub(super) fn generic_pure_string_route_value_class(
         "string_indexof" | "string_lastindexof" => Some(GenericPureValueClass::I64),
         "string_contains" => Some(GenericPureValueClass::Bool),
         _ => generic_pure_string_get_route_value_class(route),
+    }
+}
+
+fn generic_pure_string_global_route_value_class(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+) -> Option<GenericPureValueClass> {
+    let route = function.metadata.global_call_routes.iter().find(|route| {
+        route.block() == block
+            && route.instruction_index() == instruction_index
+            && route.reason().is_none()
+    })?;
+    match route.target_result_box_name()? {
+        "StringBox" => Some(GenericPureValueClass::String),
+        "ArrayBox" | "DirectArrayI64" => Some(GenericPureValueClass::Array),
+        "MapBox" => Some(GenericPureValueClass::Map),
+        _ => None,
     }
 }
 

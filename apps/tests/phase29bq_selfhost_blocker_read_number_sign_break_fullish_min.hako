@@ -1,0 +1,61 @@
+// Full-ish sign/break fixture for read_next_number_literal-style scanner loops.
+//
+// Shape:
+// - optional leading sign before the loop
+// - loop(cond) over a bounded text span
+// - helper-based digit classification
+// - conditional break on non-digit
+// - loop-carried cursor and accumulator
+// - post-loop negative branch
+//
+// This intentionally stays independent from json_native runtime objects. It is
+// a compiler Recipe/CorePlan intake fixture, not a json_native behavior probe.
+static box Main {
+    digit_value_at(text, pos) {
+        local ch = text.substring(pos, pos + 1)
+        if ch == "0" { return 0 }
+        if ch == "1" { return 1 }
+        if ch == "2" { return 2 }
+        if ch == "3" { return 3 }
+        if ch == "4" { return 4 }
+        if ch == "5" { return 5 }
+        if ch == "6" { return 6 }
+        if ch == "7" { return 7 }
+        if ch == "8" { return 8 }
+        if ch == "9" { return 9 }
+        return -1
+    }
+
+    parse_integer_span(text, start_pos, end_pos) {
+        local neg = false
+        local i = start_pos
+        if text.substring(i, i + 1) == "-" {
+            neg = true
+            i = i + 1
+        }
+
+        local acc = 0
+        loop(i < end_pos) {
+            local d = Main.digit_value_at(text, i)
+            if d < 0 {
+                break
+            }
+            acc = acc * 10 + d
+            i = i + 1
+        }
+
+        if neg {
+            return 0 - acc
+        }
+        return acc
+    }
+
+    parse_sample() {
+        return Main.parse_integer_span("-123x", 0, 5)
+    }
+
+    main() {
+        print(Main.parse_sample())
+        return 0
+    }
+}

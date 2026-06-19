@@ -117,6 +117,8 @@ static box JsonNode {
         local node = new JsonNodeInstance()
         node.kind = "object"
         node.object_value = new MapBox()
+        node.object_keys_value = new ArrayBox()
+        node.object_values_value = new ArrayBox()
         node.value = node.object_value
         return node
     }
@@ -222,18 +224,31 @@ box JsonNodeInstance {
     value: Box
     array_value: ArrayBox
     object_value: MapBox
+    object_keys_value: ArrayBox
+    object_values_value: ArrayBox
     
     birth() {
         me.kind = "null"
         me.value = null
         me.array_value = new ArrayBox()
         me.object_value = new MapBox()
+        me.object_keys_value = new ArrayBox()
+        me.object_values_value = new ArrayBox()
     }
 
     // インスタンス用: オブジェクトに値を設定
     object_set(key, node) {
         if me.kind == "object" {
-            me.object_value.set(key, node)
+            local object_key = me.object_key_materialize(key)
+            local i = me.object_key_index(object_key)
+            if i >= 0 {
+                me.object_values_value.set(i, node)
+                me.object_value.set(object_key, node)
+                return
+            }
+            me.object_keys_value.push(object_key)
+            me.object_values_value.push(node)
+            me.object_value.set(object_key, node)
         }
     }
 
@@ -351,9 +366,59 @@ box JsonNodeInstance {
     // Instance helper: object get（欠損時は null を返す）
     object_get(key) {
         if me.kind == "object" {
-            return me.object_value.get(key)
+            local object_key = me.object_key_materialize(key)
+            local i = me.object_key_index(object_key)
+            if i >= 0 {
+                return me.object_values_value.get(i)
+            }
         }
         return null
+    }
+
+    object_key_index(key) {
+        if key == null {
+            return -1
+        }
+        local i = 0
+        loop(i < me.object_keys_value.length()) {
+            if me.object_key_equals(me.object_keys_value.get(i), key) {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    object_key_materialize(key) {
+        if key == null {
+            return null
+        }
+        // Convert scanner-derived StringBox keys into ordinary string values
+        // before storing or looking up the entry table. This is generic key
+        // publication, not a RustSubset schema-key dictionary.
+        return key + ""
+    }
+
+    object_key_equals(a, b) {
+        if a == null or b == null {
+            return false
+        }
+        if a == b {
+            return true
+        }
+        if a.length() != b.length() {
+            return false
+        }
+        // Scanner-derived dynamic strings can lose one-character substring
+        // identity after object publication. Use full-string ordering
+        // comparisons instead of per-character substring calls.
+        if a < b {
+            return false
+        }
+        if a > b {
+            return false
+        }
+        return true
     }
 
     // Typed navigation for EXE/AOT consumers: always return a JsonNodeInstance.
@@ -388,7 +453,7 @@ box JsonNodeInstance {
 
     object_keys() {
         if me.kind == "object" {
-            return me.object_value.keys()
+            return me.object_keys_value
         }
         return new ArrayBox()
     }

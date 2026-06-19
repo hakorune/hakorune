@@ -10,6 +10,7 @@ pub(super) enum UserBoxMethodInferredReturn {
     ScalarI64,
     StringHandle,
     ObjectHandle,
+    MixedRuntimeI64OrHandle,
     VoidSentinel,
 }
 
@@ -20,6 +21,7 @@ enum ValueClass {
     ScalarI64,
     StringHandle,
     ObjectHandle,
+    MixedRuntimeI64OrHandle,
     VoidSentinel,
 }
 
@@ -304,7 +306,9 @@ fn route_value_class(
         return match route.return_shape() {
             Some(GenericMethodReturnShape::ScalarI64)
             | Some(GenericMethodReturnShape::ScalarI64OrMissingZero) => Some(ValueClass::ScalarI64),
-            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle) => None,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle) => {
+                Some(ValueClass::MixedRuntimeI64OrHandle)
+            }
             None => match route.route_kind_tag() {
                 "string_substring" => Some(ValueClass::StringHandle),
                 "string_len" | "array_slot_len" | "string_indexof" | "string_lastindexof" => {
@@ -356,6 +360,7 @@ fn value_class_from_return_shape(shape: &str) -> Option<ValueClass> {
         "scalar_i64" | "ScalarI64" | "scalar_i64_or_missing_zero" => Some(ValueClass::ScalarI64),
         "string_handle" | "string_handle_or_null" => Some(ValueClass::StringHandle),
         "object_handle" | "array_handle" | "map_handle" => Some(ValueClass::ObjectHandle),
+        "mixed_runtime_i64_or_handle" => Some(ValueClass::MixedRuntimeI64OrHandle),
         "void_sentinel_i64_zero" => Some(ValueClass::VoidSentinel),
         _ => None,
     }
@@ -366,6 +371,9 @@ fn value_class_from_inferred_return(inferred: UserBoxMethodInferredReturn) -> Op
         UserBoxMethodInferredReturn::ScalarI64 => Some(ValueClass::ScalarI64),
         UserBoxMethodInferredReturn::StringHandle => Some(ValueClass::StringHandle),
         UserBoxMethodInferredReturn::ObjectHandle => Some(ValueClass::ObjectHandle),
+        UserBoxMethodInferredReturn::MixedRuntimeI64OrHandle => {
+            Some(ValueClass::MixedRuntimeI64OrHandle)
+        }
         UserBoxMethodInferredReturn::VoidSentinel => None,
     }
 }
@@ -375,6 +383,7 @@ fn inferred_return_from_value_class(class: ValueClass) -> UserBoxMethodInferredR
         ValueClass::ScalarI64 => UserBoxMethodInferredReturn::ScalarI64,
         ValueClass::StringHandle => UserBoxMethodInferredReturn::StringHandle,
         ValueClass::ObjectHandle => UserBoxMethodInferredReturn::ObjectHandle,
+        ValueClass::MixedRuntimeI64OrHandle => UserBoxMethodInferredReturn::MixedRuntimeI64OrHandle,
         ValueClass::VoidSentinel => UserBoxMethodInferredReturn::VoidSentinel,
     }
 }
@@ -386,6 +395,10 @@ fn merge_nullable_value_pair(left: ValueClass, right: ValueClass) -> Option<Valu
         | (ValueClass::StringHandle, ValueClass::VoidSentinel) => Some(ValueClass::StringHandle),
         (ValueClass::VoidSentinel, ValueClass::ObjectHandle)
         | (ValueClass::ObjectHandle, ValueClass::VoidSentinel) => Some(ValueClass::ObjectHandle),
+        (ValueClass::VoidSentinel, ValueClass::MixedRuntimeI64OrHandle)
+        | (ValueClass::MixedRuntimeI64OrHandle, ValueClass::VoidSentinel) => {
+            Some(ValueClass::MixedRuntimeI64OrHandle)
+        }
         _ => None,
     }
 }

@@ -2,7 +2,7 @@ use crate::mir::extern_call_route_plan::{
     classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
 };
 use crate::mir::same_module_body_shape::supported_backend_global;
-use crate::mir::{Callee, MirInstruction};
+use crate::mir::{Callee, MirInstruction, MirType};
 
 use super::GenericPureStringAnalysisContext;
 use crate::mir::global_call_route_plan::generic_string_facts::{
@@ -345,6 +345,13 @@ pub(super) fn generic_pure_string_call_reject_reason(
                 }
                 GlobalCallReturnContract::ObjectHandle => {
                     if let Some(dst) = dst {
+                        if let Some(class) = target
+                            .return_type()
+                            .and_then(generic_pure_string_object_handle_target_class)
+                        {
+                            set_proven_flow_value_class(ctx.values, *dst, class, ctx.changed);
+                            return None;
+                        }
                         set_proven_flow_value_class(
                             ctx.values,
                             *dst,
@@ -408,5 +415,18 @@ pub(super) fn generic_pure_string_call_reject_reason(
         _ => Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringUnsupportedCall,
         )),
+    }
+}
+
+fn generic_pure_string_object_handle_target_class(ty: &MirType) -> Option<GenericPureValueClass> {
+    match ty {
+        MirType::String => Some(GenericPureValueClass::String),
+        MirType::Box(name) if name == "StringBox" => Some(GenericPureValueClass::String),
+        MirType::Box(name) if name == "ArrayBox" || name == "DirectArrayI64" => {
+            Some(GenericPureValueClass::Array)
+        }
+        MirType::Array(_) => Some(GenericPureValueClass::Array),
+        MirType::Box(name) if name == "MapBox" => Some(GenericPureValueClass::Map),
+        _ => None,
     }
 }

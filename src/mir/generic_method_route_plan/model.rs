@@ -13,6 +13,7 @@ pub(crate) enum GenericMethodRouteKind {
     MapLoadAny,
     MapEntryCount,
     MapKeysArray,
+    AnyLength,
     ArraySlotLoadAny,
     ArrayContainsAny,
     ArraySlotLen,
@@ -40,7 +41,9 @@ impl GenericMethodRouteKind {
             | Self::ArrayContainsAny
             | Self::MapContainsAny
             | Self::MapContainsI64 => "generic_method.has",
-            Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => "generic_method.len",
+            Self::MapEntryCount | Self::AnyLength | Self::ArraySlotLen | Self::StringLen => {
+                "generic_method.len"
+            }
             Self::MapKeysArray => "generic_method.keys",
             Self::ArrayAppendAny => "generic_method.push",
             Self::ArrayStoreAny | Self::MapStoreAny => "generic_method.set",
@@ -62,7 +65,7 @@ impl GenericMethodRouteKind {
             | Self::ArrayContainsAny
             | Self::MapContainsAny
             | Self::MapContainsI64 => "has",
-            Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => "len",
+            Self::MapEntryCount | Self::AnyLength | Self::ArraySlotLen | Self::StringLen => "len",
             Self::MapKeysArray => "keys",
             Self::ArrayAppendAny => "push",
             Self::ArrayStoreAny | Self::MapStoreAny => "set",
@@ -82,6 +85,7 @@ impl GenericMethodRouteKind {
             Self::MapLoadAny => "nyash.map.slot_load_hh",
             Self::MapEntryCount => "nyash.map.entry_count_i64",
             Self::MapKeysArray => "nyash.map.keys_h",
+            Self::AnyLength => "nyash.any.length_h",
             Self::ArraySlotLoadAny => "nyash.array.slot_load_hi",
             Self::ArrayContainsAny => "nyash.array.has_hh",
             Self::ArraySlotLen => "nyash.array.slot_len_h",
@@ -109,7 +113,9 @@ impl GenericMethodRouteKind {
             | Self::ArrayContainsAny
             | Self::MapContainsAny
             | Self::MapContainsI64 => &["probe.key"],
-            Self::MapEntryCount | Self::ArraySlotLen | Self::StringLen => &["observe.len"],
+            Self::MapEntryCount | Self::AnyLength | Self::ArraySlotLen | Self::StringLen => {
+                &["observe.len"]
+            }
             Self::MapKeysArray => &["observe.keys"],
             Self::ArrayAppendAny => &["mutate.shape"],
             Self::ArrayStoreAny | Self::MapStoreAny => &["mutate.slot"],
@@ -129,6 +135,7 @@ impl GenericMethodRouteKind {
             Self::MapLoadAny => "map_load_any",
             Self::MapEntryCount => "map_entry_count",
             Self::MapKeysArray => "map_keys_array",
+            Self::AnyLength => "any_length",
             Self::ArraySlotLoadAny => "array_slot_load_any",
             Self::ArrayContainsAny => "array_contains_any",
             Self::ArraySlotLen => "array_slot_len",

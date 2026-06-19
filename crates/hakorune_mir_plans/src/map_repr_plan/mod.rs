@@ -57,11 +57,8 @@ mod tests {
         assert!(!storage.backend_lowering_enabled());
         assert!(!storage.runtime_helper_enabled());
 
-        let direct = LocalI64MapDirectStoragePlan::closed_world_i64_key_value_table(
-            ValueId::new(1),
-            2,
-            3,
-        );
+        let direct =
+            LocalI64MapDirectStoragePlan::closed_world_i64_key_value_table(ValueId::new(1), 2, 3);
         assert_eq!(direct.representation(), "closed_world_i64_key_value_table");
         assert!(!direct.entry_value_tracking_enabled());
         assert!(!direct.backend_lowering_enabled());

@@ -30,6 +30,7 @@
         int string_indexof;
         int string_contains;
         int string_concat;
+        int any_length;
         int any_handle_live;
         int env_get;
         int env_set;
@@ -81,6 +82,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
+        HAKO_LLVMC_MIR_CALL_NEED_ANY_LENGTH,
         HAKO_LLVMC_MIR_CALL_NEED_ANY_HANDLE_LIVE,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,

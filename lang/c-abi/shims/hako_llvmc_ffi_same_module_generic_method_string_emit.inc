@@ -8,6 +8,7 @@
         char ab[256];
         int is_string_len = 0;
         int is_array_len = 0;
+        int is_any_len = 0;
         const char* helper_symbol = NULL;
         (void)f;
         (void)bid;
@@ -16,11 +17,15 @@
         if (method_view) {
           is_string_len = same_module_method_view_is_direct_string_len(method_view);
           is_array_len = same_module_method_view_is_direct_array_len(method_view);
+          is_any_len = same_module_method_view_is_direct_any_len(method_view);
         }
-        if (!(is_string_len || is_array_len)) {
+        if (!(is_string_len || is_array_len || is_any_len)) {
           return 0;
         }
-        helper_symbol = is_array_len ? "nyash.array.slot_len_h" : "nyash.string.len_fast_h";
+        helper_symbol = is_any_len
+                            ? "nyash.any.length_h"
+                            : (is_array_len ? "nyash.array.slot_len_h"
+                                            : "nyash.string.len_fast_h");
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         same_module_function_emit_i64_call(dst, helper_symbol, ab);
         if (dst) {
@@ -41,6 +46,9 @@
         char recv_ab[128];
         long long start = 0;
         long long end = 0;
+        size_t start_index = 0;
+        size_t end_index = 1;
+        int has_end = 0;
         long long recorded_end = 0;
         size_t arg_count = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
         (void)f;
@@ -50,12 +58,23 @@
               same_module_method_view_is_direct_string_substring(method_view))) {
           return 0;
         }
-        if (!(arg_count == 1 || arg_count == 2)) return 0;
-        if (!same_module_function_read_arg_reg(args, 0, &start)) return 0;
+        if (arg_count == 0 || arg_count > 3) return 0;
+        if (arg_count >= 2) {
+          long long recv_arg = 0;
+          if (same_module_function_read_arg_reg(args, 0, &recv_arg) &&
+              recv &&
+              resolve_copy_source_reg(recv_arg) == resolve_copy_source_reg(recv)) {
+            start_index = 1;
+            end_index = 2;
+          }
+        }
+        if (start_index >= arg_count) return 0;
+        has_end = end_index < arg_count;
+        if (!same_module_function_read_arg_reg(args, start_index, &start)) return 0;
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), start, 0);
-        if (arg_count == 2) {
-          if (!same_module_function_read_arg_reg(args, 1, &end)) return 0;
+        if (has_end) {
+          if (!same_module_function_read_arg_reg(args, end_index, &end)) return 0;
           append_i64_arg_ref(ab, sizeof(ab), end, 0);
           recorded_end = end;
         } else {
@@ -91,12 +110,21 @@
         (void)bid;
         (void)ii;
         if (!(method_view &&
-              same_module_method_view_is_direct_array_push(method_view))) {
+              (same_module_method_view_is_direct_array_push(method_view) ||
+               same_module_method_view_is_direct_any_array_push(method_view)))) {
           return 0;
         }
         if (!same_module_function_read_array_push_value(args, recv, &value)) return 0;
-        same_module_function_emit_array_slot_append_call(dst, recv, value);
-        same_module_function_promote_array_string_push(recv, value);
+        if (same_module_method_view_is_direct_any_array_push(method_view)) {
+          char ab[256];
+          ab[0] = '\0';
+          append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+          append_i64_arg_ref(ab, sizeof(ab), value, 0);
+          same_module_function_emit_i64_call(dst, "nyash.runtime_data.push_hh", ab);
+        } else {
+          same_module_function_emit_array_slot_append_call(dst, recv, value);
+          same_module_function_promote_array_string_push(recv, value);
+        }
         return 1;
       }
 

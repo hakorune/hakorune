@@ -261,6 +261,83 @@ fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
 }
 
 #[test]
+fn mcl6_rewrites_speculative_user_global_to_runtime_method_when_receiver_type_is_runtime_data() {
+    let mut module = MirModule::new("mcl6_runtime_receiver".to_string());
+    let user_callee_sig = FunctionSignature {
+        name: "JsonNodeInstance.length/0".to_string(),
+        params: vec![MirType::Box("JsonNodeInstance".to_string())],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    module.add_function(MirFunction::new(user_callee_sig, BasicBlockId(0)));
+
+    let signature = FunctionSignature {
+        name: "main/0".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut func = MirFunction::new(signature, BasicBlockId(0));
+    func.metadata
+        .value_types
+        .insert(ValueId(10), MirType::Box("ArrayBox".to_string()));
+    let block = func
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .expect("entry block exists");
+
+    block.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId(11)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global("JsonNodeInstance.length/0".to_string())),
+        args: vec![ValueId(10)],
+        effects: EffectMask::PURE,
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(11)),
+    });
+    module.add_function(func);
+
+    let rewritten = canonicalize_callsites(&mut module);
+    assert_eq!(rewritten, 1);
+
+    let inst = &module
+        .get_function("main/0")
+        .expect("function exists")
+        .blocks
+        .get(&BasicBlockId(0))
+        .expect("entry block exists")
+        .instructions[0];
+
+    assert!(matches!(
+        inst,
+        MirInstruction::Call {
+            dst,
+            func,
+            callee:
+                Some(Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(receiver),
+                    certainty,
+                    box_kind,
+                }),
+            args,
+            effects,
+        } if *dst == Some(ValueId(11))
+            && *func == ValueId::INVALID
+            && box_name == "ArrayBox"
+            && method == "length"
+            && *receiver == ValueId(10)
+            && *certainty == TypeCertainty::Known
+            && *box_kind == CalleeBoxKind::RuntimeData
+            && args.is_empty()
+            && *effects == EffectMask::PURE
+    ));
+}
+
+#[test]
 fn mcl4_no_legacy_callsite_variants_after_rcl3() {
     let mut module = MirModule::new("mcl4".to_string());
     let signature = FunctionSignature {

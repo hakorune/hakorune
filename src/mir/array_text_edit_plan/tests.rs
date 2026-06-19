@@ -76,7 +76,9 @@ fn detects_lenhalf_insert_mid_dest_slot_len_only_route() {
     block.add_instruction(const_i(28, 2));
     block.add_instruction(binop(29, BinaryOp::Add, 13, 28));
     block.add_instruction(copy(30, 29));
-    block.set_terminator(MirInstruction::Return { value: Some(ValueId::new(30)) });
+    block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(30)),
+    });
 
     refresh_function_array_text_edit_routes(&mut function);
 
@@ -95,7 +97,10 @@ fn detects_lenhalf_insert_mid_dest_slot_len_only_route() {
     assert_eq!(route.middle_byte_len(), 2);
     assert_eq!(route.edit_kind(), "insert_mid_const");
     assert_eq!(route.split_policy(), "source_len_div_const(2)");
-    assert_eq!(route.proof(), "array_get_lenhalf_insert_mid_dest_slot_len_only");
+    assert_eq!(
+        route.proof(),
+        "array_get_lenhalf_insert_mid_dest_slot_len_only"
+    );
     assert!(route.is_lenhalf_insert_mid_dest_slot_len_only());
     assert_eq!(
         route.skip_instruction_indices(),

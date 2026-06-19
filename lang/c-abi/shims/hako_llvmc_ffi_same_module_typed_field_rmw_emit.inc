@@ -422,7 +422,10 @@
           return same_module_function_emit_typed_object_field_set(ins, bid, ii);
         }
         if (!strcmp(op, "field_get")) {
-          return same_module_function_emit_typed_object_field_get(ins, bid, ii);
+          if (same_module_function_emit_typed_object_field_get(ins, bid, ii)) {
+            return 1;
+          }
+          return same_module_function_emit_map_field_get(f, fn_index, ins, bid, ii);
         }
         if (!strcmp(op, "compare")) {
           return same_module_function_emit_compare(ins);

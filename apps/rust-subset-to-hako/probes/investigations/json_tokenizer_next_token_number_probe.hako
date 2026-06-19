@@ -1,0 +1,28 @@
+// json_tokenizer_next_token_number_probe.hako
+//
+// Investigation for JsonTokenizer.next_token() NUMBER production without
+// JsonTokenizer.tokenize() or token ArrayBox publication.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("")
+        tokenizer.set_input("123")
+        local token = tokenizer.next_token()
+
+        print(token.get_type())
+        print(token.get_value())
+        if token.get_type() != "NUMBER" {
+            print("json.tokenizer.next-number=bad-type")
+            return 2
+        }
+        if token.get_value() != "123" {
+            print("json.tokenizer.next-number=bad-value")
+            return 3
+        }
+
+        print("json.tokenizer.next-number=ok")
+        return 0
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Expr",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "Rust for loop expression is out of v0 scope"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "visit_all",
+      "params": [
+        {
+          "name": "xs",
+          "type": "Vec<i64>"
+        }
+      ],
+      "return_type": "void"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "for_loop_unsupported_fixture",
+  "schema_version": 0
+}

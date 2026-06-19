@@ -49,6 +49,86 @@
         }
       }
 
+      auto void hako_llvmc_normalize_receiver_method_args(
+          yyjson_val* args,
+          long long recv,
+          long long* a0,
+          long long* a1) {
+        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+        size_t start = 0;
+        long long raw0 = 0;
+        if (recv &&
+            argc > 0 &&
+            hako_llvmc_mir_call_arg_reg_at(args, 0, &raw0) &&
+            resolve_copy_source_reg(raw0) == resolve_copy_source_reg(recv)) {
+          start = 1;
+        }
+        if (a0) {
+          *a0 = 0;
+          hako_llvmc_mir_call_arg_reg_at(args, start, a0);
+        }
+        if (a1) {
+          *a1 = 0;
+          hako_llvmc_mir_call_arg_reg_at(args, start + 1, a1);
+        }
+      }
+
+      auto int emit_filebox_method_mir_call(
+          FILE* f,
+          const char* bname,
+          const char* mname,
+          long long dst,
+          long long recv,
+          yyjson_val* args) {
+        long long recv_base = recv ? resolve_copy_source_reg(recv) : 0;
+        long long file_a0 = 0;
+        long long file_a1 = 0;
+        if (!(bname && !strcmp(bname, "FileBox") && mname && recv_base)) {
+          return 0;
+        }
+        hako_llvmc_normalize_receiver_method_args(args, recv, &file_a0, &file_a1);
+        file_a0 = file_a0 ? resolve_copy_source_reg(file_a0) : 0;
+        file_a1 = file_a1 ? resolve_copy_source_reg(file_a1) : 0;
+        if (!strcmp(mname, "open")) {
+          if (!(file_a0 && file_a1)) return -1;
+          if (dst) {
+            EMIT("  %%r%lld = call i64 @\"nyash.file.open_hhh\"(i64 %%r%lld, i64 %%r%lld, i64 %%r%lld)\n",
+                 dst,
+                 recv_base,
+                 file_a0,
+                 file_a1);
+            set_type(dst, T_I64);
+          } else {
+            EMIT("  call i64 @\"nyash.file.open_hhh\"(i64 %%r%lld, i64 %%r%lld, i64 %%r%lld)\n",
+                 recv_base,
+                 file_a0,
+                 file_a1);
+          }
+          return 1;
+        }
+        if (!strcmp(mname, "read")) {
+          if (dst) {
+            EMIT("  %%r%lld = call i64 @\"nyash.file.read_h\"(i64 %%r%lld)\n", dst, recv_base);
+            set_type(dst, T_I64);
+            set_origin(dst, ORG_STRING);
+            set_scan_origin(dst, ORG_STRING);
+          } else {
+            EMIT("  call i64 @\"nyash.file.read_h\"(i64 %%r%lld)\n", recv_base);
+          }
+          return 1;
+        }
+        if (!strcmp(mname, "close")) {
+          if (dst) {
+            EMIT("  %%r%lld = call i64 @\"nyash.file.close_h\"(i64 %%r%lld)\n", dst, recv_base);
+            set_type(dst, T_I64);
+          } else {
+            EMIT("  call i64 @\"nyash.file.close_h\"(i64 %%r%lld)\n", recv_base);
+          }
+          return 1;
+        }
+        return 0;
+      }
+
       auto int emit_mir_call_dispatch(
           FILE* f,
           yyjson_val* blocks,
@@ -106,6 +186,13 @@
           int birth_rc = emit_method_birth_mir_call(birth_kind, dst, recv, args);
           if (birth_rc != 0) {
             return birth_rc;
+          }
+
+          {
+            int filebox_rc = emit_filebox_method_mir_call(f, bname, mname, dst, recv, args);
+            if (filebox_rc != 0) {
+              return filebox_rc;
+            }
           }
 
           struct GenericMethodRouteState route =

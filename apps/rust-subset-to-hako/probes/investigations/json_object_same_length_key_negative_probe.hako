@@ -1,0 +1,48 @@
+// json_object_same_length_key_negative_probe.hako
+//
+// Owner-selection probe for JsonNode.object_key_equals. It bypasses
+// JsonObjectKeyMaterializer by sourcing the stored object key from tokenizer
+// output, then checks that a different same-length key does not match.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("{\"kind\":\"RustSubsetModule\"}")
+        tokenizer.set_input("{\"kind\":\"RustSubsetModule\"}")
+        local tokens = tokenizer.tokenize()
+
+        local stored_key = tokens.get(1).get_value()
+        if stored_key != "kind" {
+            print("same_length_key=bad-stored-key")
+            return 1
+        }
+
+        local obj = JsonNode.create_object()
+        obj.object_set(stored_key, JsonNode.create_string("RustSubsetModule"))
+
+        local positive = obj.get_node("kind")
+        if positive.get_kind() != "string" {
+            print("same_length_key=positive-miss")
+            return 2
+        }
+        if positive.as_string() != "RustSubsetModule" {
+            print("same_length_key=bad-positive-value")
+            return 3
+        }
+
+        // "name" has the same length as "kind" and appears frequently in the
+        // RustSubset fixture. It must not match the stored dynamic "kind" key.
+        local negative = obj.get_node("name")
+        if negative.get_kind() != "null" {
+            print("same_length_key=false-positive")
+            print("negative.kind=" + negative.get_kind())
+            print("negative.value=" + negative.as_string())
+            return 4
+        }
+
+        print("same_length_key=ok")
+        return 0
+    }
+}

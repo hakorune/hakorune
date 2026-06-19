@@ -1,0 +1,34 @@
+// json_token_dynamic_text_payload_storage_probe.hako
+//
+// Investigation for JsonToken text payload publication through ArrayBox.
+// The token value is a substring-derived dynamic string, matching the NUMBER
+// tokenizer payload shape more closely than a literal string.
+
+using apps.lib.json_native.lexer.token as JsonToken
+
+static box Main {
+    main() {
+        local source = "x123y"
+        local dynamic_value = source.substring(1, 4)
+
+        local tokens = new ArrayBox()
+        tokens.push(new JsonToken("NUMBER", dynamic_value, 1, 4))
+
+        local token = tokens.get(0)
+        if token == null {
+            print("json.token.dynamic.payload=null")
+            return 1
+        }
+        if token.get_type() != "NUMBER" {
+            print("json.token.dynamic.payload=bad-type")
+            return 2
+        }
+        if token.get_value() != "123" {
+            print("json.token.dynamic.payload=bad-value")
+            return 3
+        }
+
+        print("json.token.dynamic.payload=ok")
+        return 0
+    }
+}

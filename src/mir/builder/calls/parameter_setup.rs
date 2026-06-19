@@ -58,6 +58,9 @@ impl MirBuilder {
                 param_kinds.push((pid, param_idx as u32));
 
                 let ty = param_types.get(param_idx).cloned();
+                if let Some(ty) = ty.clone() {
+                    self.type_ctx.value_types.insert(pid, ty);
+                }
                 slot_regs.push((p.clone(), ty));
             }
         }
@@ -111,20 +114,29 @@ impl MirBuilder {
             slot_regs.push(("me".to_string(), Some(me_type.clone())));
 
             // 通常パラメータ
+            let param_types = f.signature.params.clone();
             for (idx, p) in params.iter().enumerate() {
                 let param_idx = idx + 1;
                 if param_idx < f.params.len() {
                     let pid = f.params[param_idx];
                     self.variable_ctx.variable_map.insert(p.clone(), pid);
                     param_kinds.push((pid, param_idx as u32));
-                    slot_regs.push((p.clone(), None));
+                    let ty = param_types.get(param_idx).cloned();
+                    if let Some(ty) = ty.clone() {
+                        self.type_ctx.value_types.insert(pid, ty);
+                    }
+                    slot_regs.push((p.clone(), ty));
                 } else {
                     // 念のため足りない場合は新規に確保（互換用）
                     let pid = f.next_value_id();
                     f.params.push(pid);
                     self.variable_ctx.variable_map.insert(p.clone(), pid);
                     param_kinds.push((pid, param_idx as u32));
-                    slot_regs.push((p.clone(), None));
+                    let ty = param_types.get(param_idx).cloned();
+                    if let Some(ty) = ty.clone() {
+                        self.type_ctx.value_types.insert(pid, ty);
+                    }
+                    slot_regs.push((p.clone(), ty));
                 }
             }
         }

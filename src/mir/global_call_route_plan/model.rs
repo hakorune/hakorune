@@ -46,6 +46,7 @@ pub(super) enum GlobalCallProof {
     SameModuleObjectHandle,
     SameModuleScalarI64,
     SameModuleVoidSentinel,
+    SameModuleMixedRuntime,
     VoidSideEffect,
 }
 
@@ -80,6 +81,7 @@ impl GlobalCallProof {
             Self::SameModuleObjectHandle => "typed_global_call_same_module_object_handle",
             Self::SameModuleScalarI64 => "typed_global_call_same_module_scalar_i64",
             Self::SameModuleVoidSentinel => "typed_global_call_same_module_void_sentinel",
+            Self::SameModuleMixedRuntime => "typed_global_call_same_module_mixed_runtime",
             Self::VoidSideEffect => "typed_global_call_void_side_effect",
         }
     }
@@ -113,6 +115,7 @@ impl GlobalCallProof {
             | Self::SameModuleObjectHandle
             | Self::SameModuleScalarI64
             | Self::SameModuleVoidSentinel
+            | Self::SameModuleMixedRuntime
             | Self::VoidSideEffect => "none",
         }
     }
@@ -132,6 +135,7 @@ impl GlobalCallProof {
             | Self::SameModuleObjectHandle
             | Self::SameModuleScalarI64
             | Self::SameModuleVoidSentinel
+            | Self::SameModuleMixedRuntime
             | Self::VoidSideEffect => GlobalCallDefinitionOwner::UniformMir,
             Self::Stage1EmitProgramJson => GlobalCallDefinitionOwner::RuntimeHelper,
             Self::GenericPureString => GlobalCallDefinitionOwner::ModuleGeneric,

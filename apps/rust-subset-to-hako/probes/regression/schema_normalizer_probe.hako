@@ -1,0 +1,15 @@
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.rust_subset_to_hako.schema.rust_subset_schema as RustSubsetSchemaV0
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"schema_version\":0,\"kind\":\"RustSubsetModule\",\"items\":[]}")
+        local schema = new RustSubsetSchemaV0()
+        if schema.module_kind_status(doc) != 0 {
+            print("schema.normalizer=fail")
+            return 1
+        }
+        print("schema.normalizer=ok")
+        return 0
+    }
+}

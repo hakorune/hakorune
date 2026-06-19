@@ -1,0 +1,23 @@
+// json_scanner_number_substring_probe.hako
+//
+// Investigation for JsonScanner.read_number() without JsonTokenizer.tokenize()
+// or token ArrayBox publication.
+
+using apps.lib.json_native.lexer.scanner as JsonScanner
+
+static box Main {
+    main() {
+        local scanner = new JsonScanner("")
+        scanner.reset_text("123")
+        local value = scanner.read_number()
+
+        print(value)
+        if value != "123" {
+            print("json.scanner.number=bad-value")
+            return 2
+        }
+
+        print("json.scanner.number=ok")
+        return 0
+    }
+}

@@ -224,6 +224,27 @@
         return same_module_method_view_matches_route_rule(view, &rule);
       }
 
+      auto int same_module_method_view_is_direct_any_len(
+          const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule rule = {
+          "generic_method.len",
+          "AnyLen",
+          "any_length",
+          "nyash.any.length_h",
+          "len_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          "scalar_i64",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "scalar_i64",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "no_publication",
+          SAME_MODULE_METHOD_VIEW_STRING_OPTIONAL,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+        };
+        return same_module_method_view_matches_route_rule(view, &rule);
+      }
+
       auto int same_module_method_view_is_direct_array_len(
           const struct LoweringPlanGenericMethodView* view) {
         return same_module_method_view_is_direct_array_receiver_with(
@@ -252,6 +273,27 @@
             "write_any",
             "no_publication",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
+      }
+
+      auto int same_module_method_view_is_direct_any_array_push(
+          const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule rule = {
+          "generic_method.push",
+          "ArrayPush",
+          "array_append_any",
+          "nyash.array.slot_append_hh",
+          "push_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          "scalar_i64",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "write_any",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "no_publication",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+        };
+        return same_module_method_view_matches_route_rule(view, &rule);
       }
 
       auto int same_module_method_view_is_direct_array_get(
@@ -399,6 +441,27 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
+      auto int same_module_method_view_is_direct_any_map_keys(
+          const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule rule = {
+          "generic_method.keys",
+          "MapKeys",
+          "map_keys_array",
+          "nyash.map.keys_h",
+          "keys_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          "mixed_runtime_i64_or_handle",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "runtime_i64_or_handle",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "no_publication",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+        };
+        return same_module_method_view_matches_route_rule(view, &rule);
+      }
+
       auto int same_module_method_view_is_direct_map_get(
           const struct LoweringPlanGenericMethodView* view) {
         return same_module_method_view_is_direct_receiver_with(
@@ -425,6 +488,27 @@
                    "read_ref",
                    NULL,
                    HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
+      }
+
+      auto int same_module_method_view_is_direct_any_get(
+          const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule rule = {
+          "generic_method.get",
+          "AnyGet",
+          "runtime_data_load_any",
+          "nyash.runtime_data.get_hh",
+          "get_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          "mixed_runtime_i64_or_handle",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "runtime_i64_or_handle",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          "runtime_data_facade",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+        };
+        return same_module_method_view_matches_route_rule(view, &rule);
       }
 
       auto int same_module_method_view_is_direct_mir_json_map_get_with(
@@ -533,6 +617,27 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME);
       }
 
+      auto int same_module_method_view_is_direct_any_map_set(
+          const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule rule = {
+          "generic_method.set",
+          "MapSet",
+          "map_store_any",
+          "nyash.map.slot_store_hhh",
+          "set_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          NULL,
+          SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
+          "write_any",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          NULL,
+          SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+        };
+        return same_module_method_view_matches_route_rule(view, &rule);
+      }
+
       auto int same_module_method_view_is_direct_array_set(
           const struct LoweringPlanGenericMethodView* view) {
         /*
@@ -555,6 +660,7 @@
       auto int same_module_method_view_is_direct_set(
           const struct LoweringPlanGenericMethodView* view) {
         return same_module_method_view_is_direct_map_set(view) ||
+               same_module_method_view_is_direct_any_map_set(view) ||
                same_module_method_view_is_direct_array_set(view);
       }
 
@@ -606,6 +712,27 @@
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI);
       }
 
+      auto int same_module_method_view_is_direct_any_has(
+          const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule rule = {
+          "generic_method.has",
+          "AnyHas",
+          "runtime_data_contains_any",
+          "nyash.runtime_data.has_hh",
+          "has_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          NULL,
+          SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
+          "read_ref",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          NULL,
+          SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+        };
+        return same_module_method_view_matches_route_rule(view, &rule);
+      }
+
       auto int same_module_method_view_is_direct_array_has(
           const struct LoweringPlanGenericMethodView* view) {
         return same_module_method_view_is_direct_array_receiver_with(
@@ -623,7 +750,8 @@
 
       auto int same_module_method_view_is_direct_has(
           const struct LoweringPlanGenericMethodView* view) {
-        return same_module_method_view_is_direct_map_has_any(view) ||
+        return same_module_method_view_is_direct_any_has(view) ||
+               same_module_method_view_is_direct_map_has_any(view) ||
                same_module_method_view_is_direct_map_has_i64(view) ||
                same_module_method_view_is_direct_array_has(view);
       }

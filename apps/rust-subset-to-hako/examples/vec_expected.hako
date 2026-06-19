@@ -1,0 +1,4 @@
+function make_vec(): Array {
+    local xs: Array = [1, 2, 3]
+    return xs
+}

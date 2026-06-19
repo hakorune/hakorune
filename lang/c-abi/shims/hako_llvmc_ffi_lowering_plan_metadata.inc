@@ -546,6 +546,7 @@
                 !strcmp(proof, "typed_global_call_same_module_object_handle") ||
                 !strcmp(proof, "typed_global_call_same_module_scalar_i64") ||
                 !strcmp(proof, "typed_global_call_same_module_void_sentinel") ||
+                !strcmp(proof, "typed_global_call_same_module_mixed_runtime") ||
                 !strcmp(proof, "typed_global_call_void_side_effect") ||
                 !strcmp(proof, "typed_global_call_pattern_util_local_value_probe"));
       }
@@ -1036,7 +1037,8 @@
                !strcmp(view->emit_kind, "direct_function_call") &&
                view->return_shape &&
                (!strcmp(view->return_shape, "string_handle") ||
-                !strcmp(view->return_shape, "object_handle")) &&
+                !strcmp(view->return_shape, "object_handle") ||
+                !strcmp(view->return_shape, "mixed_runtime_i64_or_handle")) &&
                view->value_demand &&
                !strcmp(view->value_demand, "runtime_i64_or_handle");
       }

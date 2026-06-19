@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "value",
+          "type": "i64",
+          "value": {
+            "kind": "Name",
+            "name": "x"
+          }
+        },
+        {
+          "kind": "Assign",
+          "target": {
+            "kind": "Name",
+            "name": "value"
+          },
+          "value": {
+            "kind": "Binary",
+            "left": {
+              "kind": "Name",
+              "name": "value"
+            },
+            "op": "+",
+            "right": {
+              "kind": "Literal",
+              "type": "i64",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "value"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "bump",
+      "params": [
+        {
+          "name": "x",
+          "type": "i64"
+        }
+      ],
+      "return_type": "i64"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "assign_fixture",
+  "schema_version": 0
+}

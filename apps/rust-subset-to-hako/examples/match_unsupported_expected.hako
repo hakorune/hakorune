@@ -1,0 +1,3 @@
+function classify(x: i64): void {
+    /* TODO: Rust match expression is out of v0 scope */
+}

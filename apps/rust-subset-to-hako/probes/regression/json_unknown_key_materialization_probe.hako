@@ -1,0 +1,18 @@
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"custom_key\":\"ok\"}")
+        local node = doc.get_node("custom_key")
+        if node == null {
+            print("unknown.key.materialization=null")
+            return 1
+        }
+        if node.as_string() != "ok" {
+            print("unknown.key.materialization=bad-value")
+            return 2
+        }
+        print("unknown.key.materialization=ok")
+        return 0
+    }
+}

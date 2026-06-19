@@ -122,6 +122,7 @@
         int is_mir_json_vid_array_item_get = 0;
         int is_mir_json_flags_rec_array_get = 0;
         int is_map_get = 0;
+        int is_any_get = 0;
         int is_mir_json_block_field_get = 0;
         int is_mir_json_const_value_field_get = 0;
         int is_mir_json_numeric_value_field_get = 0;
@@ -159,6 +160,7 @@
         is_mir_json_flags_rec_array_get =
             same_module_method_view_is_direct_mir_json_flags_rec_array_get(method_view);
         is_map_get = same_module_method_view_is_direct_map_get(method_view);
+        is_any_get = same_module_method_view_is_direct_any_get(method_view);
         is_mir_json_block_field_get =
             same_module_method_view_is_direct_mir_json_block_field_get(method_view);
         is_mir_json_const_value_field_get =
@@ -202,7 +204,7 @@
             is_mir_json_callee_field_get ||
             (is_mir_json_inst_field_get && !out->result_origin_box) ||
             is_mir_json_flags_rec_map_get;
-        return out->is_array_load || out->publishes_map_get_origin;
+        return out->is_array_load || out->publishes_map_get_origin || is_any_get;
       }
 
       auto int same_module_function_read_arg_reg(

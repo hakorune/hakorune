@@ -221,6 +221,34 @@ pub(super) fn generic_pure_string_value_instruction_reject_reason(
             set_value_class(ctx.values, *dst, GenericPureValueClass::Bool, ctx.changed);
             None
         }
+        MirInstruction::FieldGet { dst, base, .. } => {
+            let base_class = value_class(ctx.values, *base);
+            if !matches!(base_class, GenericPureValueClass::Map) {
+                if base_class == GenericPureValueClass::Unknown {
+                    return None;
+                }
+                return Some(GenericPureStringReject::new(
+                    GlobalCallTargetShapeReason::GenericStringUnsupportedInstruction,
+                ));
+            }
+            let Some(class) = ctx
+                .function
+                .metadata
+                .value_types
+                .get(dst)
+                .and_then(generic_pure_value_class_from_type)
+            else {
+                return None;
+            };
+            if matches!(
+                class,
+                GenericPureValueClass::String | GenericPureValueClass::StringOrVoid
+            ) {
+                *ctx.has_string_surface = true;
+            }
+            set_value_class(ctx.values, *dst, class, ctx.changed);
+            None
+        }
         MirInstruction::Phi {
             dst,
             inputs,

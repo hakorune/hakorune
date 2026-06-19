@@ -1,0 +1,5 @@
+function collect_two(): void {
+    local xs: Array = []
+    xs.push(1)
+    xs.push(2)
+}

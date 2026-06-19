@@ -1,0 +1,31 @@
+// json_object_number_node_publication_probe.hako
+//
+// Owner-selection probe for parsed object NUMBER JsonNode retrieval.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"value\":123,\"edge\":13}")
+        if doc == null {
+            print("json.object.number.node=parse-null")
+            return 1
+        }
+
+        local value = doc.get_node("value")
+        print("value.kind=" + value.get_kind())
+        print("value.as_int=" + value.as_int())
+
+        if value.get_kind() != "int" {
+            print("json.object.number.node=bad-value-kind")
+            return 2
+        }
+        if value.as_int() != 123 {
+            print("json.object.number.node=bad-value-as-int")
+            return 3
+        }
+
+        print("json.object.number.node=ok")
+        return 0
+    }
+}

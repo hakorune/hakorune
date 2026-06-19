@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "xs",
+          "type": "Vec<i64>",
+          "value": {
+            "elements": [],
+            "kind": "ArrayLiteral"
+          }
+        },
+        {
+          "kind": "Expr",
+          "value": {
+            "args": [
+              {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 1
+              }
+            ],
+            "kind": "MethodCall",
+            "method": "push",
+            "receiver": {
+              "kind": "Name",
+              "name": "xs"
+            }
+          }
+        },
+        {
+          "kind": "Expr",
+          "value": {
+            "args": [
+              {
+                "kind": "Literal",
+                "type": "i64",
+                "value": 2
+              }
+            ],
+            "kind": "MethodCall",
+            "method": "push",
+            "receiver": {
+              "kind": "Name",
+              "name": "xs"
+            }
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "collect_two",
+      "params": [],
+      "return_type": "void"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "vec_method_fixture",
+  "schema_version": 0
+}

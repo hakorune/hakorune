@@ -1,0 +1,41 @@
+// Staged scanner loop with continue before the tail digit effect.
+//
+// Shape:
+// - loop(cond) over cursor
+// - skip separator branch updates cursor and continues
+// - non-digit branch breaks
+// - digit branch updates accumulator and cursor
+// - post-loop seen validation
+//
+// This is the continue candidate after scanner multi-exit acceptance.
+static box Main {
+    count_digits_skip_sep(text, len) {
+        local pos = 0
+        local count = 0
+        local seen = 0
+
+        loop(pos < len) {
+            local ch = text.substring(pos, pos + 1)
+            if ch == "_" {
+                pos = pos + 1
+                continue
+            }
+            if ch < "0" or ch > "9" {
+                break
+            }
+            seen = 1
+            count = count + 1
+            pos = pos + 1
+        }
+
+        if seen == 0 {
+            return -1
+        }
+        return count
+    }
+
+    main() {
+        print(Main.count_digits_skip_sep("1_23x", 5))
+        return 0
+    }
+}

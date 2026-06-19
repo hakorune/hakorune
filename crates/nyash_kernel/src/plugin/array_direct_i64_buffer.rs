@@ -15,7 +15,6 @@ use std::sync::Arc;
 use nyash_rust::box_trait::NyashBox;
 #[cfg(test)]
 use nyash_rust::boxes::array::ArrayBox;
-#[cfg(test)]
 use nyash_rust::runtime::host_handles;
 
 pub(crate) const DIRECT_ARRAY_I64_KIND_V0: u32 = 1;
@@ -217,6 +216,9 @@ fn decode_direct_array_i64_handle(handle: i64) -> Option<NonNull<DirectArrayI64B
 }
 
 fn direct_array_i64_buffer_from_handle(handle: i64) -> Option<NonNull<DirectArrayI64BufferV0>> {
+    if host_handles::get(handle as u64).is_some() {
+        return None;
+    }
     let ptr = DirectArrayI64BufferV0Box::from_handle(handle)?;
     let header = unsafe { ptr.as_ref() };
     if header.kind != DIRECT_ARRAY_I64_KIND_V0
@@ -347,6 +349,24 @@ mod tests {
     fn direct_array_i64_runtime_ops_reject_public_arraybox_handles() {
         let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
         let public_handle = host_handles::to_handle_arc(array) as i64;
+
+        assert_eq!(direct_array_i64_push_i64(public_handle, 7), None);
+        assert!(!direct_array_i64_store_i64(public_handle, 0, 7));
+        assert_eq!(direct_array_i64_load_i64(public_handle, 0), None);
+    }
+
+    #[test]
+    fn direct_array_i64_runtime_ops_reject_lowbit_colliding_public_handles() {
+        let mut colliding_handle = None;
+        for _ in 0..32 {
+            let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+            let handle = host_handles::to_handle_arc(array) as i64;
+            if (handle as usize) & DIRECT_ARRAY_I64_HANDLE_TAG == DIRECT_ARRAY_I64_HANDLE_TAG {
+                colliding_handle = Some(handle);
+                break;
+            }
+        }
+        let public_handle = colliding_handle.expect("test should create a low-bit colliding handle");
 
         assert_eq!(direct_array_i64_push_i64(public_handle, 7), None);
         assert!(!direct_array_i64_store_i64(public_handle, 0, 7));

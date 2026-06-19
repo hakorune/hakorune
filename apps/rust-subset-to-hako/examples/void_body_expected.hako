@@ -1,0 +1,4 @@
+function observe(x: i64): void {
+    log_value(x)
+    log_value(x + 1)
+}

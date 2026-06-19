@@ -1,0 +1,29 @@
+// convert_match_unsupported_fixture.hako — Rust match unsupported handoff wrapper.
+//
+// This wrapper owns only the fixture file route. Conversion logic stays in
+// converter_core.hako.
+
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local file = new FileBox()
+        local opened = file.open("apps/rust-subset-to-hako/examples/match_unsupported_subset.json", "r")
+        if opened == 0 {
+            print("// error: match-unsupported fixture open failed")
+            return 1
+        }
+
+        local text = file.read()
+        file.close()
+        if text == null {
+            print("// error: match-unsupported fixture read failed")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+        local result = converter.convert(text)
+        print(result)
+        return 0
+    }
+}

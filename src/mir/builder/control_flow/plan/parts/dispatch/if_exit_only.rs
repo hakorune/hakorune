@@ -4,6 +4,7 @@
 //! - lower_exit_only_item
 //! - lower_exit_only_if
 //! - lower_else_only_exit_if
+//! - lower_then_only_exit_if
 
 use super::super::exit as parts_exit;
 use super::super::stmt as parts_stmt;
@@ -118,6 +119,19 @@ pub(super) fn lower_exit_only_item(
                 else_block.as_ref().map(|b| b.as_ref()),
                 error_prefix,
             ),
+            IfContractKind::ExitAllowed {
+                mode: IfMode::ThenOnlyExit,
+            } => lower_then_only_exit_if(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                cond_view,
+                then_block,
+                else_block.as_ref().map(|b| b.as_ref()),
+                error_prefix,
+            ),
             _ => Err(format!(
                 "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
                 error_prefix
@@ -203,6 +217,13 @@ fn lower_exit_only_if(
             // ElseOnlyExit is handled by lower_else_only_exit_if, not this function
             return Err(format!(
                 "[freeze:contract][recipe] else_only_exit_not_in_exit_only_if: ctx={}",
+                error_prefix
+            ));
+        }
+        IfMode::ThenOnlyExit => {
+            // ThenOnlyExit is handled by lower_then_only_exit_if, not this function
+            return Err(format!(
+                "[freeze:contract][recipe] then_only_exit_not_in_exit_only_if: ctx={}",
                 error_prefix
             ));
         }
@@ -305,6 +326,82 @@ fn lower_else_only_exit_if(
     // After the if, state is from the then branch (else exits)
     builder.variable_ctx.variable_map = then_map;
     *current_bindings = then_bindings;
+
+    Ok(plans)
+}
+
+// ============================================================================
+// Then-only exit if lowering
+// ============================================================================
+
+/// Lower an if where then=exit-only and else=fallthrough.
+///
+/// Contract:
+/// - then_block: exit-only (must exit)
+/// - else_block: exit-allowed (may fall through)
+/// - After if: state is from else branch (then exits, no join needed)
+fn lower_then_only_exit_if(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
+    arena: &RecipeBodies,
+    cond_view: &crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView,
+    then_block: &RecipeBlock,
+    else_block: Option<&RecipeBlock>,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let else_block = else_block.ok_or_else(|| {
+        format!(
+            "[freeze:contract][recipe] then_only_exit_requires_else: ctx={}",
+            error_prefix
+        )
+    })?;
+
+    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_bindings = current_bindings.clone();
+
+    let then_plans = lower_exit_only_block(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        break_phi_dsts,
+        arena,
+        then_block,
+        error_prefix,
+    )?;
+
+    builder.variable_ctx.variable_map = pre_if_map.clone();
+    *current_bindings = pre_bindings.clone();
+
+    let else_plans = super::block::lower_exit_allowed_block(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        break_phi_dsts,
+        arena,
+        else_block,
+        error_prefix,
+    )?;
+
+    let else_map = builder.variable_ctx.variable_map.clone();
+    let else_bindings = current_bindings.clone();
+
+    builder.variable_ctx.variable_map = pre_if_map;
+    *current_bindings = pre_bindings;
+
+    let plans = lower_cond_branch(
+        builder,
+        current_bindings,
+        cond_view,
+        then_plans,
+        Some(else_plans),
+        Vec::new(),
+        error_prefix,
+    )?;
+
+    builder.variable_ctx.variable_map = else_map;
+    *current_bindings = else_bindings;
 
     Ok(plans)
 }

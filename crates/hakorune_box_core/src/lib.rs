@@ -6,11 +6,11 @@
 //! Current scope is deliberately small: factory policy data only. Active
 //! factory registry logic and concrete Box construction stay in the main crate.
 
-pub mod policy;
 pub mod plugin;
+pub mod policy;
 
-pub use policy::{FactoryPolicy, FactoryType};
 pub use plugin::PluginExecMode;
+pub use policy::{FactoryPolicy, FactoryType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BoxCoreBoundary;

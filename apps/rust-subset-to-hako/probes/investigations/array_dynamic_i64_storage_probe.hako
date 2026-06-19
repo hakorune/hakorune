@@ -1,0 +1,20 @@
+// array_dynamic_i64_storage_probe.hako
+//
+// Investigation for dynamic i64 storage through ArrayBox.
+
+using apps.lib.json_native.utils.string as StringUtils
+
+static box Main {
+    main() {
+        local text = "123"
+        local value = StringUtils.parse_integer(text)
+        local values = new ArrayBox()
+        values.push(value)
+        if values.get(0) != 123 {
+            print("array.dynamic.i64=bad-value")
+            return 1
+        }
+        print("array.dynamic.i64=ok")
+        return 0
+    }
+}

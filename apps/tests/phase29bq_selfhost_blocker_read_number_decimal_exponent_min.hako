@@ -1,0 +1,93 @@
+// Decimal/exponent staged fixture for read_next_number_literal-style scanner loops.
+//
+// Shape:
+// - optional leading sign
+// - integer digit loop
+// - optional decimal stage with validation and second digit loop
+// - optional exponent stage with optional exponent sign and third digit loop
+// - early error returns for invalid stage entry
+// - loop-carried scanner cursor across stages
+//
+// This is a compiler Recipe/CorePlan intake fixture. It intentionally returns
+// the accepted span length instead of modeling json_native token payloads.
+static box Main {
+    current(text, pos, len) {
+        if pos >= len {
+            return ""
+        }
+        return text.substring(pos, pos + 1)
+    }
+
+    is_digit(ch) {
+        if ch == "0" { return true }
+        if ch == "1" { return true }
+        if ch == "2" { return true }
+        if ch == "3" { return true }
+        if ch == "4" { return true }
+        if ch == "5" { return true }
+        if ch == "6" { return true }
+        if ch == "7" { return true }
+        if ch == "8" { return true }
+        if ch == "9" { return true }
+        return false
+    }
+
+    read_number_end(text, len) {
+        local pos = 0
+
+        if Main.current(text, pos, len) == "-" {
+            pos = pos + 1
+        }
+
+        if Main.current(text, pos, len) == "0" {
+            pos = pos + 1
+            if Main.is_digit(Main.current(text, pos, len)) {
+                return -1
+            }
+        } else {
+            if Main.is_digit(Main.current(text, pos, len)) {
+                loop(pos < len and Main.is_digit(Main.current(text, pos, len))) {
+                    pos = pos + 1
+                }
+            } else {
+                return -2
+            }
+        }
+
+        if Main.current(text, pos, len) == "." {
+            pos = pos + 1
+            if not Main.is_digit(Main.current(text, pos, len)) {
+                return -3
+            }
+            loop(pos < len and Main.is_digit(Main.current(text, pos, len))) {
+                pos = pos + 1
+            }
+        }
+
+        local ch = Main.current(text, pos, len)
+        if ch == "e" or ch == "E" {
+            pos = pos + 1
+            ch = Main.current(text, pos, len)
+            if ch == "+" or ch == "-" {
+                pos = pos + 1
+            }
+            if not Main.is_digit(Main.current(text, pos, len)) {
+                return -4
+            }
+            loop(pos < len and Main.is_digit(Main.current(text, pos, len))) {
+                pos = pos + 1
+            }
+        }
+
+        return pos
+    }
+
+    parse_sample() {
+        return Main.read_number_end("-12.34e+5x", 9)
+    }
+
+    main() {
+        print(Main.parse_sample())
+        return 0
+    }
+}

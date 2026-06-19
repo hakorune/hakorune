@@ -108,6 +108,10 @@ def emit_expr(expr: dict) -> str:
         args_str = ", ".join(emit_expr(a) for a in args)
         return f"{receiver}.{method}({args_str})"
 
+    if kind == "ArrayLiteral":
+        elements = expr.get("elements", [])
+        return "[" + ", ".join(emit_expr(e) for e in elements) + "]"
+
     if kind == "Unsupported":
         reason = expr.get("reason", "unsupported")
         return f"/* TODO: {reason} */"
@@ -120,7 +124,11 @@ def emit_expr(expr: dict) -> str:
 INDENT = "    "
 
 
-def emit_stmt(stmt: dict) -> str:
+def emit_stmt_block(stmts: list, indent: str = INDENT) -> str:
+    return "\n".join(emit_stmt(s, indent=indent) for s in stmts)
+
+
+def emit_stmt(stmt: dict, indent: str = INDENT) -> str:
     """Convert a RustSubset statement node to one .hako line."""
     if not isinstance(stmt, dict):
         fail_fast(f"statement is not a dict: {stmt}")
@@ -132,23 +140,51 @@ def emit_stmt(stmt: dict) -> str:
         name = require_key(stmt, "name", "Let")
         ty = map_type(require_key(stmt, "type", "Let"))
         value = emit_expr(require_key(stmt, "value", "Let"))
-        return f"{INDENT}local {name}: {ty} = {value}"
+        return f"{indent}local {name}: {ty} = {value}"
 
     if kind == "Return":
         # { "kind": "Return", "value": {...} }
         if "value" in stmt:
             value = emit_expr(stmt["value"])
-            return f"{INDENT}return {value}"
-        return f"{INDENT}return"
+            return f"{indent}return {value}"
+        return f"{indent}return"
 
     if kind == "Expr":
         # { "kind": "Expr", "value": {...} }
         value = emit_expr(require_key(stmt, "value", "Expr"))
-        return f"{INDENT}{value}"
+        return f"{indent}{value}"
+
+    if kind == "Assign":
+        target = emit_expr(require_key(stmt, "target", "Assign"))
+        value = emit_expr(require_key(stmt, "value", "Assign"))
+        return f"{indent}{target} = {value}"
+
+    if kind == "If":
+        cond = emit_expr(require_key(stmt, "cond", "If"))
+        then_body = emit_stmt_block(stmt.get("then", []), indent=indent + INDENT)
+        lines = [f"{indent}if {cond} {{"]
+        if then_body:
+            lines.append(then_body)
+        lines.append(f"{indent}}}")
+        else_body = emit_stmt_block(stmt.get("else", []), indent=indent + INDENT)
+        if else_body:
+            lines[-1] = lines[-1] + " else {"
+            lines.append(else_body)
+            lines.append(f"{indent}}}")
+        return "\n".join(lines)
+
+    if kind == "While":
+        cond = emit_expr(require_key(stmt, "cond", "While"))
+        body = emit_stmt_block(stmt.get("body", []), indent=indent + INDENT)
+        lines = [f"{indent}loop({cond}) {{"]
+        if body:
+            lines.append(body)
+        lines.append(f"{indent}}}")
+        return "\n".join(lines)
 
     if kind == "Unsupported":
         reason = stmt.get("reason", "unsupported")
-        return f"{INDENT}/* TODO: {reason} */"
+        return f"{indent}/* TODO: {reason} */"
 
     fail_fast(f"unknown statement kind: {kind}")
 
@@ -188,7 +224,7 @@ def emit_function(func: dict, target_prefix: str = None) -> str:
     # Body statements
     body_stmts = func.get("body", [])
     if body_stmts:
-        body_lines = "\n".join(emit_stmt(s) for s in body_stmts)
+        body_lines = emit_stmt_block(body_stmts)
     else:
         body_lines = f"{INDENT}// empty body"
 
@@ -242,7 +278,12 @@ def emit_item(item: dict) -> str:
         return emit_function(item)
 
     if kind == "Unsupported":
-        reason = item.get("reason", "unsupported")
+        reason = (
+            item.get("summary")
+            or item.get("reason")
+            or (f"{item.get('rust_kind')} is out of v0 scope" if item.get("rust_kind") else None)
+            or "unsupported"
+        )
         return f"// TODO: {reason}"
 
     fail_fast(f"unknown item kind: {kind}")

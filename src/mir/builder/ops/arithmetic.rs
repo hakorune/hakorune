@@ -29,6 +29,32 @@
 
 use super::super::{MirInstruction, MirType, ValueId};
 
+fn classify_operand_type(
+    builder: &super::super::MirBuilder,
+    value: ValueId,
+) -> super::super::type_facts::OperandTypeClass {
+    use super::super::type_facts::OperandTypeClass;
+
+    let type_facts = super::super::type_facts::TypeFactsBox::new(
+        &builder.type_ctx.value_types,
+        &builder.type_ctx.value_origin_newbox,
+    );
+    let class = type_facts.classify_operand_type(value);
+    if class != OperandTypeClass::Unknown {
+        return class;
+    }
+
+    let Some(function) = builder.scope_ctx.current_function.as_ref() else {
+        return OperandTypeClass::Unknown;
+    };
+    match function.metadata.value_types.get(&value) {
+        Some(MirType::String) => OperandTypeClass::String,
+        Some(MirType::Box(name)) if name == "StringBox" => OperandTypeClass::String,
+        Some(MirType::Integer | MirType::Bool) => OperandTypeClass::Integer,
+        _ => OperandTypeClass::Unknown,
+    }
+}
+
 /// Build an arithmetic binary operation instruction.
 ///
 /// This function handles all arithmetic operations (Add, Sub, Mul, Div, Mod, Shl, Shr,
@@ -82,12 +108,8 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         )?;
         // Phase 196: TypeFacts SSOT - AddOperator call type annotation
         // Phase 131-11-E: TypeFacts - classify operand types (Phase 136: use TypeFactsBox)
-        let type_facts = super::super::type_facts::TypeFactsBox::new(
-            &builder.type_ctx.value_types,
-            &builder.type_ctx.value_origin_newbox,
-        );
-        let lhs_type = type_facts.classify_operand_type(lhs);
-        let rhs_type = type_facts.classify_operand_type(rhs);
+        let lhs_type = classify_operand_type(builder, lhs);
+        let rhs_type = classify_operand_type(builder, rhs);
 
         use super::super::type_facts::OperandTypeClass::*;
         match (lhs_type, rhs_type) {
@@ -166,12 +188,8 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
             // String concatenation is handled at use-site in LLVM lowering
             if matches!(op, crate::mir::BinaryOp::Add) {
                 // Phase 131-11-E: TypeFacts - classify operand types (Phase 136: use TypeFactsBox)
-                let type_facts = super::super::type_facts::TypeFactsBox::new(
-                    &builder.type_ctx.value_types,
-                    &builder.type_ctx.value_origin_newbox,
-                );
-                let lhs_type = type_facts.classify_operand_type(lhs);
-                let rhs_type = type_facts.classify_operand_type(rhs);
+                let lhs_type = classify_operand_type(builder, lhs);
+                let rhs_type = classify_operand_type(builder, rhs);
 
                 use super::super::type_facts::OperandTypeClass::*;
                 match (lhs_type, rhs_type) {
@@ -213,31 +231,13 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         // Phase 196: TypeFacts SSOT - BinOp type is determined by operands only
         // String concatenation is handled at use-site in LLVM lowering
         if matches!(op, crate::mir::BinaryOp::Add) {
-            // Check if BOTH operands are known to be strings (TypeFacts)
-            let lhs_is_str = match builder.type_ctx.value_types.get(&lhs) {
-                Some(MirType::String) => true,
-                Some(MirType::Box(bt)) if bt == "StringBox" => true,
-                _ => builder
-                    .type_ctx
-                    .value_origin_newbox
-                    .get(&lhs)
-                    .map(|s| s == "StringBox")
-                    .unwrap_or(false),
-            };
-            let rhs_is_str = match builder.type_ctx.value_types.get(&rhs) {
-                Some(MirType::String) => true,
-                Some(MirType::Box(bt)) if bt == "StringBox" => true,
-                _ => builder
-                    .type_ctx
-                    .value_origin_newbox
-                    .get(&rhs)
-                    .map(|s| s == "StringBox")
-                    .unwrap_or(false),
-            };
-            if lhs_is_str && rhs_is_str {
+            use super::super::type_facts::OperandTypeClass::*;
+            let lhs_type = classify_operand_type(builder, lhs);
+            let rhs_type = classify_operand_type(builder, rhs);
+            if lhs_type == String && rhs_type == String {
                 // BOTH are strings: result stays value-world text.
                 builder.type_ctx.value_types.insert(dst, MirType::String);
-            } else if !lhs_is_str && !rhs_is_str {
+            } else if lhs_type != String && rhs_type != String {
                 // NEITHER is a string: numeric addition
                 builder.type_ctx.value_types.insert(dst, MirType::Integer);
             }

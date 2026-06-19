@@ -1,0 +1,390 @@
+// converter_core.hako — RustSubset JSON v0 -> .hako skeleton converter core.
+//
+// This file owns conversion only. Input route selection, fixture embedding,
+// FileBox, stdin, and adapter invocation belong to app-front wrappers.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+box RustSubsetConverter {
+    // ── main entry ──────────────────────────────────────
+
+    convert(json_text) {
+        local doc = JsonParserUtils.parse_json(json_text)
+        if doc == null {
+            return "// parse error"
+        }
+
+        // Validate schema_version
+        local sv = doc.get_node("schema_version")
+        if sv == null {
+            return "// error: missing schema_version"
+        }
+
+        local items = doc.get_node("items")
+        if items == null {
+            return "// empty module"
+        }
+
+        local item_count = items.length()
+        local output = ""
+        local i = 0
+
+        loop(i < item_count) {
+            local item = items.get_node(i)
+            local item_text = me.emit_item(item)
+            if output != "" {
+                output = output + "\n\n"
+            }
+            output = output + item_text
+            i = i + 1
+        }
+
+        return output
+    }
+
+    // ── item emitters ───────────────────────────────────
+
+    emit_item(item) {
+        local kind = me.node_str(item.get_node("kind"))
+        if kind == "Struct" {
+            return me.emit_struct(item)
+        }
+        if kind == "Enum" {
+            return me.emit_enum(item)
+        }
+        if kind == "Impl" {
+            return me.emit_impl(item)
+        }
+        if kind == "Function" {
+            return me.emit_function(item, "")
+        }
+        if kind == "Unsupported" {
+            return me.emit_unsupported(item)
+        }
+        return "// TODO: " + kind
+    }
+
+    emit_unsupported(item) {
+        local summary = me.node_str(item.get_node("summary"))
+        if summary == "" {
+            summary = me.node_str(item.get_node("reason"))
+        }
+        if summary == "" {
+            local rust_kind = me.node_str(item.get_node("rust_kind"))
+            if rust_kind != "" {
+                summary = rust_kind + " is out of v0 scope"
+            }
+        }
+        if summary == "" {
+            summary = "unsupported"
+        }
+        return "// TODO: " + summary
+    }
+
+    emit_struct(item) {
+        local name = me.node_str(item.get_node("name"))
+        local identity = me.node_str(item.get_node("identity"))
+        local keyword = "record"
+        if identity == "true" {
+            keyword = "box"
+        }
+
+        local fields = item.get_node("fields")
+        local body = ""
+        if fields != null {
+            local fc = fields.length()
+            local fi = 0
+            loop(fi < fc) {
+                local field = fields.get_node(fi)
+                local fname = me.node_str(field.get_node("name"))
+                local ftype = me.map_type(me.node_str(field.get_node("type")))
+                body = body + "    " + fname + ": " + ftype
+                fi = fi + 1
+                if fi < fc {
+                    body = body + "\n"
+                }
+            }
+        }
+
+        return keyword + " " + name + " {\n" + body + "\n}"
+    }
+
+    emit_enum(item) {
+        local name = me.node_str(item.get_node("name"))
+        local result = "// enum " + name
+        local variants = item.get_node("variants")
+        if variants != null {
+            local vc = variants.length()
+            local vi = 0
+            loop(vi < vc) {
+                local variant = variants.get_node(vi)
+                local vname = me.node_str(variant.get_node("name"))
+                result = result + "\n//   " + vname
+                vi = vi + 1
+            }
+        }
+        return result
+    }
+
+    emit_impl(item) {
+        local target = me.node_str(item.get_node("target"))
+        local methods = item.get_node("methods")
+        local result = ""
+        if methods != null {
+            local mc = methods.length()
+            local mi = 0
+            loop(mi < mc) {
+                local method = methods.get_node(mi)
+                result = result + me.emit_function(method, target)
+                mi = mi + 1
+                if mi < mc {
+                    result = result + "\n\n"
+                }
+            }
+        }
+        return result
+    }
+
+    emit_function(func, target_prefix) {
+        local name = me.node_str(func.get_node("name"))
+        if target_prefix != "" {
+            name = target_prefix + "_" + name
+        }
+
+        // Build params
+        local params = ""
+
+        // Receiver: self_ref/self_mut/self_value -> me: TargetType
+        local receiver = me.node_str(func.get_node("receiver"))
+        if receiver != "none" && receiver != "" && target_prefix != "" {
+            params = "me: " + target_prefix
+        }
+
+        // Explicit params
+        local param_arr = func.get_node("params")
+        if param_arr != null {
+            local pc = param_arr.length()
+            local pi = 0
+            loop(pi < pc) {
+                local p = param_arr.get_node(pi)
+                local pname = me.node_str(p.get_node("name"))
+                local ptype = me.map_type(me.node_str(p.get_node("type")))
+                if params != "" { params = params + ", " }
+                params = params + pname + ": " + ptype
+                pi = pi + 1
+            }
+        }
+
+        // Return type
+        local return_type = me.node_str(func.get_node("return_type"))
+        if return_type == "" { return_type = "void" }
+        return_type = me.map_type(return_type)
+
+        // Body
+        local body_arr = func.get_node("body")
+        local body = me.emit_stmt_list(body_arr, "    ")
+        if body == "" { body = "    // empty body" }
+
+        return "function " + name + "(" + params + "): " + return_type + " {\n" + body + "\n}"
+    }
+
+    // ── statement emitter ───────────────────────────────
+
+    emit_stmt_list(stmts, indent) {
+        local result = ""
+        if stmts != null {
+            local sc = stmts.length()
+            local si = 0
+            loop(si < sc) {
+                local stmt = stmts.get_node(si)
+                result = result + me.emit_stmt(stmt, indent)
+                si = si + 1
+                if si < sc { result = result + "\n" }
+            }
+        }
+        return result
+    }
+
+    emit_stmt(stmt, indent) {
+        local kind = me.node_str(stmt.get_node("kind"))
+
+        if kind == "Return" {
+            local val = stmt.get_node("value")
+            if val != null {
+                return indent + "return " + me.emit_expr(val)
+            }
+            return indent + "return"
+        }
+
+        if kind == "Let" {
+            local lname = me.node_str(stmt.get_node("name"))
+            local ltype = me.map_type(me.node_str(stmt.get_node("type")))
+            local lval = stmt.get_node("value")
+            return indent + "local " + lname + ": " + ltype + " = " + me.emit_expr(lval)
+        }
+
+        if kind == "Expr" {
+            return indent + me.emit_expr(stmt.get_node("value"))
+        }
+
+        if kind == "Assign" {
+            local target = me.emit_expr(stmt.get_node("target"))
+            local val = me.emit_expr(stmt.get_node("value"))
+            return indent + target + " = " + val
+        }
+
+        if kind == "If" {
+            local cond = me.emit_expr(stmt.get_node("cond"))
+            local then_body = me.emit_stmt_list(stmt.get_node("then"), indent + "    ")
+            local result = indent + "if " + cond + " {\n" + then_body + "\n" + indent + "}"
+            local else_body = me.emit_stmt_list(stmt.get_node("else"), indent + "    ")
+            if else_body != "" {
+                result = result + " else {\n" + else_body + "\n" + indent + "}"
+            }
+            return result
+        }
+
+        if kind == "While" {
+            return me.emit_while(stmt, indent)
+        }
+
+        if kind == "Unsupported" {
+            local reason = me.node_str(stmt.get_node("reason"))
+            if reason == "" { reason = "unsupported" }
+            return indent + "/* TODO: " + reason + " */"
+        }
+
+        return indent + "// TODO: " + kind
+    }
+
+    emit_while(stmt, indent) {
+        local cond = me.emit_expr(stmt.get_node("cond"))
+        local body = me.emit_stmt_list(stmt.get_node("body"), indent + "    ")
+        local result = indent + "loop(" + cond + ") {\n" + body + "\n" + indent + "}"
+        return result
+    }
+
+    // ── expression emitter (recursive) ──────────────────
+
+    emit_expr(expr) {
+        if expr == null { return "null" }
+
+        local kind = me.node_str(expr.get_node("kind"))
+
+        if kind == "Literal" {
+            return me.node_str(expr.get_node("value"))
+        }
+
+        if kind == "Name" {
+            local n = me.node_str(expr.get_node("name"))
+            if n == "self" { return "me" }
+            return n
+        }
+
+        if kind == "Field" {
+            local base = me.emit_expr(expr.get_node("base"))
+            local field = me.node_str(expr.get_node("field"))
+            return base + "." + field
+        }
+
+        if kind == "Binary" {
+            local op = me.node_str(expr.get_node("op"))
+            local left = me.emit_expr(expr.get_node("left"))
+            local right = me.emit_expr(expr.get_node("right"))
+            return left + " " + op + " " + right
+        }
+
+        if kind == "Call" {
+            local callee = me.node_str(expr.get_node("callee"))
+            local args = expr.get_node("args")
+            local args_str = ""
+            if args != null {
+                local ac = args.length()
+                local ai = 0
+                loop(ai < ac) {
+                    if args_str != "" { args_str = args_str + ", " }
+                    args_str = args_str + me.emit_expr(args.get_node(ai))
+                    ai = ai + 1
+                }
+            }
+            return callee + "(" + args_str + ")"
+        }
+
+        if kind == "MethodCall" {
+            local recv = me.emit_expr(expr.get_node("receiver"))
+            local method = me.node_str(expr.get_node("method"))
+            local args = expr.get_node("args")
+            local args_str = ""
+            if args != null {
+                local ac = args.length()
+                local ai = 0
+                loop(ai < ac) {
+                    if args_str != "" { args_str = args_str + ", " }
+                    args_str = args_str + me.emit_expr(args.get_node(ai))
+                    ai = ai + 1
+                }
+            }
+            return recv + "." + method + "(" + args_str + ")"
+        }
+
+        if kind == "ArrayLiteral" {
+            local elements = expr.get_node("elements")
+            local result = "["
+            if elements != null {
+                local ec = elements.length()
+                local ei = 0
+                loop(ei < ec) {
+                    if result != "[" { result = result + ", " }
+                    result = result + me.emit_expr(elements.get_node(ei))
+                    ei = ei + 1
+                }
+            }
+            return result + "]"
+        }
+
+        if kind == "Unsupported" {
+            local reason = me.node_str(expr.get_node("reason"))
+            if reason == "" { reason = "unsupported" }
+            return "/* TODO: " + reason + " */"
+        }
+
+        return "/* TODO: " + kind + " */"
+    }
+
+    map_type(ty) {
+        if ty == "i8" { return "i64" }
+        if ty == "i16" { return "i64" }
+        if ty == "i32" { return "i64" }
+        if ty == "i64" { return "i64" }
+        if ty == "isize" { return "i64" }
+        if ty == "u8" { return "i64" }
+        if ty == "u16" { return "i64" }
+        if ty == "u32" { return "i64" }
+        if ty == "u64" { return "i64" }
+        if ty == "usize" { return "usize" }
+        if ty == "String" { return "String" }
+        if ty == "&str" { return "String" }
+        if ty == "str" { return "String" }
+        if ty == "bool" { return "bool" }
+        if ty.length() >= 5 && ty.substring(0, 4) == "Vec<" {
+            return "Array"
+        }
+        return ty
+    }
+
+    // ── JSON node helpers ───────────────────────────────
+
+    // Extract string value from a JsonNode (handles string/int/bool nodes)
+    node_str(node) {
+        if node == null { return "" }
+        local kind = node.get_kind()
+        if kind == "string" { return node.as_string() }
+        if kind == "int" { return "" + node.as_int() }
+        if kind == "bool" {
+            if node.as_bool() { return "true" }
+            return "false"
+        }
+        if kind == "null" { return "" }
+        return ""
+    }
+}

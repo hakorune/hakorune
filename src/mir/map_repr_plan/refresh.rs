@@ -53,9 +53,7 @@ fn build_local_map_storage_realization_plans(
 ) -> Vec<LocalMapStorageRealizationPlan> {
     let mut plans: Vec<_> = local_i64_candidates
         .iter()
-        .map(|(receiver, candidate)| {
-            local_i64_key_map_storage_plan(*receiver, candidate)
-        })
+        .map(|(receiver, candidate)| local_i64_key_map_storage_plan(*receiver, candidate))
         .collect();
     plans.sort_by_key(|plan| plan.receiver_value().as_u32());
     plans
@@ -66,9 +64,7 @@ fn build_local_i64_map_direct_storage_plans(
 ) -> Vec<LocalI64MapDirectStoragePlan> {
     let mut plans: Vec<_> = local_i64_candidates
         .iter()
-        .map(|(receiver, candidate)| {
-            closed_world_i64_key_value_table_plan(*receiver, candidate)
-        })
+        .map(|(receiver, candidate)| closed_world_i64_key_value_table_plan(*receiver, candidate))
         .collect();
     plans.sort_by_key(|plan| plan.receiver_value().as_u32());
     plans

@@ -1,6 +1,6 @@
 # rust-subset-to-hako
 
-Status: v0 embedded-fixture `.hako` converter passes EXE/AOT parity
+Status: v0 embedded-fixture, FileBox-input, and adapter-fixture `.hako` converter paths pass EXE/AOT parity
 
 Purpose: provide a small real-app front that converts a conservative Rust subset
 model into `.hako` skeleton code.
@@ -71,9 +71,20 @@ V0 does not implement:
 
 - `DESIGN.md`: handoff design for another AI/worker
 - `schema/RustSubset-v0.md`: normalized input shape
+- `schema/external-adapter-boundary-v0.md`: external parser adapter handoff contract
 - `examples/simple_input.rs`: sample source for external adapter
 - `examples/simple_subset.json`: sample normalized input
 - `examples/simple_expected.hako`: expected skeleton output
+- `converter_core.hako`: `.hako` converter core; no input route ownership
+- `convert.hako`: startup wrapper for the current embedded input route
+- `convert_file.hako`: startup wrapper for the current FileBox input route
+- `convert_adapter_fixture.hako`: startup wrapper for host-produced adapter fixture handoff
+- `convert_if_fixture.hako`: startup wrapper for the selected `If` statement fixture
+- `convert_assign_fixture.hako`: startup wrapper for the selected assignment fixture
+- `fixtures/simple_subset_embedded.hako`: host-generated embedded JSON fixture
+- `tools/embed_fixture.py`: host tool that generates embedded fixture modules
+- `tools/syn_adapter/`: external Rust parser adapter selected for v0 source
+  handoff
 
 ## Current Implementation
 
@@ -99,6 +110,8 @@ json_native_probe_exe=ok
 hako_converter_mir_json_emit=ok
 hako_converter_exe=ok
 hako_converter_parity=simple_expected.hako
+file_input_converter_parity=simple_expected.hako
+adapter_fixture_handoff_parity=adapter_fixture_expected.hako
 vm_product_route=retired
 primary_route=EXE/AOT
 ```
@@ -111,37 +124,90 @@ bash apps/rust-subset-to-hako/smoke.sh
 
 ## Current Scope Boundary
 
-The first AOT slice intentionally embeds the sample RustSubset JSON in
-`convert.hako`. That keeps the acceptance target focused on:
+The first AOT slice used a host-generated embedded fixture module before adding
+FileBox input. Both routes now feed the same converter core and keep the
+acceptance target focused on:
 
 ```text
 JSON parse -> JsonNode traversal -> RustSubset skeleton emission -> EXE/AOT
 ```
 
-File/stdin input is a separate follow-up row. `FileBox` is not part of the
-current AOT acceptance slice.
+Stdin and external adapter invocation remain separate follow-up rows. The
+minimal FileBox new/open/read/close route and the FileBox-backed converter
+input wrapper are green on EXE/AOT. The adapter fixture handoff route is also
+green and uses the same converter core. The converter core is already separated
+from the current input routes:
 
-`json_native` also contains a temporary RustSubset schema-key interning bridge
-in `lexer/tokenizer.hako`. It exists because scanner-derived substrings can
-behave as unstable `MapBox` keys on the current EXE/AOT route. Remove that
-bridge after dynamic `StringBox` materialization / `MapBox` key canonicalization
-accepts scanner-derived strings without literal interning.
+```text
+convert.hako:
+  startup wrapper only
+
+convert_file.hako:
+  FileBox input wrapper only
+
+convert_adapter_fixture.hako:
+  host-produced adapter fixture wrapper only
+
+converter_core.hako:
+  RustSubset JSON -> .hako skeleton conversion
+
+fixtures/simple_subset_embedded.hako:
+  host-generated embedded JSON handoff
+```
+
+`json_native` now uses generic object-key entry-table equality for
+scanner-derived dynamic keys. The former RustSubset critical-key dictionary has
+been retired; converter call sites do not carry schema-specific lookup logic.
+
+App-front structure follows:
+
+```text
+docs/development/current/main/design/hako-app-front-boundary-template-ssot.md
+```
 
 ## Suggested Next Implementation
 
-Keep the first `.hako` converter slice over `examples/simple_subset.json`.
+Keep converter core separate from input route work.
 
 ```text
-input:  RustSubset JSON v0
-output: Hako skeleton text
+closed:
+  embedded fixture handoff
+  probes layout
+  status-code schema normalizer probe
+  bool-returning schema helper shape
+  generic unknown-key materialization fallback
+  FileBox minimal EXE/AOT probe
+  converter file input through FileBox, separate from converter core
+  external adapter boundary contract
+  adapter fixture handoff probe
+
+active next:
+  COREPLAN-RECURSIVE-RECIPE-REAL-SHAPE-INTAKE-001
+    current_task=COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001
+    next_after_current=COREPLAN-READ-NEXT-NUMBER-LITERAL-MULTI-STAGE-LOOP-ACCEPTANCE-001
+    note=RustSubset while / Vec literal transport rows are already closed; this is compiler Recipe/CorePlan loop-exit intake. The current failing evidence is partial-carrier continue PHI, not a broad read_next_number_literal rewrite.
+
+hardening:
+  object-key equality regression guard
+  serial smoke/regression rebuild guard
 ```
 
-Do not implement the external Rust parser adapter in the first slice. If an
-adapter is needed later, use Rust `syn` or `tree-sitter-rust` outside the
-Hakorune app and keep it as a replaceable producer of the same JSON schema.
+The first external adapter route is a small `syn`-based host producer:
+
+```bash
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml -- \
+  apps/rust-subset-to-hako/examples/adapter_fixture_input.rs \
+  --module adapter_fixture \
+  -o /tmp/adapter_fixture_subset.json
+```
+
+It remains outside the Hakorune-owned converter core and produces the same
+RustSubset JSON v0 schema.
 
 Do not bypass `json_native` with a native JSON DLL in this row. The app is useful
 because it exercises real `.hako` JSON/tree traversal pressure.
+
+The detailed task board lives in `STATUS.md`.
 
 ## Acceptance
 
@@ -165,7 +231,12 @@ json_native_probe_mir_json_emit=ok
 json_native_probe_exe=ok
 hako_converter_exe=ok
 hako_converter_parity=ok
-file_input_enabled=0
-schema_key_interning_bridge=temporary
+embedded_fixture_handoff=ok
+file_input_enabled=1
+file_input_converter_parity=ok
+adapter_fixture_handoff_parity=ok
+schema_key_dictionary_enabled=1
+generic_unknown_key_fallback_enabled=1
+json_object_key_materialization=entry_table_plus_temporary_critical_key_bridge
 summary=ok
 ```

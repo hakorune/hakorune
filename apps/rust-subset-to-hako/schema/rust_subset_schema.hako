@@ -1,0 +1,32 @@
+// rust_subset_schema.hako — RustSubset JSON v0 schema access helpers.
+//
+// This app-owned layer keeps schema-specific lookup and validation out of
+// converter emit logic and out of generic json_native internals.
+//
+// EXE/AOT note:
+// v0 keeps status-code helpers for detailed diagnostics, and also exposes
+// boolean predicates for callers that only need a yes/no schema gate. The bool
+// helper + `not` call-site shape is protected by a regression probe.
+
+box RustSubsetSchemaV0 {
+    kind(root) {
+        local node = root.get_node("kind")
+        if node == null { return "" }
+        return node.as_string()
+    }
+
+    items(root) {
+        return root.get_node("items")
+    }
+
+    module_kind_status(root) {
+        if root == null { return 1 }
+        if me.kind(root) != "RustSubsetModule" { return 2 }
+        if me.items(root) == null { return 3 }
+        return 0
+    }
+
+    root_is_module(root) {
+        return me.module_kind_status(root) == 0
+    }
+}

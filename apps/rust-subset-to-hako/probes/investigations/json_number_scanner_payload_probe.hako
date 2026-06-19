@@ -1,0 +1,33 @@
+// json_number_scanner_payload_probe.hako
+//
+// Expected-fail investigation as of COREPLAN-LOOP-BREAK-JSON-NATIVE-RESTORE-PROBE-001.
+// It proves the json_native scanner/tokenizer/parser NUMBER path is not yet
+// stable for numeric payloads outside the temporary small-number materializer
+// table.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"value\":123,\"edge\":13}")
+        if doc == null {
+            print("json.number.scanner=parse-null")
+            return 1
+        }
+
+        local value = doc.get_node("value")
+        if value == null or value.as_int() != 123 {
+            print("json.number.scanner=bad-value")
+            return 2
+        }
+
+        local edge = doc.get_node("edge")
+        if edge == null or edge.as_int() != 13 {
+            print("json.number.scanner=bad-edge")
+            return 3
+        }
+
+        print("json.number.scanner=ok")
+        return 0
+    }
+}

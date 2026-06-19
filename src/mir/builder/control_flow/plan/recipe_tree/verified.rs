@@ -417,8 +417,8 @@ fn is_block_exit_only_item(item: &RecipeItem) -> bool {
                 IfMode::ExitAll => else_block
                     .as_deref()
                     .is_some_and(|eb| is_exit_only_block(then_block) && is_exit_only_block(eb)),
-                // ElseOnlyExit: then falls through, so not a block-exit item
-                IfMode::ElseOnlyExit => false,
+                // Single-sided exit patterns fall through on one path.
+                IfMode::ElseOnlyExit | IfMode::ThenOnlyExit => false,
             }
         }
         _ => false,

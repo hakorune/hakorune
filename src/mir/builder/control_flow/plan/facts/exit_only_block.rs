@@ -180,14 +180,39 @@ fn build_exit_allowed_item(
                 .is_some_and(|b| exit_only_block_ends_with_exit_on_all_paths(arena, b));
 
             if then_exits_all {
-                // Case 1: then exits on all paths → existing ExitOnly logic
+                // Case 1: then exits on all paths.
                 let then_exit_only = then_exit_only.unwrap();
                 let (mode, else_block) = if let Some(else_body) = else_body {
-                    let else_exit_only = build_exit_only_block(arena, else_body, allow_extended)?;
-                    if !exit_only_block_ends_with_exit_on_all_paths(arena, &else_exit_only) {
-                        return Some(recipe_stmt(idx));
+                    let else_exit_only = build_exit_only_block(arena, else_body, allow_extended);
+                    if let Some(else_exit_only) = else_exit_only {
+                        if exit_only_block_ends_with_exit_on_all_paths(arena, &else_exit_only) {
+                            (IfMode::ExitAll, Some(Box::new(else_exit_only)))
+                        } else {
+                            let else_allowed =
+                                build_exit_allowed_block(arena, else_body, allow_extended)?;
+                            return Some(RecipeItem::IfV2 {
+                                if_stmt: StmtRef::new(idx),
+                                cond_view: CondBlockView::from_expr(condition),
+                                contract: IfContractKind::ExitAllowed {
+                                    mode: IfMode::ThenOnlyExit,
+                                },
+                                then_block: Box::new(then_exit_only),
+                                else_block: Some(Box::new(else_allowed)),
+                            });
+                        }
+                    } else {
+                        let else_allowed =
+                            build_exit_allowed_block(arena, else_body, allow_extended)?;
+                        return Some(RecipeItem::IfV2 {
+                            if_stmt: StmtRef::new(idx),
+                            cond_view: CondBlockView::from_expr(condition),
+                            contract: IfContractKind::ExitAllowed {
+                                mode: IfMode::ThenOnlyExit,
+                            },
+                            then_block: Box::new(then_exit_only),
+                            else_block: Some(Box::new(else_allowed)),
+                        });
                     }
-                    (IfMode::ExitAll, Some(Box::new(else_exit_only)))
                 } else {
                     (IfMode::ExitIf, None)
                 };
@@ -346,11 +371,11 @@ fn exit_only_item_exits_on_all_paths(arena: &RecipeBodies, item: &RecipeItem) ->
                         exit_only_block_ends_with_exit_on_all_paths(arena, then_block)
                             && exit_only_block_ends_with_exit_on_all_paths(arena, else_block)
                     }
-                    IfMode::ExitIf | IfMode::ElseOnlyExit => false,
+                    IfMode::ExitIf | IfMode::ElseOnlyExit | IfMode::ThenOnlyExit => false,
                 },
-                // ElseOnlyExit: then falls through, so not exit-all
+                // Single-sided exit patterns fall through on one path, so not exit-all.
                 IfContractKind::ExitAllowed {
-                    mode: IfMode::ElseOnlyExit,
+                    mode: IfMode::ElseOnlyExit | IfMode::ThenOnlyExit,
                 } => false,
                 _ => false,
             }

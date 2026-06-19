@@ -1,46 +1,86 @@
 # Rust Subset Converter Probes
 
-Status: EXE/AOT app-front probes and historical investigations.
+Status: EXE/AOT app-front probes with stable gates separated from historical
+investigations.
 
-These small `.hako` programs preserve the current blocker state for the
-RustSubset JSON -> `.hako` converter.
-
-## Historical VM Findings
-
-- `tokenizer_probe.hako`: JSON tokenization works for a small object.
-- `json_probe.hako`: full JSON parsing currently returns `null`.
-- `array_node_probe.hako` / `map_node_probe.hako`: `ArrayBox` and `MapBox`
-  do not currently round-trip user `JsonNodeInstance` values through the VM
-  route used by this app.
-- `node_probe.hako`: `JsonNode` factory methods work, but object storage fails
-  once user nodes are stored in a collection.
-- `map_probe.hako`: primitive MapBox values still round-trip, so the issue is
-  not generic MapBox key lookup.
-
-## Design Consequence
-
-The converter can compile and reach runtime, but product-level JSON tree
-execution on the Rust VM is not a good next investment. The active design row
-should move app/selfhost validation toward EXE/AOT and freeze VM work to a
-small semantic-reference subset.
-
-## Current EXE/AOT Finding
-
-VM product-route app validation is retired. The current route is EXE/AOT.
-
-The current green probes are:
+## Layout
 
 ```text
-json_probe.hako:
-  parses {"kind":"Program","items":[]}
-  verifies object field lookup and array length
+stable/
+  acceptance probes called by smoke.sh
 
-convert.hako:
-  embeds simple_subset.json
-  emits simple_expected.hako through EXE/AOT
+regression/
+  small fixed-bug probes, not called by smoke.sh unless explicitly promoted
+
+investigations/
+  bring-up trail and current blockers; not an acceptance gate
+
+retired/
+  historical-only probes if a future cleanup needs archival
 ```
 
-Use `apps/rust-subset-to-hako/smoke.sh` to reproduce the accepted state.
+## Stable Gate
 
-Many other files in this directory are diagnostic probes kept to preserve the
-JSON bring-up trail. They are not all part of the stable acceptance gate.
+`stable/json_probe.hako` is the only probe called directly by
+`apps/rust-subset-to-hako/smoke.sh`.
+
+It verifies:
+
+```text
+JSON parse -> object field lookup -> array length -> EXE/AOT
+```
+
+`convert.hako`, `convert_file.hako`, and `convert_adapter_fixture.hako` are
+also part of `smoke.sh`, but they are app wrappers rather than probe files.
+They cover embedded fixture input, FileBox input, and host-produced adapter
+fixture handoff respectively.
+
+## Investigations
+
+`investigations/` contains the JSON bring-up trail and disabled blockers.
+
+## Regression Probes
+
+`regression/` contains fixed bugs that are run when
+`RUST_SUBSET_RUN_REGRESSION=1` is set.
+
+```text
+regression/schema_bool_shape_probe.hako
+  purpose=bool-returning schema helper plus not call-site
+  current_status=exe_aot_green
+
+regression/bool_return_call_branch_probe.hako
+  purpose=user/global bool-return call normalized before branch/not use
+  current_status=exe_aot_green
+
+regression/schema_normalizer_probe.hako
+  purpose=status-code schema helper path
+  current_status=exe_aot_green
+
+regression/json_object_key_materialization_probe.hako
+  purpose=critical JSON object key materialization
+  current_status=exe_aot_green
+
+regression/json_unknown_key_materialization_probe.hako
+  purpose=generic unknown-key entry-table fallback
+  current_status=exe_aot_green
+
+regression/json_nonzero_number_probe.hako
+  purpose=nonzero JSON integer token payload materialization
+  current_status=exe_aot_green
+
+regression/json_tokenizer_number_payload_storage_probe.hako
+  purpose=NUMBER token type/value survives JsonTokenizer.tokenize()->ArrayBox storage
+  current_status=exe_aot_green
+
+regression/filebox_read_probe.hako
+  purpose=FileBox minimal new/open/read/close EXE/AOT route
+  current_status=exe_aot_green
+```
+
+No investigation probe is currently part of the accepted app-front route.
+Keep new input-route probes in `investigations/` until their active row promotes
+them.
+
+Do not move an investigation into `stable/` until it is green on EXE/AOT and
+the active app-front row explicitly promotes it.

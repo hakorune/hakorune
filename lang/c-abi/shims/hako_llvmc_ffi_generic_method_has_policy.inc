@@ -80,6 +80,11 @@
         op = read_str(core_method, "op");
         proof = read_core_method_proof_metadata(core_method, invalid);
         lowering_tier = read_core_method_lowering_tier_metadata(core_method, invalid);
+        if (op && !strcmp(op, "AnyHas") &&
+            core_method_metadata_proof_is_contract_manifest(proof) &&
+            core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY;
+        }
         if (op && !strcmp(op, "MapHas") &&
             core_method_metadata_proof_is_contract_manifest(proof) &&
             core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
@@ -163,7 +168,8 @@
         route_kind = generic_method_has_route_kind_from_metadata(view.route_kind);
         if (!(view.route_id && !strcmp(view.route_id, "generic_method.has")) ||
             !(view.core_op &&
-              (!strcmp(view.core_op, "MapHas") ||
+              (!strcmp(view.core_op, "AnyHas") ||
+               !strcmp(view.core_op, "MapHas") ||
                !strcmp(view.core_op, "ArrayHas"))) ||
             !lowering_plan_tier_is_direct_abi(view.tier) ||
             !(view.route_proof && !strcmp(view.route_proof, "has_surface_policy")) ||

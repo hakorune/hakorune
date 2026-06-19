@@ -1,0 +1,29 @@
+// convert_adapter_fixture.hako — adapter handoff fixture wrapper.
+//
+// This wrapper models an external adapter writing RustSubset JSON v0 to a file.
+// It owns only the fixture file route; converter_core.hako owns conversion.
+
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local file = new FileBox()
+        local opened = file.open("apps/rust-subset-to-hako/examples/adapter_fixture_subset.json", "r")
+        if opened == 0 {
+            print("// error: adapter fixture open failed")
+            return 1
+        }
+
+        local text = file.read()
+        file.close()
+        if text == null {
+            print("// error: adapter fixture read failed")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+        local result = converter.convert(text)
+        print(result)
+        return 0
+    }
+}

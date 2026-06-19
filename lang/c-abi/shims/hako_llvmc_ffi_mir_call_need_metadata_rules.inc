@@ -122,6 +122,9 @@
           {"generic_method.get", "MapGet", "runtime_data_load_any",
            HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
            HAKO_LLVMC_MIR_CALL_NEED_MAP_GET},
+          {"generic_method.get", "AnyGet", "runtime_data_load_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
+           HAKO_LLVMC_MIR_CALL_NEED_MAP_GET},
           {"generic_method.get", "MapGet", "map_load_any",
            HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
            HAKO_LLVMC_MIR_CALL_NEED_MAP_GET},
@@ -140,6 +143,9 @@
           {"generic_method.has", "ArrayHas", "array_contains_any",
            HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_HAS},
+          {"generic_method.has", "AnyHas", "runtime_data_contains_any",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS},
           {"generic_method.delete", "MapDelete", "map_delete_any",
            HAKO_LLVMC_MIR_CALL_NEED_TIER_COLD_FALLBACK,
            HAKO_LLVMC_MIR_CALL_NEED_MAP_DELETE},
@@ -164,6 +170,9 @@
           {"generic_method.len", "StringLen", "string_len",
            HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
            HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN},
+          {"generic_method.len", "AnyLen", "any_length",
+           HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
+           HAKO_LLVMC_MIR_CALL_NEED_ANY_LENGTH},
           {"generic_method.substring", "StringSubstring", "string_substring",
            HAKO_LLVMC_MIR_CALL_NEED_TIER_WARM_DIRECT_ABI,
            HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING},
@@ -214,6 +223,15 @@
       auto enum MirCallNeedKind
       mir_call_generic_method_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
         static const struct LoweringPlanGenericMethodNeedRule rules[] = {
+          {
+            "generic_method.has",
+            "AnyHas",
+            "runtime_data_contains_any",
+            "nyash.runtime_data.has_hh",
+            "has_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS,
+          },
           {
             "generic_method.has",
             "MapHas",
@@ -269,6 +287,15 @@
             HAKO_LLVMC_MIR_CALL_NEED_STRING_LEN,
           },
           {
+            "generic_method.len",
+            "AnyLen",
+            "any_length",
+            "nyash.any.length_h",
+            "len_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_MIR_CALL_NEED_ANY_LENGTH,
+          },
+          {
             "generic_method.keys",
             "MapKeys",
             "map_keys_array",
@@ -276,6 +303,15 @@
             "keys_surface_policy",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_MIR_CALL_NEED_MAP_KEYS,
+          },
+          {
+            "generic_method.get",
+            "AnyGet",
+            "runtime_data_load_any",
+            "nyash.runtime_data.get_hh",
+            "get_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_MIR_CALL_NEED_MAP_GET,
           },
           {
             "generic_method.get",

@@ -1,0 +1,7 @@
+function pump_forever(): void {
+    local i: i64 = 0
+    loop(true) {
+        i = i + 1
+        observe(i)
+    }
+}

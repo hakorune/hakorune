@@ -3,6 +3,7 @@
         HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_MAP_ENTRY_COUNT,
         HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ARRAY_SLOT_LEN,
         HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_STRING_LEN,
+        HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ANY_LENGTH,
       };
 
       auto enum GenericMethodLenRouteKind classify_generic_method_len_route(
@@ -18,6 +19,9 @@
         }
         if (plan->runtime_string) {
           return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_STRING_LEN;
+        }
+        if (plan->runtime_any_length) {
+          return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ANY_LENGTH;
         }
         return HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE;
       }
@@ -194,6 +198,14 @@
               remember_string_length_call(dst, recv);
             } else {
               fprintf(f, "  call i64 @\"nyash.string.len_fast_h\"(%s)\n", ab);
+            }
+            return 1;
+          case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_ANY_LENGTH:
+            if (dst) {
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.any.length_h\"(%s)\n", dst, ab);
+              set_type(dst, T_I64);
+            } else {
+              fprintf(f, "  call i64 @\"nyash.any.length_h\"(%s)\n", ab);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_LEN_ROUTE_NONE:

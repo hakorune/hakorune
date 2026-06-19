@@ -24,6 +24,7 @@
         int runtime_array_get;
         int runtime_array_push;
         int runtime_string;
+        int runtime_any_length;
         int runtime_array_string;
         int array_store_string_source_preserve;
         int array_store_string_identity_demand_stable_object;

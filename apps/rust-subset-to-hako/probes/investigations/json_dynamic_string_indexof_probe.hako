@@ -1,0 +1,38 @@
+// json_dynamic_string_indexof_probe.hako
+//
+// Probe whether full-string indexOf can distinguish scanner-derived dynamic
+// strings when one-character substring comparison cannot.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local text = "{\"kind\":\"Struct\",\"name\":\"Point\"}"
+        local tokenizer = new JsonTokenizer(text)
+        tokenizer.set_input(text)
+        local tokens = tokenizer.tokenize()
+
+        local kind_key = tokens.get(1).get_value()
+        local name_key = tokens.get(5).get_value()
+
+        if kind_key.indexOf(name_key) != -1 {
+            print("dynamic_indexof=kind-contains-name")
+            return 1
+        }
+        if name_key.indexOf(kind_key) != -1 {
+            print("dynamic_indexof=name-contains-kind")
+            return 2
+        }
+        if kind_key.indexOf("kind") != 0 {
+            print("dynamic_indexof=kind-literal-miss")
+            return 3
+        }
+        if name_key.indexOf("name") != 0 {
+            print("dynamic_indexof=name-literal-miss")
+            return 4
+        }
+
+        print("dynamic_indexof=ok")
+        return 0
+    }
+}

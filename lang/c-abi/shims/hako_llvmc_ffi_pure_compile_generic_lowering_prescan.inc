@@ -614,7 +614,8 @@
         fprintf(f, "declare i64 @\"nyash.map.keys_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.get_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.set_hhh\"(i64, i64, i64)\n");
-      if (needs.runtime_data_has) fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
+      if (needs.runtime_data_has || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
       hako_llvmc_emit_direct_exact_runtime_mode_declare(f);
       fprintf(f, "declare ptr @llvm.stacksave()\n");
@@ -730,6 +731,8 @@
         fprintf(f, "declare i64 @\"nyash.string.lastIndexOf_hh\"(i64, i64)\n");
       if (needs.string_contains || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.string.contains_hh\"(i64, i64)\n");
+      if (needs.any_length || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.any.length_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.any_handle_live || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.any.handle_live_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.env_get || module_has_planned_same_module_function_definition())
@@ -812,6 +815,7 @@
         hako_llvmc_emit_llvm_byte_string(f, str_consts[sci].val, (long long)slen);
         fprintf(f, "\\00\", align 1\n");
       }
+      fprintf(f, "@.hako_type_FileBox = private unnamed_addr constant [8 x i8] c\"FileBox\\00\", align 1\n");
       if (object_storage_plan_selected_alignment_result_ready()) {
         fprintf(f, "@.objstore_alignment_result_last_requested = private unnamed_addr constant [32 x i8] c\"alignment_result.last_requested\\00\", align 1\n");
         fprintf(f, "@.objstore_alignment_result_last_normalized = private unnamed_addr constant [33 x i8] c\"alignment_result.last_normalized\\00\", align 1\n");
@@ -820,6 +824,10 @@
       }
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
+      fprintf(f, "declare i64 @\"nyash.env.box.new\"(ptr)\n");
+      fprintf(f, "declare i64 @\"nyash.file.open_hhh\"(i64, i64, i64)\n");
+      fprintf(f, "declare i64 @\"nyash.file.read_h\"(i64)\n");
+      fprintf(f, "declare i64 @\"nyash.file.close_h\"(i64)\n");
       if (needs.hostbridge_extern_invoke_trap)
         fprintf(f, "declare void @llvm.trap()\n");
       if (needs.printf || module_has_planned_same_module_function_definition())

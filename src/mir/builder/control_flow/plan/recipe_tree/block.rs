@@ -20,7 +20,7 @@ pub(in crate::mir::builder) enum IfContractKind {
     ExitOnly {
         mode: IfMode,
     },
-    /// then=fallthrough, else=exit-only (ElseOnlyExit pattern)
+    /// One branch exits while the other branch falls through.
     ExitAllowed {
         mode: IfMode,
     },

@@ -54,11 +54,7 @@ pub(crate) fn runtime_host() -> RuntimeFrontendHost {
 }
 
 impl hakorune_frontend_parser::frontend_host::FrontendHostBoundary for RuntimeFrontendHost {
-    fn log(
-        &self,
-        level: hakorune_frontend_parser::frontend_host::FrontendLogLevel,
-        message: &str,
-    ) {
+    fn log(&self, level: hakorune_frontend_parser::frontend_host::FrontendLogLevel, message: &str) {
         let level = match level {
             hakorune_frontend_parser::frontend_host::FrontendLogLevel::Debug => {
                 FrontendLogLevel::Debug

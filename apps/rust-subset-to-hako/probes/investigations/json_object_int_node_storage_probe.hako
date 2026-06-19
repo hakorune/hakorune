@@ -1,0 +1,19 @@
+// json_object_int_node_storage_probe.hako
+//
+// Investigation for JsonNode int storage through object_set/get_node.
+
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local obj = JsonNode.create_object()
+        obj.object_set("value", JsonNode.create_int(123))
+        local value = obj.get_node("value")
+        if value == null or value.as_int() != 123 {
+            print("json.object.int=bad-value")
+            return 1
+        }
+        print("json.object.int=ok")
+        return 0
+    }
+}

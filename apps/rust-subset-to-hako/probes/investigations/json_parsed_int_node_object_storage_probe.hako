@@ -1,0 +1,27 @@
+// json_parsed_int_node_object_storage_probe.hako
+//
+// Investigation for storing a parser-produced int JsonNode into object storage.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local parsed = JsonParserUtils.parse_json("123")
+        if parsed == null or parsed.as_int() != 123 {
+            print("json.parsed.int.object=bad-source")
+            return 1
+        }
+
+        local obj = JsonNode.create_object()
+        obj.object_set("value", parsed)
+        local value = obj.get_node("value")
+        if value == null or value.as_int() != 123 {
+            print("json.parsed.int.object=bad-storage")
+            return 2
+        }
+
+        print("json.parsed.int.object=ok")
+        return 0
+    }
+}

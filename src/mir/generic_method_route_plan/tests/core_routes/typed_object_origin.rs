@@ -343,3 +343,116 @@ fn records_array_get_result_origin_from_typed_object_collection_push_param_flow(
     let route = &first.metadata.generic_method_routes[0];
     assert_eq!(route.result_origin_box(), Some("StringBox"));
 }
+
+#[test]
+fn records_array_get_result_origin_from_same_module_returned_arraybox() {
+    let mut module = MirModule::new("returned_arraybox_element_origin_test".to_string());
+    for box_name in ["JsonTokenizer", "JsonToken"] {
+        module
+            .metadata
+            .user_box_decls
+            .insert(box_name.to_string(), Vec::new());
+    }
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "JsonTokenizer".to_string(),
+        type_id: 7,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "JsonToken".to_string(),
+        type_id: 8,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+
+    let mut tokenize = MirFunction::new(
+        FunctionSignature {
+            name: "JsonTokenizer.tokenize/0".to_string(),
+            params: vec![MirType::Box("JsonTokenizer".to_string())],
+            return_type: MirType::Box("ArrayBox".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    tokenize.params = vec![ValueId::new(0)];
+    let mut tokenize_block = BasicBlock::new(BasicBlockId::new(0));
+    tokenize_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "ArrayBox".to_string(),
+        args: Vec::new(),
+    });
+    tokenize_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(2),
+        box_type: "JsonToken".to_string(),
+        args: Vec::new(),
+    });
+    tokenize_block.add_instruction(method_call(Some(3), "RuntimeDataBox", "push", 1, vec![2]));
+    tokenize_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    tokenize.add_block(tokenize_block);
+
+    let mut main = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Box("JsonToken".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+    main_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "JsonTokenizer".to_string(),
+        args: Vec::new(),
+    });
+    main_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(2)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "JsonTokenizer".to_string(),
+            method: "tokenize".to_string(),
+            receiver: Some(ValueId::new(1)),
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::UserDefined,
+        }),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    main_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Integer(0),
+    });
+    main_block.add_instruction(method_call(Some(4), "RuntimeDataBox", "get", 2, vec![3]));
+    main_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+    main.add_block(main_block);
+
+    module.add_function(tokenize);
+    module.add_function(main);
+
+    crate::mir::refresh_module_user_box_method_routes(&mut module);
+    refresh_module_generic_method_routes(&mut module);
+
+    let main = module.get_function("main").expect("main");
+    let tokenize_route = main
+        .metadata
+        .user_box_method_routes
+        .iter()
+        .find(|route| route.method() == "tokenize")
+        .expect("tokenize route");
+    assert_eq!(
+        tokenize_route.target_return_type(),
+        Some("ArrayBox".to_string())
+    );
+
+    let route = route_for(main, "RuntimeDataBox", "get", Some(4));
+    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.result_origin_box(), Some("JsonToken"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
+}

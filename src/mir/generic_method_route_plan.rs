@@ -73,6 +73,9 @@ enum CollectionElementOriginKey {
         function: String,
         receiver_origin: ValueId,
     },
+    MethodReturn {
+        function: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

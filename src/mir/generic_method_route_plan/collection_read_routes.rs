@@ -50,8 +50,11 @@ pub(super) fn match_generic_has_route(
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
         .or_else(|| {
-            matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
-                .then(|| box_name.clone())
+            matches!(
+                box_name.as_str(),
+                "ArrayBox" | "DirectArrayI64" | "MapBox" | "Box"
+            )
+            .then(|| box_name.clone())
         });
     let key_route = classify_key_route(function, def_map, args[0]);
     let (route_kind, core_method) = match box_name.as_str() {
@@ -95,7 +98,13 @@ pub(super) fn match_generic_has_route(
                 )),
             )
         }
-        "RuntimeDataBox" => (GenericMethodRouteKind::RuntimeDataContainsAny, None),
+        "RuntimeDataBox" | "Box" => (
+            GenericMethodRouteKind::RuntimeDataContainsAny,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::AnyHas,
+                CoreMethodLoweringTier::WarmDirectAbi,
+            )),
+        ),
         _ => return None,
     };
 
@@ -149,8 +158,11 @@ pub(super) fn match_generic_get_route(
             generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
         })
         .or_else(|| {
-            matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
-                .then(|| box_name.clone())
+            matches!(
+                box_name.as_str(),
+                "ArrayBox" | "DirectArrayI64" | "MapBox" | "Box"
+            )
+            .then(|| box_name.clone())
         });
     let result_origin_box = generic_collection_element_origin_box_name(
         function,
@@ -292,6 +304,29 @@ pub(super) fn match_generic_get_route(
         ));
     }
 
+    if matches!(box_name.as_str(), "RuntimeDataBox" | "Box")
+        && receiver_origin_box.as_deref() != Some("MapBox")
+    {
+        return Some(GenericMethodRoute::new(
+            GenericMethodRouteSite::new(block, instruction_index),
+            GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
+            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+                .with_result_origin_box(result_origin_box),
+            GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+            GenericMethodRouteDecision::new(
+                GenericMethodRouteKind::RuntimeDataLoadAny,
+                GenericMethodRouteProof::GetSurfacePolicy,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::AnyGet,
+                    CoreMethodLoweringTier::ColdFallback,
+                )),
+                Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                GenericMethodValueDemand::RuntimeI64OrHandle,
+                Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+            ),
+        ));
+    }
+
     if box_name != "RuntimeDataBox" || receiver_origin_box.as_deref() != Some("MapBox") {
         return None;
     }
@@ -402,6 +437,7 @@ pub(super) fn match_generic_len_route(
             Some("MapBox") => (GenericMethodRouteKind::MapEntryCount, CoreMethodOp::MapLen),
             Some("ArrayBox") => (GenericMethodRouteKind::ArraySlotLen, CoreMethodOp::ArrayLen),
             Some("StringBox") => (GenericMethodRouteKind::StringLen, CoreMethodOp::StringLen),
+            Some("Box") => (GenericMethodRouteKind::AnyLength, CoreMethodOp::AnyLen),
             _ => return None,
         };
 
@@ -452,9 +488,12 @@ pub(super) fn match_generic_keys_route(
     let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 0)?;
     if function.signature.name != "MirJsonEmitBox._emit_flags/1" || box_name != "RuntimeDataBox" {
         let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-            .or_else(|| (box_name == "MapBox").then(|| box_name.clone()));
-        if !matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox")
-            || receiver_origin_box.as_deref() != Some("MapBox")
+            .or_else(|| matches!(box_name.as_str(), "MapBox" | "Box").then(|| box_name.clone()));
+        if !matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox" | "Box")
+            || !matches!(
+                receiver_origin_box.as_deref(),
+                Some("MapBox" | "Box") | None
+            )
         {
             return None;
         }
@@ -515,6 +554,7 @@ fn generic_len_self_arg_is_supported(
                 .as_deref()
                 == Some("ArrayBox")
         }
+        "Box" => true,
         _ => false,
     }
 }
@@ -528,6 +568,7 @@ fn len_surface_origin_box_name(box_name: &str) -> Option<&'static str> {
         "MapBox" => Some("MapBox"),
         "ArrayBox" => Some("ArrayBox"),
         "StringBox" => Some("StringBox"),
+        "Box" => Some("Box"),
         _ => None,
     }
 }

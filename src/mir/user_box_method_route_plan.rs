@@ -112,6 +112,7 @@ impl UserBoxMethodRoute {
             "typed_user_box_birth_same_module"
         } else if self.is_direct_void_method_target()
             || self.is_direct_scalar_method_target()
+            || self.is_direct_mixed_runtime_method_target()
             || self.is_direct_handle_method_target()
         {
             "typed_user_box_method_same_module"
@@ -180,6 +181,8 @@ impl UserBoxMethodRoute {
             Some("scalar_i64")
         } else if self.is_direct_string_handle_method_target() {
             Some("string_handle")
+        } else if self.is_direct_mixed_runtime_method_target() {
+            Some("mixed_runtime_i64_or_handle")
         } else if self.is_direct_handle_method_target() {
             Some("object_handle")
         } else {
@@ -188,7 +191,7 @@ impl UserBoxMethodRoute {
     }
 
     pub fn value_demand(&self) -> &'static str {
-        if self.is_direct_handle_method_target() {
+        if self.is_direct_handle_method_target() || self.is_direct_mixed_runtime_method_target() {
             "runtime_i64_or_handle"
         } else if self.is_direct_abi_target() {
             "scalar_i64"
@@ -230,6 +233,7 @@ impl UserBoxMethodRoute {
             "mir_call_user_box_birth_same_module_emit"
         } else if self.is_direct_void_method_target()
             || self.is_direct_scalar_method_target()
+            || self.is_direct_mixed_runtime_method_target()
             || self.is_direct_handle_method_target()
         {
             "mir_call_user_box_method_same_module_emit"
@@ -275,6 +279,7 @@ impl UserBoxMethodRoute {
         self.is_direct_birth_target()
             || self.is_direct_void_method_target()
             || self.is_direct_scalar_method_target()
+            || self.is_direct_mixed_runtime_method_target()
             || self.is_direct_handle_method_target()
     }
 
@@ -304,11 +309,20 @@ impl UserBoxMethodRoute {
     }
 
     fn return_type_supported(&self) -> bool {
-        self.target_returns_scalar() || self.target_returns_void() || self.target_returns_handle()
+        self.target_returns_scalar()
+            || self.target_returns_void()
+            || self.target_returns_handle()
+            || self.target_returns_mixed_runtime()
     }
 
     fn is_direct_void_method_target(&self) -> bool {
         self.has_direct_target_contract() && self.method != "birth" && self.target_returns_void()
+    }
+
+    fn is_direct_mixed_runtime_method_target(&self) -> bool {
+        self.has_direct_target_contract()
+            && self.method != "birth"
+            && self.target_returns_mixed_runtime()
     }
 
     fn target_returns_scalar(&self) -> bool {
@@ -317,6 +331,7 @@ impl UserBoxMethodRoute {
             Some(
                 UserBoxMethodInferredReturn::StringHandle
                 | UserBoxMethodInferredReturn::ObjectHandle
+                | UserBoxMethodInferredReturn::MixedRuntimeI64OrHandle
                 | UserBoxMethodInferredReturn::VoidSentinel,
             ) => false,
             None => matches!(
@@ -331,11 +346,27 @@ impl UserBoxMethodRoute {
             return false;
         }
         if matches!(
+            self.target_return_type,
+            Some(
+                MirType::Integer
+                    | MirType::Bool
+                    | MirType::Float
+                    | MirType::String
+                    | MirType::Box(_)
+                    | MirType::Array(_)
+                    | MirType::Future(_)
+                    | MirType::WeakRef
+            )
+        ) {
+            return false;
+        }
+        if matches!(
             self.target_inferred_return,
             Some(
                 UserBoxMethodInferredReturn::ScalarI64
                     | UserBoxMethodInferredReturn::StringHandle
                     | UserBoxMethodInferredReturn::ObjectHandle
+                    | UserBoxMethodInferredReturn::MixedRuntimeI64OrHandle
             )
         ) {
             return false;
@@ -365,6 +396,13 @@ impl UserBoxMethodRoute {
                 self.target_inferred_return,
                 Some(UserBoxMethodInferredReturn::ObjectHandle)
             )
+    }
+
+    fn target_returns_mixed_runtime(&self) -> bool {
+        matches!(
+            self.target_inferred_return,
+            Some(UserBoxMethodInferredReturn::MixedRuntimeI64OrHandle)
+        )
     }
 }
 

@@ -1,0 +1,64 @@
+// Minimal canary for read_next_number_literal-style staged scanner loop.
+//
+// Shape:
+// - loop(cond) over a scanner cursor
+// - classify the current character in a staged local
+// - conditional break when the current character is not a digit
+// - loop-carried scanner cursor and accumulated numeric value
+//
+// This is intentionally not in the default fast gate yet. It captures the
+// compiler acceptance surface before the json_native parser route is restored.
+static box Main {
+    digit_value(ch) {
+        if ch == "0" { return 0 }
+        if ch == "1" { return 1 }
+        if ch == "2" { return 2 }
+        if ch == "3" { return 3 }
+        if ch == "4" { return 4 }
+        if ch == "5" { return 5 }
+        if ch == "6" { return 6 }
+        if ch == "7" { return 7 }
+        if ch == "8" { return 8 }
+        if ch == "9" { return 9 }
+        return 0
+    }
+
+    parse_number_prefix() {
+        local text = "123x"
+        local index = 0
+        local length = text.length()
+        local value = 0
+        local seen_digit = 0
+
+        loop(index < length) {
+            local ch = text.substring(index, index + 1)
+            local is_digit = 1
+
+            if ch < "0" || ch > "9" {
+                is_digit = 0
+            }
+
+            if is_digit == 0 {
+                break
+            }
+
+            if seen_digit == 0 {
+                seen_digit = 1
+            }
+
+            value = value * 10 + Main.digit_value(ch)
+            index = index + 1
+        }
+
+        if seen_digit == 0 {
+            return -1
+        }
+
+        return value
+    }
+
+    main() {
+        print(Main.parse_number_prefix())
+        return 0
+    }
+}

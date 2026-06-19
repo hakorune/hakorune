@@ -24,7 +24,7 @@ box JsonParser {
     tokens: ArrayBox       // トークン配列
     position: IntegerBox   // 現在のトークン位置
     errors: ArrayBox       // 構文エラー配列
-    source_text: StringBox // token spans point into this input
+    source_text: StringBox // original input for diagnostics
     
     birth() {
         me.tokens = new ArrayBox()
@@ -131,12 +131,23 @@ box JsonParser {
             return null
         }
         
-        local number_str = token.get_value()
+        local start_pos = token.get_start()
+        local end_pos = token.get_end()
+
+        // NUMBER token payload is useful for diagnostics, but scanner-derived
+        // payload strings can lose substring semantics after token ArrayBox
+        // publication. The parser owns the original source text, so construct
+        // the semantic integer value by scanning the token span directly.
+        local number_str = me.source_text.substring(start_pos, end_pos)
+        if number_str == "" {
+            me.add_error("NUMBER token span is empty")
+            return null
+        }
         me.advance()
         
         // 数値変換（MVP）: 整数は i64、浮動小数点/指数表記は文字列保持。
-        if StringUtils.is_integer(number_str) {
-            return JsonNode.create_int(StringUtils.parse_integer(number_str))
+        if me.number_span_is_integer(start_pos, end_pos) {
+            return JsonNode.create_int(me.parse_integer_span(start_pos, end_pos))
         }
         if StringUtils.contains(number_str, ".") or StringUtils.contains(number_str, "e") or StringUtils.contains(number_str, "E") {
             return JsonNode.create_float(number_str)
@@ -144,7 +155,58 @@ box JsonParser {
         // Lexer validation should prevent this route; keep a deterministic error node.
         return JsonNode.create_int(0)
     }
-    
+
+    number_span_is_integer(start_pos, end_pos) {
+        local i = start_pos
+        loop(i < end_pos) {
+            local ch = me.source_text.substring(i, i + 1)
+            if ch == "." or ch == "e" or ch == "E" {
+                return false
+            }
+            i = i + 1
+        }
+        return true
+    }
+
+    parse_integer_span(start_pos, end_pos) {
+        local neg = false
+        local i = start_pos
+        if me.source_text.substring(i, i + 1) == "-" {
+            neg = true
+            i = i + 1
+        }
+
+        local acc = 0
+        loop(i < end_pos) {
+            local d = me.digit_value_at(i)
+            if d < 0 {
+                break
+            }
+            acc = acc * 10 + d
+            i = i + 1
+        }
+
+        if neg {
+            return 0 - acc
+        }
+        return acc
+    }
+
+    digit_value_at(pos) {
+        local ch = me.source_text.substring(pos, pos + 1)
+        if ch == "0" { return 0 }
+        if ch == "1" { return 1 }
+        if ch == "2" { return 2 }
+        if ch == "3" { return 3 }
+        if ch == "4" { return 4 }
+        if ch == "5" { return 5 }
+        if ch == "6" { return 6 }
+        if ch == "7" { return 7 }
+        if ch == "8" { return 8 }
+        if ch == "9" { return 9 }
+        return -1
+    }
+
     // 文字列解析
     parse_string() {
         local token = me.current_token()

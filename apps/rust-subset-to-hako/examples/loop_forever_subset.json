@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "i",
+          "type": "i64",
+          "value": {
+            "kind": "Literal",
+            "type": "i64",
+            "value": 0
+          }
+        },
+        {
+          "body": [
+            {
+              "kind": "Assign",
+              "target": {
+                "kind": "Name",
+                "name": "i"
+              },
+              "value": {
+                "kind": "Binary",
+                "left": {
+                  "kind": "Name",
+                  "name": "i"
+                },
+                "op": "+",
+                "right": {
+                  "kind": "Literal",
+                  "type": "i64",
+                  "value": 1
+                }
+              }
+            },
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "i"
+                  }
+                ],
+                "callee": "observe",
+                "kind": "Call"
+              }
+            }
+          ],
+          "cond": {
+            "kind": "Literal",
+            "type": "bool",
+            "value": true
+          },
+          "kind": "While"
+        }
+      ],
+      "kind": "Function",
+      "name": "pump_forever",
+      "params": [],
+      "return_type": "void"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "loop_forever_fixture",
+  "schema_version": 0
+}

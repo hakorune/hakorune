@@ -359,21 +359,44 @@ pub(super) fn generic_array_flow_origin_box_name(
                     }
                     MirInstruction::Call {
                         dst: Some(dst),
+                        callee: Some(Callee::Method { .. }),
+                        ..
+                    } => {
+                        let Some(origin_box) = method_call_collection_return_origin_box_name(
+                            function,
+                            *block_id,
+                            instruction_index,
+                        ) else {
+                            continue;
+                        };
+                        if array_values.insert(*dst, origin_box) != Some(origin_box) {
+                            changed = true;
+                        }
+                    }
+                    MirInstruction::Call {
+                        dst: Some(dst),
                         callee: Some(Callee::Global(_)),
                         ..
                     } => {
-                        let is_static_array =
-                            function.metadata.global_call_routes.iter().any(|route| {
+                        let route_origin_box = global_call_collection_return_origin_box_name(
+                            function,
+                            *block_id,
+                            instruction_index,
+                        );
+                        let is_static_array = route_origin_box.is_none()
+                            && function.metadata.global_call_routes.iter().any(|route| {
                                 route.block() == *block_id
                                     && route.instruction_index() == instruction_index
                                     && route.result_value() == Some(*dst)
                                     && route.proof() == "typed_global_call_static_string_array"
                                     && route.return_shape() == Some("array_handle")
                             });
-                        if is_static_array
-                            && array_values.insert(*dst, "ArrayBox") != Some("ArrayBox")
-                        {
-                            changed = true;
+                        let origin_box =
+                            route_origin_box.or_else(|| is_static_array.then_some("ArrayBox"));
+                        if let Some(origin_box) = origin_box {
+                            if array_values.insert(*dst, origin_box) != Some(origin_box) {
+                                changed = true;
+                            }
                         }
                     }
                     _ => {}
@@ -386,6 +409,47 @@ pub(super) fn generic_array_flow_origin_box_name(
     }
 
     array_values.get(&receiver).map(|name| (*name).to_string())
+}
+
+fn method_call_collection_return_origin_box_name(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    instruction_index: usize,
+) -> Option<&'static str> {
+    let route = function
+        .metadata
+        .user_box_method_routes
+        .iter()
+        .find(|route| {
+            route.block() == block_id && route.instruction_index() == instruction_index
+        })?;
+    route_collection_return_origin_box_name(
+        route.target_result_box_name(),
+        route.target_return_type(),
+    )
+}
+
+fn global_call_collection_return_origin_box_name(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    instruction_index: usize,
+) -> Option<&'static str> {
+    let route = function.metadata.global_call_routes.iter().find(|route| {
+        route.block() == block_id && route.instruction_index() == instruction_index
+    })?;
+    route_collection_return_origin_box_name(
+        route.target_result_box_name(),
+        route.target_return_type(),
+    )
+}
+
+fn route_collection_return_origin_box_name(
+    result_box_name: Option<&str>,
+    return_type: Option<String>,
+) -> Option<&'static str> {
+    result_box_name
+        .and_then(collection_origin_box_name)
+        .or_else(|| return_type.as_deref().and_then(collection_origin_box_name))
 }
 
 fn collection_origin_box_name(box_name: &str) -> Option<&'static str> {

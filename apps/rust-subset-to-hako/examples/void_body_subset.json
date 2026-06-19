@@ -1,0 +1,55 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Expr",
+          "value": {
+            "args": [
+              {
+                "kind": "Name",
+                "name": "x"
+              }
+            ],
+            "callee": "log_value",
+            "kind": "Call"
+          }
+        },
+        {
+          "kind": "Expr",
+          "value": {
+            "args": [
+              {
+                "kind": "Binary",
+                "left": {
+                  "kind": "Name",
+                  "name": "x"
+                },
+                "op": "+",
+                "right": {
+                  "kind": "Literal",
+                  "type": "i64",
+                  "value": 1
+                }
+              }
+            ],
+            "callee": "log_value",
+            "kind": "Call"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "observe",
+      "params": [
+        {
+          "name": "x",
+          "type": "i64"
+        }
+      ],
+      "return_type": "void"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "void_body_fixture",
+  "schema_version": 0
+}

@@ -1,0 +1,12 @@
+box Counter {
+    value: i64
+}
+
+function Counter_get(me: Counter): i64 {
+    return me.value
+}
+
+function make_counter(value: i64): i64 {
+    local next: i64 = value + 1
+    return next
+}

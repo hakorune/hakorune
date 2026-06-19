@@ -9,7 +9,8 @@ use crate::mir::{Callee, MirInstruction, MirModule, MirType, ValueId};
 
 use super::helpers::{
     canonicalize_legacy_global_name, collect_const_string_literals, collect_known_user_boxes,
-    known_user_box_name_from_value, parse_user_box_method_global_name,
+    known_runtime_box_name_from_value, known_user_box_name_from_value,
+    parse_user_box_method_global_name, runtime_box_accepts_method,
 };
 use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 
@@ -188,6 +189,24 @@ fn canonicalize_callsite_instruction(
             let Some(receiver) = args.first().copied() else {
                 return usize::from(rewritten_name);
             };
+            if let Some(runtime_box_name) = known_runtime_box_name_from_value(value_types, receiver)
+            {
+                if explicit_arity == args.len().saturating_sub(1)
+                    && runtime_box_accepts_method(runtime_box_name, method_name)
+                {
+                    *inst = method_call(
+                        *dst,
+                        receiver,
+                        runtime_box_name.to_string(),
+                        method_name.to_string(),
+                        args[1..].to_vec(),
+                        *effects,
+                        TypeCertainty::Known,
+                        CalleeBoxKind::RuntimeData,
+                    );
+                    return 1;
+                }
+            }
             let Some(known_box_name) =
                 known_user_box_name_from_value(value_types, known_user_boxes, receiver)
             else {

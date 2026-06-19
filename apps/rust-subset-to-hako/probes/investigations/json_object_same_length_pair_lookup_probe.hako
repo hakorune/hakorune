@@ -1,0 +1,59 @@
+// json_object_same_length_pair_lookup_probe.hako
+//
+// Owner-selection probe for multiple same-length object keys. It bypasses the
+// parser key materializer by taking both keys and values from tokenizer output.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local text = "{\"kind\":\"Struct\",\"name\":\"Point\"}"
+        local tokenizer = new JsonTokenizer(text)
+        tokenizer.set_input(text)
+        local tokens = tokenizer.tokenize()
+
+        local key0 = tokens.get(1).get_value()
+        local val0 = tokens.get(3).get_value()
+        local key1 = tokens.get(5).get_value()
+        local val1 = tokens.get(7).get_value()
+
+        if key0 != "kind" {
+            print("same_length_pair=bad-key0")
+            return 1
+        }
+        if key1 != "name" {
+            print("same_length_pair=bad-key1")
+            return 2
+        }
+
+        local obj = JsonNode.create_object()
+        obj.object_set(key0, JsonNode.create_string(val0))
+        obj.object_set(key1, JsonNode.create_string(val1))
+
+        local kind_node = obj.get_node("kind")
+        if kind_node.as_string() != "Struct" {
+            print("same_length_pair=bad-kind")
+            print("kind=" + kind_node.as_string())
+            return 3
+        }
+
+        local name_node = obj.get_node("name")
+        if name_node.as_string() != "Point" {
+            print("same_length_pair=bad-name")
+            print("name=" + name_node.as_string())
+            return 4
+        }
+
+        local missing_node = obj.get_node("type")
+        if missing_node.get_kind() != "null" {
+            print("same_length_pair=missing-false-positive")
+            print("missing.kind=" + missing_node.get_kind())
+            print("missing.value=" + missing_node.as_string())
+            return 5
+        }
+
+        print("same_length_pair=ok")
+        return 0
+    }
+}

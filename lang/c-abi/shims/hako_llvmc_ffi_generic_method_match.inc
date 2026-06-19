@@ -25,6 +25,13 @@
         static const struct LoweringPlanGenericMethodEmitRule rules[] = {
           {
             "generic_method.has",
+            "AnyHas",
+            "runtime_data_contains_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS,
+          },
+          {
+            "generic_method.has",
             "MapHas",
             "map_contains_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
@@ -43,6 +50,13 @@
             "array_contains_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS,
+          },
+          {
+            "generic_method.get",
+            "AnyGet",
+            "runtime_data_load_any",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
           },
           {
             "generic_method.get",
@@ -71,6 +85,13 @@
             "array_slot_load_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
             HAKO_LLVMC_GENERIC_METHOD_EMIT_GET,
+          },
+          {
+            "generic_method.len",
+            "AnyLen",
+            "any_length",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN,
           },
           {
             "generic_method.len",
@@ -225,7 +246,8 @@
           lowering_tier = read_core_method_lowering_tier_metadata(core_method, &invalid);
           if (!invalid &&
               op &&
-              (!strcmp(op, "MapHas") ||
+              (!strcmp(op, "AnyHas") ||
+               !strcmp(op, "MapHas") ||
                !strcmp(op, "ArrayHas")) &&
               route_id &&
               !strcmp(route_id, "generic_method.has") &&
@@ -235,7 +257,8 @@
           }
           if (!invalid &&
               op &&
-              !strcmp(op, "MapGet") &&
+              (!strcmp(op, "MapGet") ||
+               !strcmp(op, "AnyGet")) &&
               route_id &&
               !strcmp(route_id, "generic_method.get") &&
               core_method_metadata_proof_is_contract_manifest(proof) &&
@@ -254,7 +277,8 @@
           }
           if (!invalid &&
               op &&
-              (!strcmp(op, "ArrayLen") ||
+              (!strcmp(op, "AnyLen") ||
+               !strcmp(op, "ArrayLen") ||
                !strcmp(op, "MapLen") ||
                !strcmp(op, "StringLen")) &&
               route_id &&
@@ -545,6 +569,7 @@
           plan->runtime_array_get = route->runtime_array_get;
           plan->runtime_array_push = route->runtime_array_push;
           plan->runtime_string = route->runtime_string;
+          plan->runtime_any_length = route->runtime_any_length;
           plan->runtime_array_string = route->runtime_array_string;
           plan->array_store_string_source_preserve =
               route->array_store_string_source_preserve;

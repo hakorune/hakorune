@@ -4,7 +4,7 @@ use crate::mir::exact_numeric_value_facts::{ExactNumericReturnFact, ExactNumeric
 use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
-use crate::mir::{MirInstruction, MirPrinter};
+use crate::mir::{MirInstruction, MirPrinter, MirType};
 use crate::parser::NyashParser;
 
 #[test]
@@ -132,6 +132,46 @@ static box Main {
         Some(ExactNumericReturnFact {
             declared_type_name: "u64".to_string(),
         })
+    );
+}
+
+#[test]
+fn compile_publishes_declared_method_param_types_to_signature() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let ast = NyashParser::parse_from_string(
+        r#"
+box Scanner {
+  text: StringBox
+
+  birth(input_text: StringBox) {
+    me.text = input_text
+  }
+}
+
+static box Main {
+  main() {
+    return 0
+  }
+}
+"#,
+    )
+    .expect("parse");
+    let mut compiler = MirCompiler::with_options(false);
+    let result = compiler.compile(ast).expect("compile");
+    let function = result
+        .module
+        .get_function("Scanner.birth/1")
+        .expect("Scanner.birth/1");
+
+    assert_eq!(
+        function.signature.params.get(1),
+        Some(&MirType::String),
+        "declared method parameter type should be callable signature truth"
+    );
+    assert_eq!(
+        function.metadata.value_types.get(&function.params[1]),
+        Some(&MirType::String),
+        "method parameter value type should be seeded from signature"
     );
 }
 

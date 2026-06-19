@@ -1,0 +1,38 @@
+// json_object_number_token_parse_integer_probe.hako
+//
+// Owner-selection probe for object NUMBER token text -> parse_integer.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+using apps.lib.json_native.utils.string as StringUtils
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("{\"value\":123,\"edge\":13}")
+        tokenizer.set_input("{\"value\":123,\"edge\":13}")
+        local tokens = tokenizer.tokenize()
+
+        local value_number = tokens.get(3)
+        local edge_number = tokens.get(7)
+        local value_text = value_number.get_value()
+        local edge_text = edge_number.get_value()
+        local value_int = StringUtils.parse_integer(value_text)
+        local edge_int = StringUtils.parse_integer(edge_text)
+
+        print("value.text=" + value_text)
+        print("value.int=" + value_int)
+        print("edge.text=" + edge_text)
+        print("edge.int=" + edge_int)
+
+        if value_int != 123 {
+            print("json.object.number.token.parse=bad-value")
+            return 2
+        }
+        if edge_int != 13 {
+            print("json.object.number.token.parse=bad-edge")
+            return 3
+        }
+
+        print("json.object.number.token.parse=ok")
+        return 0
+    }
+}

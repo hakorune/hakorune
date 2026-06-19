@@ -1,0 +1,83 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "name": "value",
+          "type": "i64"
+        }
+      ],
+      "identity": true,
+      "identity_reason": "resource_or_mutable_state",
+      "kind": "Struct",
+      "name": "Counter"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "value",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "get",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "i64"
+        }
+      ],
+      "target": "Counter"
+    },
+    {
+      "body": [
+        {
+          "kind": "Let",
+          "name": "next",
+          "type": "i64",
+          "value": {
+            "kind": "Binary",
+            "left": {
+              "kind": "Name",
+              "name": "value"
+            },
+            "op": "+",
+            "right": {
+              "kind": "Literal",
+              "type": "i64",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "next"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "make_counter",
+      "params": [
+        {
+          "name": "value",
+          "type": "i64"
+        }
+      ],
+      "return_type": "i64"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "adapter_fixture",
+  "schema_version": 0
+}

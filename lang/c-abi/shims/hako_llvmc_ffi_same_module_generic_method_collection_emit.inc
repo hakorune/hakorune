@@ -397,6 +397,7 @@
         ab[0] = '\0';
         if (!(method_view &&
               (same_module_method_view_is_direct_mir_json_flags_keys(method_view) ||
+               same_module_method_view_is_direct_any_map_keys(method_view) ||
                same_module_method_view_is_direct_map_keys(method_view)))) {
           return 0;
         }

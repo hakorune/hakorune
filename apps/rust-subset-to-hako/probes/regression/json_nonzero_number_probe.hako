@@ -1,0 +1,32 @@
+// json_nonzero_number_probe.hako
+//
+// Protects EXE/AOT JSON integer payload materialization for nonzero values.
+// Number token payloads are scanner-derived strings, so this specifically
+// guards the tokenizer/parser path rather than JsonNode.create_int directly.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local doc = JsonParserUtils.parse_json("{\"value\":1,\"right\":12}")
+        if doc == null {
+            print("json.number=parse-null")
+            return 1
+        }
+
+        local one = doc.get_node("value")
+        if one == null or one.as_int() != 1 {
+            print("json.number=bad-one")
+            return 2
+        }
+
+        local twelve = doc.get_node("right")
+        if twelve == null or twelve.as_int() != 12 {
+            print("json.number=bad-twelve")
+            return 3
+        }
+
+        print("json.number=ok")
+        return 0
+    }
+}

@@ -1,0 +1,29 @@
+// json_tokenizer_number_payload_storage_probe.hako
+//
+// Regression for NUMBER token payload produced by JsonTokenizer and stored in
+// the tokenizer's token ArrayBox.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("123")
+        tokenizer.set_input("123")
+        local tokens = tokenizer.tokenize()
+        local token = tokens.get(0)
+
+        print(token.get_type())
+        print(token.get_value())
+        if token.get_type() != "NUMBER" {
+            print("json.tokenizer.number=bad-type")
+            return 2
+        }
+        if token.get_value() != "123" {
+            print("json.tokenizer.number=bad-value")
+            return 3
+        }
+
+        print("json.tokenizer.number=ok")
+        return 0
+    }
+}

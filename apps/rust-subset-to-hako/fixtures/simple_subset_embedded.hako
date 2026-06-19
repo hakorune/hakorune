@@ -1,0 +1,10 @@
+// simple_subset_embedded.hako — host-generated embedded RustSubset JSON v0.
+//
+// This fixture provider is intentionally separate from the converter core.
+// A future host adapter may regenerate this file from examples/simple_subset.json.
+
+static box RustSubsetSimpleEmbeddedFixture {
+    json_text() {
+        return "{\"schema_version\":0,\"kind\":\"RustSubsetModule\",\"module\":\"simple\",\"items\":[{\"kind\":\"Struct\",\"name\":\"Point\",\"identity\":false,\"fields\":[{\"name\":\"x\",\"type\":\"i64\"},{\"name\":\"y\",\"type\":\"i64\"}]},{\"kind\":\"Impl\",\"target\":\"Point\",\"methods\":[{\"kind\":\"Function\",\"name\":\"len2\",\"receiver\":\"self_ref\",\"params\":[],\"return_type\":\"i64\",\"body\":[{\"kind\":\"Return\",\"value\":{\"kind\":\"Binary\",\"op\":\"+\",\"left\":{\"kind\":\"Binary\",\"op\":\"*\",\"left\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"x\"},\"right\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"x\"}},\"right\":{\"kind\":\"Binary\",\"op\":\"*\",\"left\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"y\"},\"right\":{\"kind\":\"Field\",\"base\":{\"kind\":\"Name\",\"name\":\"self\"},\"field\":\"y\"}}}}]}]},{\"kind\":\"Function\",\"name\":\"add\",\"params\":[{\"name\":\"a\",\"type\":\"i64\"},{\"name\":\"b\",\"type\":\"i64\"}],\"return_type\":\"i64\",\"body\":[{\"kind\":\"Return\",\"value\":{\"kind\":\"Binary\",\"op\":\"+\",\"left\":{\"kind\":\"Name\",\"name\":\"a\"},\"right\":{\"kind\":\"Name\",\"name\":\"b\"}}}]}]}"
+    }
+}

@@ -160,8 +160,48 @@ pub(super) fn infer_typed_object_collection_element_origins(
             }
         }
     }
+    infer_returned_collection_element_origins(
+        module,
+        field_handle_origins,
+        &mut origins,
+        &mut conflicts,
+    );
 
     origins
+}
+
+fn infer_returned_collection_element_origins(
+    module: &MirModule,
+    field_handle_origins: &FieldHandleOriginMap,
+    origins: &mut CollectionElementOriginMap,
+    conflicts: &mut BTreeSet<CollectionElementOriginKey>,
+) {
+    for function in module.functions.values() {
+        let def_map = build_value_def_map(function);
+        for block in function.blocks.values() {
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                let MirInstruction::Return { value: Some(value) } = instruction else {
+                    continue;
+                };
+                let Some((collection_key, _collection_box)) =
+                    collection_element_origin_key(function, &def_map, *value, field_handle_origins)
+                else {
+                    continue;
+                };
+                let Some(origin_box) = origins.get(&collection_key).cloned() else {
+                    continue;
+                };
+                merge_collection_origin(
+                    origins,
+                    conflicts,
+                    CollectionElementOriginKey::MethodReturn {
+                        function: function.signature.name.clone(),
+                    },
+                    origin_box,
+                );
+            }
+        }
+    }
 }
 
 fn merge_collection_origin(
@@ -320,6 +360,14 @@ pub(super) fn generic_collection_element_origin_box_name(
     collection_element_origins: &CollectionElementOriginMap,
     receiver: ValueId,
 ) -> Option<String> {
+    if let Some(method_return_key) =
+        method_returned_collection_element_key(function, def_map, receiver)
+    {
+        if let Some(origin) = collection_element_origins.get(&method_return_key).cloned() {
+            return Some(origin);
+        }
+    }
+
     if let Some(field_key) = typed_object_collection_field_key(function, def_map, receiver) {
         if let Some(origin) = collection_element_origins
             .get(&CollectionElementOriginKey::Field(field_key))
@@ -335,6 +383,63 @@ pub(super) fn generic_collection_element_origin_box_name(
             receiver_origin: resolve_value_origin(function, def_map, receiver),
         })
         .cloned()
+}
+
+fn method_returned_collection_element_key(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<CollectionElementOriginKey> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    let MirInstruction::Call { dst, callee, .. } = block.instructions.get(instruction_index)?
+    else {
+        return None;
+    };
+    if *dst != Some(origin) {
+        return None;
+    }
+    match callee {
+        Some(Callee::Method { .. }) => {
+            let route = function
+                .metadata
+                .user_box_method_routes
+                .iter()
+                .find(|route| {
+                    route.block() == block_id && route.instruction_index() == instruction_index
+                })?;
+            if !is_collection_return(
+                route.target_result_box_name(),
+                route.target_return_type().as_deref(),
+            ) {
+                return None;
+            }
+            Some(CollectionElementOriginKey::MethodReturn {
+                function: route.target_symbol().to_string(),
+            })
+        }
+        Some(Callee::Global(_)) => {
+            let route = function.metadata.global_call_routes.iter().find(|route| {
+                route.block() == block_id && route.instruction_index() == instruction_index
+            })?;
+            let target_symbol = route.target_symbol()?;
+            if !is_collection_return(
+                route.target_result_box_name(),
+                route.target_return_type().as_deref(),
+            ) {
+                return None;
+            }
+            Some(CollectionElementOriginKey::MethodReturn {
+                function: target_symbol.to_string(),
+            })
+        }
+        _ => None,
+    }
+}
+
+fn is_collection_return(result_box_name: Option<&str>, return_type: Option<&str>) -> bool {
+    matches!(result_box_name.or(return_type), Some("ArrayBox" | "MapBox"))
 }
 
 pub(super) fn typed_object_value_box_name(

@@ -44,6 +44,8 @@ def assert_fail_fast() -> None:
 def main() -> None:
     assert_golden("simple")
     assert_golden("edge")
+    assert_golden("while")
+    assert_golden("vec")
     assert_fail_fast()
     print("summary=ok")
 

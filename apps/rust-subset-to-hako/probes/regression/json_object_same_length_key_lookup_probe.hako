@@ -1,0 +1,38 @@
+// Regression: scanner-derived same-length JSON object keys must stay distinct.
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+using apps.lib.json_native.core.node as JsonNode
+
+static box Main {
+    main() {
+        local text = "{\"kind\":\"Struct\",\"name\":\"Point\"}"
+        local tokenizer = new JsonTokenizer(text)
+        tokenizer.set_input(text)
+        local tokens = tokenizer.tokenize()
+
+        local key0 = tokens.get(1).get_value()
+        local val0 = tokens.get(3).get_value()
+        local key1 = tokens.get(5).get_value()
+        local val1 = tokens.get(7).get_value()
+
+        local obj = JsonNode.create_object()
+        obj.object_set(key0, JsonNode.create_string(val0))
+        obj.object_set(key1, JsonNode.create_string(val1))
+
+        if obj.get_node("kind").as_string() != "Struct" {
+            print("same_length_key_regression=bad-kind")
+            return 1
+        }
+        if obj.get_node("name").as_string() != "Point" {
+            print("same_length_key_regression=bad-name")
+            return 2
+        }
+        if obj.get_node("type").get_kind() != "null" {
+            print("same_length_key_regression=false-positive")
+            return 3
+        }
+
+        print("same_length_key_regression=ok")
+        return 0
+    }
+}

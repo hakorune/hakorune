@@ -10,6 +10,24 @@
           hako_llvmc_emit_llvm_byte_string(f, str_consts[sci].val, (long long)slen);
           fprintf(f, "\\00\", align 1\n");
         }
+        for (size_t bi = 0; bi < generic_pure_block_count; bi++) {
+          struct GenericPureBlockView block;
+          if (!read_generic_pure_block_view(bi, &block)) continue;
+          for (size_t ii = 0; ii < block.instruction_count; ii++) {
+            yyjson_val* ins = yyjson_arr_get(block.instructions, ii);
+            const char* op = read_str(ins, "op");
+            const char* field = read_str(ins, "field");
+            if (!(op && !strcmp(op, "field_get") && field)) continue;
+            size_t flen = strlen(field);
+            fprintf(f, "@.fnfield_%zu_%lld_%zu = private unnamed_addr constant [%zu x i8] c\"",
+                    fn_index,
+                    block.id,
+                    ii,
+                    flen + 1);
+            hako_llvmc_emit_llvm_byte_string(f, field, (long long)flen);
+            fprintf(f, "\\00\", align 1\n");
+          }
+        }
       }
 
       auto int same_module_function_emit_const_box(
@@ -26,6 +44,39 @@
              dst);
         mark_string_const_box_emitted(dst);
         same_module_function_publish_i64_origin(dst, ORG_STRING);
+        return 1;
+      }
+
+      auto int same_module_function_emit_map_field_get(
+          FILE* f,
+          size_t fn_index,
+          yyjson_val* ins,
+          long long bid,
+          size_t ii) {
+        long long dst = read_int(ins, "dst");
+        long long box_reg = read_int(ins, "box");
+        long long box_ref_reg = box_reg;
+        const char* field = read_str(ins, "field");
+        char map_ref[64];
+        if (!(dst && box_reg && field)) return 0;
+        box_ref_reg = resolve_copy_source_reg(box_reg);
+        if (get_origin(box_ref_reg) != ORG_MAP_BIRTH) return 0;
+        same_module_function_format_i64_ref(map_ref, sizeof(map_ref), box_ref_reg);
+        EMIT("  %%map_field_key_%lld_%zu = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.fnfield_%zu_%lld_%zu, i64 0, i64 0))\n",
+             bid,
+             ii,
+             strlen(field) + 1,
+             fn_index,
+             bid,
+             ii);
+        EMIT("  %%r%lld = call i64 @\"nyash.runtime_data.get_hh\"(i64 %s, i64 %%map_field_key_%lld_%zu)\n",
+             dst,
+             map_ref,
+             bid,
+             ii);
+        if (!same_module_function_publish_reg_metadata(dst)) {
+          set_type(dst, T_I64);
+        }
         return 1;
       }
 
@@ -649,7 +700,19 @@
           return rc;
         }
         if (ctype && !strcmp(ctype, "Extern")) {
-          rc = 0;
+          long long a0 = 0;
+          if (classify_mir_call_string_extern_surface(read_str(cal, "name")) ==
+                  HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONSOLE_LOG &&
+              same_module_function_read_arg_reg(args, 0, &a0)) {
+            rc = emit_global_mir_call(
+                f,
+                HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT,
+                bid,
+                ii,
+                a0);
+          } else {
+            rc = 0;
+          }
         } else if (ctype && !strcmp(ctype, "Global")) {
           rc = same_module_function_emit_global_call_mir_call(
               f,

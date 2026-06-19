@@ -40,6 +40,47 @@ fn records_direct_array_push_core_method_route() {
 }
 
 #[test]
+fn records_box_push_as_dynamic_array_append_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    block.add_instruction(method_call(Some(5), "Box", "push", 2, vec![1, 3]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.push");
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.method(), "push");
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.receiver_origin_box(), None);
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
+    let core_method = route.core_method().expect("Box ArrayPush carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayPush);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::ColdFallback
+    );
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+}
+
+#[test]
 fn records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route() {
     let mut function = make_function();
     let block = function
@@ -233,6 +274,37 @@ fn records_direct_array_and_map_set_core_method_routes() {
     assert_eq!(map_route.return_shape(), None);
     assert_eq!(map_route.value_demand(), GenericMethodValueDemand::WriteAny);
     assert_eq!(map_route.publication_policy(), None);
+}
+
+#[test]
+fn records_box_set_as_dynamic_map_store_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(5), "Box", "set", 2, vec![1, 3]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.set");
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.method(), "set");
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.receiver_origin_box(), None);
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapStoreAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::SetSurfacePolicy);
+    let core_method = route.core_method().expect("Box MapSet carrier");
+    assert_eq!(core_method.op, CoreMethodOp::MapSet);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::ColdFallback
+    );
+    assert_eq!(route.return_shape(), None);
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
+    assert_eq!(route.publication_policy(), None);
 }
 
 #[test]

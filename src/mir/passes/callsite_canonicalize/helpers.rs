@@ -68,6 +68,54 @@ pub(super) fn known_user_box_name_from_value<'a>(
     }
 }
 
+pub(super) fn known_runtime_box_name_from_value<'a>(
+    value_types: &'a BTreeMap<ValueId, MirType>,
+    value: ValueId,
+) -> Option<&'a str> {
+    let box_name = match value_types.get(&value)? {
+        MirType::Box(box_name) => box_name.as_str(),
+        MirType::String => "StringBox",
+        MirType::Array(_) => "ArrayBox",
+        _ => return None,
+    };
+
+    if is_runtime_data_box(box_name) {
+        Some(box_name)
+    } else {
+        None
+    }
+}
+
+pub(super) fn runtime_box_accepts_method(box_name: &str, method_name: &str) -> bool {
+    match box_name {
+        "StringBox" => crate::boxes::basic::StringMethodId::from_name(method_name).is_some(),
+        "IntegerBox" => matches!(method_name, "add" | "sub" | "mul" | "div"),
+        "ArrayBox" => crate::boxes::array::ArrayMethodId::from_name(method_name).is_some(),
+        "MapBox" => crate::boxes::MapMethodId::from_name(method_name).is_some(),
+        "MathBox" => matches!(method_name, "sin" | "cos" | "abs" | "min" | "max"),
+        _ => false,
+    }
+}
+
+fn is_runtime_data_box(box_name: &str) -> bool {
+    matches!(
+        box_name,
+        "MapBox"
+            | "ArrayBox"
+            | "StringBox"
+            | "IntegerBox"
+            | "BoolBox"
+            | "FloatBox"
+            | "NullBox"
+            | "VoidBox"
+            | "UnknownBox"
+            | "FileBox"
+            | "ConsoleBox"
+            | "PathBox"
+            | "MathBox"
+    )
+}
+
 pub(super) fn parse_user_box_method_global_name(name: &str) -> Option<(&str, &str, usize)> {
     let (base, arity) = name.rsplit_once('/')?;
     let explicit_arity = arity.parse::<usize>().ok()?;

@@ -41,6 +41,51 @@ fn records_direct_map_keys_with_redundant_receiver_as_core_method_route() {
 }
 
 #[test]
+fn records_box_keys_as_map_keys_runtime_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(3), "Box", "keys", 1, vec![]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.keys");
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.receiver_origin_box(), Some("Box"));
+    assert_eq!(route.result_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapKeysArray);
+    assert_eq!(route.route_kind().helper_symbol(), "nyash.map.keys_h");
+    let core_method = route.core_method().expect("MapKeys carrier");
+    assert_eq!(core_method.op, CoreMethodOp::MapKeys);
+}
+
+#[test]
+fn records_runtime_data_keys_without_receiver_origin_as_map_keys_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "keys", 1, vec![]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.keys");
+    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.receiver_origin_box(), None);
+    assert_eq!(route.result_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapKeysArray);
+    let core_method = route.core_method().expect("MapKeys carrier");
+    assert_eq!(core_method.op, CoreMethodOp::MapKeys);
+}
+
+#[test]
 fn records_map_keys_length_as_array_len_route() {
     let mut function = make_function();
     let block = function

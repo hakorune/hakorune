@@ -93,6 +93,69 @@ fn records_direct_len_family_core_method_routes() {
 }
 
 #[test]
+fn records_box_length_as_any_length_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(method_call(Some(4), "Box", "length", 1, vec![]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.method(), "length");
+    assert_eq!(route.receiver_origin_box(), Some("Box"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::AnyLength);
+    assert_eq!(route.route_kind().helper_symbol(), "nyash.any.length_h");
+    assert_eq!(route.proof(), GenericMethodRouteProof::LenSurfacePolicy);
+    let core_method = route.core_method().expect("AnyLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::AnyLen);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
+    assert_eq!(
+        route.return_shape(),
+        Some(GenericMethodReturnShape::ScalarI64)
+    );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+    assert_eq!(
+        route.publication_policy(),
+        Some(GenericMethodPublicationPolicy::NoPublication)
+    );
+}
+
+#[test]
+fn records_box_length_self_arg_as_any_length_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    block.add_instruction(method_call(Some(4), "Box", "length", 2, vec![1]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.method(), "length");
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("Box"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::AnyLength);
+    assert_eq!(route.route_kind().helper_symbol(), "nyash.any.length_h");
+    let core_method = route.core_method().expect("AnyLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::AnyLen);
+}
+
+#[test]
 fn records_stringbox_length_self_arg_route() {
     let mut function = make_function();
     let block = function

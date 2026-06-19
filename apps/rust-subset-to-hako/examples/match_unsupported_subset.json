@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Expr",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "Rust match expression is out of v0 scope"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "classify",
+      "params": [
+        {
+          "name": "x",
+          "type": "i64"
+        }
+      ],
+      "return_type": "void"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "match_unsupported_fixture",
+  "schema_version": 0
+}

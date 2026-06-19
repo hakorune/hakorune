@@ -92,6 +92,14 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_if_tree(
                 error_prefix
             ));
         }
+        IfMode::ThenOnlyExit => {
+            // ThenOnlyExit is handled by the RecipeBlock dispatch path, not by
+            // this legacy ExitOnlyBlockRecipe helper.
+            return Err(format!(
+                "[freeze:contract][recipe] then_only_exit_not_allowed_in_exit_if_tree: ctx={}",
+                error_prefix
+            ));
+        }
     };
 
     // Reset to pre-if state for condition evaluation

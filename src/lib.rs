@@ -34,13 +34,13 @@ pub mod channel_box;
 pub mod core; // core models shared by backends
 #[path = "core/environment.rs"]
 pub mod environment;
-pub(crate) mod frontend_env;
-pub mod frontend_host;
-pub(crate) mod frontend_log;
 #[path = "core/exception_box.rs"]
 pub mod exception_box;
 #[path = "core/finalization.rs"]
 pub mod finalization;
+pub(crate) mod frontend_env;
+pub mod frontend_host;
+pub(crate) mod frontend_log;
 #[path = "core/instance_v2.rs"]
 pub mod instance_v2; // simplified InstanceBox implementation
 #[path = "core/method_box.rs"]

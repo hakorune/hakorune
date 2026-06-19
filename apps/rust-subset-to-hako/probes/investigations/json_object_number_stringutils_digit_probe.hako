@@ -1,0 +1,36 @@
+// json_object_number_stringutils_digit_probe.hako
+//
+// Owner-selection probe for object NUMBER token text inside StringUtils.
+// It isolates whether the failure is is_integer(), substring(), or digit_value().
+
+using apps.lib.json_native.lexer.tokenizer as JsonTokenizer
+using apps.lib.json_native.utils.string as StringUtils
+
+static box Main {
+    main() {
+        local tokenizer = new JsonTokenizer("{\"value\":123}")
+        tokenizer.set_input("{\"value\":123}")
+        local tokens = tokenizer.tokenize()
+        local value_number = tokens.get(3)
+        local value_text = value_number.get_value()
+
+        local d0 = value_text.substring(0, 1)
+        local d1 = value_text.substring(1, 2)
+        local d2 = value_text.substring(2, 3)
+
+        print("text=" + value_text)
+        print("len=" + value_text.length())
+        print("is_integer=" + StringUtils.is_integer(value_text))
+        print("d0=" + d0 + ":" + StringUtils.digit_value(d0))
+        print("d1=" + d1 + ":" + StringUtils.digit_value(d1))
+        print("d2=" + d2 + ":" + StringUtils.digit_value(d2))
+
+        if StringUtils.is_integer(value_text) {
+            print("json.object.number.stringutils=integer")
+            return 0
+        }
+
+        print("json.object.number.stringutils=bad-is-integer")
+        return 2
+    }
+}

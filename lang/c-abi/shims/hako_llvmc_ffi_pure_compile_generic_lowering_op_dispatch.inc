@@ -60,6 +60,15 @@
               }
               continue;
             }
+            if (tname && strcmp(tname, "FileBox") == 0) {
+              if (dst) {
+                EMIT("  %%r%lld = call i64 @\"nyash.env.box.new\"(ptr getelementptr inbounds ([8 x i8], ptr @.hako_type_FileBox, i64 0, i64 0))\n", dst);
+                set_type(dst, T_I64);
+              } else {
+                EMIT("  call i64 @\"nyash.env.box.new\"(ptr getelementptr inbounds ([8 x i8], ptr @.hako_type_FileBox, i64 0, i64 0))\n");
+              }
+              continue;
+            }
             if (tname && strcmp(tname, "StringBox") == 0) {
               yyjson_val* nb_args = yyjson_obj_get(ins, "args");
               yyjson_val* nb0 = nb_args && yyjson_is_arr(nb_args) ? yyjson_arr_get_first(nb_args) : NULL;
@@ -361,6 +370,53 @@
               }
               generic_pure_publish_reg_metadata(dst);
             }
+            continue;
+          }
+          if (strcmp(op, "unop")==0) {
+            const char* kind = read_str(ins, "op_kind");
+            long long dst = read_int(ins, "dst");
+            long long src = read_int(ins, "src");
+            long long base = 0;
+            long long cv = 0;
+            int src_ty = T_NONE;
+            int src_const = 0;
+            if (!kind) kind = read_str(ins, "operation");
+            if (!src) src = read_int(ins, "operand");
+            if (!(kind && (!strcmp(kind, "not") || !strcmp(kind, "Not")))) {
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "unsupported_unop_kind",
+                  NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            if (!(dst && src)) {
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "malformed_unop_operands",
+                  NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            base = resolve_copy_source_reg(src);
+            src_ty = get_type(base);
+            src_const = has_const(base, &cv);
+            if (src_ty == T_I1) {
+              if (src_const) {
+                EMIT("  %%r%lld = xor i1 %s, true\n", dst, cv ? "true" : "false");
+              } else {
+                EMIT("  %%r%lld = xor i1 %%r%lld, true\n", dst, base);
+              }
+            } else if (src_const) {
+              EMIT("  %%r%lld = icmp eq i64 %lld, 0\n", dst, cv);
+            } else {
+              EMIT("  %%r%lld = icmp eq i64 %%r%lld, 0\n", dst, base);
+            }
+            set_type(dst, T_I1);
             continue;
           }
           if (strcmp(op, "variant_make")==0) {

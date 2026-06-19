@@ -89,6 +89,7 @@ search_paths = ["target/release"]
 "lang.opt" = "lang/src/opt"
 "lang.selfhost" = "lang/src/selfhost"
 "apps.selfhost_runtime" = "apps/selfhost-runtime"
+"apps.rust_subset_to_hako" = "apps/rust-subset-to-hako"
 "apps.lib" = "apps/lib"
 "tools.hako_shared" = "tools/hako_shared"
 "tools.hako_check" = "tools/hako_check"

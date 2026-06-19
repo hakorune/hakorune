@@ -1,0 +1,19 @@
+// filebox_read_probe.hako — FileBox input-route probe for EXE/AOT.
+//
+// This probe intentionally does not import or call the RustSubset converter.
+
+static box Main {
+    main() {
+        local f = new FileBox()
+        f.open("apps/rust-subset-to-hako/examples/simple_subset.json", "r")
+        local content = f.read()
+        f.close()
+
+        if content == null {
+            print("filebox.read=null")
+            return 1
+        }
+        print("filebox.read=ok")
+        return 0
+    }
+}

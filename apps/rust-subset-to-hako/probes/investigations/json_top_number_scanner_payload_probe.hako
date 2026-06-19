@@ -1,0 +1,21 @@
+// json_top_number_scanner_payload_probe.hako
+//
+// Investigation for NUMBER payload stability without object MapBox storage.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+
+static box Main {
+    main() {
+        local node = JsonParserUtils.parse_json("123")
+        if node == null {
+            print("json.top.number=parse-null")
+            return 1
+        }
+        if node.as_int() != 123 {
+            print("json.top.number=bad-value")
+            return 2
+        }
+        print("json.top.number=ok")
+        return 0
+    }
+}
