@@ -263,6 +263,16 @@ closed:
     converter_core_manifest_ownership=0
     card=docs/development/current/main/phases/phase-296x/296x-1319-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001.md
 
+  RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
+    result=.hako crate handoff wrapper is EXE/AOT green and generated skeleton emits MIR
+    owner=app-front input route / crate manifest wrapper
+    wrapper=apps/rust-subset-to-hako/convert_crate_file.hako
+    expected=apps/rust-subset-to-hako/examples/mini_crate_expected.hako
+    converter_core_manifest_ownership=0
+    generated_program_exe_aot_claim=0
+    dynamic_artifact_path_runner=0
+    card=docs/development/current/main/phases/phase-296x/296x-1320-RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001.md
+
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape
     owner=RustSubset statement schema / converter emit / syn adapter lowering
@@ -375,13 +385,13 @@ closed:
     card=docs/development/current/main/phases/phase-296x/296x-1272-RUST-SUBSET-SYN-ADAPTER-FOR-LOOP-UNSUPPORTED-HANDOFF-001.md
 
 active_next:
-  RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
-    goal=dedicated .hako wrapper reads crate manifest and listed module artifacts
-    prerequisite=multi-module syn-adapter probe closed by 296x-1319
+  CREAT-SUBSET-PILOT-SELECTION-001
+    goal=inventory a small creat subset after crate handoff MIR acceptance
+    prerequisite=crate handoff MIR acceptance closed by 296x-1320
     converter_core_manifest_ownership=0
     implementation_allowed=0
     status=active_next
-    note=Generated skeleton parse/MIR acceptance is next; generated program EXE/AOT remains out of scope.
+    note=Select a real pilot slice by inventory before adding schema nodes or language surface.
 
 hardening_queue:
   JSON-NATIVE-NUMBER-TOKEN-PAYLOAD-STABILITY-001

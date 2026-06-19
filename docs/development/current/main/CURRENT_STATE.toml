@@ -33,24 +33,27 @@ normalization is now closed without adding `.hako` syntax: the adapter owns
 source_name/emitted_name, tuple field `_0`/`_1`, Hako reserved-name escaping,
 structured path provenance, duplicate emitted-name fail-fast, and
 simple-pattern-only handoff. The crate manifest v0 contract is accepted as a
-transport index plus per-module `RustSubsetModule` artifacts. The active
-crate-skeleton blocker is now the crate handoff MIR acceptance wrapper."""
+transport index plus per-module `RustSubsetModule` artifacts. The synthetic
+multi-module adapter probe and `.hako` crate handoff MIR acceptance wrapper are
+green. The active crate-skeleton blocker is now selecting a small real `creat`
+subset by inventory."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1319-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1320-RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001.md"
 
-latest_card = "296x-1319-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1319-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001.md"
-latest_card_summary = """296x-1319 adds the first synthetic multi-module
-syn-adapter probe: a mini-crate emits crate-manifest.json plus three
-RustSubsetModule artifacts. converter_core.hako still owns no manifest,
-FileBox, or crate graph responsibility. The next blocker is crate handoff MIR
-acceptance."""
+latest_card = "296x-1320-RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1320-RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001.md"
+latest_card_summary = """296x-1320 adds the first `.hako` crate handoff
+wrapper for the synthetic mini-crate. The wrapper validates the manifest,
+checks artifact path safety and module id matches, reads module artifacts with
+FileBox, invokes the module converter, and smoke verifies generated skeleton
+MIR emit. converter_core.hako still owns no manifest or FileBox responsibility.
+The next blocker is creat subset pilot selection."""
 
-current_blocker_token = "RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001"
+current_blocker_token = "CREAT-SUBSET-PILOT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -83,4 +86,5 @@ landed_tail = [
   "2026-06-20: 296x-1317 closes RustSubset path/name normalization; next blocker is crate manifest v0 contract.",
   "2026-06-20: 296x-1318 accepts RustSubset crate manifest v0; next blocker is synthetic multi-module syn-adapter probe.",
   "2026-06-20: 296x-1319 adds synthetic multi-module syn-adapter probe; next blocker is crate handoff MIR acceptance.",
+  "2026-06-20: 296x-1320 closes crate handoff MIR acceptance; next blocker is creat subset pilot selection.",
 ]

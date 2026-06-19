@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
+CREAT-SUBSET-PILOT-SELECTION-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -35,22 +35,21 @@ fixture-guarded as an explicit Unsupported handoff by 296x-1311. Generic
 function skeleton transport is closed by 296x-1312. Unsupported trait handoff
 hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
 table-driven by 296x-1314. Crate/multi-file handoff boundaries are inventoried
-by 296x-1315; the preferred next contract is manifest plus per-module
-`RustSubsetModule` artifacts, but it is not implemented yet. Module schema
-validation parity is closed by 296x-1316. RustSubset path/name normalization is
-closed by 296x-1317 without adding `.hako` syntax. The crate manifest v0
-contract is accepted by 296x-1318. The synthetic multi-module adapter probe is
-closed by 296x-1319. The active crate-skeleton blocker is crate handoff MIR
-acceptance.
+by 296x-1315. Module schema validation parity is closed by 296x-1316.
+RustSubset path/name normalization is closed by 296x-1317 without adding
+`.hako` syntax. The crate manifest v0 contract is accepted by 296x-1318. The
+synthetic multi-module adapter probe is closed by 296x-1319. Crate handoff MIR
+acceptance is closed by 296x-1320. The active crate-skeleton blocker is
+`creat` subset pilot selection.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Implement `RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001` without changing
-   converter_core ownership.
-4. Keep converter core separate from input routes and crate/file graph
+2. Inventory a small `creat` subset before adding schema nodes or language
+   surface.
+3. Keep converter core separate from input routes and crate/file graph
    discovery.
-5. Run:
+4. Run:
 
 ```bash
 cargo check -q --lib
@@ -58,7 +57,7 @@ bash apps/rust-subset-to-hako/smoke.sh
 bash apps/rust-subset-to-hako/smoke_adapter.sh
 ```
 
-6. Update current pointers when the next slice is chosen.
+5. Update current pointers when the next slice is chosen.
 
 ## Recently Closed
 
@@ -123,6 +122,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - synthetic mini-crate emits crate-manifest.json plus three module artifacts
   - converter_core manifest/FileBox ownership remains 0
   - adapter smoke verifies the generated artifact set
+- `RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001`
+  - `.hako` crate wrapper validates the synthetic manifest and module ids
+  - module artifacts are read through FileBox without converter_core ownership
+  - generated skeleton MIR emit is smoke-guarded
 
 Closeout evidence:
 

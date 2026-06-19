@@ -206,8 +206,18 @@ artifacts. The manifest is a transport index, not a semantic AST replacement:
 apps/rust-subset-to-hako/schema/CrateManifest-v0.md
 ```
 
-The current adapter is still single-file; multi-module output is a follow-up
-implementation row.
+The adapter also has a synthetic mini-crate mode. It emits
+`crate-manifest.json` plus deterministic per-module artifacts for the fixture:
+
+```text
+apps/rust-subset-to-hako/examples/mini_crate_expected/
+```
+
+The `.hako` crate handoff wrapper is intentionally narrower than a general
+crate runner: it validates the manifest and expected artifact paths, reads the
+synthetic module artifacts with FileBox, invokes the module converter, and
+checks that the generated skeleton can emit MIR. General dynamic artifact path
+iteration is a later input-route/compiler-acceptance row.
 
 The dedicated adapter handoff gate is:
 
@@ -260,6 +270,8 @@ index_fixture_parity=ok
 break_continue_unsupported_handoff_parity=ok
 generic_function_fixture_parity=ok
 syn_adapter_smoke=ok
+crate_handoff_wrapper_exe_aot=ok
+crate_handoff_generated_hako_mir_emit=ok
 schema_key_dictionary_enabled=1
 generic_unknown_key_fallback_enabled=1
 json_object_key_materialization=entry_table_plus_temporary_critical_key_bridge

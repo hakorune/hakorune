@@ -44,6 +44,29 @@ run_exe_diff() {
   diff -u "$expected" "$out"
 }
 
+run_generated_hako_mir_acceptance() {
+  local label="$1"
+  local source="$2"
+  local tmp_name="$3"
+
+  local exe="${HCFI_BASE_TMP}_${tmp_name}_generator"
+  local raw="$exe.out.raw"
+  local generated="/tmp/rust_subset_${tmp_name}_generated.hako"
+  local mir="/tmp/rust_subset_${tmp_name}_generated.mir.json"
+
+  echo "[rust-subset/smoke] generated Hako MIR: $label"
+  rm -f "$exe" "$generated" "$mir"
+  rm -f tmp/nyash_cli_emit.json
+  NYASH_FILEBOX_MODE=core-ro \
+    ./target/release/hakorune --emit-exe "$exe" "$source" \
+    >"$exe.exe.log" 2>&1
+  "$exe" >"$raw" 2>"$exe.err"
+  sed '/^Result: /d' "$raw" >"$generated"
+  NYASH_FILEBOX_MODE=core-ro \
+    ./target/release/hakorune --emit-mir-json "$mir" "$generated" \
+    >"${mir%.json}.emit.log"
+}
+
 run_adapter_json_diff() {
   local label="$1"
   local input="$2"
@@ -207,6 +230,7 @@ CONVERTER_FIXTURES=(
   "explicit unit return fixture converter|$APP_DIR/convert_unit_return_fixture.hako|$EXAMPLES_DIR/unit_return_expected.hako|convert_unit_return_fixture"
   "for-loop unsupported handoff fixture converter|$APP_DIR/convert_for_loop_unsupported_fixture.hako|$EXAMPLES_DIR/for_loop_unsupported_expected.hako|convert_for_loop_unsupported_fixture"
   "path/name fixture converter|$APP_DIR/convert_path_name_fixture.hako|$EXAMPLES_DIR/path_name_expected.hako|convert_path_name_fixture"
+  "crate handoff fixture converter|$APP_DIR/convert_crate_file.hako|$EXAMPLES_DIR/mini_crate_expected.hako|convert_crate_file"
 )
 
 for entry in "${CONVERTER_FIXTURES[@]}"; do
@@ -228,6 +252,11 @@ for entry in "${CONVERTER_FIXTURES[@]}"; do
   IFS='|' read -r label source expected tmp_name <<<"$entry"
   run_exe_diff "$label parity" "$source" "$expected" "$tmp_name"
 done
+
+run_generated_hako_mir_acceptance \
+  "crate handoff generated skeleton" \
+  "$APP_DIR/convert_crate_file.hako" \
+  "mini_crate_handoff"
 
 if [[ "${RUST_SUBSET_RUN_REGRESSION:-0}" == "1" ]]; then
   echo "[rust-subset/smoke] EXE: regression probes"

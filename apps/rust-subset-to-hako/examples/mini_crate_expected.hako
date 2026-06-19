@@ -1,0 +1,15 @@
+// module crate
+// source src/lib.rs
+record Root {
+    value: i64
+}
+
+// module crate::model
+// source src/model.rs
+record Item {
+    value: i64
+}
+
+// module crate::util
+// source src/util.rs
+// TODO: Trait items are out of v0 scope
