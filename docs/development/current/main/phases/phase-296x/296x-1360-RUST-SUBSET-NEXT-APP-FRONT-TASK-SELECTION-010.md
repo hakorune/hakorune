@@ -1,6 +1,6 @@
 # 296x-1360 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-010
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -105,6 +105,84 @@ General checks:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Probe
+
+Rechecked the remaining candidates after 296x-1359.
+
+```text
+hakorune_mir_defs::call_unified:
+  source_path=src/call_unified.rs
+  generated_hako_lines=115
+  generated_skeleton_mir_emit=green
+  record_count=2
+  function_count=17
+  enum_comment_count=3
+  unsupported_marker_count=20
+  selected=1
+  reason=green materialization candidate; previous EffectMask_IO blocker is cleared and no smaller currently-green builder context remains
+
+hakorune_mir_builder::metadata_context:
+  source_path=src/metadata_context.rs
+  generated_hako_lines=107
+  generated_skeleton_mir_emit=fail
+  first_failure=generic function name spelling is not parser-safe
+  selected=0
+  reason=source-shape blocker row candidate, but a green materialization candidate exists
+
+hakorune_mir_builder::type_context:
+  source_path=src/type_context.rs
+  generated_hako_lines=68
+  generated_skeleton_mir_emit=fail
+  first_failure=unsupported reference type spelling / closure handoff
+  selected=0
+  reason=source-shape blocker row candidate, but a green materialization candidate exists
+```
+
+Focused checks:
+
+```bash
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml --quiet -- \
+  --crate-root crates/hakorune_mir_defs \
+  --out-dir /tmp/rust_subset_hakorune_mir_defs_1360 \
+  --crate-name hakorune_mir_defs \
+  --target-kind lib \
+  --target-name hakorune_mir_defs
+
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml --quiet -- \
+  --crate-root crates/hakorune_mir_builder \
+  --out-dir /tmp/rust_subset_hakorune_mir_builder_1360 \
+  --crate-name hakorune_mir_builder \
+  --target-kind lib \
+  --target-name hakorune_mir_builder
+
+./target/release/hakorune --emit-mir-json \
+  /tmp/hakorune_mir_defs_call_unified_1360.mir.json \
+  /tmp/hakorune_mir_defs_call_unified_1360.hako
+```
+
+## Result
+
+```text
+selected_next_task=HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001
+selected_scope=hakorune_mir_defs::call_unified single-module bundle
+selected_reason=green generated-skeleton MIR emit after previous skeleton-safety blockers cleared; materializes defs-side call substrate before opening new source-shape blockers
+implementation_allowed=0
+new_hako_syntax_added=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+generated_program_execution_claim=0
+next_card_name=296x-1361-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001
+summary=ok
+```
+
+Next row:
+
+```text
+296x-1361-HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001
 ```
 
 ## Stop Line
