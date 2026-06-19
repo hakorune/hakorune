@@ -1,0 +1,122 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "BindingId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Unsupported",
+              "reason": "statement macro out of v0 scope"
+            },
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "tuple struct constructor expression is out of v0 skeleton scope: BindingId"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [
+            {
+              "name": "id",
+              "type": "u32"
+            }
+          ],
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Unsupported",
+              "reason": "statement macro out of v0 scope"
+            },
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "tuple struct constructor expression is out of v0 skeleton scope: BindingId"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "next",
+          "params": [],
+          "receiver": "self_value",
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "_0",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "raw",
+          "params": [],
+          "receiver": "self_value",
+          "return_type": "u32"
+        }
+      ],
+      "target": "BindingId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "fmt",
+          "params": [
+            {
+              "name": "f",
+              "type": "std_fmt_Formatter"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "std_fmt_Result"
+        }
+      ],
+      "target": "BindingId"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Mod",
+      "summary": "Mod items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::binding_id",
+  "schema_version": 0
+}

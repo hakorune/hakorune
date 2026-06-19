@@ -237,6 +237,7 @@ CONVERTER_FIXTURES=(
   "compound assignment fixture converter|$APP_DIR/convert_compound_assign_fixture.hako|$EXAMPLES_DIR/compound_assign_expected.hako|convert_compound_assign_fixture"
   "Self-qualified call fixture converter|$APP_DIR/convert_self_qualified_call_fixture.hako|$EXAMPLES_DIR/self_qualified_call_expected.hako|convert_self_qualified_call_fixture"
   "crate handoff fixture converter|$APP_DIR/convert_crate_file.hako|$EXAMPLES_DIR/mini_crate_expected.hako|convert_crate_file"
+  "hakorune_mir_core ID modules fixture converter|$APP_DIR/convert_hakorune_mir_core_id_modules_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_id_modules_expected.hako|convert_hakorune_mir_core_id_modules_crate_file"
 )
 
 for entry in "${CONVERTER_FIXTURES[@]}"; do
@@ -263,6 +264,11 @@ run_generated_hako_mir_acceptance \
   "crate handoff generated skeleton" \
   "$APP_DIR/convert_crate_file.hako" \
   "mini_crate_handoff"
+
+run_generated_hako_mir_acceptance \
+  "hakorune_mir_core ID modules generated skeleton" \
+  "$APP_DIR/convert_hakorune_mir_core_id_modules_crate_file.hako" \
+  "hakorune_mir_core_id_modules_handoff"
 
 if [[ "${RUST_SUBSET_RUN_REGRESSION:-0}" == "1" ]]; then
   echo "[rust-subset/smoke] EXE: regression probes"

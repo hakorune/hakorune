@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -28,18 +28,19 @@ lane status. The current rust-subset app-front lane is on the selected
 `hakorune_mir_core` ID-module slice. 296x-1338 cleared tuple-struct constructor
 expressions, 296x-1339 cleared compound assignment, and 296x-1340 cleared
 Self-qualified calls as explicit Unsupported handoffs in the external adapter.
-The selected ID-module generated skeleton now reaches MIR emit.
+296x-1341 checks in the selected ID-module bundle and guards it through
+generated-skeleton MIR emit plus wrapper EXE parity.
 
-The next row is 296x-1341. It should check in the selected manifest/module
-bundle, generated skeleton, and wrapper without adding Rust name resolution,
-runtime semantics, or generated-program execution claims.
+The next row is 296x-1342. It is a selection row: choose the next app-front task
+before opening another implementation slice.
 
 ## Next
 
-1. Generate and check in the selected ID-module bundle.
-2. Add/update the focused wrapper.
-3. Verify checked-in generated skeleton MIR emit.
-4. Verify wrapper EXE emit.
+1. Evaluate next app-front candidates.
+2. Select one next implementation row.
+3. Keep implementation_started=0.
+4. Do not add Rust name resolution, `use` resolution, trait/generic semantics,
+   or generated-program execution claims in the selection row.
 5. Run:
 
 ```bash

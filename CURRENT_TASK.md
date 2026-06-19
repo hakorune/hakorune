@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002
 ```
 
 Purpose:
 
 ```text
-Check in the selected `hakorune_mir_core` ID-module RustSubset bundle and
-wrapper now that the generated skeleton reaches MIR emit.
+Select the next rust-subset-to-hako app-front task before opening another
+implementation slice.
 ```
 
 Current evidence:
@@ -85,6 +85,7 @@ HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001 is blocked by 296x-1337.
 RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001 is closed by 296x-1338.
 RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001 is closed by 296x-1339.
 RUST-SUBSET-SELF-QUALIFIED-CALL-SKELETON-SAFETY-001 is closed by 296x-1340.
+HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001 is closed by 296x-1341.
 ```
 
 Acceptance for the current slice:
@@ -93,27 +94,26 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused ID-module bundle/wrapper commands from the new row.
+# plus any focused selection/inventory command chosen by the new row.
 ```
 
 ## Task Order
 
-1. Generate the selected ID-module bundle from the external syn adapter.
-2. Check in the selected manifest, module artifacts, generated skeleton, and
-   focused wrapper.
-3. Verify checked-in generated skeleton MIR emit.
-4. Verify wrapper EXE emit.
-5. Keep generated-program execution claim at 0.
+1. Review the next app-front candidates listed in 296x-1342.
+2. Select one next implementation row.
+3. Keep implementation_started=0 in the selection row.
+4. Do not add Rust name resolution, `use` resolution, trait/generic semantics,
+   or generated-program execution claims in the selection row.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-CORE-ID-MODULES-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-002
 ```
 
-296x-1340 cleared Self-qualified call handoff. The selected ID-module re-probe
-now reaches generated-skeleton MIR emit, so the next row can materialize the
-bundle.
+296x-1341 materialized the selected ID-module bundle and guards it through
+generated-skeleton MIR emit plus wrapper EXE parity. The next step is task
+selection, not implementation.
 
 ## Pointers
 
