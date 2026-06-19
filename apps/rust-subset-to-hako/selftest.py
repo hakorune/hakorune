@@ -48,6 +48,7 @@ def main() -> None:
     assert_golden("vec")
     assert_golden("index")
     assert_golden("break_continue")
+    assert_golden("generic_function")
     assert_fail_fast()
     print("summary=ok")
 

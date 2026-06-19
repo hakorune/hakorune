@@ -19,6 +19,7 @@ VEC_METHOD_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_vec_method_fixtur
 INDEX_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_index_fixture.hako"
 LOOP_FOREVER_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_loop_forever_fixture.hako"
 BREAK_CONTINUE_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_break_continue_fixture.hako"
+GENERIC_FUNCTION_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_generic_function_fixture.hako"
 MATCH_UNSUPPORTED_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_match_unsupported_fixture.hako"
 UNIT_RETURN_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_unit_return_fixture.hako"
 FOR_LOOP_UNSUPPORTED_FIXTURE_CONVERTER="apps/rust-subset-to-hako/convert_for_loop_unsupported_fixture.hako"
@@ -145,6 +146,14 @@ PY
   diff -u apps/rust-subset-to-hako/examples/break_continue_subset.json \
     /tmp/rust_subset_syn_break_continue_fixture.json
 
+  echo "[rust-subset/smoke] host adapter: generic function skeleton fixture"
+  cargo run --manifest-path "$SYN_ADAPTER_MANIFEST" --quiet -- \
+    apps/rust-subset-to-hako/examples/generic_function_input.rs \
+    --module generic_function_fixture \
+    -o /tmp/rust_subset_syn_generic_function_fixture.json
+  diff -u apps/rust-subset-to-hako/examples/generic_function_subset.json \
+    /tmp/rust_subset_syn_generic_function_fixture.json
+
   echo "[rust-subset/smoke] host adapter: match unsupported handoff fixture"
   cargo run --manifest-path "$SYN_ADAPTER_MANIFEST" --quiet -- \
     apps/rust-subset-to-hako/examples/match_unsupported_input.rs \
@@ -225,6 +234,10 @@ NYASH_FILEBOX_MODE=core-ro \
 echo "[rust-subset/smoke] emit MIR JSON: break/continue unsupported fixture converter"
 NYASH_FILEBOX_MODE=core-ro \
   ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_break_continue_fixture.mir.json "$BREAK_CONTINUE_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_break_continue_fixture.emit.log
+
+echo "[rust-subset/smoke] emit MIR JSON: generic function fixture converter"
+NYASH_FILEBOX_MODE=core-ro \
+  ./target/release/hakorune --emit-mir-json /tmp/rust_subset_convert_generic_function_fixture.mir.json "$GENERIC_FUNCTION_FIXTURE_CONVERTER" >/tmp/rust_subset_convert_generic_function_fixture.emit.log
 
 echo "[rust-subset/smoke] emit MIR JSON: match unsupported handoff fixture converter"
 NYASH_FILEBOX_MODE=core-ro \
@@ -415,6 +428,19 @@ sed '/^Result: /d' /tmp/hako_rust_subset_convert_break_continue_fixture.out.raw 
   >/tmp/hako_rust_subset_convert_break_continue_fixture.out
 diff -u apps/rust-subset-to-hako/examples/break_continue_expected.hako \
   /tmp/hako_rust_subset_convert_break_continue_fixture.out
+
+echo "[rust-subset/smoke] EXE: generic function fixture converter parity"
+rm -f /tmp/hako_rust_subset_convert_generic_function_fixture
+NYASH_FILEBOX_MODE=core-ro \
+  ./target/release/hakorune --emit-exe /tmp/hako_rust_subset_convert_generic_function_fixture "$GENERIC_FUNCTION_FIXTURE_CONVERTER" \
+  >/tmp/hako_rust_subset_convert_generic_function_fixture.exe.log 2>&1
+/tmp/hako_rust_subset_convert_generic_function_fixture \
+  >/tmp/hako_rust_subset_convert_generic_function_fixture.out.raw \
+  2>/tmp/hako_rust_subset_convert_generic_function_fixture.err
+sed '/^Result: /d' /tmp/hako_rust_subset_convert_generic_function_fixture.out.raw \
+  >/tmp/hako_rust_subset_convert_generic_function_fixture.out
+diff -u apps/rust-subset-to-hako/examples/generic_function_expected.hako \
+  /tmp/hako_rust_subset_convert_generic_function_fixture.out
 
 echo "[rust-subset/smoke] EXE: match unsupported handoff fixture converter parity"
 rm -f /tmp/hako_rust_subset_convert_match_unsupported_fixture

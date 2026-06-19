@@ -55,6 +55,7 @@ RUST-SUBSET-SYN-ADAPTER-SMOKE-ENTRY-001 is closed by 296x-1309.
 RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001 is closed by 296x-1310.
 RUST-SUBSET-SYN-ADAPTER-BREAK-CONTINUE-UNSUPPORTED-HANDOFF-001 is closed by
 296x-1311.
+RUST-SUBSET-SYN-ADAPTER-GENERIC-FUNCTION-SKELETON-001 is closed by 296x-1312.
 ```
 
 Acceptance for the current slice:
@@ -67,7 +68,7 @@ bash apps/rust-subset-to-hako/smoke.sh
 ## Task Order
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Select the next app-front slice after break/continue unsupported handoff.
+2. Select the next app-front slice after generic function skeleton transport.
 3. Keep converter core separate from input routes.
 4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
 5. Update `CURRENT_STATE.toml` when the next slice is chosen.

@@ -1,0 +1,29 @@
+// convert_generic_function_fixture.hako — generic function skeleton fixture wrapper.
+//
+// This wrapper owns only the fixture file route. Conversion logic stays in
+// converter_core.hako.
+
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local file = new FileBox()
+        local opened = file.open("apps/rust-subset-to-hako/examples/generic_function_subset.json", "r")
+        if opened == 0 {
+            print("// error: generic-function fixture open failed")
+            return 1
+        }
+
+        local text = file.read()
+        file.close()
+        if text == null {
+            print("// error: generic-function fixture read failed")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+        local result = converter.convert(text)
+        print(result)
+        return 0
+    }
+}

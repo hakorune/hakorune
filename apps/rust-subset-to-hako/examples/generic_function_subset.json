@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "value"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "identity",
+      "params": [
+        {
+          "name": "value",
+          "type": "T"
+        }
+      ],
+      "return_type": "T"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "generic_function_fixture",
+  "schema_version": 0
+}

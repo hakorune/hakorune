@@ -1,0 +1,3 @@
+function identity(value: T): T {
+    return value
+}
