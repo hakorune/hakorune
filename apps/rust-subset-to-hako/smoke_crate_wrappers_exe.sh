@@ -51,4 +51,8 @@ run_wrapper_exe \
   "hakorune_mir_builder_binding_context" \
   "$APP_DIR/convert_hakorune_mir_builder_binding_context_crate_file.hako"
 
+run_wrapper_exe \
+  "hakorune_mir_builder_variable_context" \
+  "$APP_DIR/convert_hakorune_mir_builder_variable_context_crate_file.hako"
+
 echo "[rust-subset/crate-wrapper-exe] summary=ok"

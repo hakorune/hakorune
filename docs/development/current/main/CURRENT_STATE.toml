@@ -81,21 +81,24 @@ generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 The next selected task is materializing the
 `hakorune_mir_builder::variable_context` single-module bundle because it
 already reaches generated-skeleton MIR emit and is directly relevant to
-MirBuilder variable-map / SSA carrier migration."""
+MirBuilder variable-map / SSA carrier migration. That variable_context bundle
+is now checked in and guarded through generated-skeleton MIR emit, wrapper EXE
+parity, and full rust-subset smoke. The next blocker is selecting the next
+app-front task before implementation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1351-HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1352-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006.md"
 
-latest_card = "296x-1351-HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1351-HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001.md"
-latest_card_summary = """296x-1351 materializes the selected
-hakorune_mir_builder::variable_context single-module bundle after 296x-1350
-selected it as the next MirBuilder-relevant app-front task."""
+latest_card = "296x-1352-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1352-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006.md"
+latest_card_summary = """296x-1352 selects the next rust-subset-to-hako
+app-front task after the hakorune_mir_builder::variable_context materialization
+row closed green."""
 
-current_blocker_token = "HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001"
+current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -159,4 +162,5 @@ landed_tail = [
   "2026-06-20: 296x-1348 selects hakorune_mir_builder::binding_context as the next MirBuilder-relevant single-module materialization task.",
   "2026-06-20: 296x-1349 materializes the hakorune_mir_builder::binding_context bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
   "2026-06-20: 296x-1350 selects hakorune_mir_builder::variable_context as the next MirBuilder-relevant single-module materialization task.",
+  "2026-06-20: 296x-1351 materializes the hakorune_mir_builder::variable_context bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
 ]

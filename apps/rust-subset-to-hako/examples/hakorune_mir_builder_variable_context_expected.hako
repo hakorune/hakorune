@@ -1,0 +1,63 @@
+// module crate::variable_context
+// source src/variable_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record VariableContext {
+    variable_map: BTreeMap<String, ValueId>
+}
+
+function VariableContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+function VariableContext_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function VariableContext_lookup(receiver: VariableContext, name: String): Option<ValueId> {
+    return receiver.variable_map.get(name).copied()
+}
+
+function VariableContext_require(receiver: VariableContext, name: String, context: String): Result<ValueId, String> {
+    return receiver.variable_map.get(name).copied().ok_or_else(null /* TODO: unsupported expression: Closure */)
+}
+
+function VariableContext_insert(receiver: VariableContext, name: String, value_id: ValueId): void {
+    receiver.variable_map.insert(name, value_id)
+}
+
+function VariableContext_remove(receiver: VariableContext, name: String): Option<ValueId> {
+    return receiver.variable_map.remove(name)
+}
+
+function VariableContext_variable_map(receiver: VariableContext): BTreeMap<String, ValueId> {
+    return receiver.variable_map
+}
+
+function VariableContext_variable_map_mut(receiver: VariableContext): BTreeMap<String, ValueId> {
+    return receiver.variable_map
+}
+
+function VariableContext_contains(receiver: VariableContext, name: String): bool {
+    return receiver.variable_map.contains_key(name)
+}
+
+function VariableContext_len(receiver: VariableContext): usize {
+    return receiver.variable_map.len()
+}
+
+function VariableContext_is_empty(receiver: VariableContext): bool {
+    return receiver.variable_map.is_empty()
+}
+
+function VariableContext_snapshot(receiver: VariableContext): BTreeMap<String, ValueId> {
+    return receiver.variable_map.clone()
+}
+
+function VariableContext_restore(receiver: VariableContext, snapshot: BTreeMap<String, ValueId>): void {
+    receiver.variable_map = snapshot
+}
+
+// TODO: Mod items are out of v0 scope
