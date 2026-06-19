@@ -89,6 +89,8 @@ V0 does not implement:
 - `convert_generic_function_fixture.hako`: startup wrapper for the generic function skeleton fixture
 - `fixtures/simple_subset_embedded.hako`: host-generated embedded JSON fixture
 - `tools/embed_fixture.py`: host tool that generates embedded fixture modules
+- `tools/crate_inventory.py`: host tool that inventories an existing
+  RustSubsetCrateManifest bundle without parsing Rust source
 - `tools/syn_adapter/`: external Rust parser adapter selected for v0 source
   handoff
 
@@ -177,11 +179,12 @@ Keep converter core separate from input route work.
 
 ```text
 active next:
-  RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
-    read crate manifest in a dedicated .hako wrapper
-    load listed per-module RustSubsetModule artifacts
-    validate module ids and emit per-module skeletons
-    keep converter_core.hako manifest/FileBox ownership at 0
+  HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
+    generate a hakorune_box_core RustSubset crate bundle with the external
+    syn adapter
+    run the bundle through the existing crate handoff / converter path
+    keep `Use` as explicit Unsupported handoff
+    verify generated skeletons at parse / MIR emit level only
 
 hardening:
   unsupported diagnostics provenance
@@ -218,6 +221,19 @@ crate runner: it validates the manifest and expected artifact paths, reads the
 synthetic module artifacts with FileBox, invokes the module converter, and
 checks that the generated skeleton can emit MIR. General dynamic artifact path
 iteration is a later input-route/compiler-acceptance row.
+
+Crate pilot selection uses `tools/crate_inventory.py` after an external
+adapter has already produced a manifest bundle:
+
+```bash
+python3 apps/rust-subset-to-hako/tools/crate_inventory.py \
+  --manifest /path/to/bundle/crate-manifest.json
+```
+
+The inventory tool is intentionally read-only over RustSubset JSON artifacts.
+It does not invoke the adapter, parse Rust, resolve names, or touch
+`converter_core.hako`. Its output is a selection report for choosing the next
+small 2-3 module pilot slice.
 
 The dedicated adapter handoff gate is:
 

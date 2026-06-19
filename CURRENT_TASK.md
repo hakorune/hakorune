@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Select the first creat-style RustSubset pilot slice after closing the
-constructor lifecycle and imported field-initializer route blockers.
+Run the selected `hakorune_box_core` RustSubset crate pilot through the
+existing crate handoff path after closing creat-style pilot selection.
 ```
 
 Current evidence:
@@ -72,6 +72,7 @@ CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001 is closed by 296x-1324.
 FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001 is closed by 296x-1325.
 IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001 is closed by 296x-1326.
 GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001 is closed by 296x-1327.
+CREAT-SUBSET-PILOT-SELECTION-001 is closed by 296x-1328.
 ```
 
 Acceptance for the current slice:
@@ -81,21 +82,24 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 # plus the focused inventory/adapter command selected by
-# CREAT-SUBSET-PILOT-SELECTION-001
+# 296x-1328.
 ```
 
 ## Task Order
 
-1. Inventory candidate creat/source modules without adding new `.hako` syntax.
-2. Count unsupported RustSubset families and graph blockers.
-3. Select a 2-3 module pilot slice.
-4. Keep Rust parser/crate graph discovery in the external adapter boundary.
-5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+1. Generate a `hakorune_box_core` RustSubset crate bundle with the external
+   syn adapter.
+2. Run the bundle through the existing crate handoff / converter path.
+3. Keep `Use` as explicit Unsupported handoff; do not implement Rust name
+   resolution.
+4. Verify generated skeletons at parse / MIR emit level only.
+5. Keep Rust parser/crate graph discovery in the external adapter boundary.
+6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
 ```
 
 ## Pointers

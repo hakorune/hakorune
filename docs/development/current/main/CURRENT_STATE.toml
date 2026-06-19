@@ -44,25 +44,27 @@ constructor lifecycle boundary is guarded separately: OrderedMap keeps explicit
 v0 create-time initialization while a focused birth/field-initializer EXE/AOT
 probe verifies constructor args and per-instance default state. Imported static
 factory field-initializer routes now preserve normal `new -> birth` lifecycle
-semantics through the app import bundle path. The next blocker returns to creat
-subset pilot selection. Unknown global-callee diagnostics now keep the stable
-reason string while adding callee-aware detail and next-check hints."""
+semantics through the app import bundle path. Unknown global-callee diagnostics
+now keep the stable reason string while adding callee-aware detail and
+next-check hints. The creat-style pilot selection is closed with a focused
+crate inventory tool; the next pilot target is `hakorune_box_core` as a
+3-module RustSubset crate bundle with only explicit Unsupported `Use` handoff
+remaining."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1327-GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1328-CREAT-SUBSET-PILOT-SELECTION-001.md"
 
-latest_card = "296x-1327-GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1327-GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001.md"
-latest_card_summary = """296x-1327 improves unknown global-callee diagnostics.
-The stable `reason=unknown_global_callee` string is preserved, while MIR route
-metadata now also emits `reason_detail` and `reason_hint` with the callee name
-and import/module-root next checks. Route selection and backend lowering are
-unchanged."""
+latest_card = "296x-1328-CREAT-SUBSET-PILOT-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1328-CREAT-SUBSET-PILOT-SELECTION-001.md"
+latest_card_summary = """296x-1328 adds a read-only crate manifest inventory
+tool and selects `hakorune_box_core` as the first real 3-module RustSubset
+pilot. The selection keeps `Use` as explicit Unsupported handoff, adds no
+`.hako` syntax, and leaves converter_core ownership unchanged."""
 
-current_blocker_token = "CREAT-SUBSET-PILOT-SELECTION-001"
+current_blocker_token = "HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -103,4 +105,5 @@ landed_tail = [
   "2026-06-20: 296x-1325 observes same-file field initializers as green and imported static factory routes as unknown_global_callee; next blocker is imported static/global callee route investigation.",
   "2026-06-20: 296x-1326 fixes imported static factory field-initializer routes by deferring App-mode static method lowering until instance constructors are lowered; next blocker returns to creat subset pilot selection.",
   "2026-06-20: 296x-1327 adds callee-aware reason_detail/reason_hint fields for unknown_global_callee diagnostics without changing route selection.",
+  "2026-06-20: 296x-1328 selects hakorune_box_core as the first real RustSubset crate pilot using a read-only manifest inventory tool; next blocker is HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001.",
 ]

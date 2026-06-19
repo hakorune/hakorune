@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -50,16 +50,22 @@ initializer routes are fixed by 296x-1326: App-mode import bundle lowering
 now defers non-Main static methods until instance box constructors are lowered,
 so `new Box(args)` can inject `Box.birth/arity`. Unknown global-callee
 diagnostics are improved by 296x-1327 with callee-aware `reason_detail` and
-`reason_hint` fields. The active blocker remains creat subset pilot selection.
+`reason_hint` fields. Creat subset pilot selection is closed by 296x-1328 with
+a read-only crate inventory tool. The selected first real pilot is
+`hakorune_box_core`: three modules, seven items, and two known Unsupported
+`Use` handoffs in the root module.
 
 ## Next
 
-1. Inventory candidate creat/source modules without adding new `.hako` syntax.
-2. Count unsupported RustSubset families and graph blockers.
-3. Select a 2-3 module pilot slice.
-4. Keep Rust parser/crate graph discovery in the external adapter boundary.
-5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
-6. Run:
+1. Generate a `hakorune_box_core` RustSubset crate bundle with the external
+   syn adapter.
+2. Run the bundle through the existing crate handoff / converter path.
+3. Keep `Use` as explicit Unsupported handoff; do not implement Rust name
+   resolution.
+4. Verify generated skeletons at parse / MIR emit level only.
+5. Keep Rust parser/crate graph discovery in the external adapter boundary.
+6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+7. Run:
 
 ```bash
 cargo check -q --lib
@@ -67,7 +73,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-7. Update current pointers when the implementation row closes.
+8. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 
@@ -79,6 +85,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - `reason=unknown_global_callee` remains stable
   - MIR route metadata adds `reason_detail` and `reason_hint`
   - route selection and backend lowering are unchanged
+- `CREAT-SUBSET-PILOT-SELECTION-001`
+  - `crate_inventory.py` inventories manifest bundles without parsing Rust
+  - `hakorune_box_core` is selected as the first real 3-module crate pilot
+  - `Use` remains explicit Unsupported handoff; no new `.hako` syntax is added
 - `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`
