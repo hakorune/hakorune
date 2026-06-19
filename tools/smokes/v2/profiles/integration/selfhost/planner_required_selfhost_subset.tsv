@@ -82,7 +82,7 @@ apps/tests/phase29bq_selfhost_blocker_localssa_block_insts_end_min.hako	0	0	[joi
 apps/tests/phase29bq_selfhost_blocker_loop_cond_if_assign_min.hako	2	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_loop_cond_if_assign
 apps/tests/phase29bq_selfhost_blocker_module_roots_loop_min.hako	3	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_module_roots_loop
 apps/tests/phase29bq_selfhost_blocker_parse_map_min.hako	{"type":"Call","name":"map.of","args":[]}	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_parse_map
-apps/tests/phase29bq_selfhost_blocker_parse_program2_guard_prog_numeric_parse_loop_min.hako	5	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_parse_program2_guard_prog_numeric_parse_loop
+apps/tests/phase29bq_selfhost_blocker_parse_program2_guard_prog_numeric_parse_loop_min.hako	5	0	[flowbox/adopt box_kind=Loop features=break via=shadow]	promote: selfhost_blocker_parse_program2_guard_prog_numeric_parse_loop
 apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_min.hako	2	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_parse_program2_nested_loop
 apps/tests/phase29bq_selfhost_blocker_parse_program2_prelude1_ws_loop_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_parse_program2_prelude1_ws_loop
 apps/tests/phase29bq_selfhost_blocker_parse_program2_prelude2_depth_ws_loop_min.hako	1	0	[joinir/planner_first rule=LoopCondBreak]	promote: selfhost_blocker_parse_program2_prelude2_depth_ws_loop
