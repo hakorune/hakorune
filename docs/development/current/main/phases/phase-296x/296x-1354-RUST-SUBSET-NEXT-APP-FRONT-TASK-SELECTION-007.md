@@ -1,6 +1,6 @@
 # 296x-1354 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -105,6 +105,76 @@ General checks:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Probe
+
+Rechecked the two nearest paths after 296x-1353.
+
+```text
+hakorune_mir_builder::core_context:
+  generated_hako_lines=54
+  generated_skeleton_mir_emit=green
+  selected=0
+  reason=green materialization candidate, but a smaller shared source-shape blocker is exposed by call_unified
+
+hakorune_mir_defs::call_unified:
+  generated_hako_lines=113
+  generated_skeleton_mir_emit=fail
+  first_failure=Undefined variable: EffectMask_IO
+  source_shape=EffectMask::IO
+  current_emission=EffectMask_IO
+  selected=1
+  reason=type-qualified value path currently emits an undefined generated symbol
+```
+
+Focused checks:
+
+```bash
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml --quiet -- \
+  --crate-root crates/hakorune_mir_builder \
+  --out-dir /tmp/rust_subset_hakorune_mir_builder_1353 \
+  --crate-name hakorune_mir_builder \
+  --target-kind lib \
+  --target-name hakorune_mir_builder
+
+./target/release/hakorune --emit-mir-json \
+  /tmp/hakorune_mir_builder_core_context_1353.mir.json \
+  /tmp/hakorune_mir_builder_core_context_1353.hako
+
+cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml --quiet -- \
+  --crate-root crates/hakorune_mir_defs \
+  --out-dir /tmp/rust_subset_hakorune_mir_defs_1353 \
+  --crate-name hakorune_mir_defs \
+  --target-kind lib \
+  --target-name hakorune_mir_defs
+
+./target/release/hakorune --emit-mir-json \
+  /tmp/hakorune_mir_defs_call_unified_1353.mir.json \
+  /tmp/hakorune_mir_defs_call_unified_1353.hako
+```
+
+## Result
+
+```text
+selected_next_task=RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001
+selected_scope=syn-adapter expression Path handling for type-qualified value paths
+selected_reason=EffectMask::IO currently emits EffectMask_IO as an undefined generated variable
+implementation_allowed=0
+new_hako_syntax_added=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+generated_program_execution_claim=0
+next_card_name=296x-1355-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001
+summary=ok
+```
+
+Next row:
+
+```text
+296x-1355-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001
 ```
 
 ## Stop Line

@@ -90,20 +90,24 @@ Rust associated function calls skeleton-safe after `BindingId::new` and
 calls are now explicit Unsupported handoffs instead of unresolved globals;
 `hakorune_mir_builder::core_context` reaches generated-skeleton MIR emit and
 `hakorune_mir_defs::call_unified` advances to `EffectMask_IO`. The next blocker
-is selecting the next app-front task before implementation."""
+is selecting the next app-front task before implementation. The next selected
+blocker is making type-qualified associated const/value paths skeleton-safe
+after `EffectMask::IO` exposed `EffectMask_IO` as an undefined generated
+variable."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1354-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1355-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001.md"
 
-latest_card = "296x-1354-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1354-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007.md"
-latest_card_summary = """296x-1354 selects the next rust-subset-to-hako
-app-front task after associated function call skeleton-safety closed green."""
+latest_card = "296x-1355-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1355-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001.md"
+latest_card_summary = """296x-1355 makes type-qualified associated
+const/value paths skeleton-safe after 296x-1354 selected EffectMask::IO as the
+next app-front blocker."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007"
+current_blocker_token = "RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -170,4 +174,5 @@ landed_tail = [
   "2026-06-20: 296x-1351 materializes the hakorune_mir_builder::variable_context bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
   "2026-06-20: 296x-1352 selects Rust associated function call skeleton-safety after BindingId::new and CallFlags::new exposed unresolved generated globals.",
   "2026-06-20: 296x-1353 makes associated function calls skeleton-safe as explicit Unsupported handoffs; core_context reaches generated-skeleton MIR emit and call_unified advances to EffectMask_IO.",
+  "2026-06-20: 296x-1354 selects associated const/value path skeleton-safety after EffectMask::IO exposed EffectMask_IO as an undefined generated variable.",
 ]
