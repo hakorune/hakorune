@@ -50,6 +50,7 @@ def main() -> None:
     assert_golden("break_continue")
     assert_golden("generic_function")
     assert_golden("unsupported_trait")
+    assert_golden("path_name")
     assert_fail_fast_case("invalid_schema_version", "unsupported schema_version")
     assert_fail_fast_case("invalid_document_kind", "unsupported document kind")
     assert_fail_fast_case("invalid_unknown_kind", "unknown item kind: Trait")

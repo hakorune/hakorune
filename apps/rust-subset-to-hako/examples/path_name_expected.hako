@@ -1,0 +1,13 @@
+record Pair {
+    _0: i64
+    _1: i64
+}
+
+record KeywordNames {
+    rust_type: i64
+}
+
+function rust_match(rust_type: i64): i64 {
+    local rust_local: crate_model_Config = crate_model_Config
+    return crate_util_add1(rust_type)
+}

@@ -13,6 +13,48 @@ Status: design-only schema
 }
 ```
 
+## Names and Paths
+
+RustSubset JSON carries converter-ready names. The external adapter owns
+normalization; the `.hako` converter must not perform Rust name resolution.
+
+```json
+{
+  "name": "rust_type",
+  "source_name": "type",
+  "emitted_name": "rust_type"
+}
+```
+
+Rules:
+
+- `name` is the emitted `.hako` identifier.
+- `emitted_name`, when present, must equal `name`; converters prefer it.
+- `source_name` records the Rust logical source name for diagnostics.
+- Rust raw identifiers such as `r#type` are recorded as logical names such as
+  `type`.
+- Hako reserved words are prefixed with `rust_`.
+- Tuple fields use `_0`, `_1`, ... as emitted names.
+- Duplicate emitted names in the same item/field/param/variant scope are
+  adapter errors.
+
+Multi-segment Rust paths are preserved as provenance while emitting a flat
+Hako-safe name:
+
+```json
+{
+  "kind": "Name",
+  "name": "crate_model_Config",
+  "emitted_name": "crate_model_Config",
+  "source_name": "Config",
+  "source_path": ["crate", "model", "Config"]
+}
+```
+
+For call expressions, `callee` is the emitted name and `callee_source_path` is
+diagnostic provenance. The converter prints `callee`; it does not parse or
+resolve `source_path`.
+
 ## Item Kinds
 
 ### Struct

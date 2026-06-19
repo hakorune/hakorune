@@ -3,6 +3,7 @@ use syn::parse::Parser;
 use syn::{BinOp, Expr, Lit, Token};
 
 use crate::cli::fail;
+use crate::names::{emitted_path, insert_path_name_metadata};
 use crate::types::field_name;
 
 pub(crate) fn expr_to_json(expr: &Expr) -> Value {
@@ -27,12 +28,15 @@ pub(crate) fn expr_to_json(expr: &Expr) -> Value {
             }),
             _ => unsupported_expr("unsupported literal"),
         },
-        Expr::Path(path) => path
-            .path
-            .segments
-            .last()
-            .map(|segment| json!({"kind": "Name", "name": segment.ident.to_string()}))
-            .unwrap_or_else(|| unsupported_expr("empty path expression")),
+        Expr::Path(path) => {
+            if path.path.segments.is_empty() {
+                unsupported_expr("empty path expression")
+            } else {
+                let mut value = json!({"kind": "Name"});
+                insert_path_name_metadata(&mut value, &path.path);
+                value
+            }
+        }
         Expr::Field(field) => json!({
             "kind": "Field",
             "base": expr_to_json(field.base.as_ref()),
@@ -51,19 +55,21 @@ pub(crate) fn expr_to_json(expr: &Expr) -> Value {
         }),
         Expr::Call(call) => {
             let callee = match call.func.as_ref() {
-                Expr::Path(path) => path
-                    .path
-                    .segments
-                    .last()
-                    .map(|segment| segment.ident.to_string())
-                    .unwrap_or_else(|| "unsupported_callee".to_string()),
+                Expr::Path(path) => emitted_path(&path.path),
                 _ => "unsupported_callee".to_string(),
             };
-            json!({
+            let mut value = json!({
                 "kind": "Call",
                 "callee": callee,
                 "args": call.args.iter().map(expr_to_json).collect::<Vec<_>>(),
-            })
+            });
+            if let Expr::Path(path) = call.func.as_ref() {
+                let segments = crate::names::path_segments(&path.path);
+                if segments.len() > 1 {
+                    value["callee_source_path"] = json!(segments);
+                }
+            }
+            value
         }
         Expr::MethodCall(call) => json!({
             "kind": "MethodCall",

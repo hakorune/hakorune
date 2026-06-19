@@ -2,7 +2,7 @@ use serde_json::{json, Value};
 use syn::{Expr, Pat, Stmt};
 
 use crate::exprs::{expr_to_json, unsupported_expr};
-use crate::types::{item_kind, pat_name, type_name};
+use crate::types::{insert_pat_name_metadata, item_kind, pat_name, type_name};
 
 pub(crate) fn block_stmts_to_json(block: &syn::Block, tail_expr_returns: bool) -> Vec<Value> {
     block
@@ -18,18 +18,24 @@ pub(crate) fn block_stmts_to_json(block: &syn::Block, tail_expr_returns: bool) -
 fn stmt_to_json(stmt: &Stmt, is_tail: bool) -> Option<Value> {
     match stmt {
         Stmt::Local(local) => {
-            let name = pat_name(&local.pat).unwrap_or_else(|| "unsupported_pattern".to_string());
+            let Some(_name) = pat_name(&local.pat) else {
+                return Some(json!({
+                    "kind": "Unsupported",
+                    "reason": "unsupported let pattern out of v0 scope",
+                }));
+            };
             let value = local
                 .init
                 .as_ref()
                 .map(|init| expr_to_json(init.expr.as_ref()))
                 .unwrap_or_else(|| unsupported_expr("let without initializer"));
-            Some(json!({
+            let mut value = json!({
                 "kind": "Let",
-                "name": name,
                 "type": local_type(local),
                 "value": value,
-            }))
+            });
+            insert_pat_name_metadata(&mut value, &local.pat);
+            Some(value)
         }
         Stmt::Expr(Expr::Return(ret), _) => {
             if let Some(expr) = &ret.expr {

@@ -1,0 +1,97 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "i64"
+        },
+        {
+          "emitted_name": "_1",
+          "name": "_1",
+          "source_name": "1",
+          "type": "i64"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "Pair"
+    },
+    {
+      "fields": [
+        {
+          "emitted_name": "rust_type",
+          "name": "rust_type",
+          "source_name": "type",
+          "type": "i64"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "KeywordNames"
+    },
+    {
+      "body": [
+        {
+          "emitted_name": "rust_local",
+          "kind": "Let",
+          "name": "rust_local",
+          "source_name": "local",
+          "type": "crate_model_Config",
+          "value": {
+            "emitted_name": "crate_model_Config",
+            "kind": "Name",
+            "name": "crate_model_Config",
+            "source_name": "Config",
+            "source_path": [
+              "crate",
+              "model",
+              "Config"
+            ]
+          }
+        },
+        {
+          "kind": "Return",
+          "value": {
+            "args": [
+              {
+                "emitted_name": "rust_type",
+                "kind": "Name",
+                "name": "rust_type",
+                "source_name": "type",
+                "source_path": [
+                  "type"
+                ]
+              }
+            ],
+            "callee": "crate_util_add1",
+            "callee_source_path": [
+              "crate",
+              "util",
+              "add1"
+            ],
+            "kind": "Call"
+          }
+        }
+      ],
+      "emitted_name": "rust_match",
+      "kind": "Function",
+      "name": "rust_match",
+      "params": [
+        {
+          "emitted_name": "rust_type",
+          "name": "rust_type",
+          "source_name": "type",
+          "type": "i64"
+        }
+      ],
+      "return_type": "i64",
+      "source_name": "match"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "path_name",
+  "schema_version": 0
+}

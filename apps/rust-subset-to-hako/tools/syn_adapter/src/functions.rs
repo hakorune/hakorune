@@ -1,8 +1,10 @@
 use serde_json::{json, Value};
 use syn::FnArg;
 
+use crate::cli::fail;
+use crate::names::{assert_unique_names, insert_name_metadata};
 use crate::stmts::block_stmts_to_json;
-use crate::types::{pat_name, return_type, type_name};
+use crate::types::{insert_pat_name_metadata, return_type, type_name};
 
 pub(crate) fn function_to_json(func: &syn::Signature, block: &syn::Block) -> Value {
     let mut receiver = "none".to_string();
@@ -23,20 +25,23 @@ pub(crate) fn function_to_json(func: &syn::Signature, block: &syn::Block) -> Val
                 .to_string();
             }
             FnArg::Typed(arg) => {
-                let name =
-                    pat_name(arg.pat.as_ref()).unwrap_or_else(|| "unsupported_param".to_string());
-                params.push(json!({"name": name, "type": type_name(arg.ty.as_ref())}));
+                let mut param = json!({"type": type_name(arg.ty.as_ref())});
+                if !insert_pat_name_metadata(&mut param, arg.pat.as_ref()) {
+                    fail("unsupported function parameter pattern out of v0 scope");
+                }
+                params.push(param);
             }
         }
     }
+    assert_unique_names(&params, "function params");
 
     let mut value = json!({
         "kind": "Function",
-        "name": func.ident.to_string(),
         "params": params,
         "return_type": return_type(&func.output),
         "body": block_stmts_to_json(block, true),
     });
+    insert_name_metadata(&mut value, &func.ident.to_string());
     if receiver != "none" {
         value["receiver"] = json!(receiver);
     }

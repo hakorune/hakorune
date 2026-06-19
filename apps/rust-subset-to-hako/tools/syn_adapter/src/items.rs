@@ -2,14 +2,17 @@ use serde_json::{json, Value};
 use syn::{Fields, ImplItem, Item};
 
 use crate::functions::function_to_json;
+use crate::names::{assert_unique_names, insert_name_metadata};
 use crate::types::{item_kind, type_name};
 
 pub(crate) fn file_to_json(file: &syn::File, module: String) -> Value {
+    let items = file.items.iter().map(item_to_json).collect::<Vec<_>>();
+    assert_unique_names(&items, "module items");
     json!({
         "schema_version": 0,
         "kind": "RustSubsetModule",
         "module": module,
-        "items": file.items.iter().map(item_to_json).collect::<Vec<_>>(),
+        "items": items,
     })
 }
 
@@ -19,31 +22,46 @@ fn item_to_json(item: &Item) -> Value {
             let identity = has_hako_identity(&item.attrs);
             let mut value = json!({
                 "kind": "Struct",
-                "name": item.ident.to_string(),
                 "identity": identity,
                 "fields": fields_to_json(&item.fields),
             });
+            insert_name_metadata(&mut value, &item.ident.to_string());
             if identity {
                 value["identity_reason"] = json!("resource_or_mutable_state");
             }
             value
         }
-        Item::Enum(item) => json!({
-            "kind": "Enum",
-            "name": item.ident.to_string(),
-            "variants": item.variants.iter().map(|variant| {
-                let fields = match &variant.fields {
-                    Fields::Unit => Vec::new(),
-                    Fields::Named(named) => named.named.iter().map(|field| {
-                        json!({"type": type_name(&field.ty)})
-                    }).collect(),
-                    Fields::Unnamed(unnamed) => unnamed.unnamed.iter().map(|field| {
-                        json!({"type": type_name(&field.ty)})
-                    }).collect(),
-                };
-                json!({"name": variant.ident.to_string(), "fields": fields})
-            }).collect::<Vec<_>>(),
-        }),
+        Item::Enum(item) => {
+            let variants = item
+                .variants
+                .iter()
+                .map(|variant| {
+                    let fields = match &variant.fields {
+                        Fields::Unit => Vec::new(),
+                        Fields::Named(named) => named
+                            .named
+                            .iter()
+                            .map(|field| json!({"type": type_name(&field.ty)}))
+                            .collect(),
+                        Fields::Unnamed(unnamed) => unnamed
+                            .unnamed
+                            .iter()
+                            .map(|field| json!({"type": type_name(&field.ty)}))
+                            .collect(),
+                    };
+                    let mut variant_value = json!({"fields": fields});
+                    insert_name_metadata(&mut variant_value, &variant.ident.to_string());
+                    variant_value
+                })
+                .collect::<Vec<_>>();
+            assert_unique_names(&variants, "enum variants");
+            let mut value = json!({
+                "kind": "Enum",
+                "variants": variants,
+            });
+            insert_name_metadata(&mut value, &item.ident.to_string());
+            value
+        }
         Item::Fn(item) => function_to_json(&item.sig, &item.block),
         Item::Impl(item) => {
             let target = type_name(item.self_ty.as_ref());
@@ -55,6 +73,7 @@ fn item_to_json(item: &Item) -> Value {
                     _ => None,
                 })
                 .collect::<Vec<_>>();
+            assert_unique_names(&methods, "impl methods");
             json!({
                 "kind": "Impl",
                 "target": target,
@@ -70,15 +89,19 @@ fn item_to_json(item: &Item) -> Value {
 }
 
 fn fields_to_json(fields: &Fields) -> Vec<Value> {
-    match fields {
+    let values = match fields {
         Fields::Named(named) => named
             .named
             .iter()
             .map(|field| {
-                json!({
-                    "name": field.ident.as_ref().map(|i| i.to_string()).unwrap_or_default(),
-                    "type": type_name(&field.ty),
-                })
+                let source = field
+                    .ident
+                    .as_ref()
+                    .map(|i| i.to_string())
+                    .unwrap_or_default();
+                let mut value = json!({"type": type_name(&field.ty)});
+                insert_name_metadata(&mut value, &source);
+                value
             })
             .collect(),
         Fields::Unit => Vec::new(),
@@ -86,9 +109,18 @@ fn fields_to_json(fields: &Fields) -> Vec<Value> {
             .unnamed
             .iter()
             .enumerate()
-            .map(|(index, field)| json!({"name": index.to_string(), "type": type_name(&field.ty)}))
+            .map(|(index, field)| {
+                json!({
+                    "name": format!("_{index}"),
+                    "source_name": index.to_string(),
+                    "emitted_name": format!("_{index}"),
+                    "type": type_name(&field.ty),
+                })
+            })
             .collect(),
-    }
+    };
+    assert_unique_names(&values, "struct fields");
+    values
 }
 
 fn has_hako_identity(attrs: &[syn::Attribute]) -> bool {

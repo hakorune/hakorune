@@ -1,4 +1,7 @@
+use serde_json::Value;
 use syn::{GenericArgument, Item, Pat, PathArguments, ReturnType, Type};
+
+use crate::names::{emitted_ident, emitted_path, insert_name_metadata};
 
 pub(crate) fn type_name(ty: &Type) -> String {
     match ty {
@@ -7,7 +10,11 @@ pub(crate) fn type_name(ty: &Type) -> String {
             .segments
             .last()
             .map(|segment| {
-                let base = segment.ident.to_string();
+                let base = if path.path.segments.len() == 1 {
+                    emitted_ident(&segment.ident.to_string())
+                } else {
+                    emitted_path(&path.path)
+                };
                 let args = type_path_args(&segment.arguments);
                 if args.is_empty() {
                     base
@@ -58,16 +65,27 @@ pub(crate) fn return_type(output: &ReturnType) -> String {
 
 pub(crate) fn pat_name(pat: &Pat) -> Option<String> {
     match pat {
-        Pat::Ident(ident) => Some(ident.ident.to_string()),
+        Pat::Ident(ident) => Some(emitted_ident(&ident.ident.to_string())),
         Pat::Type(pat_type) => pat_name(pat_type.pat.as_ref()),
         _ => None,
     }
 }
 
+pub(crate) fn insert_pat_name_metadata(value: &mut Value, pat: &Pat) -> bool {
+    match pat {
+        Pat::Ident(ident) => {
+            insert_name_metadata(value, &ident.ident.to_string());
+            true
+        }
+        Pat::Type(pat_type) => insert_pat_name_metadata(value, pat_type.pat.as_ref()),
+        _ => false,
+    }
+}
+
 pub(crate) fn field_name(member: &syn::Member) -> String {
     match member {
-        syn::Member::Named(ident) => ident.to_string(),
-        syn::Member::Unnamed(index) => index.index.to_string(),
+        syn::Member::Named(ident) => emitted_ident(&ident.to_string()),
+        syn::Member::Unnamed(index) => format!("_{}", index.index),
     }
 }
 

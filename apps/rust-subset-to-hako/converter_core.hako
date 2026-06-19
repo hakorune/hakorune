@@ -91,7 +91,8 @@ box RustSubsetConverter {
     }
 
     emit_struct(item) {
-        local name = me.node_str(item.get_node("name"))
+        local name = me.node_str(item.get_node("emitted_name"))
+        if name == "" { name = me.node_str(item.get_node("name")) }
         local identity = me.node_str(item.get_node("identity"))
         local keyword = "record"
         if identity == "true" {
@@ -105,7 +106,8 @@ box RustSubsetConverter {
             local fi = 0
             loop(fi < fc) {
                 local field = fields.get_node(fi)
-                local fname = me.node_str(field.get_node("name"))
+                local fname = me.node_str(field.get_node("emitted_name"))
+                if fname == "" { fname = me.node_str(field.get_node("name")) }
                 local ftype = me.map_type(me.node_str(field.get_node("type")))
                 body = body + "    " + fname + ": " + ftype
                 fi = fi + 1
@@ -119,7 +121,8 @@ box RustSubsetConverter {
     }
 
     emit_enum(item) {
-        local name = me.node_str(item.get_node("name"))
+        local name = me.node_str(item.get_node("emitted_name"))
+        if name == "" { name = me.node_str(item.get_node("name")) }
         local result = "// enum " + name
         local variants = item.get_node("variants")
         if variants != null {
@@ -127,7 +130,8 @@ box RustSubsetConverter {
             local vi = 0
             loop(vi < vc) {
                 local variant = variants.get_node(vi)
-                local vname = me.node_str(variant.get_node("name"))
+                local vname = me.node_str(variant.get_node("emitted_name"))
+                if vname == "" { vname = me.node_str(variant.get_node("name")) }
                 result = result + "\n//   " + vname
                 vi = vi + 1
             }
@@ -155,7 +159,8 @@ box RustSubsetConverter {
     }
 
     emit_function(func, target_prefix) {
-        local name = me.node_str(func.get_node("name"))
+        local name = me.node_str(func.get_node("emitted_name"))
+        if name == "" { name = me.node_str(func.get_node("name")) }
         if target_prefix != "" {
             name = target_prefix + "_" + name
         }
@@ -176,7 +181,8 @@ box RustSubsetConverter {
             local pi = 0
             loop(pi < pc) {
                 local p = param_arr.get_node(pi)
-                local pname = me.node_str(p.get_node("name"))
+                local pname = me.node_str(p.get_node("emitted_name"))
+                if pname == "" { pname = me.node_str(p.get_node("name")) }
                 local ptype = me.map_type(me.node_str(p.get_node("type")))
                 if params != "" { params = params + ", " }
                 params = params + pname + ": " + ptype
@@ -226,7 +232,8 @@ box RustSubsetConverter {
         }
 
         if kind == "Let" {
-            local lname = me.node_str(stmt.get_node("name"))
+            local lname = me.node_str(stmt.get_node("emitted_name"))
+            if lname == "" { lname = me.node_str(stmt.get_node("name")) }
             local ltype = me.map_type(me.node_str(stmt.get_node("type")))
             local lval = stmt.get_node("value")
             return indent + "local " + lname + ": " + ltype + " = " + me.emit_expr(lval)
@@ -285,14 +292,16 @@ box RustSubsetConverter {
         }
 
         if kind == "Name" {
-            local n = me.node_str(expr.get_node("name"))
+            local n = me.node_str(expr.get_node("emitted_name"))
+            if n == "" { n = me.node_str(expr.get_node("name")) }
             if n == "self" { return "me" }
             return n
         }
 
         if kind == "Field" {
             local base = me.emit_expr(expr.get_node("base"))
-            local field = me.node_str(expr.get_node("field"))
+            local field = me.node_str(expr.get_node("emitted_name"))
+            if field == "" { field = me.node_str(expr.get_node("field")) }
             return base + "." + field
         }
 

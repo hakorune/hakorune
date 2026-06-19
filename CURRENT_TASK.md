@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-06-19
+Date: 2026-06-20
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-PATH-NAME-NORMALIZATION-001
+RUST-SUBSET-CRATE-MANIFEST-V0-001
 ```
 
 Purpose:
 
 ```text
-Close RustSubset path/name normalization before any `creat`-style crate pilot.
-Module schema validation parity between the Python reference and the `.hako`
-converter is closed by 296x-1316.
+Define the crate manifest v0 contract before multi-module adapter output or any
+`creat`-style crate pilot. Module schema validation parity is closed by
+296x-1316, and RustSubset path/name normalization is closed by 296x-1317.
 ```
 
 Current evidence:
@@ -62,6 +62,7 @@ RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001 is closed by
 RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001 is closed by 296x-1314.
 RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001 is closed by 296x-1315.
 RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001 is closed by 296x-1316.
+RUST-SUBSET-PATH-NAME-NORMALIZATION-001 is closed by 296x-1317.
 ```
 
 Acceptance for the current slice:
@@ -74,7 +75,7 @@ bash apps/rust-subset-to-hako/smoke.sh
 ## Task Order
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Close path/name normalization before crate manifest work.
+2. Define crate manifest v0 before crate manifest implementation.
 3. Keep converter core separate from input routes.
 4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
 5. Update `CURRENT_STATE.toml` when the next slice is chosen.
@@ -82,7 +83,7 @@ bash apps/rust-subset-to-hako/smoke.sh
 Recommended next row:
 
 ```text
-RUST-SUBSET-PATH-NAME-NORMALIZATION-001
+RUST-SUBSET-CRATE-MANIFEST-V0-001
 ```
 
 ## Pointers

@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-19"
+date = "2026-06-20"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
@@ -28,25 +28,29 @@ trait handoff is hardened with RustSubset JSON and `.hako` EXE/AOT fixture
 parity. The rust-subset smoke script is table-driven so future fixture rows do
 not duplicate MIR/EXE/adapter boilerplate. Crate/multi-file handoff is now
 inventoried as an external-adapter boundary concern before any `creat`-style
-pilot. The module schema validation parity gap is closed. The active P0
-crate-skeleton blocker is RustSubset path/name normalization, not new `.hako`
-syntax."""
+pilot. The module schema validation parity gap is closed. RustSubset path/name
+normalization is now closed without adding `.hako` syntax: the adapter owns
+source_name/emitted_name, tuple field `_0`/`_1`, Hako reserved-name escaping,
+structured path provenance, duplicate emitted-name fail-fast, and
+simple-pattern-only handoff. The active crate-skeleton blocker is now the
+crate manifest v0 contract."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1316-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1317-RUST-SUBSET-PATH-NAME-NORMALIZATION-001.md"
 
-latest_card = "296x-1316-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1316-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001.md"
-latest_card_summary = """296x-1316 aligns module schema validation boundaries:
-schema_version/root kind fail fast, unknown item kinds fail fast in `.hako`,
-Python reference also fail-fasts unknown statement/expression kinds, and known
-Unsupported nodes remain TODO comments. The next P0 gap is RustSubset path/name
-normalization."""
+latest_card = "296x-1317-RUST-SUBSET-PATH-NAME-NORMALIZATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1317-RUST-SUBSET-PATH-NAME-NORMALIZATION-001.md"
+latest_card_summary = """296x-1317 closes RustSubset path/name normalization:
+the syn adapter owns source_name/emitted_name, Hako-reserved identifier escaping,
+tuple field _0/_1 normalization, structured path provenance, duplicate emitted
+name fail-fast, and simple-pattern-only handoff. The converter prints emitted
+names and does not resolve Rust paths. The next blocker is the crate manifest
+v0 contract."""
 
-current_blocker_token = "RUST-SUBSET-PATH-NAME-NORMALIZATION-001"
+current_blocker_token = "RUST-SUBSET-CRATE-MANIFEST-V0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -76,4 +80,5 @@ landed_tail = [
   "2026-06-19: 296x-1314 refactors rust-subset smoke fixture handling into table-driven runners; behavior is unchanged.",
   "2026-06-19: 296x-1315 inventories crate/multi-file handoff boundaries before any creat-style pilot; next P0 gaps are validation parity and path/name normalization.",
   "2026-06-19: 296x-1316 aligns `.hako` module schema validation with the Python reference; next P0 gap is path/name normalization.",
+  "2026-06-20: 296x-1317 closes RustSubset path/name normalization; next blocker is crate manifest v0 contract.",
 ]

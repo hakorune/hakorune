@@ -61,6 +61,7 @@ generic_function_fixture_parity=ok
 smoke_fixture_table_refactor=ok
 crate_handoff_inventory=ok
 module_schema_validation_parity=ok
+path_name_normalization_parity=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
 ```
@@ -232,6 +233,16 @@ closed:
     known_unsupported_todo=1
     crate_manifest_schema_accepted=0
     card=docs/development/current/main/phases/phase-296x/296x-1316-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001.md
+
+  RUST-SUBSET-PATH-NAME-NORMALIZATION-001
+    result=path/name normalization closed before crate manifest handoff
+    owner=external syn adapter name/path transport
+    emitted_name_owned_by_adapter=1
+    tuple_field_normalization=_0/_1
+    reserved_name_escaping=rust_prefix
+    converter_rust_path_resolution=0
+    new_hako_syntax_enabled=0
+    card=docs/development/current/main/phases/phase-296x/296x-1317-RUST-SUBSET-PATH-NAME-NORMALIZATION-001.md
 
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape

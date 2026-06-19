@@ -143,6 +143,7 @@ if [[ "${RUST_SUBSET_RUN_ADAPTER:-0}" == "1" ]]; then
     "match unsupported handoff fixture|match_unsupported|match_unsupported_fixture"
     "explicit unit return fixture|unit_return|unit_return_fixture"
     "for-loop unsupported handoff fixture|for_loop_unsupported|for_loop_unsupported_fixture"
+    "path/name normalization fixture|path_name|path_name"
   )
 
   for entry in "${ADAPTER_FIXTURES[@]}"; do
@@ -177,6 +178,7 @@ CONVERTER_FIXTURES=(
   "match unsupported handoff fixture converter|$APP_DIR/convert_match_unsupported_fixture.hako|$EXAMPLES_DIR/match_unsupported_expected.hako|convert_match_unsupported_fixture"
   "explicit unit return fixture converter|$APP_DIR/convert_unit_return_fixture.hako|$EXAMPLES_DIR/unit_return_expected.hako|convert_unit_return_fixture"
   "for-loop unsupported handoff fixture converter|$APP_DIR/convert_for_loop_unsupported_fixture.hako|$EXAMPLES_DIR/for_loop_unsupported_expected.hako|convert_for_loop_unsupported_fixture"
+  "path/name fixture converter|$APP_DIR/convert_path_name_fixture.hako|$EXAMPLES_DIR/path_name_expected.hako|convert_path_name_fixture"
 )
 
 for entry in "${CONVERTER_FIXTURES[@]}"; do

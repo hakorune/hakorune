@@ -34,6 +34,13 @@ def require_key(obj: dict, key: str, context: str):
     return obj[key]
 
 
+def emitted_name(obj: dict, context: str, key: str = "name") -> str:
+    """Read adapter-owned emitted identifiers without doing Rust name resolution."""
+    if "emitted_name" in obj:
+        return obj["emitted_name"]
+    return require_key(obj, key, context)
+
+
 def map_type(ty: str) -> str:
     """Map RustSubset type spelling to conservative .hako skeleton spelling."""
     if ty in {"i8", "i16", "i32", "i64", "isize"}:
@@ -77,13 +84,13 @@ def emit_expr(expr: dict) -> str:
     if kind == "Name":
         # { "kind": "Name", "name": "x" }
         # Rust `self` maps to .hako `me`
-        name = require_key(expr, "name", "Name")
+        name = emitted_name(expr, "Name")
         return "me" if name == "self" else name
 
     if kind == "Field":
         # { "kind": "Field", "base": {...}, "field": "x" }
         base = emit_expr(require_key(expr, "base", "Field"))
-        field = require_key(expr, "field", "Field")
+        field = emitted_name(expr, "Field", key="field")
         return f"{base}.{field}"
 
     if kind == "Index":
@@ -204,7 +211,7 @@ def emit_function(func: dict, target_prefix: str = None) -> str:
     If *target_prefix* is given (e.g. "Point"), the function name is prefixed
     ("Point_len2") and a receiver parameter `me: Point` is inserted.
     """
-    name = require_key(func, "name", "Function")
+    name = emitted_name(func, "Function")
     if target_prefix:
         name = f"{target_prefix}_{name}"
 
@@ -218,7 +225,7 @@ def emit_function(func: dict, target_prefix: str = None) -> str:
 
     # Explicit params
     for p in func.get("params", []):
-        pname = require_key(p, "name", "Function param")
+        pname = emitted_name(p, "Function param")
         ptype = map_type(require_key(p, "type", "Function param"))
         params.append(f"{pname}: {ptype}")
 
@@ -247,24 +254,24 @@ def emit_item(item: dict) -> str:
     kind = require_key(item, "kind", "item")
 
     if kind == "Struct":
-        name = require_key(item, "name", "Struct")
+        name = emitted_name(item, "Struct")
         identity = item.get("identity", False)
         fields = item.get("fields", [])
 
         keyword = "box" if identity else "record"
         field_lines = "\n".join(
-            f"{INDENT}{require_key(f, 'name', 'Struct field')}: {map_type(require_key(f, 'type', 'Struct field'))}"
+            f"{INDENT}{emitted_name(f, 'Struct field')}: {map_type(require_key(f, 'type', 'Struct field'))}"
             for f in fields
         )
         return f"{keyword} {name} {{\n{field_lines}\n}}"
 
     if kind == "Enum":
         # v0: emit as comments (no native .hako enum yet)
-        name = require_key(item, "name", "Enum")
+        name = emitted_name(item, "Enum")
         variants = item.get("variants", [])
         lines = [f"// enum {name}"]
         for v in variants:
-            vname = require_key(v, "name", "Enum variant")
+            vname = emitted_name(v, "Enum variant")
             vfields = v.get("fields", [])
             if vfields:
                 types = ", ".join(f.get("type", "?") for f in vfields)

@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-06-19
+Date: 2026-06-20
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-PATH-NAME-NORMALIZATION-001
+RUST-SUBSET-CRATE-MANIFEST-V0-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -37,13 +37,14 @@ hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
 table-driven by 296x-1314. Crate/multi-file handoff boundaries are inventoried
 by 296x-1315; the preferred next contract is manifest plus per-module
 `RustSubsetModule` artifacts, but it is not implemented yet. Module schema
-validation parity is closed by 296x-1316. The active crate-skeleton P0 gap is
-RustSubset path/name normalization, not new `.hako` syntax.
+validation parity is closed by 296x-1316. RustSubset path/name normalization is
+closed by 296x-1317 without adding `.hako` syntax. The active crate-skeleton
+blocker is the crate manifest v0 contract.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Close `RUST-SUBSET-PATH-NAME-NORMALIZATION-001` before crate manifest
+2. Define `RUST-SUBSET-CRATE-MANIFEST-V0-001` before crate manifest
    implementation or a creat-style pilot.
 4. Keep converter core separate from input routes and crate/file graph
    discovery.
@@ -108,6 +109,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - schema_version/root kind and unknown item kinds fail fast in `.hako`
   - Python reference also fail-fasts unknown statement/expression kinds
   - known Unsupported nodes still emit TODO comments
+- `RUST-SUBSET-PATH-NAME-NORMALIZATION-001`
+  - syn adapter owns source_name/emitted_name and Hako-safe emitted identifiers
+  - tuple fields normalize to `_0`, `_1`; reserved names normalize to `rust_*`
+  - converter prints emitted names and does not resolve Rust paths
 
 Closeout evidence:
 
