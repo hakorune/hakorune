@@ -1,6 +1,6 @@
 # 296x-1349 HAKORUNE-MIR-BUILDER-BINDING-CONTEXT-MATERIALIZATION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -66,6 +66,59 @@ cargo check -q --lib
 RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Result
+
+```text
+manifest_checked_in=1
+module_artifact_checked_in=1
+generated_skeleton_expected_checked_in=1
+focused_wrapper_added=1
+generated_skeleton_mir_emit=green
+wrapper_emit_exe=green
+wrapper_exe_parity=green
+full_rust_subset_smoke=green
+generated_program_execution_claim=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+new_hako_syntax_added=0
+summary=ok
+```
+
+Checked-in bundle:
+
+```text
+apps/rust-subset-to-hako/examples/hakorune_mir_builder_binding_context_expected/crate-manifest.json
+apps/rust-subset-to-hako/examples/hakorune_mir_builder_binding_context_expected/modules/0000.json
+apps/rust-subset-to-hako/examples/hakorune_mir_builder_binding_context_expected.hako
+apps/rust-subset-to-hako/convert_hakorune_mir_builder_binding_context_crate_file.hako
+```
+
+Closeout checks:
+
+```bash
+NYASH_FILEBOX_MODE=core-ro ./target/release/hakorune --emit-mir-json \
+  /tmp/hakorune_mir_builder_binding_context_expected.mir.json \
+  apps/rust-subset-to-hako/examples/hakorune_mir_builder_binding_context_expected.hako
+
+NYASH_FILEBOX_MODE=core-ro ./target/release/hakorune --emit-exe \
+  /tmp/convert_hakorune_mir_builder_binding_context_crate_file \
+  apps/rust-subset-to-hako/convert_hakorune_mir_builder_binding_context_crate_file.hako
+
+bash apps/rust-subset-to-hako/smoke_crate_wrappers_exe.sh
+cargo check -q --lib
+RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Next row:
+
+```text
+296x-1350-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-005
 ```
 
 ## Stop Line

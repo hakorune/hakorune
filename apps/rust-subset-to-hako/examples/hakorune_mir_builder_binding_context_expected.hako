@@ -1,0 +1,47 @@
+// module crate::binding_context
+// source src/binding_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record BindingContext {
+    binding_map: BTreeMap<String, BindingId>
+}
+
+function BindingContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+function BindingContext_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function BindingContext_is_empty(receiver: BindingContext): bool {
+    return receiver.binding_map.is_empty()
+}
+
+function BindingContext_len(receiver: BindingContext): usize {
+    return receiver.binding_map.len()
+}
+
+function BindingContext_contains(receiver: BindingContext, name: String): bool {
+    return receiver.binding_map.contains_key(name)
+}
+
+function BindingContext_lookup(receiver: BindingContext, name: String): Option<BindingId> {
+    return receiver.binding_map.get(name).copied()
+}
+
+function BindingContext_insert(receiver: BindingContext, name: String, binding_id: BindingId): void {
+    receiver.binding_map.insert(name, binding_id)
+}
+
+function BindingContext_remove(receiver: BindingContext, name: String): Option<BindingId> {
+    return receiver.binding_map.remove(name)
+}
+
+function BindingContext_clear_for_function_entry(receiver: BindingContext): void {
+    receiver.binding_map.clear()
+}
+
+// TODO: Mod items are out of v0 scope

@@ -1,0 +1,17 @@
+{
+  "crate_name": "hakorune_mir_builder",
+  "kind": "RustSubsetCrateManifest",
+  "modules": [
+    {
+      "artifact_path": "modules/0000.json",
+      "module": "crate::binding_context",
+      "source_path": "src/binding_context.rs"
+    }
+  ],
+  "root_module": "crate",
+  "schema_version": 0,
+  "target": {
+    "kind": "lib",
+    "name": "hakorune_mir_builder"
+  }
+}
