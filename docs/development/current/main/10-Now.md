@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-008
+HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -63,15 +63,18 @@ variable.
 296x-1355 makes associated const/value paths explicit Unsupported handoffs,
 keeps module-path calls intact, and advances `hakorune_mir_defs::call_unified`
 to generated-skeleton MIR emit.
+296x-1356 selects `hakorune_mir_builder::core_context` as the next
+MirBuilder-relevant single-module materialization task because its generated
+skeleton already reaches MIR emit.
 
-The next row is 296x-1356. It should select the next app-front task before
-starting implementation.
+The next row is 296x-1357. It should materialize the selected `core_context`
+bundle and keep generated-program execution claims disabled.
 
 ## Next
 
-1. Read 296x-1356.
-2. Evaluate next app-front task candidates.
-3. Select the next implementation row without starting implementation.
+1. Read 296x-1357.
+2. Check in the selected `core_context` manifest/artifact/expected output.
+3. Add focused wrapper and smoke coverage.
 4. Run:
 
 ```bash
