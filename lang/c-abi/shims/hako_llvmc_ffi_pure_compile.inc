@@ -251,151 +251,22 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
   return 1;
 }
 
+#include "hako_llvmc_ffi_pure_unsupported_shape_diagnostic.inc"
+
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out) {
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   char* verr = NULL;
-  char unsupported_shape_first_op[64] = "";
-  char unsupported_shape_reason[64] = "";
-  char unsupported_shape_target_return_type[64] = "";
-  char unsupported_shape_target_shape_reason[128] = "";
-  char unsupported_shape_blocker_symbol[256] = "";
-  char unsupported_shape_blocker_reason[128] = "";
-  long long unsupported_shape_first_block = -1;
-  long long unsupported_shape_first_inst = -1;
-
-  auto const char* pure_unsupported_owner_hint(const char* op) {
-    if (!op || !op[0]) return "unknown";
-    if (strcmp(op, "boxcall") == 0 ||
-        strcmp(op, "call") == 0 ||
-        strcmp(op, "externcall") == 0 ||
-        strcmp(op, "newbox") == 0 ||
-        strcmp(op, "copy") == 0 ||
-        strcmp(op, "phi") == 0) {
-      return "mir_normalizer";
-    }
-    if (strcmp(op, "mir_call") == 0 ||
-        strcmp(op, "module_function") == 0) {
-      return "backend_lowering";
-    }
-    if (strcmp(op, "const") == 0 ||
-        strcmp(op, "compare") == 0 ||
-        strcmp(op, "static_data_load") == 0 ||
-        strcmp(op, "select") == 0 ||
-        strcmp(op, "variant_make") == 0 ||
-        strcmp(op, "variant_tag") == 0 ||
-        strcmp(op, "variant_project") == 0 ||
-        strcmp(op, "branch") == 0 ||
-        strcmp(op, "jump") == 0 ||
-        strcmp(op, "ret") == 0 ||
-        strcmp(op, "binop") == 0) {
-      return "backend_lowering";
-    }
-    return "unknown";
-  }
-
-  auto void note_pure_unsupported_shape_detail(
-      long long block_id,
-      size_t inst_idx,
-      const char* op,
-      const char* reason,
-      const char* target_return_type,
-      const char* target_shape_reason,
-      const char* target_shape_blocker_symbol,
-      const char* target_shape_blocker_reason) {
-    if (unsupported_shape_first_op[0]) return;
-    snprintf(
-        unsupported_shape_first_op,
-        sizeof(unsupported_shape_first_op),
-        "%s",
-        (op && op[0]) ? op : "unknown");
-    snprintf(
-        unsupported_shape_reason,
-        sizeof(unsupported_shape_reason),
-        "%s",
-        (reason && reason[0]) ? reason : "no_lowering_variant");
-    snprintf(
-        unsupported_shape_target_return_type,
-        sizeof(unsupported_shape_target_return_type),
-        "%s",
-        (target_return_type && target_return_type[0]) ? target_return_type : "-");
-    snprintf(
-        unsupported_shape_target_shape_reason,
-        sizeof(unsupported_shape_target_shape_reason),
-        "%s",
-        (target_shape_reason && target_shape_reason[0]) ? target_shape_reason : "-");
-    snprintf(
-        unsupported_shape_blocker_symbol,
-        sizeof(unsupported_shape_blocker_symbol),
-        "%s",
-        (target_shape_blocker_symbol && target_shape_blocker_symbol[0])
-            ? target_shape_blocker_symbol
-            : "-");
-    snprintf(
-        unsupported_shape_blocker_reason,
-        sizeof(unsupported_shape_blocker_reason),
-        "%s",
-        (target_shape_blocker_reason && target_shape_blocker_reason[0])
-            ? target_shape_blocker_reason
-            : "-");
-    unsupported_shape_first_block = block_id;
-    unsupported_shape_first_inst = (long long)inst_idx;
-  }
-
-  auto void note_pure_unsupported_shape(
-      long long block_id,
-      size_t inst_idx,
-      const char* op,
-      const char* reason,
-      const char* target_shape_reason) {
-    note_pure_unsupported_shape_detail(
-        block_id,
-        inst_idx,
-        op,
-        reason,
-        NULL,
-        target_shape_reason,
-        NULL,
-        NULL);
-  }
-
-  auto void emit_pure_unsupported_shape_inventory(void) {
-    char block_buf[32];
-    char inst_buf[32];
-    const char* op = unsupported_shape_first_op[0] ? unsupported_shape_first_op : "unknown";
-    const char* reason = unsupported_shape_reason[0] ? unsupported_shape_reason : "no_lowering_variant";
-    if (!hako_llvmc_route_trace_enabled()) return;
-    if (unsupported_shape_first_block >= 0) {
-      snprintf(block_buf, sizeof(block_buf), "%lld", unsupported_shape_first_block);
-    } else {
-      snprintf(block_buf, sizeof(block_buf), "-");
-    }
-    if (unsupported_shape_first_inst >= 0) {
-      snprintf(inst_buf, sizeof(inst_buf), "%lld", unsupported_shape_first_inst);
-    } else {
-      snprintf(inst_buf, sizeof(inst_buf), "-");
-    }
-    fprintf(
-        stderr,
-        "[llvm-pure/unsupported-shape] recipe=pure-first first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s target_return_type=%s target_shape_reason=%s target_shape_blocker_symbol=%s target_shape_blocker_reason=%s\n",
-        block_buf,
-        inst_buf,
-        op,
-        pure_unsupported_owner_hint(op),
-        reason,
-        unsupported_shape_target_return_type[0]
-            ? unsupported_shape_target_return_type
-            : "-",
-        unsupported_shape_target_shape_reason[0]
-            ? unsupported_shape_target_shape_reason
-            : "-",
-        unsupported_shape_blocker_symbol[0]
-            ? unsupported_shape_blocker_symbol
-            : "-",
-        unsupported_shape_blocker_reason[0]
-            ? unsupported_shape_blocker_reason
-            : "-");
-  }
+  struct HakoLlvmcPureUnsupportedShapeDiagnostic pure_unsupported_diag;
+  hako_llvmc_pure_unsupported_shape_init(&pure_unsupported_diag);
+#define note_pure_unsupported_shape_detail(...) \
+  hako_llvmc_pure_unsupported_shape_note_detail(&pure_unsupported_diag, __VA_ARGS__)
+#define note_pure_unsupported_shape(...) \
+  hako_llvmc_pure_unsupported_shape_note(&pure_unsupported_diag, __VA_ARGS__)
+#define note_pure_unsupported_shape_route_detail(...) \
+  hako_llvmc_pure_unsupported_shape_note_route_detail(&pure_unsupported_diag, __VA_ARGS__)
+#define emit_pure_unsupported_shape_inventory() \
+  hako_llvmc_pure_unsupported_shape_emit(&pure_unsupported_diag)
 
   if (hako_json_v1_validate_file(json_in, &verr) != 0) {
     return set_err_owned(err_out, verr ? verr : "invalid v1 json");
@@ -884,6 +755,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   }
   hako_llvmc_emit_route_replay("none", "unsupported_pure_shape");
   emit_pure_unsupported_shape_inventory();
+#undef note_pure_unsupported_shape_detail
+#undef note_pure_unsupported_shape
+#undef note_pure_unsupported_shape_route_detail
+#undef emit_pure_unsupported_shape_inventory
   return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
 }
 

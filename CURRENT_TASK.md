@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001
+RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001
 ```
 
 Purpose:
 
 ```text
-Improve the diagnostic surface for `unsupported pure shape` failures so the
-next pure-route blocker reports the relevant callee, route reason, and origin
-evidence without manual MIR JSON walking.
+Pin the crate-wrapper EXE route as a stable app-front smoke after 296x-1333
+unblocked the route and 296x-1334 hardened unsupported-shape diagnostics.
 ```
 
 Current evidence:
@@ -79,6 +78,7 @@ RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001 is closed by 296x-1330.
 RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001 is closed by 296x-1331.
 HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1332.
 RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001 is closed by 296x-1333.
+PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001 is closed by 296x-1334.
 ```
 
 Acceptance for the current slice:
@@ -88,30 +88,29 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 # plus a focused crate-wrapper EXE diagnostic command selected by the new row.
-# plus a focused unsupported-pure-shape diagnostic fixture/command selected by the row.
+# plus the focused crate-wrapper EXE smoke selected by the new row.
 ```
 
 ## Task Order
 
-1. Find the owner of the current pure-route unsupported-shape report fields.
-2. Add callee / route reason / receiver-origin detail without changing route
-   selection.
-3. Prefer a focused unit fixture or diagnostic sample over broad app-front
-   rewrites.
-4. Keep converter core, Rust parser ownership, crate graph discovery, and
-   `json_native` source out of the fix.
-5. After diagnostics are hardened, add a stable crate-wrapper EXE smoke row.
+1. Add a focused smoke/check for the three existing crate-wrapper entrypoints.
+2. Verify `--emit-exe` success for the wrappers only.
+3. Keep converter core, Rust parser ownership, crate graph discovery, and
+   `json_native` source out of the smoke.
+4. Do not claim generated `.hako` programs are executable applications.
+5. Keep route selection unchanged.
 6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001
+RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001
 ```
 
-The shared crate wrappers now pass EXE after 296x-1333. The next row should
-harden diagnostics so future pure-route unsupported-shape blockers expose the
-local callee / route reason / origin gap directly.
+The shared crate wrappers pass EXE after 296x-1333, and 296x-1334 makes future
+pure-route unsupported-shape blockers easier to diagnose. The next row should
+pin wrapper EXE success as a stable smoke before moving to another crate or
+source-shape pilot.
 
 ## Pointers
 

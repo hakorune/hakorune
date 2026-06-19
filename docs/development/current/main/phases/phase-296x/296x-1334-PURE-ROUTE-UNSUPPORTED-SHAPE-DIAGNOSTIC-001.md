@@ -1,6 +1,6 @@
 # 296x-1334 PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -82,6 +82,40 @@ json_native_changed=0
 rust_subset_converter_changed=0
 new_hako_syntax_added=0
 ```
+
+## Result
+
+Closed by moving pure-route unsupported-shape diagnostic ownership into a
+dedicated C ABI shim helper:
+
+```text
+lang/c-abi/shims/hako_llvmc_ffi_pure_unsupported_shape_diagnostic.inc
+```
+
+The large `hako_llvmc_ffi_pure_compile.inc` now delegates diagnostic state and
+formatting to that helper and stays under the 800-line limit for edited files.
+
+Focused diagnostic sample:
+
+```text
+fixture=apps/tests/mir_shape_guard/string_insert_mid_direct_set_min_v1.mir.json
+result=unsupported pure shape
+diagnostic_fields=ok
+```
+
+Observed diagnostic line includes:
+
+```text
+first_block=0
+first_inst=6
+first_op=mir_call
+reason=mir_call_no_route
+callee_symbol=substring
+receiver_origin_box_name=RuntimeDataBox
+next_check_hint=check_callee_route_or_receiver_origin
+```
+
+Route selection and lowering acceptance are unchanged.
 
 ## Next
 

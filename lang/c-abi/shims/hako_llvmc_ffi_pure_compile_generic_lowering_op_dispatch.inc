@@ -677,7 +677,7 @@
                       "same_module_global_call_requires_uniform_emitter");
                 }
               } else {
-                note_pure_unsupported_shape_detail(
+                note_pure_unsupported_shape_route_detail(
                     bid,
                     ii,
                     op,
@@ -685,7 +685,12 @@
                     NULL,
                     ctype,
                     mname,
-                    NULL);
+                    NULL,
+                    mname,
+                    bname,
+                    NULL,
+                    NULL,
+                    "check_callee_route_or_receiver_origin");
               }
               yyjson_doc_free(d);
               goto GEN_ABORT;
@@ -710,7 +715,20 @@
                     f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
                     dst, recv, args, a0, a1, skip_inst) < 0) {
               if (!note_global_call_lowering_plan_unsupported_shape(bid, ii, op)) {
-                note_pure_unsupported_shape(bid, ii, op, "mir_call_no_route", NULL);
+                note_pure_unsupported_shape_route_detail(
+                    bid,
+                    ii,
+                    op,
+                    "mir_call_no_route",
+                    NULL,
+                    ctype,
+                    NULL,
+                    NULL,
+                    mname,
+                    bname,
+                    NULL,
+                    NULL,
+                    "check_callee_route_or_receiver_origin");
               }
               yyjson_doc_free(d);
               goto GEN_ABORT;
