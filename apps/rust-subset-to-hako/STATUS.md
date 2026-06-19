@@ -55,6 +55,7 @@ returnless_void_body_fixture_parity=ok
 vec_method_fixture_parity=ok
 loop_without_break_fixture_parity=ok
 full_smoke_exe_aot=ok
+syn_adapter_smoke_exe_aot=ok
 ```
 
 ## Current Scope Boundary
@@ -103,6 +104,15 @@ The app-front smoke also exercises parser `loop(true)` bodies such as
 `JsonParser.parse_array()`. These are compiler-owned loop route shapes:
 `loop_true_break_continue` owns loop-variable-free parser loops, while
 `generic_loop_v1` remains the loop-variable route.
+
+The host-side syn adapter handoff has a dedicated gate:
+
+```bash
+bash apps/rust-subset-to-hako/smoke_adapter.sh
+```
+
+This wrapper only enables the existing adapter section in `smoke.sh`; it does
+not move Rust parsing into the Hakorune-owned converter core.
 
 ## Task Board
 

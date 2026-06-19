@@ -28,7 +28,8 @@ string-corridor regression is closed by 296x-1305, PHI input rematerialization
 identity is closed by 296x-1306, and string-corridor stable-length hint fallback
 retirement is closed by 296x-1307. The rust-subset app-front smoke reopen is
 closed by 296x-1308; `JsonParser.parse_array/0` is owned by
-loop_true_break_continue via the recipe-first ExitAllowed path.
+loop_true_break_continue via the recipe-first ExitAllowed path. A dedicated
+syn-adapter smoke wrapper is closed by 296x-1309.
 
 ## Next
 
@@ -40,6 +41,7 @@ loop_true_break_continue via the recipe-first ExitAllowed path.
 ```bash
 cargo check -q --lib
 bash apps/rust-subset-to-hako/smoke.sh
+bash apps/rust-subset-to-hako/smoke_adapter.sh
 ```
 
 5. Update current pointers when the next slice is chosen.
@@ -62,6 +64,9 @@ bash apps/rust-subset-to-hako/smoke.sh
   - `parse_array`-class loop(true) shapes use loop_true_break_continue
   - effectful continue-prelude branches are accepted through ExitAllowed
   - full rust-subset app-front smoke is green
+- `RUST-SUBSET-SYN-ADAPTER-SMOKE-ENTRY-001`
+  - dedicated wrapper for `RUST_SUBSET_RUN_ADAPTER=1`
+  - converter core remains input-route agnostic
 
 Closeout evidence:
 

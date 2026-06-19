@@ -204,6 +204,15 @@ cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml 
 It remains outside the Hakorune-owned converter core and produces the same
 RustSubset JSON v0 schema.
 
+The dedicated adapter handoff gate is:
+
+```bash
+bash apps/rust-subset-to-hako/smoke_adapter.sh
+```
+
+This is a thin wrapper around `smoke.sh` with `RUST_SUBSET_RUN_ADAPTER=1`; it
+does not give `converter_core.hako` ownership of Rust parsing or input routing.
+
 Do not bypass `json_native` with a native JSON DLL in this row. The app is useful
 because it exercises real `.hako` JSON/tree traversal pressure.
 
@@ -235,6 +244,7 @@ embedded_fixture_handoff=ok
 file_input_enabled=1
 file_input_converter_parity=ok
 adapter_fixture_handoff_parity=ok
+syn_adapter_smoke=ok
 schema_key_dictionary_enabled=1
 generic_unknown_key_fallback_enabled=1
 json_object_key_materialization=entry_table_plus_temporary_critical_key_bridge
