@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
+RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
 ```
 
 Purpose:
 
 ```text
-Choose the next rust-subset-to-hako app-front slice after the EXE/AOT smoke
-returned to green.
+Close module schema validation parity between the Python reference and the
+`.hako` converter before crate manifest implementation.
 ```
 
 Current evidence:
@@ -59,6 +59,7 @@ RUST-SUBSET-SYN-ADAPTER-GENERIC-FUNCTION-SKELETON-001 is closed by 296x-1312.
 RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001 is closed by
 296x-1313.
 RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001 is closed by 296x-1314.
+RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001 is closed by 296x-1315.
 ```
 
 Acceptance for the current slice:
@@ -71,10 +72,16 @@ bash apps/rust-subset-to-hako/smoke.sh
 ## Task Order
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Select the next app-front slice after unsupported trait handoff hardening.
+2. Close module schema validation parity before crate manifest work.
 3. Keep converter core separate from input routes.
 4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
 5. Update `CURRENT_STATE.toml` when the next slice is chosen.
+
+Recommended next row:
+
+```text
+RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
+```
 
 ## Pointers
 

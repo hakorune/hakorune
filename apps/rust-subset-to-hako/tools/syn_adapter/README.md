@@ -65,6 +65,27 @@ Optional smoke gate:
 RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
 ```
 
+## Crate Handoff Boundary
+
+The current adapter is intentionally single-file:
+
+```text
+one input .rs file -> one RustSubsetModule JSON file
+```
+
+Crate-wide or multi-file handoff is a separate design row. It must not move
+crate graph discovery, Rust name resolution, or adapter invocation into
+`converter_core.hako`.
+
+The preferred next contract is:
+
+```text
+RustSubsetCrateManifest JSON -> per-module RustSubsetModule JSON artifacts
+```
+
+The manifest is only a transport index. Per-module `RustSubsetModule` remains
+the semantic input consumed by the converter core.
+
 ## Stop Lines
 
 ```text
@@ -72,4 +93,5 @@ do not move Rust parsing into .hako
 do not make converter_core.hako depend on syn output quirks
 do not silently drop unsupported Rust constructs
 do not infer identity from source names
+do not claim crate-wide handoff from the single-file adapter
 ```

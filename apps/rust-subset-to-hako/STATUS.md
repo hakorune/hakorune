@@ -59,6 +59,7 @@ loop_without_break_fixture_parity=ok
 break_continue_unsupported_handoff_parity=ok
 generic_function_fixture_parity=ok
 smoke_fixture_table_refactor=ok
+crate_handoff_inventory=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
 ```
@@ -210,6 +211,15 @@ closed:
     input_route_changed=0
     evidence=apps/rust-subset-to-hako/smoke.sh
     card=docs/development/current/main/phases/phase-296x/296x-1314-RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001.md
+
+  RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001
+    result=crate/multi-file handoff boundary inventoried before creat-style pilot
+    owner=external adapter boundary / app-front input route
+    current_adapter_single_file=1
+    preferred_next_contract=manifest_plus_per_module_RustSubsetModule_artifacts
+    crate_handoff_schema_accepted=0
+    converter_core_changed=0
+    card=docs/development/current/main/phases/phase-296x/296x-1315-RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001.md
 
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001
+RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -34,14 +34,17 @@ expression transport is closed by 296x-1310. Loop `break` / `continue` is
 fixture-guarded as an explicit Unsupported handoff by 296x-1311. Generic
 function skeleton transport is closed by 296x-1312. Unsupported trait handoff
 hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
-table-driven by 296x-1314.
+table-driven by 296x-1314. Crate/multi-file handoff boundaries are inventoried
+by 296x-1315; the preferred next contract is manifest plus per-module
+`RustSubsetModule` artifacts, but it is not implemented yet.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Select the next rust-subset-to-hako app-front slice after unsupported trait
-   handoff hardening.
-3. Keep converter core separate from input routes.
+2. Close `RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001` before crate
+   manifest implementation.
+3. Keep converter core separate from input routes and crate/file graph
+   discovery.
 4. Run:
 
 ```bash
@@ -93,6 +96,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - smoke fixture handling is table-driven
   - behavior, converter core, schema, and input routes are unchanged
   - Python reference, smoke, and adapter smoke are green
+- `RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001`
+  - current syn adapter is documented as single-file only
+  - crate handoff is scoped toward manifest plus per-module artifacts
+  - crate graph discovery remains external to `converter_core.hako`
 
 Closeout evidence:
 

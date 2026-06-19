@@ -120,3 +120,39 @@ rust-analyzer is deferred for semantic analysis
 
 The selected adapter is still replaceable because the handoff contract remains
 the RustSubset JSON v0 file.
+
+## Crate / Multi-file Handoff Status
+
+The current accepted handoff is one Rust source file to one `RustSubsetModule`
+JSON document. Crate-wide handoff is not accepted yet.
+
+```text
+current_adapter_input=single_rust_file
+current_adapter_output=RustSubsetModule
+crate_handoff_schema_accepted=0
+multi_file_adapter_enabled=0
+```
+
+Future crate handoff must keep this ownership split:
+
+```text
+external adapter:
+  crate/file graph discovery
+  module path/source path collection
+  per-file RustSubset module production
+
+Hakorune converter:
+  RustSubset JSON text parsing
+  schema validation
+  .hako skeleton emission
+```
+
+The preferred next formal contract is a crate manifest JSON that points at
+per-module `RustSubsetModule` JSON artifacts. The manifest is a transport
+index, not a semantic AST replacement for `RustSubsetModule`.
+
+Candidate crate-level artifacts and stop lines are documented in:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-1315-RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001.md
+```
