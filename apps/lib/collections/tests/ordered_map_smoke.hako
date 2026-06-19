@@ -1,0 +1,74 @@
+using apps.lib.collections.ordered_map as OrderedMap
+
+static box Main {
+    main() {
+        local m = OrderedMap.create()
+
+        m.set("b", 20)
+        m.set("a", 10)
+        m.set("c", 30)
+
+        if m.length() != 3 {
+            print("length_after_insert=fail")
+            return 1
+        }
+
+        local keys = m.keys()
+        if keys.length() != 3 {
+            print("keys_length=fail")
+            return 13
+        }
+
+        if m.key_at(0) != "a" {
+            print("key0=fail:" + m.key_at(0))
+            return 2
+        }
+        if m.key_at(1) != "b" {
+            print("key1=fail:" + m.key_at(1))
+            return 3
+        }
+        if m.key_at(2) != "c" {
+            print("key2=fail:" + m.key_at(2))
+            return 4
+        }
+
+        m.set("b", 21)
+        if m.length() != 3 {
+            print("update_duplicate=fail")
+            return 5
+        }
+        if m.get("b") != 21 {
+            print("updated_value=fail")
+            return 6
+        }
+        if m.get("missing") != null {
+            print("missing_get=fail")
+            return 7
+        }
+        if m.has("a") != true {
+            print("has_a=fail")
+            return 8
+        }
+        if m.has("missing") != false {
+            print("has_missing=fail")
+            return 9
+        }
+
+        local values = m.values()
+        if values.get(0) != 10 {
+            print("value0=fail")
+            return 10
+        }
+        if values.get(1) != 21 {
+            print("value1=fail")
+            return 11
+        }
+        if values.get(2) != 30 {
+            print("value2=fail")
+            return 12
+        }
+
+        print("ordered_map_smoke=ok")
+        return 0
+    }
+}

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKO-ORDERED-MAP-BOX-V0-001
+MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -40,17 +40,16 @@ RustSubset path/name normalization is closed by 296x-1317 without adding
 `.hako` syntax. The crate manifest v0 contract is accepted by 296x-1318. The
 synthetic multi-module adapter probe is closed by 296x-1319. Crate handoff MIR
 acceptance is closed by 296x-1320. OrderedMapBox is documented as a `.hako`
-library deterministic-map boundary by 296x-1321. The active blocker is the
-small OrderedMapBox v0 implementation.
+library deterministic-map boundary by 296x-1321. OrderedMapBox v0 and its
+focused EXE/AOT smoke are closed by 296x-1322. The active blocker is a focused
+BindingContext-style OrderedMapBox probe.
 
 ## Next
 
-1. Implement `apps/lib/collections/ordered_map.hako`.
-2. Keep v0 String-key only and deterministic lexical ordering only.
-3. Add focused smoke coverage for sorted keys, update-without-duplicate,
-   missing get, values order, and length.
-4. Do not change `MapBox`, ring0, ring1 provider registration, or MirBuilder in
-   this row.
+1. Add a focused BindingContext-style probe that uses OrderedMapBox.
+2. Verify deterministic String-key iteration against a small expected output.
+3. Do not rewrite MirBuilder or replace BindingContext in this row.
+4. Keep `MapBox`, ring0, and ring1 provider registration unchanged.
 5. Run:
 
 ```bash
@@ -130,6 +129,10 @@ bash tools/checks/current_state_pointer_guard.sh
 - `HAKO-ORDERED-MAP-BOX-SSOT-001`
   - OrderedMapBox v0 is documented as a `.hako` library utility
   - v0 owns deterministic String-key order only
+  - `MapBox`, ring0, ring1 provider registration, and MirBuilder remain unchanged
+- `HAKO-ORDERED-MAP-BOX-V0-001`
+  - OrderedMapBox v0 is implemented in `apps/lib/collections/ordered_map.hako`
+  - focused EXE/AOT smoke verifies deterministic order and update behavior
   - `MapBox`, ring0, ring1 provider registration, and MirBuilder remain unchanged
 
 Closeout evidence:

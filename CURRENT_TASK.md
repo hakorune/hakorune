@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKO-ORDERED-MAP-BOX-V0-001
+MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
 ```
 
 Purpose:
 
 ```text
-Implement the first `.hako` OrderedMapBox library for deterministic String-key
-iteration before using it in BindingContext-style MirBuilder migration probes.
+Use OrderedMapBox in a focused BindingContext-style probe before any broad
+MirBuilder rewrite.
 ```
 
 Current evidence:
@@ -66,6 +66,7 @@ RUST-SUBSET-CRATE-MANIFEST-V0-001 is closed by 296x-1318.
 RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001 is closed by 296x-1319.
 RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001 is closed by 296x-1320.
 HAKO-ORDERED-MAP-BOX-SSOT-001 is closed by 296x-1321.
+HAKO-ORDERED-MAP-BOX-V0-001 is closed by 296x-1322.
 ```
 
 Acceptance for the current slice:
@@ -73,23 +74,22 @@ Acceptance for the current slice:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused OrderedMapBox smoke added by HAKO-ORDERED-MAP-BOX-V0-001
+# plus the focused probe smoke added by
+# MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
 ```
 
 ## Task Order
 
-1. Implement `apps/lib/collections/ordered_map.hako`.
-2. Keep v0 String-key only and deterministic lexical ordering only.
-3. Add a focused smoke for insert order, update-without-duplicate, missing get,
-   values-in-key-order, and length.
-4. Do not change `MapBox`, ring0, ring1 provider registration, or MirBuilder in
-   this row.
+1. Add a focused BindingContext-style probe that uses OrderedMapBox.
+2. Verify deterministic String-key iteration against a small expected output.
+3. Do not rewrite MirBuilder or replace BindingContext in this row.
+4. Keep `MapBox`, ring0, and ring1 provider registration unchanged.
 5. Update `CURRENT_STATE.toml` when the implementation row closes.
 
 Recommended next row:
 
 ```text
-HAKO-ORDERED-MAP-BOX-V0-001
+MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001
 ```
 
 ## Pointers

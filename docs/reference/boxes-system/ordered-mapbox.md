@@ -79,6 +79,7 @@ box OrderedMapBox {
     has(key: StringBox)
     length()
     keys()
+    key_at(index: i64): StringBox
     values()
 }
 ```
@@ -104,6 +105,12 @@ length:
 
 keys:
   returns a snapshot ArrayBox of keys in deterministic order
+
+key_at:
+  returns the key at a deterministic ordered index
+  returns "" when out of range
+  exists so EXE/AOT tests can verify key order without relying on ArrayBox
+  element-type recovery
 
 values:
   returns a snapshot ArrayBox of values in key order
@@ -139,6 +146,9 @@ Do not route this through `MapBox` and then sort on every read unless a later
 card proves that shape is simpler and still deterministic. The reference
 contract is ordered storage, not dynamic-map behavior.
 
+v0 does not coerce keys. Callers pass String keys directly. This avoids mixing
+OrderedMapBox with MapBox key-publication/canonicalization semantics.
+
 ## Non-Goals
 
 ```text
@@ -163,6 +173,7 @@ update_existing_key_no_duplicate=1
 get_missing_returns_null=1
 values_follow_key_order=1
 length_updates_after_insert_only=1
+key_at_reports_ordered_string_keys=1
 ```
 
 ## Related Design

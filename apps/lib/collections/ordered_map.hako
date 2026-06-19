@@ -1,0 +1,117 @@
+// OrderedMapBox -- deterministic String-key ordered map.
+//
+// v0 is intentionally small: ArrayBox-backed storage, String keys only,
+// deterministic lexical order, and no MapBox/ring substrate ownership.
+
+static box OrderedMap {
+    create() {
+        local map = new OrderedMapBox()
+        map.keys_value = new ArrayBox()
+        map.values_value = new ArrayBox()
+        return map
+    }
+}
+
+box OrderedMapBox {
+    keys_value: ArrayBox
+    values_value: ArrayBox
+
+    set(key, value) {
+        if key == null {
+            return 0
+        }
+        local k = key
+
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == k {
+                me.values_value.set(i, value)
+                return 1
+            }
+            i = i + 1
+        }
+
+        me.keys_value.push(k)
+        me.values_value.push(value)
+        local pos = me.keys_value.length() - 1
+        loop(pos > 0) {
+            local prev = pos - 1
+            local a = me.keys_value.get(prev)
+            local b = me.keys_value.get(pos)
+            if a < b or a == b {
+                return 1
+            }
+
+            local av = me.values_value.get(prev)
+            local bv = me.values_value.get(pos)
+            me.keys_value.set(prev, b)
+            me.keys_value.set(pos, a)
+            me.values_value.set(prev, bv)
+            me.values_value.set(pos, av)
+            pos = pos - 1
+        }
+        return 1
+    }
+
+    get(key) {
+        if key == null {
+            return null
+        }
+        local k = key
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == k {
+                return me.values_value.get(i)
+            }
+            i = i + 1
+        }
+        return null
+    }
+
+    has(key) {
+        if key == null {
+            return false
+        }
+        local k = key
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == k {
+                return true
+            }
+            i = i + 1
+        }
+        return false
+    }
+
+    length() {
+        return me.keys_value.length()
+    }
+
+    keys() {
+        local out = new ArrayBox()
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            out.push(me.keys_value.get(i))
+            i = i + 1
+        }
+        return out
+    }
+
+    key_at(index): StringBox {
+        if index >= 0 and index < me.keys_value.length() {
+            return me.keys_value.get(index)
+        }
+        return ""
+    }
+
+    values() {
+        local out = new ArrayBox()
+        local i = 0
+        loop(i < me.values_value.length()) {
+            out.push(me.values_value.get(i))
+            i = i + 1
+        }
+        return out
+    }
+
+}

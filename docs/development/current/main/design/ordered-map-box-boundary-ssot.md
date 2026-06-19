@@ -123,12 +123,18 @@ get(key)
 has(key)
 length()
 keys()
+key_at(index)
 values()
 ```
 
-The first implementation should reject or fail closed on non-string keys if the
-runtime can detect them. If detection is not available, v0 callers must only
-pass string keys, and tests must stay in that domain.
+The first implementation does not coerce keys. v0 callers must pass String
+keys, and tests must stay in that domain. This keeps OrderedMapBox separate
+from MapBox key-publication/canonicalization semantics.
+
+`key_at(index): StringBox` is accepted as a v0 typed observer. It exists because
+EXE/AOT can lose ArrayBox element type information through `keys().get(i)`;
+`key_at` lets tests and compiler probes verify deterministic key order without
+turning `keys()` into a backend-specific contract.
 
 ## MirBuilder Migration Boundary
 
