@@ -32,7 +32,7 @@ pub(crate) fn type_name(ty: &Type) -> String {
                     .map(|segment| segment.ident == "str")
                     .unwrap_or(false)
                 {
-                    return "&str".to_string();
+                    return "String".to_string();
                 }
             }
             type_name(reference.elem.as_ref())

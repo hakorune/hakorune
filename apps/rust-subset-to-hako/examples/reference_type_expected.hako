@@ -1,0 +1,3 @@
+function maybe_name(value: Option<String>): Option<String> {
+    return value
+}

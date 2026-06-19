@@ -1,6 +1,6 @@
 # 296x-1365 RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -83,6 +83,20 @@ type_context_option_ref_str_parser_safe=1
 closure_handoff_changed=0
 generated_program_execution_claim=0
 summary=ok
+```
+
+Observed result:
+
+```text
+reference_type_fixture_adapter_json=green
+reference_type_fixture_python_parity=green
+reference_type_fixture_exe_parity=green
+metadata_context_option_ref_str_parser_safe=1
+type_context_option_ref_str_parser_safe=1
+type_context_generated_skeleton_mir_emit=green
+metadata_context_next_boundary=undefined Self value in HintSink_new
+closure_handoff_changed=0
+full_rust_subset_smoke=green
 ```
 
 ## Stop Line

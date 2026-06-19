@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013
 ```
 
 Purpose:
 
 ```text
-Make nested Rust reference type spellings parser-safe in generated `.hako`
-skeletons after `metadata_context` and `type_context` both exposed
-`Option<&str>`.
+Select the next rust-subset-to-hako app-front task after reference type
+spelling skeleton-safety was closed.
 ```
 
 Current evidence:
@@ -110,6 +109,7 @@ HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001 is closed by 296x-1361.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011 is closed by 296x-1362.
 RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001 is closed by 296x-1363.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012 is closed by 296x-1364.
+RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001 is closed by 296x-1365.
 ```
 
 Acceptance for the current slice:
@@ -122,22 +122,22 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1365.
-2. Add reference type spelling normalization for parser-safe skeleton type
-   annotations.
-3. Fixture nested `Option<&str>`.
-4. Re-probe `metadata_context` and `type_context`.
-5. Keep generated-program execution claim at 0.
+1. Read 296x-1366.
+2. Recheck `type_context` materialization readiness and `metadata_context`
+   next-boundary evidence.
+3. Select the next source-shape blocker or materialization row.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-013
 ```
 
-296x-1364 selected reference type spelling skeleton-safety because both
-`metadata_context` and `type_context` fail first on `Option<&str>`. 296x-1365
-must not add borrow, lifetime, closure, or generic semantics.
+296x-1365 closed reference type spelling skeleton-safety. `type_context`
+reaches generated-skeleton MIR emit, while `metadata_context` advances to an
+undefined `Self` value boundary. 296x-1366 selects the next app-front task
+before implementation.
 
 ## Pointers
 

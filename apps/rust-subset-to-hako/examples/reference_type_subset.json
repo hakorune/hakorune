@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Name",
+            "name": "value"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "maybe_name",
+      "params": [
+        {
+          "name": "value",
+          "type": "Option<String>"
+        }
+      ],
+      "return_type": "Option<String>"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "reference_type",
+  "schema_version": 0
+}
