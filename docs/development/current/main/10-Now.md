@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004
+HAKORUNE-MIR-BUILDER-BINDING-CONTEXT-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -42,16 +42,20 @@ unsupported expression handoffs; `crate::effect` now advances to unresolved
 handoffs, and `crate::effect` now reaches generated-skeleton MIR emit.
 296x-1347 materializes the effect bundle and guards it through
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
+296x-1348 selects `hakorune_mir_builder::binding_context` as the next
+MirBuilder-relevant single-module materialization task.
 
-The next row is 296x-1348. It should select the next app-front task before
-starting implementation.
+The next row is 296x-1349. It should materialize the selected
+`hakorune_mir_builder::binding_context` bundle and wrapper without
+generated-program execution claims.
 
 ## Next
 
-1. Read 296x-1348.
-2. Evaluate next app-front task candidates.
-3. Select the next implementation row without starting implementation.
-4. Run:
+1. Generate and check in the selected `binding_context` bundle.
+2. Add/update the focused wrapper.
+3. Verify checked-in generated skeleton MIR emit.
+4. Verify wrapper EXE emit.
+5. Run:
 
 ```bash
 cargo check -q --lib
@@ -60,7 +64,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-5. Update current pointers when the selection row closes.
+6. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 

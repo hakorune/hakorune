@@ -1,6 +1,6 @@
 # 296x-1348 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -92,6 +92,58 @@ selected_scope=<short description>
 selected_reason=<short reason>
 implementation_allowed=0
 next_card_name=<card>
+summary=ok
+```
+
+## Probe
+
+Fresh candidate probes:
+
+```text
+hakorune_mir_core::crate:
+  generated_skeleton_mir_emit=green
+  hako_lines=15
+  content=Use comments only
+  selected=0
+  reason=low_forward_value
+
+hakorune_frontend_ast::build_predicate:
+  generated_skeleton_mir_emit=green
+  hako_lines=10
+  content=enum comment-only
+  selected=0
+  reason=low_forward_value
+
+hakorune_mir_builder::binding_context:
+  generated_skeleton_mir_emit=green
+  hako_lines=47
+  selected=1
+  reason=MirBuilder migration relevant context slice
+
+hakorune_mir_defs::call_unified:
+  generated_skeleton_mir_emit=fail
+  first_failure=Unresolved function: CallFlags_new
+
+hakorune_mir_joinir::ownership_types:
+  generated_skeleton_mir_emit=fail
+  first_failure=unsupported type spelling / unsupported loop shape
+
+hakorune_mir_builder::core_context:
+  generated_skeleton_mir_emit=fail
+  first_failure=Unresolved function: BindingId_new
+```
+
+## Decision
+
+Select the smallest real MirBuilder-adjacent module that already reaches
+generated-skeleton MIR emit:
+
+```text
+selected_next_task=HAKORUNE-MIR-BUILDER-BINDING-CONTEXT-MATERIALIZATION-001
+selected_scope=hakorune_mir_builder::binding_context single-module bundle
+selected_reason=green generated-skeleton MIR acceptance with direct MirBuilder migration relevance
+implementation_allowed=0
+next_card_name=296x-1349-HAKORUNE-MIR-BUILDER-BINDING-CONTEXT-MATERIALIZATION-001
 summary=ok
 ```
 
