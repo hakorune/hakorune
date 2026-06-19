@@ -127,21 +127,23 @@ advances to the undefined `Self` value boundary. 296x-1366 selects
 `hakorune_mir_builder::type_context` materialization as the next task because
 it is the next green MirBuilder-owned context module. That type_context bundle
 is now checked in and guarded through generated-skeleton MIR emit, wrapper EXE
-parity, and full rust-subset smoke. The next blocker is selecting the next
-app-front task before implementation."""
+parity, and full rust-subset smoke. 296x-1368 selects Self value
+skeleton-safety as the next blocker after `metadata_context` exposed
+`HintSink_new` returning an undefined generated `Self` value."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1368-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1369-RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001.md"
 
-latest_card = "296x-1368-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1368-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014.md"
-latest_card_summary = """296x-1368 selects the next rust-subset-to-hako
-app-front task after hakorune_mir_builder::type_context materialization."""
+latest_card = "296x-1369-RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1369-RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001.md"
+latest_card_summary = """296x-1369 makes Self value references
+skeleton-safe after metadata_context exposed HintSink_new returning undefined
+Self."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014"
+current_blocker_token = "RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -222,4 +224,5 @@ landed_tail = [
   "2026-06-20: 296x-1365 makes reference type spelling parser-safe; type_context reaches MIR emit and metadata_context advances to undefined Self.",
   "2026-06-20: 296x-1366 selects hakorune_mir_builder::type_context as the next green MirBuilder context materialization task.",
   "2026-06-20: 296x-1367 materializes hakorune_mir_builder::type_context and guards it through generated-skeleton MIR emit plus wrapper EXE parity.",
+  "2026-06-20: 296x-1368 selects Self value skeleton-safety after metadata_context exposes HintSink_new returning undefined Self.",
 ]

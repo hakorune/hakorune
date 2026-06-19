@@ -1,6 +1,6 @@
 # 296x-1368 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,22 @@ candidate_C=next green module inventory
 candidate_D=crate/module bundle aggregation after current context set
 ```
 
+## Selection Result
+
+```text
+selected_next_task=RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001
+selected_scope=Self value skeleton-safety for metadata_context / HintSink_new
+selected_reason=metadata_context now fails first on undefined Self value after type_context materialization; closure remains a later unsupported-expression boundary
+implementation_allowed=0
+next_card_name=296x-1369-RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001
+summary=ok
+```
+
+`Self` value handling is the smallest real-front blocker now exposed by
+`hakorune_mir_builder::metadata_context`. It is more direct than closure
+handoff hardening because the current first MIR-emission failure is
+`HintSink_new` returning an undefined generated `Self` value.
+
 ## Selection Rules
 
 ```text
@@ -76,11 +92,11 @@ fixture_or_manifest_gate_available=1
 Produce a decision with:
 
 ```text
-selected_next_task=<token>
-selected_scope=<short description>
-selected_reason=<short reason>
+selected_next_task=RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001
+selected_scope=Self value skeleton-safety for metadata_context / HintSink_new
+selected_reason=metadata_context now fails first on undefined Self value after type_context materialization
 implementation_allowed=0
-next_card_name=<card>
+next_card_name=296x-1369-RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001
 summary=ok
 ```
 

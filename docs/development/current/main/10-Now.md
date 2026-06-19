@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014
+RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -78,15 +78,16 @@ materialization task after previous skeleton-safety blockers were closed.
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
 296x-1367 materializes `hakorune_mir_builder::type_context` and guards it
-through generated-skeleton MIR emit plus wrapper EXE parity. The active row is
-296x-1368, which should select the next app-front task before implementation.
+through generated-skeleton MIR emit plus wrapper EXE parity. 296x-1368 selects
+Self value skeleton-safety after `metadata_context` exposes `HintSink_new`
+returning an undefined generated `Self` value. The active row is 296x-1369.
 
 ## Next
 
-1. Read 296x-1368.
-2. Recheck `metadata_context` next-boundary evidence and remaining green
-   module candidates.
-3. Select the next app-front task before implementation.
+1. Read 296x-1369.
+2. Make `Self` value references skeleton-safe without Rust construction
+   semantics.
+3. Recheck `metadata_context` and record the next boundary or green status.
 4. Run:
 
 ```bash
