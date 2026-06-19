@@ -20,6 +20,7 @@ use crate::mir::string_corridor_names::{
     is_runtime_len_handle_export, is_runtime_substring_concat3_export, is_runtime_substring_export,
     is_runtime_substring_len_export, is_slice_method_name,
 };
+use crate::mir::ssot::method_call::method_call_operand_view;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct AddShape {
@@ -108,11 +109,9 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
             args,
             effects,
             ..
-        } if is_len_method_name(method)
-            && (args.is_empty()
-                || (args.len() == 1 && args.first().is_some_and(|arg| arg == receiver))) =>
-        {
-            Some((*dst, *receiver, *effects))
+        } if is_len_method_name(method) => {
+            let view = method_call_operand_view(*receiver, args, 0)?;
+            Some((*dst, view.operand_receiver, *effects))
         }
         MirInstruction::Call {
             dst: Some(dst),
@@ -165,13 +164,12 @@ pub(crate) fn match_substring_call(
             args,
             effects,
             ..
-        } if is_slice_method_name(method) && matches!(args.len(), 2 | 3) => {
-            let (source, start, end) = if args.len() == 3 {
-                (args[0], args[1], args[2])
-            } else {
-                (*receiver, args[0], args[1])
+        } if is_slice_method_name(method) => {
+            let view = method_call_operand_view(*receiver, args, 2)?;
+            let [start, end] = view.explicit_args else {
+                return None;
             };
-            Some((*dst, source, start, end, *effects))
+            Some((*dst, view.operand_receiver, *start, *end, *effects))
         }
         MirInstruction::Call {
             dst: Some(dst),
@@ -244,13 +242,12 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
                 }),
             args,
             ..
-        } if is_slice_method_name(method) && matches!(args.len(), 2 | 3) => {
-            let (source, start, end) = if args.len() == 3 {
-                (args[0], args[1], args[2])
-            } else {
-                (*source, args[0], args[1])
+        } if is_slice_method_name(method) => {
+            let view = method_call_operand_view(*source, args, 2)?;
+            let [start, end] = view.explicit_args else {
+                return None;
             };
-            Some((source, start, end))
+            Some((view.operand_receiver, *start, *end))
         }
         MirInstruction::Call {
             callee: Some(Callee::Extern(name)),
