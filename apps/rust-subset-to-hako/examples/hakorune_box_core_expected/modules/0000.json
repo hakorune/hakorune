@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "fields": [],
+      "identity": false,
+      "kind": "Struct",
+      "name": "BoxCoreBoundary"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Literal",
+                "type": "String",
+                "value": "hakorune-box-core"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "name",
+          "params": [],
+          "receiver": "self_value",
+          "return_type": "&str"
+        }
+      ],
+      "target": "BoxCoreBoundary"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate",
+  "schema_version": 0
+}

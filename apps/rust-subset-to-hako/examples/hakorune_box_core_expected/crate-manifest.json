@@ -1,0 +1,27 @@
+{
+  "crate_name": "hakorune_box_core",
+  "kind": "RustSubsetCrateManifest",
+  "modules": [
+    {
+      "artifact_path": "modules/0000.json",
+      "module": "crate",
+      "source_path": "src/lib.rs"
+    },
+    {
+      "artifact_path": "modules/0001.json",
+      "module": "crate::plugin",
+      "source_path": "src/plugin.rs"
+    },
+    {
+      "artifact_path": "modules/0002.json",
+      "module": "crate::policy",
+      "source_path": "src/policy.rs"
+    }
+  ],
+  "root_module": "crate",
+  "schema_version": 0,
+  "target": {
+    "kind": "lib",
+    "name": "hakorune_box_core"
+  }
+}

@@ -87,6 +87,8 @@ V0 does not implement:
 - `convert_index_fixture.hako`: startup wrapper for the selected index expression fixture
 - `convert_break_continue_fixture.hako`: startup wrapper for the break/continue unsupported fixture
 - `convert_generic_function_fixture.hako`: startup wrapper for the generic function skeleton fixture
+- `convert_hakorune_box_core_crate_file.hako`: focused wrapper for the
+  `hakorune_box_core` crate pilot
 - `fixtures/simple_subset_embedded.hako`: host-generated embedded JSON fixture
 - `tools/embed_fixture.py`: host tool that generates embedded fixture modules
 - `tools/crate_inventory.py`: host tool that inventories an existing
@@ -179,12 +181,11 @@ Keep converter core separate from input route work.
 
 ```text
 active next:
-  HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
-    generate a hakorune_box_core RustSubset crate bundle with the external
-    syn adapter
-    run the bundle through the existing crate handoff / converter path
+  RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
+    decide whether generated top-level function skeletons are MIR accepted
+    or emitted as comments until function declarations are in scope
     keep `Use` as explicit Unsupported handoff
-    verify generated skeletons at parse / MIR emit level only
+    do not add Rust name resolution
 
 hardening:
   unsupported diagnostics provenance
@@ -234,6 +235,18 @@ The inventory tool is intentionally read-only over RustSubset JSON artifacts.
 It does not invoke the adapter, parse Rust, resolve names, or touch
 `converter_core.hako`. Its output is a selection report for choosing the next
 small 2-3 module pilot slice.
+
+The first real crate pilot is `crates/hakorune_box_core`. Its checked-in bundle
+is:
+
+```text
+apps/rust-subset-to-hako/examples/hakorune_box_core_expected/
+```
+
+The full generated skeleton parses. The leaf modules emit MIR. The root module
+contains a generated top-level function skeleton, so full-root MIR acceptance is
+tracked by the follow-up `RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001`
+task instead of being hidden inside crate handoff.
 
 The dedicated adapter handoff gate is:
 

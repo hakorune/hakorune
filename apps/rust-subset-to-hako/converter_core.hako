@@ -103,6 +103,9 @@ box RustSubsetConverter {
         local body = ""
         if fields != null {
             local fc = fields.length()
+            if fc == 0 {
+                return "// TODO: empty " + keyword + " " + name + " is out of v0 skeleton scope"
+            }
             local fi = 0
             loop(fi < fc) {
                 local field = fields.get_node(fi)
@@ -168,10 +171,10 @@ box RustSubsetConverter {
         // Build params
         local params = ""
 
-        // Receiver: self_ref/self_mut/self_value -> me: TargetType
+        // Receiver: self_ref/self_mut/self_value -> receiver: TargetType
         local receiver = me.node_str(func.get_node("receiver"))
         if receiver != "none" && receiver != "" && target_prefix != "" {
-            params = "me: " + target_prefix
+            params = "receiver: " + target_prefix
         }
 
         // Explicit params
@@ -294,7 +297,7 @@ box RustSubsetConverter {
         if kind == "Name" {
             local n = me.node_str(expr.get_node("emitted_name"))
             if n == "" { n = me.node_str(expr.get_node("name")) }
-            if n == "self" { return "me" }
+            if n == "self" { return "receiver" }
             return n
         }
 

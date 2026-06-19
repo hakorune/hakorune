@@ -3,8 +3,8 @@ record Point {
     y: i64
 }
 
-function Point_len2(me: Point): i64 {
-    return me.x * me.x + me.y * me.y
+function Point_len2(receiver: Point): i64 {
+    return receiver.x * receiver.x + receiver.y * receiver.y
 }
 
 function add(a: i64, b: i64): i64 {

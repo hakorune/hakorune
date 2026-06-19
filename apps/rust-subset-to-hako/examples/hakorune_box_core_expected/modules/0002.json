@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "kind": "Enum",
+      "name": "FactoryPolicy",
+      "variants": [
+        {
+          "fields": [],
+          "name": "StrictPluginFirst"
+        },
+        {
+          "fields": [],
+          "name": "CompatPluginFirst"
+        },
+        {
+          "fields": [],
+          "name": "BuiltinFirst"
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": "FactoryType",
+      "variants": [
+        {
+          "fields": [],
+          "name": "Builtin"
+        },
+        {
+          "fields": [],
+          "name": "User"
+        },
+        {
+          "fields": [],
+          "name": "Plugin"
+        }
+      ]
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::policy",
+  "schema_version": 0
+}

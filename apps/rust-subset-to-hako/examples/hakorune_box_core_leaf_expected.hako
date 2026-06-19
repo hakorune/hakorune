@@ -1,0 +1,18 @@
+// module crate::plugin
+// source src/plugin.rs
+// enum PluginExecMode
+//   ModuleFirst
+//   DynamicOnly
+//   DynamicFirst
+
+// module crate::policy
+// source src/policy.rs
+// enum FactoryPolicy
+//   StrictPluginFirst
+//   CompatPluginFirst
+//   BuiltinFirst
+
+// enum FactoryType
+//   Builtin
+//   User
+//   Plugin

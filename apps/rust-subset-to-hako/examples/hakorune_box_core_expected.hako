@@ -1,0 +1,30 @@
+// module crate
+// source src/lib.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: empty record BoxCoreBoundary is out of v0 skeleton scope
+
+function BoxCoreBoundary_name(receiver: BoxCoreBoundary): String {
+    return "hakorune-box-core"
+}
+
+// module crate::plugin
+// source src/plugin.rs
+// enum PluginExecMode
+//   ModuleFirst
+//   DynamicOnly
+//   DynamicFirst
+
+// module crate::policy
+// source src/policy.rs
+// enum FactoryPolicy
+//   StrictPluginFirst
+//   CompatPluginFirst
+//   BuiltinFirst
+
+// enum FactoryType
+//   Builtin
+//   User
+//   Plugin

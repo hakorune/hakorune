@@ -1,0 +1,246 @@
+// convert_hakorune_box_core_crate_file.hako — focused real-crate pilot wrapper.
+//
+// This wrapper owns the crate handoff route for the hakorune_box_core pilot:
+// manifest validation, safe artifact path checks, FileBox reads, module-id
+// matching, and per-module converter calls. converter_core.hako remains the
+// RustSubsetModule JSON -> .hako skeleton owner.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.lib.json_native.utils.string as StringUtils
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local manifest_path = "apps/rust-subset-to-hako/examples/hakorune_box_core_expected/crate-manifest.json"
+
+        local manifest_file = new FileBox()
+        local manifest_opened = manifest_file.open(manifest_path, "r")
+        if manifest_opened == 0 {
+            print("// error: crate manifest open failed")
+            return 1
+        }
+        local manifest_text = manifest_file.read()
+        manifest_file.close()
+        if manifest_text == null {
+            print("// error: crate manifest read failed")
+            return 1
+        }
+
+        local manifest = JsonParserUtils.parse_json(manifest_text)
+        if manifest == null {
+            print("// error: invalid crate manifest JSON")
+            return 1
+        }
+        if manifest.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported crate manifest schema_version")
+            return 1
+        }
+        if manifest.get_node("kind").as_string() != "RustSubsetCrateManifest" {
+            print("// error: unsupported crate manifest kind")
+            return 1
+        }
+        local modules = manifest.get_node("modules")
+        if modules == null {
+            print("// error: crate manifest modules must be an array")
+            return 1
+        }
+        if modules.get_kind() != "array" {
+            print("// error: crate manifest modules must be an array")
+            return 1
+        }
+
+        if modules.length() != 3 {
+            print("// error: hakorune_box_core pilot manifest must contain 3 modules")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+
+        local entry0 = modules.get_node(0)
+        local module_name0 = entry0.get_node("module").as_string()
+        local source_path0 = entry0.get_node("source_path").as_string()
+        local artifact_path0 = entry0.get_node("artifact_path").as_string()
+        if module_name0 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if source_path0 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if artifact_path0 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if StringUtils.starts_with(artifact_path0, "/") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if StringUtils.contains(artifact_path0, "..") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if artifact_path0 != "modules/0000.json" {
+            print("// error: unexpected artifact_path")
+            return 1
+        }
+        local artifact_file0 = new FileBox()
+        local artifact_opened0 = artifact_file0.open(
+            "apps/rust-subset-to-hako/examples/hakorune_box_core_expected/modules/0000.json",
+            "r"
+        )
+        if artifact_opened0 == 0 {
+            print("// error: module artifact open failed")
+            return 1
+        }
+        local module_text0 = artifact_file0.read()
+        artifact_file0.close()
+        if module_text0 == null {
+            print("// error: module artifact read failed")
+            return 1
+        }
+        local module_doc0 = JsonParserUtils.parse_json(module_text0)
+        if module_doc0.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported module schema_version")
+            return 1
+        }
+        if module_doc0.get_node("kind").as_string() != "RustSubsetModule" {
+            print("// error: unsupported module artifact kind")
+            return 1
+        }
+        if module_doc0.get_node("module").as_string() != module_name0 {
+            print("// error: module id mismatch")
+            return 1
+        }
+        local module_output0 = converter.convert(module_text0)
+
+        local entry1 = modules.get_node(1)
+        local module_name1 = entry1.get_node("module").as_string()
+        local source_path1 = entry1.get_node("source_path").as_string()
+        local artifact_path1 = entry1.get_node("artifact_path").as_string()
+        if module_name1 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if source_path1 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if artifact_path1 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if StringUtils.starts_with(artifact_path1, "/") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if StringUtils.contains(artifact_path1, "..") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if artifact_path1 != "modules/0001.json" {
+            print("// error: unexpected artifact_path")
+            return 1
+        }
+        local artifact_file1 = new FileBox()
+        local artifact_opened1 = artifact_file1.open(
+            "apps/rust-subset-to-hako/examples/hakorune_box_core_expected/modules/0001.json",
+            "r"
+        )
+        if artifact_opened1 == 0 {
+            print("// error: module artifact open failed")
+            return 1
+        }
+        local module_text1 = artifact_file1.read()
+        artifact_file1.close()
+        if module_text1 == null {
+            print("// error: module artifact read failed")
+            return 1
+        }
+        local module_doc1 = JsonParserUtils.parse_json(module_text1)
+        if module_doc1.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported module schema_version")
+            return 1
+        }
+        if module_doc1.get_node("kind").as_string() != "RustSubsetModule" {
+            print("// error: unsupported module artifact kind")
+            return 1
+        }
+        if module_doc1.get_node("module").as_string() != module_name1 {
+            print("// error: module id mismatch")
+            return 1
+        }
+        local module_output1 = converter.convert(module_text1)
+
+        local entry2 = modules.get_node(2)
+        local module_name2 = entry2.get_node("module").as_string()
+        local source_path2 = entry2.get_node("source_path").as_string()
+        local artifact_path2 = entry2.get_node("artifact_path").as_string()
+        if module_name2 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if source_path2 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if artifact_path2 == "" {
+            print("// error: malformed crate manifest module entry")
+            return 1
+        }
+        if StringUtils.starts_with(artifact_path2, "/") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if StringUtils.contains(artifact_path2, "..") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if artifact_path2 != "modules/0002.json" {
+            print("// error: unexpected artifact_path")
+            return 1
+        }
+        local artifact_file2 = new FileBox()
+        local artifact_opened2 = artifact_file2.open(
+            "apps/rust-subset-to-hako/examples/hakorune_box_core_expected/modules/0002.json",
+            "r"
+        )
+        if artifact_opened2 == 0 {
+            print("// error: module artifact open failed")
+            return 1
+        }
+        local module_text2 = artifact_file2.read()
+        artifact_file2.close()
+        if module_text2 == null {
+            print("// error: module artifact read failed")
+            return 1
+        }
+        local module_doc2 = JsonParserUtils.parse_json(module_text2)
+        if module_doc2.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported module schema_version")
+            return 1
+        }
+        if module_doc2.get_node("kind").as_string() != "RustSubsetModule" {
+            print("// error: unsupported module artifact kind")
+            return 1
+        }
+        if module_doc2.get_node("module").as_string() != module_name2 {
+            print("// error: module id mismatch")
+            return 1
+        }
+        local module_output2 = converter.convert(module_text2)
+
+        print("// module crate")
+        print("// source src/lib.rs")
+        print(module_output0)
+        print("")
+        print("// module crate::plugin")
+        print("// source src/plugin.rs")
+        print(module_output1)
+        print("")
+        print("// module crate::policy")
+        print("// source src/policy.rs")
+        print(module_output2)
+        return 0
+    }
+}

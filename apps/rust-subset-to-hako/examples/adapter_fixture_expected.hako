@@ -2,8 +2,8 @@ box Counter {
     value: i64
 }
 
-function Counter_get(me: Counter): i64 {
-    return me.value
+function Counter_get(receiver: Counter): i64 {
+    return receiver.value
 }
 
 function make_counter(value: i64): i64 {

@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "kind": "Enum",
+      "name": "PluginExecMode",
+      "variants": [
+        {
+          "fields": [],
+          "name": "ModuleFirst"
+        },
+        {
+          "fields": [],
+          "name": "DynamicOnly"
+        },
+        {
+          "fields": [],
+          "name": "DynamicFirst"
+        }
+      ]
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::plugin",
+  "schema_version": 0
+}

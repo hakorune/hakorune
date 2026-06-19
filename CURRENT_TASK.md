@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
+RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
 ```
 
 Purpose:
 
 ```text
-Run the selected `hakorune_box_core` RustSubset crate pilot through the
-existing crate handoff path after closing creat-style pilot selection.
+Accept or deliberately reframe generated top-level function skeletons so the
+`hakorune_box_core` root module can progress from parse-only to MIR emit.
 ```
 
 Current evidence:
@@ -73,6 +73,7 @@ FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001 is closed by 296x-1325.
 IMPORTED-FIELD-INIT-BIRTH-MERGE-FIX-001 is closed by 296x-1326.
 GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001 is closed by 296x-1327.
 CREAT-SUBSET-PILOT-SELECTION-001 is closed by 296x-1328.
+HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1329.
 ```
 
 Acceptance for the current slice:
@@ -81,25 +82,25 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused inventory/adapter command selected by
-# 296x-1328.
+# plus the focused generated-function MIR acceptance command selected by
+# 296x-1329.
 ```
 
 ## Task Order
 
-1. Generate a `hakorune_box_core` RustSubset crate bundle with the external
-   syn adapter.
-2. Run the bundle through the existing crate handoff / converter path.
+1. Reproduce the root-module MIR failure on
+   `hakorune_box_core_expected.hako`.
+2. Decide whether generated top-level functions should be MIR-accepted or
+   emitted as comments until function declarations are in scope.
 3. Keep `Use` as explicit Unsupported handoff; do not implement Rust name
    resolution.
-4. Verify generated skeletons at parse / MIR emit level only.
-5. Keep Rust parser/crate graph discovery in the external adapter boundary.
-6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
+RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
 ```
 
 ## Pointers

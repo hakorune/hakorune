@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001
+RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -53,18 +53,21 @@ diagnostics are improved by 296x-1327 with callee-aware `reason_detail` and
 `reason_hint` fields. Creat subset pilot selection is closed by 296x-1328 with
 a read-only crate inventory tool. The selected first real pilot is
 `hakorune_box_core`: three modules, seven items, and two known Unsupported
-`Use` handoffs in the root module.
+`Use` handoffs in the root module. The crate pilot is closed by 296x-1329:
+the bundle is checked in, the full generated skeleton parses, and leaf modules
+emit MIR. The remaining blocker is generated top-level function MIR acceptance
+for the root module.
 
 ## Next
 
-1. Generate a `hakorune_box_core` RustSubset crate bundle with the external
-   syn adapter.
-2. Run the bundle through the existing crate handoff / converter path.
+1. Reproduce the root-module MIR failure on
+   `hakorune_box_core_expected.hako`.
+2. Decide whether generated top-level functions should be MIR-accepted or
+   emitted as comments until function declarations are in scope.
 3. Keep `Use` as explicit Unsupported handoff; do not implement Rust name
    resolution.
-4. Verify generated skeletons at parse / MIR emit level only.
-5. Keep Rust parser/crate graph discovery in the external adapter boundary.
-6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 7. Run:
 
 ```bash
@@ -89,6 +92,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - `crate_inventory.py` inventories manifest bundles without parsing Rust
   - `hakorune_box_core` is selected as the first real 3-module crate pilot
   - `Use` remains explicit Unsupported handoff; no new `.hako` syntax is added
+- `HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001`
+  - `hakorune_box_core` manifest bundle is checked in
+  - empty struct and impl receiver skeleton output are made parser-safe
+  - full skeleton parse and leaf-module MIR emit are verified
 - `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`

@@ -83,9 +83,9 @@ def emit_expr(expr: dict) -> str:
 
     if kind == "Name":
         # { "kind": "Name", "name": "x" }
-        # Rust `self` maps to .hako `me`
+        # Rust `self` maps to the receiver parameter emitted for impl methods.
         name = emitted_name(expr, "Name")
-        return "me" if name == "self" else name
+        return "receiver" if name == "self" else name
 
     if kind == "Field":
         # { "kind": "Field", "base": {...}, "field": "x" }
@@ -209,7 +209,7 @@ def emit_function(func: dict, target_prefix: str = None) -> str:
     Convert a RustSubset Function (or Impl method) to a .hako function.
 
     If *target_prefix* is given (e.g. "Point"), the function name is prefixed
-    ("Point_len2") and a receiver parameter `me: Point` is inserted.
+    ("Point_len2") and a receiver parameter `receiver: Point` is inserted.
     """
     name = emitted_name(func, "Function")
     if target_prefix:
@@ -218,10 +218,10 @@ def emit_function(func: dict, target_prefix: str = None) -> str:
     # Build parameter list
     params = []
 
-    # Receiver handling: self_ref / self_mut / self_value -> me: TargetType
+    # Receiver handling: self_ref / self_mut / self_value -> receiver: TargetType
     receiver = func.get("receiver", "none")
     if receiver != "none" and target_prefix:
-        params.append(f"me: {target_prefix}")
+        params.append(f"receiver: {target_prefix}")
 
     # Explicit params
     for p in func.get("params", []):
@@ -259,6 +259,8 @@ def emit_item(item: dict) -> str:
         fields = item.get("fields", [])
 
         keyword = "box" if identity else "record"
+        if not fields:
+            return f"// TODO: empty {keyword} {name} is out of v0 skeleton scope"
         field_lines = "\n".join(
             f"{INDENT}{emitted_name(f, 'Struct field')}: {map_type(require_key(f, 'type', 'Struct field'))}"
             for f in fields
