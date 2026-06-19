@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001
+RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001
 ```
 
 Purpose:
 
 ```text
-Materialize the selected `hakorune_mir_core` ID-module slice and run it through
-the existing RustSubset skeleton pipeline.
+Make Rust tuple-struct constructor expressions MIR-safe in generated skeleton
+output so the selected `hakorune_mir_core` ID-module slice can be materialized.
 ```
 
 Current evidence:
@@ -81,6 +81,7 @@ RUST-SUBSET-CRATE-WRAPPER-EXE-PURE-ROUTE-UNBLOCK-001 is closed by 296x-1333.
 PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001 is closed by 296x-1334.
 RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001 is closed by 296x-1335.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001 is closed by 296x-1336.
+HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001 is blocked by 296x-1337.
 ```
 
 Acceptance for the current slice:
@@ -90,29 +91,30 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 # plus a focused crate-wrapper EXE diagnostic command selected by the new row.
-# plus the focused selected-slice commands from the new row.
+# plus the focused tuple-struct constructor skeleton command from the new row.
 ```
 
 ## Task Order
 
-1. Materialize a focused `hakorune_mir_core` bundle for:
-   `crate::basic_block_id`, `crate::binding_id`, `crate::value_id`.
-2. Check in the selected RustSubset JSON bundle and expected skeleton output.
-3. Add or update a crate wrapper for the selected ID-module slice.
-4. Verify generated skeleton parse / MIR emit and wrapper `--emit-exe`.
-5. Keep generated-program execution claim at 0.
-6. If a source-shape blocker appears, capture it as the next row instead of
-   pre-implementing broad Rust semantics.
+1. Add a focused RustSubset fixture for tuple-struct constructor expressions
+   such as `BasicBlockId(id)`.
+2. Make generated skeleton output MIR-safe without adding Rust name resolution
+   or executable record-constructor semantics.
+3. Verify Python reference parity and `.hako` converter parity for the new
+   fixture.
+4. Re-run the selected ID-module generated skeleton MIR probe.
+5. Do not check in the ID-module bundle until the skeleton is MIR-safe.
+6. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001
+RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001
 ```
 
-296x-1336 selected the next slice as `hakorune_mir_core` ID modules:
-`basic_block_id`, `binding_id`, and `value_id`. The next row should materialize
-that slice and run it through the existing skeleton pipeline.
+296x-1337 probed the selected ID-module slice and found that tuple-struct
+constructor expressions are emitted as unresolved Hako calls. Fix that
+skeleton-safety blocker before checking in the ID-module bundle.
 
 ## Pointers
 
