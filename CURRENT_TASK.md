@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012
 ```
 
 Purpose:
 
 ```text
-Make generic Rust impl targets parser-safe in generated `.hako` skeletons
-after `hakorune_mir_builder::metadata_context` exposed
-`MetadataContext<SpanT, RegionIdT>_new` as an invalid generated function name.
+Select the next rust-subset-to-hako app-front task after generic impl target
+skeleton-safety was closed.
 ```
 
 Current evidence:
@@ -108,6 +107,7 @@ HAKORUNE-MIR-BUILDER-CONTEXT-MATERIALIZATION-001 is closed by 296x-1359.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-010 is closed by 296x-1360.
 HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001 is closed by 296x-1361.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011 is closed by 296x-1362.
+RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001 is closed by 296x-1363.
 ```
 
 Acceptance for the current slice:
@@ -120,24 +120,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1363.
-2. Add an adapter-owned parser-safe emitted target name for generic impl
-   targets.
-3. Make the Python reference and `.hako` converter use that emitted target for
-   generated impl function prefixes and receiver spelling.
-4. Re-probe `hakorune_mir_builder::metadata_context`.
-5. Keep generated-program execution claim at 0.
+1. Read 296x-1364.
+2. Recheck the `metadata_context` and `type_context` next-boundary evidence.
+3. Select the next source-shape blocker or materialization row.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012
 ```
 
-296x-1362 selected `metadata_context` generic impl target spelling as the
-smallest next source-shape blocker. 296x-1363 implements the skeleton-safety
-fix only; it must not add generic semantics, Rust name resolution, or
-reference/closure support.
+296x-1363 closed generic impl target skeleton-safety and advanced
+`metadata_context` to the existing `Option<&str>` / closure handoff boundary.
+296x-1364 selects the next app-front task before implementation.
 
 ## Pointers
 

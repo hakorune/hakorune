@@ -158,7 +158,8 @@ box RustSubsetConverter {
     }
 
     emit_impl(item) {
-        local target = me.node_str(item.get_node("target"))
+        local target = me.node_str(item.get_node("target_emitted_name"))
+        if target == "" { target = me.node_str(item.get_node("target")) }
         local methods = item.get_node("methods")
         local result = ""
         if methods == null {

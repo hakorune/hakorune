@@ -1,6 +1,6 @@
 # 296x-1363 RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -91,6 +91,20 @@ metadata_context_generated_skeleton_reaches_next_boundary=1
 converter_core_filebox_ownership=0
 generated_program_execution_claim=0
 summary=ok
+```
+
+Observed result:
+
+```text
+adapter_target_emitted_name_added=1
+converter_uses_target_emitted_name=1
+python_reference_uses_target_emitted_name=1
+generic_impl_target_fixture_adapter_json=green
+generic_impl_target_fixture_python_parity=green
+generic_impl_target_fixture_exe_parity=green
+metadata_context_invalid_function_name_removed=1
+metadata_context_next_boundary=Option<&str> return type / closure handoff
+full_rust_subset_smoke=green
 ```
 
 ## Stop Line

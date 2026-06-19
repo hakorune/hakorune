@@ -6,7 +6,7 @@ use syn::{Fields, ImplItem, Item};
 use crate::exprs::ExprContext;
 use crate::functions::function_to_json_with_context;
 use crate::names::{assert_unique_names, emitted_ident, insert_name_metadata};
-use crate::types::{item_kind, type_name};
+use crate::types::{item_kind, type_name, type_target_emitted_name};
 
 pub(crate) fn file_to_json(file: &syn::File, module: String) -> Value {
     file_to_json_inner(file, module, true)
@@ -124,6 +124,7 @@ fn item_to_json(item: &Item, expr_context: &ExprContext) -> Value {
         Item::Fn(item) => function_to_json_with_context(&item.sig, &item.block, expr_context),
         Item::Impl(item) => {
             let target = type_name(item.self_ty.as_ref());
+            let target_emitted_name = type_target_emitted_name(item.self_ty.as_ref());
             let methods = item
                 .items
                 .iter()
@@ -137,11 +138,15 @@ fn item_to_json(item: &Item, expr_context: &ExprContext) -> Value {
                 })
                 .collect::<Vec<_>>();
             assert_unique_names(&methods, "impl methods");
-            json!({
+            let mut value = json!({
                 "kind": "Impl",
                 "target": target,
                 "methods": methods,
-            })
+            });
+            if target_emitted_name != target {
+                value["target_emitted_name"] = json!(target_emitted_name);
+            }
+            value
         }
         _ => json!({
             "kind": "Unsupported",

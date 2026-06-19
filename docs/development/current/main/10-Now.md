@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -77,16 +77,16 @@ materialization task after previous skeleton-safety blockers were closed.
 296x-1361 materializes that call_unified bundle and guards it through
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-296x-1362 selects generic impl target skeleton-safety after
-`metadata_context` exposed invalid generated target spelling. The active row is
-296x-1363, which should make generic impl targets parser-safe without adding
-generic semantics and keep generated-program execution claims disabled.
+296x-1363 closes generic impl target skeleton-safety without adding generic
+semantics. `metadata_context` now advances to the existing `Option<&str>` /
+closure handoff boundary. The active row is 296x-1364, which should select the
+next app-front task before implementation.
 
 ## Next
 
-1. Read 296x-1363.
-2. Implement adapter-owned emitted target names for generic impl targets.
-3. Re-probe `hakorune_mir_builder::metadata_context`.
+1. Read 296x-1364.
+2. Recheck `metadata_context` and `type_context` next-boundary evidence.
+3. Select the next app-front task before implementation.
 4. Run:
 
 ```bash

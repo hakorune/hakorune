@@ -42,6 +42,24 @@ pub(crate) fn type_name(ty: &Type) -> String {
     }
 }
 
+pub(crate) fn type_target_emitted_name(ty: &Type) -> String {
+    match ty {
+        Type::Path(path) => {
+            if path.path.segments.len() == 1 {
+                path.path
+                    .segments
+                    .last()
+                    .map(|segment| emitted_ident(&segment.ident.to_string()))
+                    .unwrap_or_else(|| "Unknown".to_string())
+            } else {
+                emitted_path(&path.path)
+            }
+        }
+        Type::Reference(reference) => type_target_emitted_name(reference.elem.as_ref()),
+        _ => emitted_ident(&type_name(ty)),
+    }
+}
+
 fn type_path_args(args: &PathArguments) -> Vec<String> {
     match args {
         PathArguments::AngleBracketed(bracketed) => bracketed

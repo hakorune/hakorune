@@ -283,7 +283,7 @@ def emit_item(item: dict) -> str:
         return "\n".join(lines)
 
     if kind == "Impl":
-        target = require_key(item, "target", "Impl")
+        target = item.get("target_emitted_name") or require_key(item, "target", "Impl")
         methods = item.get("methods", [])
         if not methods:
             return f"// impl {target} (no methods)"

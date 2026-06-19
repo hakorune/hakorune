@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "name": "current_span",
+          "type": "SpanT"
+        },
+        {
+          "name": "current_region",
+          "type": "RegionIdT"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "MetadataContext"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "current_span",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "current_span",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "SpanT"
+        }
+      ],
+      "target": "MetadataContext<SpanT, RegionIdT>",
+      "target_emitted_name": "MetadataContext"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "generic_impl_target",
+  "schema_version": 0
+}

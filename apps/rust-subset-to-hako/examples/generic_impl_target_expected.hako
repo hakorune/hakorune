@@ -1,0 +1,8 @@
+record MetadataContext {
+    current_span: SpanT
+    current_region: RegionIdT
+}
+
+function MetadataContext_current_span(receiver: MetadataContext): SpanT {
+    return receiver.current_span
+}
