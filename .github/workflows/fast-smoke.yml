@@ -1,8 +1,8 @@
 name: fast-smoke
 
 on:
-  push:
-    branches: [ "**" ]
+  # Heavy EXE/AOT integration smoke. Keep this manual so ordinary pushes/PRs use
+  # min-gate + portability-ci without paying LLVM install and release-build cost.
   workflow_dispatch:
 
 concurrency:
@@ -40,7 +40,6 @@ jobs:
 
       - name: Build (release)
         run: |
-          cargo clean
           cargo build --release --workspace -j 2
           bash tools/build_hako_llvmc_ffi.sh
 
