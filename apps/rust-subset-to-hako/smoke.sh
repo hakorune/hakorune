@@ -189,6 +189,7 @@ if [[ "${RUST_SUBSET_RUN_ADAPTER:-0}" == "1" ]]; then
     "explicit unit return fixture|unit_return|unit_return_fixture"
     "for-loop unsupported handoff fixture|for_loop_unsupported|for_loop_unsupported_fixture"
     "path/name normalization fixture|path_name|path_name"
+    "tuple struct constructor fixture|tuple_struct_constructor|tuple_struct_constructor_fixture"
   )
 
   for entry in "${ADAPTER_FIXTURES[@]}"; do
@@ -230,6 +231,7 @@ CONVERTER_FIXTURES=(
   "explicit unit return fixture converter|$APP_DIR/convert_unit_return_fixture.hako|$EXAMPLES_DIR/unit_return_expected.hako|convert_unit_return_fixture"
   "for-loop unsupported handoff fixture converter|$APP_DIR/convert_for_loop_unsupported_fixture.hako|$EXAMPLES_DIR/for_loop_unsupported_expected.hako|convert_for_loop_unsupported_fixture"
   "path/name fixture converter|$APP_DIR/convert_path_name_fixture.hako|$EXAMPLES_DIR/path_name_expected.hako|convert_path_name_fixture"
+  "tuple struct constructor fixture converter|$APP_DIR/convert_tuple_struct_constructor_fixture.hako|$EXAMPLES_DIR/tuple_struct_constructor_expected.hako|convert_tuple_struct_constructor_fixture"
   "crate handoff fixture converter|$APP_DIR/convert_crate_file.hako|$EXAMPLES_DIR/mini_crate_expected.hako|convert_crate_file"
 )
 

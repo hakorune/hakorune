@@ -1,21 +1,29 @@
 use serde_json::{json, Value};
 use syn::{Expr, Pat, Stmt};
 
-use crate::exprs::{expr_to_json, unsupported_expr};
+use crate::exprs::{expr_to_json_with_context, unsupported_expr, ExprContext};
 use crate::types::{insert_pat_name_metadata, item_kind, pat_name, type_name};
 
-pub(crate) fn block_stmts_to_json(block: &syn::Block, tail_expr_returns: bool) -> Vec<Value> {
+pub(crate) fn block_stmts_to_json_with_context(
+    block: &syn::Block,
+    tail_expr_returns: bool,
+    context: &ExprContext,
+) -> Vec<Value> {
     block
         .stmts
         .iter()
         .enumerate()
         .filter_map(|(index, stmt)| {
-            stmt_to_json(stmt, tail_expr_returns && index + 1 == block.stmts.len())
+            stmt_to_json(
+                stmt,
+                tail_expr_returns && index + 1 == block.stmts.len(),
+                context,
+            )
         })
         .collect::<Vec<_>>()
 }
 
-fn stmt_to_json(stmt: &Stmt, is_tail: bool) -> Option<Value> {
+fn stmt_to_json(stmt: &Stmt, is_tail: bool, context: &ExprContext) -> Option<Value> {
     match stmt {
         Stmt::Local(local) => {
             let Some(_name) = pat_name(&local.pat) else {
@@ -27,7 +35,7 @@ fn stmt_to_json(stmt: &Stmt, is_tail: bool) -> Option<Value> {
             let value = local
                 .init
                 .as_ref()
-                .map(|init| expr_to_json(init.expr.as_ref()))
+                .map(|init| expr_to_json_with_context(init.expr.as_ref(), context))
                 .unwrap_or_else(|| unsupported_expr("let without initializer"));
             let mut value = json!({
                 "kind": "Let",
@@ -39,26 +47,28 @@ fn stmt_to_json(stmt: &Stmt, is_tail: bool) -> Option<Value> {
         }
         Stmt::Expr(Expr::Return(ret), _) => {
             if let Some(expr) = &ret.expr {
-                Some(json!({"kind": "Return", "value": expr_to_json(expr.as_ref())}))
+                Some(
+                    json!({"kind": "Return", "value": expr_to_json_with_context(expr.as_ref(), context)}),
+                )
             } else {
                 Some(json!({"kind": "Return"}))
             }
         }
-        Stmt::Expr(Expr::If(if_expr), _) => Some(if_to_json(if_expr, is_tail)),
-        Stmt::Expr(Expr::While(while_expr), _) => Some(while_to_json(while_expr)),
-        Stmt::Expr(Expr::Loop(loop_expr), _) => Some(loop_to_json(loop_expr)),
+        Stmt::Expr(Expr::If(if_expr), _) => Some(if_to_json(if_expr, is_tail, context)),
+        Stmt::Expr(Expr::While(while_expr), _) => Some(while_to_json(while_expr, context)),
+        Stmt::Expr(Expr::Loop(loop_expr), _) => Some(loop_to_json(loop_expr, context)),
         Stmt::Expr(Expr::ForLoop(_), _) => Some(json!({
             "kind": "Expr",
             "value": unsupported_expr("Rust for loop expression is out of v0 scope"),
         })),
-        Stmt::Expr(Expr::Assign(assign), _) => Some(assign_to_json(assign)),
+        Stmt::Expr(Expr::Assign(assign), _) => Some(assign_to_json(assign, context)),
         Stmt::Expr(expr, None) if is_tail => Some(json!({
             "kind": "Return",
-            "value": expr_to_json(expr),
+            "value": expr_to_json_with_context(expr, context),
         })),
         Stmt::Expr(expr, _) => Some(json!({
             "kind": "Expr",
-            "value": expr_to_json(expr),
+            "value": expr_to_json_with_context(expr, context),
         })),
         Stmt::Item(item) => Some(json!({
             "kind": "Unsupported",
@@ -71,15 +81,15 @@ fn stmt_to_json(stmt: &Stmt, is_tail: bool) -> Option<Value> {
     }
 }
 
-fn while_to_json(expr: &syn::ExprWhile) -> Value {
+fn while_to_json(expr: &syn::ExprWhile, context: &ExprContext) -> Value {
     json!({
         "kind": "While",
-        "cond": expr_to_json(expr.cond.as_ref()),
-        "body": block_stmts_to_json(&expr.body, false),
+        "cond": expr_to_json_with_context(expr.cond.as_ref(), context),
+        "body": block_stmts_to_json_with_context(&expr.body, false, context),
     })
 }
 
-fn loop_to_json(expr: &syn::ExprLoop) -> Value {
+fn loop_to_json(expr: &syn::ExprLoop, context: &ExprContext) -> Value {
     if block_has_break_or_continue(&expr.body) {
         return json!({
             "kind": "Unsupported",
@@ -94,15 +104,17 @@ fn loop_to_json(expr: &syn::ExprLoop) -> Value {
             "type": "bool",
             "value": true,
         },
-        "body": block_stmts_to_json(&expr.body, false),
+        "body": block_stmts_to_json_with_context(&expr.body, false, context),
     })
 }
 
-fn if_to_json(expr: &syn::ExprIf, tail_expr_returns: bool) -> Value {
+fn if_to_json(expr: &syn::ExprIf, tail_expr_returns: bool, context: &ExprContext) -> Value {
     let else_body = match &expr.else_branch {
         Some((_, else_expr)) => match else_expr.as_ref() {
-            Expr::Block(block) => block_stmts_to_json(&block.block, tail_expr_returns),
-            Expr::If(nested_if) => vec![if_to_json(nested_if, tail_expr_returns)],
+            Expr::Block(block) => {
+                block_stmts_to_json_with_context(&block.block, tail_expr_returns, context)
+            }
+            Expr::If(nested_if) => vec![if_to_json(nested_if, tail_expr_returns, context)],
             _ => vec![json!({
                 "kind": "Unsupported",
                 "reason": "non-block else branch is out of v0 scope",
@@ -113,17 +125,17 @@ fn if_to_json(expr: &syn::ExprIf, tail_expr_returns: bool) -> Value {
 
     json!({
         "kind": "If",
-        "cond": expr_to_json(expr.cond.as_ref()),
-        "then": block_stmts_to_json(&expr.then_branch, tail_expr_returns),
+        "cond": expr_to_json_with_context(expr.cond.as_ref(), context),
+        "then": block_stmts_to_json_with_context(&expr.then_branch, tail_expr_returns, context),
         "else": else_body,
     })
 }
 
-fn assign_to_json(expr: &syn::ExprAssign) -> Value {
+fn assign_to_json(expr: &syn::ExprAssign, context: &ExprContext) -> Value {
     json!({
         "kind": "Assign",
-        "target": expr_to_json(expr.left.as_ref()),
-        "value": expr_to_json(expr.right.as_ref()),
+        "target": expr_to_json_with_context(expr.left.as_ref(), context),
+        "value": expr_to_json_with_context(expr.right.as_ref(), context),
     })
 }
 

@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use serde_json::{json, Value};
 use syn::parse::Parser;
 use syn::{BinOp, Expr, Lit, Token};
@@ -6,7 +8,22 @@ use crate::cli::fail;
 use crate::names::{emitted_path, insert_path_name_metadata};
 use crate::types::field_name;
 
-pub(crate) fn expr_to_json(expr: &Expr) -> Value {
+#[derive(Default)]
+pub(crate) struct ExprContext {
+    tuple_struct_names: BTreeSet<String>,
+}
+
+impl ExprContext {
+    pub(crate) fn new(tuple_struct_names: BTreeSet<String>) -> Self {
+        Self { tuple_struct_names }
+    }
+
+    fn is_tuple_struct_constructor(&self, callee: &str) -> bool {
+        self.tuple_struct_names.contains(callee)
+    }
+}
+
+pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> Value {
     match expr {
         Expr::Lit(lit) => match &lit.lit {
             Lit::Int(value) => json!({
@@ -39,29 +56,38 @@ pub(crate) fn expr_to_json(expr: &Expr) -> Value {
         }
         Expr::Field(field) => json!({
             "kind": "Field",
-            "base": expr_to_json(field.base.as_ref()),
+            "base": expr_to_json_with_context(field.base.as_ref(), context),
             "field": field_name(&field.member),
         }),
         Expr::Index(index) => json!({
             "kind": "Index",
-            "target": expr_to_json(index.expr.as_ref()),
-            "index": expr_to_json(index.index.as_ref()),
+            "target": expr_to_json_with_context(index.expr.as_ref(), context),
+            "index": expr_to_json_with_context(index.index.as_ref(), context),
         }),
         Expr::Binary(binary) => json!({
             "kind": "Binary",
             "op": binop(&binary.op),
-            "left": expr_to_json(binary.left.as_ref()),
-            "right": expr_to_json(binary.right.as_ref()),
+            "left": expr_to_json_with_context(binary.left.as_ref(), context),
+            "right": expr_to_json_with_context(binary.right.as_ref(), context),
         }),
         Expr::Call(call) => {
             let callee = match call.func.as_ref() {
                 Expr::Path(path) => emitted_path(&path.path),
                 _ => "unsupported_callee".to_string(),
             };
+            if context.is_tuple_struct_constructor(&callee) {
+                return unsupported_expr(format!(
+                    "tuple struct constructor expression is out of v0 skeleton scope: {callee}"
+                ));
+            }
             let mut value = json!({
                 "kind": "Call",
                 "callee": callee,
-                "args": call.args.iter().map(expr_to_json).collect::<Vec<_>>(),
+                "args": call
+                    .args
+                    .iter()
+                    .map(|arg| expr_to_json_with_context(arg, context))
+                    .collect::<Vec<_>>(),
             });
             if let Expr::Path(path) = call.func.as_ref() {
                 let segments = crate::names::path_segments(&path.path);
@@ -73,15 +99,19 @@ pub(crate) fn expr_to_json(expr: &Expr) -> Value {
         }
         Expr::MethodCall(call) => json!({
             "kind": "MethodCall",
-            "receiver": expr_to_json(call.receiver.as_ref()),
+            "receiver": expr_to_json_with_context(call.receiver.as_ref(), context),
             "method": call.method.to_string(),
-            "args": call.args.iter().map(expr_to_json).collect::<Vec<_>>(),
+            "args": call
+                .args
+                .iter()
+                .map(|arg| expr_to_json_with_context(arg, context))
+                .collect::<Vec<_>>(),
         }),
         Expr::ForLoop(_) => unsupported_expr("Rust for loop expression is out of v0 scope"),
         Expr::Match(_) => unsupported_expr("Rust match expression is out of v0 scope"),
-        Expr::Macro(mac) if mac.mac.path.is_ident("vec") => vec_macro_to_json(mac),
-        Expr::Paren(paren) => expr_to_json(paren.expr.as_ref()),
-        Expr::Reference(reference) => expr_to_json(reference.expr.as_ref()),
+        Expr::Macro(mac) if mac.mac.path.is_ident("vec") => vec_macro_to_json(mac, context),
+        Expr::Paren(paren) => expr_to_json_with_context(paren.expr.as_ref(), context),
+        Expr::Reference(reference) => expr_to_json_with_context(reference.expr.as_ref(), context),
         _ => unsupported_expr(format!("unsupported expression: {}", expr_kind(expr))),
     }
 }
@@ -93,11 +123,16 @@ pub(crate) fn unsupported_expr(summary: impl Into<String>) -> Value {
     })
 }
 
-fn vec_macro_to_json(expr: &syn::ExprMacro) -> Value {
+fn vec_macro_to_json(expr: &syn::ExprMacro, context: &ExprContext) -> Value {
     let parser = syn::punctuated::Punctuated::<Expr, Token![,]>::parse_terminated;
     let elements = parser
         .parse2(expr.mac.tokens.clone())
-        .map(|items| items.iter().map(expr_to_json).collect::<Vec<_>>())
+        .map(|items| {
+            items
+                .iter()
+                .map(|item| expr_to_json_with_context(item, context))
+                .collect::<Vec<_>>()
+        })
         .unwrap_or_else(|err| {
             vec![unsupported_expr(format!(
                 "unsupported vec! literal payload: {err}"

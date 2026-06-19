@@ -1,0 +1,29 @@
+// convert_tuple_struct_constructor_fixture.hako — tuple struct constructor skeleton fixture wrapper.
+//
+// This wrapper owns only the fixture file route; converter_core.hako owns
+// RustSubset JSON -> .hako skeleton conversion.
+
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local file = new FileBox()
+        local opened = file.open("apps/rust-subset-to-hako/examples/tuple_struct_constructor_subset.json", "r")
+        if opened == 0 {
+            print("// error: tuple struct constructor fixture open failed")
+            return 1
+        }
+
+        local text = file.read()
+        file.close()
+        if text == null {
+            print("// error: tuple struct constructor fixture read failed")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+        local result = converter.convert(text)
+        print(result)
+        return 0
+    }
+}

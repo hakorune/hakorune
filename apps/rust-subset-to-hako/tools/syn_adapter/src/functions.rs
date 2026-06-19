@@ -2,11 +2,16 @@ use serde_json::{json, Value};
 use syn::FnArg;
 
 use crate::cli::fail;
+use crate::exprs::ExprContext;
 use crate::names::{assert_unique_names, insert_name_metadata};
-use crate::stmts::block_stmts_to_json;
+use crate::stmts::block_stmts_to_json_with_context;
 use crate::types::{insert_pat_name_metadata, return_type, type_name};
 
-pub(crate) fn function_to_json(func: &syn::Signature, block: &syn::Block) -> Value {
+pub(crate) fn function_to_json_with_context(
+    func: &syn::Signature,
+    block: &syn::Block,
+    context: &ExprContext,
+) -> Value {
     let mut receiver = "none".to_string();
     let mut params = Vec::new();
 
@@ -39,7 +44,7 @@ pub(crate) fn function_to_json(func: &syn::Signature, block: &syn::Block) -> Val
         "kind": "Function",
         "params": params,
         "return_type": return_type(&func.output),
-        "body": block_stmts_to_json(block, true),
+        "body": block_stmts_to_json_with_context(block, true, context),
     });
     insert_name_metadata(&mut value, &func.ident.to_string());
     if receiver != "none" {

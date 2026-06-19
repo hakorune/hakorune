@@ -20,64 +20,39 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001
+RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
 ```
 
-The scan-methods focused timeout slice is closed by 296x-1304, the touched
-string-corridor regression is closed by 296x-1305, PHI input rematerialization
-identity is closed by 296x-1306, and string-corridor stable-length hint fallback
-retirement is closed by 296x-1307. The rust-subset app-front smoke reopen is
-closed by 296x-1308; `JsonParser.parse_array/0` is owned by
-loop_true_break_continue via the recipe-first ExitAllowed path. A dedicated
-syn-adapter smoke wrapper is closed by 296x-1309. RustSubset `Index`
-expression transport is closed by 296x-1310. Loop `break` / `continue` is
-fixture-guarded as an explicit Unsupported handoff by 296x-1311. Generic
-function skeleton transport is closed by 296x-1312. Unsupported trait handoff
-hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
-table-driven by 296x-1314. Crate/multi-file handoff boundaries are inventoried
-by 296x-1315. Module schema validation parity is closed by 296x-1316.
-RustSubset path/name normalization is closed by 296x-1317 without adding
-`.hako` syntax. The crate manifest v0 contract is accepted by 296x-1318. The
-synthetic multi-module adapter probe is closed by 296x-1319. Crate handoff MIR
-acceptance is closed by 296x-1320. OrderedMapBox is documented as a `.hako`
-library deterministic-map boundary by 296x-1321. OrderedMapBox v0 and its
-focused EXE/AOT smoke are closed by 296x-1322. The focused BindingContext-style
-OrderedMapBox probe is closed by 296x-1323. Constructor lifecycle is guarded
-separately by 296x-1324 without moving meaningful birth logic into field
-initializers. Field-initializer library route probing is closed by 296x-1325:
-same-file initializer routes are green. Imported static factory field
-initializer routes are fixed by 296x-1326: App-mode import bundle lowering
-now defers non-Main static methods until instance box constructors are lowered,
-so `new Box(args)` can inject `Box.birth/arity`. Unknown global-callee
-diagnostics are improved by 296x-1327 with callee-aware `reason_detail` and
-`reason_hint` fields. Creat subset pilot selection is closed by 296x-1328 with
-a read-only crate inventory tool. The selected first real pilot is
-`hakorune_box_core`: three modules, seven items, and two known Unsupported
-`Use` handoffs in the root module. The crate pilot is closed by 296x-1329:
-the bundle is checked in, the full generated skeleton parses, and leaf modules
-emit MIR. The remaining blocker is generated top-level function MIR acceptance
-for the root module. Generated top-level functions are accepted at MIR emit
-level by 296x-1330. The next crate pilot is selected by 296x-1331 as
-`hakorune_mir_core::{control_ids,types}`.
+Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
+lane status. The current rust-subset app-front lane is on the selected
+`hakorune_mir_core` ID-module slice. 296x-1338 cleared tuple-struct constructor
+expressions by converting them to an explicit Unsupported skeleton handoff in
+the external adapter. The re-probe now fails at compound assignment skeleton
+output:
+
+```hako
+receiver.next_id unsupported_op 1
+```
+
+The next row is 296x-1339. It should make compound assignment skeleton-safe
+without adding runtime semantics, Rust name resolution, or new `.hako` syntax.
 
 ## Next
 
-1. Generate the `hakorune_mir_core` crate bundle with the external syn adapter.
-2. Materialize the selected `crate::control_ids` and `crate::types` module
-   slice as checked-in fixtures.
-3. Run generated skeletons through parse / MIR emit where supported.
-4. Keep Rust parser/crate graph discovery in the external adapter boundary.
-5. Do not implement Rust name resolution or `use` resolution in this row.
-6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
-7. Run:
+1. Add a focused compound-assignment fixture.
+2. Make generated skeleton output MIR-safe for `+=`-style Rust statements.
+3. Re-run the selected ID-module generated skeleton MIR probe.
+4. Do not check in the ID-module bundle until the skeleton is MIR-safe.
+5. Run:
 
 ```bash
 cargo check -q --lib
+RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-8. Update current pointers when the implementation row closes.
+6. Update current pointers when the implementation row closes.
 
 ## Recently Closed
 

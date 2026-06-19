@@ -1,0 +1,46 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "BasicBlockId"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [
+            {
+              "name": "id",
+              "type": "u32"
+            }
+          ],
+          "return_type": "Self"
+        }
+      ],
+      "target": "BasicBlockId"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "tuple_struct_constructor_fixture",
+  "schema_version": 0
+}

@@ -1,7 +1,10 @@
+use std::collections::BTreeSet;
+
 use serde_json::{json, Value};
 use syn::{Fields, ImplItem, Item};
 
-use crate::functions::function_to_json;
+use crate::exprs::ExprContext;
+use crate::functions::function_to_json_with_context;
 use crate::names::{assert_unique_names, insert_name_metadata};
 use crate::types::{item_kind, type_name};
 
@@ -14,14 +17,19 @@ pub(crate) fn file_to_json_for_crate(file: &syn::File, module: String) -> Value 
 }
 
 fn file_to_json_inner(file: &syn::File, module: String, include_external_mods: bool) -> Value {
-    let items = file.items.iter().map(item_to_json).collect::<Vec<_>>();
+    let expr_context = ExprContext::new(tuple_struct_names(&file.items));
+    let items = file
+        .items
+        .iter()
+        .map(|item| item_to_json(item, &expr_context))
+        .collect::<Vec<_>>();
     let items = if include_external_mods {
         items
     } else {
         file.items
             .iter()
             .filter(|item| !is_external_mod_decl(item))
-            .map(item_to_json)
+            .map(|item| item_to_json(item, &expr_context))
             .collect::<Vec<_>>()
     };
     assert_unique_names(&items, "module items");
@@ -37,7 +45,19 @@ fn is_external_mod_decl(item: &Item) -> bool {
     matches!(item, Item::Mod(module) if module.content.is_none())
 }
 
-fn item_to_json(item: &Item) -> Value {
+fn tuple_struct_names(items: &[Item]) -> BTreeSet<String> {
+    items
+        .iter()
+        .filter_map(|item| match item {
+            Item::Struct(item) if matches!(item.fields, Fields::Unnamed(_)) => {
+                Some(crate::names::emitted_ident(&item.ident.to_string()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+fn item_to_json(item: &Item, expr_context: &ExprContext) -> Value {
     match item {
         Item::Struct(item) => {
             let identity = has_hako_identity(&item.attrs);
@@ -83,14 +103,18 @@ fn item_to_json(item: &Item) -> Value {
             insert_name_metadata(&mut value, &item.ident.to_string());
             value
         }
-        Item::Fn(item) => function_to_json(&item.sig, &item.block),
+        Item::Fn(item) => function_to_json_with_context(&item.sig, &item.block, expr_context),
         Item::Impl(item) => {
             let target = type_name(item.self_ty.as_ref());
             let methods = item
                 .items
                 .iter()
                 .filter_map(|impl_item| match impl_item {
-                    ImplItem::Fn(method) => Some(function_to_json(&method.sig, &method.block)),
+                    ImplItem::Fn(method) => Some(function_to_json_with_context(
+                        &method.sig,
+                        &method.block,
+                        expr_context,
+                    )),
                     _ => None,
                 })
                 .collect::<Vec<_>>();

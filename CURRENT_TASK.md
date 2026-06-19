@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001
+RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
 ```
 
 Purpose:
 
 ```text
-Make Rust tuple-struct constructor expressions MIR-safe in generated skeleton
-output so the selected `hakorune_mir_core` ID-module slice can be materialized.
+Make Rust compound assignment expressions skeleton-safe in generated output so
+the selected `hakorune_mir_core` ID-module slice can continue toward MIR
+acceptance.
 ```
 
 Current evidence:
@@ -82,6 +83,7 @@ PURE-ROUTE-UNSUPPORTED-SHAPE-DIAGNOSTIC-001 is closed by 296x-1334.
 RUST-SUBSET-CRATE-WRAPPER-EXE-SMOKE-001 is closed by 296x-1335.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001 is closed by 296x-1336.
 HAKORUNE-MIR-CORE-ID-MODULES-RUSTSUBSET-PILOT-001 is blocked by 296x-1337.
+RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001 is closed by 296x-1338.
 ```
 
 Acceptance for the current slice:
@@ -90,16 +92,15 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus a focused crate-wrapper EXE diagnostic command selected by the new row.
-# plus the focused tuple-struct constructor skeleton command from the new row.
+# plus the focused compound-assignment skeleton command from the new row.
 ```
 
 ## Task Order
 
-1. Add a focused RustSubset fixture for tuple-struct constructor expressions
-   such as `BasicBlockId(id)`.
-2. Make generated skeleton output MIR-safe without adding Rust name resolution
-   or executable record-constructor semantics.
+1. Add a focused RustSubset fixture for compound assignment such as
+   `self.next_id += 1`.
+2. Make generated skeleton output MIR-safe without adding executable compound
+   assignment semantics.
 3. Verify Python reference parity and `.hako` converter parity for the new
    fixture.
 4. Re-run the selected ID-module generated skeleton MIR probe.
@@ -109,12 +110,12 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-RUST-SUBSET-TUPLE-STRUCT-CONSTRUCTOR-SKELETON-001
+RUST-SUBSET-COMPOUND-ASSIGN-SKELETON-SAFETY-001
 ```
 
-296x-1337 probed the selected ID-module slice and found that tuple-struct
-constructor expressions are emitted as unresolved Hako calls. Fix that
-skeleton-safety blocker before checking in the ID-module bundle.
+296x-1338 cleared tuple-struct constructor calls. The selected ID-module
+re-probe now fails on an invalid `unsupported_op` skeleton statement emitted
+from Rust compound assignment.
 
 ## Pointers
 

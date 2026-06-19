@@ -1,0 +1,7 @@
+record BasicBlockId {
+    _0: i64
+}
+
+function BasicBlockId_new(id: i64): Self {
+    return null /* TODO: tuple struct constructor expression is out of v0 skeleton scope: BasicBlockId */
+}
