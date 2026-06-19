@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -40,18 +40,18 @@ unsupported expression handoffs; `crate::effect` now advances to unresolved
 `Vec_new`.
 296x-1346 makes `Vec::new()` calls skeleton-safe as unsupported expression
 handoffs, and `crate::effect` now reaches generated-skeleton MIR emit.
+296x-1347 materializes the effect bundle and guards it through
+generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-The next row is 296x-1347. It should materialize the selected
-`hakorune_mir_core::effect` bundle and wrapper without generated-program
-execution claims.
+The next row is 296x-1348. It should select the next app-front task before
+starting implementation.
 
 ## Next
 
-1. Generate and check in the selected `effect` bundle.
-2. Add/update the focused wrapper.
-3. Verify checked-in generated skeleton MIR emit.
-4. Verify wrapper EXE emit.
-5. Run:
+1. Read 296x-1348.
+2. Evaluate next app-front task candidates.
+3. Select the next implementation row without starting implementation.
+4. Run:
 
 ```bash
 cargo check -q --lib
@@ -60,7 +60,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-6. Update current pointers when the implementation row closes.
+5. Update current pointers when the selection row closes.
 
 ## Recently Closed
 

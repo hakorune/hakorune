@@ -1,0 +1,196 @@
+// module crate::effect
+// source src/effect.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record EffectMask {
+    _0: i64
+}
+
+// enum Effect
+//   Pure
+//   Mut
+//   Io
+//   Control
+//   ReadHeap
+//   WriteHeap
+//   P2P
+//   FFI
+//   Panic
+//   Alloc
+//   Global
+//   Async
+//   Unsafe
+//   Debug
+//   Barrier
+
+function EffectMask_new(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_from_bits(bits: i64): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_bits(receiver: EffectMask): i64 {
+    return receiver._0
+}
+
+function EffectMask_add(receiver: EffectMask, effect: Effect): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_remove(receiver: EffectMask, effect: Effect): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_contains(receiver: EffectMask, effect: Effect): bool {
+    return receiver._0 unsupported_op null /* TODO: unsupported expression: Cast */ != 0
+}
+
+function EffectMask_contains_any(receiver: EffectMask, mask: EffectMask): bool {
+    return receiver._0 unsupported_op mask._0 != 0
+}
+
+function EffectMask_contains_all(receiver: EffectMask, mask: EffectMask): bool {
+    return receiver._0 unsupported_op mask._0 == mask._0
+}
+
+function EffectMask_union(receiver: EffectMask, other: EffectMask): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_intersection(receiver: EffectMask, other: EffectMask): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_is_pure(receiver: EffectMask): bool {
+    return null /* TODO: unsupported expression: Unary */ && null /* TODO: unsupported expression: Unary */ && null /* TODO: unsupported expression: Unary */ && null /* TODO: unsupported expression: Unary */
+}
+
+function EffectMask_is_mut(receiver: EffectMask): bool {
+    return receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Mut */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_WriteHeap */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Alloc */)
+}
+
+function EffectMask_is_io(receiver: EffectMask): bool {
+    return receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Io */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_P2P */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_FFI */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Global */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Async */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Unsafe */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Debug */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Barrier */) || receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Panic */)
+}
+
+function EffectMask_is_control(receiver: EffectMask): bool {
+    return receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Control */)
+}
+
+function EffectMask_primary_category(receiver: EffectMask): Effect {
+    if receiver.is_control() {
+        return null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Control */
+    } else {
+        if receiver.is_io() {
+            return null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Io */
+        } else {
+            if receiver.is_mut() {
+                return null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Mut */
+            } else {
+                return null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Pure */
+            }
+        }
+    }
+}
+
+function EffectMask_is_read_only(receiver: EffectMask): bool {
+    return null /* TODO: unsupported expression: Unary */ && null /* TODO: unsupported expression: Unary */
+}
+
+function EffectMask_is_parallel_safe(receiver: EffectMask): bool {
+    return null /* TODO: unsupported expression: Unary */ && null /* TODO: unsupported expression: Unary */ && null /* TODO: unsupported expression: Unary */
+}
+
+function EffectMask_is_moveable(receiver: EffectMask): bool {
+    return receiver.is_pure() || receiver.is_read_only()
+}
+
+function EffectMask_effect_names(receiver: EffectMask): Array {
+    local names: Unknown = null /* TODO: Vec::new call expression is out of v0 skeleton scope */
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Pure */) {
+        names.push("pure")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Mut */) {
+        names.push("mut")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Io */) {
+        names.push("io")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Control */) {
+        names.push("control")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_ReadHeap */) {
+        names.push("read")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_WriteHeap */) {
+        names.push("write")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_P2P */) {
+        names.push("p2p")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_FFI */) {
+        names.push("ffi")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Panic */) {
+        names.push("panic")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Alloc */) {
+        names.push("alloc")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Global */) {
+        names.push("global")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Async */) {
+        names.push("async")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Unsafe */) {
+        names.push("unsafe")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Debug */) {
+        names.push("debug")
+    }
+    if receiver.contains(null /* TODO: enum variant value reference is out of v0 skeleton scope: Effect_Barrier */) {
+        names.push("barrier")
+    }
+    return names
+}
+
+function EffectMask_fmt(receiver: EffectMask, f: fmt_Formatter): fmt_Result {
+    return null /* TODO: unsupported expression: Macro */
+}
+
+function EffectMask_bitor(receiver: EffectMask, rhs: Self): Self_Output {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_bitor_assign(receiver: EffectMask, rhs: Self): void {
+    /* TODO: Rust compound assignment expression is out of v0 scope: |= */
+}
+
+function EffectMask_bitand(receiver: EffectMask, rhs: Self): Self_Output {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_bitand_assign(receiver: EffectMask, rhs: Self): void {
+    /* TODO: Rust compound assignment expression is out of v0 scope: &= */
+}
+
+function EffectMask_bitxor(receiver: EffectMask, rhs: Self): Self_Output {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_bitxor_assign(receiver: EffectMask, rhs: Self): void {
+    /* TODO: Rust compound assignment expression is out of v0 scope: ^= */
+}
+
+function EffectMask_not(receiver: EffectMask): Self_Output {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self */
+}
+
+function EffectMask_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}

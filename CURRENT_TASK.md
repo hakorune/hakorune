@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004
 ```
 
 Purpose:
 
 ```text
-Materialize the selected `hakorune_mir_core::effect` RustSubset module bundle
-and wrapper.
+Select the next rust-subset-to-hako app-front task after
+`hakorune_mir_core::effect` materialization closed green.
 ```
 
 Current evidence:
@@ -91,6 +91,7 @@ HAKORUNE-MIR-CORE-VALUE-KIND-MATERIALIZATION-001 is closed by 296x-1343.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-003 is closed by 296x-1344.
 RUST-SUBSET-ENUM-VARIANT-VALUE-SKELETON-SAFETY-001 is closed by 296x-1345.
 RUST-SUBSET-VEC-NEW-CALL-SKELETON-SAFETY-001 is closed by 296x-1346.
+HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001 is closed by 296x-1347.
 ```
 
 Acceptance for the current slice:
@@ -103,21 +104,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Generate the selected `effect` bundle from the external syn adapter.
-2. Check in the selected manifest, module artifact, generated skeleton, and
-   focused wrapper.
-3. Verify checked-in generated skeleton MIR emit.
-4. Verify wrapper EXE emit.
-5. Keep generated-program execution claim at 0.
+1. Read 296x-1348.
+2. Evaluate the next app-front task candidates.
+3. Select the next implementation row without starting implementation.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-CORE-EFFECT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004
 ```
 
-296x-1346 made `Vec::new()` calls skeleton-safe. `crate::effect` now reaches
-generated-skeleton MIR emit and is selected for materialization.
+296x-1347 materialized `hakorune_mir_core::effect` and guarded it through
+generated-skeleton MIR emit, wrapper EXE parity, and the full rust-subset smoke.
+296x-1348 is the next design/selection row.
 
 ## Pointers
 

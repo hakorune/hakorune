@@ -243,6 +243,7 @@ CONVERTER_FIXTURES=(
   "crate handoff fixture converter|$APP_DIR/convert_crate_file.hako|$EXAMPLES_DIR/mini_crate_expected.hako|convert_crate_file"
   "hakorune_mir_core ID modules fixture converter|$APP_DIR/convert_hakorune_mir_core_id_modules_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_id_modules_expected.hako|convert_hakorune_mir_core_id_modules_crate_file"
   "hakorune_mir_core value_kind fixture converter|$APP_DIR/convert_hakorune_mir_core_value_kind_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_value_kind_expected.hako|convert_hakorune_mir_core_value_kind_crate_file"
+  "hakorune_mir_core effect fixture converter|$APP_DIR/convert_hakorune_mir_core_effect_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_core_effect_expected.hako|convert_hakorune_mir_core_effect_crate_file"
 )
 
 for entry in "${CONVERTER_FIXTURES[@]}"; do
@@ -279,6 +280,11 @@ run_generated_hako_mir_acceptance \
   "hakorune_mir_core value_kind generated skeleton" \
   "$APP_DIR/convert_hakorune_mir_core_value_kind_crate_file.hako" \
   "hakorune_mir_core_value_kind_handoff"
+
+run_generated_hako_mir_acceptance \
+  "hakorune_mir_core effect generated skeleton" \
+  "$APP_DIR/convert_hakorune_mir_core_effect_crate_file.hako" \
+  "hakorune_mir_core_effect_handoff"
 
 if [[ "${RUST_SUBSET_RUN_REGRESSION:-0}" == "1" ]]; then
   echo "[rust-subset/smoke] EXE: regression probes"

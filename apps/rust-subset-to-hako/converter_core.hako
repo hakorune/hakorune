@@ -291,7 +291,7 @@ box RustSubsetConverter {
         local kind = me.node_str(expr.get_node("kind"))
 
         if kind == "Literal" {
-            return me.node_str(expr.get_node("value"))
+            return me.emit_literal_value(expr.get_node("value"))
         }
 
         if kind == "Name" {
@@ -397,6 +397,19 @@ box RustSubsetConverter {
             return "Array"
         }
         return ty
+    }
+
+    emit_literal_value(node) {
+        if node == null { return "null" }
+        local kind = node.get_kind()
+        if kind == "string" {
+            return "\"" + node.as_string() + "\""
+        }
+        if kind == "bool" {
+            if node.as_bool() { return "true" }
+            return "false"
+        }
+        return me.node_str(node)
     }
 
     // ── JSON node helpers ───────────────────────────────
