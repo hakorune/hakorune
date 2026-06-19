@@ -235,7 +235,7 @@ fn try_build_loop_facts_inner(
 fn loop_cond_break_continue_requires_recipe_owner(facts: &LoopCondBreakContinueFacts) -> bool {
     if matches!(
         facts.accept_kind,
-        LoopCondBreakAcceptKind::ConditionalUpdate
+        LoopCondBreakAcceptKind::ConditionalUpdate | LoopCondBreakAcceptKind::ElseOnlyBreak
     ) {
         return true;
     }
