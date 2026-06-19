@@ -1,0 +1,25 @@
+// module crate::context
+// source src/context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record BoxCompilationContext {
+    variable_map: BTreeMap<String, ValueId>
+    value_origin_newbox: BTreeMap<ValueId, String>
+    value_types: BTreeMap<ValueId, MirType>
+}
+
+function BoxCompilationContext_new(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::default */
+}
+
+function BoxCompilationContext_is_empty(receiver: BoxCompilationContext): bool {
+    return receiver.variable_map.is_empty() && receiver.value_origin_newbox.is_empty() && receiver.value_types.is_empty()
+}
+
+function BoxCompilationContext_size_info(receiver: BoxCompilationContext): UnsupportedType {
+    return null /* TODO: unsupported expression: Tuple */
+}
+
+// TODO: Mod items are out of v0 scope

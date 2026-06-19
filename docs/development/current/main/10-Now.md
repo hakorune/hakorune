@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-BUILDER-CONTEXT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-010
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -70,15 +70,17 @@ skeleton already reaches MIR emit.
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 296x-1358 selects `hakorune_mir_builder::context` as the next builder-owned
 context materialization task.
+296x-1359 materializes that context bundle and guards it through
+generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-The next row is 296x-1359. It should materialize the selected `context`
-bundle and keep generated-program execution claims disabled.
+The next row is 296x-1360. It should select the next app-front task before
+implementation and keep generated-program execution claims disabled.
 
 ## Next
 
-1. Read 296x-1359.
-2. Check in the selected `context` manifest/artifact/expected output.
-3. Add focused wrapper and smoke coverage.
+1. Read 296x-1360.
+2. Recheck green materialization candidates and small blocker candidates.
+3. Select the next app-front task before implementation.
 4. Run:
 
 ```bash
