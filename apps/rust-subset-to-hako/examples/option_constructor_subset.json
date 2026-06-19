@@ -1,0 +1,42 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "Option constructor/value expression is out of v0 skeleton scope: Some"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "wrap",
+      "params": [
+        {
+          "name": "value",
+          "type": "i64"
+        }
+      ],
+      "return_type": "Option<i64>"
+    },
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "Option constructor/value expression is out of v0 skeleton scope: None"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "empty",
+      "params": [],
+      "return_type": "Option<i64>"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "option_constructor_fixture",
+  "schema_version": 0
+}

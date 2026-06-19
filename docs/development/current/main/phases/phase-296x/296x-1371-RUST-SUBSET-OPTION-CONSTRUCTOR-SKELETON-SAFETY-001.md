@@ -1,6 +1,6 @@
 # 296x-1371 RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -84,6 +84,33 @@ metadata_context_next_boundary_recorded=<boundary-or-green>
 generated_program_execution_claim=0
 summary=ok
 ```
+
+## Closeout
+
+```text
+option_constructor_fixture_added=1
+option_constructor_adapter_json_green=1
+option_constructor_python_reference_green=1
+option_constructor_hako_converter_parity_green=1
+some_call_boundary_removed=1
+none_value_boundary_removed=1
+metadata_context_option_boundary_removed=1
+metadata_context_generated_skeleton_mir_emit=green
+metadata_context_next_boundary=green
+closure_handoff_changed=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+new_hako_syntax_added=0
+generated_program_execution_claim=0
+full_rust_subset_smoke=green
+summary=ok
+```
+
+`Some(...)` and `None` now become explicit Unsupported expression handoffs
+instead of generated globals/functions. This keeps Option semantics out of the
+converter while making the generated skeleton parser/MIR-safe.
 
 General checks:
 

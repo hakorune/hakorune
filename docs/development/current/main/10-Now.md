@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -83,13 +83,15 @@ Self value skeleton-safety after `metadata_context` exposes `HintSink_new`
 returning an undefined generated `Self` value. 296x-1369 makes Self value
 references skeleton-safe and advances `metadata_context` to unresolved function
 `Some`. 296x-1370 selects Option constructor/value path skeleton-safety as the
-next blocker. The active row is 296x-1371.
+next blocker. 296x-1371 makes Option constructor/value paths skeleton-safe and
+`metadata_context` reaches generated-skeleton MIR emit. The active row is
+296x-1372.
 
 ## Next
 
-1. Read 296x-1371.
-2. Make Option constructor/value paths skeleton-safe without Option semantics.
-3. Recheck `metadata_context` and record the next boundary or green status.
+1. Read 296x-1372.
+2. Recheck green module candidates now that `metadata_context` reaches MIR emit.
+3. Select the next app-front task before implementation.
 4. Run:
 
 ```bash

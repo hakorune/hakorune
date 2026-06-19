@@ -72,6 +72,12 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                         "Self value expression is out of v0 skeleton scope: Self",
                     );
                 }
+                if is_option_constructor_path(&segments) {
+                    return unsupported_expr(format!(
+                        "Option constructor/value expression is out of v0 skeleton scope: {}",
+                        segments.join("::")
+                    ));
+                }
                 if is_type_qualified_path(&segments) {
                     return unsupported_expr(format!(
                         "associated const/value path expression is out of v0 skeleton scope: {}",
@@ -114,6 +120,12 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                 }
                 if segments.as_slice() == ["Vec", "new"] {
                     return unsupported_expr("Vec::new call expression is out of v0 skeleton scope");
+                }
+                if is_option_constructor_path(&segments) {
+                    return unsupported_expr(format!(
+                        "Option constructor/value expression is out of v0 skeleton scope: {}",
+                        segments.join("::")
+                    ));
                 }
                 if is_type_qualified_path(&segments) {
                     return unsupported_expr(format!(
@@ -203,6 +215,11 @@ fn is_type_qualified_path(segments: &[String]) -> bool {
             .map(char::is_uppercase)
             .unwrap_or(false),
     }
+}
+
+fn is_option_constructor_path(segments: &[String]) -> bool {
+    matches!(segments, [name] if name == "Some" || name == "None")
+        || matches!(segments, [ty, name] if ty == "Option" && (name == "Some" || name == "None"))
 }
 
 fn binop(op: &BinOp) -> &'static str {

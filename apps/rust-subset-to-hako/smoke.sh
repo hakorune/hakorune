@@ -195,6 +195,7 @@ if [[ "${RUST_SUBSET_RUN_ADAPTER:-0}" == "1" ]]; then
     "compound assignment unsupported handoff fixture|compound_assign|compound_assign_fixture"
     "Self-qualified call unsupported handoff fixture|self_qualified_call|self_qualified_call_fixture"
     "Self value unsupported handoff fixture|self_value|self_value_fixture"
+    "Option constructor unsupported handoff fixture|option_constructor|option_constructor_fixture"
     "enum variant value unsupported handoff fixture|enum_variant_value|enum_variant_value_fixture"
     "Vec::new call unsupported handoff fixture|vec_new_call|vec_new_call_fixture"
   )
@@ -244,6 +245,7 @@ CONVERTER_FIXTURES=(
   "compound assignment fixture converter|$APP_DIR/convert_compound_assign_fixture.hako|$EXAMPLES_DIR/compound_assign_expected.hako|convert_compound_assign_fixture"
   "Self-qualified call fixture converter|$APP_DIR/convert_self_qualified_call_fixture.hako|$EXAMPLES_DIR/self_qualified_call_expected.hako|convert_self_qualified_call_fixture"
   "Self value fixture converter|$APP_DIR/convert_self_value_fixture.hako|$EXAMPLES_DIR/self_value_expected.hako|convert_self_value_fixture"
+  "Option constructor fixture converter|$APP_DIR/convert_option_constructor_fixture.hako|$EXAMPLES_DIR/option_constructor_expected.hako|convert_option_constructor_fixture"
   "enum variant value fixture converter|$APP_DIR/convert_enum_variant_value_fixture.hako|$EXAMPLES_DIR/enum_variant_value_expected.hako|convert_enum_variant_value_fixture"
   "Vec::new call fixture converter|$APP_DIR/convert_vec_new_call_fixture.hako|$EXAMPLES_DIR/vec_new_call_expected.hako|convert_vec_new_call_fixture"
   "associated function call fixture converter|$APP_DIR/convert_associated_function_call_fixture.hako|$EXAMPLES_DIR/associated_function_call_expected.hako|convert_associated_function_call_fixture"

@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
 ```
 
 Purpose:
 
 ```text
-Make Rust Option constructor/value paths skeleton-safe after
-`hakorune_mir_builder::metadata_context` advanced to unresolved function
-`Some`.
+Select the next rust-subset-to-hako app-front task after Option constructor
+skeleton-safety was closed and `metadata_context` reached generated-skeleton
+MIR emit.
 ```
 
 Current evidence:
@@ -116,6 +116,7 @@ HAKORUNE-MIR-BUILDER-TYPE-CONTEXT-MATERIALIZATION-001 is closed by 296x-1367.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014 is closed by 296x-1368.
 RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001 is closed by 296x-1369.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015 is closed by 296x-1370.
+RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001 is closed by 296x-1371.
 ```
 
 Acceptance for the current slice:
@@ -128,20 +129,19 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1371.
-2. Add a focused Option constructor/value path skeleton-safety fixture.
-3. Make `Some(...)` and `None` parser/MIR-safe without Option semantics.
-4. Recheck `metadata_context` and record the next boundary or green status.
-5. Keep generated-program execution claim at 0.
+1. Read 296x-1372.
+2. Recheck green module candidates now that `metadata_context` reaches MIR emit.
+3. Select the next source-shape blocker or materialization row.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
 ```
 
-296x-1370 selected Option constructor/value path skeleton-safety as the next
-app-front task.
+296x-1371 closed Option constructor skeleton-safety. 296x-1372 selects the
+next app-front task before implementation.
 
 ## Pointers
 
