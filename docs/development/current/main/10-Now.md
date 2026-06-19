@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001
+HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -57,16 +57,18 @@ a read-only crate inventory tool. The selected first real pilot is
 the bundle is checked in, the full generated skeleton parses, and leaf modules
 emit MIR. The remaining blocker is generated top-level function MIR acceptance
 for the root module. Generated top-level functions are accepted at MIR emit
-level by 296x-1330; the next blocker is selecting the next crate pilot.
+level by 296x-1330. The next crate pilot is selected by 296x-1331 as
+`hakorune_mir_core::{control_ids,types}`.
 
 ## Next
 
-1. Inventory the next small crate/module candidates with `crate_inventory.py`.
-2. Prefer a 2-3 module slice that adds one new unsupported family at most.
-3. Keep Rust parser/crate graph discovery in the external adapter boundary.
-4. Do not implement Rust name resolution or `use` resolution as part of
-   selection.
-5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+1. Generate the `hakorune_mir_core` crate bundle with the external syn adapter.
+2. Materialize the selected `crate::control_ids` and `crate::types` module
+   slice as checked-in fixtures.
+3. Run generated skeletons through parse / MIR emit where supported.
+4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+5. Do not implement Rust name resolution or `use` resolution in this row.
+6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 7. Run:
 
 ```bash
@@ -99,6 +101,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - top-level generated functions lower as standalone MIR declarations
   - runtime script statements exclude top-level FunctionDeclaration nodes
   - `hakorune_box_core_expected.hako` emits MIR
+- `RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001`
+  - candidate crates are inventoried through manifest bundles
+  - `hakorune_mir_core` is selected with modules `control_ids` and `types`
+  - next blocker is materializing that selected slice
 - `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`

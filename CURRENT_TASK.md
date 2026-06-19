@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001
+HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Select the next RustSubset crate/module pilot after closing `hakorune_box_core`
-root-module MIR acceptance.
+Materialize the selected `hakorune_mir_core` RustSubset module slice and run it
+through the existing skeleton pipeline.
 ```
 
 Current evidence:
@@ -75,6 +75,7 @@ GLOBAL-CALL-UNKNOWN-CALLEE-DIAGNOSTIC-001 is closed by 296x-1327.
 CREAT-SUBSET-PILOT-SELECTION-001 is closed by 296x-1328.
 HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001 is closed by 296x-1329.
 RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001 is closed by 296x-1330.
+RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001 is closed by 296x-1331.
 ```
 
 Acceptance for the current slice:
@@ -83,22 +84,23 @@ Acceptance for the current slice:
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused next-crate inventory command selected by 296x-1330.
+# plus the focused hakorune_mir_core pilot command selected by 296x-1331.
 ```
 
 ## Task Order
 
-1. Inventory the next small crate/module candidates with `crate_inventory.py`.
-2. Prefer a 2-3 module slice that adds one new unsupported family at most.
-3. Keep Rust parser/crate graph discovery in the external adapter boundary.
-4. Do not implement Rust name resolution or `use` resolution as part of
-   selection.
-5. Do not reopen fastpath or constructor lifecycle work without a new blocker.
+1. Generate the `hakorune_mir_core` crate bundle with the external syn adapter.
+2. Materialize the selected `crate::control_ids` and `crate::types` module
+   slice as checked-in fixtures.
+3. Run generated skeletons through parse / MIR emit where supported.
+4. Keep Rust parser/crate graph discovery in the external adapter boundary.
+5. Do not implement Rust name resolution or `use` resolution in this row.
+6. Do not reopen fastpath or constructor lifecycle work without a new blocker.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001
+HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001
 ```
 
 ## Pointers

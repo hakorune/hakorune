@@ -49,23 +49,24 @@ now keep the stable reason string while adding callee-aware detail and
 next-check hints. The creat-style pilot selection is closed with a focused
 crate inventory tool. The `hakorune_box_core` pilot bundle is checked in, and
 generated top-level function skeletons are accepted as declarations for MIR
-emit without enabling Rust name resolution or generated-program execution."""
+emit without enabling Rust name resolution or generated-program execution. The
+next crate pilot is selected as a focused `hakorune_mir_core` slice:
+`crate::control_ids` plus `crate::types`."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1330-RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1331-RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001.md"
 
-latest_card = "296x-1330-RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1330-RUST-SUBSET-GENERATED-FUNCTION-MIR-ACCEPTANCE-001.md"
-latest_card_summary = """296x-1330 accepts generated top-level function
-skeletons at MIR emit level by lowering top-level FunctionDeclaration nodes as
-standalone declarations and removing them from runtime script statements. Rust
-name resolution, use resolution, and generated-program execution remain out of
-scope."""
+latest_card = "296x-1331-RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1331-RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001.md"
+latest_card_summary = """296x-1331 inventories candidate crates and selects a
+focused two-module `hakorune_mir_core` slice: `crate::control_ids` plus
+`crate::types`. The next blocker is to materialize that slice and handle the
+unsupported expression transport exposed by generated function bodies."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-CRATE-PILOT-SELECTION-001"
+current_blocker_token = "HAKORUNE-MIR-CORE-RUSTSUBSET-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -109,4 +110,5 @@ landed_tail = [
   "2026-06-20: 296x-1328 selects hakorune_box_core as the first real RustSubset crate pilot using a read-only manifest inventory tool; next blocker is HAKORUNE-BOX-CORE-RUSTSUBSET-PILOT-001.",
   "2026-06-20: 296x-1329 checks in the hakorune_box_core crate bundle and verifies full skeleton parse plus leaf-module MIR emit; next blocker is generated top-level function MIR acceptance.",
   "2026-06-20: 296x-1330 accepts generated top-level function skeletons at MIR emit level; next blocker is next crate pilot selection.",
+  "2026-06-20: 296x-1331 selects a focused hakorune_mir_core crate pilot slice: crate::control_ids plus crate::types.",
 ]
