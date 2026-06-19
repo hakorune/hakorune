@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011
+RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after the
-`hakorune_mir_defs::call_unified` single-module bundle was materialized and
-guarded.
+Make generic Rust impl targets parser-safe in generated `.hako` skeletons
+after `hakorune_mir_builder::metadata_context` exposed
+`MetadataContext<SpanT, RegionIdT>_new` as an invalid generated function name.
 ```
 
 Current evidence:
@@ -107,6 +107,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009 is closed by 296x-1358.
 HAKORUNE-MIR-BUILDER-CONTEXT-MATERIALIZATION-001 is closed by 296x-1359.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-010 is closed by 296x-1360.
 HAKORUNE-MIR-DEFS-CALL-UNIFIED-MATERIALIZATION-001 is closed by 296x-1361.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011 is closed by 296x-1362.
 ```
 
 Acceptance for the current slice:
@@ -119,20 +120,24 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1362.
-2. Recheck remaining source-shape blocker candidates.
-3. Select the next task before implementation.
-4. Keep generated-program execution claim at 0.
+1. Read 296x-1363.
+2. Add an adapter-owned parser-safe emitted target name for generic impl
+   targets.
+3. Make the Python reference and `.hako` converter use that emitted target for
+   generated impl function prefixes and receiver spelling.
+4. Re-probe `hakorune_mir_builder::metadata_context`.
+5. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011
+RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
 ```
 
-296x-1361 materialized `hakorune_mir_defs::call_unified`. 296x-1362 is the
-selection row for the next app-front task; implementation must not start in
-that row.
+296x-1362 selected `metadata_context` generic impl target spelling as the
+smallest next source-shape blocker. 296x-1363 implements the skeleton-safety
+fix only; it must not add generic semantics, Rust name resolution, or
+reference/closure support.
 
 ## Pointers
 

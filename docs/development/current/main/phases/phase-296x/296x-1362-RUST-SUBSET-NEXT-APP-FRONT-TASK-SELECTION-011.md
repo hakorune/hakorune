@@ -1,6 +1,6 @@
 # 296x-1362 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-011
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -56,6 +56,32 @@ candidate_B=select reference-type / closure skeleton-safety blocker
 candidate_C=next real crate/module inventory
 ```
 
+## Probe Result
+
+Re-probed the remaining `hakorune_mir_builder` candidates after
+`hakorune_mir_defs::call_unified` was materialized.
+
+```text
+hakorune_mir_builder::metadata_context:
+  source_path=src/metadata_context.rs
+  generated_skeleton_mir_emit=fail
+  first_failure=generic_impl_target_spelling_not_parser_safe
+  failing_shape=function MetadataContext<SpanT, RegionIdT>_new(...)
+  selected=1
+
+hakorune_mir_builder::type_context:
+  source_path=src/type_context.rs
+  generated_skeleton_mir_emit=fail
+  first_failure=unsupported_reference_type_spelling_and_closure_handoff
+  failing_shape=Option<&str>
+  selected=0
+```
+
+`metadata_context` is the smaller next blocker. It exposes a single
+adapter/converter boundary: generic impl targets must have parser-safe emitted
+names and receiver type spellings. `type_context` also involves reference type
+spelling and closure handoff, so it remains a later row.
+
 ## Selection Rules
 
 ```text
@@ -85,11 +111,11 @@ instead of materializing around it.
 Produce a decision with:
 
 ```text
-selected_next_task=<token>
-selected_scope=<short description>
-selected_reason=<short reason>
+selected_next_task=RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
+selected_scope=generic impl target emitted-name / parser-safe skeleton spelling
+selected_reason=metadata_context first failure is a single target-spelling owner; type_context is broader
 implementation_allowed=0
-next_card_name=<card>
+next_card_name=296x-1363-RUST-SUBSET-GENERIC-IMPL-TARGET-SKELETON-SAFETY-001
 summary=ok
 ```
 
