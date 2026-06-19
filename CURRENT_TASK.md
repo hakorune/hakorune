@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006
+RUST-SUBSET-ASSOCIATED-FUNCTION-CALL-SKELETON-SAFETY-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after
-`hakorune_mir_builder::variable_context` materialization closed green.
+Make Rust associated function calls skeleton-safe when the adapter cannot
+prove executable `.hako` semantics.
 ```
 
 Current evidence:
@@ -96,6 +96,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-004 is closed by 296x-1348.
 HAKORUNE-MIR-BUILDER-BINDING-CONTEXT-MATERIALIZATION-001 is closed by 296x-1349.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-005 is closed by 296x-1350.
 HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001 is closed by 296x-1351.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006 is closed by 296x-1352.
 ```
 
 Acceptance for the current slice:
@@ -108,20 +109,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1352.
-2. Evaluate the next app-front task candidates.
-3. Select the next implementation row without starting implementation.
-4. Keep generated-program execution claim at 0.
+1. Read 296x-1353.
+2. Add a focused associated-function-call fixture.
+3. Make type-qualified associated calls emit an explicit Unsupported handoff
+   instead of an unresolved generated global.
+4. Keep name/use resolution and generated-program execution claims at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006
+RUST-SUBSET-ASSOCIATED-FUNCTION-CALL-SKELETON-SAFETY-001
 ```
 
-296x-1351 materialized `hakorune_mir_builder::variable_context` and guarded it
-through generated-skeleton MIR emit, wrapper EXE parity, and the full
-rust-subset smoke. 296x-1352 is the next design/selection row.
+296x-1352 selected associated function call skeleton-safety because
+`BindingId::new` and `CallFlags::new` currently emit unresolved generated
+globals. 296x-1353 is the implementation row.
 
 ## Pointers
 

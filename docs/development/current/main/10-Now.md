@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006
+RUST-SUBSET-ASSOCIATED-FUNCTION-CALL-SKELETON-SAFETY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -51,15 +51,18 @@ MirBuilder-relevant single-module materialization task because its generated
 skeleton already reaches MIR emit.
 296x-1351 materializes that variable_context bundle and guards it through
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
+296x-1352 selects associated function call skeleton-safety because
+`BindingId::new` and `CallFlags::new` currently emit unresolved generated
+globals.
 
-The next row is 296x-1352. It should select the next app-front task before
-starting implementation.
+The next row is 296x-1353. It should make type-qualified associated calls an
+explicit Unsupported handoff without enabling Rust name/use resolution.
 
 ## Next
 
-1. Read 296x-1352.
-2. Evaluate next app-front task candidates.
-3. Select the next implementation row without starting implementation.
+1. Read 296x-1353.
+2. Add a focused associated-function-call fixture.
+3. Recheck `core_context` / `call_unified` advance beyond unresolved globals.
 4. Run:
 
 ```bash
