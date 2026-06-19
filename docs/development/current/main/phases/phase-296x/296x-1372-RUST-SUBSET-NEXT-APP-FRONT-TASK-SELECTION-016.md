@@ -1,6 +1,6 @@
 # 296x-1372 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,23 @@ candidate_C=next green module inventory
 candidate_D=crate/module bundle aggregation after current context set
 ```
 
+## Selection Result
+
+```text
+selected_next_task=HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
+selected_scope=materialize crate::metadata_context single-module RustSubset bundle
+selected_reason=metadata_context now reaches generated-skeleton MIR emit after Self and Option constructor boundaries were closed; it is the next green MirBuilder-owned context module
+implementation_allowed=0
+next_card_name=296x-1373-HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
+summary=ok
+```
+
+`metadata_context` is now the highest-value green candidate. It is
+MirBuilder-owned, context-related, and already reaches generated-skeleton MIR
+emit. Closure handoff hardening remains deferred because the active
+`metadata_context` skeleton is now acceptable without changing closure
+semantics.
+
 ## Selection Rules
 
 ```text
@@ -76,11 +93,11 @@ fixture_or_manifest_gate_available=1
 Produce a decision with:
 
 ```text
-selected_next_task=<token>
-selected_scope=<short description>
-selected_reason=<short reason>
+selected_next_task=HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
+selected_scope=materialize crate::metadata_context single-module RustSubset bundle
+selected_reason=metadata_context now reaches generated-skeleton MIR emit after Self and Option constructor boundaries were closed
 implementation_allowed=0
-next_card_name=<card>
+next_card_name=296x-1373-HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
 summary=ok
 ```
 

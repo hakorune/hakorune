@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
+HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after Option constructor
-skeleton-safety was closed and `metadata_context` reached generated-skeleton
-MIR emit.
+Materialize the `hakorune_mir_builder::metadata_context` single-module
+RustSubset bundle now that it reaches generated-skeleton MIR emit.
 ```
 
 Current evidence:
@@ -117,6 +116,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-014 is closed by 296x-1368.
 RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001 is closed by 296x-1369.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015 is closed by 296x-1370.
 RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001 is closed by 296x-1371.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016 is closed by 296x-1372.
 ```
 
 Acceptance for the current slice:
@@ -129,19 +129,19 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1372.
-2. Recheck green module candidates now that `metadata_context` reaches MIR emit.
-3. Select the next source-shape blocker or materialization row.
-4. Keep generated-program execution claim at 0.
+1. Read 296x-1373.
+2. Check in the `metadata_context` manifest bundle and expected Hako skeleton.
+3. Add the focused wrapper and smoke registration.
+4. Verify generated-skeleton MIR emit and wrapper EXE parity.
+5. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
+HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
 ```
 
-296x-1371 closed Option constructor skeleton-safety. 296x-1372 selects the
-next app-front task before implementation.
+296x-1372 selected `hakorune_mir_builder::metadata_context` materialization.
 
 ## Pointers
 

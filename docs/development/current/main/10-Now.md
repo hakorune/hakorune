@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016
+HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -84,14 +84,15 @@ returning an undefined generated `Self` value. 296x-1369 makes Self value
 references skeleton-safe and advances `metadata_context` to unresolved function
 `Some`. 296x-1370 selects Option constructor/value path skeleton-safety as the
 next blocker. 296x-1371 makes Option constructor/value paths skeleton-safe and
-`metadata_context` reaches generated-skeleton MIR emit. The active row is
-296x-1372.
+`metadata_context` reaches generated-skeleton MIR emit. 296x-1372 selects
+`hakorune_mir_builder::metadata_context` materialization. The active row is
+296x-1373.
 
 ## Next
 
-1. Read 296x-1372.
-2. Recheck green module candidates now that `metadata_context` reaches MIR emit.
-3. Select the next app-front task before implementation.
+1. Read 296x-1373.
+2. Materialize the `metadata_context` manifest bundle and expected skeleton.
+3. Add the focused wrapper and smoke registration.
 4. Run:
 
 ```bash

@@ -134,21 +134,22 @@ references are now skeleton-safe as explicit Unsupported handoffs; the next
 blocker is Option constructor/value skeleton-safety after `metadata_context`
 advances to unresolved function `Some`. Option constructor/value paths are now
 skeleton-safe as explicit Unsupported handoffs, and `metadata_context` reaches
-generated-skeleton MIR emit again. The next blocker is selecting the next
-app-front task."""
+generated-skeleton MIR emit again. 296x-1372 selects
+`hakorune_mir_builder::metadata_context` materialization as the next
+MirBuilder-owned context bundle."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1372-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1373-HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001.md"
 
-latest_card = "296x-1372-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1372-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016.md"
-latest_card_summary = """296x-1372 selects the next rust-subset-to-hako
-app-front task after Option constructor skeleton-safety."""
+latest_card = "296x-1373-HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1373-HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001.md"
+latest_card_summary = """296x-1373 materializes the
+hakorune_mir_builder::metadata_context RustSubset bundle."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016"
+current_blocker_token = "HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -233,4 +234,5 @@ landed_tail = [
   "2026-06-20: 296x-1369 makes Self value references skeleton-safe and advances metadata_context to unresolved function Some.",
   "2026-06-20: 296x-1370 selects Option constructor/value path skeleton-safety after metadata_context exposes unresolved Some.",
   "2026-06-20: 296x-1371 makes Option constructor/value paths skeleton-safe and metadata_context reaches generated-skeleton MIR emit.",
+  "2026-06-20: 296x-1372 selects hakorune_mir_builder::metadata_context as the next green MirBuilder context materialization task.",
 ]
