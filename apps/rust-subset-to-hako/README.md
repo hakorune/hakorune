@@ -83,6 +83,7 @@ V0 does not implement:
 - `convert_if_fixture.hako`: startup wrapper for the selected `If` statement fixture
 - `convert_assign_fixture.hako`: startup wrapper for the selected assignment fixture
 - `convert_index_fixture.hako`: startup wrapper for the selected index expression fixture
+- `convert_break_continue_fixture.hako`: startup wrapper for the break/continue unsupported fixture
 - `fixtures/simple_subset_embedded.hako`: host-generated embedded JSON fixture
 - `tools/embed_fixture.py`: host tool that generates embedded fixture modules
 - `tools/syn_adapter/`: external Rust parser adapter selected for v0 source
@@ -247,6 +248,7 @@ file_input_enabled=1
 file_input_converter_parity=ok
 adapter_fixture_handoff_parity=ok
 index_fixture_parity=ok
+break_continue_unsupported_handoff_parity=ok
 syn_adapter_smoke=ok
 schema_key_dictionary_enabled=1
 generic_unknown_key_fallback_enabled=1

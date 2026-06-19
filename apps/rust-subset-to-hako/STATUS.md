@@ -55,6 +55,7 @@ returnless_void_body_fixture_parity=ok
 vec_method_fixture_parity=ok
 index_fixture_parity=ok
 loop_without_break_fixture_parity=ok
+break_continue_unsupported_handoff_parity=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
 ```
@@ -251,6 +252,14 @@ closed:
     evidence=index_input.rs + index_subset.json + index_expected.hako + convert_index_fixture.hako
     caveat=Array storage/bounds semantics remain owned by the Hakorune compiler/runtime
     card=docs/development/current/main/phases/phase-296x/296x-1310-RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001.md
+
+  RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-013
+    result=loop break/continue selected as explicit Unsupported handoff
+    owner=syn adapter unsupported loop lowering / converter Unsupported statement emission
+    evidence=break_continue_input.rs + break_continue_subset.json + break_continue_expected.hako + convert_break_continue_fixture.hako
+    compiler_recipe_acceptance_changed=0
+    break_continue_semantics_enabled=0
+    card=docs/development/current/main/phases/phase-296x/296x-1311-RUST-SUBSET-SYN-ADAPTER-BREAK-CONTINUE-UNSUPPORTED-HANDOFF-001.md
 
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-008
     result=Loop without break selected and implemented through existing While schema with cond=true

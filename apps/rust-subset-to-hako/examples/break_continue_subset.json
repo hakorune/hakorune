@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Unsupported",
+          "reason": "loop with break/continue belongs to compiler Recipe/CorePlan backlog"
+        }
+      ],
+      "kind": "Function",
+      "name": "pump_until_zero",
+      "params": [
+        {
+          "name": "n",
+          "type": "i64"
+        }
+      ],
+      "return_type": "void"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "break_continue_fixture",
+  "schema_version": 0
+}

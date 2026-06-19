@@ -30,12 +30,14 @@ retirement is closed by 296x-1307. The rust-subset app-front smoke reopen is
 closed by 296x-1308; `JsonParser.parse_array/0` is owned by
 loop_true_break_continue via the recipe-first ExitAllowed path. A dedicated
 syn-adapter smoke wrapper is closed by 296x-1309. RustSubset `Index`
-expression transport is closed by 296x-1310.
+expression transport is closed by 296x-1310. Loop `break` / `continue` is
+fixture-guarded as an explicit Unsupported handoff by 296x-1311.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Select the next rust-subset-to-hako app-front slice after Index.
+2. Select the next rust-subset-to-hako app-front slice after break/continue
+   unsupported handoff.
 3. Keep converter core separate from input routes.
 4. Run:
 
@@ -72,6 +74,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - Rust `xs[i]` lowers to RustSubset `Index`
   - Python reference, syn adapter, and `.hako` EXE/AOT parity are green
   - Array storage/bounds semantics remain compiler/runtime-owned
+- `RUST-SUBSET-SYN-ADAPTER-BREAK-CONTINUE-UNSUPPORTED-HANDOFF-001`
+  - loop `break` / `continue` lowers to an explicit Unsupported handoff
+  - compiler Recipe/CorePlan semantics are unchanged
+  - Python reference, syn adapter, and `.hako` EXE/AOT parity are green
 
 Closeout evidence:
 

@@ -20,22 +20,23 @@ hint fallback retirement are green. The rust-subset app-front smoke is green
 again after reopening the `JsonParser.parse_array` loop(true) shape through
 loop_true_break_continue. A dedicated syn-adapter smoke entry is also green.
 The Index expression app-front slice is green through Python reference,
-syn-adapter handoff, and `.hako` EXE/AOT converter parity. The active blocker
-is app-front next-task selection."""
+syn-adapter handoff, and `.hako` EXE/AOT converter parity. Loop
+`break`/`continue` is now fixture-guarded as an explicit Unsupported handoff,
+without changing compiler Recipe/CorePlan semantics. The active blocker is
+app-front next-task selection."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1310-RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1311-RUST-SUBSET-SYN-ADAPTER-BREAK-CONTINUE-UNSUPPORTED-HANDOFF-001.md"
 
-latest_card = "296x-1310-RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1310-RUST-SUBSET-SYN-ADAPTER-INDEX-EXPRESSION-001.md"
-latest_card_summary = """296x-1310 adds RustSubset `Index` expression
-transport for Rust `xs[i]` source shapes. The Python reference converter,
-`.hako` converter core, syn adapter lowering, fixture wrapper, smoke, and
-adapter smoke are green. Array storage/bounds semantics remain compiler/runtime
-owned; this is app-front skeleton transport only."""
+latest_card = "296x-1311-RUST-SUBSET-SYN-ADAPTER-BREAK-CONTINUE-UNSUPPORTED-HANDOFF-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1311-RUST-SUBSET-SYN-ADAPTER-BREAK-CONTINUE-UNSUPPORTED-HANDOFF-001.md"
+latest_card_summary = """296x-1311 fixture-guards Rust loop bodies containing
+`break` / `continue` as an explicit Unsupported handoff. The Python reference
+converter, syn-adapter handoff, `.hako` converter wrapper, smoke, and adapter
+smoke are green. Compiler Recipe/CorePlan semantics are unchanged."""
 
 current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -61,4 +62,5 @@ landed_tail = [
   "2026-06-19: 296x-1308 restores rust-subset app-front smoke through loop_true_break_continue ExitAllowed coverage for parse_array-class loop(true) shapes.",
   "2026-06-19: 296x-1309 adds a dedicated syn-adapter smoke wrapper; converter core remains separate from Rust parser/input route ownership.",
   "2026-06-19: 296x-1310 adds RustSubset Index expression transport for xs[i] through Python reference, syn adapter, and .hako EXE/AOT converter parity.",
+  "2026-06-19: 296x-1311 fixture-guards loop break/continue as an explicit Unsupported handoff; compiler Recipe/CorePlan semantics are unchanged.",
 ]

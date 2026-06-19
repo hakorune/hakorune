@@ -1,0 +1,3 @@
+function pump_until_zero(n: i64): void {
+    /* TODO: loop with break/continue belongs to compiler Recipe/CorePlan backlog */
+}
