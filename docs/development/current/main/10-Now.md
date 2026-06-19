@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012
+RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -77,16 +77,16 @@ materialization task after previous skeleton-safety blockers were closed.
 296x-1361 materializes that call_unified bundle and guards it through
 generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
 
-296x-1363 closes generic impl target skeleton-safety without adding generic
-semantics. `metadata_context` now advances to the existing `Option<&str>` /
-closure handoff boundary. The active row is 296x-1364, which should select the
-next app-front task before implementation.
+296x-1364 selects reference type spelling skeleton-safety because
+`metadata_context` and `type_context` both fail first on `Option<&str>`. The
+active row is 296x-1365; it must make skeleton type annotations parser-safe
+without adding borrow/lifetime/closure semantics.
 
 ## Next
 
-1. Read 296x-1364.
-2. Recheck `metadata_context` and `type_context` next-boundary evidence.
-3. Select the next app-front task before implementation.
+1. Read 296x-1365.
+2. Implement parser-safe reference type spelling for skeleton annotations.
+3. Re-probe `metadata_context` and `type_context`.
 4. Run:
 
 ```bash

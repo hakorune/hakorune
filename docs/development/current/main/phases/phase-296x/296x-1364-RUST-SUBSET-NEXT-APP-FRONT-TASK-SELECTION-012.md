@@ -1,6 +1,6 @@
 # 296x-1364 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -52,6 +52,28 @@ candidate_B=closure unsupported handoff / method-chain skeleton-safety
 candidate_C=next materializable module after metadata_context/type_context blockers
 ```
 
+## Probe Result
+
+Rechecked the two active real-front candidates after 296x-1363:
+
+```text
+hakorune_mir_builder::metadata_context:
+  generated_skeleton_mir_emit=fail
+  first_parser_failure=Option<&str> return type spelling
+  closure_handoff_present=1
+  closure_handoff_is_todo_expression=1
+
+hakorune_mir_builder::type_context:
+  generated_skeleton_mir_emit=fail
+  first_parser_failure=Option<&str> return type spelling
+  closure_handoff_present=1
+  closure_handoff_is_todo_expression=1
+```
+
+Both fronts share the same first parser boundary. The closure appears inside
+the body as an explicit unsupported expression handoff, so it is not the first
+parser blocker. Reference type spelling is the smaller next owner.
+
 ## Selection Rules
 
 ```text
@@ -78,11 +100,11 @@ fixture_or_manifest_gate_available=1
 Produce a decision with:
 
 ```text
-selected_next_task=<token>
-selected_scope=<short description>
-selected_reason=<short reason>
+selected_next_task=RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001
+selected_scope=nested reference type spelling normalization for parser-safe skeletons
+selected_reason=metadata_context and type_context both fail first on Option<&str>; closure is already an unsupported expression handoff
 implementation_allowed=0
-next_card_name=<card>
+next_card_name=296x-1365-RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001
 summary=ok
 ```
 

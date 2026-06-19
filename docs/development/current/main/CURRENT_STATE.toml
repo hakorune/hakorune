@@ -118,21 +118,23 @@ skeleton-safety as the next blocker after `metadata_context` exposed
 `MetadataContext<SpanT, RegionIdT>_new` as an invalid generated function name.
 Generic impl target emitted names are now parser-safe without adding generic
 semantics, and `metadata_context` advances to the existing
-`Option<&str>`/closure handoff boundary. The next blocker is selecting the next
-app-front task before implementation."""
+`Option<&str>`/closure handoff boundary. 296x-1364 selects reference type
+spelling skeleton-safety as the next blocker because both `metadata_context`
+and `type_context` fail first on `Option<&str>` while closure remains an
+unsupported expression handoff."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1364-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1365-RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001.md"
 
-latest_card = "296x-1364-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1364-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012.md"
-latest_card_summary = """296x-1364 selects the next rust-subset-to-hako
-app-front task after generic impl target skeleton-safety is closed."""
+latest_card = "296x-1365-RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1365-RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001.md"
+latest_card_summary = """296x-1365 makes RustSubset reference type spellings
+parser-safe in generated .hako skeletons without adding borrow semantics."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-012"
+current_blocker_token = "RUST-SUBSET-REFERENCE-TYPE-SPELLING-SKELETON-SAFETY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -209,4 +211,5 @@ landed_tail = [
   "2026-06-20: 296x-1361 materializes the hakorune_mir_defs::call_unified bundle and guards it through generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.",
   "2026-06-20: 296x-1362 selects generic impl target skeleton-safety after metadata_context exposes invalid generated target spelling.",
   "2026-06-20: 296x-1363 makes generic impl target emitted names parser-safe and advances metadata_context to the reference-type/closure boundary.",
+  "2026-06-20: 296x-1364 selects reference type spelling skeleton-safety after metadata_context and type_context both fail first on Option<&str>.",
 ]
