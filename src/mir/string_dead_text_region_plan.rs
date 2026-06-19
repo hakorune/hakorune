@@ -139,8 +139,15 @@ pub fn refresh_module_string_dead_text_region_plans(module: &mut crate::mir::Mir
 
 pub fn refresh_function_string_dead_text_region_plans(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
+    refresh_function_string_dead_text_region_plans_with_def_map(function, &def_map);
+}
+
+pub(crate) fn refresh_function_string_dead_text_region_plans_with_def_map(
+    function: &mut MirFunction,
+    def_map: &ValueDefMap,
+) {
     function.metadata.string_dead_text_region_plans =
-        derive_string_dead_text_region_plans(function, &def_map);
+        derive_string_dead_text_region_plans(function, def_map);
 }
 
 fn derive_string_dead_text_region_plans(

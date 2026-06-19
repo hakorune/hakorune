@@ -330,10 +330,22 @@ fn typed_object_collection_field_key(
     def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<FieldHandleOriginKey> {
+    typed_object_collection_field_key_inner(function, def_map, value, &mut BTreeSet::new())
+}
+
+fn typed_object_collection_field_key_inner(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<FieldHandleOriginKey> {
     let origin = resolve_value_origin(function, def_map, value);
+    if !visiting.insert(origin) {
+        return None;
+    }
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
-    match block.instructions.get(instruction_index)? {
+    let field_key = match block.instructions.get(instruction_index)? {
         MirInstruction::FieldGet { base, field, .. } => {
             let box_name = typed_object_value_box_name(function, def_map, *base)?;
             Some((box_name, field.clone()))
@@ -341,7 +353,8 @@ fn typed_object_collection_field_key(
         MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
             let mut field_key = None;
             for (_, input) in inputs {
-                let next = typed_object_collection_field_key(function, def_map, *input)?;
+                let next =
+                    typed_object_collection_field_key_inner(function, def_map, *input, visiting)?;
                 field_key = match field_key {
                     None => Some(next),
                     Some(existing) if existing == next => Some(existing),
@@ -351,7 +364,9 @@ fn typed_object_collection_field_key(
             field_key
         }
         _ => None,
-    }
+    };
+    visiting.remove(&origin);
+    field_key
 }
 
 pub(super) fn generic_collection_element_origin_box_name(
@@ -523,79 +538,105 @@ fn handle_value_origin_box_name_with_context(
     value: ValueId,
     param_box_origins: &MethodParamBoxOriginMap,
 ) -> Option<String> {
+    handle_value_origin_box_name_with_context_inner(
+        module,
+        function,
+        def_map,
+        value,
+        param_box_origins,
+        &mut BTreeSet::new(),
+    )
+}
+
+fn handle_value_origin_box_name_with_context_inner(
+    module: &MirModule,
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    param_box_origins: &MethodParamBoxOriginMap,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<String> {
     let origin = resolve_value_origin(function, def_map, value);
-    if let Some(box_name) = value_box_name(function, value)
-        .or_else(|| value_box_name(function, origin))
-        .map(str::to_string)
-    {
-        return Some(box_name);
+    if !visiting.insert(origin) {
+        return None;
     }
-    if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
-        let block = function.blocks.get(&block_id)?;
-        match block.instructions.get(instruction_index)? {
-            MirInstruction::Const {
-                value: ConstValue::String(_),
-                ..
-            } => return Some("StringBox".to_string()),
-            MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
-            MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
-                let mut input_box = None;
-                for (_, input) in inputs {
-                    let next = handle_value_origin_box_name_with_context(
-                        module,
-                        function,
-                        def_map,
-                        *input,
-                        param_box_origins,
-                    )?;
-                    input_box = match input_box {
-                        None => Some(next),
-                        Some(existing) if existing == next => Some(existing),
-                        _ => return None,
-                    };
+    let result = (|| {
+        if let Some(box_name) = value_box_name(function, value)
+            .or_else(|| value_box_name(function, origin))
+            .map(str::to_string)
+        {
+            return Some(box_name);
+        }
+        if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
+            let block = function.blocks.get(&block_id)?;
+            match block.instructions.get(instruction_index)? {
+                MirInstruction::Const {
+                    value: ConstValue::String(_),
+                    ..
+                } => return Some("StringBox".to_string()),
+                MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
+                MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
+                    let mut input_box = None;
+                    for (_, input) in inputs {
+                        let next = handle_value_origin_box_name_with_context_inner(
+                            module,
+                            function,
+                            def_map,
+                            *input,
+                            param_box_origins,
+                            visiting,
+                        )?;
+                        input_box = match input_box {
+                            None => Some(next),
+                            Some(existing) if existing == next => Some(existing),
+                            _ => return None,
+                        };
+                    }
+                    return input_box;
                 }
-                return input_box;
-            }
-            MirInstruction::Call { dst, callee, .. } => {
-                if *dst == Some(origin) {
-                    match callee {
-                        Some(Callee::Method { .. }) => {
-                            if let Some(box_name) = user_box_method_call_result_origin_box_name(
-                                module,
-                                function,
-                                block_id,
-                                instruction_index,
-                            ) {
-                                return Some(box_name);
+                MirInstruction::Call { dst, callee, .. } => {
+                    if *dst == Some(origin) {
+                        match callee {
+                            Some(Callee::Method { .. }) => {
+                                if let Some(box_name) = user_box_method_call_result_origin_box_name(
+                                    module,
+                                    function,
+                                    block_id,
+                                    instruction_index,
+                                ) {
+                                    return Some(box_name);
+                                }
                             }
-                        }
-                        Some(Callee::Global(_)) => {
-                            if let Some(box_name) = global_call_result_origin_box_name(
-                                module,
-                                function,
-                                block_id,
-                                instruction_index,
-                            ) {
-                                return Some(box_name);
+                            Some(Callee::Global(_)) => {
+                                if let Some(box_name) = global_call_result_origin_box_name(
+                                    module,
+                                    function,
+                                    block_id,
+                                    instruction_index,
+                                ) {
+                                    return Some(box_name);
+                                }
                             }
+                            _ => {}
                         }
-                        _ => {}
                     }
                 }
+                _ => {}
             }
-            _ => {}
         }
-    }
-    function
-        .params
-        .iter()
-        .position(|param| *param == origin)
-        .and_then(
-            |index| match param_box_origins.get(&(function.signature.name.clone(), index)) {
-                Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
-                Some(BoxOriginInference::Conflict) | None => None,
-            },
-        )
+        function
+            .params
+            .iter()
+            .position(|param| *param == origin)
+            .and_then(|index| {
+                match param_box_origins.get(&(function.signature.name.clone(), index)) {
+                    Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
+                    Some(BoxOriginInference::Conflict) | None => None,
+                }
+            })
+    })();
+    visiting.remove(&origin);
+    result
 }
 
 fn user_box_method_call_result_origin_box_name(
@@ -672,4 +713,81 @@ fn value_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
                 .and_then(|index| function.signature.params.get(index))
                 .and_then(box_name_from_mir_type)
         })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{BasicBlock, EffectMask, FunctionSignature};
+
+    #[test]
+    fn collection_field_key_returns_none_for_self_referential_phi() {
+        let signature = FunctionSignature {
+            name: "cycle".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(1),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(1)),
+                (BasicBlockId::new(0), ValueId::new(2)),
+            ],
+            type_hint: None,
+        });
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(2),
+            base: ValueId::new(3),
+            field: "items".to_string(),
+            declared_type: None,
+        });
+        function.add_block(block);
+
+        let def_map = build_value_def_map(&function);
+        assert_eq!(
+            typed_object_collection_field_key(&function, &def_map, ValueId::new(1)),
+            None
+        );
+    }
+
+    #[test]
+    fn handle_value_origin_box_name_returns_none_for_self_referential_phi() {
+        let signature = FunctionSignature {
+            name: "cycle_origin".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(1),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(1)),
+                (BasicBlockId::new(0), ValueId::new(2)),
+            ],
+            type_hint: None,
+        });
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(2),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        });
+        function.add_block(block);
+
+        let def_map = build_value_def_map(&function);
+        assert_eq!(
+            handle_value_origin_box_name_with_context(
+                &MirModule::new(String::new()),
+                &function,
+                &def_map,
+                ValueId::new(1),
+                &MethodParamBoxOriginMap::new(),
+            ),
+            None
+        );
+    }
 }

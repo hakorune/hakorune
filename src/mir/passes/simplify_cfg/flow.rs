@@ -1,5 +1,6 @@
 use crate::mir::definitions::call_unified::Callee;
 use crate::mir::{BasicBlock, BasicBlockId, EffectMask, MirFunction, MirInstruction, ValueId};
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ThreadArm {
@@ -34,6 +35,7 @@ fn preserve_emit_mir_string_phi_trampoline(
 
 pub(super) fn find_threadable_branch_jump(
     function: &MirFunction,
+    reachable_blocks: &HashSet<BasicBlockId>,
 ) -> Option<(
     BasicBlockId,
     ThreadArm,
@@ -42,8 +44,6 @@ pub(super) fn find_threadable_branch_jump(
     bool,
     bool,
 )> {
-    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
-
     for block_id in function.block_ids() {
         if !reachable_blocks.contains(&block_id) {
             continue;
@@ -258,9 +258,8 @@ fn can_rewrite_threaded_phi_predecessor(
 
 pub(super) fn find_single_predecessor_jump_merge(
     function: &MirFunction,
+    reachable_blocks: &HashSet<BasicBlockId>,
 ) -> Option<(BasicBlockId, BasicBlockId)> {
-    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
-
     for pred_id in function.block_ids() {
         if !reachable_blocks.contains(&pred_id) {
             continue;

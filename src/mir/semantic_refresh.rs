@@ -29,7 +29,7 @@ use super::{
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
-    direct_array_extent_fact::refresh_function_direct_array_extent_facts,
+    direct_array_extent_fact::refresh_function_direct_array_extent_facts_with_def_map,
     direct_exact_hotcore_call_plan::refresh_module_direct_exact_hotcore_call_plans,
     direct_state_plan::refresh_module_direct_state_plans,
     effect_summary::refresh_function_effect_summaries,
@@ -52,7 +52,7 @@ use super::{
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     map_repr_plan::refresh_function_map_repr_plans,
     placement_effect::refresh_function_placement_effect_routes,
-    range_index_fact::refresh_function_range_index_facts,
+    range_index_fact::refresh_function_range_index_facts_with_def_map,
     receiver_snapshot_publication_plan::refresh_function_receiver_snapshot_publication_plans,
     record_layout_plan::refresh_module_record_layout_plans,
     record_state_residence_plan::{
@@ -61,12 +61,11 @@ use super::{
     },
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
-    refresh_function_string_dead_text_region_plans,
     refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
-    refresh_function_sum_placement_facts, refresh_function_sum_placement_layouts,
-    refresh_function_sum_placement_selections, refresh_function_sum_variant_project_seed_route,
-    refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
-    refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
+    refresh_function_sum_placement_layouts, refresh_function_sum_placement_selections,
+    refresh_function_sum_variant_project_seed_route, refresh_function_sum_variant_tag_seed_route,
+    refresh_function_thin_entry_candidates, refresh_function_thin_entry_selections,
+    refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     refresh_module_string_kernel_plans, refresh_module_sum_placement_facts,
     refresh_module_sum_placement_layouts, refresh_module_sum_placement_selections,
@@ -81,13 +80,16 @@ use super::{
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
     span_access_plan::refresh_function_span_access_plans,
+    string_dead_text_region_plan::refresh_function_string_dead_text_region_plans_with_def_map,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
+    sum_placement::refresh_function_sum_placement_facts_with_def_map,
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
     user_box_method_publication::refresh_function_user_box_method_publication_classifications,
     user_box_method_route_plan::refresh_function_user_box_method_routes,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
+    value_origin::build_value_def_map,
     MirFunction, MirInstruction, MirModule,
 };
 
@@ -111,7 +113,8 @@ fn refresh_function_source_and_fact_metadata(
     refresh_function_storage_class_facts(function);
     refresh_function_thin_entry_candidates(function, module_metadata);
     refresh_function_thin_entry_selections(function);
-    refresh_function_sum_placement_facts(function);
+    let def_map = build_value_def_map(function);
+    refresh_function_sum_placement_facts_with_def_map(function, &def_map);
     refresh_function_sum_placement_selections(function);
     refresh_function_sum_placement_layouts(function);
 }
@@ -131,11 +134,12 @@ fn refresh_function_pre_fixpoint_routes(
 ) {
     refresh_function_string_kernel_plans(function);
     refresh_function_string_direct_set_window_routes(function);
-    refresh_function_string_dead_text_region_plans(function);
+    let def_map = build_value_def_map(function);
+    refresh_function_string_dead_text_region_plans_with_def_map(function, &def_map);
     refresh_function_generic_method_routes(function);
     refresh_function_map_repr_plans(function);
-    refresh_function_range_index_facts(function);
-    refresh_function_direct_array_extent_facts(function);
+    refresh_function_range_index_facts_with_def_map(function, &def_map);
+    refresh_function_direct_array_extent_facts_with_def_map(function, &def_map);
     refresh_function_direct_array_access_plans(function);
     refresh_function_route_decisions(function);
     refresh_function_span_access_plans(function);

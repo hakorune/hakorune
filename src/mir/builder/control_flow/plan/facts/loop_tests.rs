@@ -2,6 +2,8 @@
 
 #[path = "loop_tests_parts/invariants.rs"]
 mod invariants;
+#[path = "loop_tests_parts/multi_candidate.rs"]
+mod multi_candidate;
 #[path = "loop_tests_parts/planner_ctx.rs"]
 mod planner_ctx;
 #[path = "loop_tests_parts/scan_with_init.rs"]

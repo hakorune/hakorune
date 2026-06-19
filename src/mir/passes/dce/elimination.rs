@@ -4,10 +4,9 @@ use super::local_fields::{
     is_removable_effect_sensitive_read_instruction,
     is_removable_effect_sensitive_write_instruction,
 };
-use super::{is_removable_no_dst_pure_instruction, propagate_used_values};
-use crate::mir::{MirFunction, ValueId};
+use super::{is_removable_no_dst_pure_instruction, propagate_used_values, LiveValueSet};
+use crate::mir::MirFunction;
 use crate::runtime::get_global_ring0;
-use std::collections::HashSet;
 
 pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
@@ -15,7 +14,7 @@ pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usi
     let overwritten_local_writes =
         collect_overwritten_local_field_sets(function, &reachable_blocks, &local_reads);
 
-    let mut base_used_values: HashSet<ValueId> = HashSet::new();
+    let mut base_used_values = LiveValueSet::default();
 
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {

@@ -7,7 +7,7 @@
  * itself.
  */
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
@@ -17,8 +17,7 @@ use super::{
         StringCorridorPublicationBoundary,
     },
     string_corridor_recognizer::{
-        match_len_call, match_method_set_call, match_substring_call,
-        match_substring_concat3_helper_call,
+        match_len_call, match_substring_call, match_substring_concat3_helper_call,
     },
     CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
@@ -34,6 +33,58 @@ pub use model::{
     StringKernelPlanVerifierOwner,
 };
 use support::{borrow_contract_from_plan, candidate_priority, publication_contract_from_plan};
+
+mod consumer_analysis;
+use consumer_analysis::{ReadAliasConsumerScan, StringKernelConsumerAnalysis};
+
+pub(super) struct ValueOriginCache<'a> {
+    function: &'a MirFunction,
+    def_map: &'a ValueDefMap,
+    cache: HashMap<ValueId, ValueId>,
+}
+
+impl<'a> ValueOriginCache<'a> {
+    pub(super) fn new(function: &'a MirFunction, def_map: &'a ValueDefMap) -> Self {
+        Self {
+            function,
+            def_map,
+            cache: HashMap::new(),
+        }
+    }
+
+    pub(super) fn origin(&mut self, value: ValueId) -> ValueId {
+        if let Some(origin) = self.cache.get(&value) {
+            return *origin;
+        }
+
+        let mut current = value;
+        let mut path = Vec::new();
+        let mut seen = HashSet::new();
+        while seen.insert(current) {
+            if let Some(origin) = self.cache.get(&current).copied() {
+                current = origin;
+                break;
+            }
+            path.push(current);
+            let Some((bbid, idx)) = self.def_map.get(&current).copied() else {
+                break;
+            };
+            let Some(block) = self.function.blocks.get(&bbid) else {
+                break;
+            };
+            let Some(MirInstruction::Copy { src, .. }) = block.instructions.get(idx) else {
+                break;
+            };
+            current = *src;
+        }
+
+        let origin = current;
+        for item in path {
+            self.cache.insert(item, origin);
+        }
+        origin
+    }
+}
 
 fn const_string_literal(
     function: &MirFunction,
@@ -202,144 +253,6 @@ fn inferred_text_output(
     )
 }
 
-#[derive(Default)]
-struct TextConsumerScan {
-    slot_text_uses: usize,
-    non_slot_uses: usize,
-}
-
-#[derive(Default)]
-struct ReadAliasConsumerScan {
-    direct_set_uses: usize,
-    substring_uses: usize,
-    len_observer_uses: usize,
-    other_uses: usize,
-}
-
-fn record_text_consumer_use(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-    plan_root: ValueId,
-    inst: &MirInstruction,
-    scan: &mut TextConsumerScan,
-) {
-    if let Some((_, receiver, _, _, _)) = match_substring_call(inst) {
-        if resolve_value_origin(function, def_map, receiver) == plan_root {
-            scan.slot_text_uses += 1;
-            return;
-        }
-    }
-
-    if let Some(store) = match_method_set_call(inst) {
-        if resolve_value_origin(function, def_map, store.value) == plan_root {
-            scan.non_slot_uses += 1;
-            return;
-        }
-    }
-
-    match inst {
-        MirInstruction::Return {
-            value: Some(value), ..
-        }
-        | MirInstruction::Store { value, .. }
-        | MirInstruction::FieldSet { value, .. } => {
-            if resolve_value_origin(function, def_map, *value) == plan_root {
-                scan.non_slot_uses += 1;
-            }
-            return;
-        }
-        MirInstruction::Call {
-            callee:
-                Some(crate::mir::Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            ..
-        } => {
-            if resolve_value_origin(function, def_map, *receiver) == plan_root
-                && !matches!(method.as_str(), "length" | "size")
-            {
-                scan.non_slot_uses += 1;
-                return;
-            }
-        }
-        MirInstruction::Phi { .. } => return,
-        _ => {}
-    }
-
-    if inst
-        .used_values()
-        .into_iter()
-        .any(|value| resolve_value_origin(function, def_map, value) == plan_root)
-    {
-        scan.non_slot_uses += 1;
-    }
-}
-
-fn record_read_alias_consumer_use(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-    plan_root: ValueId,
-    inst: &MirInstruction,
-    scan: &mut ReadAliasConsumerScan,
-) {
-    if let MirInstruction::Copy { src, .. } = inst {
-        if resolve_value_origin(function, def_map, *src) == plan_root {
-            return;
-        }
-    }
-
-    if let Some((_, receiver, _, _, _)) = match_substring_call(inst) {
-        if resolve_value_origin(function, def_map, receiver) == plan_root {
-            scan.substring_uses += 1;
-            return;
-        }
-    }
-
-    if let Some((_, receiver, _)) = match_len_call(inst) {
-        if resolve_value_origin(function, def_map, receiver) == plan_root {
-            scan.len_observer_uses += 1;
-            return;
-        }
-    }
-
-    if let Some(store) = match_method_set_call(inst) {
-        if resolve_value_origin(function, def_map, store.value) == plan_root {
-            scan.direct_set_uses += 1;
-            return;
-        }
-    }
-
-    if inst
-        .used_values()
-        .into_iter()
-        .any(|value| resolve_value_origin(function, def_map, value) == plan_root)
-    {
-        scan.other_uses += 1;
-    }
-}
-
-fn scan_read_alias_consumers(
-    function: &MirFunction,
-    plan_value: ValueId,
-    def_map: &ValueDefMap,
-) -> ReadAliasConsumerScan {
-    let plan_root = resolve_value_origin(function, def_map, plan_value);
-    let mut scan = ReadAliasConsumerScan::default();
-
-    for block in function.blocks.values() {
-        for inst in &block.instructions {
-            record_read_alias_consumer_use(function, def_map, plan_root, inst, &mut scan);
-        }
-        if let Some(term) = &block.terminator {
-            record_read_alias_consumer_use(function, def_map, plan_root, term, &mut scan);
-        }
-    }
-
-    scan
-}
-
 fn derive_read_alias_facts(
     proof: &StringCorridorCandidateProof,
     source_root: Option<ValueId>,
@@ -409,33 +322,10 @@ fn find_single_direct_use_index(
     use_index
 }
 
-fn infer_slot_text_consumer_from_def_map(
+fn derive_slot_hop_substring_with_analysis(
     function: &MirFunction,
     def_map: &ValueDefMap,
-    plan_value: ValueId,
-) -> bool {
-    if !inferred_text_output(function, plan_value, def_map) {
-        return false;
-    }
-
-    let plan_root = resolve_value_origin(function, def_map, plan_value);
-    let mut scan = TextConsumerScan::default();
-
-    for block in function.blocks.values() {
-        for inst in &block.instructions {
-            record_text_consumer_use(function, def_map, plan_root, inst, &mut scan);
-        }
-        if let Some(term) = &block.terminator {
-            record_text_consumer_use(function, def_map, plan_root, term, &mut scan);
-        }
-    }
-
-    scan.non_slot_uses == 0 && scan.slot_text_uses == 1
-}
-
-fn derive_slot_hop_substring(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
+    consumer_analysis: &StringKernelConsumerAnalysis,
     plan_value: ValueId,
     text_consumer: Option<StringKernelPlanTextConsumer>,
 ) -> Option<StringKernelPlanSlotHopSubstring> {
@@ -443,7 +333,8 @@ fn derive_slot_hop_substring(
         return None;
     }
 
-    let plan_root = resolve_value_origin(function, def_map, plan_value);
+    let mut origins = ValueOriginCache::new(function, def_map);
+    let plan_root = origins.origin(plan_value);
     let (bbid, def_idx) = def_map.get(&plan_root).copied()?;
     let instructions = function.blocks.get(&bbid)?.instructions.as_slice();
     let mut cursor = plan_root;
@@ -466,7 +357,13 @@ fn derive_slot_hop_substring(
                 if receiver != cursor {
                     return None;
                 }
-                if infer_slot_text_consumer_from_def_map(function, def_map, consumer_value) {
+                let consumer_root = origins.origin(consumer_value);
+                if inferred_text_output(function, consumer_value, def_map)
+                    && matches!(
+                        consumer_analysis.text_consumer(consumer_root),
+                        Some(StringKernelPlanTextConsumer::SlotText)
+                    )
+                {
                     return None;
                 }
                 return Some(StringKernelPlanSlotHopSubstring {
@@ -485,30 +382,33 @@ pub fn infer_string_kernel_text_consumer(
     function: &MirFunction,
     plan_value: ValueId,
 ) -> Option<StringKernelPlanTextConsumer> {
+    infer_string_kernel_text_consumers(function, [plan_value])
+        .remove(&plan_value)
+        .flatten()
+}
+
+pub(crate) fn infer_string_kernel_text_consumers<I>(
+    function: &MirFunction,
+    plan_values: I,
+) -> BTreeMap<ValueId, Option<StringKernelPlanTextConsumer>>
+where
+    I: IntoIterator<Item = ValueId>,
+{
     let def_map = build_value_def_map(function);
-    if !inferred_text_output(function, plan_value, &def_map) {
-        return None;
-    }
-
-    let plan_root = resolve_value_origin(function, &def_map, plan_value);
-    let mut scan = TextConsumerScan::default();
-
-    for block in function.blocks.values() {
-        for inst in &block.instructions {
-            record_text_consumer_use(function, &def_map, plan_root, inst, &mut scan);
-        }
-        if let Some(term) = &block.terminator {
-            record_text_consumer_use(function, &def_map, plan_root, term, &mut scan);
-        }
-    }
-
-    if scan.non_slot_uses > 0 || scan.slot_text_uses > 1 {
-        Some(StringKernelPlanTextConsumer::ExplicitColdPublish)
-    } else if scan.slot_text_uses == 1 {
-        Some(StringKernelPlanTextConsumer::SlotText)
-    } else {
-        None
-    }
+    let consumer_analysis = StringKernelConsumerAnalysis::new(function, &def_map);
+    let mut origins = ValueOriginCache::new(function, &def_map);
+    plan_values
+        .into_iter()
+        .map(|plan_value| {
+            let consumer = if inferred_text_output(function, plan_value, &def_map) {
+                let plan_root = origins.origin(plan_value);
+                consumer_analysis.text_consumer(plan_root)
+            } else {
+                None
+            };
+            (plan_value, consumer)
+        })
+        .collect()
 }
 
 /// Derive a backend-consumable string kernel plan from current candidate metadata.
@@ -516,6 +416,24 @@ pub fn derive_string_kernel_plan(
     function: &MirFunction,
     plan_value: ValueId,
     candidates: &[StringCorridorCandidate],
+) -> Option<StringKernelPlan> {
+    let def_map = build_value_def_map(function);
+    let consumer_analysis = StringKernelConsumerAnalysis::new(function, &def_map);
+    derive_string_kernel_plan_with_analysis(
+        function,
+        plan_value,
+        candidates,
+        &def_map,
+        &consumer_analysis,
+    )
+}
+
+fn derive_string_kernel_plan_with_analysis(
+    function: &MirFunction,
+    plan_value: ValueId,
+    candidates: &[StringCorridorCandidate],
+    def_map: &ValueDefMap,
+    consumer_analysis: &StringKernelConsumerAnalysis,
 ) -> Option<StringKernelPlan> {
     let mut representative: Option<StringCorridorCandidate> = None;
     let mut publication = None;
@@ -586,10 +504,9 @@ pub fn derive_string_kernel_plan(
         }
     };
 
-    let def_map = build_value_def_map(function);
     let middle_literal = match plan.proof {
         StringCorridorCandidateProof::ConcatTriplet { middle, .. } => {
-            const_string_literal(function, &def_map, middle).map(|(_, text)| text)
+            const_string_literal(function, def_map, middle).map(|(_, text)| text)
         }
         _ => None,
     };
@@ -601,10 +518,21 @@ pub fn derive_string_kernel_plan(
         ),
         _ => None,
     };
-    let text_consumer = infer_string_kernel_text_consumer(function, plan_value);
-    let slot_hop_substring =
-        derive_slot_hop_substring(function, &def_map, plan_value, text_consumer);
-    let read_alias_scan = scan_read_alias_consumers(function, plan_value, &def_map);
+    let mut origins = ValueOriginCache::new(function, def_map);
+    let plan_root = origins.origin(plan_value);
+    let text_consumer = if inferred_text_output(function, plan_value, def_map) {
+        consumer_analysis.text_consumer(plan_root)
+    } else {
+        None
+    };
+    let slot_hop_substring = derive_slot_hop_substring_with_analysis(
+        function,
+        def_map,
+        consumer_analysis,
+        plan_value,
+        text_consumer,
+    );
+    let read_alias_scan = consumer_analysis.read_alias_scan(plan_root);
     let read_alias = derive_read_alias_facts(
         &plan.proof,
         plan.source_root,
@@ -658,9 +586,22 @@ pub fn refresh_module_string_kernel_plans(module: &mut MirModule) {
 }
 
 pub fn refresh_function_string_kernel_plans(function: &mut MirFunction) {
+    if function.metadata.string_corridor_candidates.is_empty() {
+        function.metadata.string_kernel_plans.clear();
+        return;
+    }
+
     let mut plans = BTreeMap::new();
+    let def_map = build_value_def_map(function);
+    let consumer_analysis = StringKernelConsumerAnalysis::new(function, &def_map);
     for (plan_value, candidates) in &function.metadata.string_corridor_candidates {
-        if let Some(plan) = derive_string_kernel_plan(function, *plan_value, candidates) {
+        if let Some(plan) = derive_string_kernel_plan_with_analysis(
+            function,
+            *plan_value,
+            candidates,
+            &def_map,
+            &consumer_analysis,
+        ) {
             plans.insert(*plan_value, plan);
         }
     }

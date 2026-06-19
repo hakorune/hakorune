@@ -49,14 +49,93 @@ fn record_instruction_uses(
         record_direct_set_consumer_use(counts, store.value);
         record_other_uses(
             counts,
-            inst.used_values()
+            value_consumer_used_values(inst)
                 .into_iter()
                 .filter(|value| *value != store.value),
         );
         return;
     }
 
-    record_other_uses(counts, inst.used_values());
+    record_other_uses(counts, value_consumer_used_values(inst));
+}
+
+fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
+    match inst {
+        MirInstruction::Const { .. } | MirInstruction::Safepoint => Vec::new(),
+        MirInstruction::UnaryOp { operand, .. }
+        | MirInstruction::Load { ptr: operand, .. }
+        | MirInstruction::StaticDataLoad { index: operand, .. }
+        | MirInstruction::TypeOp { value: operand, .. }
+        | MirInstruction::Copy { src: operand, .. }
+        | MirInstruction::Debug { value: operand, .. }
+        | MirInstruction::VariantTag { value: operand, .. }
+        | MirInstruction::VariantProject { value: operand, .. } => vec![*operand],
+        MirInstruction::BinOp { lhs, rhs, .. }
+        | MirInstruction::Compare { lhs, rhs, .. }
+        | MirInstruction::Store {
+            value: lhs,
+            ptr: rhs,
+            ..
+        } => vec![*lhs, *rhs],
+        MirInstruction::MemOp { operands, .. } => operands.clone(),
+        MirInstruction::FieldGet { base, .. } => vec![*base],
+        MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
+        MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
+        MirInstruction::Call { func, args, .. } => {
+            let mut used = Vec::with_capacity(1 + args.len());
+            used.push(*func);
+            used.extend(args.iter().copied());
+            used
+        }
+        MirInstruction::Phi { inputs, .. } => inputs.iter().map(|(_, value)| *value).collect(),
+        MirInstruction::Branch {
+            condition,
+            then_edge_args,
+            else_edge_args,
+            ..
+        } => {
+            let mut used = vec![*condition];
+            if let Some(args) = then_edge_args {
+                used.extend(args.values.iter().copied());
+            }
+            if let Some(args) = else_edge_args {
+                used.extend(args.values.iter().copied());
+            }
+            used
+        }
+        MirInstruction::Jump { edge_args, .. } => edge_args
+            .as_ref()
+            .map(|args| args.values.clone())
+            .unwrap_or_default(),
+        MirInstruction::Return { value, .. } => value.iter().copied().collect(),
+        MirInstruction::NewBox { args, .. } => args.clone(),
+        MirInstruction::KeepAlive { values } => values.clone(),
+        MirInstruction::ReleaseStrong { values } => values.clone(),
+        MirInstruction::Throw { exception, .. } => vec![*exception],
+        MirInstruction::Catch {
+            exception_value, ..
+        } => vec![*exception_value],
+        MirInstruction::RefNew { box_val, .. } => vec![*box_val],
+        MirInstruction::WeakRef { value, .. } => vec![*value],
+        MirInstruction::Barrier { ptr, .. } => vec![*ptr],
+        MirInstruction::FutureNew { value, .. } => vec![*value],
+        MirInstruction::FutureSet { future, value } => vec![*future, *value],
+        MirInstruction::Await { future, .. } => vec![*future],
+        MirInstruction::NewClosure { captures, me, .. } => {
+            let mut used = Vec::with_capacity(captures.len() + usize::from(me.is_some()));
+            used.extend(captures.iter().map(|(_, value)| *value));
+            if let Some(me) = me {
+                used.push(*me);
+            }
+            used
+        }
+        MirInstruction::Select {
+            cond,
+            then_val,
+            else_val,
+            ..
+        } => vec![*cond, *then_val, *else_val],
+    }
 }
 
 pub fn refresh_function_value_consumer_facts(function: &mut MirFunction) {

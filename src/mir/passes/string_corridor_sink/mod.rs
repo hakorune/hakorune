@@ -75,7 +75,7 @@ pub(crate) fn apply_string_corridor_post_dce_transforms(function: &mut MirFuncti
 fn refresh_analysis(
     function: &MirFunction,
     def_map: &mut HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &mut HashMap<ValueId, usize>,
+    use_counts: &mut UseCounts,
     n: usize,
 ) {
     if n > 0 {
@@ -239,7 +239,7 @@ fn collect_direct_stable_length_hints(
 
 fn remove_unused_substring_view_producers(
     function: &mut MirFunction,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> usize {
     let mut removed = 0usize;
 

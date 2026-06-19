@@ -7,18 +7,22 @@ use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::value_origin::ValueDefMap;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
+use super::flow_origin::{
+    generic_pure_string_value_origin_box_name_with_flow,
+    generic_runtime_data_contains_param_text_origin_box_name_with_flow,
+    generic_string_receiver_origin_box_name_with_flow, GenericPureStringFlowAnalysis,
+};
 use super::{
-    generic_pure_string_value_origin_box_name,
-    generic_runtime_data_contains_param_text_origin_box_name,
-    generic_string_receiver_origin_box_name, method_args_without_redundant_receiver,
-    string_corridor_method_origin_box_name, GenericMethodRoute, GenericMethodRouteDecision,
-    GenericMethodRouteEvidence, GenericMethodRouteKind, GenericMethodRouteOperands,
-    GenericMethodRouteProof, GenericMethodRouteSite, GenericMethodRouteSurface,
+    method_args_without_redundant_receiver, string_corridor_method_origin_box_name,
+    GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
+    GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
+    GenericMethodRouteSite, GenericMethodRouteSurface,
 };
 
 pub(super) fn match_generic_substring_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    pure_string_flow: &GenericPureStringFlowAnalysis,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -43,7 +47,14 @@ pub(super) fn match_generic_substring_route(
     }
 
     let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
-        .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, *receiver))
+        .or_else(|| {
+            generic_pure_string_value_origin_box_name_with_flow(
+                function,
+                def_map,
+                *receiver,
+                pure_string_flow,
+            )
+        })
         .or_else(|| {
             string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrSlice)
         })
@@ -56,6 +67,7 @@ pub(super) fn match_generic_substring_route(
     let substring_args = substring_logical_args(
         function,
         def_map,
+        pure_string_flow,
         *receiver,
         receiver_origin_box.as_deref(),
         args,
@@ -83,6 +95,7 @@ pub(super) fn match_generic_substring_route(
 fn substring_logical_args<'a>(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    pure_string_flow: &GenericPureStringFlowAnalysis,
     receiver: crate::mir::ValueId,
     receiver_origin_box: Option<&str>,
     args: &'a [crate::mir::ValueId],
@@ -94,8 +107,15 @@ fn substring_logical_args<'a>(
             if !matches!(semantic_arity, 1 | 2) {
                 return None;
             }
-            let first_arg_origin = receiver_origin_box_name(function, def_map, args[0])
-                .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, args[0]));
+            let first_arg_origin =
+                receiver_origin_box_name(function, def_map, args[0]).or_else(|| {
+                    generic_pure_string_value_origin_box_name_with_flow(
+                        function,
+                        def_map,
+                        args[0],
+                        pure_string_flow,
+                    )
+                });
             (receiver_origin_box == Some("StringBox")
                 && first_arg_origin.as_deref() == Some("StringBox"))
             .then_some(&args[1..])
@@ -105,6 +125,7 @@ fn substring_logical_args<'a>(
 pub(super) fn match_generic_indexof_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    pure_string_flow: &GenericPureStringFlowAnalysis,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -128,8 +149,13 @@ pub(super) fn match_generic_indexof_route(
         return None;
     }
 
-    let receiver_origin_box =
-        generic_string_receiver_origin_box_name(function, def_map, *receiver, box_name);
+    let receiver_origin_box = generic_string_receiver_origin_box_name_with_flow(
+        function,
+        def_map,
+        pure_string_flow,
+        *receiver,
+        box_name,
+    );
     if box_name != "StringBox"
         && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
     {
@@ -158,6 +184,7 @@ pub(super) fn match_generic_indexof_route(
 pub(super) fn match_generic_lastindexof_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    pure_string_flow: &GenericPureStringFlowAnalysis,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -181,8 +208,13 @@ pub(super) fn match_generic_lastindexof_route(
         return None;
     }
 
-    let receiver_origin_box =
-        generic_string_receiver_origin_box_name(function, def_map, *receiver, box_name);
+    let receiver_origin_box = generic_string_receiver_origin_box_name_with_flow(
+        function,
+        def_map,
+        pure_string_flow,
+        *receiver,
+        box_name,
+    );
     if box_name != "StringBox"
         && !(box_name == "RuntimeDataBox" && receiver_origin_box.as_deref() == Some("StringBox"))
     {
@@ -211,6 +243,7 @@ pub(super) fn match_generic_lastindexof_route(
 pub(super) fn match_generic_contains_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    pure_string_flow: &GenericPureStringFlowAnalysis,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -234,12 +267,21 @@ pub(super) fn match_generic_contains_route(
         return None;
     }
 
-    let receiver_origin_box = generic_string_receiver_origin_box_name(
-        function, def_map, *receiver, box_name,
+    let receiver_origin_box = generic_string_receiver_origin_box_name_with_flow(
+        function,
+        def_map,
+        pure_string_flow,
+        *receiver,
+        box_name,
     )
     .or_else(|| {
-        generic_runtime_data_contains_param_text_origin_box_name(
-            function, def_map, box_name, *receiver, args[0],
+        generic_runtime_data_contains_param_text_origin_box_name_with_flow(
+            function,
+            def_map,
+            pure_string_flow,
+            box_name,
+            *receiver,
+            args[0],
         )
     });
     if box_name != "StringBox"

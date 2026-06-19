@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 use crate::mir::function::TypedObjectFieldStorage;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
@@ -19,6 +20,66 @@ use super::{box_name_for_value, same_module_method_target};
 
 type StorageMemo = BTreeMap<(String, ValueId), Option<TypedObjectFieldStorage>>;
 type ReturnStorageMemo = BTreeMap<String, Option<TypedObjectFieldStorage>>;
+type ReturnDefMapMemo = BTreeMap<String, Rc<ValueDefMap>>;
+
+pub(crate) struct StorageQueryContext<'a> {
+    module: &'a MirModule,
+    inferred: &'a BTreeMap<FieldKey, FieldStorageInference>,
+    field_box_origins: &'a FieldBoxOriginMap,
+    param_storages: &'a BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &'a CollectionElementStorageMap,
+    visiting_globals: BTreeSet<String>,
+    visiting_values: BTreeSet<(String, ValueId)>,
+    storage_memo: StorageMemo,
+    return_storage_memo: ReturnStorageMemo,
+    return_def_map_memo: ReturnDefMapMemo,
+}
+
+impl<'a> StorageQueryContext<'a> {
+    pub(crate) fn new(
+        module: &'a MirModule,
+        inferred: &'a BTreeMap<FieldKey, FieldStorageInference>,
+        field_box_origins: &'a FieldBoxOriginMap,
+        param_storages: &'a BTreeMap<ParamKey, FieldStorageInference>,
+        collection_element_storages: &'a CollectionElementStorageMap,
+    ) -> Self {
+        Self {
+            module,
+            inferred,
+            field_box_origins,
+            param_storages,
+            collection_element_storages,
+            visiting_globals: BTreeSet::new(),
+            visiting_values: BTreeSet::new(),
+            storage_memo: BTreeMap::new(),
+            return_storage_memo: BTreeMap::new(),
+            return_def_map_memo: BTreeMap::new(),
+        }
+    }
+
+    pub(crate) fn storage_for_value(
+        &mut self,
+        function: &MirFunction,
+        def_map: &ValueDefMap,
+        value: ValueId,
+    ) -> Option<TypedObjectFieldStorage> {
+        storage_for_value_inner(
+            self.module,
+            function,
+            def_map,
+            value,
+            self.inferred,
+            self.field_box_origins,
+            self.param_storages,
+            self.collection_element_storages,
+            &mut self.visiting_globals,
+            &mut self.visiting_values,
+            &mut self.storage_memo,
+            &mut self.return_storage_memo,
+            &mut self.return_def_map_memo,
+        )
+    }
+}
 
 pub(crate) fn storage_for_value(
     module: &MirModule,
@@ -30,23 +91,17 @@ pub(crate) fn storage_for_value(
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
     collection_element_storages: &CollectionElementStorageMap,
 ) -> Option<TypedObjectFieldStorage> {
-    let mut visiting_globals = BTreeSet::new();
-    let mut visiting_values = BTreeSet::new();
-    let mut storage_memo = BTreeMap::new();
-    let mut return_storage_memo = BTreeMap::new();
-    storage_for_value_inner(
+    let mut context = StorageQueryContext::new(
         module,
-        function,
-        def_map,
-        value,
         inferred,
         field_box_origins,
         param_storages,
         collection_element_storages,
-        &mut visiting_globals,
-        &mut visiting_values,
-        &mut storage_memo,
-        &mut return_storage_memo,
+    );
+    context.storage_for_value(
+        function,
+        def_map,
+        value,
     )
 }
 
@@ -63,6 +118,7 @@ fn storage_for_value_inner(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
     let origin = resolve_value_origin(function, def_map, value);
     let value_key = (function.signature.name.clone(), origin);
@@ -85,6 +141,7 @@ fn storage_for_value_inner(
         visiting_values,
         storage_memo,
         return_storage_memo,
+        return_def_map_memo,
     );
     visiting_values.remove(&value_key);
     let result = origin_storage.or_else(|| storage_for_value_type_facts(function, value, origin));
@@ -105,6 +162,7 @@ fn storage_from_origin_instruction(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
     let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
         return storage_from_param(function, origin, param_storages);
@@ -127,6 +185,7 @@ fn storage_from_origin_instruction(
             visiting_values,
             storage_memo,
             return_storage_memo,
+            return_def_map_memo,
         ),
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
@@ -142,6 +201,7 @@ fn storage_from_origin_instruction(
             visiting_values,
             storage_memo,
             return_storage_memo,
+            return_def_map_memo,
         ),
         MirInstruction::Call {
             callee: Some(callee @ Callee::Method { .. }),
@@ -169,6 +229,7 @@ fn storage_from_origin_instruction(
                 visiting_values,
                 storage_memo,
                 return_storage_memo,
+                return_def_map_memo,
             )
         }),
         MirInstruction::Phi {
@@ -187,6 +248,7 @@ fn storage_from_origin_instruction(
                 visiting_values,
                 storage_memo,
                 return_storage_memo,
+                return_def_map_memo,
             )
         }),
         MirInstruction::NewBox { .. } | MirInstruction::NewClosure { .. } => {
@@ -238,6 +300,7 @@ fn storage_for_phi_inputs(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
     let mut observed = None;
     for (_, input) in inputs {
@@ -254,6 +317,7 @@ fn storage_for_phi_inputs(
             visiting_values,
             storage_memo,
             return_storage_memo,
+            return_def_map_memo,
         );
         let Some(storage) = storage else {
             if is_null_or_void_value(function, def_map, *input) {
@@ -285,6 +349,7 @@ fn storage_for_binop(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
     let lhs_storage = storage_for_value_inner(
         module,
@@ -299,6 +364,7 @@ fn storage_for_binop(
         visiting_values,
         storage_memo,
         return_storage_memo,
+        return_def_map_memo,
     );
     let rhs_storage = storage_for_value_inner(
         module,
@@ -313,6 +379,7 @@ fn storage_for_binop(
         visiting_values,
         storage_memo,
         return_storage_memo,
+        return_def_map_memo,
     );
     match op {
         BinaryOp::Add
@@ -353,6 +420,7 @@ fn storage_for_global_return(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
     if !visiting_globals.insert(name.to_string()) {
         return None;
@@ -373,6 +441,7 @@ fn storage_for_global_return(
             visiting_values,
             storage_memo,
             return_storage_memo,
+            return_def_map_memo,
         )
     });
     visiting_globals.remove(name);
@@ -394,6 +463,7 @@ fn storage_for_method_return(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
     let Callee::Method {
         box_name,
@@ -429,6 +499,7 @@ fn storage_for_method_return(
         visiting_values,
         storage_memo,
         return_storage_memo,
+        return_def_map_memo,
     )
 }
 
@@ -458,8 +529,16 @@ fn storage_for_function_returns(
     visiting_values: &mut BTreeSet<(String, ValueId)>,
     storage_memo: &mut StorageMemo,
     return_storage_memo: &mut ReturnStorageMemo,
+    return_def_map_memo: &mut ReturnDefMapMemo,
 ) -> Option<TypedObjectFieldStorage> {
-    let def_map = build_value_def_map(function);
+    let function_name = function.signature.name.clone();
+    if !return_def_map_memo.contains_key(&function_name) {
+        return_def_map_memo.insert(function_name.clone(), Rc::new(build_value_def_map(function)));
+    }
+    let def_map = return_def_map_memo
+        .get(&function_name)
+        .expect("return def-map inserted above")
+        .clone();
     let mut observed = None;
     for block in function.blocks.values() {
         for inst in block.instructions.iter().chain(block.terminator.iter()) {
@@ -482,6 +561,7 @@ fn storage_for_function_returns(
                 visiting_values,
                 storage_memo,
                 return_storage_memo,
+                return_def_map_memo,
             );
             let Some(storage) = storage else {
                 if is_null_or_void_value(function, &def_map, value) {

@@ -5,8 +5,24 @@
 //! sibling path, this helper rematerializes an equivalent value in the
 //! predecessor before PHI insertion.
 
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
-use std::collections::HashSet;
+use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, ValueId};
+use hakorune_mir_defs::CalleeBoxKind;
+use std::collections::{HashMap, HashSet};
+
+struct PhiInputMaterializationAnalysis {
+    def_blocks: HashMap<ValueId, BasicBlockId>,
+    dominators: crate::mir::verification::utils::DominatorTree,
+}
+
+impl PhiInputMaterializationAnalysis {
+    fn new(func: &mut MirFunction) -> Self {
+        func.update_cfg();
+        Self {
+            def_blocks: crate::mir::verification::utils::compute_def_blocks(func),
+            dominators: crate::mir::verification::utils::compute_dominators(func),
+        }
+    }
+}
 
 fn find_def_inst(
     func: &MirFunction,
@@ -34,19 +50,18 @@ fn find_def_inst(
 
 fn rematerialize_for_pred(
     func: &mut MirFunction,
+    analysis: &PhiInputMaterializationAnalysis,
     pred: BasicBlockId,
     value: ValueId,
     context: &str,
     edge_kind: &str,
     visited: &mut HashSet<ValueId>,
 ) -> Result<ValueId, String> {
-    func.update_cfg();
-    let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
-    let dominators = crate::mir::verification::utils::compute_dominators(func);
-    let dominates_pred = def_blocks
+    let dominates_pred = analysis
+        .def_blocks
         .get(&value)
         .copied()
-        .map(|def_bb| dominators.dominates(def_bb, pred))
+        .map(|def_bb| analysis.dominators.dominates(def_bb, pred))
         .unwrap_or(false);
 
     if !visited.insert(value) {
@@ -90,24 +105,30 @@ fn rematerialize_for_pred(
             }
         }
         MirInstruction::Copy { src, .. } => {
-            let src = rematerialize_for_pred(func, pred, src, context, edge_kind, visited)?;
+            let src =
+                rematerialize_for_pred(func, analysis, pred, src, context, edge_kind, visited)?;
             let dst = func.next_value_id();
             MirInstruction::Copy { dst, src }
         }
         MirInstruction::BinOp { op, lhs, rhs, .. } => {
-            let lhs = rematerialize_for_pred(func, pred, lhs, context, edge_kind, visited)?;
-            let rhs = rematerialize_for_pred(func, pred, rhs, context, edge_kind, visited)?;
+            let lhs =
+                rematerialize_for_pred(func, analysis, pred, lhs, context, edge_kind, visited)?;
+            let rhs =
+                rematerialize_for_pred(func, analysis, pred, rhs, context, edge_kind, visited)?;
             let dst = func.next_value_id();
             MirInstruction::BinOp { dst, op, lhs, rhs }
         }
         MirInstruction::Compare { op, lhs, rhs, .. } => {
-            let lhs = rematerialize_for_pred(func, pred, lhs, context, edge_kind, visited)?;
-            let rhs = rematerialize_for_pred(func, pred, rhs, context, edge_kind, visited)?;
+            let lhs =
+                rematerialize_for_pred(func, analysis, pred, lhs, context, edge_kind, visited)?;
+            let rhs =
+                rematerialize_for_pred(func, analysis, pred, rhs, context, edge_kind, visited)?;
             let dst = func.next_value_id();
             MirInstruction::Compare { dst, op, lhs, rhs }
         }
         MirInstruction::UnaryOp { op, operand, .. } => {
-            let operand = rematerialize_for_pred(func, pred, operand, context, edge_kind, visited)?;
+            let operand =
+                rematerialize_for_pred(func, analysis, pred, operand, context, edge_kind, visited)?;
             let dst = func.next_value_id();
             MirInstruction::UnaryOp { dst, op, operand }
         }
@@ -117,17 +138,45 @@ fn rematerialize_for_pred(
             else_val,
             ..
         } => {
-            let cond = rematerialize_for_pred(func, pred, cond, context, edge_kind, visited)?;
-            let then_val =
-                rematerialize_for_pred(func, pred, then_val, context, edge_kind, visited)?;
-            let else_val =
-                rematerialize_for_pred(func, pred, else_val, context, edge_kind, visited)?;
+            let cond =
+                rematerialize_for_pred(func, analysis, pred, cond, context, edge_kind, visited)?;
+            let then_val = rematerialize_for_pred(
+                func, analysis, pred, then_val, context, edge_kind, visited,
+            )?;
+            let else_val = rematerialize_for_pred(
+                func, analysis, pred, else_val, context, edge_kind, visited,
+            )?;
             let dst = func.next_value_id();
             MirInstruction::Select {
                 dst,
                 cond,
                 then_val,
                 else_val,
+            }
+        }
+        MirInstruction::Call {
+            dst: Some(_),
+            func: call_func,
+            callee,
+            args,
+            effects,
+        } if is_rematerializable_string_method_call(&callee) => {
+            let args = args
+                .into_iter()
+                .map(|arg| {
+                    rematerialize_for_pred(func, analysis, pred, arg, context, edge_kind, visited)
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            let callee = rematerialize_callee_for_pred(
+                func, analysis, pred, callee, context, edge_kind, visited,
+            )?;
+            let dst = func.next_value_id();
+            MirInstruction::Call {
+                dst: Some(dst),
+                func: call_func,
+                callee,
+                args,
+                effects,
             }
         }
         other => {
@@ -157,6 +206,53 @@ fn rematerialize_for_pred(
     Ok(dst)
 }
 
+fn is_rematerializable_string_method_call(callee: &Option<Callee>) -> bool {
+    matches!(
+        callee,
+        Some(Callee::Method {
+            box_name,
+            method,
+            box_kind: CalleeBoxKind::RuntimeData,
+            ..
+        }) if matches!(box_name.as_str(), "RuntimeDataBox" | "StringBox")
+            && method == "substring"
+    )
+}
+
+fn rematerialize_callee_for_pred(
+    func: &mut MirFunction,
+    analysis: &PhiInputMaterializationAnalysis,
+    pred: BasicBlockId,
+    callee: Option<Callee>,
+    context: &str,
+    edge_kind: &str,
+    visited: &mut HashSet<ValueId>,
+) -> Result<Option<Callee>, String> {
+    match callee {
+        Some(Callee::Method {
+            box_name,
+            method,
+            receiver,
+            certainty,
+            box_kind,
+        }) => {
+            let receiver = receiver
+                .map(|value| {
+                    rematerialize_for_pred(func, analysis, pred, value, context, edge_kind, visited)
+                })
+                .transpose()?;
+            Ok(Some(Callee::Method {
+                box_name,
+                method,
+                receiver,
+                certainty,
+                box_kind,
+            }))
+        }
+        other => Ok(other),
+    }
+}
+
 pub(in crate::mir::builder) fn for_pred(
     func: &mut MirFunction,
     pred: BasicBlockId,
@@ -164,7 +260,16 @@ pub(in crate::mir::builder) fn for_pred(
     context: &str,
     edge_kind: &str,
 ) -> Result<ValueId, String> {
-    rematerialize_for_pred(func, pred, value, context, edge_kind, &mut HashSet::new())
+    let analysis = PhiInputMaterializationAnalysis::new(func);
+    rematerialize_for_pred(
+        func,
+        &analysis,
+        pred,
+        value,
+        context,
+        edge_kind,
+        &mut HashSet::new(),
+    )
 }
 
 pub(in crate::mir::builder) fn materialize_all_phi_inputs(
@@ -184,8 +289,17 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
         }
     }
 
+    let analysis = PhiInputMaterializationAnalysis::new(func);
     for (block_id, inst_idx, input_idx, pred, incoming) in work {
-        let materialized = for_pred(func, pred, incoming, context, "phi")?;
+        let materialized = rematerialize_for_pred(
+            func,
+            &analysis,
+            pred,
+            incoming,
+            context,
+            "phi",
+            &mut HashSet::new(),
+        )?;
         if materialized == incoming {
             continue;
         }
@@ -320,7 +434,8 @@ fn complete_missing_self_carried_phi_inputs(func: &mut MirFunction) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{BasicBlock, ConstValue, FunctionSignature, MirType};
+    use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType};
+    use hakorune_mir_defs::TypeCertainty;
 
     fn test_signature(name: &str) -> FunctionSignature {
         FunctionSignature {
@@ -561,5 +676,70 @@ mod tests {
             .unwrap()
             .instructions
             .is_empty());
+    }
+
+    #[test]
+    fn rematerializes_runtime_data_substring_for_phi_pred() {
+        let mut func = MirFunction::new(test_signature("substring_phi"), BasicBlockId::new(0));
+        func.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        func.add_block(BasicBlock::new(BasicBlockId::new(2)));
+
+        let text = func.next_value_id();
+        let start = func.next_value_id();
+        let end = func.next_value_id();
+        let substring = func.next_value_id();
+
+        {
+            let entry = func.get_block_mut(BasicBlockId::new(0)).unwrap();
+            entry.add_instruction(MirInstruction::Const {
+                dst: text,
+                value: ConstValue::String("abcdef".to_string()),
+            });
+            entry.add_instruction(MirInstruction::Const {
+                dst: start,
+                value: ConstValue::Integer(1),
+            });
+            entry.add_instruction(MirInstruction::Const {
+                dst: end,
+                value: ConstValue::Integer(3),
+            });
+            entry.set_terminator(MirInstruction::Branch {
+                condition: start,
+                then_bb: BasicBlockId::new(1),
+                else_bb: BasicBlockId::new(2),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        }
+
+        func.get_block_mut(BasicBlockId::new(1))
+            .unwrap()
+            .add_instruction(MirInstruction::Call {
+                dst: Some(substring),
+                func: ValueId::new(u32::MAX),
+                callee: Some(Callee::Method {
+                    box_name: "RuntimeDataBox".to_string(),
+                    method: "substring".to_string(),
+                    receiver: Some(text),
+                    certainty: TypeCertainty::Union,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![start, end],
+                effects: EffectMask::READ,
+            });
+
+        let materialized =
+            for_pred(&mut func, BasicBlockId::new(2), substring, "test", "phi").unwrap();
+        assert_ne!(materialized, substring);
+
+        let pred = func.get_block(BasicBlockId::new(2)).unwrap();
+        assert!(matches!(
+            pred.instructions.last(),
+            Some(MirInstruction::Call {
+                dst: Some(dst),
+                callee: Some(Callee::Method { method, .. }),
+                ..
+            }) if *dst == materialized && method == "substring"
+        ));
     }
 }

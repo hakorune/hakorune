@@ -8,17 +8,22 @@ use super::{
     BoxOriginInference, FieldBoxOriginKey, FieldBoxOriginMap, ParamBoxOriginKey, ParamBoxOriginMap,
 };
 use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::value_origin::{
+    build_value_def_map, ValueDefMap, ValueOriginQueryContext,
+};
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
 
 #[path = "merge.rs"]
 mod merge;
+#[path = "origin_route_flow.rs"]
+mod origin_route_flow;
 #[path = "value_helpers.rs"]
 pub(super) mod value_helpers;
 
 use self::merge::{merge_field_box_origin, merge_param_box_origin};
+use self::origin_route_flow::phi_input_box_name;
 pub(crate) use self::value_helpers::{
     box_name_from_type, box_origin_known, build_route_result_box_lookup, field_box_origin,
     generic_method_route_result_box_name, method_receiver_box_name, param_box_origin,
@@ -78,6 +83,7 @@ pub(crate) fn infer_user_box_method_param_box_origins(
             let Some(route_result_lookup) = function_route_result_lookups.get(function_name) else {
                 continue;
             };
+            let mut value_origin_context = ValueOriginQueryContext::new(function, def_map);
 
             for (param_index, box_name) in infer_param_box_origins_from_field_uses(
                 function,
@@ -115,7 +121,7 @@ pub(crate) fn infer_user_box_method_param_box_origins(
                     else {
                         continue;
                     };
-                    let Some(route_box_name) = user_box_route_receiver_box_name(
+                    let Some(route_box_name) = user_box_route_receiver_box_name_with_origin_context(
                         function,
                         def_map,
                         route_result_lookup,
@@ -125,6 +131,7 @@ pub(crate) fn infer_user_box_method_param_box_origins(
                         *receiver,
                         &current,
                         field_box_origins,
+                        &mut value_origin_context,
                     ) else {
                         continue;
                     };
@@ -139,13 +146,14 @@ pub(crate) fn infer_user_box_method_param_box_origins(
                         route_box_name,
                     );
                     for (arg_index, arg) in args.iter().enumerate() {
-                        let Some(arg_box_name) = user_box_value_box_name(
+                        let Some(arg_box_name) = user_box_value_box_name_with_origin_context(
                             function,
                             def_map,
                             route_result_lookup,
                             *arg,
                             &current,
                             field_box_origins,
+                            &mut value_origin_context,
                         ) else {
                             continue;
                         };
@@ -318,6 +326,7 @@ pub(crate) fn infer_user_box_field_box_origins(
             let Some(route_result_lookup) = function_route_result_lookups.get(function_name) else {
                 continue;
             };
+            let mut value_origin_context = ValueOriginQueryContext::new(function, def_map);
             for block_id in block_ids {
                 let Some(block) = function.blocks.get(block_id) else {
                     continue;
@@ -327,23 +336,25 @@ pub(crate) fn infer_user_box_field_box_origins(
                         MirInstruction::FieldSet {
                             base, field, value, ..
                         } => {
-                            let Some(base_box) = user_box_value_box_name(
+                            let Some(base_box) = user_box_value_box_name_with_origin_context(
                                 function,
                                 def_map,
                                 route_result_lookup,
                                 *base,
                                 param_box_origins,
                                 &current,
+                                &mut value_origin_context,
                             ) else {
                                 continue;
                             };
-                            let Some(value_box) = user_box_value_box_name(
+                            let Some(value_box) = user_box_value_box_name_with_origin_context(
                                 function,
                                 def_map,
                                 route_result_lookup,
                                 *value,
                                 param_box_origins,
                                 &current,
+                                &mut value_origin_context,
                             ) else {
                                 continue;
                             };
@@ -371,7 +382,7 @@ pub(crate) fn infer_user_box_field_box_origins(
                             args,
                             ..
                         } if method == "birth" => {
-                            let Some(route_box_name) = user_box_route_receiver_box_name(
+                            let Some(route_box_name) = user_box_route_receiver_box_name_with_origin_context(
                                 function,
                                 def_map,
                                 route_result_lookup,
@@ -381,6 +392,7 @@ pub(crate) fn infer_user_box_field_box_origins(
                                 *receiver,
                                 param_box_origins,
                                 &current,
+                                &mut value_origin_context,
                             ) else {
                                 continue;
                             };
@@ -391,13 +403,14 @@ pub(crate) fn infer_user_box_field_box_origins(
                                 let Some(arg) = args.get(param_index - 1) else {
                                     continue;
                                 };
-                                let Some(value_box) = user_box_value_box_name(
+                                let Some(value_box) = user_box_value_box_name_with_origin_context(
                                     function,
                                     def_map,
                                     route_result_lookup,
                                     *arg,
                                     param_box_origins,
                                     &current,
+                                    &mut value_origin_context,
                                 ) else {
                                     continue;
                                 };
@@ -436,6 +449,7 @@ fn collect_birth_field_param_bindings(module: &MirModule) -> BTreeMap<(String, S
             continue;
         }
         let def_map = build_value_def_map(function);
+        let mut value_origin_context = ValueOriginQueryContext::new(function, &def_map);
         let receiver = function.params.first().copied();
         for block_id in sorted_block_ids(function) {
             let Some(block) = function.blocks.get(&block_id) else {
@@ -448,10 +462,10 @@ fn collect_birth_field_param_bindings(module: &MirModule) -> BTreeMap<(String, S
                 else {
                     continue;
                 };
-                if Some(resolve_value_origin(function, &def_map, *base)) != receiver {
+                if Some(value_origin_context.origin(*base)) != receiver {
                     continue;
                 }
-                let value_origin = resolve_value_origin(function, &def_map, *value);
+                let value_origin = value_origin_context.origin(*value);
                 let Some(param_index) = function
                     .params
                     .iter()
@@ -512,16 +526,44 @@ pub(crate) fn user_box_route_receiver_box_name(
     param_box_origins: &ParamBoxOriginMap,
     field_box_origins: &FieldBoxOriginMap,
 ) -> Option<String> {
+    let mut value_origin_context = ValueOriginQueryContext::new(function, def_map);
+    user_box_route_receiver_box_name_with_origin_context(
+        function,
+        def_map,
+        route_result_lookup,
+        user_box_names,
+        callee_box_name,
+        certainty,
+        receiver,
+        param_box_origins,
+        field_box_origins,
+        &mut value_origin_context,
+    )
+}
+
+fn user_box_route_receiver_box_name_with_origin_context(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    route_result_lookup: &HashMap<ValueId, String>,
+    user_box_names: &BTreeSet<String>,
+    callee_box_name: &str,
+    certainty: TypeCertainty,
+    receiver: ValueId,
+    param_box_origins: &ParamBoxOriginMap,
+    field_box_origins: &FieldBoxOriginMap,
+    value_origin_context: &mut ValueOriginQueryContext<'_>,
+) -> Option<String> {
     if certainty == TypeCertainty::Known && user_box_names.contains(callee_box_name) {
         return Some(callee_box_name.to_string());
     }
-    user_box_value_box_name(
+    user_box_value_box_name_with_origin_context(
         function,
         def_map,
         route_result_lookup,
         receiver,
         param_box_origins,
         field_box_origins,
+        value_origin_context,
     )
     .filter(|box_name| user_box_names.contains(box_name))
 }
@@ -534,7 +576,28 @@ pub(crate) fn user_box_value_box_name(
     param_box_origins: &ParamBoxOriginMap,
     field_box_origins: &FieldBoxOriginMap,
 ) -> Option<String> {
-    let origin = resolve_value_origin(function, def_map, value);
+    let mut value_origin_context = ValueOriginQueryContext::new(function, def_map);
+    user_box_value_box_name_with_origin_context(
+        function,
+        def_map,
+        route_result_lookup,
+        value,
+        param_box_origins,
+        field_box_origins,
+        &mut value_origin_context,
+    )
+}
+
+fn user_box_value_box_name_with_origin_context(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    route_result_lookup: &HashMap<ValueId, String>,
+    value: ValueId,
+    param_box_origins: &ParamBoxOriginMap,
+    field_box_origins: &FieldBoxOriginMap,
+    value_origin_context: &mut ValueOriginQueryContext<'_>,
+) -> Option<String> {
+    let origin = value_origin_context.origin(value);
     if let Some(box_name) = value_box_name(function, origin).map(str::to_string) {
         return Some(box_name);
     }
@@ -558,19 +621,26 @@ pub(crate) fn user_box_value_box_name(
                     return Some(box_name.to_string());
                 }
                 if let Some(box_name) =
-                    phi_input_box_name(function, def_map, route_result_lookup, inputs)
+                    phi_input_box_name(
+                        function,
+                        def_map,
+                        route_result_lookup,
+                        inputs,
+                        value_origin_context,
+                    )
                 {
                     return Some(box_name);
                 }
             }
             MirInstruction::FieldGet { base, field, .. } => {
-                let base_box = user_box_value_box_name(
+                let base_box = user_box_value_box_name_with_origin_context(
                     function,
                     def_map,
                     route_result_lookup,
                     *base,
                     param_box_origins,
                     field_box_origins,
+                    value_origin_context,
                 )?;
                 if let Some(field_box) = field_box_origin(field_box_origins, &base_box, field) {
                     return Some(field_box);
@@ -590,85 +660,4 @@ pub(crate) fn user_box_value_box_name(
                     .flatten()
             })
         })
-}
-
-fn phi_input_box_name(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-    route_result_lookup: &HashMap<ValueId, String>,
-    inputs: &[(BasicBlockId, ValueId)],
-) -> Option<String> {
-    let mut inferred = None;
-    for (_, input) in inputs {
-        let mut visiting = BTreeSet::new();
-        let box_name = route_flow_value_box_name(
-            function,
-            def_map,
-            route_result_lookup,
-            *input,
-            &mut visiting,
-        )?;
-        inferred = match inferred {
-            None => Some(box_name),
-            Some(existing) if existing == box_name => Some(existing),
-            _ => return None,
-        };
-    }
-    inferred
-}
-
-fn route_flow_value_box_name(
-    function: &MirFunction,
-    def_map: &ValueDefMap,
-    route_result_lookup: &HashMap<ValueId, String>,
-    value: ValueId,
-    visiting: &mut BTreeSet<ValueId>,
-) -> Option<String> {
-    let origin = resolve_value_origin(function, def_map, value);
-    if !visiting.insert(origin) {
-        return None;
-    }
-
-    let result = value_box_name(function, origin)
-        .or_else(|| route_result_box_name_cached(route_result_lookup, origin))
-        .map(str::to_string)
-        .or_else(|| {
-            let (block_id, instruction_index) = def_map.get(&origin).copied()?;
-            let instruction = function
-                .blocks
-                .get(&block_id)?
-                .instructions
-                .get(instruction_index)?;
-            match instruction {
-                MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
-                MirInstruction::Phi {
-                    inputs, type_hint, ..
-                } => type_hint
-                    .as_ref()
-                    .and_then(box_name_from_type)
-                    .map(str::to_string)
-                    .or_else(|| {
-                        let mut inferred = None;
-                        for (_, input) in inputs {
-                            let box_name = route_flow_value_box_name(
-                                function,
-                                def_map,
-                                route_result_lookup,
-                                *input,
-                                visiting,
-                            )?;
-                            inferred = match inferred {
-                                None => Some(box_name),
-                                Some(existing) if existing == box_name => Some(existing),
-                                _ => return None,
-                            };
-                        }
-                        inferred
-                    }),
-                _ => None,
-            }
-        });
-
-    visiting.remove(&origin);
-    result
 }

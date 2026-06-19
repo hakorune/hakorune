@@ -14,8 +14,8 @@ use super::generic_method_route_facts::{
 };
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 #[cfg(test)]
-use super::{BasicBlockId, Callee, MirInstruction};
-use super::{MirFunction, MirModule, ValueId};
+use super::BasicBlockId;
+use super::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::BTreeMap;
 
 mod collection_read_routes;
@@ -33,8 +33,7 @@ use collection_read_routes::{
 };
 use flow_origin::{
     generic_array_flow_origin_box_name, generic_pure_string_value_origin_box_name,
-    generic_runtime_data_contains_param_text_origin_box_name,
-    generic_string_receiver_origin_box_name, string_corridor_method_origin_box_name,
+    string_corridor_method_origin_box_name, GenericPureStringFlowAnalysis,
 };
 #[allow(unused_imports)]
 pub(crate) use map_set_scalar_proof::ScalarI64MapGetStoreFact;
@@ -112,6 +111,7 @@ fn refresh_function_generic_method_routes_with_context(
 ) {
     let mut routes = Vec::new();
     let def_map = build_value_def_map(function);
+    let pure_string_flow = GenericPureStringFlowAnalysis::new(function);
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
 
@@ -120,86 +120,104 @@ fn refresh_function_generic_method_routes_with_context(
             continue;
         };
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
-            if let Some(route) = match_generic_has_route(
-                function,
-                &def_map,
-                field_handle_origins,
-                block_id,
-                instruction_index,
-                inst,
-            )
-            .or_else(|| {
-                match_generic_get_route(
-                    function,
-                    &def_map,
-                    field_handle_origins,
-                    collection_element_origins,
-                    block_id,
-                    instruction_index,
-                    inst,
-                )
-            })
-            .or_else(|| {
-                match_generic_len_route(
-                    function,
-                    &def_map,
-                    field_handle_origins,
-                    block_id,
-                    instruction_index,
-                    inst,
-                )
-            })
-            .or_else(|| {
-                match_generic_keys_route(function, &def_map, block_id, instruction_index, inst)
-            })
-            .or_else(|| {
-                match_generic_substring_route(function, &def_map, block_id, instruction_index, inst)
-            })
-            .or_else(|| {
-                match_generic_indexof_route(function, &def_map, block_id, instruction_index, inst)
-            })
-            .or_else(|| {
-                match_generic_lastindexof_route(
-                    function,
-                    &def_map,
-                    block_id,
-                    instruction_index,
-                    inst,
-                )
-            })
-            .or_else(|| {
-                match_generic_contains_route(function, &def_map, block_id, instruction_index, inst)
-            })
-            .or_else(|| {
-                match_generic_push_route(
-                    function,
-                    &def_map,
-                    field_handle_origins,
-                    block_id,
-                    instruction_index,
-                    inst,
-                )
-            })
-            .or_else(|| {
-                match_generic_set_route(
-                    function,
-                    &def_map,
-                    field_handle_origins,
-                    block_id,
-                    instruction_index,
-                    inst,
-                )
-            })
-            .or_else(|| {
-                match_generic_delete_route(
-                    function,
-                    &def_map,
-                    field_handle_origins,
-                    block_id,
-                    instruction_index,
-                    inst,
-                )
-            }) {
+            let route = match inst {
+                MirInstruction::Call {
+                    callee: Some(Callee::Method { method, .. }),
+                    ..
+                } => match method.as_str() {
+                    "has" => match_generic_has_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "get" => match_generic_get_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        collection_element_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "len" | "length" | "size" => match_generic_len_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "keys" => match_generic_keys_route(
+                        function,
+                        &def_map,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "substring" => match_generic_substring_route(
+                        function,
+                        &def_map,
+                        &pure_string_flow,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "indexOf" => match_generic_indexof_route(
+                        function,
+                        &def_map,
+                        &pure_string_flow,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "lastIndexOf" => match_generic_lastindexof_route(
+                        function,
+                        &def_map,
+                        &pure_string_flow,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "contains" => match_generic_contains_route(
+                        function,
+                        &def_map,
+                        &pure_string_flow,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "push" => match_generic_push_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "set" => match_generic_set_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    "delete" => match_generic_delete_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    _ => None,
+                },
+                _ => None,
+            };
+            if let Some(route) = route {
                 routes.push(route);
             }
         }

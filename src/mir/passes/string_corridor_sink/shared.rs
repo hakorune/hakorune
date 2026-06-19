@@ -5,23 +5,45 @@ use crate::mir::placement_effect::{
 };
 use crate::mir::string_corridor_relation::StringCorridorRelationKind;
 
-pub(super) fn build_use_counts(function: &MirFunction) -> HashMap<ValueId, usize> {
-    let mut uses: HashMap<ValueId, usize> = HashMap::new();
+pub(super) struct UseCounts {
+    counts: Vec<usize>,
+}
+
+impl UseCounts {
+    fn increment(&mut self, value: ValueId) {
+        let idx = value.0 as usize;
+        if idx >= self.counts.len() {
+            self.counts.resize(idx + 1, 0);
+        }
+        self.counts[idx] += 1;
+    }
+
+    pub(super) fn get(&self, value: &ValueId) -> Option<&usize> {
+        self.counts
+            .get(value.0 as usize)
+            .filter(|count| **count > 0)
+    }
+}
+
+pub(super) fn build_use_counts(function: &MirFunction) -> UseCounts {
+    let mut uses = UseCounts {
+        counts: Vec::with_capacity(function.next_value_id as usize),
+    };
     for block in function.blocks.values() {
         for inst in &block.instructions {
             for vid in inst.used_values() {
-                *uses.entry(vid).or_insert(0) += 1;
+                uses.increment(vid);
             }
         }
         if let Some(term) = &block.terminator {
             for vid in term.used_values() {
-                *uses.entry(vid).or_insert(0) += 1;
+                uses.increment(vid);
             }
         }
         for edge in block.out_edges() {
             if let Some(args) = edge.args {
                 for vid in args.values {
-                    *uses.entry(vid).or_insert(0) += 1;
+                    uses.increment(vid);
                 }
             }
         }
@@ -63,7 +85,7 @@ pub(super) fn sync_function_next_value_id(function: &mut MirFunction) {
 pub(super) fn collect_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, Vec<SubstringLenPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<SubstringLenPlan>> = BTreeMap::new();
 
@@ -134,7 +156,7 @@ pub(super) fn resolve_copy_chain_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
     mut value: ValueId,
 ) -> Option<SingleUseCopyChain> {
     let mut visited: BTreeSet<ValueId> = BTreeSet::new();
@@ -175,7 +197,7 @@ pub(super) fn resolve_single_use_copy_chain_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
     value: ValueId,
 ) -> Option<SingleUseCopyChain> {
     let chain = resolve_copy_chain_in_block(function, bbid, def_map, use_counts, value)?;
@@ -189,7 +211,7 @@ pub(super) fn find_trailing_len_observer_in_block(
     function: &MirFunction,
     bbid: BasicBlockId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
     helper_root: ValueId,
     after_idx: usize,
 ) -> Option<TrailingLenObserverWindow> {

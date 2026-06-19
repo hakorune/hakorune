@@ -1,10 +1,11 @@
-use crate::mir::{MirFunction, ValueId};
+use super::LiveValueSet;
+use crate::mir::MirFunction;
 use std::collections::HashSet;
 
 pub(super) fn seed_control_anchor_values(
     function: &MirFunction,
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
-    base_used_values: &mut HashSet<ValueId>,
+    base_used_values: &mut LiveValueSet,
 ) {
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {

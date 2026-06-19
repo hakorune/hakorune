@@ -21,13 +21,12 @@ FileBox-input, and adapter-fixture EXE/AOT slices now match their expected
 The external Rust parser adapter boundary is documented. The RustSubset
 source-shape coverage batch is closed until a new real input blocker appears.
 JSON native object-key equality is fixed and the temporary critical-key bridge
-is retired. The current blocker is now multi-candidate loop owner selection
-for `ParserBox.static_const_bitand/2`: `generic_loop_v1` sees both `a` and
-`b` in `loop(a > 0 || b > 0)`, and local preferred-candidate / Ok(None)
-experiments did not produce a green focused gate. The read_next_number_literal
-family stays queued, and the B-lite loop resolver seam remains the structural
-north star; only minimal old-route compatibility patches are allowed when a
-real gate requires them.
+is retired. The scan-methods focused blocker for
+`ParserBox.static_const_bitand/2` is green after compile-time owner reductions
+and user-box route-flow origin memoization. The read_next_number_literal family
+stays queued, and the B-lite loop resolver seam remains the structural north
+star; only minimal old-route compatibility patches are allowed when a real gate
+requires them.
 Build crate split planning remains available
 but is paused while this app-front lane is active.
 Detailed landed history lives in the referenced phase cards and design SSOTs,
@@ -36,12 +35,12 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1303-COREPLAN-SCAN-METHODS-MULTI-CANDIDATE-LOOP-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
 
-latest_card = "296x-1303-COREPLAN-SCAN-METHODS-MULTI-CANDIDATE-LOOP-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1303-COREPLAN-SCAN-METHODS-MULTI-CANDIDATE-LOOP-OWNER-SELECTION-001.md"
-latest_card_summary = """The active scan_methods_loop blocker is narrowed to a multi-candidate loop shape in `ParserBox.static_const_bitand/2`: `loop(a > 0 || b > 0)` gives `generic_loop_v1` both `a` and `b` candidates. Local investigation rejected both treating ambiguity as Ok(None) and blindly selecting the preferred left-side candidate, because the focused gate still timed out or stack-overflowed. B-lite remains a legacy registry observer, not a route-selection owner. Next task is multi-candidate loop owner selection with a minimal fixture and no function-name/source rewrite workaround."""
-current_blocker_token = "COREPLAN-MULTI-CANDIDATE-LOOP-OWNER-SELECTION-001"
+latest_card = "296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
+latest_card_summary = """The active scan_methods_loop blocker started as a multi-candidate loop shape in `ParserBox.static_const_bitand/2`: `loop(a > 0 || b > 0)` gave `generic_loop_v1` both `a` and `b` candidates. Local implementation probes advanced the original ambiguous-loop freeze and subsequent PHI/origin cycle failures. Follow-up compile-time reductions now share semantic-refresh def maps, batch string-kernel consumer scans, use worklist propagation in DCE/memory-effect, reduce simplify_cfg reachable recomputation, repair value-origin/copy-chain SSOT via ValueOriginQueryContext, reduce DCE liveness/alias membership cost with dense private containers, replace string-corridor use-count HashMap updates with a local dense UseCounts, cache typed-object param/collection def maps, add a shared typed-object StorageQueryContext, make BoxOriginQueryContext use a function-local copy-origin index, and split/memoize user-box route-flow origin inference. The focused direct command now passes with result=0. B-lite remains a legacy registry observer, not a route-selection owner. Next task is commit/closeout of the green scan-methods focused slice; no function-name/source rewrite workaround was used."""
+current_blocker_token = "COREPLAN-SCAN-METHODS-FOCUSED-GATE-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

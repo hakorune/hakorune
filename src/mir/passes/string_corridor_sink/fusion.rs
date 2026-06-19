@@ -133,7 +133,7 @@ pub(super) fn try_match_complementary_len_fusion_plan(
     inner_leaf: ValueId,
     other_leaf: ValueId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> Option<ComplementarySubstringLenFusionPlan> {
     let inner_chain = resolve_copy_chain_in_block(function, bbid, def_map, use_counts, inner_leaf)?;
     let other_chain = resolve_copy_chain_in_block(function, bbid, def_map, use_counts, other_leaf)?;
@@ -193,7 +193,7 @@ pub(super) fn try_match_complementary_len_fusion_plan(
 pub(super) fn collect_complementary_len_fusion_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, Vec<ComplementarySubstringLenFusionPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<ComplementarySubstringLenFusionPlan>> =
         BTreeMap::new();

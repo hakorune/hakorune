@@ -7,7 +7,7 @@ fn preserve_emit_mir_concat_triplet_shape() -> bool {
 pub(crate) fn collect_concat_corridor_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, Vec<ConcatCorridorPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<ConcatCorridorPlan>> = BTreeMap::new();
 
@@ -250,7 +250,7 @@ fn collect_store_shared_receiver_substring_plan(
     function: &MirFunction,
     bbid: BasicBlockId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
     outer_idx: usize,
     outer_dst: ValueId,
     receiver: ValueId,
@@ -322,7 +322,7 @@ fn removable_single_use_add_feeders(
     function: &MirFunction,
     bbid: BasicBlockId,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
     add_root: ValueId,
 ) -> Option<Vec<usize>> {
     let add = match_add_in_block(function, bbid, def_map, add_root)?;

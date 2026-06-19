@@ -274,23 +274,27 @@ fn propagate_used_values(
     reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
     used_values: &mut HashSet<ValueId>,
 ) {
-    let mut changed = true;
-    while changed {
-        changed = false;
-        for (bid, block) in &function.blocks {
-            if !reachable_blocks.contains(bid) {
+    let mut uses_by_dst = HashMap::new();
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+        for instruction in &block.instructions {
+            let Some(dst) = instruction.dst_value() else {
                 continue;
-            }
-            for instruction in &block.instructions {
-                if let Some(dst) = instruction.dst_value() {
-                    if used_values.contains(&dst) {
-                        for u in instruction.used_values() {
-                            if used_values.insert(u) {
-                                changed = true;
-                            }
-                        }
-                    }
-                }
+            };
+            uses_by_dst.insert(dst, instruction.used_values());
+        }
+    }
+
+    let mut worklist: Vec<_> = used_values.iter().copied().collect();
+    while let Some(value) = worklist.pop() {
+        let Some(used_by_definition) = uses_by_dst.get(&value) else {
+            continue;
+        };
+        for used in used_by_definition {
+            if used_values.insert(*used) {
+                worklist.push(*used);
             }
         }
     }

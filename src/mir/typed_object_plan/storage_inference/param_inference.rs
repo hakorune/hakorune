@@ -1,19 +1,45 @@
 use std::collections::BTreeMap;
 
-use crate::mir::value_origin::build_value_def_map;
-use crate::mir::{Callee, MirInstruction, MirModule};
+use crate::mir::value_origin::{build_value_def_map, ValueDefMap};
+use crate::mir::{Callee, MirFunction, MirInstruction, MirModule};
 
-use super::collection_storage::infer_collection_element_storages;
+use super::collection_storage::infer_collection_element_storages_with_def_maps;
 use super::merge::{merge_box_origin_observation, merge_param_storage_observation};
 use super::state::{
     CollectionElementStorageMap, FieldBoxOriginMap, FieldKey, FieldStorageInference,
     ParamBoxOriginMap, ParamKey,
 };
-use super::value_analysis::{box_origin_for_value, same_module_method_target, storage_for_value};
+use super::value_analysis::{BoxOriginQueryContext, StorageQueryContext};
+
+type FunctionDefMaps = BTreeMap<String, ValueDefMap>;
+
+fn build_function_def_maps(module: &MirModule) -> FunctionDefMaps {
+    module
+        .functions
+        .iter()
+        .map(|(name, function)| (name.clone(), build_value_def_map(function)))
+        .collect()
+}
+
+fn def_map_for<'a>(
+    function_def_maps: &'a FunctionDefMaps,
+    function: &MirFunction,
+) -> Option<&'a ValueDefMap> {
+    function_def_maps.get(&function.signature.name)
+}
 
 pub(super) fn infer_param_box_origins(
     module: &MirModule,
     field_box_origins: &FieldBoxOriginMap,
+) -> ParamBoxOriginMap {
+    let function_def_maps = build_function_def_maps(module);
+    infer_param_box_origins_with_def_maps(module, field_box_origins, &function_def_maps)
+}
+
+fn infer_param_box_origins_with_def_maps(
+    module: &MirModule,
+    field_box_origins: &FieldBoxOriginMap,
+    function_def_maps: &FunctionDefMaps,
 ) -> ParamBoxOriginMap {
     let mut param_box_origins = ParamBoxOriginMap::new();
     for _ in 0..module.functions.len().max(1) {
@@ -22,12 +48,14 @@ pub(super) fn infer_param_box_origins(
         changed |= infer_birth_param_box_origins(
             module,
             field_box_origins,
+            function_def_maps,
             &current,
             &mut param_box_origins,
         );
         changed |= infer_call_param_box_origins(
             module,
             field_box_origins,
+            function_def_maps,
             &current,
             &mut param_box_origins,
         );
@@ -41,12 +69,17 @@ pub(super) fn infer_param_box_origins(
 fn infer_birth_param_box_origins(
     module: &MirModule,
     field_box_origins: &FieldBoxOriginMap,
+    function_def_maps: &FunctionDefMaps,
     known_param_box_origins: &ParamBoxOriginMap,
     param_box_origins: &mut ParamBoxOriginMap,
 ) -> bool {
     let mut changed = false;
+    let mut origin_queries =
+        BoxOriginQueryContext::new(module, field_box_origins, known_param_box_origins);
     for function in module.functions.values() {
-        let def_map = build_value_def_map(function);
+        let Some(def_map) = def_map_for(function_def_maps, function) else {
+            continue;
+        };
         for block in function.blocks.values() {
             for inst in &block.instructions {
                 let MirInstruction::NewBox { box_type, args, .. } = inst else {
@@ -62,14 +95,9 @@ fn infer_birth_param_box_origins(
                     continue;
                 }
                 for (arg_index, arg) in args.iter().enumerate() {
-                    let Some(origin_box) = box_origin_for_value(
-                        module,
-                        function,
-                        &def_map,
-                        *arg,
-                        field_box_origins,
-                        known_param_box_origins,
-                    ) else {
+                    let Some(origin_box) =
+                        origin_queries.box_origin_for_value(function, &def_map, *arg)
+                    else {
                         continue;
                     };
                     changed |= merge_box_origin_observation(
@@ -87,12 +115,17 @@ fn infer_birth_param_box_origins(
 fn infer_call_param_box_origins(
     module: &MirModule,
     field_box_origins: &FieldBoxOriginMap,
+    function_def_maps: &FunctionDefMaps,
     known_param_box_origins: &ParamBoxOriginMap,
     param_box_origins: &mut ParamBoxOriginMap,
 ) -> bool {
     let mut changed = false;
+    let mut origin_queries =
+        BoxOriginQueryContext::new(module, field_box_origins, known_param_box_origins);
     for function in module.functions.values() {
-        let def_map = build_value_def_map(function);
+        let Some(def_map) = def_map_for(function_def_maps, function) else {
+            continue;
+        };
         for block in function.blocks.values() {
             for inst in &block.instructions {
                 let MirInstruction::Call {
@@ -106,14 +139,9 @@ fn infer_call_param_box_origins(
                 match callee {
                     Callee::Global(symbol) if module.functions.contains_key(symbol) => {
                         for (arg_index, arg) in args.iter().enumerate() {
-                            let Some(origin_box) = box_origin_for_value(
-                                module,
-                                function,
-                                &def_map,
-                                *arg,
-                                field_box_origins,
-                                known_param_box_origins,
-                            ) else {
+                            let Some(origin_box) =
+                                origin_queries.box_origin_for_value(function, &def_map, *arg)
+                            else {
                                 continue;
                             };
                             changed |= merge_box_origin_observation(
@@ -129,17 +157,16 @@ fn infer_call_param_box_origins(
                         receiver,
                         ..
                     } => {
-                        let Some((target_box, target_symbol)) = same_module_method_target(
-                            module,
-                            function,
-                            &def_map,
-                            box_name,
-                            method,
-                            *receiver,
-                            args.len(),
-                            field_box_origins,
-                            known_param_box_origins,
-                        ) else {
+                        let Some((target_box, target_symbol)) = origin_queries
+                            .same_module_method_target(
+                                function,
+                                &def_map,
+                                box_name,
+                                method,
+                                *receiver,
+                                args.len(),
+                            )
+                        else {
                             continue;
                         };
                         if let Some(receiver) = receiver {
@@ -148,14 +175,9 @@ fn infer_call_param_box_origins(
                                 (target_symbol.clone(), 0),
                                 target_box,
                             );
-                            if let Some(receiver_box) = box_origin_for_value(
-                                module,
-                                function,
-                                &def_map,
-                                *receiver,
-                                field_box_origins,
-                                known_param_box_origins,
-                            ) {
+                            if let Some(receiver_box) =
+                                origin_queries.box_origin_for_value(function, &def_map, *receiver)
+                            {
                                 changed |= merge_box_origin_observation(
                                     param_box_origins,
                                     (target_symbol.clone(), 0),
@@ -164,14 +186,9 @@ fn infer_call_param_box_origins(
                             }
                         }
                         for (arg_index, arg) in args.iter().enumerate() {
-                            let Some(origin_box) = box_origin_for_value(
-                                module,
-                                function,
-                                &def_map,
-                                *arg,
-                                field_box_origins,
-                                known_param_box_origins,
-                            ) else {
+                            let Some(origin_box) =
+                                origin_queries.box_origin_for_value(function, &def_map, *arg)
+                            else {
                                 continue;
                             };
                             changed |= merge_box_origin_observation(
@@ -194,17 +211,25 @@ pub(super) fn infer_param_storages(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
 ) -> BTreeMap<ParamKey, FieldStorageInference> {
-    let param_box_origins = infer_param_box_origins(module, field_box_origins);
+    let function_def_maps = build_function_def_maps(module);
+    let param_box_origins =
+        infer_param_box_origins_with_def_maps(module, field_box_origins, &function_def_maps);
     let mut param_storages = BTreeMap::new();
     for _ in 0..4 {
         let current = param_storages.clone();
-        let collection_element_storages =
-            infer_collection_element_storages(module, inferred, field_box_origins, &current);
+        let collection_element_storages = infer_collection_element_storages_with_def_maps(
+            module,
+            inferred,
+            field_box_origins,
+            &current,
+            &function_def_maps,
+        );
         let mut changed = false;
         changed |= infer_birth_param_storages(
             module,
             inferred,
             field_box_origins,
+            &function_def_maps,
             &collection_element_storages,
             &current,
             &mut param_storages,
@@ -214,6 +239,7 @@ pub(super) fn infer_param_storages(
             inferred,
             field_box_origins,
             &param_box_origins,
+            &function_def_maps,
             &collection_element_storages,
             &current,
             &mut param_storages,
@@ -229,13 +255,23 @@ fn infer_birth_param_storages(
     module: &MirModule,
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
+    function_def_maps: &FunctionDefMaps,
     collection_element_storages: &CollectionElementStorageMap,
     known_param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
     param_storages: &mut BTreeMap<ParamKey, FieldStorageInference>,
 ) -> bool {
     let mut changed = false;
+    let mut storage_queries = StorageQueryContext::new(
+        module,
+        inferred,
+        field_box_origins,
+        known_param_storages,
+        collection_element_storages,
+    );
     for function in module.functions.values() {
-        let def_map = build_value_def_map(function);
+        let Some(def_map) = def_map_for(function_def_maps, function) else {
+            continue;
+        };
         for block in function.blocks.values() {
             for inst in &block.instructions {
                 let MirInstruction::NewBox { box_type, args, .. } = inst else {
@@ -251,16 +287,9 @@ fn infer_birth_param_storages(
                     continue;
                 }
                 for (arg_index, arg) in args.iter().enumerate() {
-                    let Some(storage) = storage_for_value(
-                        module,
-                        function,
-                        &def_map,
-                        *arg,
-                        inferred,
-                        field_box_origins,
-                        known_param_storages,
-                        collection_element_storages,
-                    ) else {
+                    let Some(storage) =
+                        storage_queries.storage_for_value(function, def_map, *arg)
+                    else {
                         continue;
                     };
                     changed |= merge_param_storage_observation(
@@ -280,13 +309,25 @@ fn infer_call_param_storages(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_box_origins: &ParamBoxOriginMap,
+    function_def_maps: &FunctionDefMaps,
     collection_element_storages: &CollectionElementStorageMap,
     known_param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
     param_storages: &mut BTreeMap<ParamKey, FieldStorageInference>,
 ) -> bool {
     let mut changed = false;
+    let mut box_origin_context =
+        BoxOriginQueryContext::new(module, field_box_origins, param_box_origins);
+    let mut storage_queries = StorageQueryContext::new(
+        module,
+        inferred,
+        field_box_origins,
+        known_param_storages,
+        collection_element_storages,
+    );
     for function in module.functions.values() {
-        let def_map = build_value_def_map(function);
+        let Some(def_map) = def_map_for(function_def_maps, function) else {
+            continue;
+        };
         for block in function.blocks.values() {
             for inst in &block.instructions {
                 let MirInstruction::Call {
@@ -300,16 +341,9 @@ fn infer_call_param_storages(
                 match callee {
                     Callee::Global(symbol) if module.functions.contains_key(symbol) => {
                         for (arg_index, arg) in args.iter().enumerate() {
-                            let Some(storage) = storage_for_value(
-                                module,
-                                function,
-                                &def_map,
-                                *arg,
-                                inferred,
-                                field_box_origins,
-                                known_param_storages,
-                                collection_element_storages,
-                            ) else {
+                            let Some(storage) =
+                                storage_queries.storage_for_value(function, def_map, *arg)
+                            else {
                                 continue;
                             };
                             changed |= merge_param_storage_observation(
@@ -325,30 +359,20 @@ fn infer_call_param_storages(
                         receiver,
                         ..
                     } => {
-                        let Some((_, symbol)) = same_module_method_target(
-                            module,
+                        let Some((_, symbol)) = box_origin_context.same_module_method_target(
                             function,
                             &def_map,
                             box_name,
                             method,
                             *receiver,
                             args.len(),
-                            field_box_origins,
-                            param_box_origins,
                         ) else {
                             continue;
                         };
                         if let Some(receiver) = receiver {
-                            if let Some(storage) = storage_for_value(
-                                module,
-                                function,
-                                &def_map,
-                                *receiver,
-                                inferred,
-                                field_box_origins,
-                                known_param_storages,
-                                collection_element_storages,
-                            ) {
+                            if let Some(storage) =
+                                storage_queries.storage_for_value(function, def_map, *receiver)
+                            {
                                 changed |= merge_param_storage_observation(
                                     param_storages,
                                     (symbol.clone(), 0),
@@ -357,16 +381,9 @@ fn infer_call_param_storages(
                             }
                         }
                         for (arg_index, arg) in args.iter().enumerate() {
-                            let Some(storage) = storage_for_value(
-                                module,
-                                function,
-                                &def_map,
-                                *arg,
-                                inferred,
-                                field_box_origins,
-                                known_param_storages,
-                                collection_element_storages,
-                            ) else {
+                            let Some(storage) =
+                                storage_queries.storage_for_value(function, def_map, *arg)
+                            else {
                                 continue;
                             };
                             changed |= merge_param_storage_observation(

@@ -266,29 +266,26 @@ fn resolve_step_for_candidate(
     strict: bool,
 ) -> Result<StepResolution, StepResolutionErr> {
     let mut use_body_managed_step = false;
-    let mut loop_increment = if should_prefer_body_managed_step_before_canon(
-        loop_var,
-        preferred_loop_var,
-        flat_body,
-    ) {
-        use_body_managed_step = true;
-        ASTNode::Variable {
-            name: loop_var.to_string(),
-            span: Span::unknown(),
-        }
-    } else if let Some(increment) =
-        canon_loop_increment_for_var(flat_body, loop_var, allow_var_step)
-    {
-        increment
-    } else if should_use_body_managed_step(loop_var, preferred_loop_var, flat_body) {
-        use_body_managed_step = true;
-        ASTNode::Variable {
-            name: loop_var.to_string(),
-            span: Span::unknown(),
-        }
-    } else {
-        return Err(StepResolutionErr::NoIncrement);
-    };
+    let mut loop_increment =
+        if should_prefer_body_managed_step_before_canon(loop_var, preferred_loop_var, flat_body) {
+            use_body_managed_step = true;
+            ASTNode::Variable {
+                name: loop_var.to_string(),
+                span: Span::unknown(),
+            }
+        } else if let Some(increment) =
+            canon_loop_increment_for_var(flat_body, loop_var, allow_var_step)
+        {
+            increment
+        } else if should_use_body_managed_step(loop_var, preferred_loop_var, flat_body) {
+            use_body_managed_step = true;
+            ASTNode::Variable {
+                name: loop_var.to_string(),
+                span: Span::unknown(),
+            }
+        } else {
+            return Err(StepResolutionErr::NoIncrement);
+        };
 
     if use_body_managed_step {
         return Ok(StepResolution {
@@ -433,9 +430,10 @@ fn stmt_has_current_loop_continue(stmt: &ASTNode) -> bool {
                     .as_ref()
                     .is_some_and(|body| body_has_current_loop_continue(body))
         }
-        ASTNode::Program { statements, .. } | ASTNode::ScopeBox { body: statements, .. } => {
-            body_has_current_loop_continue(statements)
-        }
+        ASTNode::Program { statements, .. }
+        | ASTNode::ScopeBox {
+            body: statements, ..
+        } => body_has_current_loop_continue(statements),
         ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => false,
         _ => false,
     }
@@ -461,9 +459,10 @@ fn stmt_has_current_loop_var_assignment(stmt: &ASTNode, loop_var: &str) -> bool 
                     .as_ref()
                     .is_some_and(|body| has_current_loop_var_assignment(body, loop_var))
         }
-        ASTNode::Program { statements, .. } | ASTNode::ScopeBox { body: statements, .. } => {
-            has_current_loop_var_assignment(statements, loop_var)
-        }
+        ASTNode::Program { statements, .. }
+        | ASTNode::ScopeBox {
+            body: statements, ..
+        } => has_current_loop_var_assignment(statements, loop_var),
         ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => false,
         _ => false,
     }

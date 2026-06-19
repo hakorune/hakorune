@@ -13,7 +13,7 @@ Scope: current lane / next lane / restart order only.
 ## Quick Restart Pointer
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-296x/296x-1303-COREPLAN-SCAN-METHODS-MULTI-CANDIDATE-LOOP-OWNER-SELECTION-001.md`
+2. `docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md`
 3. `apps/rust-subset-to-hako/STATUS.md`
 4. `apps/rust-subset-to-hako/README.md`
 5. `docs/development/current/main/design/build-crate-split-plan-ssot.md`

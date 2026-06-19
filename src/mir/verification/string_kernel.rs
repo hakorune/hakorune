@@ -1,11 +1,12 @@
 use crate::mir::string_corridor::{StringPublishReason, StringPublishReprPolicy};
 use crate::mir::string_kernel_plan::{
-    StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanCarrier,
-    StringKernelPlanPublicationBoundary, StringKernelPlanPublicationContract,
-    StringKernelPlanTextConsumer, StringKernelPlanVerifierOwner,
+    infer_string_kernel_text_consumers, StringKernelPlan, StringKernelPlanBorrowContract,
+    StringKernelPlanCarrier, StringKernelPlanPublicationBoundary,
+    StringKernelPlanPublicationContract, StringKernelPlanTextConsumer,
+    StringKernelPlanVerifierOwner,
 };
 use crate::mir::verification_types::VerificationError;
-use crate::mir::{infer_string_kernel_text_consumer, MirFunction, ValueId};
+use crate::mir::{MirFunction, ValueId};
 
 fn push_string_kernel_plan_violation(
     errors: &mut Vec<VerificationError>,
@@ -183,13 +184,24 @@ fn verify_publication_boundary_contract(
 
 pub fn check_string_kernel_plans(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
     let mut errors = Vec::new();
+    let verifier_owned_values: Vec<ValueId> = function
+        .metadata
+        .string_kernel_plans
+        .iter()
+        .filter_map(|(value, plan)| {
+            (plan.verifier_owner == Some(StringKernelPlanVerifierOwner::LoweringDirectKernelEntry))
+                .then_some(*value)
+        })
+        .collect();
+    let expected_consumers =
+        infer_string_kernel_text_consumers(function, verifier_owned_values.iter().copied());
 
     for (value, plan) in &function.metadata.string_kernel_plans {
         if plan.verifier_owner != Some(StringKernelPlanVerifierOwner::LoweringDirectKernelEntry) {
             continue;
         }
 
-        let expected_consumer = infer_string_kernel_text_consumer(function, *value);
+        let expected_consumer = expected_consumers.get(value).copied().flatten();
         if expected_consumer != plan.text_consumer {
             errors.push(VerificationError::StringKernelPlanViolation {
                 value: *value,

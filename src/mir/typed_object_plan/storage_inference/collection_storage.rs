@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::function::TypedObjectFieldStorage;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
@@ -17,9 +17,32 @@ pub(super) fn infer_collection_element_storages(
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
 ) -> CollectionElementStorageMap {
+    let function_def_maps: BTreeMap<String, ValueDefMap> = module
+        .functions
+        .iter()
+        .map(|(name, function)| (name.clone(), build_value_def_map(function)))
+        .collect();
+    infer_collection_element_storages_with_def_maps(
+        module,
+        inferred,
+        field_box_origins,
+        param_storages,
+        &function_def_maps,
+    )
+}
+
+pub(super) fn infer_collection_element_storages_with_def_maps(
+    module: &MirModule,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+    field_box_origins: &FieldBoxOriginMap,
+    param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    function_def_maps: &BTreeMap<String, ValueDefMap>,
+) -> CollectionElementStorageMap {
     let mut element_storages = CollectionElementStorageMap::new();
     for function in module.functions.values() {
-        let def_map = build_value_def_map(function);
+        let Some(def_map) = function_def_maps.get(&function.signature.name) else {
+            continue;
+        };
         for block in function.blocks.values() {
             for inst in &block.instructions {
                 let MirInstruction::Call {
@@ -147,10 +170,22 @@ fn typed_object_collection_field_key(
     def_map: &ValueDefMap,
     value: ValueId,
 ) -> Option<FieldKey> {
+    typed_object_collection_field_key_inner(function, def_map, value, &mut BTreeSet::new())
+}
+
+fn typed_object_collection_field_key_inner(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<FieldKey> {
     let origin = resolve_value_origin(function, def_map, value);
+    if !visiting.insert(origin) {
+        return None;
+    }
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
-    match block.instructions.get(instruction_index)? {
+    let field_key = match block.instructions.get(instruction_index)? {
         MirInstruction::FieldGet { base, field, .. } => {
             let box_name = box_name_for_value(function, def_map, *base)?;
             Some((box_name, field.clone()))
@@ -158,7 +193,8 @@ fn typed_object_collection_field_key(
         MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
             let mut field_key = None;
             for (_, input) in inputs {
-                let next = typed_object_collection_field_key(function, def_map, *input)?;
+                let next =
+                    typed_object_collection_field_key_inner(function, def_map, *input, visiting)?;
                 field_key = match field_key {
                     None => Some(next),
                     Some(existing) if existing == next => Some(existing),
@@ -168,12 +204,53 @@ fn typed_object_collection_field_key(
             field_key
         }
         _ => None,
-    }
+    };
+    visiting.remove(&origin);
+    field_key
 }
 
 fn field_box_origin(origins: &FieldBoxOriginMap, key: &FieldKey) -> Option<String> {
     match origins.get(key) {
         Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
         Some(BoxOriginInference::Conflict) | None => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirType};
+
+    #[test]
+    fn collection_field_key_returns_none_for_self_referential_phi() {
+        let signature = FunctionSignature {
+            name: "cycle".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(1),
+            inputs: vec![
+                (BasicBlockId::new(0), ValueId::new(1)),
+                (BasicBlockId::new(0), ValueId::new(2)),
+            ],
+            type_hint: None,
+        });
+        block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(2),
+            base: ValueId::new(3),
+            field: "items".to_string(),
+            declared_type: None,
+        });
+        function.add_block(block);
+
+        let def_map = build_value_def_map(&function);
+        assert_eq!(
+            typed_object_collection_field_key(&function, &def_map, ValueId::new(1)),
+            None
+        );
     }
 }

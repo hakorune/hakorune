@@ -21,6 +21,7 @@
 use crate::mir::join_ir_ops::{eval_compare, JoinValue};
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
+use std::collections::HashSet;
 
 #[path = "simplify_cfg/flow.rs"]
 mod flow;
@@ -51,16 +52,28 @@ fn simplify_function(function: &mut MirFunction) -> usize {
             function.update_cfg();
         }
 
-        while let Some((block_id, target, edge_args)) = find_constant_branch_fold(function) {
+        loop {
+            let reachable_blocks =
+                crate::mir::verification::utils::compute_reachable_blocks(function);
+            let Some((block_id, target, edge_args)) =
+                find_constant_branch_fold(function, &reachable_blocks)
+            else {
+                break;
+            };
             fold_constant_branch(function, block_id, target, edge_args);
             simplified += 1;
             changed = true;
             function.update_cfg();
         }
 
-        while let Some((block_id, arm, middle_id, target, rewrite_phi, clear_edge_args)) =
-            find_threadable_branch_jump(function)
-        {
+        loop {
+            let reachable_blocks =
+                crate::mir::verification::utils::compute_reachable_blocks(function);
+            let Some((block_id, arm, middle_id, target, rewrite_phi, clear_edge_args)) =
+                find_threadable_branch_jump(function, &reachable_blocks)
+            else {
+                break;
+            };
             thread_branch_arm(
                 function,
                 block_id,
@@ -74,7 +87,14 @@ fn simplify_function(function: &mut MirFunction) -> usize {
             changed = true;
         }
 
-        while let Some((pred_id, middle_id)) = find_single_predecessor_jump_merge(function) {
+        loop {
+            let reachable_blocks =
+                crate::mir::verification::utils::compute_reachable_blocks(function);
+            let Some((pred_id, middle_id)) =
+                find_single_predecessor_jump_merge(function, &reachable_blocks)
+            else {
+                break;
+            };
             merge_single_predecessor_jump_block(function, pred_id, middle_id);
             simplified += 1;
             changed = true;
@@ -90,8 +110,8 @@ fn simplify_function(function: &mut MirFunction) -> usize {
 
 fn find_constant_branch_fold(
     function: &MirFunction,
+    reachable_blocks: &HashSet<BasicBlockId>,
 ) -> Option<(BasicBlockId, BasicBlockId, Option<crate::mir::EdgeArgs>)> {
-    let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let def_map = build_value_def_map(function);
 
     for block_id in function.block_ids() {

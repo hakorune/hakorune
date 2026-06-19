@@ -7,7 +7,7 @@
  * placement/effect policy.
  */
 
-use super::value_origin::{build_value_def_map, resolve_value_origin, ParentMap, ValueDefMap};
+use super::value_origin::{build_value_def_map, ParentMap, ValueDefMap, ValueOriginQueryContext};
 use super::{MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeSet, HashMap};
 
@@ -39,13 +39,14 @@ pub(crate) fn collect_phi_carry_relations(
         return Vec::new();
     }
     let def_map = build_value_def_map(function);
+    let mut context = PhiBaseQueryContext::new(function, &def_map, anchors);
     let mut out = Vec::new();
     for block in function.blocks.values() {
         for inst in &block.instructions {
             let MirInstruction::Phi { dst, .. } = inst else {
                 continue;
             };
-            let query = infer_phi_base_query_with_anchors(function, &def_map, *dst, anchors);
+            let query = context.query(*dst);
             out.push(PhiCarryRelation {
                 phi_value: *dst,
                 relation: query.relation,
@@ -71,15 +72,52 @@ pub(crate) fn collect_passthrough_phi_parents(function: &MirFunction) -> ParentM
     parents
 }
 
-pub(crate) fn infer_phi_base_query_with_anchors(
+#[cfg(test)]
+fn infer_phi_base_query_with_anchors(
     function: &MirFunction,
     def_map: &ValueDefMap,
     value: ValueId,
     anchors: &BTreeSet<ValueId>,
 ) -> PhiBaseQueryResult {
-    let mut visiting = BTreeSet::new();
-    let mut memo = HashMap::new();
-    infer_phi_base_relation_inner(function, def_map, value, anchors, &mut visiting, &mut memo)
+    let mut context = PhiBaseQueryContext::new(function, def_map, anchors);
+    context.query(value)
+}
+
+pub(crate) struct PhiBaseQueryContext<'a> {
+    function: &'a MirFunction,
+    def_map: &'a ValueDefMap,
+    anchors: &'a BTreeSet<ValueId>,
+    memo: HashMap<ValueId, PhiBaseQueryResult>,
+    origin_context: ValueOriginQueryContext<'a>,
+}
+
+impl<'a> PhiBaseQueryContext<'a> {
+    pub(crate) fn new(
+        function: &'a MirFunction,
+        def_map: &'a ValueDefMap,
+        anchors: &'a BTreeSet<ValueId>,
+    ) -> Self {
+        Self {
+            function,
+            def_map,
+            anchors,
+            memo: HashMap::new(),
+            origin_context: ValueOriginQueryContext::new(function, def_map),
+        }
+    }
+
+    pub(crate) fn query(&mut self, value: ValueId) -> PhiBaseQueryResult {
+        let mut visiting = BTreeSet::new();
+        infer_phi_base_relation_inner(
+            self.function,
+            self.def_map,
+            value,
+            self.anchors,
+            &mut visiting,
+            &mut self.memo,
+            &mut self.origin_context,
+        )
+    }
 }
 
 fn infer_phi_base_relation_inner(
@@ -89,16 +127,19 @@ fn infer_phi_base_relation_inner(
     anchors: &BTreeSet<ValueId>,
     visiting: &mut BTreeSet<ValueId>,
     memo: &mut HashMap<ValueId, PhiBaseQueryResult>,
+    origin_context: &mut ValueOriginQueryContext<'_>,
 ) -> PhiBaseQueryResult {
-    let root = resolve_value_origin(function, def_map, value);
+    let root = origin_context.origin(value);
     if let Some(cached) = memo.get(&root).copied() {
         return cached;
     }
     if !visiting.insert(root) {
-        return PhiBaseQueryResult {
+        let result = PhiBaseQueryResult {
             relation: PhiBaseRelation::Unknown,
             window_safe: false,
         };
+        memo.insert(root, result);
+        return result;
     }
 
     let result = if anchors.contains(&root) {
@@ -138,7 +179,13 @@ fn infer_phi_base_relation_inner(
         match inputs.as_slice() {
             [(_, carried)] => {
                 let child = infer_phi_base_relation_inner(
-                    function, def_map, *carried, anchors, visiting, memo,
+                    function,
+                    def_map,
+                    *carried,
+                    anchors,
+                    visiting,
+                    memo,
+                    origin_context,
                 );
                 PhiBaseQueryResult {
                     relation: child.relation,
@@ -147,10 +194,24 @@ fn infer_phi_base_relation_inner(
                 }
             }
             [(_, lhs), (_, rhs)] => {
-                let lhs_relation =
-                    infer_phi_base_relation_inner(function, def_map, *lhs, anchors, visiting, memo);
-                let rhs_relation =
-                    infer_phi_base_relation_inner(function, def_map, *rhs, anchors, visiting, memo);
+                let lhs_relation = infer_phi_base_relation_inner(
+                    function,
+                    def_map,
+                    *lhs,
+                    anchors,
+                    visiting,
+                    memo,
+                    origin_context,
+                );
+                let rhs_relation = infer_phi_base_relation_inner(
+                    function,
+                    def_map,
+                    *rhs,
+                    anchors,
+                    visiting,
+                    memo,
+                    origin_context,
+                );
                 let relation =
                     merge_phi_base_relations(lhs_relation.relation, rhs_relation.relation);
                 PhiBaseQueryResult {

@@ -3,7 +3,7 @@ use super::*;
 pub(super) fn collect_retained_len_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<RetainedSubstringLenPlan>> = BTreeMap::new();
 

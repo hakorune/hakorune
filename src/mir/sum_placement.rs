@@ -134,21 +134,28 @@ pub fn refresh_module_sum_placement_facts(module: &mut MirModule) {
 }
 
 pub fn refresh_function_sum_placement_facts(function: &mut MirFunction) {
-    let selections = function.metadata.thin_entry_selections.clone();
     let def_map = build_value_def_map(function);
+    refresh_function_sum_placement_facts_with_def_map(function, &def_map);
+}
+
+pub(crate) fn refresh_function_sum_placement_facts_with_def_map(
+    function: &mut MirFunction,
+    def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
+) {
+    let selections = function.metadata.thin_entry_selections.clone();
     let variant_make_infos = collect_variant_make_infos(function, &selections);
-    let root_analyses = analyze_sum_roots(function, &def_map, &variant_make_infos);
+    let root_analyses = analyze_sum_roots(function, def_map, &variant_make_infos);
     let mut facts = collect_variant_make_facts(&variant_make_infos, &root_analyses);
     facts.extend(collect_variant_tag_facts(
         function,
         &selections,
-        &def_map,
+        def_map,
         &root_analyses,
     ));
     facts.extend(collect_variant_project_facts(
         function,
         &selections,
-        &def_map,
+        def_map,
         &root_analyses,
     ));
     facts.sort_by_key(|fact| (fact.block.as_u32(), fact.instruction_index));

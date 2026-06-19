@@ -24,28 +24,72 @@ pub fn build_value_def_map(function: &MirFunction) -> ValueDefMap {
     defs
 }
 
+pub struct ValueOriginQueryContext<'a> {
+    function: &'a MirFunction,
+    def_map: &'a ValueDefMap,
+    memo: HashMap<ValueId, ValueId>,
+}
+
+impl<'a> ValueOriginQueryContext<'a> {
+    pub fn new(function: &'a MirFunction, def_map: &'a ValueDefMap) -> Self {
+        Self {
+            function,
+            def_map,
+            memo: HashMap::new(),
+        }
+    }
+
+    pub fn origin(&mut self, value: ValueId) -> ValueId {
+        if let Some(origin) = self.memo.get(&value).copied() {
+            return origin;
+        }
+
+        let start = value;
+        let mut value = value;
+        let mut path = Vec::new();
+        let mut visited = BTreeSet::new();
+
+        while visited.insert(value) {
+            if let Some(origin) = self.memo.get(&value).copied() {
+                self.memo_path(path, origin);
+                self.memo.insert(start, origin);
+                return origin;
+            }
+
+            path.push(value);
+            let Some((bbid, idx)) = self.def_map.get(&value).copied() else {
+                break;
+            };
+            let Some(block) = self.function.blocks.get(&bbid) else {
+                break;
+            };
+            let Some(inst) = block.instructions.get(idx) else {
+                break;
+            };
+            match inst {
+                MirInstruction::Copy { src, .. } => value = *src,
+                _ => break,
+            }
+        }
+
+        self.memo_path(path, value);
+        self.memo.insert(start, value);
+        value
+    }
+
+    fn memo_path(&mut self, path: Vec<ValueId>, origin: ValueId) {
+        for value in path {
+            self.memo.insert(value, origin);
+        }
+    }
+}
+
 pub fn resolve_value_origin(
     function: &MirFunction,
     def_map: &ValueDefMap,
-    mut value: ValueId,
+    value: ValueId,
 ) -> ValueId {
-    let mut visited = BTreeSet::new();
-    while visited.insert(value) {
-        let Some((bbid, idx)) = def_map.get(&value).copied() else {
-            break;
-        };
-        let Some(block) = function.blocks.get(&bbid) else {
-            break;
-        };
-        let Some(inst) = block.instructions.get(idx) else {
-            break;
-        };
-        match inst {
-            MirInstruction::Copy { src, .. } => value = *src,
-            _ => break,
-        }
-    }
-    value
+    ValueOriginQueryContext::new(function, def_map).origin(value)
 }
 
 pub fn resolve_value_origin_from_parent_map(mut value: ValueId, parents: &ParentMap) -> ValueId {
@@ -101,6 +145,65 @@ mod tests {
             resolve_value_origin(&function, &def_map, ValueId::new(3)),
             ValueId::new(1)
         );
+    }
+
+    #[test]
+    fn value_origin_query_context_reuses_copy_chain_origin() {
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "Point".to_string(),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        });
+        function.add_block(block);
+
+        let def_map = build_value_def_map(&function);
+        let mut context = ValueOriginQueryContext::new(&function, &def_map);
+
+        assert_eq!(context.origin(ValueId::new(3)), ValueId::new(1));
+        assert_eq!(context.origin(ValueId::new(2)), ValueId::new(1));
+    }
+
+    #[test]
+    fn value_origin_query_context_breaks_copy_cycles() {
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(1),
+            src: ValueId::new(2),
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        function.add_block(block);
+
+        let def_map = build_value_def_map(&function);
+        let mut context = ValueOriginQueryContext::new(&function, &def_map);
+        let resolved = context.origin(ValueId::new(1));
+
+        assert!(matches!(resolved, ValueId(1) | ValueId(2)));
     }
 
     #[test]

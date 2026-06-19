@@ -1,25 +1,60 @@
 use crate::mir::escape_barrier::classify_escape_uses;
 use crate::mir::phi_query::{
-    collect_passthrough_phi_parents, infer_phi_base_query_with_anchors, PhiBaseRelation,
+    collect_passthrough_phi_parents, PhiBaseQueryContext, PhiBaseRelation,
 };
-use crate::mir::value_origin::{
-    build_value_def_map, resolve_value_origin_from_parent_map, ParentMap,
-};
+use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{MirFunction, ValueId};
 use std::collections::{BTreeSet, HashMap, HashSet};
+
+#[derive(Default)]
+struct DenseParentMap {
+    parents: Vec<Option<ValueId>>,
+}
+
+impl DenseParentMap {
+    fn insert(&mut self, value: ValueId, parent: ValueId) {
+        let index = value.to_usize();
+        if index >= self.parents.len() {
+            self.parents.resize(index + 1, None);
+        }
+        self.parents[index] = Some(parent);
+    }
+
+    fn extend(&mut self, values: impl IntoIterator<Item = (ValueId, ValueId)>) {
+        for (value, parent) in values {
+            self.insert(value, parent);
+        }
+    }
+
+    fn resolve(&self, mut value: ValueId) -> ValueId {
+        let mut seen = Vec::new();
+        while !dense_seen_contains(&seen, value) {
+            seen.push(value);
+            let Some(Some(parent)) = self.parents.get(value.to_usize()) else {
+                break;
+            };
+            value = *parent;
+        }
+        value
+    }
+}
+
+fn dense_seen_contains(seen: &[ValueId], value: ValueId) -> bool {
+    seen.iter().any(|seen| *seen == value)
+}
 
 #[derive(Default)]
 pub(crate) struct LocalReadInfo {
     local_boxes: HashSet<ValueId>,
     escaping: HashSet<ValueId>,
     field_read_roots: HashSet<ValueId>,
-    alias_parents: ParentMap,
+    alias_parents: DenseParentMap,
     local_root_overrides: HashMap<ValueId, ValueId>,
 }
 
 impl LocalReadInfo {
     pub(crate) fn resolve_local_root(&self, value: ValueId) -> Option<ValueId> {
-        let root = resolve_value_origin_from_parent_map(value, &self.alias_parents);
+        let root = self.alias_parents.resolve(value);
         if self.local_boxes.contains(&root) {
             return Some(root);
         }
@@ -64,6 +99,7 @@ pub(crate) fn analyze_local_reads(
 
     let anchors: BTreeSet<ValueId> = info.local_boxes.iter().copied().collect();
     let def_map = build_value_def_map(function);
+    let mut phi_base_queries = PhiBaseQueryContext::new(function, &def_map, &anchors);
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {
             continue;
@@ -73,11 +109,11 @@ pub(crate) fn analyze_local_reads(
             let Some(dst) = instruction.dst_value() else {
                 continue;
             };
-            let root = resolve_value_origin_from_parent_map(dst, &info.alias_parents);
+            let root = info.alias_parents.resolve(dst);
             if info.local_boxes.contains(&root) || info.local_root_overrides.contains_key(&root) {
                 continue;
             }
-            let query = infer_phi_base_query_with_anchors(function, &def_map, root, &anchors);
+            let query = phi_base_queries.query(root);
             if let PhiBaseRelation::SameBase(base) = query.relation {
                 if info.local_boxes.contains(&base) {
                     info.local_root_overrides.insert(root, base);
@@ -149,6 +185,10 @@ pub(super) fn collect_overwritten_local_field_sets(
     local_reads: &LocalReadInfo,
 ) -> HashSet<(crate::mir::BasicBlockId, usize)> {
     let mut removable = HashSet::new();
+    if !has_overwritable_local_field_candidates(function, reachable_blocks, local_reads) {
+        return removable;
+    }
+
     let dominators = crate::mir::verification::utils::compute_dominators(function);
     let mut propagation_successors: HashMap<crate::mir::BasicBlockId, crate::mir::BasicBlockId> =
         HashMap::new();
@@ -264,6 +304,33 @@ pub(super) fn collect_overwritten_local_field_sets(
     ));
 
     removable
+}
+
+fn has_overwritable_local_field_candidates(
+    function: &MirFunction,
+    reachable_blocks: &HashSet<crate::mir::BasicBlockId>,
+    local_reads: &LocalReadInfo,
+) -> bool {
+    let mut field_set_counts: HashMap<(ValueId, String), usize> = HashMap::new();
+    for (bid, block) in &function.blocks {
+        if !reachable_blocks.contains(bid) {
+            continue;
+        }
+        for instruction in &block.instructions {
+            let crate::mir::MirInstruction::FieldSet { base, field, .. } = instruction else {
+                continue;
+            };
+            let Some(root) = local_reads.resolve_local_root(*base) else {
+                continue;
+            };
+            let count = field_set_counts.entry((root, field.clone())).or_default();
+            *count += 1;
+            if *count > 1 {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 fn collect_loop_header_entry_overwrites(

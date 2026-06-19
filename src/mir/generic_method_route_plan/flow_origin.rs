@@ -12,9 +12,10 @@ use super::{
     method_args_without_redundant_receiver, typed_object_value_box_name, FieldHandleOriginMap,
 };
 
-pub(super) fn generic_runtime_data_contains_param_text_origin_box_name(
+pub(super) fn generic_runtime_data_contains_param_text_origin_box_name_with_flow(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    flow: &GenericPureStringFlowAnalysis,
     box_name: &str,
     receiver: ValueId,
     needle: ValueId,
@@ -22,7 +23,8 @@ pub(super) fn generic_runtime_data_contains_param_text_origin_box_name(
     if box_name != "RuntimeDataBox" {
         return None;
     }
-    if generic_pure_string_value_origin_box_name(function, def_map, needle).as_deref()
+    if generic_pure_string_value_origin_box_name_with_flow(function, def_map, needle, flow)
+        .as_deref()
         != Some("StringBox")
     {
         return None;
@@ -32,14 +34,17 @@ pub(super) fn generic_runtime_data_contains_param_text_origin_box_name(
         .then(|| "StringBox".to_string())
 }
 
-pub(super) fn generic_string_receiver_origin_box_name(
+pub(super) fn generic_string_receiver_origin_box_name_with_flow(
     function: &MirFunction,
     def_map: &ValueDefMap,
+    flow: &GenericPureStringFlowAnalysis,
     receiver: ValueId,
     box_name: &str,
 ) -> Option<String> {
     receiver_origin_box_name(function, def_map, receiver)
-        .or_else(|| generic_pure_string_value_origin_box_name(function, def_map, receiver))
+        .or_else(|| {
+            generic_pure_string_value_origin_box_name_with_flow(function, def_map, receiver, flow)
+        })
         .or_else(|| {
             string_corridor_value_origin_box_name(
                 function,
@@ -150,9 +155,19 @@ pub(super) fn generic_pure_string_value_origin_box_name(
     def_map: &ValueDefMap,
     receiver: ValueId,
 ) -> Option<String> {
+    let flow = GenericPureStringFlowAnalysis::new(function);
+    generic_pure_string_value_origin_box_name_with_flow(function, def_map, receiver, &flow)
+}
+
+pub(super) fn generic_pure_string_value_origin_box_name_with_flow(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+    flow: &GenericPureStringFlowAnalysis,
+) -> Option<String> {
     generic_pure_string_signature_param_origin_box_name(function, def_map, receiver)
         .or_else(|| generic_pure_string_global_call_origin_box_name(function, def_map, receiver))
-        .or_else(|| generic_pure_string_flow_origin_box_name(function, receiver))
+        .or_else(|| flow.origin_box_name(receiver))
 }
 
 fn generic_pure_string_signature_param_origin_box_name(
@@ -461,40 +476,47 @@ fn collection_origin_box_name(box_name: &str) -> Option<&'static str> {
     }
 }
 
-fn generic_pure_string_flow_origin_box_name(
-    function: &MirFunction,
-    receiver: ValueId,
-) -> Option<String> {
-    let mut string_values = BTreeSet::<ValueId>::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+pub(super) struct GenericPureStringFlowAnalysis {
+    string_values: BTreeSet<ValueId>,
+}
 
-    for _ in 0..16 {
-        let mut changed = false;
-        for block_id in &block_ids {
-            let Some(block) = function.blocks.get(block_id) else {
-                continue;
-            };
-            for (instruction_index, inst) in block.instructions.iter().enumerate() {
-                if generic_pure_string_flow_marks_instruction(
-                    function,
-                    &mut string_values,
-                    *block_id,
-                    instruction_index,
-                    inst,
-                ) {
-                    changed = true;
+impl GenericPureStringFlowAnalysis {
+    pub(super) fn new(function: &MirFunction) -> Self {
+        let mut string_values = BTreeSet::<ValueId>::new();
+        let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+        block_ids.sort();
+
+        for _ in 0..16 {
+            let mut changed = false;
+            for block_id in &block_ids {
+                let Some(block) = function.blocks.get(block_id) else {
+                    continue;
+                };
+                for (instruction_index, inst) in block.instructions.iter().enumerate() {
+                    if generic_pure_string_flow_marks_instruction(
+                        function,
+                        &mut string_values,
+                        *block_id,
+                        instruction_index,
+                        inst,
+                    ) {
+                        changed = true;
+                    }
                 }
             }
+            if !changed {
+                break;
+            }
         }
-        if !changed {
-            break;
-        }
+
+        Self { string_values }
     }
 
-    string_values
-        .contains(&receiver)
-        .then(|| "StringBox".to_string())
+    pub(super) fn origin_box_name(&self, receiver: ValueId) -> Option<String> {
+        self.string_values
+            .contains(&receiver)
+            .then(|| "StringBox".to_string())
+    }
 }
 
 fn generic_pure_string_flow_marks_instruction(

@@ -39,7 +39,7 @@ fn publication_adapter_extern(function: &MirFunction, value: ValueId) -> Option<
 pub(super) fn collect_publication_return_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, PublicationReturnPlan> {
     let mut plans_by_block: BTreeMap<BasicBlockId, PublicationReturnPlan> = BTreeMap::new();
 
@@ -180,7 +180,7 @@ pub(super) fn can_sink_helper_past_intervening_instructions(
 pub(super) fn collect_publication_write_boundary_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, Vec<PublicationWriteBoundaryPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<PublicationWriteBoundaryPlan>> =
         BTreeMap::new();
@@ -256,7 +256,7 @@ pub(super) fn collect_publication_write_boundary_plans(
 pub(super) fn collect_publication_host_boundary_plans(
     function: &MirFunction,
     def_map: &HashMap<ValueId, (BasicBlockId, usize)>,
-    use_counts: &HashMap<ValueId, usize>,
+    use_counts: &UseCounts,
 ) -> BTreeMap<BasicBlockId, Vec<PublicationHostBoundaryPlan>> {
     let mut plans_by_block: BTreeMap<BasicBlockId, Vec<PublicationHostBoundaryPlan>> =
         BTreeMap::new();

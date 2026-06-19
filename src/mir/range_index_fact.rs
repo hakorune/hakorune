@@ -13,6 +13,14 @@ use crate::mir::{
 };
 
 pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
+    let def_map = build_value_def_map(function);
+    refresh_function_range_index_facts_with_def_map(function, &def_map);
+}
+
+pub(crate) fn refresh_function_range_index_facts_with_def_map(
+    function: &mut MirFunction,
+    def_map: &ValueDefMap,
+) {
     let explicit_fastmem_facts = function
         .metadata
         .range_index_facts
@@ -49,8 +57,8 @@ pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
             loop_carried_writes_supported: source.loop_carried_writes_supported,
         });
     }
-    append_mir_counting_loop_range_index_facts(function, &mut facts);
-    append_modulo_range_index_facts(function, &mut facts);
+    append_mir_counting_loop_range_index_facts(function, def_map, &mut facts);
+    append_modulo_range_index_facts(function, def_map, &mut facts);
     for mut source in explicit_fastmem_facts {
         source.fact_id = facts.len() as u32;
         if !facts
@@ -63,8 +71,11 @@ pub fn refresh_function_range_index_facts(function: &mut MirFunction) {
     function.metadata.range_index_facts = facts;
 }
 
-fn append_modulo_range_index_facts(function: &MirFunction, facts: &mut Vec<RangeIndexFact>) {
-    let def_map = build_value_def_map(function);
+fn append_modulo_range_index_facts(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    facts: &mut Vec<RangeIndexFact>,
+) {
     let mut derived = Vec::new();
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
@@ -83,8 +94,8 @@ fn append_modulo_range_index_facts(function: &MirFunction, facts: &mut Vec<Range
             else {
                 continue;
             };
-            let lhs_root = resolve_value_origin(function, &def_map, *lhs);
-            let rhs_root = resolve_value_origin(function, &def_map, *rhs);
+            let lhs_root = resolve_value_origin(function, def_map, *lhs);
+            let rhs_root = resolve_value_origin(function, def_map, *rhs);
             let Some(modulus) = integer_const_value(function, rhs_root) else {
                 continue;
             };
@@ -94,7 +105,7 @@ fn append_modulo_range_index_facts(function: &MirFunction, facts: &mut Vec<Range
 
             for source in facts.iter() {
                 if source.body_bb != block_id
-                    || resolve_value_origin(function, &def_map, source.index_value) != lhs_root
+                    || resolve_value_origin(function, def_map, source.index_value) != lhs_root
                     || !value_is_integer_const(function, source.lower_value, 0)
                     || !source.end_exclusive
                     || !source.index_body_read_only
@@ -134,9 +145,9 @@ fn append_modulo_range_index_facts(function: &MirFunction, facts: &mut Vec<Range
 
 fn append_mir_counting_loop_range_index_facts(
     function: &MirFunction,
+    def_map: &ValueDefMap,
     facts: &mut Vec<RangeIndexFact>,
 ) {
-    let def_map = build_value_def_map(function);
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
 
@@ -154,19 +165,19 @@ fn append_mir_counting_loop_range_index_facts(
             continue;
         };
         let Some((compare_index, upper_value)) =
-            strict_lt_guard_index_and_upper(function, &def_map, *condition)
+            strict_lt_guard_index_and_upper(function, def_map, *condition)
         else {
             continue;
         };
         let Some((index_phi, lower_value, latch_bb, latch_value)) =
-            header_counting_phi(function, &def_map, header_id, compare_index)
+            header_counting_phi(function, def_map, header_id, compare_index)
         else {
             continue;
         };
         if index_phi != compare_index
             || !latch_increments_index_by_one(
                 function,
-                &def_map,
+                def_map,
                 latch_bb,
                 header_id,
                 index_phi,

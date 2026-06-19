@@ -24,6 +24,13 @@ struct FieldGetOrigin {
 
 pub fn refresh_function_direct_array_extent_facts(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
+    refresh_function_direct_array_extent_facts_with_def_map(function, &def_map);
+}
+
+pub(crate) fn refresh_function_direct_array_extent_facts_with_def_map(
+    function: &mut MirFunction,
+    def_map: &ValueDefMap,
+) {
     let mut facts = Vec::new();
     let mut stability_facts = Vec::new();
 
