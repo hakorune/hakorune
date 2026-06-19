@@ -1,0 +1,5 @@
+// TODO: empty record HintSink is out of v0 skeleton scope
+
+function HintSink_new(): Self {
+    return null /* TODO: Self value expression is out of v0 skeleton scope: Self */
+}

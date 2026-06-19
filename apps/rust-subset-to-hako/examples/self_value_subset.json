@@ -1,0 +1,34 @@
+{
+  "items": [
+    {
+      "fields": [],
+      "identity": false,
+      "kind": "Struct",
+      "name": "HintSink"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self value expression is out of v0 skeleton scope: Self"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        }
+      ],
+      "target": "HintSink"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "self_value_fixture",
+  "schema_version": 0
+}

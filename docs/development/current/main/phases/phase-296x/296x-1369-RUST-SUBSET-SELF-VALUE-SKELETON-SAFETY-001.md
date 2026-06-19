@@ -1,6 +1,6 @@
 # 296x-1369 RUST-SUBSET-SELF-VALUE-SKELETON-SAFETY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -80,6 +80,36 @@ metadata_context_self_value_boundary_removed=1
 metadata_context_next_boundary_recorded=<boundary-or-green>
 generated_program_execution_claim=0
 summary=ok
+```
+
+## Closeout
+
+```text
+self_value_fixture_added=1
+self_value_adapter_json_green=1
+self_value_python_reference_green=1
+self_value_hako_converter_parity_green=1
+metadata_context_self_value_boundary_removed=1
+metadata_context_next_boundary=unresolved function Some in MetadataContext_set_source_file
+closure_handoff_changed=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+new_hako_syntax_added=0
+generated_program_execution_claim=0
+full_rust_subset_smoke=green
+summary=ok
+```
+
+The `Self` value expression now becomes an explicit Unsupported expression
+handoff instead of a generated global/value name. `metadata_context` advances
+to the next source-shape boundary:
+
+```text
+function MetadataContext_set_source_file(...):
+  receiver.source_file = Some(source.into())
+  first_failure=Unresolved function: 'Some'
 ```
 
 General checks:

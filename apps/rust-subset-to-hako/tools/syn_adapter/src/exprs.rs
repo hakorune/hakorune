@@ -67,6 +67,11 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                     ));
                 }
                 let segments = crate::names::path_segments(&path.path);
+                if segments.as_slice() == ["Self"] {
+                    return unsupported_expr(
+                        "Self value expression is out of v0 skeleton scope: Self",
+                    );
+                }
                 if is_type_qualified_path(&segments) {
                     return unsupported_expr(format!(
                         "associated const/value path expression is out of v0 skeleton scope: {}",
