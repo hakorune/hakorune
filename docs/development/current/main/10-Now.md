@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
+RUST-SUBSET-PATH-NAME-NORMALIZATION-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -36,17 +36,15 @@ function skeleton transport is closed by 296x-1312. Unsupported trait handoff
 hardening is closed by 296x-1313. Rust-subset smoke fixture handling is
 table-driven by 296x-1314. Crate/multi-file handoff boundaries are inventoried
 by 296x-1315; the preferred next contract is manifest plus per-module
-`RustSubsetModule` artifacts, but it is not implemented yet. The next
-crate-skeleton P0 gap is RustSubset path/name normalization, not new `.hako`
-syntax.
+`RustSubsetModule` artifacts, but it is not implemented yet. Module schema
+validation parity is closed by 296x-1316. The active crate-skeleton P0 gap is
+RustSubset path/name normalization, not new `.hako` syntax.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Close `RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001` before crate
-   manifest implementation.
-3. Then close `RUST-SUBSET-PATH-NAME-NORMALIZATION-001` before a creat-style
-   pilot.
+2. Close `RUST-SUBSET-PATH-NAME-NORMALIZATION-001` before crate manifest
+   implementation or a creat-style pilot.
 4. Keep converter core separate from input routes and crate/file graph
    discovery.
 5. Run:
@@ -105,6 +103,11 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - crate handoff is scoped toward manifest plus per-module artifacts
   - crate graph discovery remains external to `converter_core.hako`
   - path/name normalization is identified as P0 before crate pilot
+- `RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001`
+  - module schema validation boundaries match the Python reference where active
+  - schema_version/root kind and unknown item kinds fail fast in `.hako`
+  - Python reference also fail-fasts unknown statement/expression kinds
+  - known Unsupported nodes still emit TODO comments
 
 Closeout evidence:
 

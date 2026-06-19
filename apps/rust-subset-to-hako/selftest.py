@@ -33,12 +33,12 @@ def assert_golden(name: str) -> None:
         )
 
 
-def assert_fail_fast() -> None:
-    result = run_convert(ROOT / "examples" / "invalid_unknown_kind.json")
+def assert_fail_fast_case(name: str, expected_stderr: str) -> None:
+    result = run_convert(ROOT / "examples" / f"{name}.json")
     if result.returncode == 0:
-        raise AssertionError("invalid_unknown_kind: expected non-zero exit")
-    if "unknown item kind: Trait" not in result.stderr:
-        raise AssertionError(f"invalid_unknown_kind: unexpected stderr: {result.stderr}")
+        raise AssertionError(f"{name}: expected non-zero exit")
+    if expected_stderr not in result.stderr:
+        raise AssertionError(f"{name}: unexpected stderr: {result.stderr}")
 
 
 def main() -> None:
@@ -50,7 +50,11 @@ def main() -> None:
     assert_golden("break_continue")
     assert_golden("generic_function")
     assert_golden("unsupported_trait")
-    assert_fail_fast()
+    assert_fail_fast_case("invalid_schema_version", "unsupported schema_version")
+    assert_fail_fast_case("invalid_document_kind", "unsupported document kind")
+    assert_fail_fast_case("invalid_unknown_kind", "unknown item kind: Trait")
+    assert_fail_fast_case("invalid_unknown_statement_kind", "unknown statement kind: Mystery")
+    assert_fail_fast_case("invalid_unknown_expression_kind", "unknown expression kind: MysteryExpr")
     print("summary=ok")
 
 

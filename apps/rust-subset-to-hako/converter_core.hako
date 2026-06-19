@@ -11,13 +11,18 @@ box RustSubsetConverter {
     convert(json_text) {
         local doc = JsonParserUtils.parse_json(json_text)
         if doc == null {
-            return "// parse error"
+            return me.fail("invalid JSON")
         }
 
-        // Validate schema_version
         local sv = doc.get_node("schema_version")
         if sv == null {
-            return "// error: missing schema_version"
+            return me.fail("missing schema_version")
+        }
+        if sv.as_int() != 0 {
+            return me.fail("unsupported schema_version")
+        }
+        if me.node_str(doc.get_node("kind")) != "RustSubsetModule" {
+            return me.fail("unsupported document kind")
         }
 
         local items = doc.get_node("items")
@@ -42,6 +47,10 @@ box RustSubsetConverter {
         return output
     }
 
+    fail(message) {
+        return "// error: " + message
+    }
+
     // ── item emitters ───────────────────────────────────
 
     emit_item(item) {
@@ -61,7 +70,7 @@ box RustSubsetConverter {
         if kind == "Unsupported" {
             return me.emit_unsupported(item)
         }
-        return "// TODO: " + kind
+        return me.fail("unknown item kind: " + kind)
     }
 
     emit_unsupported(item) {
@@ -254,7 +263,7 @@ box RustSubsetConverter {
             return indent + "/* TODO: " + reason + " */"
         }
 
-        return indent + "// TODO: " + kind
+        return indent + me.fail("unknown statement kind: " + kind)
     }
 
     emit_while(stmt, indent) {
@@ -354,7 +363,7 @@ box RustSubsetConverter {
             return "/* TODO: " + reason + " */"
         }
 
-        return "/* TODO: " + kind + " */"
+        return me.fail("unknown expression kind: " + kind)
     }
 
     map_type(ty) {

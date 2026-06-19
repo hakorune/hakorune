@@ -1,0 +1,15 @@
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local converter = new RustSubsetConverter()
+        local result = converter.convert("{\"schema_version\":0,\"kind\":\"RustSubsetModule\",\"items\":[{\"kind\":\"Trait\"}]}")
+        if result != "// error: unknown item kind: Trait" {
+            print("schema.validation=bad-error:item-kind")
+            print(result)
+            return 1
+        }
+        print("schema.unknown.item.validation=ok")
+        return 0
+    }
+}

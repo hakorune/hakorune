@@ -1,0 +1,19 @@
+{
+  "schema_version": 0,
+  "kind": "RustSubsetModule",
+  "module": "invalid",
+  "items": [
+    {
+      "kind": "Function",
+      "name": "f",
+      "params": [],
+      "return_type": "void",
+      "body": [
+        {
+          "kind": "Return",
+          "value": {"kind": "MysteryExpr"}
+        }
+      ]
+    }
+  ]
+}

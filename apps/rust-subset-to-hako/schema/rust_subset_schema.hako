@@ -9,6 +9,12 @@
 // helper + `not` call-site shape is protected by a regression probe.
 
 box RustSubsetSchemaV0 {
+    schema_version(root) {
+        local node = root.get_node("schema_version")
+        if node == null { return -1 }
+        return node.as_int()
+    }
+
     kind(root) {
         local node = root.get_node("kind")
         if node == null { return "" }
@@ -28,5 +34,22 @@ box RustSubsetSchemaV0 {
 
     root_is_module(root) {
         return me.module_kind_status(root) == 0
+    }
+
+    document_status(root) {
+        if root == null { return 1 }
+        local sv = root.get_node("schema_version")
+        if sv == null { return 2 }
+        if me.schema_version(root) != 0 { return 3 }
+        if me.kind(root) != "RustSubsetModule" { return 4 }
+        return 0
+    }
+
+    document_status_message(status) {
+        if status == 1 { return "invalid JSON document" }
+        if status == 2 { return "missing schema_version" }
+        if status == 3 { return "unsupported schema_version" }
+        if status == 4 { return "unsupported document kind" }
+        return ""
     }
 }

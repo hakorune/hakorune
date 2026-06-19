@@ -35,6 +35,7 @@ run_exe_diff() {
 
   echo "[rust-subset/smoke] EXE: $label"
   rm -f "$exe"
+  rm -f tmp/nyash_cli_emit.json
   NYASH_FILEBOX_MODE=core-ro \
     ./target/release/hakorune --emit-exe "$exe" "$source" \
     >"$exe.exe.log" 2>&1
@@ -185,6 +186,7 @@ done
 
 echo "[rust-subset/smoke] EXE: json probe"
 rm -f /tmp/hako_json_probe
+rm -f tmp/nyash_cli_emit.json
 NYASH_FILEBOX_MODE=core-ro \
   ./target/release/hakorune --emit-exe /tmp/hako_json_probe "$JSON_PROBE" \
   >/tmp/hako_json_probe.exe.log 2>&1
@@ -203,6 +205,7 @@ if [[ "${RUST_SUBSET_RUN_REGRESSION:-0}" == "1" ]]; then
     name="$(basename "$probe" .hako)"
     exe="/tmp/hako_${name}"
     rm -f "$exe"
+    rm -f tmp/nyash_cli_emit.json
     NYASH_FILEBOX_MODE=core-ro \
       ./target/release/hakorune --emit-exe "$exe" "$probe" \
       >"/tmp/hako_${name}.exe.log" 2>&1

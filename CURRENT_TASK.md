@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
+RUST-SUBSET-PATH-NAME-NORMALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Close module schema validation parity between the Python reference and the
-`.hako` converter before crate manifest implementation. After that, close
-RustSubset path/name normalization before any `creat`-style pilot.
+Close RustSubset path/name normalization before any `creat`-style crate pilot.
+Module schema validation parity between the Python reference and the `.hako`
+converter is closed by 296x-1316.
 ```
 
 Current evidence:
@@ -61,6 +61,7 @@ RUST-SUBSET-SYN-ADAPTER-UNSUPPORTED-TRAIT-HANDOFF-HARDENING-001 is closed by
 296x-1313.
 RUST-SUBSET-SMOKE-FIXTURE-TABLE-REFACTOR-001 is closed by 296x-1314.
 RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001 is closed by 296x-1315.
+RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001 is closed by 296x-1316.
 ```
 
 Acceptance for the current slice:
@@ -73,18 +74,12 @@ bash apps/rust-subset-to-hako/smoke.sh
 ## Task Order
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Close module schema validation parity before crate manifest work.
+2. Close path/name normalization before crate manifest work.
 3. Keep converter core separate from input routes.
 4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
 5. Update `CURRENT_STATE.toml` when the next slice is chosen.
 
 Recommended next row:
-
-```text
-RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001
-```
-
-Then:
 
 ```text
 RUST-SUBSET-PATH-NAME-NORMALIZATION-001

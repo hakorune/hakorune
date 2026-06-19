@@ -1,0 +1,24 @@
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local converter = new RustSubsetConverter()
+        local result = converter.convert("{\"schema_version\":1,\"kind\":\"RustSubsetModule\",\"items\":[]}")
+        if result != "// error: unsupported schema_version" {
+            print("schema.validation=bad-error:schema-version")
+            print(result)
+            return 1
+        }
+
+        converter = new RustSubsetConverter()
+        result = converter.convert("{\"schema_version\":0,\"kind\":\"RustSubsetCrateManifest\",\"items\":[]}")
+        if result != "// error: unsupported document kind" {
+            print("schema.validation=bad-error:document-kind")
+            print(result)
+            return 1
+        }
+
+        print("schema.document.validation=ok")
+        return 0
+    }
+}

@@ -1,0 +1,15 @@
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local converter = new RustSubsetConverter()
+        local result = converter.convert("{\"schema_version\":0,\"kind\":\"RustSubsetModule\",\"items\":[{\"kind\":\"Unsupported\",\"rust_kind\":\"Trait\",\"summary\":\"Trait items are out of v0 scope\"}]}")
+        if result != "// TODO: Trait items are out of v0 scope" {
+            print("schema.validation=bad-output:unsupported")
+            print(result)
+            return 1
+        }
+        print("schema.unsupported.validation=ok")
+        return 0
+    }
+}
