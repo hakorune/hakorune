@@ -1,6 +1,6 @@
 # 296x-1370 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -47,6 +47,22 @@ candidate_C=next green module inventory
 candidate_D=crate/module bundle aggregation after current context set
 ```
 
+## Selection Result
+
+```text
+selected_next_task=RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
+selected_scope=Option constructor/value path skeleton-safety for Some/None in metadata_context
+selected_reason=metadata_context now fails first on unresolved function Some; None is the same Option value-constructor family
+implementation_allowed=0
+next_card_name=296x-1371-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
+summary=ok
+```
+
+Option constructor/value paths are the smallest real-front blocker now exposed
+by `hakorune_mir_builder::metadata_context`. Closure handoff hardening remains
+later because the current first MIR-emission failure is `Some(source.into())`
+inside `MetadataContext_set_source_file`.
+
 ## Selection Rules
 
 ```text
@@ -73,11 +89,11 @@ fixture_or_manifest_gate_available=1
 Produce a decision with:
 
 ```text
-selected_next_task=<token>
-selected_scope=<short description>
-selected_reason=<short reason>
+selected_next_task=RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
+selected_scope=Option constructor/value path skeleton-safety for Some/None in metadata_context
+selected_reason=metadata_context now fails first on unresolved function Some
 implementation_allowed=0
-next_card_name=<card>
+next_card_name=296x-1371-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001
 summary=ok
 ```
 

@@ -131,21 +131,21 @@ parity, and full rust-subset smoke. 296x-1368 selects Self value
 skeleton-safety as the next blocker after `metadata_context` exposed
 `HintSink_new` returning an undefined generated `Self` value. Self value
 references are now skeleton-safe as explicit Unsupported handoffs; the next
-blocker is selecting the next app-front task after `metadata_context` advances
-to unresolved function `Some`."""
+blocker is Option constructor/value skeleton-safety after `metadata_context`
+advances to unresolved function `Some`."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1370-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1371-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001.md"
 
-latest_card = "296x-1370-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1370-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015.md"
-latest_card_summary = """296x-1370 selects the next rust-subset-to-hako
-app-front task after Self value skeleton-safety."""
+latest_card = "296x-1371-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1371-RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001.md"
+latest_card_summary = """296x-1371 makes Option constructor/value paths
+skeleton-safe after metadata_context exposed unresolved Some."""
 
-current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015"
+current_blocker_token = "RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -228,4 +228,5 @@ landed_tail = [
   "2026-06-20: 296x-1367 materializes hakorune_mir_builder::type_context and guards it through generated-skeleton MIR emit plus wrapper EXE parity.",
   "2026-06-20: 296x-1368 selects Self value skeleton-safety after metadata_context exposes HintSink_new returning undefined Self.",
   "2026-06-20: 296x-1369 makes Self value references skeleton-safe and advances metadata_context to unresolved function Some.",
+  "2026-06-20: 296x-1370 selects Option constructor/value path skeleton-safety after metadata_context exposes unresolved Some.",
 ]
