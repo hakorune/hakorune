@@ -20,27 +20,29 @@ Related:
 ## Active Blocker
 
 ```text
-PHI-INPUT-REMAT-OPERAND-MEMO-001
+STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, and the touched
-string-corridor regression is closed by 296x-1305. Stabilize PHI input
-rematerialization identity before returning to loop resolver / app-front work.
+string-corridor regression is closed by 296x-1305. PHI input rematerialization
+identity is closed by 296x-1306. Retire diagnostic hint parsing as
+string-corridor correctness evidence before returning to loop resolver /
+app-front work.
 
 ## Next
 
-1. Locate the PHI input rematerialization owner.
-2. Add predecessor-local memoization without expanding accepted shapes.
-3. Preserve fail-closed cycle behavior.
+1. Inventory `optimization_hints` parsing used by string-corridor planning.
+2. Replace proven fallback evidence with typed relation / plan evidence.
+3. Keep diagnostic hints output-only.
 4. Run:
 
 ```bash
-cargo test -q phi_input_materializer
 cargo test -q string_corridor_sink
+cargo test -q string_kernel_plan
 cargo check -q --lib
 ```
 
-5. Commit the PHI memo slice separately.
+5. Commit the stable-length fallback retirement slice separately.
 
 ## Recently Closed
 
@@ -48,11 +50,16 @@ cargo check -q --lib
   - semantic string-corridor benchmark contract
   - read-only `MethodCallOperandView`
   - no benchmark/source/function-name branches
+- `PHI-INPUT-REMAT-OPERAND-MEMO-001`
+  - predecessor-local rematerialization memo
+  - receiver-prefixed substring remat identity preserved
+  - accepted remat shapes unchanged
 
 Closeout evidence:
 
 ```bash
 cargo test -q operand_view
+cargo test -q phi_input_materializer
 cargo test -q string_corridor_sink
 cargo test -q string_kernel_plan
 cargo check -q --lib

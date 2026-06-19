@@ -33,39 +33,39 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-PHI-INPUT-REMAT-OPERAND-MEMO-001
+STRING-CORRIDOR-STABLE-LENGTH-HINT-FALLBACK-RETIRE-001
 ```
 
 Purpose:
 
 ```text
-Add predecessor-local memoization to PHI input rematerialization so the same
-predecessor plus the same original ValueId reuses the same materialized ValueId.
-Keep cycle handling fail-closed and do not expand accepted rematerialization
-shapes in this row.
+Retire string-corridor planning/correctness dependence on diagnostic
+optimization_hints string parsing where typed string-corridor relation / plan
+evidence already covers the route. Keep diagnostic hints output-only.
 ```
 
 Current evidence:
 
 ```text
 STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001 is closed by 296x-1305.
-The next cleanup is upstream PHI rematerialization identity stabilization.
+PHI-INPUT-REMAT-OPERAND-MEMO-001 is closed by 296x-1306.
+The next cleanup is stable-length hint fallback retirement.
 ```
 
 Acceptance for the current slice:
 
 ```bash
-cargo test -q phi_input_materializer
 cargo test -q string_corridor_sink
+cargo test -q string_kernel_plan
 cargo check -q --lib
 ```
 
 ## Task Order
 
-1. Locate the PHI input rematerialization owner.
-2. Add predecessor-local memoization without broadening accepted shapes.
-3. Add focused unit coverage for same-pred same-source reuse and cycle
-   fail-closed behavior where the existing seam allows it.
+1. Inventory `optimization_hints` parsing used as planning/correctness
+   evidence.
+2. Identify typed relation / plan evidence that can replace the fallback.
+3. Retire only the proven fallback path.
 4. Re-run the focused checks above.
 5. Commit separately from later loop-route or rust-subset-to-hako app-front
    work.
