@@ -1,0 +1,29 @@
+box SameFileBirthBox {
+    items: ArrayBox = new ArrayBox()
+    marker: i64 = 0
+
+    birth(value) {
+        me.items.push(value)
+        me.marker = 7
+    }
+}
+
+static box Main {
+    main() {
+        local obj = new SameFileBirthBox(42)
+        if obj.items == null {
+            print("same_file_birth=fail")
+            return 0
+        }
+        if obj.items.length() != 1 {
+            print("same_file_birth=fail")
+            return 0
+        }
+        if obj.marker != 7 {
+            print("same_file_birth=fail")
+            return 0
+        }
+        print("same_file_birth=ok")
+        return 0
+    }
+}

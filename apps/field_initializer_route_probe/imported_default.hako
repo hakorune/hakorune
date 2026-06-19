@@ -1,0 +1,13 @@
+using apps.field_initializer_route_probe.library as FieldInitRouteLib
+
+static box Main {
+    main() {
+        local obj = FieldInitRouteLib.createDefault()
+        if obj.ready() == 1 {
+            print("imported_factory_default=ok")
+        } else {
+            print("imported_factory_default=fail")
+        }
+        return 0
+    }
+}

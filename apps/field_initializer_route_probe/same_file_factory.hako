@@ -1,0 +1,25 @@
+box SameFileFactoryDefaultBox {
+    items: ArrayBox = new ArrayBox()
+}
+
+static box SameFileFactory {
+    create_default() {
+        return new SameFileFactoryDefaultBox()
+    }
+}
+
+static box Main {
+    main() {
+        local obj = SameFileFactory.create_default()
+        if obj.items == null {
+            print("same_file_factory_default=fail")
+            return 0
+        }
+        if obj.items.length() != 0 {
+            print("same_file_factory_default=fail")
+            return 0
+        }
+        print("same_file_factory_default=ok")
+        return 0
+    }
+}

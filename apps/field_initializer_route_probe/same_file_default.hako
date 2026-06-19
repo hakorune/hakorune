@@ -1,0 +1,19 @@
+box SameFileDefaultBox {
+    items: ArrayBox = new ArrayBox()
+}
+
+static box Main {
+    main() {
+        local obj = new SameFileDefaultBox()
+        if obj.items == null {
+            print("same_file_direct_default=fail")
+            return 0
+        }
+        if obj.items.length() != 0 {
+            print("same_file_direct_default=fail")
+            return 0
+        }
+        print("same_file_direct_default=ok")
+        return 0
+    }
+}

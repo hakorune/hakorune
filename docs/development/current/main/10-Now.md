@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -44,17 +44,22 @@ library deterministic-map boundary by 296x-1321. OrderedMapBox v0 and its
 focused EXE/AOT smoke are closed by 296x-1322. The focused BindingContext-style
 OrderedMapBox probe is closed by 296x-1323. Constructor lifecycle is guarded
 separately by 296x-1324 without moving meaningful birth logic into field
-initializers. The active blocker remains creat subset pilot selection.
+initializers. Field-initializer library route probing is closed by 296x-1325:
+same-file initializer routes are green, while imported static factories stop at
+`unknown_global_callee` before runtime. The active blocker is imported
+static/global callee route investigation.
 
 ## Next
 
-1. Inventory candidate creat files/modules before adding schema nodes.
-2. Count unsupported RustSubset families by reason/code.
-3. Select a 2-3 module pilot slice with minimal new semantics.
-4. Do not add creat-specific schema or converter branches in the selection row.
+1. Compare route metadata for `FieldInitRouteLib.createDefault/0` and
+   `OrderedMap.create/0`.
+2. Identify the route owner that produces `unknown_global_callee`.
+3. Add the smallest focused route fixture or guard.
+4. Do not change field-initializer semantics in this row.
 5. Run:
 
 ```bash
+bash apps/field_initializer_route_probe/smoke.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
@@ -144,6 +149,10 @@ bash tools/checks/current_state_pointer_guard.sh
   - constructor lifecycle is guarded separately from OrderedMapBox API work
   - birth(value), constructor args, and per-instance ArrayBox defaults are smoke-checked
   - OrderedMapBox keeps explicit v0 create-time initialization as a route-compatibility choice
+- `FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001`
+  - same-file direct new, static factory new, and birth(value) field-initializer routes are green
+  - imported static factory probes stop at unsupported_pure_shape before runtime
+  - MIR route metadata reports `unknown_global_callee` for the focused app-library factory
 
 Closeout evidence:
 

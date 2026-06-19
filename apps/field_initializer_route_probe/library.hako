@@ -1,0 +1,74 @@
+static box FieldInitRouteLib {
+    createDefault() {
+        local obj = new ImportedDefaultBox()
+        return obj
+    }
+
+    createBirth(value) {
+        local obj = new ImportedBirthBox(value)
+        return obj
+    }
+
+    createOrderedLike() {
+        local obj = new ImportedOrderedLikeBox()
+        return obj
+    }
+}
+
+box ImportedDefaultBox {
+    items: ArrayBox = new ArrayBox()
+
+    ready() {
+        if me.items == null {
+            return 0
+        }
+        if me.items.length() != 0 {
+            return 0
+        }
+        return 1
+    }
+}
+
+box ImportedBirthBox {
+    items: ArrayBox = new ArrayBox()
+    marker: i64 = 0
+
+    birth(value) {
+        me.items.push(value)
+        me.marker = 7
+    }
+
+    ready() {
+        if me.items == null {
+            return 0
+        }
+        if me.items.length() != 1 {
+            return 0
+        }
+        if me.marker != 7 {
+            return 0
+        }
+        return 1
+    }
+}
+
+box ImportedOrderedLikeBox {
+    keys_value: ArrayBox = new ArrayBox()
+    values_value: ArrayBox = new ArrayBox()
+
+    ready() {
+        if me.keys_value == null {
+            return 0
+        }
+        if me.values_value == null {
+            return 0
+        }
+        if me.keys_value.length() != 0 {
+            return 0
+        }
+        if me.values_value.length() != 0 {
+            return 0
+        }
+        return 1
+    }
+}

@@ -33,14 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
 ```
 
 Purpose:
 
 ```text
-Inventory and select a small real creat subset pilot now that the synthetic
-crate handoff and OrderedMapBox detour are closed.
+Determine why local app-library static factories such as
+FieldInitRouteLib.createDefault/0 are classified as unknown_global_callee while
+existing imported library factories such as OrderedMap.create/0 resolve to a
+direct function route.
 ```
 
 Current evidence:
@@ -69,29 +71,33 @@ HAKO-ORDERED-MAP-BOX-SSOT-001 is closed by 296x-1321.
 HAKO-ORDERED-MAP-BOX-V0-001 is closed by 296x-1322.
 MIRBUILDER-BINDING-CONTEXT-ORDERED-MAP-PROBE-001 is closed by 296x-1323.
 CONSTRUCTOR-LIFECYCLE-FIELD-INIT-BIRTH-PROBE-001 is closed by 296x-1324.
+FIELD-INITIALIZER-LIBRARY-ROUTE-PROBE-001 is closed by 296x-1325.
 ```
 
 Acceptance for the current slice:
 
 ```bash
+bash apps/field_initializer_route_probe/smoke.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
-# plus the focused inventory/probe commands selected by
-# CREAT-SUBSET-PILOT-SELECTION-001
+# plus the focused MIR route comparison selected by
+# IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
 ```
 
 ## Task Order
 
-1. Inventory candidate creat files/modules before adding schema nodes.
-2. Count unsupported RustSubset families by reason/code.
-3. Select a 2-3 module pilot slice with minimal new semantics.
-4. Do not add creat-specific schema or converter branches in the selection row.
-5. Update `CURRENT_STATE.toml` when the selection row closes.
+1. Compare route metadata for `FieldInitRouteLib.createDefault/0` and
+   `OrderedMap.create/0`.
+2. Identify the owner of imported static/global callee classification.
+3. Add the smallest focused fixture or guard for the route seam.
+4. Do not change field-initializer semantics in this row.
+5. Return to `CREAT-SUBSET-PILOT-SELECTION-001` only after the route seam is
+   classified or fixed.
 
 Recommended next row:
 
 ```text
-CREAT-SUBSET-PILOT-SELECTION-001
+IMPORTED-STATIC-GLOBAL-CALLEE-ROUTE-PROBE-001
 ```
 
 ## Pointers
