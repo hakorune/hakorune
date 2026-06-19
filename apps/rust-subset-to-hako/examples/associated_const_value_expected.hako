@@ -1,0 +1,9 @@
+record Id {
+    _0: i64
+}
+
+// impl Id (no methods)
+
+function zero_id(): Id {
+    return null /* TODO: associated const/value path expression is out of v0 skeleton scope: Id::ZERO */
+}

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-008
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -60,15 +60,18 @@ calls like `crate::util::add1` intact, and advances real modules:
 296x-1354 selects associated const/value path skeleton-safety because
 `EffectMask::IO` currently emits `EffectMask_IO` as an undefined generated
 variable.
+296x-1355 makes associated const/value paths explicit Unsupported handoffs,
+keeps module-path calls intact, and advances `hakorune_mir_defs::call_unified`
+to generated-skeleton MIR emit.
 
-The next row is 296x-1355. It should make type-qualified value paths an
-explicit Unsupported handoff without enabling Rust name/use resolution.
+The next row is 296x-1356. It should select the next app-front task before
+starting implementation.
 
 ## Next
 
-1. Read 296x-1355.
-2. Add a focused associated-const/value path fixture.
-3. Recheck `call_unified` advances beyond `EffectMask_IO`.
+1. Read 296x-1356.
+2. Evaluate next app-front task candidates.
+3. Select the next implementation row without starting implementation.
 4. Run:
 
 ```bash

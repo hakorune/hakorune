@@ -66,6 +66,13 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                         "enum variant value reference is out of v0 skeleton scope: {emitted}"
                     ));
                 }
+                let segments = crate::names::path_segments(&path.path);
+                if is_type_qualified_path(&segments) {
+                    return unsupported_expr(format!(
+                        "associated const/value path expression is out of v0 skeleton scope: {}",
+                        segments.join("::")
+                    ));
+                }
                 let mut value = json!({"kind": "Name"});
                 insert_path_name_metadata(&mut value, &path.path);
                 value
@@ -103,7 +110,7 @@ pub(crate) fn expr_to_json_with_context(expr: &Expr, context: &ExprContext) -> V
                 if segments.as_slice() == ["Vec", "new"] {
                     return unsupported_expr("Vec::new call expression is out of v0 skeleton scope");
                 }
-                if is_type_qualified_call_path(&segments) {
+                if is_type_qualified_path(&segments) {
                     return unsupported_expr(format!(
                         "associated function call expression is out of v0 skeleton scope: {}",
                         segments.join("::")
@@ -179,7 +186,7 @@ fn vec_macro_to_json(expr: &syn::ExprMacro, context: &ExprContext) -> Value {
     })
 }
 
-fn is_type_qualified_call_path(segments: &[String]) -> bool {
+fn is_type_qualified_path(segments: &[String]) -> bool {
     if segments.len() <= 1 {
         return false;
     }

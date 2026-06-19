@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-008
 ```
 
 Purpose:
 
 ```text
-Make type-qualified Rust value paths skeleton-safe when the adapter cannot
-prove executable `.hako` semantics.
+Select the next rust-subset-to-hako app-front task after associated const/value
+path skeleton-safety closed green.
 ```
 
 Current evidence:
@@ -99,6 +99,7 @@ HAKORUNE-MIR-BUILDER-VARIABLE-CONTEXT-MATERIALIZATION-001 is closed by 296x-1351
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-006 is closed by 296x-1352.
 RUST-SUBSET-ASSOCIATED-FUNCTION-CALL-SKELETON-SAFETY-001 is closed by 296x-1353.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007 is closed by 296x-1354.
+RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001 is closed by 296x-1355.
 ```
 
 Acceptance for the current slice:
@@ -111,21 +112,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1355.
-2. Add a focused associated-const/value path fixture.
-3. Make type-qualified value paths emit an explicit Unsupported handoff
-   instead of an undefined generated variable.
-4. Keep name/use resolution and generated-program execution claims at 0.
+1. Read 296x-1356.
+2. Evaluate the next app-front task candidates.
+3. Select the next implementation row without starting implementation.
+4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-008
 ```
 
-296x-1354 selected associated const/value path skeleton-safety because
-`EffectMask::IO` currently emits `EffectMask_IO` as an undefined generated
-variable. 296x-1355 is the implementation row.
+296x-1355 made associated const/value paths skeleton-safe as explicit
+Unsupported handoffs. `hakorune_mir_defs::call_unified` now reaches
+generated-skeleton MIR emit. 296x-1356 is the next design/selection row.
 
 ## Pointers
 

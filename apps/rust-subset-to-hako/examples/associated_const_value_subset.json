@@ -1,0 +1,41 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "emitted_name": "_0",
+          "name": "_0",
+          "source_name": "0",
+          "type": "i64"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "Id"
+    },
+    {
+      "kind": "Impl",
+      "methods": [],
+      "target": "Id"
+    },
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Unsupported",
+            "reason": "associated const/value path expression is out of v0 skeleton scope: Id::ZERO"
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "zero_id",
+      "params": [],
+      "return_type": "Id"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "associated_const_value_input",
+  "schema_version": 0
+}
+

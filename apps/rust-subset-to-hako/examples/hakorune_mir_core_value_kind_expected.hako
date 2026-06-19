@@ -99,7 +99,7 @@ function TypedValueId_eq(receiver: TypedValueId, other: Self): bool {
     return receiver.id == other.id
 }
 
-
+// impl TypedValueId (no methods)
 
 function TypedValueId_hash(receiver: TypedValueId, state: H): void {
     receiver.id.hash(state)

@@ -146,16 +146,20 @@ box RustSubsetConverter {
         local target = me.node_str(item.get_node("target"))
         local methods = item.get_node("methods")
         local result = ""
-        if methods != null {
-            local mc = methods.length()
-            local mi = 0
-            loop(mi < mc) {
-                local method = methods.get_node(mi)
-                result = result + me.emit_function(method, target)
-                mi = mi + 1
-                if mi < mc {
-                    result = result + "\n\n"
-                }
+        if methods == null {
+            return "// impl " + target + " (no methods)"
+        }
+        local mc = methods.length()
+        if mc == 0 {
+            return "// impl " + target + " (no methods)"
+        }
+        local mi = 0
+        loop(mi < mc) {
+            local method = methods.get_node(mi)
+            result = result + me.emit_function(method, target)
+            mi = mi + 1
+            if mi < mc {
+                result = result + "\n\n"
             }
         }
         return result
