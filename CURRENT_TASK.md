@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009
+HAKORUNE-MIR-BUILDER-CONTEXT-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after the
-`hakorune_mir_builder::core_context` single-module bundle was materialized and
-guarded.
+Materialize the selected `hakorune_mir_builder::context` single-module
+RustSubset bundle after 296x-1358 selected it as the next builder-owned
+context task.
 ```
 
 Current evidence:
@@ -103,6 +103,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-007 is closed by 296x-1354.
 RUST-SUBSET-ASSOCIATED-CONST-VALUE-SKELETON-SAFETY-001 is closed by 296x-1355.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-008 is closed by 296x-1356.
 HAKORUNE-MIR-BUILDER-CORE-CONTEXT-MATERIALIZATION-001 is closed by 296x-1357.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009 is closed by 296x-1358.
 ```
 
 Acceptance for the current slice:
@@ -115,20 +116,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1358.
-2. Recheck green materialization candidates and small blocker candidates.
-3. Select the next task before implementation.
+1. Read 296x-1359.
+2. Materialize the selected `crate::context` bundle.
+3. Add the focused wrapper and smoke entries.
 4. Keep generated-program execution claim at 0.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-009
+HAKORUNE-MIR-BUILDER-CONTEXT-MATERIALIZATION-001
 ```
 
-296x-1357 materialized `hakorune_mir_builder::core_context`. 296x-1358 is the
-selection row for the next app-front task; implementation must not start in
-that row.
+296x-1358 selected `hakorune_mir_builder::context` because its generated
+skeleton already reaches MIR emit and it is the smallest remaining green
+builder-owned context candidate. 296x-1359 is the implementation row.
 
 ## Pointers
 
