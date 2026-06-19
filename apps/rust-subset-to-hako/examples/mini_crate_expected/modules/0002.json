@@ -1,0 +1,41 @@
+{
+  "items": [
+    {
+      "body": [
+        {
+          "kind": "Return",
+          "value": {
+            "kind": "Binary",
+            "left": {
+              "kind": "Name",
+              "name": "value"
+            },
+            "op": "+",
+            "right": {
+              "kind": "Literal",
+              "type": "i64",
+              "value": 1
+            }
+          }
+        }
+      ],
+      "kind": "Function",
+      "name": "add1",
+      "params": [
+        {
+          "name": "value",
+          "type": "i64"
+        }
+      ],
+      "return_type": "i64"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Trait",
+      "summary": "Trait items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::util",
+  "schema_version": 0
+}

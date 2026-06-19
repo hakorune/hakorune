@@ -33,16 +33,17 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
+RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
 ```
 
 Purpose:
 
 ```text
-Implement the first synthetic multi-module syn-adapter probe after accepting
-the crate manifest v0 contract. Module schema validation parity is closed by
-296x-1316, RustSubset path/name normalization is closed by 296x-1317, and the
-crate manifest v0 contract is closed by 296x-1318.
+Implement the crate handoff MIR acceptance wrapper after the synthetic
+multi-module syn-adapter probe. Module schema validation parity is closed by
+296x-1316, RustSubset path/name normalization is closed by 296x-1317, the
+crate manifest v0 contract is closed by 296x-1318, and the synthetic
+multi-module adapter probe is closed by 296x-1319.
 ```
 
 Current evidence:
@@ -65,6 +66,7 @@ RUST-SUBSET-CRATE-HANDOFF-INVENTORY-001 is closed by 296x-1315.
 RUST-SUBSET-MODULE-SCHEMA-VALIDATION-PARITY-001 is closed by 296x-1316.
 RUST-SUBSET-PATH-NAME-NORMALIZATION-001 is closed by 296x-1317.
 RUST-SUBSET-CRATE-MANIFEST-V0-001 is closed by 296x-1318.
+RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001 is closed by 296x-1319.
 ```
 
 Acceptance for the current slice:
@@ -77,8 +79,8 @@ bash apps/rust-subset-to-hako/smoke.sh
 ## Task Order
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Implement the synthetic mini-crate adapter probe without changing
-   converter_core ownership.
+2. Implement the `.hako` crate handoff wrapper without changing converter_core
+   ownership.
 3. Keep converter core separate from input routes.
 4. Prefer EXE/AOT app acceptance; VM product-route validation remains retired.
 5. Update `CURRENT_STATE.toml` when the next slice is chosen.
@@ -86,7 +88,7 @@ bash apps/rust-subset-to-hako/smoke.sh
 Recommended next row:
 
 ```text
-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
+RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
 ```
 
 ## Pointers

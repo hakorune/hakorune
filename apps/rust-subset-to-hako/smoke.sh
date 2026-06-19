@@ -80,6 +80,28 @@ run_adapter_to_python_hako_diff() {
   diff -u "$expected_hako" "$hako_out"
 }
 
+run_adapter_crate_diff() {
+  local label="$1"
+  local crate_root="$2"
+  local expected_dir="$3"
+  local tmp_name="$4"
+
+  local actual="/tmp/rust_subset_syn_${tmp_name}_crate"
+
+  echo "[rust-subset/smoke] host adapter crate: $label"
+  rm -rf "$actual"
+  cargo run --manifest-path "$SYN_ADAPTER_MANIFEST" --quiet -- \
+    --crate-root "$crate_root" \
+    --out-dir "$actual" \
+    --crate-name mini_crate \
+    --target-kind lib \
+    --target-name mini_crate
+  diff -u "$expected_dir/crate-manifest.json" "$actual/crate-manifest.json"
+  diff -u "$expected_dir/modules/0000.json" "$actual/modules/0000.json"
+  diff -u "$expected_dir/modules/0001.json" "$actual/modules/0001.json"
+  diff -u "$expected_dir/modules/0002.json" "$actual/modules/0002.json"
+}
+
 run_simple_semantic_parity() {
   local actual="/tmp/rust_subset_syn_simple.json"
 
@@ -155,6 +177,12 @@ if [[ "${RUST_SUBSET_RUN_ADAPTER:-0}" == "1" ]]; then
       "$EXAMPLES_DIR/${stem}_subset.json" \
       "$stem"
   done
+
+  run_adapter_crate_diff \
+    "mini crate manifest handoff" \
+    "$EXAMPLES_DIR/mini_crate" \
+    "$EXAMPLES_DIR/mini_crate_expected" \
+    "mini_crate"
 fi
 
 emit_mir_json "json probe" "$JSON_PROBE" "/tmp/hako_json_probe.mir.json"

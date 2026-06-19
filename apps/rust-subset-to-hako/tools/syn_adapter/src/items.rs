@@ -6,7 +6,24 @@ use crate::names::{assert_unique_names, insert_name_metadata};
 use crate::types::{item_kind, type_name};
 
 pub(crate) fn file_to_json(file: &syn::File, module: String) -> Value {
+    file_to_json_inner(file, module, true)
+}
+
+pub(crate) fn file_to_json_for_crate(file: &syn::File, module: String) -> Value {
+    file_to_json_inner(file, module, false)
+}
+
+fn file_to_json_inner(file: &syn::File, module: String, include_external_mods: bool) -> Value {
     let items = file.items.iter().map(item_to_json).collect::<Vec<_>>();
+    let items = if include_external_mods {
+        items
+    } else {
+        file.items
+            .iter()
+            .filter(|item| !is_external_mod_decl(item))
+            .map(item_to_json)
+            .collect::<Vec<_>>()
+    };
     assert_unique_names(&items, "module items");
     json!({
         "schema_version": 0,
@@ -14,6 +31,10 @@ pub(crate) fn file_to_json(file: &syn::File, module: String) -> Value {
         "module": module,
         "items": items,
     })
+}
+
+fn is_external_mod_decl(item: &Item) -> bool {
+    matches!(item, Item::Mod(module) if module.content.is_none())
 }
 
 fn item_to_json(item: &Item) -> Value {

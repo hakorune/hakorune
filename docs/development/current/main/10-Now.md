@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
+RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
 ```
 
 The scan-methods focused timeout slice is closed by 296x-1304, the touched
@@ -39,13 +39,14 @@ by 296x-1315; the preferred next contract is manifest plus per-module
 `RustSubsetModule` artifacts, but it is not implemented yet. Module schema
 validation parity is closed by 296x-1316. RustSubset path/name normalization is
 closed by 296x-1317 without adding `.hako` syntax. The crate manifest v0
-contract is accepted by 296x-1318. The active crate-skeleton blocker is the
-synthetic multi-module syn-adapter probe.
+contract is accepted by 296x-1318. The synthetic multi-module adapter probe is
+closed by 296x-1319. The active crate-skeleton blocker is crate handoff MIR
+acceptance.
 
 ## Next
 
 1. Inspect `apps/rust-subset-to-hako/STATUS.md`.
-2. Implement `RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001` without changing
+2. Implement `RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001` without changing
    converter_core ownership.
 4. Keep converter core separate from input routes and crate/file graph
    discovery.
@@ -118,6 +119,10 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
   - crate-wide handoff is a manifest plus per-module RustSubsetModule artifacts
   - manifest is a transport index, not a semantic AST or name resolver
   - multi-file adapter output is still a follow-up row
+- `RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001`
+  - synthetic mini-crate emits crate-manifest.json plus three module artifacts
+  - converter_core manifest/FileBox ownership remains 0
+  - adapter smoke verifies the generated artifact set
 
 Closeout evidence:
 

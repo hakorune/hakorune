@@ -177,13 +177,13 @@ Keep converter core separate from input route work.
 
 ```text
 active next:
-  RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
-    create a synthetic mini-crate fixture
-    emit crate-manifest.json + per-module RustSubsetModule artifacts
+  RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
+    read crate manifest in a dedicated .hako wrapper
+    load listed per-module RustSubsetModule artifacts
+    validate module ids and emit per-module skeletons
     keep converter_core.hako manifest/FileBox ownership at 0
 
 hardening:
-  crate manifest validation wrapper
   unsupported diagnostics provenance
 ```
 
@@ -217,6 +217,12 @@ bash apps/rust-subset-to-hako/smoke_adapter.sh
 
 This is a thin wrapper around `smoke.sh` with `RUST_SUBSET_RUN_ADAPTER=1`; it
 does not give `converter_core.hako` ownership of Rust parsing or input routing.
+
+The adapter smoke also verifies the synthetic mini-crate crate-mode output:
+
+```text
+apps/rust-subset-to-hako/examples/mini_crate_expected/
+```
 
 Do not bypass `json_native` with a native JSON DLL in this row. The app is useful
 because it exercises real `.hako` JSON/tree traversal pressure.

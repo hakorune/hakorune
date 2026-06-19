@@ -63,6 +63,7 @@ crate_handoff_inventory=ok
 module_schema_validation_parity=ok
 path_name_normalization_parity=ok
 crate_manifest_v0_contract=ok
+multi_module_syn_adapter_probe=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
 ```
@@ -254,6 +255,14 @@ closed:
     converter_core_manifest_ownership=0
     card=docs/development/current/main/phases/phase-296x/296x-1318-RUST-SUBSET-CRATE-MANIFEST-V0-001.md
 
+  RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
+    result=synthetic mini-crate emits crate manifest plus three module artifacts
+    owner=external syn adapter crate mode
+    fixture=apps/rust-subset-to-hako/examples/mini_crate
+    expected=apps/rust-subset-to-hako/examples/mini_crate_expected
+    converter_core_manifest_ownership=0
+    card=docs/development/current/main/phases/phase-296x/296x-1319-RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001.md
+
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape
     owner=RustSubset statement schema / converter emit / syn adapter lowering
@@ -366,13 +375,13 @@ closed:
     card=docs/development/current/main/phases/phase-296x/296x-1272-RUST-SUBSET-SYN-ADAPTER-FOR-LOOP-UNSUPPORTED-HANDOFF-001.md
 
 active_next:
-  RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
-    goal=emit crate-manifest.json plus per-module RustSubsetModule artifacts for a synthetic mini-crate
-    prerequisite=crate manifest v0 contract closed by 296x-1318
+  RUST-SUBSET-CRATE-HANDOFF-MIR-ACCEPTANCE-001
+    goal=dedicated .hako wrapper reads crate manifest and listed module artifacts
+    prerequisite=multi-module syn-adapter probe closed by 296x-1319
     converter_core_manifest_ownership=0
     implementation_allowed=0
     status=active_next
-    note=First implementation row should use a synthetic mini-crate, not creat-specific paths or converter_core FileBox ownership.
+    note=Generated skeleton parse/MIR acceptance is next; generated program EXE/AOT remains out of scope.
 
 hardening_queue:
   JSON-NATIVE-NUMBER-TOKEN-PAYLOAD-STABILITY-001

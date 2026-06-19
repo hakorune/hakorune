@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "fields": [
+        {
+          "name": "value",
+          "type": "i64"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "Root"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate",
+  "schema_version": 0
+}

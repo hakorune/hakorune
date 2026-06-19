@@ -1,0 +1,27 @@
+{
+  "crate_name": "mini_crate",
+  "kind": "RustSubsetCrateManifest",
+  "modules": [
+    {
+      "artifact_path": "modules/0000.json",
+      "module": "crate",
+      "source_path": "src/lib.rs"
+    },
+    {
+      "artifact_path": "modules/0001.json",
+      "module": "crate::model",
+      "source_path": "src/model.rs"
+    },
+    {
+      "artifact_path": "modules/0002.json",
+      "module": "crate::util",
+      "source_path": "src/util.rs"
+    }
+  ],
+  "root_module": "crate",
+  "schema_version": 0,
+  "target": {
+    "kind": "lib",
+    "name": "mini_crate"
+  }
+}
