@@ -97,6 +97,22 @@ mod tests {
         }
     }
 
+    fn local_uninit(name: &str) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![None],
+            declared_type_names: Vec::new(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn lit_s(value: &str) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::String(value.to_string()),
+            span: Span::unknown(),
+        }
+    }
+
     fn method_call(obj: &str, method: &str) -> ASTNode {
         ASTNode::MethodCall {
             object: Box::new(var(obj)),
@@ -441,6 +457,203 @@ mod tests {
                 .expect("v1 should match");
             assert_eq!(facts.loop_var, "i");
             assert!(facts.body_exit_allowed.is_some());
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_accepts_state_machine_continue_steps() {
+        with_joinir_env(Some("1"), Some("1"), || {
+            let cond = bin(BinaryOperator::Less, var("j"), var("n"));
+            let body = vec![
+                local_init("ch", lit_s("x")),
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("in_str"), lit_i(1))),
+                    then_body: vec![
+                        ASTNode::If {
+                            condition: Box::new(bin(BinaryOperator::Equal, var("esc"), lit_i(1))),
+                            then_body: vec![
+                                assign("esc", lit_i(0)),
+                                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                                ASTNode::Continue {
+                                    span: Span::unknown(),
+                                },
+                            ],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        ASTNode::If {
+                            condition: Box::new(bin(BinaryOperator::Equal, var("ch"), lit_s("\\"))),
+                            then_body: vec![
+                                assign("esc", lit_i(1)),
+                                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                                ASTNode::Continue {
+                                    span: Span::unknown(),
+                                },
+                            ],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        ASTNode::If {
+                            condition: Box::new(bin(BinaryOperator::Equal, var("ch"), lit_s("\""))),
+                            then_body: vec![
+                                assign("in_str", lit_i(0)),
+                                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                                ASTNode::Continue {
+                                    span: Span::unknown(),
+                                },
+                            ],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                        ASTNode::Continue {
+                            span: Span::unknown(),
+                        },
+                    ],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("ch"), lit_s("\""))),
+                    then_body: vec![
+                        assign("in_str", lit_i(1)),
+                        assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                        ASTNode::Continue {
+                            span: Span::unknown(),
+                        },
+                    ],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(2))),
+                    then_body: vec![ASTNode::Break {
+                        span: Span::unknown(),
+                    }],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                ASTNode::Continue {
+                    span: Span::unknown(),
+                },
+            ];
+
+            let facts = try_extract_generic_loop_v1_facts(&cond, &body)
+                .expect("v1: no freeze")
+                .expect("v1 should match state-machine loop");
+            assert_eq!(facts.loop_var, "j");
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_accepts_outer_step_after_nested_state_machine_loop() {
+        with_joinir_env(Some("1"), Some("1"), || {
+            let outer_cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let inner_cond = bin(BinaryOperator::Less, var("j"), var("n"));
+            let inner_body = vec![
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("in_str"), lit_i(1))),
+                    then_body: vec![
+                        ASTNode::If {
+                            condition: Box::new(bin(BinaryOperator::Equal, var("esc"), lit_i(1))),
+                            then_body: vec![
+                                assign("esc", lit_i(0)),
+                                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                                ASTNode::Continue {
+                                    span: Span::unknown(),
+                                },
+                            ],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        ASTNode::If {
+                            condition: Box::new(bin(BinaryOperator::Equal, var("ch"), lit_s("\\"))),
+                            then_body: vec![
+                                assign("esc", lit_i(1)),
+                                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                                ASTNode::Continue {
+                                    span: Span::unknown(),
+                                },
+                            ],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        ASTNode::If {
+                            condition: Box::new(bin(BinaryOperator::Equal, var("ch"), lit_s("\""))),
+                            then_body: vec![
+                                assign("in_str", lit_i(0)),
+                                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                                ASTNode::Continue {
+                                    span: Span::unknown(),
+                                },
+                            ],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                        ASTNode::Continue {
+                            span: Span::unknown(),
+                        },
+                    ],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("ch"), lit_s("\""))),
+                    then_body: vec![
+                        assign("in_str", lit_i(1)),
+                        assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                        ASTNode::Continue {
+                            span: Span::unknown(),
+                        },
+                    ],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("j"), lit_i(2))),
+                    then_body: vec![ASTNode::Break {
+                        span: Span::unknown(),
+                    }],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                assign("j", bin(BinaryOperator::Add, var("j"), lit_i(1))),
+                ASTNode::Continue {
+                    span: Span::unknown(),
+                },
+            ];
+            let body = vec![
+                ASTNode::If {
+                    condition: Box::new(bin(BinaryOperator::Equal, var("i"), lit_i(2))),
+                    then_body: vec![ASTNode::Break {
+                        span: Span::unknown(),
+                    }],
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                ASTNode::ScopeBox {
+                    body: vec![
+                        local_init("j", lit_i(0)),
+                        local_uninit("in_str"),
+                        local_uninit("esc"),
+                        ASTNode::Loop {
+                            condition: Box::new(inner_cond),
+                            body: inner_body,
+                            span: Span::unknown(),
+                        },
+                    ],
+                    span: Span::unknown(),
+                },
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
+
+            let facts = try_extract_generic_loop_v1_facts(&outer_cond, &body)
+                .expect("v1: no freeze")
+                .expect("v1 should match outer loop");
+            assert_eq!(facts.loop_var, "i");
+            assert_is_loop_var_plus_one(&facts.loop_increment, "i");
         });
     }
 }

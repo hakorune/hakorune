@@ -21,16 +21,12 @@ FileBox-input, and adapter-fixture EXE/AOT slices now match their expected
 The external Rust parser adapter boundary is documented. The RustSubset
 source-shape coverage batch is closed until a new real input blocker appears.
 JSON native object-key equality is fixed and the temporary critical-key bridge
-is retired. The current blocker is the separate compiler Recipe/CorePlan
-real-shape intake for read_next_number_literal-style staged loops with break;
-the sign/break and decimal/exponent fixtures are planner_required green, and
-the scanner multi-exit fixture is now accepted by generic_loop_v1 through the
-ThenOnlyExit Recipe shape. The continue-in-staged-loop fixture is now green
-through edge-local ContinueWithPhiArgs for partial carriers. The latest
-compiler re-aggregation cards record that the remaining issue is route-owner /
-named-loop-shape debt rather than a new PHI SSOT. The read_next_number_literal
-family stays queued, while immediate work moves to the B-lite loop resolver
-seam; only a minimal old-route compatibility patch is allowed if needed.
+is retired. The current blocker is now scan_loop_comma_close owner selection
+after the scan_methods nested state-machine loop was accepted by
+generic_loop_v1 body-managed step resolution. The read_next_number_literal
+family stays queued, and the B-lite loop resolver seam remains the structural
+north star; only minimal old-route compatibility patches are allowed when a
+real gate requires them.
 Build crate split planning remains available
 but is paused while this app-front lane is active.
 Detailed landed history lives in the referenced phase cards and design SSOTs,
@@ -39,289 +35,25 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1300-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1301-COREPLAN-SCAN-METHODS-NESTED-LOOP-STATE-MACHINE-STEP-PLACEMENT-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1300-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1300-COREPLAN-SCAN-METHODS-NESTED-LOOP-DEPTH1-NO-BREAK-OR-CONTINUE-PURE-OWNER-SELECTION-001.md"
+latest_card = "296x-1301-COREPLAN-SCAN-METHODS-NESTED-LOOP-STATE-MACHINE-STEP-PLACEMENT-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1301-COREPLAN-SCAN-METHODS-NESTED-LOOP-STATE-MACHINE-STEP-PLACEMENT-OWNER-SELECTION-001.md"
 latest_card_summary = """The
-`phase29bq_selfhost_blocker_scan_methods_nested_loop_depth1_no_break_or_continue_pure_min`
-fixture is already semantically green (`stdout=0`, rc 0). The old gate expected
-a LoopCondBreak planner-first tag, but the stable observed tag is
-`[flowbox/adopt box_kind=Loop features=break,nested_loop via=shadow]`. This row
-updates the joinir and selfhost subset gate expectations to that stable adoption
-tag without changing compiler code. The focused gate is green, and the full
-phase29bq gate now progresses to
-`phase29bq_selfhost_blocker_scan_methods_nested_loop_state_machine_min`, where
-the expected output is `2` but the compiler fails under planner_required:
-`generic_loop_v1` has no valid loop-var candidate because
-`control_flow_after_step=1`.
-
-The
-`phase29bq_selfhost_blocker_scan_methods_nested_loop_depth1_no_break_or_continue_min`
-fixture is already semantically green (`stdout=0`, rc 0). The old gate expected
-a LoopCondBreak planner-first tag, but the stable observed tag is
-`[flowbox/adopt box_kind=Loop features=break,nested_loop via=shadow]`. This row
-updates the joinir and selfhost subset gate expectations to that stable adoption
-tag without changing compiler code. The focused gate is green, and the full
-phase29bq gate now progresses to
-`phase29bq_selfhost_blocker_scan_methods_nested_loop_depth1_no_break_or_continue_pure_min`,
-where output is correct (`0`, rc 0) but the expected LoopCondBreak tag is
-missing and the observed stable tag is
-`[flowbox/adopt box_kind=Loop features=break,nested_loop via=shadow]`.
-
-The
-`phase29bq_selfhost_blocker_parse_program2_guard_prog_numeric_parse_loop_min`
-fixture is already semantically green (`stdout=5`, rc 0). The old gate expected
-a LoopCondBreak planner-first tag, but the stable observed tag is
-`[flowbox/adopt box_kind=Loop features=break via=shadow]`. This row updates the
-joinir and selfhost subset gate expectations to that stable adoption tag without
-changing compiler code. The focused gate is green, and the full phase29bq gate
-now progresses to
-`phase29bq_selfhost_blocker_scan_methods_nested_loop_depth1_no_break_or_continue_min`,
-where output is correct (`0`, rc 0) but the expected LoopCondBreak tag is
-missing and the observed stable tag is
-`[flowbox/adopt box_kind=Loop features=break,nested_loop via=shadow]`.
-
-The
-`phase29bq_selfhost_blocker_parse_program2_loop_continue_if_min` fixture is
-already semantically green (`stdout=1`, rc 0). The old gate expected a
-LoopCondBreak planner-first tag, but the stable observed tag is
-`[flowbox/adopt box_kind=Loop features=break,continue,nested_loop via=shadow]`.
-This row updates the joinir and selfhost subset gate expectations to that stable
-adoption tag without changing compiler code. The focused gate is green, and the
-full phase29bq gate now progresses to
-`phase29bq_selfhost_blocker_parse_program2_guard_prog_numeric_parse_loop_min`,
-where output is correct (`5`, rc 0) but the expected LoopCondBreak tag is
-missing and the observed stable tag is
-`[flowbox/adopt box_kind=Loop features=break via=shadow]`.
-
-The
-`phase29bq_selfhost_blocker_parse_program2_loop_if_return_local_min` fixture is
-already semantically green (`stdout=__EMPTY__`, rc 0). The old gate expected a
-LoopCondBreak planner-first tag, but the stable observed tag is
-`[flowbox/adopt box_kind=Loop features=return via=shadow]`. This row updates the
-joinir and selfhost subset gate expectations to that stable adoption tag without
-changing compiler code. The focused gate is green, and the full phase29bq gate
-now progresses to `phase29bq_selfhost_blocker_parse_program2_loop_continue_if_min`,
-where output is correct (`1`, rc 0) but the expected LoopCondBreak tag is
-missing and the observed stable tag is
-`[flowbox/adopt box_kind=Loop features=break,continue,nested_loop via=shadow]`.
-
-The
-`phase29bq_selfhost_blocker_parse_program2_loop_min` route owner is selected
-as `generic_loop_v1`. The fixture was already semantically green (`stdout=1`,
-rc 0), and actual route tracing shows
-`[plan/trace:loop_legacy_selected] route=generic_loop_v1`. The previous
-LoopCondBreak planner-first tag was stale, so the joinir and selfhost subset
-gate expectations now use the stable flowbox adoption tag while debug logs keep
-the actual selected-route trace. No compiler code is changed in this row. The
-full phase29bq gate now progresses to
-`phase29bq_selfhost_blocker_parse_program2_loop_if_return_local_min`, where the
-output is already empty/rc 0 but the expected LoopCondBreak tag is missing and
-the observed stable tag is `[flowbox/adopt box_kind=Loop features=return
-via=shadow]`.
-
-The existing
-`phase29bq_selfhost_blocker_parse_stmt_skipws_min` gate debt is closed by
-selecting `loop_cond_break_continue` / `ElseOnlyBreak` as the real owner.
-`generic_loop_v1` selected that shape before and produced `2` instead of `1`.
-The facts builder now keeps already-built `loop_cond_break_continue` facts for
-`ElseOnlyBreak`, while preserving the narrower multidelta and conditional-update
-rules. Focused skip-ws and multidelta gates are green. The full phase29bq gate
-now progresses further and stops at
-`phase29bq_selfhost_blocker_parse_program2_loop_min`, where the output is
-correct but the expected LoopCondBreak tag is missing because actual route is
-LoopSimpleWhile.
-
-The existing `loop_continue_only_multidelta_min`
-gate debt is closed by selecting `loop_cond_break_continue` as the real owner.
-`loop_continue_only` now rejects multi-continue shapes because its facts carrier
-has only one continue condition and one loop increment. The facts builder keeps
-already-built `loop_cond_break_continue` facts when multiple continue branches
-have assignment/local prelude effects, instead of nulling them just because
-`generic_loop_v1` also has a recipe hint. The focused fast gate,
-planner-required wrapper, focused suppression inventory, and unit guard are
-green. Registry suppression deletion remains out of scope for this row; the
-focused suppression inventory can continue after the former first blocker.
-The full phase29bq gate now progresses further and stops at the existing
-`phase29bq_selfhost_blocker_parse_stmt_skipws_min` owner debt
-(`expected=1`, `actual=2`, selected route `generic_loop_v1`), which is the next
-active blocker.
-
-The partial-carrier continue fixture is green.
-generic_loop_v1 no longer evaluates the loop-var increment as a shared step_bb
-expression when continue edges are present. Fallthrough cleanup now lowers the
-tail loop increment edge-locally before appending ContinueWithPhiArgs, and
-carrier finalization creates the loop-var step PHI plus header PHI through the
-same edge-local step-join contract as other carriers. The promoted fast-gate
-case `selfhost_read_number_continue_staged_min` now expects output `3`, rc 0,
-and the break/continue flowbox adoption tag. The B-lite shadow is now explicitly
-named as a legacy registry observer, not an independent semantic resolver, and
-route selection remains unchanged. The router now records the actual legacy route whose handler returns
-Some(value), using LegacyRouteSuccess and [plan/trace:loop_legacy_selected]. A
-fail-closed full suppression inventory entry is added; its first blocker is the
-existing loop_continue_only_multidelta_min gate debt, also present on pushed
-HEAD. Suppression deletion remains disabled until that owner is selected.
-
-Pinned and applied the `.hako` app-front template:
-Main is startup-only, converter core is separate from the embedded fixture
-handoff, probes are split into stable/regression/investigations, JSON object
-lookup uses generic entry-table key equality without a critical-key bridge,
-and the rust-subset app task board now separates closed work, the active
-external adapter boundary row, and hardening queue. The bool-returning schema
-helper plus `not` call-site backend shape, the minimal FileBox
-new/open/read/close route, and the FileBox-backed converter input wrapper are
-now covered by EXE/AOT smoke or regression probes. The external Rust parser
-adapter boundary is fixed as a file-based RustSubset JSON v0 producer
-contract. The adapter fixture handoff wrapper now passes EXE/AOT parity with a
-nonzero integer literal, user/global bool-return calls are normalized from ABI
-i64 to i1 before branch/not use, and JSON nonzero integer payloads are guarded
-by a regression probe. The external adapter tool selection row selects a
-host-side syn adapter, adds the first Rust source -> RustSubset JSON v0
-producer scaffold, and keeps converter_core.hako unchanged. The first syn
-adapter coverage row normalizes Rust tail-expression returns to RustSubset
-Return and adds optional adapter smoke coverage. Unsupported Rust trait items
-now hand off as explicit Unsupported nodes and convert to TODO comments without
-claiming trait support. If statements are now selected, represented in
-RustSubset JSON v0, emitted by Python and .hako converters, and covered by an
-EXE/AOT fixture wrapper. Assignment statements are now represented in
-RustSubset JSON v0, emitted by Python and .hako converters, and covered by an
-EXE/AOT fixture wrapper. The next-task card separates the read_next_number_literal
-staged loop/break acceptance request into compiler Recipe/CorePlan backlog.
-The syn adapter is now split into cli/items/functions/stmts/exprs/types modules
-with unchanged adapter fixture JSON output and full adapter smoke green. While
-statements are now represented in RustSubset JSON v0, emitted by Python and
-.hako converters as `loop(cond)`, and covered by an EXE/AOT fixture wrapper.
-Rust `vec![...]` literals now transport as RustSubset `ArrayLiteral`, emit as
-`.hako` array literals, map `Vec<T>` type spelling to `Array`, and are covered
-by an EXE/AOT fixture wrapper. The read_next_number_literal staged loop/break
-request is now split into a compiler-only Recipe/CorePlan task ladder: capture
-a minimal fixture, inventory the planner_required gap, add recursive recipe
-acceptance, then restore/probe the json_native route. The minimal staged
-loop/break compiler canary is captured and default EXE/AOT-green; it is not a
-planner_required acceptance claim. The planner_required inventory then found
-the captured canary is already green through existing LoopSimpleWhile plus
-flowbox/adopt break handling, so no new Recipe/CorePlan acceptance code is
-needed for that canary. The dedicated json_native restore probe then found the
-scanner read_number route is active, but scanner-derived NUMBER payloads outside
-the small numeric materializer table do not yet survive the tokenizer ArrayBox
-publication path. The next owner is
-JSON-NATIVE-NUMBER-TOKEN-PAYLOAD-STABILITY-001 before the number materializer
-can be retired. The token payload stability inventory tried parser source-span
-recovery, JsonToken primitive sidecar, JsonNode source-span/object sidecar, and
-character-by-character number materialization; all were non-keepers or regressed
-the accepted small-number route. The next row must select a lower substrate
-owner before further implementation. The owner selection row picks
-JsonToken text payload publication as the next seam: a NUMBER token with
-scanner-derived dynamic text must survive token ArrayBox storage before parser
-or JsonNode changes continue. The direct JsonToken dynamic text payload storage
-probe is green, so JsonToken storage is rejected as the owner. The remaining
-owner moves to tokenizer/scanner NUMBER production shape; the attempted direct
-tokenizer-number probe currently fails at backend pure-shape compilation. The
-next row taskizes that production-shape ladder without blocking bool-return
-validation: keep the token-payload/small-number-materializer stability route,
-probe scanner.read_number first, then next_token NUMBER, then tokenize()->ArrayBox,
-and only open Recipe/CorePlan acceptance if the smaller probes prove a compiler
-owner. The scanner.read_number-only probe is EXE/AOT green, so scanner substring
-production is rejected as the owner; the next probe is JsonTokenizer.next_token()
-for a single NUMBER without tokenize() or token ArrayBox publication. That
-next_token NUMBER probe is also EXE/AOT green, so the remaining owner is
-tokenize()->ArrayBox NUMBER production shape or the backend pure shape required
-by that full tokenizer probe. The shape inventory shows the first stop after
-`tokenize()` is `ArrayBox.get` followed by a receiver typed as RuntimeDataBox;
-`get_type` and `get_value` then have no route. The selected next owner is
-returned token-array element route recovery, not number payload production.
-The active app-front blocker remains selecting the following source shape.
-The token-array owner selection row picks ArrayBox element-origin metadata
-propagation as the next json_native hardening owner. The recursive Recipe
-shape backlog audit keeps read_next_number_literal-style compiler acceptance
-visible, but records that the captured canary is already green; future compiler
-Recipe work requires a new minimal failing fixture. The token-array
-element-origin shadow row now carries same-module method-returned ArrayBox
-element origin into later ArrayBox.get route metadata without backend behavior
-changes. The backend now consumes positive generic_method.get
-result_origin_box metadata, so the tokenizer NUMBER payload storage probe is
-EXE/AOT green; next hardening task is promoting that probe to regression before
-number materializer retirement. The reported read_next_number_literal
-multi-stage loop/break shape is now taskized as real-shape intake: no new
-Recipe/CorePlan implementation opens until a minimal failing fixture proves a
-compiler owner. The tokenizer NUMBER payload storage probe is now promoted from
-investigation to regression and self-checks both token type and value; next
-json_native hardening is number materializer retirement. That retire attempt is
-rejected: token storage is stable without the bridge, but adapter fixture
-numeric conversion regresses from `value + 1` to `value + 0`. The temporary
-JsonNumberTextMaterializer remains small and tokenizer-contextual; the next
-owner is JSON-NATIVE-NUMERIC-VALUE-CONVERSION-OWNER-SELECTION-001. Numeric
-owner selection rejects scanner parse_integer and tokenizer payload storage as
-owners; the remaining selected candidate is JsonNode int_text_value publication
-through object storage/retrieval. The recursive Recipe/CorePlan unsupported
-shape taskboard is refreshed: read_next_number_literal full multi-stage
-loop/break remains the leading compiler-side candidate, but implementation is
-still blocked on a minimal failing fixture. RustSubset app-front shapes and
-json_native hardening tasks stay separate from compiler Recipe acceptance.
-JSON numeric semantic conversion now belongs to JsonParser source-span integer
-scanning rather than token payload parsing, so JsonNumberTextMaterializer and
-the JsonNode int_text sidecar are retired. Regression smoke remains green; the
-remaining JSON bridge work is critical/unknown object-key materialization.
-Critical key bridge retirement remains rejected after the full converter smoke:
-focused key probes pass without the bridge, but full fixture parity can still
-misroute same-length object keys through `JsonNode.object_key_equals`. The
-parser-contextual key materializer stays temporary, and the next json_native
-hardening owner is object-key equality owner selection. The recursive
-Recipe/CorePlan unsupported-shape taskboard is refreshed again:
-read_next_number_literal full multi-stage loop/break is the leading
-compiler-side candidate, but implementation remains blocked on a minimal
-failing fixture. Adjacent unsupported compiler shapes are queued separately from
-rust-subset app-front source-shape transport. Else-if statements are now
-accepted as recursive RustSubset If inside the parent else array, with Python
-and .hako converters using the existing nested If emitter. The next app-front
-blocker is selecting the source shape after else-if support. Returnless void
-function bodies are now fixture-guarded as `return_type=\"void\"` plus ordinary
-statements, without adding synthetic returns or converter-core changes. The
-next app-front blocker is selecting the source shape after returnless void body
-hardening. Vec method calls are now fixture-guarded through the existing
-MethodCall schema; no Vec-specific schema or converter special-case was added.
-The next app-front blocker is selecting the source shape after Vec method call
-support. Rust `loop { ... }` without break/continue is now accepted by reusing
-the existing While schema with a literal true condition, and break/continue stay
-in the compiler Recipe/CorePlan backlog. The next app-front blocker is
-selecting the source shape after loop-without-break support. The after-loop
-taskboard refresh keeps app-front source transport and compiler Recipe/CorePlan
-loop/break intake separate, recommends match unsupported handoff next, and
-requires a minimal failing fixture before read_next_number_literal Recipe
-implementation. Rust match expressions now hand off as explicit Unsupported
-nodes with stable TODO reasons; no Match schema node or match semantics were
-added. The next app-front blocker is selecting the source shape after match
-unsupported handoff. Explicit Rust unit return type `-> ()` is now fixture
-guarded as RustSubset `return_type=\"void\"` through the existing tuple-unit type
-mapping, without adapter code changes or synthetic returns. The next app-front
-blocker is selecting the source shape after explicit unit return hardening.
-Rust for-loops now hand off as explicit Unsupported nodes without iterator
-semantics, while-desugaring, or tail-return TODO emission. The next blocker is
-closing the current source-shape coverage batch and selecting the next lane.
-The source-shape coverage batch is now closed; further RustSubset syntax rows
-require a new real input blocker. JSON native object-key equality is now fixed:
-the same-length dynamic key false positive is regression-guarded, and
-JsonObjectKeyMaterializer is removed.
-The recursive Recipe/CorePlan unsupported-shape taskboard is refreshed again:
-read_next_number_literal remains a compiler-side real-shape intake candidate,
-but token payload route recovery and nonzero number stability stay json_native
-hardening concerns, not compiler Recipe evidence. The real-shape intake is now
-split into a concrete ladder. The sign/break full-ish fixture is captured and
-planner_required green, so no Recipe/CorePlan implementation is opened for that
-slice. The decimal/exponent staged-number fixture is also captured and
-planner_required green. The scanner multi-exit fixture is captured as an
-expected-fail contract with selected_owner=generic_loop_v1_recipe_body. The
-generic_loop_v1 Recipe/CorePlan path now accepts that scanner multi-exit body
-via `IfMode::ThenOnlyExit`, and the fixture is flipped to a normal green gate
-case. The continue-in-staged-loop fixture is now captured as an expected-fail
-contract; its owner is loop_cond_break_continue partial carrier PHI handling.
-The latest implementation keeps read_next_number_literal queued, closes the
-partial-carrier continue fixture, renames the B-lite shadow to a legacy
-observer, adds actual legacy route selection tracing, and adds a fail-closed
-full suppression inventory entry that stops on the existing multidelta loop
-debt."""
-current_blocker_token = "COREPLAN-SCAN-METHODS-NESTED-LOOP-STATE-MACHINE-STEP-PLACEMENT-OWNER-SELECTION-001"
+`phase29bq_selfhost_blocker_scan_methods_nested_loop_state_machine_min`
+fixture is now accepted by `generic_loop_v1`. The real owner was step
+resolution for a preferred loop variable whose current loop has branch-local
+`j = j + 1; continue` exits plus a tail continue. `generic_loop_v1` now prefers
+a body-managed step before canonical step extraction for that structural shape,
+letting the existing Recipe / ContinueWithPhiArgs path own edge-local loop-var
+updates. The focused blocker gate, regression unit, cargo check, and diff check
+are green. Two semantic-green `scan_all_boxes` fixtures had stale LoopCondBreak
+planner-first expectations and now use the stable flowbox adoption tag. The full
+phase29bq gate now progresses to `phase29bq_joinir_scan_loop_comma_close_min`,
+where stdout/rc are correct but the expected LoopCondBreak planner-first tag is
+missing; the observed stable route is LoopSimpleWhile plus flowbox adoption for
+break/continue."""
+current_blocker_token = "COREPLAN-SCAN-LOOP-COMMA-CLOSE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
