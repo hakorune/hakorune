@@ -20,39 +20,45 @@ Related:
 ## Active Blocker
 
 ```text
-STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001
+PHI-INPUT-REMAT-OPERAND-MEMO-001
 ```
 
-The scan-methods focused timeout slice is closed by 296x-1304, but the touched
-string-corridor module has a local regression. Fix that before opening more
-loop-route, resolver, or app-front work.
-
-Known failing command:
-
-```bash
-cargo test -q string_corridor_sink
-```
-
-Known failing tests:
-
-```text
-benchmark_len_substring_views_compiles_without_loop_string_consumers
-benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route
-```
+The scan-methods focused timeout slice is closed by 296x-1304, and the touched
+string-corridor regression is closed by 296x-1305. Stabilize PHI input
+rematerialization identity before returning to loop resolver / app-front work.
 
 ## Next
 
-1. Restore the string-corridor benchmark routes without benchmark/source-name
-   branches.
-2. Run:
+1. Locate the PHI input rematerialization owner.
+2. Add predecessor-local memoization without expanding accepted shapes.
+3. Preserve fail-closed cycle behavior.
+4. Run:
 
 ```bash
+cargo test -q phi
 cargo test -q string_corridor_sink
-cargo test -q string_kernel_plan
 cargo check -q --lib
 ```
 
-3. Commit the cleanup slice separately.
+5. Commit the PHI memo slice separately.
+
+## Recently Closed
+
+- `STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001`
+  - semantic string-corridor benchmark contract
+  - read-only `MethodCallOperandView`
+  - no benchmark/source/function-name branches
+
+Closeout evidence:
+
+```bash
+cargo test -q operand_view
+cargo test -q string_corridor_sink
+cargo test -q string_kernel_plan
+cargo check -q --lib
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
 
 ## Paused Lanes
 

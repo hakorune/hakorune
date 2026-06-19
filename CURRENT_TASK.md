@@ -33,44 +33,41 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001
+PHI-INPUT-REMAT-OPERAND-MEMO-001
 ```
 
 Purpose:
 
 ```text
-Restore the touched-module `cargo test -q string_corridor_sink` benchmark
-routes after the dense string-corridor use-count / consumer-analysis slice.
-Do this without source-name, function-name, or benchmark-specific branches.
+Add predecessor-local memoization to PHI input rematerialization so the same
+predecessor plus the same original ValueId reuses the same materialized ValueId.
+Keep cycle handling fail-closed and do not expand accepted rematerialization
+shapes in this row.
 ```
 
-Known failing command:
-
-```bash
-cargo test -q string_corridor_sink
-```
-
-Known failures:
+Current evidence:
 
 ```text
-benchmark_len_substring_views_compiles_without_loop_string_consumers
-benchmark_meso_substring_concat_array_set_loopcarry_has_len_store_route
+STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001 is closed by 296x-1305.
+The next cleanup is upstream PHI rematerialization identity stabilization.
 ```
 
-Acceptance for the current cleanup slice:
+Acceptance for the current slice:
 
 ```bash
+cargo test -q phi
 cargo test -q string_corridor_sink
-cargo test -q string_kernel_plan
 cargo check -q --lib
 ```
 
 ## Task Order
 
-1. Fix the string-corridor regression locally.
-2. Keep the fix inside the corridor/string-kernel ownership boundary.
-3. Re-run the focused module checks above.
-4. Commit the cleanup slice separately from future loop-route or app-front
+1. Locate the PHI input rematerialization owner.
+2. Add predecessor-local memoization without broadening accepted shapes.
+3. Add focused unit coverage for same-pred same-source reuse and cycle
+   fail-closed behavior where the existing seam allows it.
+4. Re-run the focused checks above.
+5. Commit separately from later loop-route or rust-subset-to-hako app-front
    work.
 
 ## Pointers

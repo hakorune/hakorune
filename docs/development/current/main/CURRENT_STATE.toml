@@ -13,9 +13,10 @@ active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
 compiler optimization owner is selected. Rust VM / .hako VM product-route app
 validation is retired; EXE/AOT is the primary app/selfhost validation route.
 The active app front is rust-subset-to-hako, with build crate split planning
-available but paused while this app-front lane is active. The latest focused
-scan-methods compiler slice is green, but a touched-module
-`string_corridor_sink` regression is now the active cleanup blocker."""
+available but paused while this app-front lane is active. The focused
+scan-methods compiler slice and touched-module string-corridor regression are
+green. The active cleanup blocker is now PHI input rematerialization operand
+identity, before returning to loop resolver / app-front work."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -23,18 +24,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
 
-latest_card = "296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1304-USER-BOX-METHOD-ROUTE-ORIGIN-INFERENCE-VALUE-ORIGIN-CONTEXT-OWNER-001.md"
-latest_card_summary = """296x-1304 closed the scan-methods focused timeout slice:
-the direct `ParserBox.static_const_bitand/2` VM command now passes result=0
-after compile-time owner reductions and user-box route-flow origin memoization.
-B-lite remains a legacy registry observer, not a route-selection owner. A
-touched-module regression is now active: `cargo test -q string_corridor_sink`
-has two benchmark failures after the dense string-corridor use-count slice.
-Next work is to restore those benchmark routes without source/function-name
-workarounds, then rerun the focused module checks."""
+latest_card = "296x-1305-STRING-CORRIDOR-SINK-REGRESSION-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1305-STRING-CORRIDOR-SINK-REGRESSION-CLOSEOUT-001.md"
+latest_card_summary = """296x-1305 closes STRING-CORRIDOR-SINK-REGRESSION:
+the benchmark tests now assert semantic region-mapping contracts instead of raw
+ValueId numbers, and string corridor method-call receiver physical ABI handling
+is normalized through the read-only MethodCallOperandView. The focused
+string-corridor checks and cargo check are green. Next work is
+PHI-INPUT-REMAT-OPERAND-MEMO-001."""
 
-current_blocker_token = "STRING-CORRIDOR-SINK-REGRESSION-CLEANUP-001"
+current_blocker_token = "PHI-INPUT-REMAT-OPERAND-MEMO-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -52,5 +51,5 @@ landed_tail = [
   "2026-06-19: scan-methods focused blocker moves from loop-route ambiguity to compile-time owner reduction.",
   "2026-06-19: def-map sharing, dense DCE/string-corridor containers, typed-object query contexts, and route-flow memoization reduce the focused timeout.",
   "2026-06-19: 296x-1304 closes the focused scan-methods command with result=0.",
-  "2026-06-19: active cleanup task is the touched-module `string_corridor_sink` regression before further compiler route work.",
+  "2026-06-19: 296x-1305 closes the touched-module `string_corridor_sink` regression; next blocker is PHI input remat operand memoization.",
 ]
