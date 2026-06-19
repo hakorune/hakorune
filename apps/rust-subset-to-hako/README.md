@@ -72,6 +72,7 @@ V0 does not implement:
 
 - `DESIGN.md`: handoff design for another AI/worker
 - `schema/RustSubset-v0.md`: normalized input shape
+- `schema/CrateManifest-v0.md`: crate-wide transport index contract
 - `schema/external-adapter-boundary-v0.md`: external parser adapter handoff contract
 - `examples/simple_input.rs`: sample source for external adapter
 - `examples/simple_subset.json`: sample normalized input
@@ -175,26 +176,15 @@ docs/development/current/main/design/hako-app-front-boundary-template-ssot.md
 Keep converter core separate from input route work.
 
 ```text
-closed:
-  embedded fixture handoff
-  probes layout
-  status-code schema normalizer probe
-  bool-returning schema helper shape
-  generic unknown-key materialization fallback
-  FileBox minimal EXE/AOT probe
-  converter file input through FileBox, separate from converter core
-  external adapter boundary contract
-  adapter fixture handoff probe
-
 active next:
-  COREPLAN-RECURSIVE-RECIPE-REAL-SHAPE-INTAKE-001
-    current_task=COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001
-    next_after_current=COREPLAN-READ-NEXT-NUMBER-LITERAL-MULTI-STAGE-LOOP-ACCEPTANCE-001
-    note=RustSubset while / Vec literal transport rows are already closed; this is compiler Recipe/CorePlan loop-exit intake. The current failing evidence is partial-carrier continue PHI, not a broad read_next_number_literal rewrite.
+  RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
+    create a synthetic mini-crate fixture
+    emit crate-manifest.json + per-module RustSubsetModule artifacts
+    keep converter_core.hako manifest/FileBox ownership at 0
 
 hardening:
-  object-key equality regression guard
-  serial smoke/regression rebuild guard
+  crate manifest validation wrapper
+  unsupported diagnostics provenance
 ```
 
 The first external adapter route is a small `syn`-based host producer:
@@ -208,6 +198,16 @@ cargo run --manifest-path apps/rust-subset-to-hako/tools/syn_adapter/Cargo.toml 
 
 It remains outside the Hakorune-owned converter core and produces the same
 RustSubset JSON v0 schema.
+
+Crate-wide handoff is defined as a manifest plus per-module `RustSubsetModule`
+artifacts. The manifest is a transport index, not a semantic AST replacement:
+
+```text
+apps/rust-subset-to-hako/schema/CrateManifest-v0.md
+```
+
+The current adapter is still single-file; multi-module output is a follow-up
+implementation row.
 
 The dedicated adapter handoff gate is:
 

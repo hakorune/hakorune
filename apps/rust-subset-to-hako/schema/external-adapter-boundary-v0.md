@@ -123,13 +123,14 @@ the RustSubset JSON v0 file.
 
 ## Crate / Multi-file Handoff Status
 
-The current accepted handoff is one Rust source file to one `RustSubsetModule`
-JSON document. Crate-wide handoff is not accepted yet.
+The current implemented handoff is one Rust source file to one
+`RustSubsetModule` JSON document. The accepted crate-wide schema contract is a
+manifest plus per-module `RustSubsetModule` artifacts:
 
 ```text
 current_adapter_input=single_rust_file
 current_adapter_output=RustSubsetModule
-crate_handoff_schema_accepted=0
+crate_handoff_schema_accepted=1
 multi_file_adapter_enabled=0
 ```
 
@@ -147,9 +148,15 @@ Hakorune converter:
   .hako skeleton emission
 ```
 
-The preferred next formal contract is a crate manifest JSON that points at
+The formal crate handoff contract is a crate manifest JSON that points at
 per-module `RustSubsetModule` JSON artifacts. The manifest is a transport
 index, not a semantic AST replacement for `RustSubsetModule`.
+
+Schema:
+
+```text
+apps/rust-subset-to-hako/schema/CrateManifest-v0.md
+```
 
 Before a real crate pilot, the adapter/schema layer must preserve Rust path and
 emitted-name identity. This is not a new `.hako` syntax task:

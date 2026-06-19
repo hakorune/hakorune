@@ -62,6 +62,7 @@ smoke_fixture_table_refactor=ok
 crate_handoff_inventory=ok
 module_schema_validation_parity=ok
 path_name_normalization_parity=ok
+crate_manifest_v0_contract=ok
 full_smoke_exe_aot=ok
 syn_adapter_smoke_exe_aot=ok
 ```
@@ -244,6 +245,15 @@ closed:
     new_hako_syntax_enabled=0
     card=docs/development/current/main/phases/phase-296x/296x-1317-RUST-SUBSET-PATH-NAME-NORMALIZATION-001.md
 
+  RUST-SUBSET-CRATE-MANIFEST-V0-001
+    result=crate manifest v0 contract accepted as transport index
+    owner=external adapter boundary / crate handoff schema
+    schema=apps/rust-subset-to-hako/schema/CrateManifest-v0.md
+    per_module_semantic_input=RustSubsetModule
+    multi_file_adapter_enabled=0
+    converter_core_manifest_ownership=0
+    card=docs/development/current/main/phases/phase-296x/296x-1318-RUST-SUBSET-CRATE-MANIFEST-V0-001.md
+
   RUST-SUBSET-SYN-ADAPTER-NEXT-SHAPE-SELECTION-001
     result=If statement selected and implemented as the next supported RustSubset source shape
     owner=RustSubset statement schema / converter emit / syn adapter lowering
@@ -356,15 +366,13 @@ closed:
     card=docs/development/current/main/phases/phase-296x/296x-1272-RUST-SUBSET-SYN-ADAPTER-FOR-LOOP-UNSUPPORTED-HANDOFF-001.md
 
 active_next:
-  COREPLAN-RECURSIVE-RECIPE-REAL-SHAPE-INTAKE-001
-    goal=capture the next real compiler acceptance candidate and reduce it to a minimal failing fixture
-    active_next=COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001
-    source_candidates=continue_inside_staged_loop,read_next_number_literal_full_shape,nested_break_continue,loop_carried_phi_scanner_shape,return_break_continue_interaction
-    prerequisite=json_native object-key equality hardening closed by 296x-1275
+  RUST-SUBSET-SYN-ADAPTER-MULTI-MODULE-PROBE-001
+    goal=emit crate-manifest.json plus per-module RustSubsetModule artifacts for a synthetic mini-crate
+    prerequisite=crate manifest v0 contract closed by 296x-1318
+    converter_core_manifest_ownership=0
     implementation_allowed=0
     status=active_next
-    latest_taskboard=docs/development/current/main/phases/phase-296x/296x-1282-COREPLAN-REAL-SHAPE-TASKBOARD-REFRESH-003.md
-    note=RustSubset while and Vec literal transport rows are already closed; remaining work is compiler Recipe/CorePlan loop-exit acceptance. read_next_number_literal stays taskized, but the immediate failing fixture is partial-carrier continue PHI.
+    note=First implementation row should use a synthetic mini-crate, not creat-specific paths or converter_core FileBox ownership.
 
 hardening_queue:
   JSON-NATIVE-NUMBER-TOKEN-PAYLOAD-STABILITY-001

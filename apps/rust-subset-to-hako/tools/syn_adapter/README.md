@@ -73,11 +73,11 @@ The current adapter is intentionally single-file:
 one input .rs file -> one RustSubsetModule JSON file
 ```
 
-Crate-wide or multi-file handoff is a separate design row. It must not move
-crate graph discovery, Rust name resolution, or adapter invocation into
+Crate-wide or multi-file handoff is a separate implementation row. It must not
+move crate graph discovery, Rust name resolution, or adapter invocation into
 `converter_core.hako`.
 
-The preferred next contract is:
+The accepted crate handoff contract is:
 
 ```text
 RustSubsetCrateManifest JSON -> per-module RustSubsetModule JSON artifacts
@@ -85,6 +85,12 @@ RustSubsetCrateManifest JSON -> per-module RustSubsetModule JSON artifacts
 
 The manifest is only a transport index. Per-module `RustSubsetModule` remains
 the semantic input consumed by the converter core.
+
+Schema:
+
+```text
+apps/rust-subset-to-hako/schema/CrateManifest-v0.md
+```
 
 ## Stop Lines
 
