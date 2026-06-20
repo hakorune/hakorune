@@ -1,0 +1,195 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleAdapterFacts",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::variable_context",
+    "source_path": "src/variable_context.rs"
+  },
+  "types": [
+    {
+      "id": "VariableContext",
+      "copy_class": "NonCopyOwned",
+      "escape": "LocalOnly",
+      "drop_class": "TrivialMemory",
+      "identity_observed": false,
+      "address_observed": false,
+      "layout_observed": false,
+      "thread_atomic_observed": false
+    },
+    {
+      "id": "ValueId",
+      "copy_class": "ImmediateValue",
+      "drop_class": "TrivialMemory"
+    }
+  ],
+  "fields": [
+    {
+      "id": "VariableContext.variable_map",
+      "rust_type": "BTreeMap<String, ValueId>",
+      "key_type": "String",
+      "value_type": "ValueId",
+      "copy_class": "NonCopyOwned",
+      "escape": "LocalOnly",
+      "drop_class": "TrivialMemory",
+      "deterministic_order_required": true,
+      "identity_observed": false,
+      "address_observed": false,
+      "layout_observed": false,
+      "thread_atomic_observed": false
+    }
+  ],
+  "methods": [
+    {
+      "id": "VariableContext::lookup",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "VariableContext::contains",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    },
+    {
+      "id": "VariableContext::insert",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "ConsumeArgument",
+      "arguments": [
+        {
+          "name": "name",
+          "move_kind": "ConsumeArgument"
+        },
+        {
+          "name": "value_id",
+          "copy_class": "ImmediateValue",
+          "drop_class": "TrivialMemory"
+        }
+      ]
+    },
+    {
+      "id": "VariableContext::remove",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "VariableContext::variable_map",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "Returned",
+        "mutation": false
+      },
+      "returned_reference": {
+        "rust_type": "&BTreeMap<String, ValueId>",
+        "owner": "VariableContext",
+        "mutation_allowed": false
+      },
+      "ownership_effect": "ReturnSharedReference"
+    },
+    {
+      "id": "VariableContext::variable_map_mut",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "Returned",
+        "mutation": true
+      },
+      "returned_reference": {
+        "rust_type": "&mut BTreeMap<String, ValueId>",
+        "owner": "VariableContext",
+        "mutation_allowed": true
+      },
+      "ownership_effect": "ReturnUniqueReference"
+    },
+    {
+      "id": "VariableContext::snapshot",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "CloneOwnedMap",
+      "returns": {
+        "rust_type": "BTreeMap<String, ValueId>",
+        "drop_class": "TrivialMemory",
+        "deterministic_order_required": true
+      }
+    },
+    {
+      "id": "VariableContext::restore",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "ReplaceOwned",
+      "arguments": [
+        {
+          "name": "snapshot",
+          "rust_type": "BTreeMap<String, ValueId>",
+          "move_kind": "ConsumeArgument",
+          "deterministic_order_required": true
+        }
+      ],
+      "replaced_field_drop_class": "TrivialMemory"
+    }
+  ],
+  "consumers": [
+    {
+      "id": "CarrierInfo::from_variable_map",
+      "input_method": "VariableContext::variable_map",
+      "required_access": "ReadOnly",
+      "mutation": false,
+      "requires_deterministic_order": true
+    },
+    {
+      "id": "CarrierInfo::with_explicit_carriers",
+      "input_kind": "ExplicitCarrierValues",
+      "missing_carrier_policy": "FailFast",
+      "mutation": false
+    }
+  ],
+  "negative_requirements": [
+    {
+      "id": "returned_mutable_map_reference",
+      "required_fact": "borrow_escape=Returned,borrow_kind=UniqueWrite"
+    },
+    {
+      "id": "missing_deterministic_order",
+      "required_fact": "deterministic_order_required"
+    },
+    {
+      "id": "missing_trivial_memory_drop",
+      "required_fact": "drop_class=TrivialMemory"
+    }
+  ],
+  "target_neutral": {
+    "hako_policy_owner": false,
+    "hako_plan_kind_spelling_allowed": false,
+    "rendering_instruction_allowed": false,
+    "rustc_toolchain_invoked": false
+  }
+}

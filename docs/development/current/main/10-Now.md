@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001
+POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -136,15 +136,18 @@ facts and the existing lifecycle plan without enabling emission.
 
 296x-1471 selects the VariableContext adapter fact fixture as the next owner.
 
-The active row is 296x-1472. It adds the target-neutral VariableContext adapter
-facts fixture and guard.
+296x-1472 adds the target-neutral VariableContext adapter facts fixture and
+guard.
+
+The active row is 296x-1473. It selects the next owner after VariableContext
+adapter facts.
 
 ## Next
 
-1. Read 296x-1472.
-2. Add the target-neutral VariableContext adapter facts fixture.
-3. Add the focused guard.
-4. Keep rustc toolchain integration, resolver, verifier, and emitter disabled.
+1. Read 296x-1473.
+2. Choose one next owner.
+3. Park non-selected owners explicitly.
+4. Keep adapter/resolver/verifier/emitter implementation_started=0.
 5. Run:
 
 ```bash

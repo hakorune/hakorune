@@ -1,6 +1,6 @@
 # 296x-1472 RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -49,6 +49,39 @@ ReturnedMutableBorrow
 CloneOwnedMap plan
 ReplaceOwned plan
 HakoLifecyclePlan
+```
+
+Note:
+
+```text
+CloneOwnedMap and ReplaceOwned may appear only as Rust-side ownership_effect
+facts in this row. They are not Hako plan choices here.
+```
+
+## Output
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-adapter-facts-v0.json
+tools/checks/rust_lifecycle_variable_context_adapter_facts_guard.sh
+```
+
+## Result
+
+```text
+variable_context_adapter_facts_fixture_exists=1
+adapter_facts_are_target_neutral=1
+deterministic_order_fact_present=1
+returned_immutable_borrow_fact_present=1
+returned_mutable_borrow_fact_present=1
+snapshot_restore_ownership_facts_present=1
+carrier_read_requirements_present=1
+hako_policy_spellings_absent=1
+rustc_toolchain_integration_started=0
+resolver_implementation_started=0
+verifier_implementation_started=0
+emitter_implementation_started=0
+converter_core_changed=0
+backend_behavior_changed=0
 ```
 
 ## Acceptance
