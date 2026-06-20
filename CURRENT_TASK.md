@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-001
+POST-RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Add the smallest toolchain preflight for a future BindingContext rustc semantic
-adapter. Do not extract real lifecycle facts from rustc yet.
+Select the next owner after the BindingContext rustc adapter toolchain
+preflight. Do not implement lifecycle facts extraction or widen to
+VariableContext before selecting one owner.
 ```
 
 Lifecycle converter boundary:

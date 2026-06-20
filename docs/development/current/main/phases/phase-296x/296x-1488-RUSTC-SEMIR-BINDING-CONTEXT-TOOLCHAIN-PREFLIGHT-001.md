@@ -1,6 +1,6 @@
 # 296x-1488 RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -58,6 +58,41 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Closeout
+
+```text
+toolchain_preflight_green=1
+adapter_entry_identified=1
+raw_rustc_dump_as_schema=0
+lifecycle_facts_generated=0
+backend_behavior_changed=0
+```
+
+Evidence:
+
+```bash
+bash tools/checks/rustc_semir_binding_context_toolchain_preflight_guard.sh
+```
+
+Guard output:
+
+```text
+output_contract=rustc-semir-binding-context-toolchain-preflight-v0
+toolchain_preflight_green=1
+adapter_entry_identified=1
+cargo_available=1
+rustc_available=1
+lifecycle_facts_generated=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Next:
+
+```text
+296x-1489-POST-RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-OWNER-SELECTION-001
 ```
 
 ## Stop Line
