@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-HIR-ITEM-PROVENANCE-INVENTORY-001
+POST-RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -127,8 +127,9 @@ pinned-date nightly plus rustc-dev and compile/link/run proof as the formal
 standalone adapter route; `RUSTC_BOOTSTRAP` is diagnostic_untrusted only.
 296x-1505 implements the adapter-local pinned nightly preflight and verifies
 `rustc_driver` compile/link/run without facts or backend changes. 296x-1506
-is the current implementation row: add HIR item/provenance inventory only,
-without extracting THIR/MIR or lifecycle facts.
+adds HIR item/provenance inventory only, without extracting THIR/MIR or
+lifecycle facts. 296x-1507 is the current selection row: choose the next rustc
+semantic adapter owner.
 
 296x-1466 inventories the first BindingContext / VariableContext fact
 requirements and keeps the adapter policy-free.

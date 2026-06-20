@@ -1,6 +1,6 @@
 # 296x-1506 RUSTC-SEMIR-ADAPTER-HIR-ITEM-PROVENANCE-INVENTORY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -63,6 +63,39 @@ Checks:
 bash tools/checks/rustc_semir_adapter_hir_item_provenance_inventory_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Implementation
+
+```text
+tool_modules=src/main.rs,src/preflight.rs,src/hir_inventory.rs
+command=--hir-item-provenance-inventory <rust-source>
+guard=tools/checks/rustc_semir_adapter_hir_item_provenance_inventory_guard.sh
+```
+
+The inventory runs through `rustc_driver` callbacks and reads HIR item identity
+plus source map provenance. It stops after analysis and does not query THIR,
+MIR, borrowck, drop elaboration, or lifecycle facts.
+
+## Closeout
+
+```text
+pinned_nightly_preflight_guard_green=1
+hir_item_provenance_inventory_green=1
+crate_identity_reported=1
+module_identity_reported=1
+item_identity_reported=1
+source_provenance_reported=1
+RustLifecycleAdapterFacts_generated=0
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
+```
+
+Next:
+
+```text
+POST-RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-OWNER-SELECTION-001
 ```
 
 ## Stop Line

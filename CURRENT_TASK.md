@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-ADAPTER-HIR-ITEM-PROVENANCE-INVENTORY-001
+POST-RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Add the first HIR item/provenance inventory for the standalone rustc semantic
-adapter. Do not extract THIR/MIR or lifecycle facts in this row.
+Select the next owner after the first HIR item/provenance inventory. Do not
+extract THIR/MIR or lifecycle facts in this row.
 ```
 
 Lifecycle converter boundary:
