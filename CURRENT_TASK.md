@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001
+POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after promoted carrier identity inventory.
-Do not implement a join_id producer, emit trim route lowering, or start rustc
-adapter work before choosing one next owner.
+Select the next lifecycle owner after promoted carrier identity policy
+decision. Do not implement condition-binding resolution, emit trim route
+lowering, or start rustc adapter work before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -261,6 +261,7 @@ Acceptance for the current slice:
 bash tools/checks/rust_lifecycle_trim_route_lowering_inventory_guard.sh
 bash tools/checks/rust_lifecycle_trim_route_lowering_decision_guard.sh
 bash tools/checks/rust_lifecycle_promoted_carrier_identity_inventory_guard.sh
+bash tools/checks/rust_lifecycle_promoted_carrier_identity_policy_guard.sh
 bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
 cargo check -q --lib
 git diff --check
@@ -269,7 +270,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1441.
+1. Read 296x-1443.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -279,7 +280,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001
+POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -290,15 +291,15 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1441-POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1443-POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001
+1. POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001
 2. choose one of:
-   A. promoted carrier identity decision closeout
+   A. condition-binding promoted identity proof probe
    B. second lifecycle emitter surface
    C. rustc lifecycle facts adapter design/probe
 ```

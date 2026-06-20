@@ -1,6 +1,6 @@
 # 296x-1441 POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -36,6 +36,36 @@ C. rustc lifecycle facts adapter design/probe
 recommended=A-decision
 reason=the inventory names multiple viable identity routes. The next row
 should choose one policy before any implementation or new emitter surface.
+```
+
+## Decision
+
+```text
+selected_next_task=PROMOTED-CARRIER-IDENTITY-POLICY-DECISION-001
+selected_policy=condition_binding_identity
+selected_scope=decision closeout only; no implementation
+selected_reason=CarrierVar.join_id is parked/test vocabulary with no
+production producer, while ConditionBinding already owns a JoinIR-local
+join_value for condition-only identities. Prefer a future proof probe over
+reviving stale join_id vocabulary.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+CarrierVar.join_id producer:
+  parked; do not implement without a separate producer design and proof.
+
+keep denied forever:
+  parked; current executable trim route lowering remains denied until the
+  selected condition-binding identity policy is proven.
+
+second lifecycle emitter surface:
+  parked until identity policy proof is stable.
+
+rustc lifecycle facts adapter:
+  parked until internal identity policy proof is stable.
 ```
 
 ## Acceptance

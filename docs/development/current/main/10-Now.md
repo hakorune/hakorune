@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001
+POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -84,14 +84,17 @@ a metadata candidate while executable route lowering remains denied by
 MissingPromotedCarrierIdentity. 296x-1439 selects promoted carrier identity /
 join_id design inventory. 296x-1440 inventories keep-denied,
 CarrierVar.join_id producer, and ConditionBinding identity options without
-implementing any producer.
+implementing any producer. 296x-1441 selects condition-binding identity as the
+promoted carrier identity policy. 296x-1442 records that decision without
+rewriting resolution, adding a join_id producer, or emitting trim route
+lowering.
 
-The active row is 296x-1441. It selects the next lifecycle owner after
-promoted carrier identity inventory.
+The active row is 296x-1443. It selects the next lifecycle owner after
+promoted carrier identity policy decision.
 
 ## Next
 
-1. Read 296x-1441.
+1. Read 296x-1443.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
