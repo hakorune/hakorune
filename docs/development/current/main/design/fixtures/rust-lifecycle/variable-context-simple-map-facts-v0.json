@@ -1,0 +1,90 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.simple_map",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::variable_context",
+    "source_path": "src/variable_context.rs"
+  },
+  "type_facts": [
+    {
+      "id": "VariableContext",
+      "copy_kind": "NonCopyOwned",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory"
+    },
+    {
+      "id": "ValueId",
+      "copy_kind": "ImmediateValue",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory"
+    }
+  ],
+  "field_facts": [
+    {
+      "id": "VariableContext.variable_map",
+      "rust_type": "BTreeMap<String, ValueId>",
+      "copy_kind": "NonCopyOwned",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory",
+      "deterministic_order_required": true
+    }
+  ],
+  "method_facts": [
+    {
+      "id": "VariableContext::lookup",
+      "receiver_borrow": {"kind": "SharedRead", "scope": "CallOnly", "escapes": false},
+      "returns": {"copy_kind": "ImmediateValue", "drop_fact": "TrivialMemory"}
+    },
+    {
+      "id": "VariableContext::contains",
+      "receiver_borrow": {"kind": "SharedRead", "scope": "CallOnly", "escapes": false}
+    },
+    {
+      "id": "VariableContext::len",
+      "receiver_borrow": {"kind": "SharedRead", "scope": "CallOnly", "escapes": false}
+    },
+    {
+      "id": "VariableContext::is_empty",
+      "receiver_borrow": {"kind": "SharedRead", "scope": "CallOnly", "escapes": false}
+    },
+    {
+      "id": "VariableContext::insert",
+      "receiver_borrow": {"kind": "UniqueWrite", "scope": "CallOnly", "escapes": false},
+      "argument_moves": [
+        {"name": "name", "move_kind": "ConsumeArgument"},
+        {"name": "value_id", "copy_kind": "ImmediateValue"}
+      ],
+      "overwrite_policy": "allowed_when_previous_value_drop_is_TrivialMemory"
+    },
+    {
+      "id": "VariableContext::remove",
+      "receiver_borrow": {"kind": "UniqueWrite", "scope": "CallOnly", "escapes": false},
+      "returns": {"copy_kind": "ImmediateValue", "drop_fact": "TrivialMemory"}
+    }
+  ],
+  "excluded_methods": [
+    {
+      "id": "VariableContext::variable_map",
+      "reason": "returned shared map borrow is outside simple-map pilot"
+    },
+    {
+      "id": "VariableContext::variable_map_mut",
+      "reason": "returned mutable map borrow is outside simple-map pilot"
+    },
+    {
+      "id": "VariableContext::snapshot",
+      "reason": "owned map clone policy is outside simple-map pilot"
+    },
+    {
+      "id": "VariableContext::restore",
+      "reason": "ReplaceOwned map transfer is outside simple-map pilot"
+    }
+  ],
+  "excluded_consumers": [
+    "CarrierInfo::from_variable_map",
+    "PHI planner integration",
+    "JoinIR carrier extraction"
+  ]
+}

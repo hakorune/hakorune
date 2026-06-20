@@ -20,23 +20,22 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
+RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. VariableContext lifecycle gap inventory is closed.
+lane status. BindingContext and VariableContext simple-map lifecycle pilots are
+closed.
 
-The active row is 296x-1391. It creates VariableContext simple-map
-facts/plan fixtures while excluding returned map, snapshot/restore, carrier,
-and PHI behavior.
+The active row is 296x-1393. It selects the next lifecycle owner before
+returned borrow, snapshot/restore, carrier/PHI, or resolver work starts.
 
 ## Next
 
-1. Read 296x-1391.
-2. Add VariableContext simple-map facts/plan fixtures.
-3. Exclude variable_map(), variable_map_mut(), snapshot(), restore(), carrier,
-   and PHI behavior.
-4. Guard deterministic-order and TrivialMemory requirements.
+1. Read 296x-1393.
+2. Choose one next lifecycle owner.
+3. Park non-selected owners explicitly.
+4. Keep implementation_started=0 in this selection row.
 5. Run:
 
 ```bash

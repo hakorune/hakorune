@@ -33,16 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
+RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Create VariableContext simple-map lifecycle facts/plan fixtures for
-new/default, lookup, contains, len, is_empty, insert, remove, deterministic
-iteration, SSA overwrite, and TrivialMemory-limited Drop erase. Exclude
-returned map, snapshot/restore, carrier, and PHI behavior.
+Select the next lifecycle owner after BindingContext and VariableContext
+simple-map pilots are both green. Do not start returned borrow,
+snapshot/restore, carrier/PHI, or resolver work before choosing one next owner.
 ```
 
 Current evidence:
@@ -161,6 +160,11 @@ selected as VariableContext lifecycle gap inventory before any pilot.
 VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001 is closed by 296x-1390; the next
 slice is VariableContext simple map only, excluding returned map and
 snapshot/restore behavior.
+VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001 is closed by 296x-1391;
+simple-map facts/plan fixtures and guard are green.
+VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-ORACLE-PARITY-001 is closed by
+296x-1392; simple-map plan matches oracle vectors without claiming returned
+map, snapshot/restore, carrier, or PHI behavior.
 ```
 
 Acceptance for the current slice:
@@ -173,18 +177,16 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1391.
-2. Add VariableContext simple-map facts/plan fixtures.
-3. Exclude variable_map(), variable_map_mut(), snapshot(), restore(), carrier,
-   and PHI behavior.
-4. Guard deterministic-order and TrivialMemory requirements.
-5. Keep Rust/Hako code changes, general resolver, and lifecycle parity claims
-   disabled.
+1. Read 296x-1393.
+2. Choose one next lifecycle owner.
+3. Park non-selected owners explicitly.
+4. Keep implementation_started=0 in this selection row.
+5. Keep full VariableContext and MirBuilder-wide lifecycle claims disabled.
 
 Recommended next row:
 
 ```text
-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
+RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -195,7 +197,7 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001.md
+docs/development/current/main/phases/phase-296x/296x-1393-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001.md
 ```
 
 Task sequence:

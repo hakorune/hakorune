@@ -1,0 +1,85 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.simple_map",
+  "source": "crates/hakorune_mir_builder/src/variable_context.rs",
+  "vectors": [
+    {
+      "id": "variable_context_basic",
+      "operations": [
+        {"op": "new", "expect": {"is_empty": true, "len": 0}},
+        {"op": "insert", "name": "x", "value_id": 42},
+        {"op": "lookup", "name": "x", "expect": {"some_value_id": 42}},
+        {"op": "len", "expect": 1},
+        {"op": "is_empty", "expect": false},
+        {"op": "remove", "name": "x", "expect": {"some_value_id": 42}},
+        {"op": "lookup", "name": "x", "expect": {"none": true}},
+        {"op": "is_empty", "expect": true}
+      ]
+    },
+    {
+      "id": "variable_context_contains",
+      "operations": [
+        {"op": "new", "expect": {"contains_x": false}},
+        {"op": "insert", "name": "x", "value_id": 1},
+        {"op": "contains", "name": "x", "expect": true}
+      ]
+    },
+    {
+      "id": "variable_map_access_read_only",
+      "operations": [
+        {"op": "new"},
+        {"op": "insert", "name": "a", "value_id": 10},
+        {"op": "insert", "name": "b", "value_id": 20},
+        {"op": "len", "expect": 2},
+        {"op": "lookup", "name": "a", "expect": {"some_value_id": 10}},
+        {"op": "lookup", "name": "b", "expect": {"some_value_id": 20}}
+      ],
+      "excluded_observation": "returned &BTreeMap from variable_map()"
+    },
+    {
+      "id": "btree_deterministic_iteration",
+      "operations": [
+        {"op": "new"},
+        {"op": "insert", "name": "z", "value_id": 3},
+        {"op": "insert", "name": "a", "value_id": 1},
+        {"op": "insert", "name": "m", "value_id": 2},
+        {
+          "op": "iteration_order",
+          "expect": ["a", "m", "z"],
+          "requires": ["VariableContext.variable_map.deterministic_order_required=true"]
+        }
+      ]
+    },
+    {
+      "id": "ssa_renaming_pattern",
+      "operations": [
+        {"op": "new"},
+        {"op": "insert", "name": "x", "value_id": 1},
+        {"op": "lookup", "name": "x", "expect": {"some_value_id": 1}},
+        {"op": "insert", "name": "x", "value_id": 2},
+        {"op": "lookup", "name": "x", "expect": {"some_value_id": 2}},
+        {"op": "insert", "name": "x", "value_id": 4},
+        {"op": "lookup", "name": "x", "expect": {"some_value_id": 4}}
+      ],
+      "requires": ["ValueId.drop_fact=TrivialMemory"]
+    }
+  ],
+  "excluded_vectors": [
+    "variable_map_returned_borrow",
+    "variable_map_mut_returned_borrow",
+    "snapshot",
+    "restore",
+    "carrier_extraction",
+    "phi_planner_integration"
+  ],
+  "drop_oracle": {
+    "drop_observable": false,
+    "required_fact": "VariableContext.drop_fact=TrivialMemory"
+  },
+  "promotion_scope": {
+    "hako_authority": "VariableContext simple map only",
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}

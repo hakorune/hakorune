@@ -1,6 +1,6 @@
 # 296x-1391 VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -60,6 +60,7 @@ rust_lifetime_syntax_added=0
 Checks:
 
 ```bash
+bash tools/checks/rust_lifecycle_variable_context_simple_map_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
@@ -71,4 +72,33 @@ do_not_model_variable_map_mut=1
 do_not_model_snapshot_restore=1
 do_not_claim_carrier_or_PHI_parity=1
 do_not_implement_general_resolver=1
+```
+
+## Closeout Evidence
+
+```text
+variable_context_simple_map_facts_fixture=green
+variable_context_simple_map_plan_fixture=green
+returned_map_methods_excluded=green
+snapshot_restore_excluded=green
+carrier_consumers_excluded=green
+ordered_map_projection_requires_deterministic_order_fact=green
+memory_drop_erased_only_with_TrivialMemory=green
+general_resolver_implemented=0
+converter_emission_added=0
+rust_lifetime_syntax_added=0
+```
+
+Checks:
+
+```bash
+bash tools/checks/rust_lifecycle_variable_context_simple_map_guard.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Next row:
+
+```text
+296x-1392-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-ORACLE-PARITY-001
 ```

@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.simple_map",
+  "source_facts": "variable-context-simple-map-facts-v0.json",
+  "plans": [
+    {
+      "id": "VariableContext",
+      "plan_kind": "LocalBox",
+      "publication_policy": "unpublished",
+      "cleanup_policy": "erase",
+      "required_facts": [
+        "VariableContext.escape_fact=LocalOnly",
+        "VariableContext.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "id": "VariableContext.variable_map",
+      "plan_kind": "OrderedMapBox",
+      "publication_policy": "owned_by_VariableContext",
+      "cleanup_policy": "erase",
+      "required_facts": [
+        "VariableContext.variable_map.deterministic_order_required=true",
+        "VariableContext.variable_map.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "id": "VariableContext::lookup",
+      "plan_kind": "BorrowView",
+      "access": "read",
+      "return_plan": "Immediate"
+    },
+    {
+      "id": "VariableContext::contains",
+      "plan_kind": "BorrowView",
+      "access": "read"
+    },
+    {
+      "id": "VariableContext::len",
+      "plan_kind": "BorrowView",
+      "access": "read"
+    },
+    {
+      "id": "VariableContext::is_empty",
+      "plan_kind": "BorrowView",
+      "access": "read"
+    },
+    {
+      "id": "VariableContext::insert",
+      "plan_kind": "TransferOwned",
+      "access": "write",
+      "overwrite_policy": "allowed_when_previous_value_drop_is_TrivialMemory"
+    },
+    {
+      "id": "VariableContext::remove",
+      "plan_kind": "TransferOwned",
+      "access": "write",
+      "return_plan": "Immediate"
+    }
+  ],
+  "excluded": [
+    "VariableContext::variable_map",
+    "VariableContext::variable_map_mut",
+    "VariableContext::snapshot",
+    "VariableContext::restore",
+    "CarrierInfo::from_variable_map",
+    "PHI planner integration",
+    "JoinIR carrier extraction"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false
+  }
+}
