@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-RUSTC-SEMIR-BINDING-CONTEXT-FACTS-EXTRACTION-OWNER-SELECTION-001
+RUSTC-SEMIR-VARIABLE-CONTEXT-LIFECYCLE-FACTS-EXTRACTION-PILOT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -171,13 +171,14 @@ selects BindingContext lifecycle facts extraction as the next owner. The
 active row is 296x-1490. It extracts focused BindingContext facts from the
 selected Rust source slice and verifies them against the target-neutral
 adapter fixture. The active row is 296x-1491. It selects the next owner after
-that extraction pilot.
+that extraction pilot. The active row is 296x-1492. It pilots focused
+VariableContext lifecycle facts extraction.
 
 ## Next
 
-1. Read 296x-1491.
-2. Select one next owner.
-3. Keep implementation_started=0 in this selection row.
+1. Read 296x-1492.
+2. Produce focused VariableContext RustLifecycleAdapterFacts output.
+3. Keep output target-neutral and keep BindingContext extraction green.
 4. Run:
 
 ```bash

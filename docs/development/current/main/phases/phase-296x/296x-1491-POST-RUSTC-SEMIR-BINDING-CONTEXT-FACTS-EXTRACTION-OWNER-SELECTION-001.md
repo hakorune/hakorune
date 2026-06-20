@@ -1,6 +1,6 @@
 # 296x-1491 POST-RUSTC-SEMIR-BINDING-CONTEXT-FACTS-EXTRACTION-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -56,6 +56,47 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=B
+selected_next_task=RUSTC-SEMIR-VARIABLE-CONTEXT-LIFECYCLE-FACTS-EXTRACTION-PILOT-001
+selected_reason=BindingContext source-derived extraction is green against the
+target-neutral fixture. VariableContext is the next existing adapter-facts
+fixture with the same crate/source boundary, and it adds returned borrow plus
+snapshot/restore facts without requiring Hako policy selection.
+implementation_started=0
+variable_context_facts_generated=0
+rustc_internal_adapter_started=0
+resolver_implementation_started=0
+```
+
+Non-selected owners:
+
+```text
+A. BindingContext extraction hardening:
+  parked until a second extraction target exposes shared helper needs
+
+C. BindingContext rustc-internal adapter design:
+  parked until source-derived extraction proves the expected fact surface
+
+D. return to lifecycle verifier / Hako plan consumer:
+  parked until VariableContext extraction is proven or explicitly rejected
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+variable_context_facts_generated=0
+rustc_internal_adapter_started=0
+resolver_implementation_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line
