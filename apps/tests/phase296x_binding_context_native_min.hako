@@ -1,53 +1,53 @@
-using apps.lib.hakorune_mir_builder.binding_context as BindingContextApi
+using apps.lib.hakorune_mir_builder.binding_context as BindingContextNativeApi
 
 static box Main {
     main() {
-        local ctx = new BindingContext()
-        if BindingContextApi.is_empty(ctx) != 1 {
+        local ctx = new BindingContextNative()
+        if BindingContextNativeApi.is_empty(ctx) != 1 {
             print("binding_context_native_new_empty=fail")
             return 1
         }
-        if BindingContextApi.len(ctx) != 0 {
+        if BindingContextNativeApi.len(ctx) != 0 {
             print("binding_context_native_new_len=fail")
             return 2
         }
 
-        BindingContextApi.insert(ctx, "x", 0)
-        if BindingContextApi.lookup(ctx, "x") != 0 {
+        BindingContextNativeApi.insert(ctx, "x", 0)
+        if BindingContextNativeApi.lookup(ctx, "x") != 0 {
             print("binding_context_native_lookup_x=fail")
             return 3
         }
-        if BindingContextApi.contains(ctx, "x") != 1 {
+        if BindingContextNativeApi.contains(ctx, "x") != 1 {
             print("binding_context_native_contains_x=fail")
             return 4
         }
 
-        if BindingContextApi.remove(ctx, "x") != 0 {
+        if BindingContextNativeApi.remove(ctx, "x") != 0 {
             print("binding_context_native_remove_x=fail")
             return 5
         }
-        if BindingContextApi.lookup(ctx, "x") != null {
+        if BindingContextNativeApi.lookup(ctx, "x") != null {
             print("binding_context_native_lookup_removed=fail")
             return 6
         }
 
-        BindingContextApi.insert(ctx, "b", 2)
-        BindingContextApi.insert(ctx, "a", 1)
-        if BindingContextApi.len(ctx) != 2 {
+        BindingContextNativeApi.insert(ctx, "b", 2)
+        BindingContextNativeApi.insert(ctx, "a", 1)
+        if BindingContextNativeApi.len(ctx) != 2 {
             print("binding_context_native_len_two=fail")
             return 7
         }
-        if BindingContextApi.lookup(ctx, "a") != 1 {
+        if BindingContextNativeApi.lookup(ctx, "a") != 1 {
             print("binding_context_native_lookup_a=fail")
             return 8
         }
-        if BindingContextApi.lookup(ctx, "b") != 2 {
+        if BindingContextNativeApi.lookup(ctx, "b") != 2 {
             print("binding_context_native_lookup_b=fail")
             return 9
         }
 
-        BindingContextApi.clear_for_function_entry(ctx)
-        if BindingContextApi.is_empty(ctx) != 1 {
+        BindingContextNativeApi.clear_for_function_entry(ctx)
+        if BindingContextNativeApi.is_empty(ctx) != 1 {
             print("binding_context_native_clear_empty=fail")
             return 10
         }

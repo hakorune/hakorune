@@ -1,6 +1,6 @@
 using apps.lib.collections.ordered_map as OrderedMap
 
-box BindingContext {
+box BindingContextNative {
     binding_map: OrderedMapBox
 
     birth() {
@@ -8,7 +8,7 @@ box BindingContext {
     }
 }
 
-static box BindingContextApi {
+static box BindingContextNativeApi {
     is_empty(ctx): i64 {
         if ctx.binding_map.length() == 0 {
             return 1
