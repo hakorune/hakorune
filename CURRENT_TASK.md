@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
 ```
 
 Purpose:
 
 ```text
-Preserve FileBox route origin for dynamic path reads inside a Main-owned loop
-so the manifest-driven `hakorune_mir_builder` crate-bundle route can continue
-without a hand-unrolled 7-module wrapper.
+Resume the manifest-driven `hakorune_mir_builder` 7-module crate-bundle route
+using the Main-owned dynamic FileBox loop proven by 296x-1380.
 ```
 
 Current evidence:
@@ -128,6 +127,8 @@ lowering. Hand-unrolled 7-module wrapper fallback remains forbidden.
 CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001 is closed by 296x-1379 as a
 boundary decision: FileBox remains Main/input-route owned; helper-owned
 FileBox is not implemented in that row.
+FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001 is closed by 296x-1380; the focused
+Main-owned dynamic FileBox path loop reaches MIR emit and EXE.
 ```
 
 Acceptance for the current slice:
@@ -140,26 +141,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1380.
-2. Reproduce the Main-owned dynamic FileBox path loop with MIR emit and EXE
-   lowering.
-3. Repair FileBox receiver-origin preservation for that narrow input-route
-   shape, or document a fail-fast boundary if the shape is intentionally
-   unsupported.
-4. Keep 296x-1377 implementation stopped until this dynamic input route is
-   resolved.
+1. Read 296x-1382.
+2. Implement the `hakorune_mir_builder` crate-bundle wrapper using the
+   Main-owned dynamic FileBox input route.
+3. Preserve manifest order and module/source framing.
+4. Verify wrapper EXE parity and fixture-only aggregate MIR emit.
 5. Keep use/name resolution and generated-program execution claim disabled.
 
 Recommended next row:
 
 ```text
-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
 ```
 
-296x-1379 retains the A2-lite crate-bundle aggregation direction but closes
-helper-owned FileBox as out-of-scope for now. 296x-1380 is the focused shape
-needed to keep input-route FileBox ownership without hand-unrolling module
-reads.
+296x-1382 resumes crate-bundle aggregation after 296x-1380 proved the dynamic
+FileBox path loop. Helper-owned FileBox remains out-of-scope.
 
 After 296x-1377 closes, the planned design follow-up is:
 
@@ -171,6 +167,22 @@ SSOT draft:
 
 ```text
 docs/development/current/main/design/rust-lifecycle-projection-ssot.md
+```
+
+Planned card:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001.md
+```
+
+Task sequence:
+
+```text
+1. RUST-LIFECYCLE-PROJECTION-SSOT-001
+2. RUST-LIFECYCLE-FACTS-VOCAB-000
+3. HAKO-LIFECYCLE-PLAN-VOCAB-000
+4. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
+5. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
 ```
 
 ## Pointers

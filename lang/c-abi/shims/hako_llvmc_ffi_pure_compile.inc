@@ -436,7 +436,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       // Track simple origin kinds for selective unbox at ret
-      enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3, ORG_STRING=4, ORG_ARRAY_STRING_BIRTH=5, ORG_TYPED_OBJECT=6 };
+      enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3, ORG_STRING=4, ORG_ARRAY_STRING_BIRTH=5, ORG_TYPED_OBJECT=6, ORG_FILEBOX=7 };
       struct GenericPureI64Const { long long reg; long long val; };
       struct GenericPureStringConst { long long reg; const char* val; };
       struct GenericPureKnownStringLen { long long reg; long long len; };

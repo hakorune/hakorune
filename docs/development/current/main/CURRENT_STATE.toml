@@ -144,28 +144,27 @@ because it is the smallest remaining MirBuilder module and already reaches
 generated-skeleton MIR emit. That crate-root bundle is now checked in and
 guarded through generated-skeleton MIR emit, wrapper EXE parity, and full
 rust-subset smoke. 296x-1376 selects a manifest-driven 7-module
-`hakorune_mir_builder` crate-bundle aggregation as the next task, using a thin
-reusable FileBox route helper without enabling use/name resolution. 296x-1377
-keeps that A2-lite direction but blocks implementation after the reusable
-FileBox helper reaches MIR emit and fails EXE pure-route lowering; 296x-1379
-closes that helper shape as a boundary decision. FileBox remains Main/input
-route owned for now. The next focused blocker is 296x-1380: preserve FileBox
-route origin for dynamic path reads inside a Main-owned loop so crate
-aggregation can continue without a hand-unrolled 7-module wrapper."""
+`hakorune_mir_builder` crate-bundle aggregation as the next task. 296x-1377
+blocked on helper-owned FileBox; 296x-1379 closes that helper shape as a
+boundary decision and keeps FileBox Main/input-route owned. 296x-1380 preserves
+FileBox receiver origin for dynamic path reads inside a Main-owned loop on the
+EXE pure route. The next blocker is 296x-1382: resume crate-bundle aggregation
+using the Main-owned dynamic FileBox loop, without hand-unrolling the 7-module
+wrapper and without enabling use/name resolution."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1380-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001.md"
 
-latest_card = "296x-1380-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1380-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001.md"
-latest_card_summary = """296x-1380 isolates the FileBox receiver-origin loss
-for dynamic path reads inside a Main-owned loop, preserving the no hand-unrolled
-crate-bundle design."""
+latest_card = "296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001.md"
+latest_card_summary = """296x-1382 resumes the `hakorune_mir_builder`
+crate-bundle aggregation using the Main-owned dynamic FileBox input route
+proved by 296x-1380."""
 
-current_blocker_token = "FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001"
+current_blocker_token = "HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

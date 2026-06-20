@@ -27,6 +27,20 @@ emitter:
 
 The converter/emitter must not infer ownership from syntax by itself.
 
+Short form:
+
+```text
+correct:
+  converter emits .hako from a verified HakoLifecyclePlan
+
+incorrect:
+  converter sees Rust syntax and directly chooses ownership semantics
+```
+
+This is the key boundary. The long-term goal is still to generate useful
+`.hako`, but ownership is not a text-rewrite rule. Ownership is a projection
+from rustc-proven facts into a Hako-owned plan.
+
 ## Pipeline
 
 ```text
@@ -85,6 +99,26 @@ resource boundary
 
 Does not own Hako representation policy.
 
+It may provide evidence such as:
+
+```text
+deterministic_order_required=true
+identity_observed=false
+borrow_escapes=false
+drop_observable=false
+thread_atomic_observed=false
+```
+
+It must not emit:
+
+```text
+use OrderedMapBox
+use ArcCompat
+erase Drop
+make this a record
+make this a box
+```
+
 ### Hako Lifecycle Resolver
 
 Owns Hako plan selection:
@@ -116,6 +150,21 @@ initializedness
 concurrency
 drop ownership
 ```
+
+### Converter / Emitter
+
+Owns text / canonical MIR emission only:
+
+```text
+input:
+  verified HakoLifecyclePlan
+
+output:
+  .hako skeleton/source
+  or canonical MIR
+```
+
+The emitter does not re-run escape, ownership, drop, or borrow decisions.
 
 ## Projection Categories
 
@@ -290,6 +339,34 @@ Rust BindingId Copy:
 Rust memory-only Drop:
   erase
 ```
+
+## Task Decomposition
+
+```text
+RUST-LIFECYCLE-PROJECTION-SSOT-001:
+  document adapter / resolver / verifier / emitter ownership boundaries
+
+RUST-LIFECYCLE-FACTS-VOCAB-000:
+  passive schema vocabulary for RustLifecycleFacts-v0
+  no conversion behavior
+
+HAKO-LIFECYCLE-PLAN-VOCAB-000:
+  passive schema vocabulary for HakoLifecyclePlan-v0
+  no emitter behavior
+
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001:
+  BindingContext facts + plan + verifier evidence
+  OrderedMapBox projection
+  memory-only Drop erase only with positive fact
+
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001:
+  compare Hako result against Rust oracle vectors
+  promote only the BindingContext family when green
+```
+
+Do not start the pilot until the current crate-bundle transport milestone is
+closed. The lifecycle lane consumes crate transport evidence; it does not
+replace the crate-bundle input-route work.
 
 ## Stop Lines
 

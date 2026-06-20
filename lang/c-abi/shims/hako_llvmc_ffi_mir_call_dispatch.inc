@@ -83,7 +83,17 @@
         long long recv_base = recv ? resolve_copy_source_reg(recv) : 0;
         long long file_a0 = 0;
         long long file_a1 = 0;
-        if (!(bname && !strcmp(bname, "FileBox") && mname && recv_base)) {
+        int recv_is_filebox =
+            recv_base &&
+            (get_origin(recv_base) == ORG_FILEBOX ||
+             get_scan_origin(recv_base) == ORG_FILEBOX ||
+             get_origin(recv) == ORG_FILEBOX ||
+             get_scan_origin(recv) == ORG_FILEBOX);
+        int callee_is_filebox =
+            bname &&
+            (!strcmp(bname, "FileBox") ||
+             (!strcmp(bname, "RuntimeDataBox") && recv_is_filebox));
+        if (!(callee_is_filebox && mname && recv_base)) {
           return 0;
         }
         hako_llvmc_normalize_receiver_method_args(args, recv, &file_a0, &file_a1);

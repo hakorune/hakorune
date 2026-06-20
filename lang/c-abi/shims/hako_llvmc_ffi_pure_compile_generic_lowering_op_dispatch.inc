@@ -64,6 +64,8 @@
               if (dst) {
                 EMIT("  %%r%lld = call i64 @\"nyash.env.box.new\"(ptr getelementptr inbounds ([8 x i8], ptr @.hako_type_FileBox, i64 0, i64 0))\n", dst);
                 set_type(dst, T_I64);
+                set_origin(dst, ORG_FILEBOX);
+                set_scan_origin(dst, ORG_FILEBOX);
               } else {
                 EMIT("  call i64 @\"nyash.env.box.new\"(ptr getelementptr inbounds ([8 x i8], ptr @.hako_type_FileBox, i64 0, i64 0))\n");
               }

@@ -52,6 +52,10 @@
           generic_pure_publish_i64_origin(reg, ORG_MAP_BIRTH);
           return 1;
         }
+        if (box_type && !strcmp(box_type, "FileBox")) {
+          generic_pure_publish_i64_origin(reg, ORG_FILEBOX);
+          return 1;
+        }
         if (generic_pure_publish_typed_object_if_plan(reg, box_type)) {
           return 1;
         }
@@ -129,6 +133,11 @@
               if (dst) {
                 set_scan_origin(dst, ORG_MAP_BIRTH);
                 set_origin(dst, ORG_MAP_BIRTH);
+              }
+            } else if (tname && strcmp(tname, "FileBox") == 0) {
+              if (dst) {
+                set_scan_origin(dst, ORG_FILEBOX);
+                set_origin(dst, ORG_FILEBOX);
               }
             } else if (tname && strcmp(tname, "StringBox") == 0) {
               yyjson_val* nb_args = yyjson_obj_get(ins, "args");

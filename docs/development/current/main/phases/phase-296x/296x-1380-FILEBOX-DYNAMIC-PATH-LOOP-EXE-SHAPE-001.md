@@ -1,6 +1,6 @@
 # 296x-1380 FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -119,3 +119,41 @@ converter_core_changed=0
 
 Do not implement crate aggregation in this row. This row only establishes the
 dynamic FileBox input-route shape needed by the later aggregation row.
+
+## Result
+
+```text
+output_contract=rust-subset-filebox-dynamic-path-loop-exe-shape-v0
+focused_filebox_main_dynamic_loop_probe_mir_emit=green
+focused_filebox_main_dynamic_loop_probe_exe=green
+summary=ok
+```
+
+Implemented boundary:
+
+```text
+FileBox newbox in pure lowering publishes ORG_FILEBOX origin.
+FileBox handle metadata preserves ORG_FILEBOX through scan/origin maps.
+MIR call dispatch accepts RuntimeDataBox receiver surface only when the
+receiver/copy-base origin is ORG_FILEBOX.
+```
+
+Stable guard:
+
+```bash
+bash tools/checks/rust_subset_filebox_dynamic_path_loop_exe_shape_guard.sh
+```
+
+Common checks:
+
+```bash
+cargo check -q --lib
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Next:
+
+```text
+296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
+```
