@@ -14,15 +14,12 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
-from family_artifact_spec import (
-    ApiMethodSpec,
-    BoxSpec,
-    FamilyArtifactSpec,
-    StaticBoxSpec,
-    build_family_artifact_hako,
-    build_family_artifact_manifest,
+from family_artifact_builders import (
+    build_family_artifact_hako_text,
+    build_family_artifact_manifest_text,
 )
-from shared_family_generator import read_json, run_validated_family_generator, stable_json
+from family_artifact_spec import ApiMethodSpec, BoxSpec, FamilyArtifactSpec, StaticBoxSpec
+from shared_family_generator import read_json, run_validated_family_generator
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -268,8 +265,8 @@ def main() -> None:
     args = parser.parse_args()
 
     spec = build_spec()
-    hako_text = build_family_artifact_hako(spec)
-    manifest_text = stable_json(build_family_artifact_manifest(spec, hako_text=hako_text))
+    hako_text = build_family_artifact_hako_text(spec)
+    manifest_text = build_family_artifact_manifest_text(spec, hako_text=hako_text)
 
     run_validated_family_generator(
         check=args.check,

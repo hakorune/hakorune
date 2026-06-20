@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -203,14 +204,20 @@ def rust_manifest_text_entry(*, path: Path, text: str, root: Path) -> dict[str, 
     return {"path": str(path.relative_to(root)), "sha256": sha256_text(text)}
 
 
+@dataclass(frozen=True)
+class RenderedTextArtifact:
+    path: Path
+    text: str
+
+
 def build_common_rust_derived_inputs(
     *,
     root: Path,
     facts: Path,
     plan: Path,
     oracle: Path,
-    recipe: tuple[Path, str] | None = None,
-    verifier: tuple[Path, str] | None = None,
+    recipe: RenderedTextArtifact | None = None,
+    verifier: RenderedTextArtifact | None = None,
 ) -> dict[str, Any]:
     inputs: dict[str, Any] = {
         "facts": rust_manifest_file_entry(path=facts, root=root),
@@ -218,9 +225,9 @@ def build_common_rust_derived_inputs(
         "oracle": rust_manifest_file_entry(path=oracle, root=root),
     }
     if recipe is not None:
-        inputs["recipe"] = rust_manifest_text_entry(path=recipe[0], text=recipe[1], root=root)
+        inputs["recipe"] = rust_manifest_text_entry(path=recipe.path, text=recipe.text, root=root)
     if verifier is not None:
-        inputs["verifier"] = rust_manifest_text_entry(path=verifier[0], text=verifier[1], root=root)
+        inputs["verifier"] = rust_manifest_text_entry(path=verifier.path, text=verifier.text, root=root)
     return inputs
 
 

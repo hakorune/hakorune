@@ -18,17 +18,14 @@ from extract_binding_context_facts import (
     SOURCE as BINDING_CONTEXT_SOURCE,
     extract_facts as extract_live_facts,
 )
-from family_artifact_spec import (
-    ApiMethodSpec,
-    BehaviorMethodSpec,
-    BoxSpec,
-    FamilyArtifactSpec,
-    build_family_artifact_hako,
-    build_family_artifact_manifest,
-    build_family_artifact_recipe,
-    build_family_artifact_verifier,
+from family_artifact_builders import (
+    build_family_artifact_hako_text,
+    build_family_artifact_manifest_text,
+    build_family_artifact_recipe_text,
+    build_family_artifact_verifier_text,
 )
-from shared_family_generator import read_json, run_validated_family_generator, stable_json
+from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FamilyArtifactSpec
+from shared_family_generator import read_json, run_validated_family_generator
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -201,8 +198,6 @@ def build_spec() -> FamilyArtifactSpec:
         recipe_path=RECIPE,
         verifier_path=VERIFIER,
         recipe_subject="hakorune_mir_builder::binding_context::BindingContext",
-        source_plan="binding-context-plan-v0.json",
-        source_oracle="binding-context-oracle-vectors-v0.json",
         selected_body_count="all_non_test_methods",
         api_name="BindingContextApi",
         api_methods=[
@@ -300,18 +295,14 @@ def main() -> None:
     args = parser.parse_args()
 
     spec = build_spec()
-    recipe = build_family_artifact_recipe(spec)
-    verifier = build_family_artifact_verifier(spec, recipe)
-    hako_text = build_family_artifact_hako(spec)
-    recipe_text = stable_json(recipe)
-    verifier_text = stable_json(verifier)
-    manifest_text = stable_json(
-        build_family_artifact_manifest(
-            spec,
-            hako_text=hako_text,
-            recipe_text=recipe_text,
-            verifier_text=verifier_text,
-        )
+    recipe_text = build_family_artifact_recipe_text(spec)
+    verifier_text = build_family_artifact_verifier_text(spec)
+    hako_text = build_family_artifact_hako_text(spec)
+    manifest_text = build_family_artifact_manifest_text(
+        spec,
+        hako_text=hako_text,
+        recipe_text=recipe_text,
+        verifier_text=verifier_text,
     )
 
     run_validated_family_generator(
