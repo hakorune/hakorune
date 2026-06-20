@@ -1,6 +1,6 @@
 # 296x-1381 RUST-LIFECYCLE-PROJECTION-SSOT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -134,3 +134,28 @@ do_not_claim_crate_wide_executable_parity=1
 
 This row follows the 296x-1382 crate-bundle transport closeout. It does not
 reopen crate aggregation.
+
+## Closeout Evidence
+
+```text
+rust_lifecycle_projection_ssot_exists=1
+adapter_resolver_verifier_emitter_boundaries_documented=1
+converter_emitter_boundary_documented=1
+converter_direct_ownership_policy_forbidden=1
+first_pilot=BindingContext
+crate_bundle_transport_closed_by_1382=1
+implementation_started=0
+```
+
+Checks:
+
+```bash
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Next row:
+
+```text
+296x-1384-RUST-LIFECYCLE-FACTS-VOCAB-000
+```

@@ -151,23 +151,25 @@ FileBox receiver origin for dynamic path reads inside a Main-owned loop on the
 EXE pure route. 296x-1382 closes the manifest-driven 7-module `hakorune_mir_builder`
 crate-bundle aggregation through one Main-owned FileBox wrapper, with adapter
 crate-mode golden, wrapper EXE parity, and fixture-only aggregate generated
-skeleton MIR emit green. The next blocker is 296x-1381: freeze the Rust
-lifecycle projection SSOT before any BindingContext lifecycle pilot."""
+skeleton MIR emit green. 296x-1381 freezes the Rust lifecycle projection SSOT,
+and 296x-1384 adds passive RustLifecycleFacts-v0 vocabulary. The next blocker
+is 296x-1385: add passive HakoLifecyclePlan-v0 vocabulary without implementing
+resolver, verifier, emitter, or BindingContext pilot behavior."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000.md"
 
-latest_card = "296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001.md"
-latest_card_summary = """296x-1381 freezes the Rust lifecycle
-projection boundary: rustc adapter emits facts, Hako resolver chooses lifecycle
-plans, verifier checks them, and the converter/emitter renders only verified
-plans."""
+latest_card = "296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000.md"
+latest_card_summary = """296x-1385 adds passive
+HakoLifecyclePlan-v0 vocabulary for Immediate/AggregateLocal/BorrowView/
+TransferOwned/LocalBox/OrderedMapBox/HostResource/Compat shapes without
+implementing resolver, verifier, emitter, or pilot behavior."""
 
-current_blocker_token = "RUST-LIFECYCLE-PROJECTION-SSOT-001"
+current_blocker_token = "HAKO-LIFECYCLE-PLAN-VOCAB-000"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

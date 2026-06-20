@@ -33,19 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-LIFECYCLE-PROJECTION-SSOT-001
+HAKO-LIFECYCLE-PLAN-VOCAB-000
 ```
 
 Purpose:
 
 ```text
-Freeze the Rust lifecycle projection boundary before any BindingContext
-lifecycle pilot:
-
-rustc adapter emits lifecycle facts;
-Hako resolver chooses lifecycle plans;
-verifier checks the plans;
-converter/emitter renders only verified plans.
+Add passive HakoLifecyclePlan-v0 vocabulary for Immediate / AggregateLocal /
+BorrowView / TransferOwned / LocalBox / OrderedMapBox / HostResource / Compat
+shapes before implementing resolver, verifier, emitter, or BindingContext
+lifecycle pilot behavior.
 ```
 
 Current evidence:
@@ -144,6 +141,11 @@ HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001 is closed by
 296x-1382; the manifest-driven 7-module `hakorune_mir_builder` crate-bundle
 wrapper reaches adapter crate-mode golden, wrapper EXE parity, and
 fixture-only aggregate generated-skeleton MIR emit.
+RUST-LIFECYCLE-PROJECTION-SSOT-001 is closed by 296x-1381; the boundary is
+fixed as rustc adapter facts -> Hako lifecycle resolver -> verifier ->
+converter/emitter of verified plans.
+RUST-LIFECYCLE-FACTS-VOCAB-000 is closed by 296x-1384; passive
+RustLifecycleFacts-v0 vocabulary is documented without behavior changes.
 ```
 
 Acceptance for the current slice:
@@ -156,16 +158,18 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1381.
-2. Finish the Rust lifecycle projection SSOT.
-3. Keep converter direct ownership policy forbidden.
-4. Keep Rust lifetime syntax additions disabled.
-5. Do not start the BindingContext lifecycle pilot until the SSOT row closes.
+1. Read 296x-1385.
+2. Add passive HakoLifecyclePlan-v0 vocabulary only.
+3. Name Immediate / AggregateLocal / BorrowView / TransferOwned / LocalBox /
+   OrderedMapBox / HostResource / Compat shapes.
+4. Keep resolver, verifier, converter emission, and BindingContext pilot out of
+   this row.
+5. Keep Rust lifetime syntax additions disabled.
 
 Recommended next row:
 
 ```text
-RUST-LIFECYCLE-PROJECTION-SSOT-001
+HAKO-LIFECYCLE-PLAN-VOCAB-000
 ```
 
 Current lifecycle SSOT:
@@ -176,7 +180,7 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001.md
+docs/development/current/main/phases/phase-296x/296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000.md
 ```
 
 Task sequence:

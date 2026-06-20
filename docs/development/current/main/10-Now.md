@@ -20,29 +20,28 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-LIFECYCLE-PROJECTION-SSOT-001
+HAKO-LIFECYCLE-PLAN-VOCAB-000
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. The rust-subset app-front crate-bundle milestone is now closed:
-296x-1382 materialized the 7-module `hakorune_mir_builder` bundle through one
-Main-owned FileBox wrapper, with adapter crate-mode golden, wrapper EXE parity,
-and fixture-only aggregate generated-skeleton MIR emit green.
+lane status. The Rust lifecycle projection SSOT and passive
+RustLifecycleFacts-v0 vocabulary are closed.
 
-The active row is 296x-1381, which freezes the Rust lifecycle projection
-boundary before any BindingContext lifecycle pilot.
+The active row is 296x-1385, which adds passive HakoLifecyclePlan-v0
+vocabulary before resolver, verifier, converter emission, or BindingContext
+lifecycle pilot behavior.
 
 ## Next
 
-1. Read 296x-1381.
-2. Finish the Rust lifecycle projection SSOT.
-3. Keep converter direct ownership policy forbidden.
-4. Keep Rust lifetime syntax additions disabled.
-5. Do not start the BindingContext lifecycle pilot until the SSOT row closes.
-6. Run:
+1. Read 296x-1385.
+2. Add passive HakoLifecyclePlan-v0 vocabulary only.
+3. Name Immediate / AggregateLocal / BorrowView / TransferOwned / LocalBox /
+   OrderedMapBox / HostResource / Compat shapes.
+4. Keep resolver, verifier, converter emission, and BindingContext pilot out of
+   this row.
+5. Run:
 
 ```bash
-cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```

@@ -99,6 +99,7 @@ RustSubsetModule-v0:
 
 RustLifecycleFacts-v0:
   semantic migration sidecar
+  SSOT: docs/development/current/main/design/rust-lifecycle-facts-vocab-v0.md
 
 HakoLifecyclePlan-v0:
   Hako-owned projection result
