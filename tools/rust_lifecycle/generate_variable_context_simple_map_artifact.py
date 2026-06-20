@@ -10,8 +10,6 @@ behavior remain excluded.
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from pathlib import Path
 from textwrap import dedent
 from typing import Any
@@ -19,6 +17,13 @@ from typing import Any
 from extract_variable_context_simple_map_facts import (
     SOURCE as VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE,
     extract_facts as extract_live_facts,
+)
+from shared_family_generator import (
+    read_json,
+    sha256_file,
+    sha256_text,
+    stable_json,
+    write_outputs,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
 
@@ -52,22 +57,6 @@ EXCLUDED = [
     "VariableContext::snapshot",
     "VariableContext::restore",
 ]
-
-
-def read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text())
-
-
-def stable_json(data: dict[str, Any]) -> str:
-    return json.dumps(data, indent=2, sort_keys=True) + "\n"
-
-
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def validate_inputs(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
@@ -364,15 +353,6 @@ def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict
     }
 
 
-def write_if_changed(path: Path, text: str) -> bool:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    old = path.read_text() if path.exists() else None
-    if old == text:
-        return False
-    path.write_text(text)
-    return True
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="fail if generated files differ")
@@ -397,20 +377,12 @@ def main() -> None:
         (MANIFEST, manifest_text),
     ]
 
-    changed = []
-    for path, text in outputs:
-        if args.check:
-            if not path.exists() or path.read_text() != text:
-                changed.append(str(path.relative_to(ROOT)))
-        elif write_if_changed(path, text):
-            changed.append(str(path.relative_to(ROOT)))
-
-    if changed:
-        if args.check:
-            raise SystemExit("generated files differ: " + ", ".join(changed))
-        print("updated=" + ",".join(changed))
-    else:
-        print("generated_variable_context_simple_map_artifact=unchanged")
+    write_outputs(
+        outputs,
+        check=args.check,
+        unchanged_label="generated_variable_context_simple_map_artifact=unchanged",
+        root=ROOT,
+    )
 
 
 if __name__ == "__main__":

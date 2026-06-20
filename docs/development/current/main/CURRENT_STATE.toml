@@ -268,10 +268,10 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 latest_card = "mirbuilder-rust-to-hako-converter-task-order-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 latest_card_summary = """BindingContextNative, VariableContextNative
-simple-map, VariableContext snapshot/restore artifact ownership, and the
-MirBuilder converter matrix guard are green. The next task is replacing
-hard-coded family generators behind that matrix, again without new
-route/card churn."""
+simple-map, VariableContext snapshot/restore artifact ownership, the shared
+MirBuilder emitter, the shared family generator helper, and the MirBuilder
+converter matrix guard are green. The next task is replacing hard-coded
+family generators behind that matrix, again without new route/card churn."""
 
 current_blocker_token = "MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

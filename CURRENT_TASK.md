@@ -85,6 +85,7 @@ Done:
   BindingContextNative source + behavior fixture
   VariableContextNative simple-map source + behavior fixture
   shared MirBuilder behavioral emitter
+  shared family generator helper
   live lightweight facts converter for BindingContext and VariableContext simple-map
   VariableContext snapshot/restore artifact ownership transfer
   MirBuilder converter matrix guard
