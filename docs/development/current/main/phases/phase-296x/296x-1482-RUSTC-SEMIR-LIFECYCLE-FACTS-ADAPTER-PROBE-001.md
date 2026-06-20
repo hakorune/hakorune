@@ -1,6 +1,6 @@
 # 296x-1482 RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -49,6 +49,30 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_subject=BindingContext
+selected_next_task=RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001
+selected_reason=BindingContext has the smallest focused lifecycle fact shape:
+BTreeMap field, shared-read methods, unique-write mutation methods,
+ImmediateValue BindingId, TrivialMemory Drop, and no returned borrow boundary.
+VariableContext is parked because it includes returned shared/mutable map,
+snapshot/restore, and carrier consumers.
+implementation_started=0
+```
+
+## Closeout
+
+```text
+probe_subject_selected=1
+stable_fact_schema_boundary_documented=1
+adapter_policy_owner=0
+raw_rustc_dump_as_schema=0
+implementation_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line

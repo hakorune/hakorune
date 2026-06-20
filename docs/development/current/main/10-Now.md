@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001
+RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -157,12 +157,14 @@ rewriting. 296x-1479 defines the lifecycle-aware converter two-input
 boundary. 296x-1480 selects and renders one verified lifecycle plan fixture
 into a bounded `.hako` surface. The active row is 296x-1481. It compares that
 surface against the Rust oracle for the selected family only. The active row is
-296x-1482. It selects the first rustc semantic lifecycle-facts adapter probe.
+296x-1482. It selects BindingContext as the first rustc semantic
+lifecycle-facts adapter probe. The active row is 296x-1483. It probes the
+BindingContext adapter shape as target-neutral RustLifecycleFacts-v0 output.
 
 ## Next
 
-1. Read 296x-1482.
-2. Select the first rustc semantic adapter probe subject.
+1. Read 296x-1483.
+2. Probe BindingContext adapter facts shape.
 3. Keep adapter output to RustLifecycleFacts-v0 only.
 4. Run:
 

@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001
+RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 ```
 
 Purpose:
 
 ```text
-Select the first external rustc semantic adapter probe for producing
-RustLifecycleFacts-v0. Do not let the adapter choose Hako representation
-policy or use raw rustc pretty dumps as the stable schema.
+Probe the first external rustc semantic adapter shape for producing
+target-neutral RustLifecycleFacts-v0 over BindingContext. Do not emit
+HakoLifecyclePlan-v0, `.hako`, or backend behavior from the adapter.
 ```
 
 Lifecycle converter boundary:
