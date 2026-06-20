@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
+BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -42,7 +42,8 @@ adoption. 296x-1515 now designs the smallest explicit BindingContext
 derived-mainline route seam, records BindingContext as not selected because no
 selfhost family-artifact route seam exists yet, and keeps runtime fallback
 forbidden. 296x-1516 now defines that route seam as an SSOT before any
-generated artifact is selected.
+generated artifact is selected. 296x-1517 now applies that seam to
+BindingContext only.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

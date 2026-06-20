@@ -1,6 +1,6 @@
 # 296x-1516 SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -51,6 +51,34 @@ rust_bootstrap_retained=1
 runtime_try_hako_then_rust_fallback=0
 implementation_started=0
 backend_behavior_changed=0
+```
+
+## Closeout
+
+```text
+output_contract=selfhost-family-artifact-route-seam-ssot-v0
+selfhost_family_artifact_route_seam_ssot=1
+allowed_routes={derived_hako,native_hako,rust_bootstrap,rust_compat,host_substrate,unsupported}
+selection_requires_manifest=1
+selection_requires_guard=1
+rust_bootstrap_retained=1
+runtime_try_hako_then_rust_fallback=0
+implementation_started=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Evidence:
+
+```text
+docs/development/current/main/design/selfhost-family-artifact-route-seam-ssot.md
+tools/checks/selfhost_family_artifact_route_seam_ssot_guard.sh
+```
+
+Next:
+
+```text
+296x-1517-BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001
 ```
 
 ## Stop Line

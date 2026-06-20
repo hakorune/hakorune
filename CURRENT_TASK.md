@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
+BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Define the minimal selfhost family-artifact route seam before any generated
-family artifact is selected on the build line.
+Use the selfhost family-artifact route seam SSOT to decide whether the
+BindingContext derived artifact can be selected as `derived_hako` for the
+focused family route.
 ```
 
 Lifecycle converter boundary:
@@ -102,7 +103,10 @@ Current task order:
   BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001 (closed)
 
 1516:
-  SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
+  SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001 (closed)
+
+1517:
+  BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001
 ```
 
 Current evidence:
