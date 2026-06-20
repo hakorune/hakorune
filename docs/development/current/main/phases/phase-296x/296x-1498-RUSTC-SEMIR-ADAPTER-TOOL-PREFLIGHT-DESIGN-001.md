@@ -1,6 +1,6 @@
 # 296x-1498 RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-DESIGN-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -59,6 +59,44 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Design
+
+```text
+design_ssot=docs/development/current/main/design/rustc-semir-adapter-tool-preflight-contract.md
+```
+
+Decision:
+
+```text
+adapter_tool_location=tools/rust_lifecycle/rustc_semir_adapter/
+adapter_tool_workspace=standalone
+root_Cargo_rustc_private_dependency=forbidden
+stable_surface=JSON only
+first_preflight=diagnostic_only_no_extraction
+```
+
+The first preflight command shape is:
+
+```bash
+cargo run --manifest-path tools/rust_lifecycle/rustc_semir_adapter/Cargo.toml -- --preflight
+```
+
+## Closeout
+
+```text
+adapter_tool_boundary_documented=1
+rustc_private_isolated_from_product=1
+first_preflight_contract_documented=1
+implementation_started=0
+backend_behavior_changed=0
+```
+
+Next:
+
+```text
+POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-DESIGN-OWNER-SELECTION-001
 ```
 
 ## Stop Line

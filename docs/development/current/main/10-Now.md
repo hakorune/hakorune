@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-DESIGN-001
+POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-DESIGN-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -181,13 +181,14 @@ semantic adapter boundary before implementation.
 296x-1496 documents the rustc semantic adapter boundary. The active row is
 296x-1497. It selects the next owner after that design. The active row is
 296x-1498. It documents the rustc semantic adapter tool boundary and preflight
-contract.
+contract. The active row is 296x-1499. It selects the next owner after that
+design.
 
 ## Next
 
-1. Read 296x-1498.
-2. Document the adapter tool boundary and preflight contract.
-3. Keep implementation_started=0 and do not add rustc_private dependency.
+1. Read 296x-1499.
+2. Select one next owner.
+3. Keep implementation_started=0 in this selection row.
 4. Run:
 
 ```bash
