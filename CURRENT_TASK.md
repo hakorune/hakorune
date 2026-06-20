@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001
+VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Decide whether the VariableContext simple-map-only derived artifact can be
-selected as a `derived_hako` family route.
+Generate the VariableContext immutable variable_map BorrowView derived artifact
+only. Route selection is the next row.
 ```
 
 Lifecycle converter boundary:
@@ -114,7 +114,13 @@ Current task order:
   VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001 (closed)
 
 1520:
-  VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001
+  VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001 (closed)
+
+1521:
+  POST-VARIABLE-CONTEXT-SIMPLE-MAP-ROUTE-NEXT-OWNER-SELECTION-001 (closed)
+
+1522:
+  VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001
 ```
 
 Current evidence:
