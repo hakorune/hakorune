@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001
+POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Design the boundary for replacing source-shape lifecycle extraction probes
-with a real rustc semantic adapter fact source. Do not invoke rustc internals
-or generate new lifecycle facts in this design row.
+Select the next owner after documenting the rustc semantic adapter boundary.
+Do not invoke rustc internals or widen lifecycle extraction before one owner
+is selected.
 ```
 
 Lifecycle converter boundary:

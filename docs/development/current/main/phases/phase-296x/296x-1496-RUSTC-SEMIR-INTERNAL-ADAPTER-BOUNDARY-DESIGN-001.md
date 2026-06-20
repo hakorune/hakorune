@@ -1,6 +1,6 @@
 # 296x-1496 RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -63,6 +63,47 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Design
+
+```text
+design_ssot=docs/development/current/main/design/rustc-semir-internal-adapter-boundary.md
+```
+
+Decision:
+
+```text
+HIR owns crate/module/item/source provenance.
+THIR owns typed structured body and resolved method/operator shape.
+MIR + borrowck own copy/move/borrow/initializedness facts.
+Drop elaboration owns Drop obligations.
+Instance graph owns concrete generic/trait/drop-glue targets.
+```
+
+Stable handoff:
+
+```text
+repo-owned RustLifecycleAdapterFacts JSON
+raw rustc IDs/dumps are forbidden as schema
+adapter remains target-neutral and policy-free
+```
+
+## Closeout
+
+```text
+rustc_semir_adapter_boundary_documented=1
+stable_schema_boundary_documented=1
+raw_rustc_dump_as_schema=0
+adapter_policy_owner=0
+implementation_started=0
+backend_behavior_changed=0
+```
+
+Next:
+
+```text
+POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001
 ```
 
 ## Stop Line

@@ -257,20 +257,20 @@ The next blocker is 296x-1475: select the next owner after both context
 adapter verifier fixtures are present. 296x-1475 selects a fixture-only
 verifier skeleton. The next blocker is 296x-1476: add that reusable checker
 without rustc/converter/emitter/backend behavior changes. 296x-1476 adds the
-fixture-only checker for BindingContext and VariableContext. 296x-1490 extracts BindingContext lifecycle facts from the selected Rust source slice and verifies the output against the target-neutral adapter fixture. 296x-1491 selects VariableContext lifecycle facts extraction as the next owner. 296x-1492 extracts VariableContext lifecycle facts from the selected Rust source slice and verifies returned borrow plus snapshot/restore facts against the target-neutral adapter fixture. 296x-1493 selects extracted-facts verifier parity as the next owner. 296x-1494 verifies extractor-produced facts through the existing lifecycle verifier path. 296x-1495 selects rustc-internal adapter boundary design as the next owner. The next blocker is 296x-1496: document that rustc semantic adapter boundary before implementation."""
+fixture-only checker for BindingContext and VariableContext. 296x-1490 extracts BindingContext lifecycle facts from the selected Rust source slice and verifies the output against the target-neutral adapter fixture. 296x-1491 selects VariableContext lifecycle facts extraction as the next owner. 296x-1492 extracts VariableContext lifecycle facts from the selected Rust source slice and verifies returned borrow plus snapshot/restore facts against the target-neutral adapter fixture. 296x-1493 selects extracted-facts verifier parity as the next owner. 296x-1494 verifies extractor-produced facts through the existing lifecycle verifier path. 296x-1495 selects rustc-internal adapter boundary design as the next owner. 296x-1496 documents the rustc semantic adapter boundary: HIR for identity/provenance, THIR for typed structure, MIR+borrowck for move/borrow/initializedness, drop elaboration for Drop, and Instance graph for concrete targets. The next blocker is 296x-1497: select the next owner after that design."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1496-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1497-POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1496-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1496-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001.md"
-latest_card_summary = """296x-1496 documents the rustc-internal semantic adapter
-boundary before implementation."""
+latest_card = "296x-1497-POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1497-POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1497 selects the next owner after rustc semantic
+adapter boundary design."""
 
-current_blocker_token = "RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001"
+current_blocker_token = "POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
