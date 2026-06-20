@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-RUSTC-SEMIR-EXTRACTED-FACTS-VERIFIER-PARITY-OWNER-SELECTION-001
+RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after extractor-produced facts are verified through the
-existing lifecycle verifier path. Do not start rustc-internal adapter,
-emitter, backend, or wider context extraction before one owner is selected.
+Design the boundary for replacing source-shape lifecycle extraction probes
+with a real rustc semantic adapter fact source. Do not invoke rustc internals
+or generate new lifecycle facts in this design row.
 ```
 
 Lifecycle converter boundary:
