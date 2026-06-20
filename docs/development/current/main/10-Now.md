@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-SETUP-DESIGN-001
+RUSTC-SEMIR-ADAPTER-PINNED-NIGHTLY-PREFLIGHT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -122,9 +122,11 @@ emitter implementation.
 296x-1502 adds diagnostic-only rustc semantic adapter toolchain compatibility
 preflight. Local stable toolchain reports
 `rustc_private_readiness=requires_nightly_or_bootstrap`. 296x-1503 selects
-toolchain setup / override design before HIR inventory. 296x-1504 is the
-current design row: choose the supported standalone adapter toolchain route
-without extracting HIR / THIR / MIR or adding product rustc_private deps.
+toolchain setup / override design before HIR inventory. 296x-1504 selects
+pinned-date nightly plus rustc-dev and compile/link/run proof as the formal
+standalone adapter route; `RUSTC_BOOTSTRAP` is diagnostic_untrusted only.
+296x-1505 is the current implementation row: add the pinned-nightly preflight
+guard without extracting HIR / THIR / MIR or adding product rustc_private deps.
 
 296x-1466 inventories the first BindingContext / VariableContext fact
 requirements and keeps the adapter policy-free.
