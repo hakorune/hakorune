@@ -1,6 +1,6 @@
 # 296x-1473 POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -39,6 +39,26 @@ C. return to trim route fixture selection
 recommended=A
 reason=VariableContext adapter facts are now target-neutral; the next thin
 step is a passive verifier fixture before implementing a verifier skeleton.
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001
+selected_reason=VariableContext adapter facts are available and should be
+checked against existing simple-map, immutable-borrow, snapshot/restore, and
+carrier-snapshot plan fixtures before any verifier implementation.
+```
+
+Non-selected owners:
+
+```text
+B_verifier_implementation_skeleton:
+  parked until VariableContext adapter facts are passively verified
+
+C_trim_route_fixture_selection:
+  parked while lifecycle projection fixture chain remains active
 ```
 
 ## Acceptance

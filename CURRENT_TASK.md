@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001
+HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after adding the target-neutral VariableContext adapter
-facts fixture. Do not implement adapter, resolver, verifier, or emitter
-behavior before choosing one next owner.
+Add a passive verifier-result fixture over VariableContext adapter facts and
+existing VariableContext lifecycle plan fixtures. Do not implement verifier,
+emitter, converter-core, or backend behavior changes.
 ```
 
 Lifecycle converter boundary:
@@ -282,10 +282,10 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1473.
-2. Choose one next lifecycle owner.
-3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 for adapter, resolver, verifier, and emitter.
+1. Read 296x-1474.
+2. Add `variable-context-adapter-verifier-result-v0.json`.
+3. Add `rust_lifecycle_variable_context_adapter_verifier_guard.sh`.
+4. Keep the fixture passive: emission_allowed=0 and verifier implementation=0.
 5. Keep converter core and backend behavior unchanged.
 
 Recommended next row:
@@ -308,11 +308,11 @@ docs/development/current/main/phases/phase-296x/296x-1466-RUST-LIFECYCLE-FACTS-A
 Task sequence:
 
 ```text
-1. POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001
-2. choose one of:
-   A. VariableContext adapter verifier fixture
-   B. verifier implementation skeleton
-   C. return to trim route fixture selection
+1. HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001
+2. then select one of:
+   A. verifier implementation skeleton
+   B. return to trim route fixture selection
+   C. VariableContext returned mutable borrow API replacement design
 ```
 
 ## Pointers

@@ -250,20 +250,22 @@ verification. 296x-1471 selects VariableContext adapter facts as the next
 fixture. The next blocker is 296x-1472: add that target-neutral fixture and
 guard. 296x-1472 adds the VariableContext adapter facts fixture without Hako
 policy spellings. The next blocker is 296x-1473: select the next owner after
-VariableContext adapter facts."""
+VariableContext adapter facts. 296x-1473 selects a passive VariableContext
+adapter verifier fixture. The next blocker is 296x-1474: add that fixture and
+guard."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1473-POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1474-HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001.md"
 
-latest_card = "296x-1473-POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1473-POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1473 selects the next owner after adding a
-target-neutral VariableContext adapter facts fixture."""
+latest_card = "296x-1474-HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1474-HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001.md"
+latest_card_summary = """296x-1474 adds a passive verifier-result fixture
+over VariableContext adapter facts and existing plan fixtures."""
 
-current_blocker_token = "POST-VARIABLE-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001"
+current_blocker_token = "HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
