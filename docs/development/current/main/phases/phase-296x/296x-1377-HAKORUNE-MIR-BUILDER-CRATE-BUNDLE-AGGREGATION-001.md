@@ -1,6 +1,6 @@
 # 296x-1377 HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
 
-Status: open
+Status: blocked
 Date: 2026-06-20
 
 ## Purpose
@@ -110,6 +110,69 @@ cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
+```
+
+## Blocked Probe
+
+The selected A2-lite shape remains the desired structure, but the first
+implementation probe found an EXE pure-route blocker before the row could be
+closed.
+
+Observed probe:
+
+```text
+helper_mir_emit=green
+helper_exe_pure_route=red
+implementation_committed=0
+hand_unrolled_wrapper_fallback_used=0
+```
+
+Focused failing shape:
+
+```text
+apps/rust-subset-to-hako/crate_bundle_file_route.hako
+
+box RustSubsetCrateBundleFileRouteBox {
+  convert_bundle(manifest_path, bundle_root, expected_crate_name, expected_module_count) {
+    ...
+    local text = me.read_text(path)
+    ...
+  }
+
+  read_text(path) {
+    local file = new FileBox()
+    ...
+  }
+}
+```
+
+The helper reached MIR emit, but EXE lowering failed with a pure-route
+unsupported-shape diagnostic.
+
+Trace evidence:
+
+```text
+trace_tag=[llvm-pure/unsupported-shape]
+reason=module_generic_prepass_failed
+target_shape_blocker_symbol=RustSubsetCrateBundleFileRouteBox.convert_bundle/4
+callee_symbol=RustSubsetCrateBundleFileRouteBox.convert_bundle/4
+earlier_probe_blocker_symbol=RustSubsetCrateBundleFileRouteBox.read_text/1
+earlier_probe_first_op=newbox
+```
+
+Decision:
+
+```text
+blocker=FileBox/newbox inside reusable crate-bundle helper target
+selected_shape=A2-lite manifest-driven reusable file-route helper
+selected_shape_retained=1
+fallback_to_hand_unrolled_7_module_wrapper=0
+```
+
+Next focused row:
+
+```text
+296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
 ```
 
 ## Stop Line

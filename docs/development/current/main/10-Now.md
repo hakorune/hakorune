@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
+CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -91,16 +91,21 @@ wrapper EXE parity. 296x-1374 selects the remaining `hakorune_mir_builder`
 crate-root module as the next small materialization row. 296x-1375 materializes
 that crate-root bundle and guards it through generated-skeleton MIR emit plus
 wrapper EXE parity. 296x-1376 selects A2-lite crate-bundle aggregation for the
-7 materialized `hakorune_mir_builder` modules. The active row is 296x-1377.
+7 materialized `hakorune_mir_builder` modules. 296x-1377 keeps that direction
+but blocks after the reusable FileBox helper reaches MIR emit and fails EXE
+pure-route lowering. The active row is 296x-1379, focused on the FileBox/helper
+EXE shape.
 
 ## Next
 
-1. Read 296x-1377.
-2. Add a thin reusable crate-bundle FileBox route helper.
-3. Check in the real 7-module `hakorune_mir_builder` crate-mode bundle.
-4. Add one wrapper and smoke entries.
+1. Read 296x-1379.
+2. Reproduce the focused FileBox helper shape under MIR emit and EXE lowering.
+3. Choose either the compiler/backend fix or a documented narrower input-route
+   boundary.
+4. Keep the 296x-1377 crate aggregation implementation stopped until this
+   shape is resolved.
 5. Keep use/name resolution and generated-program execution claim disabled.
-6. After 296x-1377, use
+6. After 296x-1377 eventually closes, use
    `docs/development/current/main/design/rust-lifecycle-projection-ssot.md`
    as the planned lifecycle-projection design follow-up.
 7. Run:

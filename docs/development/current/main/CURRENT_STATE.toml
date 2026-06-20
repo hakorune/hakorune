@@ -145,20 +145,25 @@ generated-skeleton MIR emit. That crate-root bundle is now checked in and
 guarded through generated-skeleton MIR emit, wrapper EXE parity, and full
 rust-subset smoke. 296x-1376 selects a manifest-driven 7-module
 `hakorune_mir_builder` crate-bundle aggregation as the next task, using a thin
-reusable FileBox route helper without enabling use/name resolution."""
+reusable FileBox route helper without enabling use/name resolution. 296x-1377
+keeps that A2-lite direction but blocks implementation after the reusable
+FileBox helper reaches MIR emit and fails EXE pure-route lowering; 296x-1379
+is the focused blocker for FileBox/helper EXE shape before crate aggregation
+continues."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1377-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001.md"
 
-latest_card = "296x-1377-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1377-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001.md"
-latest_card_summary = """296x-1377 aggregates the materialized
-hakorune_mir_builder modules through one manifest-driven crate-bundle route."""
+latest_card = "296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001.md"
+latest_card_summary = """296x-1379 isolates the FileBox/newbox helper EXE
+shape blocker found while implementing the manifest-driven
+hakorune_mir_builder crate-bundle route."""
 
-current_blocker_token = "HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001"
+current_blocker_token = "CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

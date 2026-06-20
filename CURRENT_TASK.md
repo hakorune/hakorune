@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
+CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
 ```
 
 Purpose:
 
 ```text
-Aggregate the 7 materialized `hakorune_mir_builder` modules through one
-manifest-driven crate-bundle Hako FileBox route.
+Investigate and close the FileBox/newbox helper EXE shape blocker found while
+implementing the manifest-driven `hakorune_mir_builder` crate-bundle route.
 ```
 
 Current evidence:
@@ -121,6 +121,9 @@ HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001 is closed by 296x-1373
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017 is closed by 296x-1374.
 HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001 is closed by 296x-1375.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018 is closed by 296x-1376.
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001 is blocked by 296x-1377
+after the reusable FileBox helper reaches MIR emit but fails EXE pure-route
+lowering. Hand-unrolled 7-module wrapper fallback remains forbidden.
 ```
 
 Acceptance for the current slice:
@@ -133,21 +136,22 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1377.
-2. Add a thin reusable crate-bundle FileBox route helper.
-3. Check in the real 7-module `hakorune_mir_builder` crate-mode bundle.
-4. Add one wrapper and smoke entries for bundle parity and aggregate MIR emit.
+1. Read 296x-1379.
+2. Reproduce the focused FileBox helper shape with MIR emit and EXE lowering.
+3. Choose the focused fix or boundary decision for FileBox inside reusable
+   crate-bundle helpers.
+4. Keep 296x-1377 implementation stopped until this shape is resolved.
 5. Keep use/name resolution and generated-program execution claim disabled.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
+CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
 ```
 
-296x-1376 selected A2-lite crate-bundle aggregation because all 7
-`hakorune_mir_builder` modules are materialized and the next milestone is
-crate-level transport evidence without use/name resolution.
+296x-1377 retains the A2-lite crate-bundle aggregation direction but blocks on
+the reusable helper EXE shape before any crate aggregation implementation is
+committed.
 
 After 296x-1377 closes, the planned design follow-up is:
 
