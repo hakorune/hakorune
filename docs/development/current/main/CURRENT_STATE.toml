@@ -257,20 +257,20 @@ The next blocker is 296x-1475: select the next owner after both context
 adapter verifier fixtures are present. 296x-1475 selects a fixture-only
 verifier skeleton. The next blocker is 296x-1476: add that reusable checker
 without rustc/converter/emitter/backend behavior changes. 296x-1476 adds the
-fixture-only checker for BindingContext and VariableContext. 296x-1490 extracts BindingContext lifecycle facts from the selected Rust source slice and verifies the output against the target-neutral adapter fixture. 296x-1491 selects VariableContext lifecycle facts extraction as the next owner. 296x-1492 extracts VariableContext lifecycle facts from the selected Rust source slice and verifies returned borrow plus snapshot/restore facts against the target-neutral adapter fixture. 296x-1493 selects extracted-facts verifier parity as the next owner. 296x-1494 verifies extractor-produced facts through the existing lifecycle verifier path. 296x-1495 selects rustc-internal adapter boundary design as the next owner. 296x-1496 documents the rustc semantic adapter boundary: HIR for identity/provenance, THIR for typed structure, MIR+borrowck for move/borrow/initializedness, drop elaboration for Drop, and Instance graph for concrete targets. 296x-1497 selects rustc semantic adapter tool preflight design as the next owner. 296x-1498 documents the adapter tool boundary and preflight contract, with rustc_private isolated to a standalone tool. 296x-1499 selects standalone adapter tool preflight implementation as the next owner. 296x-1500 adds the diagnostic-only standalone tool skeleton and preflight guard. The next blocker is 296x-1501: select the next owner after preflight."""
+fixture-only checker for BindingContext and VariableContext. 296x-1490 extracts BindingContext lifecycle facts from the selected Rust source slice and verifies the output against the target-neutral adapter fixture. 296x-1491 selects VariableContext lifecycle facts extraction as the next owner. 296x-1492 extracts VariableContext lifecycle facts from the selected Rust source slice and verifies returned borrow plus snapshot/restore facts against the target-neutral adapter fixture. 296x-1493 selects extracted-facts verifier parity as the next owner. 296x-1494 verifies extractor-produced facts through the existing lifecycle verifier path. 296x-1495 selects rustc-internal adapter boundary design as the next owner. 296x-1496 documents the rustc semantic adapter boundary: HIR for identity/provenance, THIR for typed structure, MIR+borrowck for move/borrow/initializedness, drop elaboration for Drop, and Instance graph for concrete targets. 296x-1497 selects rustc semantic adapter tool preflight design as the next owner. 296x-1498 documents the adapter tool boundary and preflight contract, with rustc_private isolated to a standalone tool. 296x-1499 selects standalone adapter tool preflight implementation as the next owner. 296x-1500 adds the diagnostic-only standalone tool skeleton and preflight guard. 296x-1501 selects toolchain compatibility preflight hardening as the next owner. The next blocker is 296x-1502: add diagnostic-only rustc toolchain compatibility classification before HIR extraction."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1501-POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1502-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-001.md"
 
-latest_card = "296x-1501-POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1501-POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1501 selects the next owner after rustc semantic
-adapter tool preflight."""
+latest_card = "296x-1502-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1502-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-001.md"
+latest_card_summary = """296x-1502 adds diagnostic-only rustc semantic adapter
+toolchain compatibility preflight."""
 
-current_blocker_token = "POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001"
+current_blocker_token = "RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

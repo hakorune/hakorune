@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001
+RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -184,13 +184,14 @@ semantic adapter boundary before implementation.
 contract. The active row is 296x-1499. It selects the next owner after that
 design. The active row is 296x-1500. It adds the diagnostic-only adapter tool
 preflight skeleton and guard. The active row is 296x-1501. It selects the next
-owner after preflight.
+owner after preflight. The active row is 296x-1502. It adds diagnostic-only
+rustc toolchain compatibility classification before HIR extraction.
 
 ## Next
 
-1. Read 296x-1501.
-2. Select one next owner.
-3. Keep fact extraction disabled in this selection row.
+1. Read 296x-1502.
+2. Add diagnostic-only toolchain compatibility preflight.
+3. Keep lifecycle facts generation disabled.
 4. Run:
 
 ```bash
