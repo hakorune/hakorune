@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001
+POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after the first bounded lifecycle emitter
-surface is fixture-guarded. Do not expand emitter acceptance, start join_id
-design, or start trim_helper probing before choosing one next owner.
+Select the next lifecycle owner after the ownership-aware converter
+reference documents that the converter/emitter renders verified lifecycle
+plans only. Do not expand emitter acceptance, start trim_helper probing, or
+start promoted_body_locals probing before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -247,6 +248,12 @@ verified-plan emitter probe is selected as the next owner.
 RUST-TO-HAKO-LIFECYCLE-EMITTER-PROBE-001 is closed by 296x-1418; one
 CarrierInfo::merge_from lifecycle surface is fixture-guarded without
 executable-program, backend, or converter-core rewrite claims.
+POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001 is closed by 296x-1419;
+join_id vocabulary decision is selected before expanding emitter/resolver
+coverage.
+PHI-CARRIER-JOIN-ID-VOCABULARY-DECISION-001 is closed by 296x-1420;
+CarrierVar.join_id is parked as test-fixture/stale vocabulary for the lifecycle
+lane, with resolver/verifier/emitter deny rules intact.
 ```
 
 Acceptance for the current slice:
@@ -259,7 +266,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1419.
+1. Read 296x-1421.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

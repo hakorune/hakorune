@@ -1,6 +1,6 @@
 # 296x-1419 POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,45 @@ implementation_started=0
 backend_behavior_changed=0
 full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
+```
+
+## Selection
+
+```text
+selected_owner=B-lite
+selected_next_task=PHI-CARRIER-JOIN-ID-VOCABULARY-DECISION-001
+selected_reason=the lifecycle pipeline now has facts, plan, resolver
+diagnostics, VerifierResult, and one bounded emitter surface. The largest
+unresolved semantic debt remains join_id test-only vocabulary, so decide its
+status before expanding emitter or resolver coverage.
+```
+
+Parked:
+
+```text
+emitter acceptance expansion:
+  parked until join_id vocabulary is classified
+
+trim_helper lifecycle inventory/probe:
+  parked; do not mix route-specific trim metadata with join_id decision
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+backend_behavior_changed=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1420-PHI-CARRIER-JOIN-ID-VOCABULARY-DECISION-001
 ```
 
 Checks:

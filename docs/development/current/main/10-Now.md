@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001
+POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -53,13 +53,19 @@ without emission, backend, resolver-selection, or wide parity claims.
 296x-1417 selects one verified-plan emitter probe. 296x-1418 fixture-guards
 one CarrierInfo::merge_from lifecycle surface without executable-program,
 backend, or converter-core rewrite claims.
+296x-1419 selects join_id vocabulary decision before expanding emitter or
+resolver coverage. 296x-1420 parks CarrierVar.join_id as test-fixture/stale
+vocabulary for the lifecycle lane, with resolver/verifier/emitter deny rules
+intact. 296x-1421 selects ownership-aware converter reference documentation
+before resuming lifecycle owner probing. 296x-1422 documents the converter as
+a verified-plan renderer, not an ownership policy owner.
 
-The active row is 296x-1419. It selects the next lifecycle owner after the
-first bounded lifecycle emitter surface.
+The active row is 296x-1423. It selects the next lifecycle owner after
+ownership converter reference.
 
 ## Next
 
-1. Read 296x-1419.
+1. Read 296x-1423.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

@@ -27,6 +27,11 @@ emitter:
 ```
 
 The converter/emitter must not infer ownership from syntax by itself.
+Operational reference for implementers:
+
+```text
+docs/development/current/main/design/rust-to-hako-ownership-converter-reference.md
+```
 
 Short form:
 

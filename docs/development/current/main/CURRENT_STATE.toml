@@ -175,21 +175,27 @@ backend, resolver-selection, or wide parity claims. 296x-1417 selects a bounded
 lifecycle emitter probe. 296x-1418 renders one CarrierInfo::merge_from
 verified-plan surface without executable-program, backend, or converter-core
 rewrite claims. The next blocker is 296x-1419: select the next lifecycle owner
-after the emitter probe."""
+after the emitter probe. 296x-1419 selects join_id vocabulary decision.
+296x-1420 parks CarrierVar.join_id as test-fixture/stale vocabulary for the
+lifecycle lane, with resolver/verifier/emitter deny rules intact. 296x-1421
+selects ownership-aware converter reference documentation before resuming
+lifecycle owner probing. 296x-1422 documents the converter as a verified-plan
+renderer, not an ownership policy owner. The next blocker is 296x-1423: select
+the next lifecycle owner after ownership converter reference."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1419-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1423-POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1419-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1419-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1419 selects the next
-lifecycle owner after the first bounded emitter surface, choosing between
-emitter acceptance expansion, join_id design, or trim_helper lifecycle."""
+latest_card = "296x-1423-POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1423-POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1423 selects the next lifecycle owner after
+the ownership-aware converter reference documents the converter/emitter as a
+verified-plan renderer rather than the ownership policy owner."""
 
-current_blocker_token = "POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001"
+current_blocker_token = "POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
