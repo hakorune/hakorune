@@ -185,3 +185,31 @@ def rust_manifest_inputs(*entries: tuple[str, Path], root: Path) -> dict[str, An
         name: rust_manifest_file_entry(path=path, root=root)
         for name, path in entries
     }
+
+
+def rust_manifest_text_inputs(*entries: tuple[str, tuple[Path, str]], root: Path) -> dict[str, Any]:
+    return {
+        name: rust_manifest_text_entry(path=path, text=text, root=root)
+        for name, (path, text) in entries
+    }
+
+
+def build_common_rust_derived_inputs(
+    *,
+    root: Path,
+    facts: Path,
+    plan: Path,
+    oracle: Path,
+    recipe: tuple[Path, str] | None = None,
+    verifier: tuple[Path, str] | None = None,
+) -> dict[str, Any]:
+    inputs: dict[str, Any] = {
+        "facts": rust_manifest_file_entry(path=facts, root=root),
+        "plan": rust_manifest_file_entry(path=plan, root=root),
+        "oracle": rust_manifest_file_entry(path=oracle, root=root),
+    }
+    if recipe is not None:
+        inputs["recipe"] = rust_manifest_text_entry(path=recipe[0], text=recipe[1], root=root)
+    if verifier is not None:
+        inputs["verifier"] = rust_manifest_text_entry(path=verifier[0], text=verifier[1], root=root)
+    return inputs

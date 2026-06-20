@@ -20,6 +20,7 @@ from extract_binding_context_facts import (
 )
 from shared_family_generator import (
     build_derived_artifact_verifier_result,
+    build_common_rust_derived_inputs,
     build_hako_behavior_recipe,
     build_rust_derived_hako_manifest,
     read_json,
@@ -27,8 +28,6 @@ from shared_family_generator import (
     sha256_text,
     run_family_generator,
     rust_manifest_file_entry,
-    rust_manifest_inputs,
-    rust_manifest_text_entry,
     stable_json,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
@@ -368,16 +367,14 @@ def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict
             "backend_behavior_changed": 0,
             "source_selfhost_claim": 0,
         },
-        inputs={
-            **rust_manifest_inputs(
-                ("facts", FACTS),
-                ("plan", PLAN),
-                ("oracle", ORACLE),
-                root=ROOT,
-            ),
-            "recipe": rust_manifest_text_entry(path=RECIPE, text=recipe_text, root=ROOT),
-            "verifier": rust_manifest_text_entry(path=VERIFIER, text=verifier_text, root=ROOT),
-        },
+        inputs=build_common_rust_derived_inputs(
+            root=ROOT,
+            facts=FACTS,
+            plan=PLAN,
+            oracle=ORACLE,
+            recipe=(RECIPE, recipe_text),
+            verifier=(VERIFIER, verifier_text),
+        ),
     )
 
 

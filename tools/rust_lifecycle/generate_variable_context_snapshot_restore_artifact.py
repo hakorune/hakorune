@@ -15,13 +15,13 @@ from textwrap import dedent
 from typing import Any
 
 from shared_family_generator import (
+    build_common_rust_derived_inputs,
     build_rust_derived_hako_manifest,
     read_json,
     sha256_file,
     sha256_text,
     run_family_generator,
     rust_manifest_file_entry,
-    rust_manifest_inputs,
     stable_json,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
@@ -251,11 +251,11 @@ def build_manifest(hako_text: str) -> dict[str, Any]:
             "backend_behavior_changed": 0,
             "source_selfhost_claim": 0,
         },
-        inputs=rust_manifest_inputs(
-            ("facts", FACTS),
-            ("plan", PLAN),
-            ("oracle", ORACLE),
+        inputs=build_common_rust_derived_inputs(
             root=ROOT,
+            facts=FACTS,
+            plan=PLAN,
+            oracle=ORACLE,
         ),
         extra_fields={"excluded_methods": EXCLUDED},
     )
