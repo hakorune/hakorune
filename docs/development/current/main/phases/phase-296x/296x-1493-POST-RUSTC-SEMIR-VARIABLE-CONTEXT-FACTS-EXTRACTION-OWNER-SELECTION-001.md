@@ -1,6 +1,6 @@
 # 296x-1493 POST-RUSTC-SEMIR-VARIABLE-CONTEXT-FACTS-EXTRACTION-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -55,6 +55,48 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=B
+selected_next_task=RUSTC-SEMIR-EXTRACTED-FACTS-VERIFIER-PARITY-001
+selected_reason=BindingContext and VariableContext source-derived extraction
+are both green against target-neutral adapter fixtures. The next smallest
+consumer check is to verify extractor-produced facts with the existing
+lifecycle fixture verifier without adding new Hako policy.
+implementation_started=0
+verifier_implementation_started=0
+rustc_internal_adapter_started=0
+wider_context_extraction_started=0
+```
+
+Non-selected owners:
+
+```text
+A. extraction helper hardening:
+  parked until parity exposes a shared helper gap
+
+C. rustc-internal adapter design:
+  parked until the target-neutral fact surface is proven through verifier
+  parity
+
+D. next MirBuilder context extraction:
+  parked until extracted facts are proven consumable by the existing verifier
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+verifier_implementation_started=0
+rustc_internal_adapter_started=0
+wider_context_extraction_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line
