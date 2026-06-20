@@ -1,6 +1,6 @@
 # 296x-1445 POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,27 @@ recommended=A-design
 reason=identity is now a read-only candidate, but existing consumers still call
 resolve_promoted_join_id. A rewrite design must precede any executable trim
 lowering claim.
+```
+
+## Decision
+
+```text
+selected_next_task=CONDITION-BINDING-RESOLUTION-REWRITE-DESIGN-001
+selected_scope=design only; no resolution rewrite
+selected_reason=condition-binding identity is proven as a candidate, but
+existing consumers still call CarrierInfo::resolve_promoted_join_id. A narrow
+adapter/decision boundary is needed before changing consumer behavior.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+trim route lowering proof update:
+  parked until resolution rewrite design is fixed.
+
+second lifecycle emitter surface:
+  parked until identity consumption is designed.
 ```
 
 ## Acceptance

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001
+POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -89,14 +89,16 @@ promoted carrier identity policy. 296x-1442 records that decision without
 rewriting resolution, adding a join_id producer, or emitting trim route
 lowering. 296x-1443 selects a read-only condition-binding promoted identity
 proof probe. 296x-1444 fixture-guards AllowIdentityCandidate and missing /
-mismatched deny vectors without resolution rewrite or trim lowering.
+mismatched deny vectors without resolution rewrite or trim lowering. 296x-1445
+selects condition-binding resolution rewrite design. 296x-1446 chooses an
+additive adapter design that keeps legacy `resolve_promoted_join_id` intact.
 
-The active row is 296x-1445. It selects the next lifecycle owner after
-condition-binding identity proof.
+The active row is 296x-1447. It selects the next lifecycle owner after
+condition-binding resolution design.
 
 ## Next
 
-1. Read 296x-1445.
+1. Read 296x-1447.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
