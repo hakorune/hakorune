@@ -1,6 +1,6 @@
 # 296x-1447 POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -36,6 +36,28 @@ C. second lifecycle emitter surface
 recommended=A-probe
 reason=the design selects an additive adapter. Implement and guard that adapter
 before re-opening executable trim route decisions.
+```
+
+## Decision
+
+```text
+selected_next_task=CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001
+selected_scope=additive read-only CarrierInfo adapter plus focused unit tests
+selected_reason=condition-binding identity has a design and proof vectors, but
+no code-level adapter exists yet. Implementing the adapter before trim lowering
+keeps executable route decisions gated by a concrete, independently tested
+identity consumer.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+trim route lowering proof update:
+  parked until the additive adapter exists and is guard-checked.
+
+second lifecycle emitter surface:
+  parked until this identity lane has a code-level consumer.
 ```
 
 ## Acceptance

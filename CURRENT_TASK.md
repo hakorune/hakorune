@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001
+POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after condition-binding resolution design.
-Do not implement the adapter, emit trim route lowering, or start rustc adapter
-work before choosing one next owner.
+Select the next lifecycle owner after the condition-binding resolution adapter
+probe. Do not wire the adapter or emit trim route lowering before choosing one
+next owner.
 ```
 
 Lifecycle converter boundary:
@@ -264,6 +264,7 @@ bash tools/checks/rust_lifecycle_promoted_carrier_identity_inventory_guard.sh
 bash tools/checks/rust_lifecycle_promoted_carrier_identity_policy_guard.sh
 bash tools/checks/rust_lifecycle_condition_binding_promoted_identity_guard.sh
 bash tools/checks/rust_lifecycle_condition_binding_resolution_design_guard.sh
+bash tools/checks/rust_lifecycle_condition_binding_resolution_adapter_guard.sh
 bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
 cargo check -q --lib
 git diff --check
@@ -272,7 +273,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1447.
+1. Read 296x-1449.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -282,7 +283,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001
+POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -293,15 +294,15 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1447-POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1449-POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001
+1. POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001
 2. choose one of:
-   A. condition-binding resolution adapter probe
+   A. scope-manager condition-binding adapter wiring design/probe
    B. trim route lowering proof update
    C. second lifecycle emitter surface
 ```

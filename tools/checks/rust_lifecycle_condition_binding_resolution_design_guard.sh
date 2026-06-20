@@ -31,9 +31,6 @@ assert "pub fn resolve_promoted_join_id" in carrier_impl
 assert "pub struct ConditionBinding" in condition_env
 assert "pub join_value: ValueId" in condition_env
 assert "pub condition_bindings: Vec<ConditionBinding>" in boundary_types
-
-# This is a design row; the future adapter must not already exist in code.
-assert "resolve_promoted_condition_binding_identity" not in carrier_impl
 PY
 
 cat <<'REPORT'

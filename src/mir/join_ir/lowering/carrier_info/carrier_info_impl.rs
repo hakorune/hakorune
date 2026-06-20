@@ -287,4 +287,115 @@ impl CarrierInfo {
 
         None
     }
+
+    /// Resolve a promoted body-local through explicit condition bindings.
+    ///
+    /// This is the additive condition-binding identity path. It intentionally
+    /// does not change the legacy `resolve_promoted_join_id` contract, and
+    /// callers must pass the `JoinInlineBoundary.condition_bindings` surface.
+    pub fn resolve_promoted_condition_binding_identity(
+        &self,
+        original_name: &str,
+        condition_bindings: &[crate::mir::join_ir::lowering::condition_env::ConditionBinding],
+    ) -> Option<ValueId> {
+        if !self
+            .promoted_body_locals
+            .iter()
+            .any(|name| name == original_name)
+        {
+            return None;
+        }
+
+        let helper = self.trim_helper.as_ref()?;
+        if helper.original_var != original_name {
+            return None;
+        }
+
+        condition_bindings
+            .iter()
+            .find(|binding| binding.name == helper.carrier_name)
+            .map(|binding| binding.join_value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
+    use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
+
+    fn carrier_info_with_trim(original_var: &str, carrier_name: &str) -> CarrierInfo {
+        CarrierInfo {
+            loop_var_name: "start".to_string(),
+            loop_var_id: ValueId(1),
+            carriers: vec![],
+            trim_helper: Some(TrimLoopHelper {
+                original_var: original_var.to_string(),
+                carrier_name: carrier_name.to_string(),
+                whitespace_chars: vec![" ".to_string()],
+            }),
+            promoted_body_locals: vec![original_var.to_string()],
+        }
+    }
+
+    #[test]
+    fn test_resolve_promoted_condition_binding_identity_allows_match() {
+        let info = carrier_info_with_trim("ch", "is_ch_match");
+        let bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            info.resolve_promoted_condition_binding_identity("ch", &bindings),
+            Some(ValueId(200))
+        );
+    }
+
+    #[test]
+    fn test_resolve_promoted_condition_binding_identity_denies_missing_promoted_local() {
+        let mut info = carrier_info_with_trim("ch", "is_ch_match");
+        info.promoted_body_locals.clear();
+        let bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            info.resolve_promoted_condition_binding_identity("ch", &bindings),
+            None
+        );
+    }
+
+    #[test]
+    fn test_resolve_promoted_condition_binding_identity_denies_original_name_mismatch() {
+        let info = carrier_info_with_trim("ch", "is_ch_match");
+        let bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            info.resolve_promoted_condition_binding_identity("other", &bindings),
+            None
+        );
+    }
+
+    #[test]
+    fn test_resolve_promoted_condition_binding_identity_denies_missing_binding() {
+        let info = carrier_info_with_trim("ch", "is_ch_match");
+        let bindings = vec![ConditionBinding::new(
+            "is_other_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            info.resolve_promoted_condition_binding_identity("ch", &bindings),
+            None
+        );
+    }
 }

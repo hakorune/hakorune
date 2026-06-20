@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001
+POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -92,13 +92,16 @@ proof probe. 296x-1444 fixture-guards AllowIdentityCandidate and missing /
 mismatched deny vectors without resolution rewrite or trim lowering. 296x-1445
 selects condition-binding resolution rewrite design. 296x-1446 chooses an
 additive adapter design that keeps legacy `resolve_promoted_join_id` intact.
+296x-1447 selects the additive adapter probe. 296x-1448 implements the adapter
+as a read-only `CarrierInfo` query without scope-manager wiring or trim route
+lowering.
 
-The active row is 296x-1447. It selects the next lifecycle owner after
-condition-binding resolution design.
+The active row is 296x-1449. It selects the next lifecycle owner after the
+adapter probe.
 
 ## Next
 
-1. Read 296x-1447.
+1. Read 296x-1449.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
