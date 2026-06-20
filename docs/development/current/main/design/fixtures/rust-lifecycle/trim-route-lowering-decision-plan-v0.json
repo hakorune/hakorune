@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "trim route lowering decision probe",
+  "source_facts": "trim-route-lowering-decision-facts-v0.json",
+  "plans": [
+    {
+      "id": "TrimRouteLoweringDecision::metadata_candidate",
+      "plan_kind": "TrimRouteLoweringDecisionProbe",
+      "metadata_decision": "AllowMetadataCandidate",
+      "executable_decision": "Deny",
+      "deny_reason": "MissingPromotedCarrierIdentity",
+      "required_proof": [
+        "trim_helper.has_valid_structure",
+        "promoted_body_locals contains original_var",
+        "promoted carrier join_id exists"
+      ],
+      "allowed_output": {
+        "metadata_report": true,
+        "backend_lowering": false,
+        "generated_program_execution": false
+      }
+    }
+  ],
+  "denied": [
+    "trim route backend lowering",
+    "executable route permission",
+    "join_id fabrication",
+    "rustc lifecycle adapter"
+  ],
+  "behavior": {
+    "metadata_candidate_allow": true,
+    "executable_lowering_allow": false,
+    "join_id_producer": false,
+    "backend_behavior_changed": false,
+    "converter_emission_added": false,
+    "generated_program_execution_claim": false
+  }
+}

@@ -1,6 +1,6 @@
 # 296x-1437 POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -35,6 +35,27 @@ C. rustc lifecycle facts adapter design/probe
 recommended=A-lite
 reason=trim route lowering is now the named remaining route-local boundary.
 The next step should be a decision/proof probe, not backend lowering.
+```
+
+## Decision
+
+```text
+selected_next_task=TRIM-ROUTE-LOWERING-DECISION-PROBE-001
+selected_scope=read-only decision fixture over existing trim route metadata
+selected_reason=trim_helper metadata and promoted_body_locals name recording
+exist, but executable trim route lowering must stay denied until promoted
+carrier identity / join_id proof exists.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+second lifecycle emitter surface:
+  parked until the trim route lowering decision surface is fixture-guarded.
+
+rustc lifecycle facts adapter design/probe:
+  parked until route-local lifecycle decision boundaries stop moving.
 ```
 
 ## Acceptance

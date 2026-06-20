@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleOracleVectors",
+  "subject": "trim route lowering decision probe",
+  "vectors": [
+    {
+      "id": "valid_metadata_missing_identity",
+      "input": {
+        "trim_helper_present": true,
+        "original_var": "ch",
+        "carrier_name": "is_ch_match",
+        "whitespace_chars": [" ", "\\t"],
+        "promoted_body_locals": ["ch"],
+        "join_id_produced": false
+      },
+      "expect": {
+        "metadata_decision": "AllowMetadataCandidate",
+        "executable_decision": "Deny",
+        "deny_reason": "MissingPromotedCarrierIdentity"
+      }
+    },
+    {
+      "id": "invalid_metadata_empty_whitespace",
+      "input": {
+        "trim_helper_present": true,
+        "original_var": "ch",
+        "carrier_name": "is_ch_match",
+        "whitespace_chars": [],
+        "promoted_body_locals": ["ch"],
+        "join_id_produced": false
+      },
+      "expect": {
+        "metadata_decision": "DenyInvalidTrimMetadata",
+        "executable_decision": "Deny",
+        "deny_reason": "InvalidTrimMetadata"
+      }
+    },
+    {
+      "id": "metadata_absent",
+      "input": {
+        "trim_helper_present": false
+      },
+      "expect": {
+        "metadata_decision": "DenyNoTrimHelper",
+        "executable_decision": "Deny",
+        "deny_reason": "NoTrimHelper"
+      }
+    }
+  ],
+  "claims": {
+    "metadata_candidate_allow": true,
+    "executable_lowering_allow": false,
+    "backend_behavior_changed": false,
+    "generated_program_execution_claim": false
+  }
+}

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -78,14 +78,17 @@ makes the existing CarrierInfo::merge_from emitter surface parser/MIR-checkable
 without generated-program, backend, or converter-core claims. 296x-1435
 selects trim route lowering inventory as the next owner. 296x-1436 inventories
 the trim route lowering boundary without backend, generated-program,
-rustc-adapter, or resolver-Allow claims.
+rustc-adapter, or resolver-Allow claims. 296x-1437 selects a read-only trim
+route lowering decision probe. 296x-1438 fixture-guards trim route metadata as
+a metadata candidate while executable route lowering remains denied by
+MissingPromotedCarrierIdentity.
 
-The active row is 296x-1437. It selects the next lifecycle owner after trim
-route lowering inventory.
+The active row is 296x-1439. It selects the next lifecycle owner after trim
+route lowering decision probing.
 
 ## Next
 
-1. Read 296x-1437.
+1. Read 296x-1439.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after trim route lowering inventory. Do not
-implement trim route lowering, add a second emitter surface, or start rustc
+Select the next lifecycle owner after trim route lowering decision probing.
+Do not implement a join_id producer, emit trim route lowering, or start rustc
 adapter work before choosing one next owner.
 ```
 
@@ -259,6 +259,7 @@ Acceptance for the current slice:
 
 ```bash
 bash tools/checks/rust_lifecycle_trim_route_lowering_inventory_guard.sh
+bash tools/checks/rust_lifecycle_trim_route_lowering_decision_guard.sh
 bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
 cargo check -q --lib
 git diff --check
@@ -267,7 +268,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1437.
+1. Read 296x-1439.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -277,7 +278,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -288,15 +289,15 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1437-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1439-POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
+1. POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001
 2. choose one of:
-   A. TRIM-ROUTE-LOWERING-DECISION-PROBE-001
+   A. promoted carrier identity / join_id producer design
    B. second lifecycle emitter surface
    C. rustc lifecycle facts adapter design/probe
 ```

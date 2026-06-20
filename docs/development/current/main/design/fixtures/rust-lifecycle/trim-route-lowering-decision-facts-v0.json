@@ -1,0 +1,42 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "trim route lowering decision probe",
+  "source_fixtures": [
+    "trim-helper-producer-facts-v0.json",
+    "promoted-body-locals-producer-facts-v0.json"
+  ],
+  "candidate_facts": [
+    {
+      "id": "TrimRouteLoweringDecision::metadata_candidate",
+      "candidate_kind": "TrimRouteMetadataCandidate",
+      "trim_helper_present": true,
+      "original_var": "ch",
+      "carrier_name": "is_ch_match",
+      "whitespace_chars": [" ", "\\t"],
+      "carrier_type": "Bool",
+      "initial_value": true,
+      "has_valid_structure": true,
+      "metadata_candidate_allow": true
+    }
+  ],
+  "required_for_executable_lowering": [
+    "promoted_body_locals contains original_var",
+    "resolve_promoted_join_id(original_var) returns Some(ValueId)"
+  ],
+  "denied_dependencies": [
+    {
+      "id": "promoted_carrier_identity",
+      "reason": "MissingPromotedCarrierIdentity",
+      "join_id_producer": false,
+      "production_some_valueid_producer": false
+    }
+  ],
+  "claims": {
+    "metadata_candidate_allow": true,
+    "executable_lowering_allow": false,
+    "backend_behavior_changed": false,
+    "generated_program_execution_claim": false,
+    "rustc_adapter_started": false
+  }
+}

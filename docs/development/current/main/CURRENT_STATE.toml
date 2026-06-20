@@ -199,22 +199,24 @@ exists. 296x-1433 selects bounded lifecycle emitter parser/MIR surface probing.
 parser/MIR-checkable without generated-program, backend, or converter-core
 claims. 296x-1435 selects trim route lowering inventory as the next owner.
 296x-1436 inventories the trim route lowering boundary without backend,
-generated-program, rustc-adapter, or resolver-Allow claims. The next blocker
-is 296x-1437: select the next lifecycle owner after trim route lowering
-inventory."""
+generated-program, rustc-adapter, or resolver-Allow claims. 296x-1437 selects
+a read-only trim route lowering decision probe. 296x-1438 fixture-guards trim
+route metadata as a metadata candidate while executable route lowering remains
+denied by MissingPromotedCarrierIdentity. The next blocker is 296x-1439:
+select the next lifecycle owner after trim route lowering decision probing."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1437-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1439-POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1437-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1437-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1437 selects the next lifecycle owner after
-trim route lowering boundary inventory."""
+latest_card = "296x-1439-POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1439-POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1439 selects the next lifecycle owner after
+trim route lowering decision probing."""
 
-current_blocker_token = "POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001"
+current_blocker_token = "POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
