@@ -149,27 +149,27 @@ blocked on helper-owned FileBox; 296x-1379 closes that helper shape as a
 boundary decision and keeps FileBox Main/input-route owned. 296x-1380 preserves
 FileBox receiver origin for dynamic path reads inside a Main-owned loop on the
 EXE pure route. 296x-1382 closes the manifest-driven 7-module `hakorune_mir_builder`
-crate-bundle aggregation through one Main-owned FileBox wrapper, with adapter
-crate-mode golden, wrapper EXE parity, and fixture-only aggregate generated
-skeleton MIR emit green. 296x-1381 freezes the Rust lifecycle projection SSOT,
-and 296x-1384 adds passive RustLifecycleFacts-v0 vocabulary. The next blocker
-is 296x-1385: add passive HakoLifecyclePlan-v0 vocabulary without implementing
-resolver, verifier, emitter, or BindingContext pilot behavior."""
+crate-bundle aggregation through one Main-owned FileBox wrapper. 296x-1381
+freezes the Rust lifecycle projection SSOT, 296x-1384 adds passive
+RustLifecycleFacts-v0 vocabulary, 296x-1385 adds passive HakoLifecyclePlan-v0
+vocabulary, and 296x-1386 documents the lifecycle emitter contract. The next
+blocker is 296x-1387: create a narrow BindingContext lifecycle pilot without
+implementing a general resolver or adding Rust lifetime syntax."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md"
 
-latest_card = "296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000.md"
-latest_card_summary = """296x-1385 adds passive
-HakoLifecyclePlan-v0 vocabulary for Immediate/AggregateLocal/BorrowView/
-TransferOwned/LocalBox/OrderedMapBox/HostResource/Compat shapes without
-implementing resolver, verifier, emitter, or pilot behavior."""
+latest_card = "296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md"
+latest_card_summary = """296x-1387 creates the first narrow
+MirBuilder BindingContext lifecycle pilot: BTreeMap deterministic order maps to
+OrderedMapBox only through facts/plans, &self/&mut borrow facts stay explicit,
+and TrivialMemory is required before memory Drop erase."""
 
-current_blocker_token = "HAKO-LIFECYCLE-PLAN-VOCAB-000"
+current_blocker_token = "MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

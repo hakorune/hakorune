@@ -33,16 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKO-LIFECYCLE-PLAN-VOCAB-000
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Add passive HakoLifecyclePlan-v0 vocabulary for Immediate / AggregateLocal /
-BorrowView / TransferOwned / LocalBox / OrderedMapBox / HostResource / Compat
-shapes before implementing resolver, verifier, emitter, or BindingContext
-lifecycle pilot behavior.
+Create the first narrow lifecycle projection pilot for MirBuilder
+BindingContext. Keep it BindingContext-specific: BTreeMap deterministic order
+projects to OrderedMapBox only through facts/plans; &self/&mut borrow facts
+remain explicit; TrivialMemory is required before memory Drop erase.
 ```
 
 Current evidence:
@@ -146,6 +146,11 @@ fixed as rustc adapter facts -> Hako lifecycle resolver -> verifier ->
 converter/emitter of verified plans.
 RUST-LIFECYCLE-FACTS-VOCAB-000 is closed by 296x-1384; passive
 RustLifecycleFacts-v0 vocabulary is documented without behavior changes.
+HAKO-LIFECYCLE-PLAN-VOCAB-000 is closed by 296x-1385; passive
+HakoLifecyclePlan-v0 vocabulary is documented without resolver, verifier,
+emitter, or pilot behavior.
+RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000 is closed by 296x-1386; the
+converter/emitter contract is fixed as rendering verified plans only.
 ```
 
 Acceptance for the current slice:
@@ -158,18 +163,17 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1385.
-2. Add passive HakoLifecyclePlan-v0 vocabulary only.
-3. Name Immediate / AggregateLocal / BorrowView / TransferOwned / LocalBox /
-   OrderedMapBox / HostResource / Compat shapes.
-4. Keep resolver, verifier, converter emission, and BindingContext pilot out of
-   this row.
-5. Keep Rust lifetime syntax additions disabled.
+1. Read 296x-1387.
+2. Add BindingContext lifecycle facts fixture / plan fixture first.
+3. Require deterministic-order fact before OrderedMapBox projection.
+4. Require TrivialMemory fact before memory Drop erase.
+5. Keep general resolver, converter emission, VariableContext, and Rust
+   lifetime syntax out of this row.
 
 Recommended next row:
 
 ```text
-HAKO-LIFECYCLE-PLAN-VOCAB-000
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
 ```
 
 Current lifecycle SSOT:
@@ -180,7 +184,7 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1385-HAKO-LIFECYCLE-PLAN-VOCAB-000.md
+docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md
 ```
 
 Task sequence:

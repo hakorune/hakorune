@@ -1,6 +1,6 @@
 # 296x-1385 HAKO-LIFECYCLE-PLAN-VOCAB-000
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -21,6 +21,7 @@ resolver, verifier, emitter, or BindingContext pilot.
 
 ```text
 docs/development/current/main/design/rust-lifecycle-projection-ssot.md
+docs/development/current/main/design/hako-lifecycle-plan-vocab-v0.md
 ```
 
 ## Scope
@@ -84,4 +85,23 @@ do_not_erase_Drop_without_positive_TrivialMemory_fact=1
 
 ```text
 296x-1386-RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000
+```
+
+## Closeout Evidence
+
+```text
+hako_lifecycle_plan_vocab_exists=1
+immediate_aggregate_borrow_transfer_localbox_orderedmap_named=1
+host_resource_and_compat_shapes_named=1
+rust_lifecycle_facts_vocab_consumed=1
+resolver_behavior_added=0
+converter_emission_added=0
+binding_context_pilot_started=0
+```
+
+Checks:
+
+```bash
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
 ```

@@ -23,6 +23,7 @@ Hako lifecycle verifier:
 
 emitter:
   emits only verified .hako / canonical MIR
+  SSOT: docs/development/current/main/design/rust-to-hako-lifecycle-emitter-contract.md
 ```
 
 The converter/emitter must not infer ownership from syntax by itself.
@@ -103,6 +104,7 @@ RustLifecycleFacts-v0:
 
 HakoLifecyclePlan-v0:
   Hako-owned projection result
+  SSOT: docs/development/current/main/design/hako-lifecycle-plan-vocab-v0.md
 ```
 
 ## Ownership Boundary

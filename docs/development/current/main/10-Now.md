@@ -20,26 +20,26 @@ Related:
 ## Active Blocker
 
 ```text
-HAKO-LIFECYCLE-PLAN-VOCAB-000
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. The Rust lifecycle projection SSOT and passive
-RustLifecycleFacts-v0 vocabulary are closed.
+lane status. The lifecycle projection SSOT, facts vocabulary, plan vocabulary,
+and emitter contract are closed.
 
-The active row is 296x-1385, which adds passive HakoLifecyclePlan-v0
-vocabulary before resolver, verifier, converter emission, or BindingContext
-lifecycle pilot behavior.
+The active row is 296x-1387, which creates a narrow BindingContext lifecycle
+pilot. It must stay BindingContext-specific and must not become a general
+lifecycle resolver.
 
 ## Next
 
-1. Read 296x-1385.
-2. Add passive HakoLifecyclePlan-v0 vocabulary only.
-3. Name Immediate / AggregateLocal / BorrowView / TransferOwned / LocalBox /
-   OrderedMapBox / HostResource / Compat shapes.
-4. Keep resolver, verifier, converter emission, and BindingContext pilot out of
-   this row.
-5. Run:
+1. Read 296x-1387.
+2. Add BindingContext lifecycle facts fixture / plan fixture first.
+3. Require deterministic-order fact before OrderedMapBox projection.
+4. Require TrivialMemory fact before memory Drop erase.
+5. Keep general resolver, converter emission, VariableContext, and Rust
+   lifetime syntax out of this row.
+6. Run:
 
 ```bash
 git diff --check
