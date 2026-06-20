@@ -1,0 +1,75 @@
+using apps.lib.hakorune_mir_builder.variable_context as VariableContextNativeApi
+
+static box Main {
+    main() {
+        local ctx = new VariableContextNative()
+        if VariableContextNativeApi.is_empty(ctx) != 1 {
+            print("variable_context_native_new_empty=fail")
+            return 1
+        }
+        if VariableContextNativeApi.len(ctx) != 0 {
+            print("variable_context_native_new_len=fail")
+            return 2
+        }
+        if VariableContextNativeApi.lookup(ctx, "missing") != null {
+            print("variable_context_native_lookup_missing=fail")
+            return 3
+        }
+        if VariableContextNativeApi.contains(ctx, "x") != 0 {
+            print("variable_context_native_contains_empty=fail")
+            return 4
+        }
+
+        VariableContextNativeApi.insert(ctx, "x", 1)
+        if VariableContextNativeApi.lookup(ctx, "x") != 1 {
+            print("variable_context_native_lookup_x=fail")
+            return 5
+        }
+        if VariableContextNativeApi.contains(ctx, "x") != 1 {
+            print("variable_context_native_contains_x=fail")
+            return 6
+        }
+
+        VariableContextNativeApi.insert(ctx, "x", 2)
+        if VariableContextNativeApi.lookup(ctx, "x") != 2 {
+            print("variable_context_native_overwrite_x=fail")
+            return 7
+        }
+        if VariableContextNativeApi.len(ctx) != 1 {
+            print("variable_context_native_len_after_overwrite=fail")
+            return 8
+        }
+
+        if VariableContextNativeApi.remove(ctx, "x") != 2 {
+            print("variable_context_native_remove_x=fail")
+            return 9
+        }
+        if VariableContextNativeApi.remove(ctx, "x") != null {
+            print("variable_context_native_remove_missing=fail")
+            return 10
+        }
+        if VariableContextNativeApi.lookup(ctx, "x") != null {
+            print("variable_context_native_lookup_removed=fail")
+            return 11
+        }
+
+        local other = new VariableContextNative()
+        VariableContextNativeApi.insert(ctx, "a", 10)
+        if VariableContextNativeApi.lookup(other, "a") != null {
+            print("variable_context_native_shared_storage=fail")
+            return 12
+        }
+        VariableContextNativeApi.insert(other, "a", 20)
+        if VariableContextNativeApi.lookup(ctx, "a") != 10 {
+            print("variable_context_native_ctx_a=fail")
+            return 13
+        }
+        if VariableContextNativeApi.lookup(other, "a") != 20 {
+            print("variable_context_native_other_a=fail")
+            return 14
+        }
+
+        print("variable_context_native_simple_map=ok")
+        return 0
+    }
+}

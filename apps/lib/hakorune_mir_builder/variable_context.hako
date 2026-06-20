@@ -1,0 +1,42 @@
+using apps.lib.collections.ordered_map as OrderedMap
+
+box VariableContextNative {
+    variable_map: OrderedMapBox
+
+    birth() {
+        me.variable_map = OrderedMap.create()
+    }
+}
+
+static box VariableContextNativeApi {
+    is_empty(ctx): i64 {
+        if ctx.variable_map.length() == 0 {
+            return 1
+        }
+        return 0
+    }
+
+    len(ctx): i64 {
+        return ctx.variable_map.length()
+    }
+
+    contains(ctx, name): i64 {
+        if ctx.variable_map.has(name) == true {
+            return 1
+        }
+        return 0
+    }
+
+    lookup(ctx, name) {
+        return ctx.variable_map.get(name)
+    }
+
+    insert(ctx, name, value_id): i64 {
+        ctx.variable_map.set(name, value_id)
+        return 0
+    }
+
+    remove(ctx, name) {
+        return ctx.variable_map.remove(name)
+    }
+}
