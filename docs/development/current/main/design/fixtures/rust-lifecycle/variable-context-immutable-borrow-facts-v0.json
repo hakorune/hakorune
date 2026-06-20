@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.immutable_map_borrow",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::variable_context",
+    "source_path": "src/variable_context.rs"
+  },
+  "base_facts": "variable-context-simple-map-facts-v0.json",
+  "method_facts": [
+    {
+      "id": "VariableContext::variable_map",
+      "receiver_borrow": {
+        "kind": "SharedRead",
+        "scope": "ReturnedBorrow",
+        "escapes": false,
+        "owner_carrying_required": true
+      },
+      "returns": {
+        "rust_type": "&BTreeMap<String, ValueId>",
+        "borrow_view": "OwnerCarryingBorrowView",
+        "access": "read"
+      },
+      "consumer_scope": [
+        "VariableContext read-only tests",
+        "region observer slot classification"
+      ]
+    }
+  ],
+  "excluded_consumers": [
+    {
+      "id": "CarrierInfo::from_variable_map",
+      "reason": "carrier-sensitive contract is outside immutable BorrowView probe"
+    },
+    {
+      "id": "CarrierInfo::with_explicit_carriers",
+      "reason": "carrier-sensitive contract is outside immutable BorrowView probe"
+    }
+  ],
+  "denied_methods": [
+    {
+      "id": "VariableContext::variable_map_mut",
+      "deny_reason": "ReturnedMutableBorrow"
+    },
+    {
+      "id": "VariableContext::snapshot",
+      "deny_reason": "SnapshotOwnedMapOutOfScope"
+    },
+    {
+      "id": "VariableContext::restore",
+      "deny_reason": "ReplaceOwnedOutOfScope"
+    }
+  ]
+}

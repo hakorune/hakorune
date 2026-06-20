@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.immutable_map_borrow",
+  "source_facts": "variable-context-immutable-borrow-facts-v0.json",
+  "plans": [
+    {
+      "id": "VariableContext::variable_map",
+      "plan_kind": "BorrowView",
+      "access": "read",
+      "owner": "VariableContext",
+      "borrowed_field": "VariableContext.variable_map",
+      "owner_carrying": true,
+      "escape_policy": "deny_if_escapes",
+      "return_alias_policy": "owner_carrying_view_only",
+      "required_facts": [
+        "receiver_borrow.kind=SharedRead",
+        "receiver_borrow.scope=ReturnedBorrow",
+        "receiver_borrow.escapes=false",
+        "receiver_borrow.owner_carrying_required=true"
+      ]
+    }
+  ],
+  "denied": [
+    "VariableContext::variable_map_mut",
+    "VariableContext::snapshot",
+    "VariableContext::restore",
+    "CarrierInfo::from_variable_map",
+    "CarrierInfo::with_explicit_carriers",
+    "PHI planner integration"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false,
+    "carrier_phi_claim": false,
+    "full_variable_context_claim": false
+  }
+}

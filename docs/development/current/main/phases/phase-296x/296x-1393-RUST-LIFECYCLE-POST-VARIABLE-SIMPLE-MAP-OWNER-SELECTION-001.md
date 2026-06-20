@@ -1,6 +1,6 @@
 # 296x-1393 RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,54 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected_owner=A
+selected_next_task=VARIABLE-CONTEXT-RETURNED-BORROW-BOUNDARY-INVENTORY-001
+implementation_started=0
+```
+
+Reason:
+
+```text
+VariableContext simple-map parity is green, but full VariableContext cannot be
+claimed while variable_map() and variable_map_mut() expose BTreeMap borrows
+outside the method boundary.
+```
+
+Selected scope:
+
+```text
+document returned immutable and mutable map borrow boundaries
+classify current consumers by read-only / mutable / carrier-sensitive use
+select initial lifecycle policy for returned map borrows
+```
+
+Initial policy:
+
+```text
+variable_map():
+  inventory read-only consumers and carrier-sensitive consumers
+  allow only owner-carrying read BorrowView candidates later
+
+variable_map_mut():
+  deny as ReturnedMutableBorrow until an API-specific replacement plan exists
+```
+
+Non-selected owners:
+
+```text
+B snapshot/restore ownership:
+  parked until returned map borrow boundary is named
+
+C carrier/PHI consumer lifecycle inventory:
+  parked until returned map borrow consumers are classified
+
+D HakoLifecycleResolver read-only skeleton:
+  parked until hard VariableContext lifecycle gaps are documented
 ```
 
 ## Stop Line

@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.immutable_map_borrow",
+  "source": "crates/hakorune_mir_builder/src/variable_context.rs",
+  "vectors": [
+    {
+      "id": "variable_map_access_read_only_borrow",
+      "operations": [
+        {"op": "new"},
+        {"op": "insert", "name": "a", "value_id": 10},
+        {"op": "insert", "name": "b", "value_id": 20},
+        {
+          "op": "borrow_view",
+          "method": "variable_map",
+          "access": "read",
+          "owner_carrying": true,
+          "escapes": false
+        },
+        {"op": "borrow_get", "name": "a", "expect": {"some_value_id": 10}},
+        {"op": "borrow_get", "name": "b", "expect": {"some_value_id": 20}},
+        {"op": "borrow_len", "expect": 2}
+      ]
+    },
+    {
+      "id": "variable_map_iteration_order_borrow",
+      "operations": [
+        {"op": "new"},
+        {"op": "insert", "name": "z", "value_id": 3},
+        {"op": "insert", "name": "a", "value_id": 1},
+        {"op": "insert", "name": "m", "value_id": 2},
+        {
+          "op": "borrow_iteration_order",
+          "method": "variable_map",
+          "expect": ["a", "m", "z"],
+          "requires": [
+            "VariableContext.variable_map.deterministic_order_required=true",
+            "VariableContext::variable_map.owner_carrying=true"
+          ]
+        }
+      ]
+    }
+  ],
+  "denied_vectors": [
+    "variable_map_mut_returned_borrow",
+    "snapshot",
+    "restore",
+    "carrier_extraction",
+    "phi_planner_integration"
+  ],
+  "promotion_scope": {
+    "hako_authority": "VariableContext immutable map borrow only",
+    "carrier_phi_claim": false,
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}

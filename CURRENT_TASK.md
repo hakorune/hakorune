@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after BindingContext and VariableContext
-simple-map pilots are both green. Do not start returned borrow,
-snapshot/restore, carrier/PHI, or resolver work before choosing one next owner.
+Select the next VariableContext lifecycle owner after immutable map BorrowView
+is green. Do not start mutable API replacement, snapshot/restore, carrier/PHI,
+or resolver work before choosing one next owner.
 ```
 
 Current evidence:
@@ -165,6 +165,17 @@ simple-map facts/plan fixtures and guard are green.
 VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-ORACLE-PARITY-001 is closed by
 296x-1392; simple-map plan matches oracle vectors without claiming returned
 map, snapshot/restore, carrier, or PHI behavior.
+RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001 is closed by
+296x-1393; returned borrow boundary inventory is selected as the next owner.
+VARIABLE-CONTEXT-RETURNED-BORROW-BOUNDARY-INVENTORY-001 is closed by
+296x-1394; variable_map() consumers are classified, variable_map_mut() has no
+external callsites but remains Deny(ReturnedMutableBorrow), and follow-up rows
+are named.
+VARIABLE-CONTEXT-POST-RETURNED-BORROW-OWNER-SELECTION-001 is closed by
+296x-1395; immutable map BorrowView probe is selected as the next owner.
+VARIABLE-CONTEXT-IMMUTABLE-MAP-BORROWVIEW-PROBE-001 is closed by 296x-1396;
+owner-carrying read BorrowView fixtures and guard are green while mutable map,
+snapshot/restore, carrier/PHI, and resolver claims remain disabled.
 ```
 
 Acceptance for the current slice:
@@ -177,7 +188,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1393.
+1. Read 296x-1397.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -186,7 +197,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:

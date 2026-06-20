@@ -156,22 +156,26 @@ vocabulary, and 296x-1386 documents the lifecycle emitter contract. 296x-1387
 through 296x-1388 close the BindingContext lifecycle pilot and oracle parity;
 296x-1389 through 296x-1392 close the VariableContext simple-map pilot and
 oracle parity while excluding returned map, snapshot/restore, carrier, and PHI
-behavior. The next blocker is 296x-1393: select the next lifecycle owner."""
+behavior. 296x-1393 selects the returned-borrow boundary as the next lifecycle
+owner. 296x-1394 inventories `VariableContext` returned map borrows and keeps
+`variable_map_mut()` denied as a returned mutable alias boundary. The next
+blocker is 296x-1397: select the next VariableContext lifecycle owner after
+the immutable `variable_map()` BorrowView probe is green."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1393-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1397-VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1393-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1393-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1393 selects the next lifecycle
-owner after BindingContext and VariableContext simple-map pilots, choosing
-between returned borrow boundary, snapshot/restore ownership, carrier/PHI
+latest_card = "296x-1397-VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1397-VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1397 selects the next
+VariableContext lifecycle owner after immutable map BorrowView, choosing
+between mutable map API replacement, snapshot/restore ownership, carrier/PHI
 inventory, or read-only resolver skeleton."""
 
-current_blocker_token = "RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001"
+current_blocker_token = "VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
