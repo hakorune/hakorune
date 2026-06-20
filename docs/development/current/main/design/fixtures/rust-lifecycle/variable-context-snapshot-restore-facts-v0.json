@@ -1,0 +1,53 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.snapshot_restore",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::variable_context",
+    "source_path": "src/variable_context.rs"
+  },
+  "base_facts": "variable-context-simple-map-facts-v0.json",
+  "method_facts": [
+    {
+      "id": "VariableContext::snapshot",
+      "receiver_borrow": {"kind": "SharedRead", "scope": "CallOnly", "escapes": false},
+      "operation": "CloneOwnedMap",
+      "returns": {
+        "rust_type": "BTreeMap<String, ValueId>",
+        "copy_kind": "NonCopyOwned",
+        "drop_fact": "TrivialMemory",
+        "deterministic_order_required": true
+      }
+    },
+    {
+      "id": "VariableContext::restore",
+      "receiver_borrow": {"kind": "UniqueWrite", "scope": "CallOnly", "escapes": false},
+      "operation": "ReplaceOwned",
+      "argument_moves": [
+        {
+          "name": "snapshot",
+          "rust_type": "BTreeMap<String, ValueId>",
+          "move_kind": "ConsumeArgument",
+          "drop_fact": "TrivialMemory",
+          "deterministic_order_required": true
+        }
+      ],
+      "old_value_cleanup": {
+        "field": "VariableContext.variable_map",
+        "required_fact": "VariableContext.variable_map.drop_fact=TrivialMemory"
+      }
+    }
+  ],
+  "denied_methods": [
+    {
+      "id": "VariableContext::variable_map_mut",
+      "deny_reason": "ReturnedMutableBorrow"
+    }
+  ],
+  "excluded_consumers": [
+    "CarrierInfo::from_variable_map",
+    "CarrierInfo::with_explicit_carriers",
+    "PHI planner integration"
+  ]
+}

@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next VariableContext lifecycle owner after immutable map BorrowView
-is green. Do not start mutable API replacement, snapshot/restore, carrier/PHI,
-or resolver work before choosing one next owner.
+Select the next VariableContext lifecycle owner after simple map, immutable
+BorrowView, and snapshot/restore ownership fixtures are green. Do not start
+mutable API replacement, carrier/PHI, or resolver work before choosing one
+next owner.
 ```
 
 Current evidence:
@@ -176,6 +177,11 @@ VARIABLE-CONTEXT-POST-RETURNED-BORROW-OWNER-SELECTION-001 is closed by
 VARIABLE-CONTEXT-IMMUTABLE-MAP-BORROWVIEW-PROBE-001 is closed by 296x-1396;
 owner-carrying read BorrowView fixtures and guard are green while mutable map,
 snapshot/restore, carrier/PHI, and resolver claims remain disabled.
+VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001 is closed by 296x-1397;
+snapshot/restore ownership is selected as the next owner.
+VARIABLE-CONTEXT-SNAPSHOT-RESTORE-OWNERSHIP-001 is closed by 296x-1398;
+CloneOwnedMap and ReplaceOwned fixtures and guard are green while mutable map,
+carrier/PHI, and resolver claims remain disabled.
 ```
 
 Acceptance for the current slice:
@@ -188,7 +194,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1397.
+1. Read 296x-1399.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -197,7 +203,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:

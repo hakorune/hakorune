@@ -1,6 +1,6 @@
 # 296x-1397 VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,54 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected_owner=B
+selected_next_task=VARIABLE-CONTEXT-SNAPSHOT-RESTORE-OWNERSHIP-001
+implementation_started=0
+```
+
+Reason:
+
+```text
+VariableContext simple-map and immutable BorrowView are green. The next
+contained ownership gap is snapshot()/restore(): clone and ReplaceOwned map
+transfer can be modeled without changing the public Rust API, opening
+carrier/PHI, or starting a general resolver.
+```
+
+Selected scope:
+
+```text
+snapshot():
+  owned deterministic map clone
+
+restore(snapshot):
+  ReplaceOwned map transfer
+  old map cleanup requires TrivialMemory
+```
+
+Non-selected owners:
+
+```text
+A mutable map API replacement:
+  parked because variable_map_mut() has no external callsites and may require
+  Rust API changes
+
+C carrier/PHI lifecycle inventory:
+  parked until snapshot/restore ownership is named
+
+D HakoLifecycleResolver read-only skeleton:
+  parked until VariableContext ownership-transfer gaps are closed
+```
+
+Next:
+
+```text
+296x-1398-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-OWNERSHIP-001
 ```
 
 ## Stop Line

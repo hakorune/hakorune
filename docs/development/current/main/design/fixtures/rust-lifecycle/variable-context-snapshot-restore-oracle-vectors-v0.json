@@ -1,0 +1,43 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.snapshot_restore",
+  "source": "crates/hakorune_mir_builder/src/variable_context.rs",
+  "vectors": [
+    {
+      "id": "snapshot_clone_then_restore",
+      "operations": [
+        {"op": "new"},
+        {"op": "insert", "name": "x", "value_id": 1},
+        {"op": "insert", "name": "y", "value_id": 2},
+        {
+          "op": "snapshot",
+          "expect": {"len": 2, "keys": ["x", "y"]},
+          "requires": ["deterministic_order_required=true"]
+        },
+        {"op": "insert", "name": "z", "value_id": 3},
+        {"op": "len", "expect": 3},
+        {
+          "op": "restore",
+          "argument": "snapshot",
+          "requires": ["ReplaceOwned", "old_map_cleanup=TrivialMemory"]
+        },
+        {"op": "len", "expect": 2},
+        {"op": "contains", "name": "x", "expect": true},
+        {"op": "contains", "name": "y", "expect": true},
+        {"op": "contains", "name": "z", "expect": false}
+      ]
+    }
+  ],
+  "denied_vectors": [
+    "variable_map_mut_returned_borrow",
+    "carrier_extraction",
+    "phi_planner_integration"
+  ],
+  "promotion_scope": {
+    "hako_authority": "VariableContext snapshot/restore only",
+    "carrier_phi_claim": false,
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}

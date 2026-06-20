@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-POST-BORROWVIEW-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -28,14 +28,15 @@ lane status. BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395
 selected immutable `variable_map()` BorrowView as the next owner. 296x-1396
-closed that BorrowView probe with fixture and guard parity.
+closed that BorrowView probe with fixture and guard parity. 296x-1398 closed
+snapshot/restore ownership with CloneOwnedMap and ReplaceOwned fixtures.
 
-The active row is 296x-1397. It selects the next VariableContext lifecycle
-owner after immutable map BorrowView.
+The active row is 296x-1399. It selects the next VariableContext lifecycle
+owner after snapshot/restore ownership.
 
 ## Next
 
-1. Read 296x-1397.
+1. Read 296x-1399.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

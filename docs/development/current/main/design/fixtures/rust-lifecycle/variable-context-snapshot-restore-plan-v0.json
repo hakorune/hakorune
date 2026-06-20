@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.snapshot_restore",
+  "source_facts": "variable-context-snapshot-restore-facts-v0.json",
+  "plans": [
+    {
+      "id": "VariableContext::snapshot",
+      "plan_kind": "CloneOwnedMap",
+      "source_field": "VariableContext.variable_map",
+      "result_plan": "OwnedOrderedMap",
+      "required_facts": [
+        "receiver_borrow.kind=SharedRead",
+        "receiver_borrow.escapes=false",
+        "returns.deterministic_order_required=true",
+        "returns.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "id": "VariableContext::restore",
+      "plan_kind": "ReplaceOwned",
+      "target_field": "VariableContext.variable_map",
+      "argument": "snapshot",
+      "old_value_cleanup": "erase",
+      "required_facts": [
+        "receiver_borrow.kind=UniqueWrite",
+        "receiver_borrow.escapes=false",
+        "argument.move_kind=ConsumeArgument",
+        "argument.deterministic_order_required=true",
+        "VariableContext.variable_map.drop_fact=TrivialMemory"
+      ]
+    }
+  ],
+  "denied": [
+    "VariableContext::variable_map_mut",
+    "CarrierInfo::from_variable_map",
+    "CarrierInfo::with_explicit_carriers",
+    "PHI planner integration"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false,
+    "carrier_phi_claim": false,
+    "full_variable_context_claim": false
+  }
+}
