@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-EXTRACTED-FACTS-VERIFIER-PARITY-001
+POST-RUSTC-SEMIR-EXTRACTED-FACTS-VERIFIER-PARITY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Verify that extractor-produced BindingContext and VariableContext
-RustLifecycleAdapterFacts are consumable by the existing lifecycle verifier
-fixture path, without adding Hako policy or backend behavior.
+Select the next owner after extractor-produced facts are verified through the
+existing lifecycle verifier path. Do not start rustc-internal adapter,
+emitter, backend, or wider context extraction before one owner is selected.
 ```
 
 Lifecycle converter boundary:

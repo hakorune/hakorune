@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-EXTRACTED-FACTS-VERIFIER-PARITY-001
+POST-RUSTC-SEMIR-EXTRACTED-FACTS-VERIFIER-PARITY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -175,13 +175,14 @@ that extraction pilot. The active row is 296x-1492. It pilots focused
 VariableContext lifecycle facts extraction. The active row is 296x-1493. It
 selects extracted-facts verifier parity as the next owner. The active row is
 296x-1494. It verifies extractor-produced facts through the existing lifecycle
-verifier path.
+verifier path. The active row is 296x-1495. It selects the next owner after
+verifier parity.
 
 ## Next
 
-1. Read 296x-1494.
-2. Verify extractor-produced facts through the existing verifier path.
-3. Keep Hako policy and backend behavior unchanged.
+1. Read 296x-1495.
+2. Select one next owner.
+3. Keep implementation_started=0 in this selection row.
 4. Run:
 
 ```bash

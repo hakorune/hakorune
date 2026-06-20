@@ -15,14 +15,19 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
+FACTS_OVERRIDES: dict[str, Path] = {}
 
 
 class FixtureError(AssertionError):
     pass
 
 
+def json_path(name: str) -> Path:
+    return FACTS_OVERRIDES.get(name, FIXTURES / name)
+
+
 def load_json(name: str) -> dict[str, Any]:
-    path = FIXTURES / name
+    path = json_path(name)
     if not path.exists():
         raise FixtureError(f"missing fixture: {path}")
     return json.loads(path.read_text())
@@ -38,7 +43,7 @@ def by_id(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
 
 
 def require_no_hako_policy_spelling(facts_name: str) -> None:
-    text = (FIXTURES / facts_name).read_text()
+    text = json_path(facts_name).read_text()
     forbidden = [
         "OrderedMapBox",
         "BorrowView",
@@ -187,7 +192,22 @@ def main() -> int:
         choices=["binding-context", "variable-context", "all"],
         default="all",
     )
+    parser.add_argument(
+        "--binding-context-facts",
+        type=Path,
+        help="Override BindingContext adapter facts input.",
+    )
+    parser.add_argument(
+        "--variable-context-facts",
+        type=Path,
+        help="Override VariableContext adapter facts input.",
+    )
     args = parser.parse_args()
+
+    if args.binding_context_facts is not None:
+        FACTS_OVERRIDES["binding-context-adapter-facts-v0.json"] = args.binding_context_facts
+    if args.variable_context_facts is not None:
+        FACTS_OVERRIDES["variable-context-adapter-facts-v0.json"] = args.variable_context_facts
 
     if args.case in ("binding-context", "all"):
         verify_binding_context()
