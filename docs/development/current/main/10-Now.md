@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-IMPLEMENTATION-001
+POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -183,13 +183,14 @@ semantic adapter boundary before implementation.
 296x-1498. It documents the rustc semantic adapter tool boundary and preflight
 contract. The active row is 296x-1499. It selects the next owner after that
 design. The active row is 296x-1500. It adds the diagnostic-only adapter tool
-preflight skeleton and guard.
+preflight skeleton and guard. The active row is 296x-1501. It selects the next
+owner after preflight.
 
 ## Next
 
-1. Read 296x-1500.
-2. Add the standalone adapter tool preflight skeleton.
-3. Keep lifecycle facts generation disabled.
+1. Read 296x-1501.
+2. Select one next owner.
+3. Keep fact extraction disabled in this selection row.
 4. Run:
 
 ```bash

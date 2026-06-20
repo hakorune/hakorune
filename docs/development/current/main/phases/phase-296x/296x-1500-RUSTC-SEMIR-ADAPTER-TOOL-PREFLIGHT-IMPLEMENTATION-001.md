@@ -1,6 +1,6 @@
 # 296x-1500 RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-IMPLEMENTATION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -61,6 +61,41 @@ Checks:
 bash tools/checks/rustc_semir_adapter_tool_preflight_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Implementation
+
+```text
+tool_manifest=tools/rust_lifecycle/rustc_semir_adapter/Cargo.toml
+tool_main=tools/rust_lifecycle/rustc_semir_adapter/src/main.rs
+guard=tools/checks/rustc_semir_adapter_tool_preflight_guard.sh
+```
+
+The tool supports only:
+
+```bash
+cargo run --manifest-path tools/rust_lifecycle/rustc_semir_adapter/Cargo.toml -- --preflight
+```
+
+The preflight reports rustc version diagnostics and confirms no facts, Hako
+plan, `.hako`, or backend behavior are produced.
+
+## Closeout
+
+```text
+adapter_tool_preflight_green=1
+standalone_tool_manifest_exists=1
+root_Cargo_rustc_private_dependency=0
+facts_generated=0
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
+```
+
+Next:
+
+```text
+POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-OWNER-SELECTION-001
 ```
 
 ## Stop Line
