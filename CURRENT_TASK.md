@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001
+VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle migration owner after the BindingContext pilot and
-oracle parity closeout. Do not start VariableContext, general resolver, or
-emitter work before selecting one next owner.
+Inventory VariableContext lifecycle gaps before creating any facts/plan pilot.
+Focus on returned immutable/mutable map borrows, snapshot/restore clone policy,
+SSA overwrite, carrier-sensitive consumers, and memory-only Drop preconditions.
 ```
 
 Current evidence:
@@ -155,6 +155,8 @@ BindingContext lifecycle facts/plan fixtures and guard are green.
 MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001 is closed by 296x-1388;
 the BindingContext lifecycle plan matches Rust oracle vectors and promotion is
 limited to BindingContext only.
+RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001 is closed by 296x-1389; A-lite is
+selected as VariableContext lifecycle gap inventory before any pilot.
 ```
 
 Acceptance for the current slice:
@@ -167,16 +169,17 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1389.
-2. Choose exactly one next lifecycle owner.
-3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 in this selection row.
-5. Keep MirBuilder-wide lifecycle parity claims disabled.
+1. Read 296x-1390.
+2. Inventory VariableContext lifecycle gaps only.
+3. Select the smallest next VariableContext slice.
+4. Keep facts/plan fixture creation out of this row.
+5. Keep Rust/Hako code changes, general resolver, and lifecycle parity claims
+   disabled.
 
 Recommended next row:
 
 ```text
-RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001
+VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
 ```
 
 Current lifecycle SSOT:
@@ -187,7 +190,7 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1389-RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1390-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001.md
 ```
 
 Task sequence:

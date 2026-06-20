@@ -1,6 +1,6 @@
 # 296x-1389 RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -61,4 +61,51 @@ do_not_start_VariableContext_before_selection=1
 do_not_start_general_resolver_before_selection=1
 do_not_start_emitter_before_selection=1
 do_not_claim_MirBuilder_wide_lifecycle_parity=1
+```
+
+## Selection
+
+```text
+selected_next_owner=A-lite
+selected_next_task=VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
+implementation_started=0
+```
+
+Rationale:
+
+```text
+VariableContext is the next MirBuilder-owned context after BindingContext, but
+it introduces wider shapes: returned `&BTreeMap`, returned `&mut BTreeMap`,
+snapshot/restore clone policy, SSA renaming, and carrier-sensitive iteration.
+Those should be inventoried before a facts/plan pilot starts.
+```
+
+Parked:
+
+```text
+HakoLifecycleResolver read-only skeleton:
+  parked until VariableContext gaps are inventoried
+
+Lifecycle emitter fail-fast stub:
+  parked until resolver/verifier path is selected
+
+BindingContext authority closeout docs:
+  partially satisfied by 296x-1388 closeout; no separate row now
+```
+
+## Closeout Evidence
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+binding_context_scope_preserved=1
+mirbuilder_wide_claim=0
+```
+
+Next row:
+
+```text
+296x-1390-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
 ```

@@ -20,22 +20,25 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001
+VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. BindingContext lifecycle pilot and oracle parity are closed.
+lane status. BindingContext lifecycle pilot/oracle parity is closed, and
+VariableContext gap inventory is selected as the next owner.
 
-The active row is 296x-1389, which selects the next lifecycle migration owner
-before starting VariableContext, general resolver, or emitter work.
+The active row is 296x-1390. It inventories VariableContext lifecycle gaps
+before any facts/plan pilot starts.
 
 ## Next
 
-1. Read 296x-1389.
-2. Choose exactly one next lifecycle owner.
-3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 in this selection row.
-5. Run:
+1. Read 296x-1390.
+2. Inventory VariableContext lifecycle gaps only.
+3. Select the smallest next VariableContext slice.
+4. Keep facts/plan fixture creation out of this row.
+5. Keep Rust/Hako code changes, general resolver, and lifecycle parity claims
+   disabled.
+6. Run:
 
 ```bash
 git diff --check
