@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-SHARED-BEHAVIORAL-EMITTER-001
+MIRBUILDER-VARIABLE-CONTEXT-SNAPSHOT-OWNERSHIP-001
 ```
 
 Purpose:
 
 ```text
-Write a shared MirBuilder behavioral emitter over VerifiedHakoFamilyIR for the
-already-green native BindingContext and VariableContext simple-map targets.
+Fix VariableContext snapshot ownership with clone_owned after the live
+lightweight facts converter is connected for BindingContext and VariableContext simple-map.
 ```
 
 Lifecycle converter boundary:
@@ -85,13 +85,13 @@ SSOT:
 Done:
   BindingContextNative source + behavior fixture
   VariableContextNative simple-map source + behavior fixture
+  shared MirBuilder behavioral emitter
+  live lightweight facts converter for BindingContext and VariableContext simple-map
 
 Next:
-  Write shared MirBuilder behavioral emitter
+  Fix VariableContext snapshot ownership with clone_owned
 
 Then:
-  Connect lightweight facts to simple-map converter
-  Fix VariableContext snapshot ownership with clone_owned
   Replace hard-coded family generators after converter matrix is green
 ```
 

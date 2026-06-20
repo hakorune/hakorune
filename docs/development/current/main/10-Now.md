@@ -20,15 +20,16 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-SHARED-BEHAVIORAL-EMITTER-001
+MIRBUILDER-VARIABLE-CONTEXT-SNAPSHOT-OWNERSHIP-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. The current task-order SSOT is
 `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
-Native BindingContext and VariableContext simple-map targets are executable.
-The next implementation task is a shared MirBuilder behavioral emitter over
-VerifiedHakoFamilyIR, without new route/card churn.
+The shared MirBuilder behavioral emitter and live lightweight facts path are
+in place for BindingContextNative and VariableContextNative simple-map. The
+next implementation task is fixing VariableContext snapshot ownership, without
+new route/card churn.
 
 Historical context follows.
 
