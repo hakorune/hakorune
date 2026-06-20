@@ -258,20 +258,20 @@ adapter verifier fixtures are present. 296x-1475 selects a fixture-only
 verifier skeleton. The next blocker is 296x-1476: add that reusable checker
 without rustc/converter/emitter/backend behavior changes. 296x-1476 adds the
 fixture-only checker for BindingContext and VariableContext. The next blocker
-is 296x-1480: select and render one verified lifecycle emitter surface."""
+is 296x-1481: compare one emitted lifecycle surface against its Rust oracle."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1480-RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1481-RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001.md"
 
-latest_card = "296x-1480-RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1480-RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001.md"
-latest_card_summary = """296x-1480 selects and renders one verified
-lifecycle plan fixture into a bounded .hako surface."""
+latest_card = "296x-1481-RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1481-RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001.md"
+latest_card_summary = """296x-1481 compares one emitted lifecycle surface
+against its Rust oracle for the selected family only."""
 
-current_blocker_token = "RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001"
+current_blocker_token = "RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

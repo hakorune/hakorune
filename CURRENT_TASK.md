@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001
+RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001
 ```
 
 Purpose:
 
 ```text
-Select and render one existing verified lifecycle plan fixture into a bounded
-`.hako` surface. Do not add direct Rust syntax ownership decisions, rustc
-integration, backend behavior, or crate-wide lifecycle parity claims.
+Compare one emitted lifecycle surface against the Rust oracle for the selected
+family only. Do not claim crate-wide or MirBuilder-wide lifecycle parity.
 ```
 
 Lifecycle converter boundary:

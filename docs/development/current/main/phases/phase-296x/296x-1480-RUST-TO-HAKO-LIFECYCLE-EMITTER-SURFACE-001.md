@@ -1,6 +1,6 @@
 # 296x-1480 RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -53,6 +53,45 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Closeout
+
+```text
+one_verified_plan_fixture_selected=1
+selected_fixture=carrier-info-merge-from-emitter-verifier-result-v0.json
+one_hako_surface_rendered=1
+surface=carrier-info-merge-from-emitter-surface-v0.hako
+parser_or_mir_surface_check_green=1
+direct_rust_syntax_ownership_decision=0
+rustc_integration_started=0
+backend_behavior_changed=0
+```
+
+Evidence:
+
+```bash
+bash tools/checks/rust_lifecycle_emitter_probe_guard.sh
+bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
+```
+
+Guard output:
+
+```text
+output_contract=rust-lifecycle-emitter-probe-v0
+emitter_probe_surface=green
+verified_result_required=green
+summary=ok
+
+output_contract=rust-lifecycle-emitter-surface-mir-v0
+surface_parse_or_mir_emit=green
+summary=ok
+```
+
+Next:
+
+```text
+296x-1481-RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001
 ```
 
 ## Stop Line

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001
+RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -154,14 +154,15 @@ BindingContext and VariableContext JSON fixtures.
 returning to implementation. 296x-1478 records the converter task sequence as
 verified HakoLifecyclePlan rendering, not direct Rust syntax ownership
 rewriting. 296x-1479 defines the lifecycle-aware converter two-input
-boundary. The active row is 296x-1480. It selects and renders one verified
-lifecycle plan fixture into a bounded `.hako` surface.
+boundary. 296x-1480 selects and renders one verified lifecycle plan fixture
+into a bounded `.hako` surface. The active row is 296x-1481. It compares that
+surface against the Rust oracle for the selected family only.
 
 ## Next
 
-1. Read 296x-1480.
-2. Select one existing verified lifecycle plan fixture.
-3. Render one bounded `.hako` lifecycle surface.
+1. Read 296x-1481.
+2. Compare the selected lifecycle surface against its Rust oracle fixture.
+3. Keep parity scoped to the selected family only.
 4. Run:
 
 ```bash

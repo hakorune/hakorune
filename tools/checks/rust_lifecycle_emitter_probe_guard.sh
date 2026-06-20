@@ -41,7 +41,8 @@ for token in [
     "plan_kind: OwnedCarrierInfoMerge",
     "source_plan: carrier-info-merge-from-plan-v0.json",
     "verifier_result: carrier-info-merge-from-emitter-verifier-result-v0.json",
-    "function CarrierInfo_merge_from_lifecycle_surface",
+    "box LifecycleEmitterSurface",
+    "merge_from_lifecycle_surface",
     "return receiver",
 ]:
     assert token in surface, token
