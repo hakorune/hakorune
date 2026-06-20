@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001
+POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -41,13 +41,16 @@ merge_from, and read-only CarrierInfo consumers.
 296x-1409 selects join_id producer inventory before any probe or resolver.
 296x-1410 records that production `CarrierVar.join_id` has no `Some(ValueId)`
 producer and is currently None-only outside tests/fixtures.
+296x-1411 selects `CarrierInfo::merge_from` lifecycle probing as the next live
+mutation boundary. 296x-1412 fixture-guards merge_from as
+OwnedCarrierInfoMerge without join_id producer or resolver claims.
 
-The active row is 296x-1411. It selects the next lifecycle owner after join_id
-producer inventory.
+The active row is 296x-1413. It selects the next lifecycle owner after
+merge_from lifecycle probing.
 
 ## Next
 
-1. Read 296x-1411.
+1. Read 296x-1413.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

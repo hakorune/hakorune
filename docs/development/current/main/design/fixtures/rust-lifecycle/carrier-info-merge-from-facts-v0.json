@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.merge_from",
+  "source": {
+    "crate": "hakorune",
+    "module": "src::mir::join_ir::lowering::carrier_info",
+    "source_path": "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs"
+  },
+  "base_facts": [
+    "variable-context-carrier-snapshot-facts-v0.json",
+    "variable-context-explicit-carrier-snapshot-facts-v0.json"
+  ],
+  "method_fact": {
+    "id": "CarrierInfo::merge_from",
+    "receiver": {
+      "ownership": "OwnedCarrierInfo",
+      "access": "mutable",
+      "escapes": false
+    },
+    "input": {
+      "source": "other CarrierInfo",
+      "borrow_view": "ReadOnlyBorrowView",
+      "access": "read",
+      "escapes": false
+    },
+    "operation": "OwnedCarrierInfoMerge",
+    "mutation": {
+      "adds_missing_carriers": true,
+      "deduplicates_by_name": true,
+      "sorts_carriers": true,
+      "copies_trim_helper_when_present": true,
+      "deduplicates_promoted_body_locals": true
+    },
+    "output": {
+      "mutates_receiver": true,
+      "publishes_variable_map": false,
+      "join_id_producer": false
+    }
+  },
+  "denied_followups": [
+    "join_id producer",
+    "trim_helper lifecycle owner",
+    "promoted_body_locals lifecycle owner",
+    "general resolver"
+  ]
+}

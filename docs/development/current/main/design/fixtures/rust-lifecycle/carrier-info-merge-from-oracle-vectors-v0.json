@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.merge_from",
+  "source": "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs",
+  "vectors": [
+    {
+      "id": "append_missing_carrier_and_sort",
+      "receiver_before": {
+        "carriers": [
+          {"name": "sum", "host_id": 10, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ],
+        "trim_helper": null,
+        "promoted_body_locals": []
+      },
+      "other": {
+        "carriers": [
+          {"name": "count", "host_id": 11, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ],
+        "trim_helper": null,
+        "promoted_body_locals": []
+      },
+      "expect": {
+        "carriers": [
+          {"name": "count", "host_id": 11, "join_id": null, "role": "LoopState", "init": "FromHost"},
+          {"name": "sum", "host_id": 10, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ],
+        "receiver_mutated": true,
+        "other_mutated": false
+      },
+      "requires": [
+        "receiver_owned",
+        "other_readonly_borrow",
+        "deduplicate_by_name",
+        "sort_after_merge"
+      ]
+    },
+    {
+      "id": "duplicate_carrier_is_not_added",
+      "receiver_before": {
+        "carriers": [
+          {"name": "sum", "host_id": 10, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ],
+        "trim_helper": null,
+        "promoted_body_locals": ["digit_pos"]
+      },
+      "other": {
+        "carriers": [
+          {"name": "sum", "host_id": 99, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ],
+        "trim_helper": "present",
+        "promoted_body_locals": ["digit_pos", "ch"]
+      },
+      "expect": {
+        "carriers": [
+          {"name": "sum", "host_id": 10, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ],
+        "trim_helper": "cloned_from_other",
+        "promoted_body_locals": ["digit_pos", "ch"],
+        "join_id_produced": false
+      },
+      "requires": [
+        "deduplicate_carriers_by_name",
+        "clone_trim_helper_when_present",
+        "deduplicate_promoted_body_locals"
+      ]
+    }
+  ],
+  "denied_vectors": [
+    "join_id_assignment",
+    "trim_helper_lifecycle_owner",
+    "promoted_body_locals_lifecycle_owner",
+    "general_resolver"
+  ],
+  "promotion_scope": {
+    "hako_authority": "CarrierInfo::merge_from owned mutation only",
+    "phi_join_id_claim": false,
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}

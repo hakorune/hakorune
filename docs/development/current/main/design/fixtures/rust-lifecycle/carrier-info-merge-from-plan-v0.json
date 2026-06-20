@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.merge_from",
+  "source_facts": "carrier-info-merge-from-facts-v0.json",
+  "plans": [
+    {
+      "id": "CarrierInfo::merge_from",
+      "plan_kind": "OwnedCarrierInfoMerge",
+      "receiver": "OwnedCarrierInfo",
+      "input": "other CarrierInfo ReadOnlyBorrowView",
+      "mutation_policy": "mutate_receiver_only",
+      "publication_policy": "does_not_publish_variable_map",
+      "merge_policy": {
+        "carriers": "append_missing_by_name_then_sort",
+        "trim_helper": "clone_if_other_has_some",
+        "promoted_body_locals": "append_missing_owned_strings"
+      },
+      "output_policy": {
+        "receiver_mutated": true,
+        "other_mutated": false,
+        "join_id": "not_produced"
+      },
+      "required_facts": [
+        "receiver.ownership=OwnedCarrierInfo",
+        "receiver.access=mutable",
+        "input.borrow_view=ReadOnlyBorrowView",
+        "input.escapes=false",
+        "mutation.deduplicates_by_name=true",
+        "mutation.sorts_carriers=true"
+      ]
+    }
+  ],
+  "denied": [
+    "join_id producer",
+    "trim_helper lifecycle owner",
+    "promoted_body_locals lifecycle owner",
+    "general resolver"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false,
+    "phi_join_id_claim": false,
+    "full_variable_context_claim": false
+  }
+}

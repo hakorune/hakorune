@@ -1,6 +1,6 @@
 # 296x-1411 POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,44 @@ implementation_started=0
 general_resolver_started=0
 full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
+```
+
+## Selection
+
+```text
+selected_owner=B-lite
+selected_next_task=CARRIER-INFO-MERGE-FROM-LIFECYCLE-PROBE-001
+selected_reason=merge_from is an actual production mutation boundary. join_id
+remains parked for vocabulary/design decision because production code has no
+Some(ValueId) producer today.
+```
+
+Parked:
+
+```text
+join_id vocabulary retirement/design decision:
+  parked; do not delete or implement join_id in this row
+
+HakoLifecycleResolver read-only skeleton:
+  parked until merge_from ownership is named
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+general_resolver_started=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1412-CARRIER-INFO-MERGE-FROM-LIFECYCLE-PROBE-001
 ```
 
 Checks:

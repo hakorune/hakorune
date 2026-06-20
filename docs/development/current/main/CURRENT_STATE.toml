@@ -164,22 +164,24 @@ selects PHI carrier lifecycle consumer inventory before any general resolver.
 and read-only CarrierInfo consumers. 296x-1409 selects join_id producer
 inventory before any probe or resolver. 296x-1410 records that production
 CarrierVar.join_id has no `Some(ValueId)` producer and is currently None-only
-outside tests. The next blocker is 296x-1411: select the next lifecycle owner
-after join_id producer inventory."""
+outside tests. 296x-1411 selects CarrierInfo::merge_from lifecycle probing as
+the next live mutation boundary. 296x-1412 fixture-guards merge_from as
+OwnedCarrierInfoMerge without join_id producer or resolver claims. The next
+blocker is 296x-1413: select the next lifecycle owner after merge_from."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1411-POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1413-POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1411-POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1411-POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1411 selects the next
-lifecycle owner after join_id producer inventory, choosing between join_id
-vocabulary decision, merge_from lifecycle, or a read-only resolver skeleton."""
+latest_card = "296x-1413-POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1413-POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1413 selects the next
+lifecycle owner after merge_from is fixture-guarded, choosing between join_id
+vocabulary decision, trim_helper lifecycle, or a read-only resolver skeleton."""
 
-current_blocker_token = "POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001"
+current_blocker_token = "POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -206,6 +206,17 @@ Future row:
 CARRIER-INFO-MERGE-FROM-LIFECYCLE-PROBE-001
 ```
 
+Fixture status:
+
+```text
+plan=OwnedCarrierInfoMerge
+guard=tools/checks/rust_lifecycle_carrier_info_merge_from_guard.sh
+receiver=OwnedCarrierInfo mutable
+input=other CarrierInfo read-only borrow
+join_id_producer=0
+general_resolver=0
+```
+
 ## Read-Only Consumers
 
 ```text
