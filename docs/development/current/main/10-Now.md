@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001
+VARIABLE-CONTEXT-DERIVED-ARTIFACT-PILOT-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -43,7 +43,8 @@ derived-mainline route seam, records BindingContext as not selected because no
 selfhost family-artifact route seam exists yet, and keeps runtime fallback
 forbidden. 296x-1516 now defines that route seam as an SSOT before any
 generated artifact is selected. 296x-1517 now applies that seam to
-BindingContext only.
+BindingContext only and selects it as the DerivedMainline family route.
+296x-1518 now selects the next derived-artifact pilot.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

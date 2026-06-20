@@ -1,6 +1,6 @@
 # 296x-1517 BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -48,6 +48,45 @@ runtime_try_hako_then_rust_fallback=0
 generated_artifact_manual_edit=0
 source_selfhost_claim=0
 backend_behavior_changed=0
+```
+
+## Closeout
+
+```text
+output_contract=rust-lifecycle-binding-context-derived-route-selection-v0
+family_id=hakorune_mir_builder::binding_context
+selected_route=derived_hako
+route_state=DerivedMainline
+route_seam_ssot_verified=1
+artifact_manifest_verified=1
+rust_bootstrap_retained=1
+rust_oracle_retained=1
+runtime_try_hako_then_rust_fallback=0
+generated_artifact_manual_edit=0
+source_selfhost_claim=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Evidence:
+
+```text
+lang/generated/rust_derived/hakorune_mir_builder/family_routes.json
+tools/checks/rust_lifecycle_binding_context_derived_route_selection_guard.sh
+```
+
+Boundary:
+
+```text
+This selects only the BindingContext family route in the generated artifact
+route manifest. It does not claim Source Selfhost, does not move the artifact
+to native Hako source, and does not remove Rust bootstrap/oracle routes.
+```
+
+Next:
+
+```text
+296x-1518-VARIABLE-CONTEXT-DERIVED-ARTIFACT-PILOT-SELECTION-001
 ```
 
 ## Stop Line
