@@ -1,6 +1,6 @@
 # 296x-1457 POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -38,6 +38,27 @@ C. second lifecycle emitter surface
 recommended=A
 reason=design selected readiness gate before backend lowering. Implement that
 gate first.
+```
+
+## Decision
+
+```text
+selected_next_task=TRIM-ROUTE-LOWERING-READINESS-GATE-001
+selected_scope=read-only readiness decision; no backend lowering
+selected_reason=the implementation design requires a readiness gate before
+backend lowering. This keeps executable route claims separate from proof and
+metadata readiness.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+executable trim route lowering pilot:
+  parked until readiness gate is implemented and green.
+
+second lifecycle emitter surface:
+  parked until active trim route lane reaches an executable readiness decision.
 ```
 
 ## Acceptance

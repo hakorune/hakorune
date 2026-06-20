@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -103,13 +103,15 @@ the explicit condition_bindings input and lookup order without changing code.
 remains denied by missing implementation readiness.
 296x-1455 selects executable trim route lowering implementation design. 296x-1456
 documents a readiness gate before backend lowering.
+296x-1457 selects the trim route lowering readiness gate.
+296x-1458 implements the read-only readiness decision without backend lowering.
 
-The active row is 296x-1457. It selects the next owner after executable trim
-route lowering design.
+The active row is 296x-1459. It selects the next owner after the readiness
+gate.
 
 ## Next
 
-1. Read 296x-1457.
+1. Read 296x-1459.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

@@ -227,9 +227,81 @@ impl TrimLoopHelper {
     }
 }
 
+/// Readiness deny reasons for executable trim-route lowering.
+///
+/// This is a read-only decision surface. `Ready` means the trim route has the
+/// proof needed to attempt a future lowering implementation; it does not emit
+/// backend lowering by itself.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrimRouteLoweringReadinessDeny {
+    NoTrimHelper,
+    InvalidTrimMetadata,
+    MissingConditionBindingIdentity,
+}
+
+/// Readiness decision for the trim-route lowering implementation seam.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrimRouteLoweringReadinessDecision {
+    Ready,
+    Deny(TrimRouteLoweringReadinessDeny),
+}
+
+impl TrimRouteLoweringReadinessDecision {
+    pub fn is_ready(self) -> bool {
+        matches!(self, Self::Ready)
+    }
+}
+
+pub fn decide_trim_route_lowering_readiness(
+    carrier_info: &crate::mir::join_ir::lowering::carrier_info::CarrierInfo,
+    condition_bindings: &[crate::mir::join_ir::lowering::condition_env::ConditionBinding],
+) -> TrimRouteLoweringReadinessDecision {
+    let helper = match carrier_info.trim_helper() {
+        Some(helper) => helper,
+        None => {
+            return TrimRouteLoweringReadinessDecision::Deny(
+                TrimRouteLoweringReadinessDeny::NoTrimHelper,
+            )
+        }
+    };
+
+    if !helper.has_valid_structure() {
+        return TrimRouteLoweringReadinessDecision::Deny(
+            TrimRouteLoweringReadinessDeny::InvalidTrimMetadata,
+        );
+    }
+
+    if carrier_info
+        .resolve_promoted_condition_binding_identity(&helper.original_var, condition_bindings)
+        .is_none()
+    {
+        return TrimRouteLoweringReadinessDecision::Deny(
+            TrimRouteLoweringReadinessDeny::MissingConditionBindingIdentity,
+        );
+    }
+
+    TrimRouteLoweringReadinessDecision::Ready
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
+    use crate::mir::ValueId;
+
+    fn readiness_carrier_info() -> crate::mir::join_ir::lowering::carrier_info::CarrierInfo {
+        crate::mir::join_ir::lowering::carrier_info::CarrierInfo {
+            loop_var_name: "start".to_string(),
+            loop_var_id: ValueId(1),
+            carriers: vec![],
+            trim_helper: Some(TrimLoopHelper {
+                original_var: "ch".to_string(),
+                carrier_name: "is_ch_match".to_string(),
+                whitespace_chars: vec![" ".to_string()],
+            }),
+            promoted_body_locals: vec!["ch".to_string()],
+        }
+    }
 
     #[test]
     fn test_from_route_info() {
@@ -339,5 +411,72 @@ mod tests {
             whitespace_chars: vec![" ".to_string()],
         };
         assert!(helper.has_valid_structure());
+    }
+
+    #[test]
+    fn trim_route_lowering_readiness_allows_identity_ready_inputs() {
+        let carrier_info = readiness_carrier_info();
+        let condition_bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        let decision = decide_trim_route_lowering_readiness(&carrier_info, &condition_bindings);
+        assert_eq!(decision, TrimRouteLoweringReadinessDecision::Ready);
+        assert!(decision.is_ready());
+    }
+
+    #[test]
+    fn trim_route_lowering_readiness_denies_missing_trim_helper() {
+        let mut carrier_info = readiness_carrier_info();
+        carrier_info.trim_helper = None;
+        let condition_bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            decide_trim_route_lowering_readiness(&carrier_info, &condition_bindings),
+            TrimRouteLoweringReadinessDecision::Deny(
+                TrimRouteLoweringReadinessDeny::NoTrimHelper
+            )
+        );
+    }
+
+    #[test]
+    fn trim_route_lowering_readiness_denies_invalid_trim_metadata() {
+        let mut carrier_info = readiness_carrier_info();
+        carrier_info.trim_helper.as_mut().unwrap().whitespace_chars.clear();
+        let condition_bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            decide_trim_route_lowering_readiness(&carrier_info, &condition_bindings),
+            TrimRouteLoweringReadinessDecision::Deny(
+                TrimRouteLoweringReadinessDeny::InvalidTrimMetadata
+            )
+        );
+    }
+
+    #[test]
+    fn trim_route_lowering_readiness_denies_missing_condition_binding_identity() {
+        let carrier_info = readiness_carrier_info();
+        let condition_bindings = vec![ConditionBinding::new(
+            "is_other_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        assert_eq!(
+            decide_trim_route_lowering_readiness(&carrier_info, &condition_bindings),
+            TrimRouteLoweringReadinessDecision::Deny(
+                TrimRouteLoweringReadinessDeny::MissingConditionBindingIdentity
+            )
+        );
     }
 }
