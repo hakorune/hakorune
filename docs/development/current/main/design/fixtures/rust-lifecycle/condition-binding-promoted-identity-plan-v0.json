@@ -1,0 +1,34 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "condition-binding promoted identity proof probe",
+  "source_facts": "condition-binding-promoted-identity-facts-v0.json",
+  "plans": [
+    {
+      "id": "ConditionBindingPromotedIdentity::trim_ch",
+      "plan_kind": "ConditionBindingPromotedIdentityProof",
+      "decision": "AllowIdentityCandidate",
+      "identity_source": "ConditionBinding.join_value",
+      "identity_value": "ValueId(200)",
+      "allowed_output": {
+        "diagnostic_identity_report": true,
+        "resolution_rewrite": false,
+        "trim_route_lowering": false,
+        "backend_lowering": false
+      }
+    }
+  ],
+  "denied": [
+    "resolve_promoted_join_id rewrite",
+    "CarrierVar.join_id producer",
+    "trim route lowering",
+    "generated program execution"
+  ],
+  "behavior": {
+    "allow_identity_candidate": true,
+    "resolution_rewrite_added": false,
+    "join_id_producer_added": false,
+    "trim_route_lowering_added": false,
+    "backend_behavior_changed": false
+  }
+}

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001
+POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -87,14 +87,16 @@ CarrierVar.join_id producer, and ConditionBinding identity options without
 implementing any producer. 296x-1441 selects condition-binding identity as the
 promoted carrier identity policy. 296x-1442 records that decision without
 rewriting resolution, adding a join_id producer, or emitting trim route
-lowering.
+lowering. 296x-1443 selects a read-only condition-binding promoted identity
+proof probe. 296x-1444 fixture-guards AllowIdentityCandidate and missing /
+mismatched deny vectors without resolution rewrite or trim lowering.
 
-The active row is 296x-1443. It selects the next lifecycle owner after
-promoted carrier identity policy decision.
+The active row is 296x-1445. It selects the next lifecycle owner after
+condition-binding identity proof.
 
 ## Next
 
-1. Read 296x-1443.
+1. Read 296x-1445.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

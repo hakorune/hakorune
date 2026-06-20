@@ -1,0 +1,60 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleOracleVectors",
+  "subject": "condition-binding promoted identity proof probe",
+  "vectors": [
+    {
+      "id": "allow_identity_candidate",
+      "input": {
+        "original_var": "ch",
+        "trim_helper_carrier_name": "is_ch_match",
+        "promoted_body_locals": ["ch"],
+        "condition_bindings": [
+          {
+            "name": "is_ch_match",
+            "join_value": "ValueId(200)"
+          }
+        ]
+      },
+      "expect": {
+        "decision": "AllowIdentityCandidate",
+        "identity_value": "ValueId(200)"
+      }
+    },
+    {
+      "id": "deny_missing_condition_binding",
+      "input": {
+        "original_var": "ch",
+        "trim_helper_carrier_name": "is_ch_match",
+        "promoted_body_locals": ["ch"],
+        "condition_bindings": []
+      },
+      "expect": {
+        "decision": "DenyMissingConditionBindingIdentity"
+      }
+    },
+    {
+      "id": "deny_promoted_name_mismatch",
+      "input": {
+        "original_var": "ch",
+        "trim_helper_carrier_name": "is_ch_match",
+        "promoted_body_locals": ["other"],
+        "condition_bindings": [
+          {
+            "name": "is_ch_match",
+            "join_value": "ValueId(200)"
+          }
+        ]
+      },
+      "expect": {
+        "decision": "DenyPromotedNameMismatch"
+      }
+    }
+  ],
+  "claims": {
+    "allow_identity_candidate": true,
+    "resolution_rewrite_added": false,
+    "trim_route_lowering_added": false,
+    "backend_behavior_changed": false
+  }
+}

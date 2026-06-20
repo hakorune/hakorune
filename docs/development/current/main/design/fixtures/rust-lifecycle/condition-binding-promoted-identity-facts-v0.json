@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "condition-binding promoted identity proof probe",
+  "source_policy": "promoted-carrier-identity-policy-decision.md",
+  "candidate_facts": [
+    {
+      "id": "ConditionBindingPromotedIdentity::trim_ch",
+      "original_var": "ch",
+      "promoted_carrier_name": "is_ch_match",
+      "promoted_body_locals": ["ch"],
+      "trim_helper": {
+        "original_var": "ch",
+        "carrier_name": "is_ch_match"
+      },
+      "condition_bindings": [
+        {
+          "name": "is_ch_match",
+          "host_value": "ValueId(42)",
+          "join_value": "ValueId(200)"
+        }
+      ],
+      "identity_candidate": "ValueId(200)"
+    }
+  ],
+  "denied_boundaries": [
+    "resolve_promoted_join_id rewrite",
+    "CarrierVar.join_id producer",
+    "trim route lowering",
+    "backend behavior"
+  ],
+  "claims": {
+    "allow_identity_candidate": true,
+    "resolution_rewrite_added": false,
+    "join_id_producer_added": false,
+    "trim_route_lowering_added": false,
+    "generated_program_execution_claim": false
+  }
+}

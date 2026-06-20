@@ -208,21 +208,24 @@ CarrierVar.join_id producer, and ConditionBinding identity options without
 implementing any producer. 296x-1441 selects condition-binding identity as the
 promoted carrier identity policy. 296x-1442 records that decision without
 rewriting resolution, adding a join_id producer, or emitting trim route
-lowering. The next blocker is 296x-1443: select the next lifecycle owner after
-promoted carrier identity policy decision."""
+lowering. 296x-1443 selects a read-only condition-binding promoted identity
+proof probe. 296x-1444 fixture-guards AllowIdentityCandidate and missing /
+mismatched deny vectors without resolution rewrite or trim lowering. The next
+blocker is 296x-1445: select the next lifecycle owner after condition-binding
+identity proof."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1443-POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1445-POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1443-POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1443-POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1443 selects the next lifecycle owner after
-promoted carrier identity policy decision."""
+latest_card = "296x-1445-POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1445-POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1445 selects the next lifecycle owner after
+condition-binding promoted identity proof."""
 
-current_blocker_token = "POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001"
+current_blocker_token = "POST-CONDITION-BINDING-IDENTITY-PROOF-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

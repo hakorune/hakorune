@@ -1,6 +1,6 @@
 # 296x-1443 POST-PROMOTED-CARRIER-IDENTITY-POLICY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -36,6 +36,26 @@ C. rustc lifecycle facts adapter design/probe
 recommended=A-lite
 reason=the selected policy still needs a read-only proof probe before any
 resolution rewrite or trim route lowering.
+```
+
+## Decision
+
+```text
+selected_next_task=CONDITION-BINDING-PROMOTED-IDENTITY-PROOF-PROBE-001
+selected_scope=read-only proof fixtures over existing ConditionBinding data
+selected_reason=condition-binding identity is selected as policy, but it must
+be proven as a candidate before any resolution rewrite or trim lowering.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+second lifecycle emitter surface:
+  parked until identity proof is fixture-guarded.
+
+rustc lifecycle facts adapter design/probe:
+  parked until internal identity proof is fixture-guarded.
 ```
 
 ## Acceptance
