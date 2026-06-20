@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001
+VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -47,7 +47,7 @@ BindingContext only and selects it as the DerivedMainline family route.
 296x-1518 now selects the next derived-artifact pilot.
 It selects VariableContext simple-map only; returned borrow, snapshot/restore,
 and carrier-sensitive behavior stay out of scope. 296x-1519 now generates
-that bounded artifact.
+that bounded artifact. 296x-1520 now decides its derived route selection.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

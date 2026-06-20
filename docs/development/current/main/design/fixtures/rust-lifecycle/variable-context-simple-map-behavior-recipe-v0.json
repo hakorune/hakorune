@@ -1,0 +1,54 @@
+{
+  "excluded_methods": [
+    "VariableContext::variable_map",
+    "VariableContext::variable_map_mut",
+    "VariableContext::snapshot",
+    "VariableContext::restore"
+  ],
+  "family_id": "hakorune_mir_builder::variable_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "VariableContextApi.lookup(ctx, name)",
+      "hako_operation": "OrderedMapBox.get",
+      "id": "VariableContext::lookup",
+      "rust_operation": "BTreeMap::get(...).copied"
+    },
+    {
+      "emits": "VariableContextApi.contains(ctx, name)",
+      "hako_operation": "OrderedMapBox.has as i64_bool_v0",
+      "id": "VariableContext::contains",
+      "rust_operation": "BTreeMap::contains_key"
+    },
+    {
+      "emits": "VariableContextApi.len(ctx)",
+      "hako_operation": "OrderedMapBox.length",
+      "id": "VariableContext::len",
+      "rust_operation": "BTreeMap::len"
+    },
+    {
+      "emits": "VariableContextApi.is_empty(ctx)",
+      "hako_operation": "OrderedMapBox.length == 0 as i64_bool_v0",
+      "id": "VariableContext::is_empty",
+      "rust_operation": "BTreeMap::is_empty"
+    },
+    {
+      "emits": "VariableContextApi.insert(ctx, name, value_id)",
+      "hako_operation": "OrderedMapBox.set",
+      "id": "VariableContext::insert",
+      "rust_operation": "BTreeMap::insert"
+    },
+    {
+      "emits": "VariableContextApi.remove(ctx, name)",
+      "hako_operation": "OrderedMapBox.remove",
+      "id": "VariableContext::remove",
+      "rust_operation": "BTreeMap::remove"
+    }
+  ],
+  "pilot_scope": "VariableContext_simple_map_only",
+  "schema_version": 0,
+  "selected_body_count": "simple_map_methods_only",
+  "source_oracle": "variable-context-simple-map-oracle-vectors-v0.json",
+  "source_plan": "variable-context-simple-map-plan-v0.json",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.simple_map"
+}

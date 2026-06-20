@@ -1,0 +1,43 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "excluded_methods": [
+      "VariableContext::variable_map",
+      "VariableContext::variable_map_mut",
+      "VariableContext::snapshot",
+      "VariableContext::restore"
+    ],
+    "full_variable_context_claim": 0,
+    "hako_behavior_recipe": "verified",
+    "hako_lifecycle_plan": "verified",
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "rust_facts_input": "verified",
+    "selected_body_count": "simple_map_methods_only",
+    "unclassified_drop_obligations": 0,
+    "unmapped_mir_side_effects": 0,
+    "unmapped_thir_nodes": 0,
+    "unresolved_call_targets": 0
+  },
+  "family_id": "hakorune_mir_builder::variable_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "VariableContext_simple_map_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "variable-context-simple-map-facts-v0.json",
+  "source_plan": "variable-context-simple-map-plan-v0.json",
+  "source_recipe": "variable-context-simple-map-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext.simple_map",
+  "transport_notes": {
+    "bool_return_transport": "i64_bool_v0",
+    "value_id_transport": "i64"
+  },
+  "verified_operations": [
+    "OrderedMapBox.get",
+    "OrderedMapBox.has as i64_bool_v0",
+    "OrderedMapBox.length",
+    "OrderedMapBox.length == 0 as i64_bool_v0",
+    "OrderedMapBox.set",
+    "OrderedMapBox.remove"
+  ]
+}

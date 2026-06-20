@@ -263,15 +263,14 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1519-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1520-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001.md"
 
-latest_card = "296x-1519-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1519-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001.md"
-latest_card_summary = """296x-1519 opens the VariableContext simple-map-only
-derived artifact pilot after 296x-1518 selects VariableContext while keeping
-returned borrows, snapshot/restore, and carrier behavior out of scope."""
+latest_card = "296x-1520-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1520-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001.md"
+latest_card_summary = """296x-1520 opens VariableContext simple-map derived
+route selection after 296x-1519 checks in the bounded generated artifact."""
 
-current_blocker_token = "VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001"
+current_blocker_token = "VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
