@@ -1,6 +1,6 @@
 # 296x-1461 POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,26 @@ C. second lifecycle emitter surface
 recommended=A
 reason=inventory selected the boundary/route-lowering seam. Add a read-only
 integration probe there before backend lowering.
+```
+
+## Decision
+
+```text
+selected_next_task=ROUTE-BOUNDARY-TRIM-READINESS-INTEGRATION-PROBE-001
+selected_scope=read-only integration probe; no backend lowering
+selected_reason=inventory identified the boundary/route-lowering seam as the
+first valid place where CarrierInfo and condition_bindings can coexist.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+executable trim route lowering pilot:
+  parked until read-only integration probe is green.
+
+second lifecycle emitter surface:
+  parked until active trim route lane reaches integration proof.
 ```
 
 ## Acceptance

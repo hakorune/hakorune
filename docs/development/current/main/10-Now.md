@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001
+POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -107,13 +107,16 @@ documents a readiness gate before backend lowering.
 296x-1458 implements the read-only readiness decision without backend lowering.
 296x-1459 selects readiness integration inventory. 296x-1460 inventories the
 boundary/route-lowering seam as the first valid callsite.
+296x-1461 selects a route-boundary trim readiness integration probe.
+296x-1462 adds the read-only JoinInlineBoundary readiness probe without backend
+lowering.
 
-The active row is 296x-1461. It selects the next owner after readiness
-integration inventory.
+The active row is 296x-1463. It selects the next owner after route-boundary
+trim readiness probe.
 
 ## Next
 
-1. Read 296x-1461.
+1. Read 296x-1463.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

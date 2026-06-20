@@ -38,6 +38,26 @@ impl JoinInlineBoundary {
         Ok(())
     }
 
+    /// Read-only readiness probe for future trim-route lowering.
+    ///
+    /// This boundary owns both carrier metadata and condition bindings, so it
+    /// is the first safe seam to ask whether trim lowering is ready. It does
+    /// not emit backend lowering.
+    pub fn trim_route_lowering_readiness(
+        &self,
+    ) -> crate::mir::loop_route_detection::support::trim::TrimRouteLoweringReadinessDecision {
+        let Some(carrier_info) = self.carrier_info.as_ref() else {
+            return crate::mir::loop_route_detection::support::trim::TrimRouteLoweringReadinessDecision::Deny(
+                crate::mir::loop_route_detection::support::trim::TrimRouteLoweringReadinessDeny::NoTrimHelper,
+            );
+        };
+
+        crate::mir::loop_route_detection::support::trim::decide_trim_route_lowering_readiness(
+            carrier_info,
+            self.condition_bindings.as_slice(),
+        )
+    }
+
     /// Phase 132-R0 Task 1: SSOT for default continuation function names
     /// Phase 256 P1.7: Changed from JoinFuncIds to function names (Strings)
     ///

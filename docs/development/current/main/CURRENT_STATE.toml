@@ -228,21 +228,23 @@ documents a readiness gate before backend lowering. 296x-1457 selects the trim
 route lowering readiness gate. 296x-1458 implements the read-only readiness
 decision without backend lowering. 296x-1459 selects readiness integration
 inventory. 296x-1460 inventories the boundary/route-lowering seam as the first
-valid callsite. The next blocker is 296x-1461: select the next owner after the
-readiness integration inventory."""
+valid callsite. 296x-1461 selects a route-boundary trim readiness integration
+probe. 296x-1462 adds the read-only JoinInlineBoundary readiness probe without
+backend lowering. The next blocker is 296x-1463: select the next owner after
+the route-boundary probe."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1461-POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1463-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1461-POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1461-POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1461 selects the next owner after trim route
-readiness integration inventory."""
+latest_card = "296x-1463-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1463-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1463 selects the next owner after route-boundary
+trim readiness probe."""
 
-current_blocker_token = "POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001"
+current_blocker_token = "POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
