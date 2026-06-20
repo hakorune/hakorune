@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001
+MIRBUILDER-SHARED-BEHAVIORAL-EMITTER-001
 ```
 
 Purpose:
 
 ```text
-Decide whether the VariableContext snapshot/restore artifact can be selected
-as a `derived_hako` family route.
+Write a shared MirBuilder behavioral emitter over VerifiedHakoFamilyIR for the
+already-green native BindingContext and VariableContext simple-map targets.
 ```
 
 Lifecycle converter boundary:
@@ -69,6 +69,25 @@ MirBuilder family migration wording:
 
   Rust bootstrap / Rust compat route / Rust oracle vectors stay preserved.
   Do not treat semantic-authority demotion as Rust bootstrap removal.
+```
+
+Implementation task order:
+
+```text
+SSOT:
+  docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
+
+Done:
+  BindingContextNative source + behavior fixture
+  VariableContextNative simple-map source + behavior fixture
+
+Next:
+  Write shared MirBuilder behavioral emitter
+
+Then:
+  Connect live rustc facts to simple-map converter
+  Fix VariableContext snapshot ownership with clone_owned
+  Replace hard-coded family generators after converter matrix is green
 ```
 
 Current task order:

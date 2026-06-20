@@ -263,15 +263,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1525-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "296x-1525-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1525-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001.md"
-latest_card_summary = """296x-1524 closes the snapshot/restore artifact
-pilot, and 296x-1525 decides whether that generated artifact is selected as a
-derived_hako family route."""
+latest_card = "mirbuilder-rust-to-hako-converter-task-order-ssot"
+latest_card_path = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+latest_card_summary = """Native BindingContext and VariableContext simple-map
+targets are executable. The next task is a shared MirBuilder behavioral emitter
+over VerifiedHakoFamilyIR, without new route/card churn."""
 
-current_blocker_token = "VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001"
+current_blocker_token = "MIRBUILDER-SHARED-BEHAVIORAL-EMITTER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

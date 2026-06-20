@@ -20,11 +20,19 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001
+MIRBUILDER-SHARED-BEHAVIORAL-EMITTER-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. 296x-1510 extracted BindingContext MIR lifecycle facts from
+lane status. The current task-order SSOT is
+`docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
+Native BindingContext and VariableContext simple-map targets are executable.
+The next implementation task is a shared MirBuilder behavioral emitter over
+VerifiedHakoFamilyIR, without new route/card churn.
+
+Historical context follows.
+
+296x-1510 extracted BindingContext MIR lifecycle facts from
 optimized MIR without Hako plan, `.hako`, backend, or authority-promotion
 claims. 296x-1511 selected the Derived-to-Native Hako Artifact Model:
 generated Hako is a selected execution artifact, while native Hako adoption is

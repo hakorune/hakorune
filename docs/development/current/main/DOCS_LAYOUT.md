@@ -79,6 +79,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     reference during derived phases, generated Hako as execution artifact, and
     Hako-native adoption as the source-selfhost exit for compiler semantic
     families
+- `design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`
+  - MirBuilder-only Rust-to-Hako converter task order; keeps day-to-day work in
+    implementation commits and uses human design stops instead of route/card
+    churn
 - `design/current-docs-archive-policy-ssot.md`
   - archive buckets, landed ledger, and current-doc slimming contract
 - `design/mir-cleanup-policy-ssot.md`
