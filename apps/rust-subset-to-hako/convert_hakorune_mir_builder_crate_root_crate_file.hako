@@ -1,0 +1,122 @@
+// convert_hakorune_mir_builder_crate_root_crate_file.hako — crate-root pilot wrapper.
+//
+// This wrapper owns the selected-slice crate handoff route for the
+// hakorune_mir_builder crate-root module. It validates the checked-in manifest
+// as a transport index, then delegates module conversion to RustSubsetConverter.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.lib.json_native.utils.string as StringUtils
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local manifest_path = "apps/rust-subset-to-hako/examples/hakorune_mir_builder_crate_root_expected/crate-manifest.json"
+
+        local manifest_file = new FileBox()
+        local manifest_opened = manifest_file.open(manifest_path, "r")
+        if manifest_opened == 0 {
+            print("// error: crate manifest open failed")
+            return 1
+        }
+        local manifest_text = manifest_file.read()
+        manifest_file.close()
+        if manifest_text == null {
+            print("// error: crate manifest read failed")
+            return 1
+        }
+
+        local manifest = JsonParserUtils.parse_json(manifest_text)
+        if manifest == null {
+            print("// error: invalid crate manifest JSON")
+            return 1
+        }
+        if manifest.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported crate manifest schema_version")
+            return 1
+        }
+        if manifest.get_node("kind").as_string() != "RustSubsetCrateManifest" {
+            print("// error: unsupported crate manifest kind")
+            return 1
+        }
+        local modules = manifest.get_node("modules")
+        if modules == null {
+            print("// error: crate manifest modules must be an array")
+            return 1
+        }
+        if modules.get_kind() != "array" {
+            print("// error: crate manifest modules must be an array")
+            return 1
+        }
+        if modules.length() != 1 {
+            print("// error: hakorune_mir_builder crate-root manifest must contain 1 module")
+            return 1
+        }
+
+        local entry = modules.get_node(0)
+        local module_name = entry.get_node("module").as_string()
+        local source_path = entry.get_node("source_path").as_string()
+        local artifact_path = entry.get_node("artifact_path").as_string()
+        if module_name != "crate" {
+            print("// error: unexpected selected module")
+            return 1
+        }
+        if source_path != "src/lib.rs" {
+            print("// error: unexpected selected module source")
+            return 1
+        }
+        if StringUtils.starts_with(artifact_path, "/") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if StringUtils.contains(artifact_path, "..") {
+            print("// error: unsafe artifact_path")
+            return 1
+        }
+        if artifact_path != "modules/0000.json" {
+            print("// error: unexpected artifact_path")
+            return 1
+        }
+
+        local artifact_file = new FileBox()
+        local artifact_opened = artifact_file.open(
+            "apps/rust-subset-to-hako/examples/hakorune_mir_builder_crate_root_expected/modules/0000.json",
+            "r"
+        )
+        if artifact_opened == 0 {
+            print("// error: module artifact open failed")
+            return 1
+        }
+        local module_text = artifact_file.read()
+        artifact_file.close()
+        if module_text == null {
+            print("// error: module artifact read failed")
+            return 1
+        }
+
+        local module_doc = JsonParserUtils.parse_json(module_text)
+        if module_doc == null {
+            print("// error: invalid module artifact JSON")
+            return 1
+        }
+        if module_doc.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported module schema_version")
+            return 1
+        }
+        if module_doc.get_node("kind").as_string() != "RustSubsetModule" {
+            print("// error: unsupported module artifact kind")
+            return 1
+        }
+        if module_doc.get_node("module").as_string() != module_name {
+            print("// error: module id mismatch")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+        local module_output = converter.convert(module_text)
+
+        print("// module crate")
+        print("// source src/lib.rs")
+        print(module_output)
+        return 0
+    }
+}

@@ -1,6 +1,6 @@
 # 296x-1375 HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -104,3 +104,30 @@ summary=<ok|blocked>
 Do not aggregate the full `hakorune_mir_builder` crate in this row. Do not turn
 `Use` into executable import/name-resolution semantics. This row only checks in
 the crate-root module as an explicit skeleton handoff.
+
+## Closeout
+
+Checked in:
+
+```text
+apps/rust-subset-to-hako/examples/hakorune_mir_builder_crate_root_expected/
+apps/rust-subset-to-hako/examples/hakorune_mir_builder_crate_root_expected.hako
+apps/rust-subset-to-hako/convert_hakorune_mir_builder_crate_root_crate_file.hako
+```
+
+Report:
+
+```text
+manifest_checked_in=1
+module_artifact_checked_in=1
+generated_skeleton_expected_checked_in=1
+focused_wrapper_added=1
+generated_skeleton_mir_emit=green
+wrapper_exe_parity=green
+full_rust_subset_smoke=green
+generated_program_execution_claim=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+new_hako_syntax_added=0
+summary=ok
+```

@@ -141,20 +141,23 @@ in and guarded through generated-skeleton MIR emit, wrapper EXE parity, and
 full rust-subset smoke. 296x-1374 selects the remaining
 `hakorune_mir_builder` crate-root module as the next materialization task
 because it is the smallest remaining MirBuilder module and already reaches
-generated-skeleton MIR emit."""
+generated-skeleton MIR emit. That crate-root bundle is now checked in and
+guarded through generated-skeleton MIR emit, wrapper EXE parity, and full
+rust-subset smoke. The next blocker is selecting the next app-front task before
+implementation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1375-HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1376-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018.md"
 
-latest_card = "296x-1375-HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1375-HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001.md"
-latest_card_summary = """296x-1375 materializes the remaining
-hakorune_mir_builder crate-root module after 296x-1374 selected it."""
+latest_card = "296x-1376-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1376-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018.md"
+latest_card_summary = """296x-1376 selects the next rust-subset-to-hako
+app-front task after hakorune_mir_builder crate-root materialization."""
 
-current_blocker_token = "HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001"
+current_blocker_token = "RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
