@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-REPLACE-HARD-CODED-FAMILY-GENERATORS-001
+MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Replace the remaining hard-coded family generator bodies after the native
-snapshot/restore alias-proof guard is green.
+Select exactly one non-VariableContext family for bounded facts extraction, or
+keep VariableContext as the only active behavioral family if readiness is
+absent.
 ```
 
 Lifecycle converter boundary:
@@ -61,8 +62,8 @@ Short form:
   VariableContext simple-map. Reserve nightly MIR/borrowck facts for a gated
   hard tier after an explicit design stop.
 
-The converter/emitter renders verified plans. It does not choose ownership,
-borrow, move, or Drop policy directly from Rust syntax.
+  The converter/emitter renders verified plans. It does not choose ownership,
+  borrow, move, or Drop policy directly from Rust syntax.
 
 MirBuilder family migration wording:
   crate is inventory / transport / coverage sweep.
@@ -100,10 +101,15 @@ Done:
   VariableContext snapshot/restore artifact ownership transfer
   VariableContext native snapshot/restore smoke guard
   VariableContext native snapshot/restore post-restore alias-proof
+  VariableContext carrier snapshot artifact pilot
+  VariableContext carrier snapshot route selection
+  VariableContext explicit carrier snapshot artifact pilot
+  VariableContext explicit carrier snapshot route selection
+  MirBuilder next-family readiness inventory
   MirBuilder converter matrix guard
 
 Next:
-  Replace hard-coded family generators
+  MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001
 ```
 
 Current task order:

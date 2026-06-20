@@ -265,8 +265,8 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "mirbuilder-rust-to-hako-converter-task-order-ssot"
-latest_card_path = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+latest_card = "MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1533-MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001.md"
 latest_card_summary = """BindingContextNative, VariableContextNative
 simple-map, VariableContext snapshot/restore artifact ownership, the shared
 MirBuilder emitter, the shared family generator helper and driver, the shared
@@ -274,15 +274,22 @@ validated family generator entrypoint, the shared family manifest helper, the
 shared manifest file-entry helper, the shared manifest text-entry helper, the
 shared common derived manifest helper, the shared common derived-inputs
 helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
-helper, the MirBuilder converter matrix guard, and VariableContext native
-snapshot/restore alias-proof EXE coverage are green. The lightweight-facts
-converter wrapper for BindingContext and simple-map is green, again without new
-route/card churn. Native `restore(ctx, snapshot)` uses `snapshot.clone_owned()`
-and the post-restore alias-proof smoke verifies that mutating the restored
-context does not mutate the saved snapshot. The next task is replacing the
-remaining hard-coded family generator bodies."""
+  helper, the MirBuilder converter matrix guard, VariableContext native
+  snapshot/restore alias-proof EXE coverage, the carrier snapshot artifact
+  pilot, the carrier snapshot route selection row, the explicit carrier
+  snapshot artifact pilot, the explicit carrier snapshot route selection
+  row, and the MirBuilder next-family readiness inventory are green. The
+  lightweight-facts converter wrapper for BindingContext and simple-map is
+  green, again without new route/card churn. Native `restore(ctx, snapshot)`
+  uses `snapshot.clone_owned()` and the post-restore alias-proof smoke verifies
+  that mutating the restored context does not mutate the saved snapshot. The
+  mutable map deny lock is now closed across the selected VariableContext
+  routes, and the readiness inventory has confirmed that the current MirBuilder
+  context/core_context/type_context/metadata_context candidates are still
+  skeleton transport only. The next task is the MirBuilder next-family facts
+  pilot selection row."""
 
-current_blocker_token = "MIRBUILDER-REPLACE-HARD-CODED-FAMILY-GENERATORS-001"
+current_blocker_token = "MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

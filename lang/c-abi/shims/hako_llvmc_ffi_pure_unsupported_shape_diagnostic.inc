@@ -214,3 +214,39 @@ static void hako_llvmc_pure_unsupported_shape_emit(
       diag && diag->target_result_box_name[0] ? diag->target_result_box_name : "-",
       diag && diag->next_check_hint[0] ? diag->next_check_hint : "-");
 }
+
+static int hako_llvmc_pure_unsupported_shape_set_error(
+    char** err_out,
+    const struct HakoLlvmcPureUnsupportedShapeDiagnostic* diag) {
+  char msg[1024];
+  char block_buf[32];
+  char inst_buf[32];
+  const char* op = diag && diag->first_op[0] ? diag->first_op : "unknown";
+  const char* reason = diag && diag->reason[0] ? diag->reason : "no_lowering_variant";
+  const char* callee = diag && diag->callee_symbol[0] ? diag->callee_symbol : "-";
+  const char* hint = diag && diag->next_check_hint[0]
+      ? diag->next_check_hint
+      : "rerun_with_NYASH_LLVM_ROUTE_TRACE=1";
+  if (diag && diag->first_block >= 0) {
+    snprintf(block_buf, sizeof(block_buf), "%lld", diag->first_block);
+  } else {
+    snprintf(block_buf, sizeof(block_buf), "-");
+  }
+  if (diag && diag->first_inst >= 0) {
+    snprintf(inst_buf, sizeof(inst_buf), "%lld", diag->first_inst);
+  } else {
+    snprintf(inst_buf, sizeof(inst_buf), "-");
+  }
+  snprintf(
+      msg,
+      sizeof(msg),
+      "unsupported pure shape for current backend recipe; first_block=%s first_inst=%s first_op=%s owner_hint=%s reason=%s callee_symbol=%s next_check_hint=%s",
+      block_buf,
+      inst_buf,
+      op,
+      hako_llvmc_pure_unsupported_shape_owner_hint(op),
+      reason,
+      callee,
+      hint);
+  return set_err_owned(err_out, msg);
+}

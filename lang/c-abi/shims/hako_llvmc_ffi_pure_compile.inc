@@ -759,7 +759,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 #undef note_pure_unsupported_shape
 #undef note_pure_unsupported_shape_route_detail
 #undef emit_pure_unsupported_shape_inventory
-  return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
+  return hako_llvmc_pure_unsupported_shape_set_error(err_out, &pure_unsupported_diag);
 }
 
 __attribute__((visibility("default")))

@@ -1,0 +1,28 @@
+{
+  "excluded_methods": [
+    "VariableContext::variable_map_mut",
+    "VariableContext::snapshot",
+    "VariableContext::restore",
+    "CarrierInfo::from_variable_map",
+    "join_id lifecycle",
+    "promoted_body_locals lifecycle",
+    "trim_helper lifecycle",
+    "PHI planner integration"
+  ],
+  "family_id": "hakorune_mir_builder::variable_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "CarrierInfoApi.with_explicit_carriers(loop_var_name, requested_names, variable_map)",
+      "hako_operation": "CarrierInfoBox.with_explicit_carriers",
+      "id": "CarrierInfo::with_explicit_carriers",
+      "rust_operation": "ExplicitCarrierSnapshotFromBorrowView"
+    }
+  ],
+  "pilot_scope": "VariableContext_explicit_carrier_snapshot_only",
+  "schema_version": 0,
+  "selected_body_count": "explicit_carrier_snapshot_methods_only",
+  "source_oracle": "variable-context-explicit-carrier-snapshot-oracle-vectors-v0.json",
+  "source_plan": "variable-context-explicit-carrier-snapshot-plan-v0.json",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.with_explicit_carriers"
+}

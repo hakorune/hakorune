@@ -49,6 +49,29 @@ durable pointer because root `AGENTS.md` is ignored by git.
 If a fixed phase name, old backend preference, or historical runtime line in
 `AGENTS.md` conflicts with `CURRENT_STATE.toml`, the current-state SSOT wins.
 
+## Unsupported Pure Shape Triage
+
+When a normal build log reports:
+
+```text
+unsupported pure shape for current backend recipe
+```
+
+read the inline hint fields on the same error first:
+
+```text
+first_block first_inst first_op owner_hint reason callee_symbol next_check_hint
+```
+
+If those fields identify the blocker, continue with that owner directly. Rerun
+with `NYASH_LLVM_ROUTE_TRACE=1` only when the inline hint is still insufficient
+and the detailed `[llvm-pure/unsupported-shape]` inventory is needed.
+
+This diagnostic is a triage boundary inventory. It must not become C-shim shape
+policy, route selection, or `.hako` workaround logic. If `callee_symbol`,
+`first_op`, or `next_check_hint` are still absent/unknown, the next slice is to
+shorten the diagnostic distance before attempting a semantic fix.
+
 ## Historical Sections
 
 Sections about these topics in `AGENTS.md` are historical unless the active

@@ -169,6 +169,19 @@ checked-in generated artifacts.
    VariableContextNative simple-map, and snapshot/restore behavior. Keep old
    family generators until the converter matrix is green.
 
+5. `Inventory MirBuilder next-family lifecycle readiness`
+
+   Re-evaluate `context`, `core_context`, `type_context`, and
+   `metadata_context` as behavioral candidates. Skeleton transport alone is
+   insufficient, so this row records readiness only and does not select a new
+   family route.
+
+6. `Select MirBuilder next-family facts pilot`
+
+   Choose exactly one non-VariableContext family for bounded facts extraction,
+   or keep VariableContext as the only active behavioral family if readiness
+   is absent.
+
 ## Parked Work
 
 Do not extend the simple-map path into these areas:
