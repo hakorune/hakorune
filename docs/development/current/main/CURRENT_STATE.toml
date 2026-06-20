@@ -273,9 +273,10 @@ MirBuilder emitter, the shared family generator helper and driver, the shared
 validated family generator entrypoint, the shared family manifest helper, the
 shared manifest file-entry helper, the shared manifest text-entry helper, the
 shared common derived manifest helper, the shared common derived-inputs
-helper, the shared recipe / verifier helper, and the MirBuilder converter
-matrix guard are green. The next task is replacing hard-coded family
-generators behind that matrix, again without new route/card churn."""
+helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
+helper, and the MirBuilder converter matrix guard are green. The next task is
+connecting lightweight facts to the simple-map converter, again without new
+route/card churn."""
 
 current_blocker_token = "MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

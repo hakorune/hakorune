@@ -14,14 +14,15 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
-from shared_family_generator import (
-    build_common_rust_derived_inputs,
-    build_common_rust_derived_manifest,
-    read_json,
-    run_validated_family_generator,
-    stable_json,
+from family_artifact_spec import (
+    ApiMethodSpec,
+    BoxSpec,
+    FamilyArtifactSpec,
+    StaticBoxSpec,
+    build_family_artifact_hako,
+    build_family_artifact_manifest,
 )
-from shared_mirbuilder_emitter import emit_verified_family_hako
+from shared_family_generator import read_json, run_validated_family_generator, stable_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -167,35 +168,64 @@ def validate_inputs(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[st
         raise SystemExit("oracle mirbuilder-wide claim must be false")
 
 
-def build_hako() -> str:
-    verified_ir = {
-        "generated_by": "tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
-        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json",
-        "family_comment": "hakorune_mir_builder::variable_context",
-        "pilot_scope": SCOPE,
-        "using_module": "apps.lib.collections.ordered_map",
-        "box": {
-            "name": "VariableContext",
-            "field_name": "variable_map",
-            "field_type": "OrderedMapBox",
-            "initializer": "OrderedMap.create()",
-        },
-        "static_boxes": [
-            {
-                "name": "VariableContextApi",
-                "methods": [
-                    {
-                        "signature": "variable_map(ctx)",
-                        "body_lines": ["return ctx.variable_map"],
-                    }
-                ],
-            },
-            {
-                "name": "VariableMapViewApi",
-                "methods": [
-                    {
-                        "signature": "is_empty(view): i64",
-                        "body_lines": dedent(
+def build_spec() -> FamilyArtifactSpec:
+    return FamilyArtifactSpec(
+        root=ROOT,
+        generated_by="tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
+        generator_version="variable-context-immutable-borrow-derived-artifact-v0",
+        artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json",
+        family_comment="hakorune_mir_builder::variable_context",
+        using_module="apps.lib.collections.ordered_map",
+        box=BoxSpec(
+            name="VariableContext",
+            field_name="variable_map",
+            field_type="OrderedMapBox",
+            initializer="OrderedMap.create()",
+        ),
+        main_lines=dedent(
+            """
+            local ctx = new VariableContext()
+            local view = VariableContextApi.variable_map(ctx)
+            if VariableMapViewApi.is_empty(view) != 1 {
+                print("variable_context_borrow_view_empty=fail")
+                return 1
+            }
+            if VariableMapViewApi.len(view) != 0 {
+                print("variable_context_borrow_view_len=fail")
+                return 2
+            }
+            if VariableMapViewApi.contains(view, "x") != 0 {
+                print("variable_context_borrow_view_contains=fail")
+                return 3
+            }
+            if VariableMapViewApi.lookup(view, "x") != null {
+                print("variable_context_borrow_view_lookup=fail")
+                return 4
+            }
+
+            print("variable_context_immutable_borrow_derived_artifact=ok")
+            return 0
+            """
+        ).strip("\n").splitlines(),
+        family_id=FAMILY_ID,
+        state="DerivedShadow",
+        source_rust_file=ROOT / "crates/hakorune_mir_builder/src/variable_context.rs",
+        hako_path=HAKO,
+        facts_path=FACTS,
+        plan_path=PLAN,
+        oracle_path=ORACLE,
+        pilot_scope=SCOPE,
+        static_boxes=[
+            StaticBoxSpec(
+                name="VariableContextApi",
+                methods=[ApiMethodSpec(signature="variable_map(ctx)", body_lines=["return ctx.variable_map"])],
+            ),
+            StaticBoxSpec(
+                name="VariableMapViewApi",
+                methods=[
+                    ApiMethodSpec(
+                        signature="is_empty(view): i64",
+                        body_lines=dedent(
                             """
                             if view.length() == 0 {
                                 return 1
@@ -203,14 +233,11 @@ def build_hako() -> str:
                             return 0
                             """
                         ).strip("\n").splitlines(),
-                    },
-                    {
-                        "signature": "len(view): i64",
-                        "body_lines": ["return view.length()"],
-                    },
-                    {
-                        "signature": "contains(view, name): i64",
-                        "body_lines": dedent(
+                    ),
+                    ApiMethodSpec(signature="len(view): i64", body_lines=["return view.length()"]),
+                    ApiMethodSpec(
+                        signature="contains(view, name): i64",
+                        body_lines=dedent(
                             """
                             if view.has(name) == true {
                                 return 1
@@ -218,56 +245,11 @@ def build_hako() -> str:
                             return 0
                             """
                         ).strip("\n").splitlines(),
-                    },
-                    {
-                        "signature": "lookup(view, name)",
-                        "body_lines": ["return view.get(name)"],
-                    },
+                    ),
+                    ApiMethodSpec(signature="lookup(view, name)", body_lines=["return view.get(name)"]),
                 ],
-            },
+            ),
         ],
-        "main": {
-            "lines": dedent(
-                """
-                local ctx = new VariableContext()
-                local view = VariableContextApi.variable_map(ctx)
-                if VariableMapViewApi.is_empty(view) != 1 {
-                    print("variable_context_borrow_view_empty=fail")
-                    return 1
-                }
-                if VariableMapViewApi.len(view) != 0 {
-                    print("variable_context_borrow_view_len=fail")
-                    return 2
-                }
-                if VariableMapViewApi.contains(view, "x") != 0 {
-                    print("variable_context_borrow_view_contains=fail")
-                    return 3
-                }
-                if VariableMapViewApi.lookup(view, "x") != null {
-                    print("variable_context_borrow_view_lookup=fail")
-                    return 4
-                }
-
-                print("variable_context_immutable_borrow_derived_artifact=ok")
-                return 0
-                """
-            ).strip("\n").splitlines(),
-        },
-    }
-    return emit_verified_family_hako(verified_ir)
-
-
-def build_manifest(hako_text: str) -> dict[str, Any]:
-    return build_common_rust_derived_manifest(
-        root=ROOT,
-        family_id=FAMILY_ID,
-        pilot_scope=SCOPE,
-        state="DerivedShadow",
-        source_rust_file=ROOT / "crates/hakorune_mir_builder/src/variable_context.rs",
-        generator_tool="tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
-        generator_version="variable-context-immutable-borrow-derived-artifact-v0",
-        hako_path=HAKO,
-        hako_text=hako_text,
         claims={
             "generated_hako_manual_edit": 0,
             "mainline_selected": 0,
@@ -276,13 +258,7 @@ def build_manifest(hako_text: str) -> dict[str, Any]:
             "backend_behavior_changed": 0,
             "source_selfhost_claim": 0,
         },
-        inputs=build_common_rust_derived_inputs(
-            root=ROOT,
-            facts=FACTS,
-            plan=PLAN,
-            oracle=ORACLE,
-        ),
-        extra_fields={"excluded_methods": EXCLUDED},
+        extra_manifest_fields={"excluded_methods": EXCLUDED},
     )
 
 
@@ -291,8 +267,9 @@ def main() -> None:
     parser.add_argument("--check", action="store_true", help="fail if generated files differ")
     args = parser.parse_args()
 
-    hako_text = build_hako()
-    manifest_text = stable_json(build_manifest(hako_text))
+    spec = build_spec()
+    hako_text = build_family_artifact_hako(spec)
+    manifest_text = stable_json(build_family_artifact_manifest(spec, hako_text=hako_text))
 
     run_validated_family_generator(
         check=args.check,

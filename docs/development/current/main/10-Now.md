@@ -32,9 +32,10 @@ the shared family generator helper and driver, the shared validated family
 generator entrypoint, the shared family manifest helper, the shared manifest
 file-entry helper, the shared manifest text-entry helper, the shared common
 derived manifest helper, the shared common derived-inputs helper, the shared
-recipe / verifier helper, and the MirBuilder converter matrix guard are
-green. The next implementation task is replacing hard-coded family generators
-behind that matrix, without new route/card churn.
+recipe / verifier helper, the shared FamilyArtifactSpec helper, and the
+MirBuilder converter matrix guard are green. The next implementation task is
+connecting lightweight facts to the simple-map converter, without new
+route/card churn.
 
 Historical context follows.
 

@@ -18,15 +18,17 @@ from extract_binding_context_facts import (
     SOURCE as BINDING_CONTEXT_SOURCE,
     extract_facts as extract_live_facts,
 )
-from shared_family_generator import (
-    build_derived_artifact_verifier_result,
-    build_common_rust_derived_inputs,
-    build_common_rust_derived_manifest,
-    build_hako_behavior_recipe,
-    stable_json,
-    run_validated_family_generator,
+from family_artifact_spec import (
+    ApiMethodSpec,
+    BehaviorMethodSpec,
+    BoxSpec,
+    FamilyArtifactSpec,
+    build_family_artifact_hako,
+    build_family_artifact_manifest,
+    build_family_artifact_recipe,
+    build_family_artifact_verifier,
 )
-from shared_mirbuilder_emitter import emit_verified_family_hako
+from shared_family_generator import read_json, run_validated_family_generator, stable_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -99,79 +101,168 @@ def validate_inputs(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[st
             raise SystemExit(f"missing oracle op: {op}")
 
 
-def build_recipe() -> dict[str, Any]:
-    return build_hako_behavior_recipe(
+def build_spec() -> FamilyArtifactSpec:
+    return FamilyArtifactSpec(
+        root=ROOT,
+        generated_by="tools/rust_lifecycle/generate_binding_context_artifact.py",
+        generator_version="binding-context-derived-artifact-v0",
+        artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
+        family_comment="hakorune_mir_builder::binding_context",
+        using_module="apps.lib.collections.ordered_map",
+        box=BoxSpec(
+            name="BindingContext",
+            field_name="binding_map",
+            field_type="OrderedMapBox",
+            initializer="OrderedMap.create()",
+        ),
+        main_lines=dedent(
+            """
+            local ctx = new BindingContext()
+            if BindingContextApi.is_empty(ctx) != 1 {
+                print("binding_context_new_empty=fail")
+                return 1
+            }
+            if BindingContextApi.len(ctx) != 0 {
+                print("binding_context_new_len=fail")
+                return 2
+            }
+
+            BindingContextApi.insert(ctx, "x", 0)
+            if BindingContextApi.lookup(ctx, "x") != 0 {
+                print("binding_context_lookup_x=fail")
+                return 3
+            }
+            if BindingContextApi.len(ctx) != 1 {
+                print("binding_context_len_after_insert=fail")
+                return 4
+            }
+            if BindingContextApi.is_empty(ctx) != 0 {
+                print("binding_context_empty_after_insert=fail")
+                return 5
+            }
+            if BindingContextApi.remove(ctx, "x") != 0 {
+                print("binding_context_remove_x=fail")
+                return 6
+            }
+            if BindingContextApi.lookup(ctx, "x") != null {
+                print("binding_context_lookup_removed=fail")
+                return 7
+            }
+            if BindingContextApi.is_empty(ctx) != 1 {
+                print("binding_context_empty_after_remove=fail")
+                return 8
+            }
+
+            local contains_ctx = new BindingContext()
+            if BindingContextApi.contains(contains_ctx, "x") != 0 {
+                print("binding_context_contains_empty=fail")
+                return 9
+            }
+            BindingContextApi.insert(contains_ctx, "x", 0)
+            if BindingContextApi.contains(contains_ctx, "x") != 1 {
+                print("binding_context_contains_x=fail")
+                return 10
+            }
+
+            local order_ctx = new BindingContext()
+            BindingContextApi.insert(order_ctx, "b", 2)
+            BindingContextApi.insert(order_ctx, "a", 1)
+            if BindingContextApi.len(order_ctx) != 2 {
+                print("binding_context_order_len=fail")
+                return 11
+            }
+            if BindingContextApi.lookup(order_ctx, "a") != 1 {
+                print("binding_context_lookup_a=fail")
+                return 12
+            }
+            if BindingContextApi.lookup(order_ctx, "b") != 2 {
+                print("binding_context_lookup_b=fail")
+                return 13
+            }
+            local clear_ctx = new BindingContext()
+            BindingContextApi.insert(clear_ctx, "a", 1)
+            BindingContextApi.clear_for_function_entry(clear_ctx)
+            if BindingContextApi.is_empty(clear_ctx) != 1 {
+                print("binding_context_clear_empty=fail")
+                return 14
+            }
+
+            print("binding_context_derived_artifact=ok")
+            return 0
+            """
+        ).strip("\n").splitlines(),
         family_id="hakorune_mir_builder::binding_context",
-        subject="hakorune_mir_builder::binding_context::BindingContext",
+        state="DerivedShadow",
+        source_rust_file=ROOT / "crates/hakorune_mir_builder/src/binding_context.rs",
+        hako_path=HAKO,
+        facts_path=FACTS,
+        plan_path=PLAN,
+        oracle_path=ORACLE,
+        recipe_path=RECIPE,
+        verifier_path=VERIFIER,
+        recipe_subject="hakorune_mir_builder::binding_context::BindingContext",
         source_plan="binding-context-plan-v0.json",
         source_oracle="binding-context-oracle-vectors-v0.json",
         selected_body_count="all_non_test_methods",
-        methods=[
-            {
-                "id": "BindingContext::new",
-                "rust_operation": "BTreeMap::new",
-                "hako_operation": "OrderedMap.create",
-                "emits": "birth initializes me.binding_map",
-            },
-            {
-                "id": "BindingContext::is_empty",
-                "rust_operation": "BTreeMap::is_empty",
-                "hako_operation": "OrderedMapBox.length == 0 as i64_bool_v0",
-                "emits": "BindingContextApi.is_empty(ctx)",
-            },
-            {
-                "id": "BindingContext::len",
-                "rust_operation": "BTreeMap::len",
-                "hako_operation": "OrderedMapBox.length",
-                "emits": "BindingContextApi.len(ctx)",
-            },
-            {
-                "id": "BindingContext::contains",
-                "rust_operation": "BTreeMap::contains_key",
-                "hako_operation": "OrderedMapBox.has as i64_bool_v0",
-                "emits": "BindingContextApi.contains(ctx, name)",
-            },
-            {
-                "id": "BindingContext::lookup",
-                "rust_operation": "BTreeMap::get(...).copied",
-                "hako_operation": "OrderedMapBox.get",
-                "emits": "BindingContextApi.lookup(ctx, name)",
-            },
-            {
-                "id": "BindingContext::insert",
-                "rust_operation": "BTreeMap::insert",
-                "hako_operation": "OrderedMapBox.set",
-                "emits": "BindingContextApi.insert(ctx, name, binding_id)",
-            },
-            {
-                "id": "BindingContext::remove",
-                "rust_operation": "BTreeMap::remove",
-                "hako_operation": "OrderedMapBox.remove",
-                "emits": "BindingContextApi.remove(ctx, name)",
-            },
-            {
-                "id": "BindingContext::clear_for_function_entry",
-                "rust_operation": "BTreeMap::clear",
-                "hako_operation": "OrderedMapBox.clear",
-                "emits": "BindingContextApi.clear_for_function_entry(ctx)",
-            },
+        api_name="BindingContextApi",
+        api_methods=[
+            ApiMethodSpec(
+                signature="is_empty(ctx): i64",
+                body_lines=dedent(
+                    """
+                    if ctx.binding_map.length() == 0 {
+                        return 1
+                    }
+                    return 0
+                    """
+                ).strip("\n").splitlines(),
+            ),
+            ApiMethodSpec(signature="len(ctx): i64", body_lines=["return ctx.binding_map.length()"]),
+            ApiMethodSpec(
+                signature="contains(ctx, name): i64",
+                body_lines=dedent(
+                    """
+                    if ctx.binding_map.has(name) == true {
+                        return 1
+                    }
+                    return 0
+                    """
+                ).strip("\n").splitlines(),
+            ),
+            ApiMethodSpec(signature="lookup(ctx, name)", body_lines=["return ctx.binding_map.get(name)"]),
+            ApiMethodSpec(
+                signature="insert(ctx, name, binding_id): i64",
+                body_lines=["ctx.binding_map.set(name, binding_id)", "return 0"],
+            ),
+            ApiMethodSpec(signature="remove(ctx, name)", body_lines=["return ctx.binding_map.remove(name)"]),
+            ApiMethodSpec(
+                signature="clear_for_function_entry(ctx): i64",
+                body_lines=["ctx.binding_map.clear()", "return 0"],
+            ),
         ],
-    )
-
-
-def build_verifier(recipe: dict[str, Any]) -> dict[str, Any]:
-    return build_derived_artifact_verifier_result(
-        family_id="hakorune_mir_builder::binding_context",
-        subject="hakorune_mir_builder::binding_context::BindingContext",
-        source_facts="binding-context-adapter-facts-v0.json",
-        source_plan="binding-context-plan-v0.json",
-        source_oracle="binding-context-oracle-vectors-v0.json",
-        source_recipe="binding-context-behavior-recipe-v0.json",
-        checks={
+        api_trailing_blank_line=True,
+        methods=[
+            BehaviorMethodSpec(id="BindingContext::new", rust_operation="BTreeMap::new", hako_operation="OrderedMap.create", emits="birth initializes me.binding_map"),
+            BehaviorMethodSpec(id="BindingContext::is_empty", rust_operation="BTreeMap::is_empty", hako_operation="OrderedMapBox.length == 0 as i64_bool_v0", emits="BindingContextApi.is_empty(ctx)"),
+            BehaviorMethodSpec(id="BindingContext::len", rust_operation="BTreeMap::len", hako_operation="OrderedMapBox.length", emits="BindingContextApi.len(ctx)"),
+            BehaviorMethodSpec(id="BindingContext::contains", rust_operation="BTreeMap::contains_key", hako_operation="OrderedMapBox.has as i64_bool_v0", emits="BindingContextApi.contains(ctx, name)"),
+            BehaviorMethodSpec(id="BindingContext::lookup", rust_operation="BTreeMap::get(...).copied", hako_operation="OrderedMapBox.get", emits="BindingContextApi.lookup(ctx, name)"),
+            BehaviorMethodSpec(id="BindingContext::insert", rust_operation="BTreeMap::insert", hako_operation="OrderedMapBox.set", emits="BindingContextApi.insert(ctx, name, binding_id)"),
+            BehaviorMethodSpec(id="BindingContext::remove", rust_operation="BTreeMap::remove", hako_operation="OrderedMapBox.remove", emits="BindingContextApi.remove(ctx, name)"),
+            BehaviorMethodSpec(id="BindingContext::clear_for_function_entry", rust_operation="BTreeMap::clear", hako_operation="OrderedMapBox.clear", emits="BindingContextApi.clear_for_function_entry(ctx)"),
+        ],
+        claims={
+            "generated_hako_manual_edit": 0,
+            "mainline_selected": 0,
+            "rust_bootstrap_retained": 1,
+            "backend_behavior_changed": 0,
+            "source_selfhost_claim": 0,
+        },
+        verifier_checks={
             "rust_facts_input": "verified",
             "hako_lifecycle_plan": "verified",
             "hako_behavior_recipe": "verified",
-            "selected_body_count": recipe["selected_body_count"],
+            "selected_body_count": "all_non_test_methods",
             "unmapped_thir_nodes": 0,
             "unmapped_mir_side_effects": 0,
             "unresolved_call_targets": 0,
@@ -180,7 +271,16 @@ def build_verifier(recipe: dict[str, Any]) -> dict[str, Any]:
             "rust_bootstrap_retained": 1,
             "backend_behavior_changed": 0,
         },
-        verified_operations=[method["hako_operation"] for method in recipe["methods"]],
+        verified_operations=[
+            "OrderedMap.create",
+            "OrderedMapBox.length == 0 as i64_bool_v0",
+            "OrderedMapBox.length",
+            "OrderedMapBox.has as i64_bool_v0",
+            "OrderedMapBox.get",
+            "OrderedMapBox.set",
+            "OrderedMapBox.remove",
+            "OrderedMapBox.clear",
+        ],
         transport_notes={
             "bool_return_transport": "i64_bool_v0",
             "reason": "pure-first global helper ABI expects scalar i64 returns in this pilot",
@@ -194,193 +294,25 @@ def build_verifier(recipe: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-def build_hako() -> str:
-    verified_ir = {
-        "generated_by": "tools/rust_lifecycle/generate_binding_context_artifact.py",
-        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
-        "family_comment": "hakorune_mir_builder::binding_context",
-        "using_module": "apps.lib.collections.ordered_map",
-        "box": {
-            "name": "BindingContext",
-            "field_name": "binding_map",
-            "field_type": "OrderedMapBox",
-            "initializer": "OrderedMap.create()",
-        },
-        "api": {
-            "name": "BindingContextApi",
-            "trailing_blank_line": True,
-            "methods": [
-                {
-                    "signature": "is_empty(ctx): i64",
-                    "body_lines": dedent(
-                        """
-                        if ctx.binding_map.length() == 0 {
-                            return 1
-                        }
-                        return 0
-                        """
-                    ).strip("\n").splitlines(),
-                },
-                {
-                    "signature": "len(ctx): i64",
-                    "body_lines": ["return ctx.binding_map.length()"],
-                },
-                {
-                    "signature": "contains(ctx, name): i64",
-                    "body_lines": dedent(
-                        """
-                        if ctx.binding_map.has(name) == true {
-                            return 1
-                        }
-                        return 0
-                        """
-                    ).strip("\n").splitlines(),
-                },
-                {
-                    "signature": "lookup(ctx, name)",
-                    "body_lines": ["return ctx.binding_map.get(name)"],
-                },
-                {
-                    "signature": "insert(ctx, name, binding_id): i64",
-                    "body_lines": [
-                        "ctx.binding_map.set(name, binding_id)",
-                        "return 0",
-                    ],
-                },
-                {
-                    "signature": "remove(ctx, name)",
-                    "body_lines": ["return ctx.binding_map.remove(name)"],
-                },
-                {
-                    "signature": "clear_for_function_entry(ctx): i64",
-                    "body_lines": [
-                        "ctx.binding_map.clear()",
-                        "return 0",
-                    ],
-                },
-            ],
-        },
-        "main": {
-            "lines": dedent(
-                """
-                local ctx = new BindingContext()
-                if BindingContextApi.is_empty(ctx) != 1 {
-                    print("binding_context_new_empty=fail")
-                    return 1
-                }
-                if BindingContextApi.len(ctx) != 0 {
-                    print("binding_context_new_len=fail")
-                    return 2
-                }
-
-                BindingContextApi.insert(ctx, "x", 0)
-                if BindingContextApi.lookup(ctx, "x") != 0 {
-                    print("binding_context_lookup_x=fail")
-                    return 3
-                }
-                if BindingContextApi.len(ctx) != 1 {
-                    print("binding_context_len_after_insert=fail")
-                    return 4
-                }
-                if BindingContextApi.is_empty(ctx) != 0 {
-                    print("binding_context_empty_after_insert=fail")
-                    return 5
-                }
-                if BindingContextApi.remove(ctx, "x") != 0 {
-                    print("binding_context_remove_x=fail")
-                    return 6
-                }
-                if BindingContextApi.lookup(ctx, "x") != null {
-                    print("binding_context_lookup_removed=fail")
-                    return 7
-                }
-                if BindingContextApi.is_empty(ctx) != 1 {
-                    print("binding_context_empty_after_remove=fail")
-                    return 8
-                }
-
-                local contains_ctx = new BindingContext()
-                if BindingContextApi.contains(contains_ctx, "x") != 0 {
-                    print("binding_context_contains_empty=fail")
-                    return 9
-                }
-                BindingContextApi.insert(contains_ctx, "x", 0)
-                if BindingContextApi.contains(contains_ctx, "x") != 1 {
-                    print("binding_context_contains_x=fail")
-                    return 10
-                }
-
-                local order_ctx = new BindingContext()
-                BindingContextApi.insert(order_ctx, "b", 2)
-                BindingContextApi.insert(order_ctx, "a", 1)
-                if BindingContextApi.len(order_ctx) != 2 {
-                    print("binding_context_order_len=fail")
-                    return 11
-                }
-                if BindingContextApi.lookup(order_ctx, "a") != 1 {
-                    print("binding_context_lookup_a=fail")
-                    return 12
-                }
-                if BindingContextApi.lookup(order_ctx, "b") != 2 {
-                    print("binding_context_lookup_b=fail")
-                    return 13
-                }
-                local clear_ctx = new BindingContext()
-                BindingContextApi.insert(clear_ctx, "a", 1)
-                BindingContextApi.clear_for_function_entry(clear_ctx)
-                if BindingContextApi.is_empty(clear_ctx) != 1 {
-                    print("binding_context_clear_empty=fail")
-                    return 14
-                }
-
-                print("binding_context_derived_artifact=ok")
-                return 0
-                """
-            ).strip("\n").splitlines(),
-        },
-    }
-    return emit_verified_family_hako(verified_ir)
-
-
-def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict[str, Any]:
-    return build_common_rust_derived_manifest(
-        root=ROOT,
-        family_id="hakorune_mir_builder::binding_context",
-        state="DerivedShadow",
-        source_rust_file=ROOT / "crates/hakorune_mir_builder/src/binding_context.rs",
-        generator_tool="tools/rust_lifecycle/generate_binding_context_artifact.py",
-        generator_version="binding-context-derived-artifact-v0",
-        hako_path=HAKO,
-        hako_text=hako_text,
-        claims={
-            "generated_hako_manual_edit": 0,
-            "mainline_selected": 0,
-            "rust_bootstrap_retained": 1,
-            "backend_behavior_changed": 0,
-            "source_selfhost_claim": 0,
-        },
-        inputs=build_common_rust_derived_inputs(
-            root=ROOT,
-            facts=FACTS,
-            plan=PLAN,
-            oracle=ORACLE,
-            recipe=(RECIPE, recipe_text),
-            verifier=(VERIFIER, verifier_text),
-        ),
-    )
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="fail if generated files differ")
     args = parser.parse_args()
 
-    recipe = build_recipe()
-    verifier = build_verifier(recipe)
-    hako_text = build_hako()
+    spec = build_spec()
+    recipe = build_family_artifact_recipe(spec)
+    verifier = build_family_artifact_verifier(spec, recipe)
+    hako_text = build_family_artifact_hako(spec)
     recipe_text = stable_json(recipe)
     verifier_text = stable_json(verifier)
-    manifest_text = stable_json(build_manifest(hako_text, recipe_text, verifier_text))
+    manifest_text = stable_json(
+        build_family_artifact_manifest(
+            spec,
+            hako_text=hako_text,
+            recipe_text=recipe_text,
+            verifier_text=verifier_text,
+        )
+    )
 
     run_validated_family_generator(
         check=args.check,

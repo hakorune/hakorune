@@ -39,7 +39,7 @@ MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001
 Purpose:
 
 ```text
-Replace hard-coded family generators after the converter matrix is green.
+Replace hard-coded family generators with FamilyArtifactSpec-backed thin wrappers.
 ```
 
 Lifecycle converter boundary:
@@ -94,16 +94,16 @@ Done:
   shared common derived manifest helper
   shared common derived-inputs helper
   shared recipe / verifier helper
+  shared FamilyArtifactSpec helper
   live lightweight facts converter for BindingContext and VariableContext simple-map
   VariableContext snapshot/restore artifact ownership transfer
   MirBuilder converter matrix guard
 
 Next:
-  Replace hard-coded family generators after converter matrix is green
+  Connect lightweight facts to simple-map converter
 
 Then:
-  Keep the converter matrix green while removing family-specific generator
-  duplication
+  Fix VariableContext snapshot ownership
 ```
 
 Current task order:

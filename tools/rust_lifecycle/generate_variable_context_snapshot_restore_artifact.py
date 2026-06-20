@@ -14,14 +14,18 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
+from family_artifact_spec import (
+    ApiMethodSpec,
+    BoxSpec,
+    FamilyArtifactSpec,
+    build_family_artifact_hako,
+    build_family_artifact_manifest,
+)
 from shared_family_generator import (
-    build_common_rust_derived_inputs,
-    build_common_rust_derived_manifest,
     read_json,
     run_validated_family_generator,
     stable_json,
 )
-from shared_mirbuilder_emitter import emit_verified_family_hako
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -183,59 +187,43 @@ def validate_inputs(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[st
             raise SystemExit(f"missing denied oracle vector: {name}")
 
 
-def build_hako() -> str:
-    verified_ir = {
-        "generated_by": "tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
-        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json",
-        "family_comment": "hakorune_mir_builder::variable_context",
-        "pilot_scope": SCOPE,
-        "using_module": "apps.lib.collections.ordered_map",
-        "box": {
-            "name": "VariableContext",
-            "field_name": "variable_map",
-            "field_type": "OrderedMapBox",
-            "initializer": "OrderedMap.create()",
-        },
-        "api": {
-            "name": "VariableContextApi",
-            "methods": [
-                {
-                    "signature": "snapshot(ctx)",
-                    "body_lines": ["return ctx.variable_map.clone_owned()"],
-                },
-                {
-                    "signature": "restore(ctx, snapshot)",
-                    "body_lines": ["ctx.variable_map = snapshot.clone_owned()"],
-                },
-            ],
-        },
-        "main": {
-            "lines": dedent(
-                """
-                local ctx = new VariableContext()
-                local snapshot = VariableContextApi.snapshot(ctx)
-                VariableContextApi.restore(ctx, snapshot)
-
-                print("variable_context_snapshot_restore_derived_artifact=ok")
-                return 0
-                """
-            ).strip("\n").splitlines(),
-        },
-    }
-    return emit_verified_family_hako(verified_ir)
-
-
-def build_manifest(hako_text: str) -> dict[str, Any]:
-    return build_common_rust_derived_manifest(
+def build_spec() -> FamilyArtifactSpec:
+    return FamilyArtifactSpec(
         root=ROOT,
+        generated_by="tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
+        generator_version="variable-context-snapshot-restore-derived-artifact-v0",
+        artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json",
+        family_comment="hakorune_mir_builder::variable_context",
+        using_module="apps.lib.collections.ordered_map",
+        box=BoxSpec(
+            name="VariableContext",
+            field_name="variable_map",
+            field_type="OrderedMapBox",
+            initializer="OrderedMap.create()",
+        ),
+        main_lines=dedent(
+            """
+            local ctx = new VariableContext()
+            local snapshot = VariableContextApi.snapshot(ctx)
+            VariableContextApi.restore(ctx, snapshot)
+
+            print("variable_context_snapshot_restore_derived_artifact=ok")
+            return 0
+            """
+        ).strip("\n").splitlines(),
         family_id=FAMILY_ID,
-        pilot_scope=SCOPE,
         state="DerivedShadow",
         source_rust_file=ROOT / "crates/hakorune_mir_builder/src/variable_context.rs",
-        generator_tool="tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
-        generator_version="variable-context-snapshot-restore-derived-artifact-v0",
         hako_path=HAKO,
-        hako_text=hako_text,
+        facts_path=FACTS,
+        plan_path=PLAN,
+        oracle_path=ORACLE,
+        pilot_scope=SCOPE,
+        api_name="VariableContextApi",
+        api_methods=[
+            ApiMethodSpec(signature="snapshot(ctx)", body_lines=["return ctx.variable_map.clone_owned()"]),
+            ApiMethodSpec(signature="restore(ctx, snapshot)", body_lines=["ctx.variable_map = snapshot.clone_owned()"]),
+        ],
         claims={
             "generated_hako_manual_edit": 0,
             "mainline_selected": 0,
@@ -244,13 +232,7 @@ def build_manifest(hako_text: str) -> dict[str, Any]:
             "backend_behavior_changed": 0,
             "source_selfhost_claim": 0,
         },
-        inputs=build_common_rust_derived_inputs(
-            root=ROOT,
-            facts=FACTS,
-            plan=PLAN,
-            oracle=ORACLE,
-        ),
-        extra_fields={"excluded_methods": EXCLUDED},
+        extra_manifest_fields={"excluded_methods": EXCLUDED},
     )
 
 
@@ -259,8 +241,9 @@ def main() -> None:
     parser.add_argument("--check", action="store_true", help="fail if generated files differ")
     args = parser.parse_args()
 
-    hako_text = build_hako()
-    manifest_text = stable_json(build_manifest(hako_text))
+    spec = build_spec()
+    hako_text = build_family_artifact_hako(spec)
+    manifest_text = stable_json(build_family_artifact_manifest(spec, hako_text=hako_text))
 
     run_validated_family_generator(
         check=args.check,
