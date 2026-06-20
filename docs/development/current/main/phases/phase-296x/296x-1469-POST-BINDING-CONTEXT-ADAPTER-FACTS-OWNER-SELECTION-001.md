@@ -1,6 +1,6 @@
 # 296x-1469 POST-BINDING-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -40,6 +40,26 @@ recommended=A
 reason=BindingContext now has both target-neutral adapter facts and an existing
 HakoLifecyclePlan fixture; the next thin step is a verifier fixture before
 expanding to VariableContext.
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=HAKO-LIFECYCLE-VERIFIER-BINDING-CONTEXT-ADAPTER-FACTS-FIXTURE-001
+selected_reason=BindingContext has a target-neutral adapter facts fixture and
+an existing lifecycle plan fixture, so the next thin step is checking their
+contract before widening the adapter fixture family.
+```
+
+Non-selected owners:
+
+```text
+B_variable_context_adapter_fact_fixture:
+  parked until BindingContext adapter facts are verified against a plan
+
+C_trim_route_fixture_selection:
+  parked while lifecycle projection fixture chain is being closed
 ```
 
 ## Acceptance

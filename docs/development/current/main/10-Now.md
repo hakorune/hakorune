@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-BINDING-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001
+HAKO-LIFECYCLE-VERIFIER-BINDING-CONTEXT-ADAPTER-FACTS-FIXTURE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -128,15 +128,18 @@ post-inventory owner.
 296x-1468 adds the target-neutral BindingContext adapter facts fixture and
 guard, with Hako policy spellings excluded.
 
-The active row is 296x-1469. It selects the next owner after BindingContext
-adapter facts.
+296x-1469 selects a passive verifier-result fixture over BindingContext adapter
+facts and the existing lifecycle plan.
+
+The active row is 296x-1470. It adds that fixture and guard without implementing
+a verifier.
 
 ## Next
 
-1. Read 296x-1469.
-2. Choose one next owner.
-3. Park non-selected owners explicitly.
-4. Keep adapter/resolver/verifier/emitter implementation_started=0.
+1. Read 296x-1470.
+2. Add the passive verifier-result fixture.
+3. Add the focused guard.
+4. Keep verifier/emitter/converter implementation disabled.
 5. Run:
 
 ```bash
