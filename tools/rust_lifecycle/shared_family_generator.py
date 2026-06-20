@@ -180,20 +180,6 @@ def rust_manifest_text_entry(*, path: Path, text: str, root: Path) -> dict[str, 
     return {"path": str(path.relative_to(root)), "sha256": sha256_text(text)}
 
 
-def rust_manifest_inputs(*entries: tuple[str, Path], root: Path) -> dict[str, Any]:
-    return {
-        name: rust_manifest_file_entry(path=path, root=root)
-        for name, path in entries
-    }
-
-
-def rust_manifest_text_inputs(*entries: tuple[str, tuple[Path, str]], root: Path) -> dict[str, Any]:
-    return {
-        name: rust_manifest_text_entry(path=path, text=text, root=root)
-        for name, (path, text) in entries
-    }
-
-
 def build_common_rust_derived_inputs(
     *,
     root: Path,
@@ -213,3 +199,35 @@ def build_common_rust_derived_inputs(
     if verifier is not None:
         inputs["verifier"] = rust_manifest_text_entry(path=verifier[0], text=verifier[1], root=root)
     return inputs
+
+
+def build_common_rust_derived_manifest(
+    *,
+    root: Path,
+    family_id: str,
+    state: str,
+    source_rust_file: Path,
+    generator_tool: str,
+    generator_version: str,
+    hako_path: Path,
+    hako_text: str,
+    claims: dict[str, Any],
+    pilot_scope: str | None = None,
+    inputs: dict[str, Any] | None = None,
+    extra_fields: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return build_rust_derived_hako_manifest(
+        family_id=family_id,
+        state=state,
+        source_rust_files=[
+            rust_manifest_file_entry(path=source_rust_file, root=root),
+        ],
+        generator_tool=generator_tool,
+        generator_version=generator_version,
+        hako_path=str(hako_path.relative_to(root)),
+        hako_sha256=sha256_text(hako_text),
+        claims=claims,
+        pilot_scope=pilot_scope,
+        inputs=inputs,
+        extra_fields=extra_fields,
+    )

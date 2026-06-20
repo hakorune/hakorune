@@ -21,13 +21,10 @@ from extract_binding_context_facts import (
 from shared_family_generator import (
     build_derived_artifact_verifier_result,
     build_common_rust_derived_inputs,
+    build_common_rust_derived_manifest,
     build_hako_behavior_recipe,
-    build_rust_derived_hako_manifest,
     read_json,
-    sha256_file,
-    sha256_text,
     run_family_generator,
-    rust_manifest_file_entry,
     stable_json,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
@@ -347,19 +344,15 @@ def build_hako() -> str:
 
 
 def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict[str, Any]:
-    return build_rust_derived_hako_manifest(
+    return build_common_rust_derived_manifest(
+        root=ROOT,
         family_id="hakorune_mir_builder::binding_context",
         state="DerivedShadow",
-        source_rust_files=[
-            rust_manifest_file_entry(
-                path=ROOT / "crates/hakorune_mir_builder/src/binding_context.rs",
-                root=ROOT,
-            )
-        ],
+        source_rust_file=ROOT / "crates/hakorune_mir_builder/src/binding_context.rs",
         generator_tool="tools/rust_lifecycle/generate_binding_context_artifact.py",
         generator_version="binding-context-derived-artifact-v0",
-        hako_path=str(HAKO.relative_to(ROOT)),
-        hako_sha256=sha256_text(hako_text),
+        hako_path=HAKO,
+        hako_text=hako_text,
         claims={
             "generated_hako_manual_edit": 0,
             "mainline_selected": 0,
