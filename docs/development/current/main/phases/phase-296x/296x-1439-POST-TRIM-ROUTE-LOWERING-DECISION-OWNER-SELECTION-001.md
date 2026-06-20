@@ -1,6 +1,6 @@
 # 296x-1439 POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,29 @@ recommended=A-design
 reason=trim route lowering is now blocked on promoted carrier identity /
 join_id proof, not on metadata presence. The next row should decide whether
 to design a production join_id producer or keep the boundary denied.
+```
+
+## Decision
+
+```text
+selected_next_task=PROMOTED-CARRIER-IDENTITY-JOIN-ID-DESIGN-INVENTORY-001
+selected_scope=design inventory only; no production join_id producer
+selected_reason=trim route lowering is blocked on stable promoted carrier
+identity. Existing CarrierVar.join_id is parked/test vocabulary, while
+condition_bindings already have a separate JoinIR-local value path. Inventory
+the viable ownership choices before implementing anything.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+second lifecycle emitter surface:
+  parked until promoted carrier identity is either designed or explicitly kept
+  denied.
+
+rustc lifecycle facts adapter design/probe:
+  parked until internal carrier identity boundaries stop moving.
 ```
 
 ## Acceptance

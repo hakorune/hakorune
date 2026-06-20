@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-ROUTE-LOWERING-DECISION-OWNER-SELECTION-001
+POST-PROMOTED-CARRIER-IDENTITY-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -81,14 +81,17 @@ the trim route lowering boundary without backend, generated-program,
 rustc-adapter, or resolver-Allow claims. 296x-1437 selects a read-only trim
 route lowering decision probe. 296x-1438 fixture-guards trim route metadata as
 a metadata candidate while executable route lowering remains denied by
-MissingPromotedCarrierIdentity.
+MissingPromotedCarrierIdentity. 296x-1439 selects promoted carrier identity /
+join_id design inventory. 296x-1440 inventories keep-denied,
+CarrierVar.join_id producer, and ConditionBinding identity options without
+implementing any producer.
 
-The active row is 296x-1439. It selects the next lifecycle owner after trim
-route lowering decision probing.
+The active row is 296x-1441. It selects the next lifecycle owner after
+promoted carrier identity inventory.
 
 ## Next
 
-1. Read 296x-1439.
+1. Read 296x-1441.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
