@@ -1,0 +1,154 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext",
+  "source": "crates/hakorune_mir_builder/src/binding_context.rs",
+  "vectors": [
+    {
+      "id": "binding_context_basic",
+      "operations": [
+        {
+          "op": "new",
+          "expect": {
+            "is_empty": true,
+            "len": 0
+          }
+        },
+        {
+          "op": "insert",
+          "name": "x",
+          "binding_id": 0
+        },
+        {
+          "op": "lookup",
+          "name": "x",
+          "expect": {
+            "some_binding_id": 0
+          }
+        },
+        {
+          "op": "len",
+          "expect": 1
+        },
+        {
+          "op": "is_empty",
+          "expect": false
+        },
+        {
+          "op": "remove",
+          "name": "x",
+          "expect": {
+            "some_binding_id": 0
+          }
+        },
+        {
+          "op": "lookup",
+          "name": "x",
+          "expect": {
+            "none": true
+          }
+        },
+        {
+          "op": "is_empty",
+          "expect": true
+        }
+      ]
+    },
+    {
+      "id": "binding_context_contains",
+      "operations": [
+        {
+          "op": "new",
+          "expect": {
+            "contains_x": false
+          }
+        },
+        {
+          "op": "insert",
+          "name": "x",
+          "binding_id": 0
+        },
+        {
+          "op": "contains",
+          "name": "x",
+          "expect": true
+        }
+      ]
+    },
+    {
+      "id": "binding_map_access",
+      "operations": [
+        {
+          "op": "new"
+        },
+        {
+          "op": "insert",
+          "name": "a",
+          "binding_id": 1
+        },
+        {
+          "op": "insert",
+          "name": "b",
+          "binding_id": 2
+        },
+        {
+          "op": "len",
+          "expect": 2
+        },
+        {
+          "op": "lookup",
+          "name": "a",
+          "expect": {
+            "some_binding_id": 1
+          }
+        },
+        {
+          "op": "lookup",
+          "name": "b",
+          "expect": {
+            "some_binding_id": 2
+          }
+        },
+        {
+          "op": "iteration_order",
+          "expect": [
+            "a",
+            "b"
+          ],
+          "requires": [
+            "BindingContext.binding_map.deterministic_order_required=true"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clear_for_function_entry",
+      "operations": [
+        {
+          "op": "new"
+        },
+        {
+          "op": "insert",
+          "name": "a",
+          "binding_id": 1
+        },
+        {
+          "op": "clear_for_function_entry"
+        },
+        {
+          "op": "is_empty",
+          "expect": true
+        }
+      ]
+    }
+  ],
+  "drop_oracle": {
+    "drop_observable": false,
+    "required_fact": "BindingContext.drop_fact=TrivialMemory"
+  },
+  "promotion_scope": {
+    "hako_authority": "BindingContext only",
+    "mirbuilder_wide_claim": false,
+    "variable_context_claim": false
+  }
+}

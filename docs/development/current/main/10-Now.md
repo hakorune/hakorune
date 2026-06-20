@@ -20,22 +20,21 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
+RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. The narrow BindingContext lifecycle facts/plan pilot is closed.
+lane status. BindingContext lifecycle pilot and oracle parity are closed.
 
-The active row is 296x-1388, which compares the BindingContext lifecycle pilot
-against Rust oracle vectors before any broader Hako authority promotion.
+The active row is 296x-1389, which selects the next lifecycle migration owner
+before starting VariableContext, general resolver, or emitter work.
 
 ## Next
 
-1. Read 296x-1388.
-2. Add Rust oracle vectors for BindingContext only.
-3. Compare lifecycle plan behavior against those vectors.
-4. Keep general resolver, converter lifecycle emission, VariableContext, and
-   MirBuilder-wide parity claims out of this row.
+1. Read 296x-1389.
+2. Choose exactly one next lifecycle owner.
+3. Park non-selected owners explicitly.
+4. Keep implementation_started=0 in this selection row.
 5. Run:
 
 ```bash
