@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001
+RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -156,13 +156,14 @@ verified HakoLifecyclePlan rendering, not direct Rust syntax ownership
 rewriting. 296x-1479 defines the lifecycle-aware converter two-input
 boundary. 296x-1480 selects and renders one verified lifecycle plan fixture
 into a bounded `.hako` surface. The active row is 296x-1481. It compares that
-surface against the Rust oracle for the selected family only.
+surface against the Rust oracle for the selected family only. The active row is
+296x-1482. It selects the first rustc semantic lifecycle-facts adapter probe.
 
 ## Next
 
-1. Read 296x-1481.
-2. Compare the selected lifecycle surface against its Rust oracle fixture.
-3. Keep parity scoped to the selected family only.
+1. Read 296x-1482.
+2. Select the first rustc semantic adapter probe subject.
+3. Keep adapter output to RustLifecycleFacts-v0 only.
 4. Run:
 
 ```bash

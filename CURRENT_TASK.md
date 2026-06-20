@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001
+RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 ```
 
 Purpose:
 
 ```text
-Compare one emitted lifecycle surface against the Rust oracle for the selected
-family only. Do not claim crate-wide or MirBuilder-wide lifecycle parity.
+Select the first external rustc semantic adapter probe for producing
+RustLifecycleFacts-v0. Do not let the adapter choose Hako representation
+policy or use raw rustc pretty dumps as the stable schema.
 ```
 
 Lifecycle converter boundary:

@@ -1,6 +1,6 @@
 # 296x-1481 RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -58,6 +58,42 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Closeout
+
+```text
+selected_family_parity_checked=1
+surface_matches_oracle_contract=1
+crate_wide_lifecycle_parity=0
+mirbuilder_wide_lifecycle=0
+backend_behavior_changed=0
+rustc_integration_started=0
+```
+
+Evidence:
+
+```bash
+bash tools/checks/rust_lifecycle_emitter_oracle_parity_guard.sh
+```
+
+Guard output:
+
+```text
+output_contract=rust-lifecycle-emitter-oracle-parity-v0
+selected_family_parity_checked=1
+surface_matches_oracle_contract=1
+crate_wide_lifecycle_parity=0
+mirbuilder_wide_lifecycle=0
+backend_behavior_changed=0
+rustc_integration_started=0
+summary=ok
+```
+
+Next:
+
+```text
+296x-1482-RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 ```
 
 ## Stop Line
