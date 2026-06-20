@@ -54,6 +54,42 @@ If any of those inputs are missing, the lifecycle-aware route fails fast. The
 existing skeleton route may still emit TODO comments, but it must not claim
 ownership or Drop parity.
 
+## Two-Input Boundary
+
+The lifecycle-aware converter route has exactly two semantic inputs:
+
+```text
+RustSubsetModule-v0:
+  structure / names / source provenance
+
+Verified HakoLifecyclePlan-v0:
+  Hako-owned lifecycle projection accepted by VerifierResult=Allow
+```
+
+`RustLifecycleFacts-v0` is required evidence for the resolver and verifier, but
+the emitter does not reinterpret those facts. The emitter consumes the verified
+plan.
+
+Rules:
+
+```text
+RustSubsetModule-v0 without verified plan:
+  skeleton route only
+  lifecycle parity claim=0
+
+HakoLifecyclePlan-v0 without VerifierResult=Allow:
+  fail-fast
+
+VerifierResult=Allow without RustSubsetModule-v0 structure:
+  fail-fast
+
+unknown lifecycle dependency:
+  fail-fast
+```
+
+This keeps lossy skeleton generation and lifecycle-preserving conversion as
+separate routes.
+
 ## Required Inputs
 
 ```text

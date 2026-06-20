@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-TO-HAKO-CONVERTER-TWO-INPUT-BOUNDARY-001
+RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -153,14 +153,15 @@ BindingContext and VariableContext JSON fixtures.
 296x-1477 selected the ownership-aware converter boundary tasking before
 returning to implementation. 296x-1478 records the converter task sequence as
 verified HakoLifecyclePlan rendering, not direct Rust syntax ownership
-rewriting. The active row is 296x-1479. It defines the lifecycle-aware
-converter input boundary.
+rewriting. 296x-1479 defines the lifecycle-aware converter two-input
+boundary. The active row is 296x-1480. It selects and renders one verified
+lifecycle plan fixture into a bounded `.hako` surface.
 
 ## Next
 
-1. Read 296x-1479.
-2. Document the two-input converter boundary.
-3. Keep implementation_started=0 in this boundary row.
+1. Read 296x-1480.
+2. Select one existing verified lifecycle plan fixture.
+3. Render one bounded `.hako` lifecycle surface.
 4. Run:
 
 ```bash

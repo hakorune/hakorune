@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-TO-HAKO-CONVERTER-TWO-INPUT-BOUNDARY-001
+RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001
 ```
 
 Purpose:
 
 ```text
-Define the lifecycle-aware converter input boundary as RustSubsetModule-v0 plus
-verified HakoLifecyclePlan-v0. Do not implement converter emission, rustc
-integration, lifecycle resolver behavior, or backend behavior in this row.
+Select and render one existing verified lifecycle plan fixture into a bounded
+`.hako` surface. Do not add direct Rust syntax ownership decisions, rustc
+integration, backend behavior, or crate-wide lifecycle parity claims.
 ```
 
 Lifecycle converter boundary:
