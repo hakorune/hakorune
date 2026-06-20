@@ -1,6 +1,6 @@
 # 296x-1449 POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -38,6 +38,27 @@ C. second lifecycle emitter surface
 recommended=A
 reason=adapter exists but is intentionally unwired. The next smallest owner is
 the lookup consumption boundary, not executable trim route lowering.
+```
+
+## Decision
+
+```text
+selected_next_task=SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001
+selected_scope=design only; no lookup behavior change
+selected_reason=ScopeManager currently has no condition_bindings input. Wiring
+the adapter requires an explicit lookup-boundary contract before changing
+lookup order or constructor surfaces.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+trim route lowering proof update:
+  parked until scope-manager adapter consumption is designed.
+
+second lifecycle emitter surface:
+  parked until the active identity lane reaches a lookup boundary decision.
 ```
 
 ## Acceptance

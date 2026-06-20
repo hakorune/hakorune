@@ -215,21 +215,23 @@ selects condition-binding resolution rewrite design. 296x-1446 chooses an
 additive adapter design that keeps legacy resolve_promoted_join_id intact.
 296x-1447 selects the additive condition-binding resolution adapter probe.
 296x-1448 implements the adapter as a read-only CarrierInfo query without
-scope-manager wiring or trim route lowering. The next blocker is 296x-1449:
-select the next lifecycle owner after the adapter probe."""
+scope-manager wiring or trim route lowering. 296x-1449 selects scope-manager
+wiring design. 296x-1450 documents the explicit condition_bindings input and
+lookup order without changing code. The next blocker is 296x-1451: select the
+next owner after the wiring design."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1449-POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1451-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1449-POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1449-POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1449 selects the next lifecycle owner after the
-condition-binding resolution adapter probe."""
+latest_card = "296x-1451-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1451-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1451 selects the next owner after scope-manager
+condition-binding wiring design."""
 
-current_blocker_token = "POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001"
+current_blocker_token = "POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
