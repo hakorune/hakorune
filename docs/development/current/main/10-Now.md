@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
+POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -99,16 +99,17 @@ the explicit condition_bindings input and lookup order without changing code.
 296x-1451 selects the scope-manager condition-bindings input probe.
 296x-1452 adds the input and focused lookup tests without trim route lowering.
 296x-1453 selects trim route lowering proof update.
+296x-1454 refreshes the proof: identity is available, executable lowering
+remains denied by missing implementation readiness.
 
-The active row is 296x-1454. It refreshes the trim route lowering proof without
-backend lowering.
+The active row is 296x-1455. It selects the next owner after the proof update.
 
 ## Next
 
-1. Read 296x-1454.
-2. Update the trim route proof fixtures/docs.
-3. Keep executable lowering explicit and denied unless proven.
-4. Do not add backend lowering in this row.
+1. Read 296x-1455.
+2. Choose one next lifecycle owner.
+3. Park non-selected owners explicitly.
+4. Keep implementation_started=0 in this selection row.
 5. Run:
 
 ```bash

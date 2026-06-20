@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "kind": "RustLifecycleFacts",
+  "subject": "trim route lowering proof update",
+  "candidate_facts": [
+    {
+      "id": "TrimRouteLoweringProofUpdate::identity_ready",
+      "candidate_kind": "TrimRouteMetadataCandidate",
+      "trim_helper_present": true,
+      "trim_helper_has_valid_structure": true,
+      "promoted_body_locals_contains_original_var": true,
+      "condition_binding_identity_available": true,
+      "carrier_info_adapter_available": true,
+      "scope_manager_condition_bindings_input_available": true,
+      "scope_manager_lookup_consumes_adapter": true,
+      "backend_trim_lowering_implementation": false
+    }
+  ],
+  "claims": {
+    "metadata_candidate_allow": true,
+    "missing_promoted_carrier_identity_reclassified": true,
+    "identity_decision_allow": true,
+    "executable_lowering_allow": false,
+    "backend_behavior_changed": false,
+    "generated_program_execution_claim": false
+  },
+  "denied_dependencies": [
+    {
+      "dependency": "executable trim route lowering",
+      "reason": "MissingExecutableTrimRouteLoweringImplementation",
+      "backend_trim_lowering_implementation": false
+    }
+  ]
+}

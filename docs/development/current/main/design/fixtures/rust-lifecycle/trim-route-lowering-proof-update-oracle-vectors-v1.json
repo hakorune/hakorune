@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "RustLifecycleOracleVectors",
+  "subject": "trim route lowering proof update",
+  "vectors": [
+    {
+      "id": "identity_ready_backend_missing",
+      "input": {
+        "trim_helper_valid": true,
+        "condition_binding_identity_available": true,
+        "scope_manager_consumes_adapter": true,
+        "backend_trim_lowering_implementation": false
+      },
+      "expect": {
+        "metadata_decision": "AllowMetadataCandidate",
+        "identity_decision": "AllowConditionBindingIdentity",
+        "executable_decision": "Deny",
+        "deny_reason": "MissingExecutableTrimRouteLoweringImplementation"
+      }
+    },
+    {
+      "id": "identity_missing",
+      "input": {
+        "trim_helper_valid": true,
+        "condition_binding_identity_available": false,
+        "scope_manager_consumes_adapter": false,
+        "backend_trim_lowering_implementation": false
+      },
+      "expect": {
+        "metadata_decision": "AllowMetadataCandidate",
+        "identity_decision": "Deny",
+        "deny_reason": "MissingPromotedCarrierIdentity"
+      }
+    }
+  ],
+  "claims": {
+    "missing_promoted_carrier_identity_reclassified_when_identity_ready": true,
+    "executable_lowering_allow": false,
+    "backend_behavior_changed": false,
+    "generated_program_execution_claim": false
+  }
+}

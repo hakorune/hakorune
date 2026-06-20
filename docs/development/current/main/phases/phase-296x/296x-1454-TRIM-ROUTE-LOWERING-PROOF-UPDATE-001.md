@@ -1,6 +1,6 @@
 # 296x-1454 TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -38,6 +38,18 @@ trim_route_proof_updated=1
 missing_promoted_carrier_identity_retired_or_reclassified=1
 scope_manager_condition_binding_input_consumed_as_proof=1
 executable_lowering_allow_decision_explicit=1
+backend_behavior_changed=0
+generated_program_execution_claim=0
+```
+
+## Result
+
+```text
+trim_route_proof_updated=1
+missing_promoted_carrier_identity_retired_or_reclassified=1
+identity_decision=AllowConditionBindingIdentity
+executable_lowering_allow=0
+deny_reason=MissingExecutableTrimRouteLoweringImplementation
 backend_behavior_changed=0
 generated_program_execution_claim=0
 ```
