@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecycleVerifierResult",
+  "mode": "passive_adapter_fixture",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext",
+  "source_facts": "binding-context-adapter-facts-v0.json",
+  "source_plan": "binding-context-plan-v0.json",
+  "result": "VerifiedPlan",
+  "verified_facts": [
+    "BindingContext.copy_class=NonCopyOwned",
+    "BindingContext.drop_class=TrivialMemory",
+    "BindingContext.binding_map.rust_type=BTreeMap<String, BindingId>",
+    "BindingContext.binding_map.deterministic_order_required=true",
+    "BindingContext.binding_map.drop_class=TrivialMemory",
+    "BindingId.copy_class=ImmediateValue",
+    "BindingId.drop_class=TrivialMemory",
+    "BindingContext::is_empty.receiver.borrow_kind=SharedRead",
+    "BindingContext::is_empty.receiver.borrow_escape=CallOnly",
+    "BindingContext::len.receiver.borrow_kind=SharedRead",
+    "BindingContext::len.receiver.borrow_escape=CallOnly",
+    "BindingContext::contains.receiver.borrow_kind=SharedRead",
+    "BindingContext::contains.receiver.borrow_escape=CallOnly",
+    "BindingContext::lookup.receiver.borrow_kind=SharedRead",
+    "BindingContext::lookup.receiver.borrow_escape=CallOnly",
+    "BindingContext::insert.receiver.borrow_kind=UniqueWrite",
+    "BindingContext::insert.receiver.borrow_escape=CallOnly",
+    "BindingContext::remove.receiver.borrow_kind=UniqueWrite",
+    "BindingContext::remove.receiver.borrow_escape=CallOnly",
+    "BindingContext::clear_for_function_entry.receiver.borrow_kind=UniqueWrite",
+    "BindingContext::clear_for_function_entry.receiver.borrow_escape=CallOnly"
+  ],
+  "verified_boundaries": [
+    "adapter_facts_are_target_neutral",
+    "deterministic_order_fact_available_for_plan",
+    "shared_read_borrows_are_callonly",
+    "unique_write_borrows_are_callonly",
+    "drop_erase_backed_by_trivial_memory",
+    "immediate_return_values_are_trivial_memory"
+  ],
+  "denied_boundaries": [
+    "rustc toolchain integration",
+    "general verifier implementation",
+    "lifecycle-aware converter emission",
+    "backend behavior change",
+    "VariableContext parity",
+    "MirBuilder-wide lifecycle parity"
+  ],
+  "claims": {
+    "emission_allowed": false,
+    "verifier_implementation_started": false,
+    "emitter_implementation_started": false,
+    "converter_core_changed": false,
+    "backend_behavior_changed": false,
+    "resolver_selection_owner": false,
+    "full_variable_context_parity": false,
+    "mirbuilder_wide_lifecycle": false
+  }
+}

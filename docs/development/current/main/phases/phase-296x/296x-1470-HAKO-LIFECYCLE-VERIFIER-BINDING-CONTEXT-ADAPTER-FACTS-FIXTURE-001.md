@@ -1,6 +1,6 @@
 # 296x-1470 HAKO-LIFECYCLE-VERIFIER-BINDING-CONTEXT-ADAPTER-FACTS-FIXTURE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,30 @@ SharedRead CallOnly methods
 UniqueWrite CallOnly methods
 TrivialMemory Drop erase requirement
 target-neutral adapter facts stay policy-free
+```
+
+## Output
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-adapter-verifier-result-v0.json
+tools/checks/rust_lifecycle_binding_context_adapter_verifier_guard.sh
+```
+
+## Result
+
+```text
+binding_context_adapter_verifier_fixture_exists=1
+verifier_result_kind=VerifiedPlan
+source_adapter_facts=binding-context-adapter-facts-v0.json
+source_plan=binding-context-plan-v0.json
+deterministic_order_verified=1
+borrow_escape_verified=1
+drop_erase_verified=1
+emission_allowed=0
+verifier_implementation_started=0
+emitter_implementation_started=0
+converter_core_changed=0
+backend_behavior_changed=0
 ```
 
 ## Acceptance
