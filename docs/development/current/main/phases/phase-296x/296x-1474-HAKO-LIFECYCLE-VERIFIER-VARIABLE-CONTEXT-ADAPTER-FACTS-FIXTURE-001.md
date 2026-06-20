@@ -1,6 +1,6 @@
 # 296x-1474 HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -43,6 +43,31 @@ general verifier implementation
 lifecycle-aware converter emission
 full VariableContext parity
 MirBuilder-wide lifecycle parity
+```
+
+## Output
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-adapter-verifier-result-v0.json
+tools/checks/rust_lifecycle_variable_context_adapter_verifier_guard.sh
+```
+
+## Result
+
+```text
+variable_context_adapter_verifier_fixture_exists=1
+verifier_result_kind=VerifiedPlan
+source_adapter_facts=variable-context-adapter-facts-v0.json
+simple_map_plan_verified=1
+immutable_borrow_plan_verified=1
+snapshot_restore_plan_verified=1
+carrier_snapshot_plan_verified=1
+returned_mutable_borrow_denied=1
+emission_allowed=0
+verifier_implementation_started=0
+emitter_implementation_started=0
+converter_core_changed=0
+backend_behavior_changed=0
 ```
 
 ## Acceptance

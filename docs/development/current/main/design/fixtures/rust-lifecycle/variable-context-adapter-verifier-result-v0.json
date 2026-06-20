@@ -1,0 +1,113 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecycleVerifierResult",
+  "mode": "passive_adapter_fixture",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext",
+  "source_facts": "variable-context-adapter-facts-v0.json",
+  "source_plans": [
+    "variable-context-simple-map-plan-v0.json",
+    "variable-context-immutable-borrow-plan-v0.json",
+    "variable-context-snapshot-restore-plan-v0.json",
+    "variable-context-carrier-snapshot-plan-v0.json"
+  ],
+  "result": "VerifiedPlan",
+  "verified_facts": [
+    "VariableContext.copy_class=NonCopyOwned",
+    "VariableContext.drop_class=TrivialMemory",
+    "VariableContext.variable_map.rust_type=BTreeMap<String, ValueId>",
+    "VariableContext.variable_map.deterministic_order_required=true",
+    "VariableContext.variable_map.drop_class=TrivialMemory",
+    "ValueId.copy_class=ImmediateValue",
+    "ValueId.drop_class=TrivialMemory",
+    "VariableContext::lookup.receiver.borrow_kind=SharedRead",
+    "VariableContext::lookup.receiver.borrow_escape=CallOnly",
+    "VariableContext::contains.receiver.borrow_kind=SharedRead",
+    "VariableContext::contains.receiver.borrow_escape=CallOnly",
+    "VariableContext::insert.receiver.borrow_kind=UniqueWrite",
+    "VariableContext::insert.receiver.borrow_escape=CallOnly",
+    "VariableContext::remove.receiver.borrow_kind=UniqueWrite",
+    "VariableContext::remove.receiver.borrow_escape=CallOnly",
+    "VariableContext::variable_map.receiver.borrow_kind=SharedRead",
+    "VariableContext::variable_map.receiver.borrow_escape=Returned",
+    "VariableContext::variable_map.returned_reference.mutation_allowed=false",
+    "VariableContext::variable_map_mut.receiver.borrow_kind=UniqueWrite",
+    "VariableContext::variable_map_mut.receiver.borrow_escape=Returned",
+    "VariableContext::variable_map_mut.returned_reference.mutation_allowed=true",
+    "VariableContext::snapshot.ownership_effect=CloneOwnedMap",
+    "VariableContext::snapshot.returns.deterministic_order_required=true",
+    "VariableContext::restore.ownership_effect=ReplaceOwned",
+    "VariableContext::restore.argument.move_kind=ConsumeArgument",
+    "CarrierInfo::from_variable_map.required_access=ReadOnly",
+    "CarrierInfo::from_variable_map.requires_deterministic_order=true",
+    "CarrierInfo::with_explicit_carriers.missing_carrier_policy=FailFast"
+  ],
+  "verified_boundaries": [
+    "adapter_facts_are_target_neutral",
+    "simple_map_plan_inputs_available",
+    "immutable_returned_borrow_fact_available",
+    "snapshot_restore_ownership_facts_available",
+    "carrier_snapshot_read_requirements_available",
+    "drop_erase_backed_by_trivial_memory",
+    "deterministic_order_fact_available_for_all_map_surfaces"
+  ],
+  "verified_plan_surfaces": [
+    {
+      "plan": "variable-context-simple-map-plan-v0.json",
+      "surface": "simple_map",
+      "verified": [
+        "map deterministic order",
+        "read methods are SharedRead CallOnly",
+        "write methods are UniqueWrite CallOnly",
+        "ValueId is ImmediateValue"
+      ]
+    },
+    {
+      "plan": "variable-context-immutable-borrow-plan-v0.json",
+      "surface": "immutable_map_borrow",
+      "verified": [
+        "variable_map returns SharedRead borrow",
+        "returned reference is immutable",
+        "owner is VariableContext"
+      ]
+    },
+    {
+      "plan": "variable-context-snapshot-restore-plan-v0.json",
+      "surface": "snapshot_restore",
+      "verified": [
+        "snapshot clones owned map",
+        "snapshot preserves deterministic order",
+        "restore consumes owned map argument",
+        "replaced field drop is TrivialMemory"
+      ]
+    },
+    {
+      "plan": "variable-context-carrier-snapshot-plan-v0.json",
+      "surface": "carrier_snapshot",
+      "verified": [
+        "carrier snapshot reads map",
+        "carrier snapshot requires deterministic order",
+        "explicit carrier missing policy is fail-fast"
+      ]
+    }
+  ],
+  "denied_boundaries": [
+    "VariableContext::variable_map_mut emitted as naked alias",
+    "general verifier implementation",
+    "lifecycle-aware converter emission",
+    "backend behavior change",
+    "full VariableContext parity",
+    "MirBuilder-wide lifecycle parity",
+    "PHI planner integration",
+    "join_id lifecycle"
+  ],
+  "claims": {
+    "emission_allowed": false,
+    "verifier_implementation_started": false,
+    "emitter_implementation_started": false,
+    "converter_core_changed": false,
+    "backend_behavior_changed": false,
+    "resolver_selection_owner": false,
+    "full_variable_context_parity": false,
+    "mirbuilder_wide_lifecycle": false
+  }
+}

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKO-LIFECYCLE-VERIFIER-VARIABLE-CONTEXT-ADAPTER-FACTS-FIXTURE-001
+POST-VARIABLE-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -142,15 +142,18 @@ guard.
 296x-1473 selects a passive verifier-result fixture over VariableContext
 adapter facts and existing plan fixtures.
 
-The active row is 296x-1474. It adds that fixture and guard without implementing
-a verifier.
+296x-1474 adds the passive VariableContext adapter verifier fixture without
+enabling emission.
+
+The active row is 296x-1475. It selects the next owner after both context
+adapter verifier fixtures are present.
 
 ## Next
 
-1. Read 296x-1474.
-2. Add the passive verifier-result fixture.
-3. Add the focused guard.
-4. Keep verifier/emitter/converter implementation disabled.
+1. Read 296x-1475.
+2. Choose one next owner.
+3. Park non-selected owners explicitly.
+4. Keep adapter/resolver/verifier/emitter implementation_started=0.
 5. Run:
 
 ```bash
