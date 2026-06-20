@@ -20,25 +20,24 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
+VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. BindingContext lifecycle pilot/oracle parity is closed, and
-VariableContext gap inventory is selected as the next owner.
+lane status. VariableContext lifecycle gap inventory is closed.
 
-The active row is 296x-1390. It inventories VariableContext lifecycle gaps
-before any facts/plan pilot starts.
+The active row is 296x-1391. It creates VariableContext simple-map
+facts/plan fixtures while excluding returned map, snapshot/restore, carrier,
+and PHI behavior.
 
 ## Next
 
-1. Read 296x-1390.
-2. Inventory VariableContext lifecycle gaps only.
-3. Select the smallest next VariableContext slice.
-4. Keep facts/plan fixture creation out of this row.
-5. Keep Rust/Hako code changes, general resolver, and lifecycle parity claims
-   disabled.
-6. Run:
+1. Read 296x-1391.
+2. Add VariableContext simple-map facts/plan fixtures.
+3. Exclude variable_map(), variable_map_mut(), snapshot(), restore(), carrier,
+   and PHI behavior.
+4. Guard deterministic-order and TrivialMemory requirements.
+5. Run:
 
 ```bash
 git diff --check

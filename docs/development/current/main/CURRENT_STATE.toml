@@ -153,25 +153,27 @@ crate-bundle aggregation through one Main-owned FileBox wrapper. 296x-1381
 freezes the Rust lifecycle projection SSOT, 296x-1384 adds passive
 RustLifecycleFacts-v0 vocabulary, 296x-1385 adds passive HakoLifecyclePlan-v0
 vocabulary, and 296x-1386 documents the lifecycle emitter contract. 296x-1387
-adds the narrow BindingContext lifecycle pilot facts/plan fixtures and guard,
-296x-1388 compares it against Rust oracle vectors, and 296x-1389 selects
-VariableContext gap inventory as the next owner. The next blocker is 296x-1390:
-inventory VariableContext lifecycle gaps before any facts/plan pilot."""
+adds the narrow BindingContext lifecycle pilot, 296x-1388 compares it against
+Rust oracle vectors, 296x-1389 selects VariableContext gap inventory, and
+296x-1390 selects a simple-map-only VariableContext slice. The next blocker is
+296x-1391: create VariableContext simple map facts/plan fixtures while
+excluding returned map, snapshot/restore, carrier, and PHI behavior."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1390-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001.md"
 
-latest_card = "296x-1390-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1390-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001.md"
-latest_card_summary = """296x-1390 inventories VariableContext
-lifecycle gaps: returned immutable/mutable map borrows, snapshot/restore clone
-policy, SSA overwrite, carrier-sensitive consumers, and memory-only Drop
-preconditions before any VariableContext facts/plan pilot."""
+latest_card = "296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001.md"
+latest_card_summary = """296x-1391 creates VariableContext
+simple-map lifecycle facts/plan fixtures for new/default, lookup/contains/len/
+is_empty/insert/remove, deterministic iteration, SSA overwrite, and
+TrivialMemory-limited Drop erase while excluding returned map and snapshot/
+restore behavior."""
 
-current_blocker_token = "VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001"
+current_blocker_token = "VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

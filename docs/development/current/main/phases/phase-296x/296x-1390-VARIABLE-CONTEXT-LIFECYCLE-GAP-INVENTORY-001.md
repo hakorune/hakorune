@@ -1,6 +1,6 @@
 # 296x-1390 VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -34,6 +34,12 @@ PHI/carrier-sensitive map use
 memory-only Drop erase preconditions
 ```
 
+SSOT:
+
+```text
+docs/development/current/main/design/variable-context-lifecycle-gap-inventory.md
+```
+
 Expected output:
 
 ```text
@@ -54,6 +60,7 @@ returned_mutable_map_gap_identified=1
 snapshot_restore_gap_identified=1
 carrier_consumer_gap_identified=1
 next_variable_context_slice_selected=1
+selected_next_slice=VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
 implementation_started=0
 facts_plan_pilot_started=0
 general_resolver_implemented=0
@@ -73,4 +80,24 @@ do_not_create_VariableContext_facts_plan_fixture_in_this_row=1
 do_not_change_VariableContext_Rust_or_Hako_code=1
 do_not_implement_lifecycle_resolver=1
 do_not_claim_VariableContext_lifecycle_parity=1
+```
+
+## Closeout Evidence
+
+```text
+variable_context_lifecycle_gap_inventory_exists=1
+returned_mutable_map_gap_identified=1
+snapshot_restore_gap_identified=1
+carrier_consumer_gap_identified=1
+next_variable_context_slice_selected=1
+selected_next_slice=VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
+implementation_started=0
+facts_plan_pilot_started=0
+general_resolver_implemented=0
+```
+
+Next row:
+
+```text
+296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
 ```

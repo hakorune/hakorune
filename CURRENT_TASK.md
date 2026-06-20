@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
+VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Inventory VariableContext lifecycle gaps before creating any facts/plan pilot.
-Focus on returned immutable/mutable map borrows, snapshot/restore clone policy,
-SSA overwrite, carrier-sensitive consumers, and memory-only Drop preconditions.
+Create VariableContext simple-map lifecycle facts/plan fixtures for
+new/default, lookup, contains, len, is_empty, insert, remove, deterministic
+iteration, SSA overwrite, and TrivialMemory-limited Drop erase. Exclude
+returned map, snapshot/restore, carrier, and PHI behavior.
 ```
 
 Current evidence:
@@ -157,6 +158,9 @@ the BindingContext lifecycle plan matches Rust oracle vectors and promotion is
 limited to BindingContext only.
 RUST-LIFECYCLE-NEXT-OWNER-SELECTION-001 is closed by 296x-1389; A-lite is
 selected as VariableContext lifecycle gap inventory before any pilot.
+VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001 is closed by 296x-1390; the next
+slice is VariableContext simple map only, excluding returned map and
+snapshot/restore behavior.
 ```
 
 Acceptance for the current slice:
@@ -169,17 +173,18 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1390.
-2. Inventory VariableContext lifecycle gaps only.
-3. Select the smallest next VariableContext slice.
-4. Keep facts/plan fixture creation out of this row.
+1. Read 296x-1391.
+2. Add VariableContext simple-map facts/plan fixtures.
+3. Exclude variable_map(), variable_map_mut(), snapshot(), restore(), carrier,
+   and PHI behavior.
+4. Guard deterministic-order and TrivialMemory requirements.
 5. Keep Rust/Hako code changes, general resolver, and lifecycle parity claims
    disabled.
 
 Recommended next row:
 
 ```text
-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001
+VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001
 ```
 
 Current lifecycle SSOT:
@@ -190,7 +195,7 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1390-VARIABLE-CONTEXT-LIFECYCLE-GAP-INVENTORY-001.md
+docs/development/current/main/phases/phase-296x/296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001.md
 ```
 
 Task sequence:
