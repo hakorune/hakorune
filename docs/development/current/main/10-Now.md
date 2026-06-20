@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001
+POST-TRIM-HELPER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -58,14 +58,17 @@ resolver coverage. 296x-1420 parks CarrierVar.join_id as test-fixture/stale
 vocabulary for the lifecycle lane, with resolver/verifier/emitter deny rules
 intact. 296x-1421 selects ownership-aware converter reference documentation
 before resuming lifecycle owner probing. 296x-1422 documents the converter as
-a verified-plan renderer, not an ownership policy owner.
+a verified-plan renderer, not an ownership policy owner. 296x-1423 selects
+trim_helper lifecycle inventory as the next owner. 296x-1424 inventories
+trim_helper as route-specific metadata with resolver/verifier/emitter deny
+boundaries intact.
 
-The active row is 296x-1423. It selects the next lifecycle owner after
-ownership converter reference.
+The active row is 296x-1425. It selects the next lifecycle owner after
+trim_helper inventory.
 
 ## Next
 
-1. Read 296x-1423.
+1. Read 296x-1425.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

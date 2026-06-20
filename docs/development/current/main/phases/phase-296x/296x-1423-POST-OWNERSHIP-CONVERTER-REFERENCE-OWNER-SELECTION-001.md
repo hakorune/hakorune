@@ -1,6 +1,6 @@
 # 296x-1423 POST-OWNERSHIP-CONVERTER-REFERENCE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -51,6 +51,46 @@ full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
 ```
 
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=TRIM-HELPER-CARRIER-LIFECYCLE-INVENTORY-001
+selected_reason=trim_helper remains a route-specific metadata owner denied by
+resolver/verifier/emitter fixtures. Inventory it before promoted_body_locals or
+emitter acceptance expansion.
+```
+
+Parked:
+
+```text
+emitter acceptance expansion:
+  parked; parser/MIR-checkable emitter surface remains separate from
+  trim_helper ownership inventory
+
+promoted_body_locals lifecycle probe:
+  parked; body-local promotion ownership must not be mixed with trim route
+  helper metadata ownership
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+backend_behavior_changed=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1424-TRIM-HELPER-CARRIER-LIFECYCLE-INVENTORY-001
+```
+
 Checks:
 
 ```bash
@@ -66,4 +106,3 @@ do_not_expand_emitter_before_selection=1
 do_not_reopen_join_id_in_this_selection_row=1
 do_not_make_converter_core_policy_owner=1
 ```
-
