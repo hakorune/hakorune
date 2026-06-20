@@ -1,0 +1,25 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "mirbuilder_wide_claim": 0,
+    "runtime_try_hako_then_rust_fallback": 0,
+    "source_selfhost_claim": 0,
+    "variable_context_selected": 0
+  },
+  "crate": "hakorune_mir_builder",
+  "kind": "RustDerivedHakoFamilyRouteManifest",
+  "routes": [
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
+      "fallback_policy": "forbidden",
+      "family_id": "hakorune_mir_builder::binding_context",
+      "mainline_selection_scope": "BindingContext_only",
+      "route": "derived_hako",
+      "rust_bootstrap_route": "retained",
+      "rust_oracle_route": "retained",
+      "selected_on_mainline": false,
+      "state": "DerivedMainline_candidate"
+    }
+  ],
+  "schema_version": 0
+}

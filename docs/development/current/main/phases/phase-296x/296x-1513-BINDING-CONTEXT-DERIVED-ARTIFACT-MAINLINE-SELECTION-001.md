@@ -1,6 +1,6 @@
 # 296x-1513 BINDING-CONTEXT-DERIVED-ARTIFACT-MAINLINE-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -53,6 +53,61 @@ silent_fallback=0
 runtime_try_hako_then_rust_fallback=0
 source_selfhost_claim=0
 backend_behavior_changed=0
+```
+
+## Closeout
+
+```text
+output_contract=rust-lifecycle-binding-context-mainline-selection-v0
+binding_context_artifact_state=DerivedMainline_candidate
+mainline_selection_scope=BindingContext_only
+generated_artifact_manifest_verified=1
+rust_bootstrap_retained=1
+rust_oracle_retained=1
+silent_fallback=0
+runtime_try_hako_then_rust_fallback=0
+source_selfhost_claim=0
+backend_behavior_changed=0
+selected_on_mainline=0
+summary=ok
+```
+
+Evidence:
+
+```text
+lang/generated/rust_derived/hakorune_mir_builder/family_routes.json
+tools/checks/rust_lifecycle_binding_context_mainline_selection_guard.sh
+```
+
+Decision:
+
+```text
+BindingContext is admitted as a DerivedMainline candidate only.
+The generated artifact remains DerivedShadow and is not selected on the
+active build line in this row.
+```
+
+Reason:
+
+```text
+No existing selfhost build-line route seam consumes generated family artifacts
+yet. Selecting a candidate manifest first keeps the route explicit without
+inventing a runtime try-Hako-then-Rust fallback.
+```
+
+Boundary:
+
+```text
+The 1513 guard verifies the route manifest, artifact manifest, and
+deterministic regeneration only. It does not rerun the 1512 generated-artifact
+EXE gate, because backend shape acceptance belongs to the artifact pilot row
+and not to route-selection metadata.
+```
+
+Next:
+
+```text
+296x-1514-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001
 ```
 
 ## Stop Line
