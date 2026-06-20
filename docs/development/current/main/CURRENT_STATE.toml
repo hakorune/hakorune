@@ -267,8 +267,9 @@ latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1
 
 latest_card = "296x-1520-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1520-VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001.md"
-latest_card_summary = """296x-1520 opens VariableContext simple-map derived
-route selection after 296x-1519 checks in the bounded generated artifact."""
+latest_card_summary = """296x-1520 selects VariableContext simple-map only as
+a derived_hako execution route while keeping full VariableContext,
+Source Selfhost, runtime fallback, and Rust bootstrap removal out of scope."""
 
 current_blocker_token = "VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ROUTE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

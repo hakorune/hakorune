@@ -1,9 +1,11 @@
 {
   "claims": {
     "backend_behavior_changed": 0,
+    "full_variable_context_claim": 0,
     "mirbuilder_wide_claim": 0,
     "runtime_try_hako_then_rust_fallback": 0,
     "source_selfhost_claim": 0,
+    "variable_context_simple_map_selected": 1,
     "variable_context_selected": 0
   },
   "crate": "hakorune_mir_builder",
@@ -14,6 +16,18 @@
       "fallback_policy": "forbidden",
       "family_id": "hakorune_mir_builder::binding_context",
       "mainline_selection_scope": "BindingContext_only",
+      "route": "derived_hako",
+      "rust_bootstrap_route": "retained",
+      "rust_oracle_route": "retained",
+      "selected_on_mainline": true,
+      "state": "DerivedMainline"
+    },
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
+      "fallback_policy": "forbidden",
+      "family_id": "hakorune_mir_builder::variable_context",
+      "guard_command": "bash tools/checks/rust_lifecycle_variable_context_simple_map_derived_route_selection_guard.sh",
+      "pilot_scope": "VariableContext_simple_map_only",
       "route": "derived_hako",
       "rust_bootstrap_route": "retained",
       "rust_oracle_route": "retained",
