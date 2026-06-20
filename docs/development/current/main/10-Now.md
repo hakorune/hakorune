@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -85,14 +85,15 @@ references skeleton-safe and advances `metadata_context` to unresolved function
 `Some`. 296x-1370 selects Option constructor/value path skeleton-safety as the
 next blocker. 296x-1371 makes Option constructor/value paths skeleton-safe and
 `metadata_context` reaches generated-skeleton MIR emit. 296x-1372 selects
-`hakorune_mir_builder::metadata_context` materialization. The active row is
-296x-1373.
+`hakorune_mir_builder::metadata_context` materialization. 296x-1373
+materializes that bundle and guards it through generated-skeleton MIR emit plus
+wrapper EXE parity. The active row is 296x-1374.
 
 ## Next
 
-1. Read 296x-1373.
-2. Materialize the `metadata_context` manifest bundle and expected skeleton.
-3. Add the focused wrapper and smoke registration.
+1. Read 296x-1374.
+2. Recheck current MirBuilder context materialization status.
+3. Select the next app-front task before implementation.
 4. Run:
 
 ```bash

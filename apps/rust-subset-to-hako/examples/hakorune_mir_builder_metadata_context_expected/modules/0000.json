@@ -1,0 +1,685 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "fields": [],
+      "identity": false,
+      "kind": "Struct",
+      "name": "HintSink"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self value expression is out of v0 skeleton scope: Self"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        },
+        {
+          "body": [],
+          "kind": "Function",
+          "name": "scope_enter",
+          "params": [
+            {
+              "name": "_id",
+              "type": "u32"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [],
+          "kind": "Function",
+          "name": "scope_leave",
+          "params": [
+            {
+              "name": "_id",
+              "type": "u32"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [],
+          "kind": "Function",
+          "name": "join_result",
+          "params": [
+            {
+              "name": "_var",
+              "type": "S"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        }
+      ],
+      "target": "HintSink"
+    },
+    {
+      "fields": [
+        {
+          "name": "current_span",
+          "type": "SpanT"
+        },
+        {
+          "name": "source_file",
+          "type": "Option<String>"
+        },
+        {
+          "name": "hint_sink",
+          "type": "HintSink"
+        },
+        {
+          "name": "current_region_stack",
+          "type": "Vec<RegionIdT>"
+        },
+        {
+          "name": "value_origin_spans",
+          "type": "HashMap<ValueId, SpanT>"
+        },
+        {
+          "name": "value_origin_callers",
+          "type": "HashMap<ValueId, String>"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "MetadataContext"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Struct"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [
+            {
+              "name": "current_span",
+              "type": "SpanT"
+            }
+          ],
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "current_span",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "current_span",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "SpanT"
+        },
+        {
+          "body": [
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "current_span",
+                "kind": "Field"
+              },
+              "value": {
+                "kind": "Name",
+                "name": "span"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "set_current_span",
+          "params": [
+            {
+              "name": "span",
+              "type": "SpanT"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "source_file",
+                "kind": "Field"
+              },
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Option constructor/value expression is out of v0 skeleton scope: Some"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "set_source_file",
+          "params": [
+            {
+              "name": "source",
+              "type": "S"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "source_file",
+                "kind": "Field"
+              },
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Option constructor/value expression is out of v0 skeleton scope: None"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "clear_source_file",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "clone",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "source_file",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "current_source_file",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "Option<String>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "id"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "scope_enter",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "hint_sink",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "hint_scope_enter",
+          "params": [
+            {
+              "name": "id",
+              "type": "u32"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "id"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "scope_leave",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "hint_sink",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "hint_scope_leave",
+          "params": [
+            {
+              "name": "id",
+              "type": "u32"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "args": [],
+                    "kind": "MethodCall",
+                    "method": "into",
+                    "receiver": {
+                      "kind": "Name",
+                      "name": "var"
+                    }
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "join_result",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "hint_sink",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "hint_join_result",
+          "params": [
+            {
+              "name": "var",
+              "type": "S"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "region_id"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "push",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "current_region_stack",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "push_region",
+          "params": [
+            {
+              "name": "region_id",
+              "type": "RegionIdT"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "pop",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "current_region_stack",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "pop_region",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "Option<RegionIdT>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "current_region_stack",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "current_region_stack",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "UnsupportedType"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "value_id"
+                  },
+                  {
+                    "kind": "Name",
+                    "name": "span"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "insert",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_origin_spans",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "record_value_span",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            },
+            {
+              "name": "span",
+              "type": "SpanT"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "copied",
+                "receiver": {
+                  "args": [
+                    {
+                      "kind": "Name",
+                      "name": "value_id"
+                    }
+                  ],
+                  "kind": "MethodCall",
+                  "method": "get",
+                  "receiver": {
+                    "base": {
+                      "kind": "Name",
+                      "name": "self"
+                    },
+                    "field": "value_origin_spans",
+                    "kind": "Field"
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "value_span",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "Option<SpanT>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Let",
+              "name": "loc",
+              "type": "Unknown",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Macro"
+              }
+            },
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "value_id"
+                  },
+                  {
+                    "kind": "Name",
+                    "name": "loc"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "insert",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_origin_callers",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "record_value_caller",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            },
+            {
+              "name": "caller",
+              "type": "std_panic_Location"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Unsupported",
+                    "reason": "unsupported expression: Closure"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "map",
+                "receiver": {
+                  "args": [
+                    {
+                      "kind": "Name",
+                      "name": "value_id"
+                    }
+                  ],
+                  "kind": "MethodCall",
+                  "method": "get",
+                  "receiver": {
+                    "base": {
+                      "kind": "Name",
+                      "name": "self"
+                    },
+                    "field": "value_origin_callers",
+                    "kind": "Field"
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "value_caller",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "Option<String>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "value_origin_callers",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "value_origin_callers",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "HashMap<ValueId, String>"
+        }
+      ],
+      "target": "MetadataContext<SpanT, RegionIdT>",
+      "target_emitted_name": "MetadataContext"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self-qualified call expression is out of v0 skeleton scope: Self::new"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "default",
+          "params": [],
+          "return_type": "Self"
+        }
+      ],
+      "target": "MetadataContext<SpanT, RegionIdT>",
+      "target_emitted_name": "MetadataContext"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Mod",
+      "summary": "Mod items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::metadata_context",
+  "schema_version": 0
+}

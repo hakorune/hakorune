@@ -1,0 +1,107 @@
+// module crate::metadata_context
+// source src/metadata_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: empty record HintSink is out of v0 skeleton scope
+
+function HintSink_new(): Self {
+    return null /* TODO: Self value expression is out of v0 skeleton scope: Self */
+}
+
+function HintSink_scope_enter(receiver: HintSink, _id: i64): void {
+    // empty body
+}
+
+function HintSink_scope_leave(receiver: HintSink, _id: i64): void {
+    // empty body
+}
+
+function HintSink_join_result(receiver: HintSink, _var: S): void {
+    // empty body
+}
+
+record MetadataContext {
+    current_span: SpanT
+    source_file: Option<String>
+    hint_sink: HintSink
+    current_region_stack: Array
+    value_origin_spans: HashMap<ValueId, SpanT>
+    value_origin_callers: HashMap<ValueId, String>
+}
+
+function MetadataContext_new(current_span: SpanT): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function MetadataContext_current_span(receiver: MetadataContext): SpanT {
+    return receiver.current_span
+}
+
+function MetadataContext_set_current_span(receiver: MetadataContext, span: SpanT): void {
+    receiver.current_span = span
+}
+
+function MetadataContext_set_source_file(receiver: MetadataContext, source: S): void {
+    receiver.source_file = null /* TODO: Option constructor/value expression is out of v0 skeleton scope: Some */
+}
+
+function MetadataContext_clear_source_file(receiver: MetadataContext): void {
+    receiver.source_file = null /* TODO: Option constructor/value expression is out of v0 skeleton scope: None */
+}
+
+function MetadataContext_current_source_file(receiver: MetadataContext): Option<String> {
+    return receiver.source_file.clone()
+}
+
+function MetadataContext_hint_scope_enter(receiver: MetadataContext, id: i64): void {
+    receiver.hint_sink.scope_enter(id)
+}
+
+function MetadataContext_hint_scope_leave(receiver: MetadataContext, id: i64): void {
+    receiver.hint_sink.scope_leave(id)
+}
+
+function MetadataContext_hint_join_result(receiver: MetadataContext, var: S): void {
+    receiver.hint_sink.join_result(var.into())
+}
+
+function MetadataContext_push_region(receiver: MetadataContext, region_id: RegionIdT): void {
+    receiver.current_region_stack.push(region_id)
+}
+
+function MetadataContext_pop_region(receiver: MetadataContext): Option<RegionIdT> {
+    return receiver.current_region_stack.pop()
+}
+
+function MetadataContext_current_region_stack(receiver: MetadataContext): UnsupportedType {
+    return receiver.current_region_stack
+}
+
+function MetadataContext_record_value_span(receiver: MetadataContext, value_id: ValueId, span: SpanT): void {
+    receiver.value_origin_spans.insert(value_id, span)
+}
+
+function MetadataContext_value_span(receiver: MetadataContext, value_id: ValueId): Option<SpanT> {
+    return receiver.value_origin_spans.get(value_id).copied()
+}
+
+function MetadataContext_record_value_caller(receiver: MetadataContext, value_id: ValueId, caller: std_panic_Location): void {
+    local loc: Unknown = null /* TODO: unsupported expression: Macro */
+    receiver.value_origin_callers.insert(value_id, loc)
+}
+
+function MetadataContext_value_caller(receiver: MetadataContext, value_id: ValueId): Option<String> {
+    return receiver.value_origin_callers.get(value_id).map(null /* TODO: unsupported expression: Closure */)
+}
+
+function MetadataContext_value_origin_callers(receiver: MetadataContext): HashMap<ValueId, String> {
+    return receiver.value_origin_callers
+}
+
+function MetadataContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+// TODO: Mod items are out of v0 scope

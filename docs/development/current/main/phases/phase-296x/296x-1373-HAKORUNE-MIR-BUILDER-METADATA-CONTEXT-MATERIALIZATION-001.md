@@ -1,6 +1,6 @@
 # 296x-1373 HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -90,6 +90,28 @@ full_rust_subset_smoke=green
 generated_program_execution_claim=0
 summary=ok
 ```
+
+## Closeout
+
+```text
+manifest_checked_in=1
+module_artifact_checked_in=1
+generated_skeleton_expected_checked_in=1
+focused_wrapper_added=1
+generated_skeleton_mir_emit=green
+wrapper_exe_parity=green
+full_rust_subset_smoke=green
+generated_program_execution_claim=0
+rust_name_resolution_enabled=0
+use_resolution_enabled=0
+trait_semantics_enabled=0
+generic_semantics_enabled=0
+new_hako_syntax_added=0
+summary=ok
+```
+
+The checked-in bundle covers only `crate::metadata_context`. It does not
+aggregate modules or claim generated program execution.
 
 General checks:
 
