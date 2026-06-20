@@ -14,6 +14,7 @@
       "fallback_policy": "forbidden",
       "family_id": "hakorune_mir_builder::binding_context",
       "mainline_selection_scope": "BindingContext_only",
+      "not_selected_reason": "no_selfhost_family_artifact_route_seam",
       "route": "derived_hako",
       "rust_bootstrap_route": "retained",
       "rust_oracle_route": "retained",

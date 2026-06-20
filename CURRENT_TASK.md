@@ -33,16 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
+SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
 ```
 
 Purpose:
 
 ```text
-Design and implement the smallest explicit selfhost build-line seam that can
-select the BindingContext derived artifact without deleting Rust bootstrap,
-without making generated `.hako` edit authority, and without runtime
-try-Hako-then-Rust fallback.
+Define the minimal selfhost family-artifact route seam before any generated
+family artifact is selected on the build line.
 ```
 
 Lifecycle converter boundary:
@@ -101,7 +99,10 @@ Current task order:
   BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001 (closed)
 
 1515:
-  BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
+  BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001 (closed)
+
+1516:
+  SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
 ```
 
 Current evidence:

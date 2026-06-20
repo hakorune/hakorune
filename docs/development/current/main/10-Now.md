@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
+SELFHOST-FAMILY-ARTIFACT-ROUTE-SEAM-SSOT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -39,8 +39,10 @@ BindingContext only while keeping selected_on_mainline=0, Rust
 bootstrap/oracle retained, and runtime fallback forbidden. 296x-1514 now
 selects wait_for_route_seam rather than premature HakoAdopted source
 adoption. 296x-1515 now designs the smallest explicit BindingContext
-derived-mainline route seam while preserving Rust bootstrap/oracle routes and
-forbidding runtime fallback.
+derived-mainline route seam, records BindingContext as not selected because no
+selfhost family-artifact route seam exists yet, and keeps runtime fallback
+forbidden. 296x-1516 now defines that route seam as an SSOT before any
+generated artifact is selected.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395
