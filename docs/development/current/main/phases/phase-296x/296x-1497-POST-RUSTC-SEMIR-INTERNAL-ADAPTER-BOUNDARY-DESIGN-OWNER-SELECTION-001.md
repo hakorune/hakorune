@@ -1,6 +1,6 @@
 # 296x-1497 POST-RUSTC-SEMIR-INTERNAL-ADAPTER-BOUNDARY-DESIGN-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -54,6 +54,45 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-DESIGN-001
+selected_reason=The rustc semantic boundary is documented, but rustc_private
+must remain isolated from the product compiler. Before implementation, the
+next smallest owner is deciding the adapter tool/crate boundary and toolchain
+preflight contract.
+implementation_started=0
+rustc_internal_adapter_started=0
+wider_context_extraction_started=0
+```
+
+Non-selected owners:
+
+```text
+B. rustc adapter minimal implementation probe:
+  parked until the adapter tool boundary and toolchain preflight are fixed
+
+C. source-shape probe retirement policy:
+  parked until a rustc adapter implementation path exists
+
+D. return to emitter parity:
+  parked until rustc semantic adapter replacement has an implementation seam
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+rustc_internal_adapter_started=0
+wider_context_extraction_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line
