@@ -1,0 +1,42 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::TrimRouteInfo.to_carrier_info",
+  "source": {
+    "crate": "hakorune",
+    "module": "src::mir::loop_route_detection::support::body_local::carrier",
+    "source_path": "src/mir/loop_route_detection/support/body_local/carrier.rs"
+  },
+  "method_fact": {
+    "id": "TrimRouteInfo::to_carrier_info",
+    "receiver": {
+      "source": "TrimRouteInfo",
+      "borrow_view": "ReadOnlyBorrowView",
+      "access": "read",
+      "escapes": false
+    },
+    "operation": "TrimHelperCarrierProducer",
+    "produces": {
+      "carrier_info": true,
+      "trim_helper": true,
+      "trim_helper_source": "TrimLoopHelper::from_route_info",
+      "promoted_body_local_recorded": true,
+      "join_id_producer": false
+    },
+    "payload": {
+      "original_var": "from TrimRouteInfo.var_name",
+      "carrier_name": "from TrimRouteInfo.carrier_name",
+      "whitespace_chars": "from TrimRouteInfo.comparison_literals"
+    },
+    "publication": {
+      "publishes_variable_map": false,
+      "publishes_trim_helper": false
+    }
+  },
+  "denied_followups": [
+    "trim route lowering",
+    "promoted_body_locals lifecycle owner",
+    "join_id producer",
+    "general resolver"
+  ]
+}

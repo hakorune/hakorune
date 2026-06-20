@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::TrimRouteInfo.to_carrier_info",
+  "source": "src/mir/loop_route_detection/support/body_local/carrier.rs",
+  "vectors": [
+    {
+      "id": "space_tab_trim_info",
+      "input": {
+        "var_name": "ch",
+        "comparison_literals": [" ", "\\t"],
+        "carrier_name": "is_ch_match"
+      },
+      "expect": {
+        "loop_var_name": "is_ch_match",
+        "loop_var_id": 0,
+        "carriers": [],
+        "trim_helper": {
+          "original_var": "ch",
+          "carrier_name": "is_ch_match",
+          "whitespace_chars": [" ", "\\t"]
+        },
+        "promoted_body_locals": ["ch"],
+        "join_id_produced": false
+      },
+      "requires": [
+        "new_carrier_info",
+        "trim_helper_from_route_info",
+        "append_original_var_to_promoted_body_locals",
+        "no_join_id_producer"
+      ]
+    },
+    {
+      "id": "newline_trim_info",
+      "input": {
+        "var_name": "c",
+        "comparison_literals": ["\\n", "\\r"],
+        "carrier_name": "is_c_match"
+      },
+      "expect": {
+        "loop_var_name": "is_c_match",
+        "loop_var_id": 0,
+        "carriers": [],
+        "trim_helper": {
+          "original_var": "c",
+          "carrier_name": "is_c_match",
+          "whitespace_chars": ["\\n", "\\r"]
+        },
+        "promoted_body_locals": ["c"],
+        "join_id_produced": false
+      },
+      "requires": [
+        "preserve_comparison_literals",
+        "no_trim_route_lowering_claim"
+      ]
+    }
+  ],
+  "denied_vectors": [
+    "trim_route_lowering",
+    "promoted_body_locals_lifecycle_owner",
+    "join_id_assignment",
+    "general_resolver"
+  ],
+  "promotion_scope": {
+    "hako_authority": "TrimRouteInfo::to_carrier_info producer only",
+    "trim_route_lowering_claim": false,
+    "promoted_body_locals_owner_claim": false,
+    "phi_join_id_claim": false,
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}

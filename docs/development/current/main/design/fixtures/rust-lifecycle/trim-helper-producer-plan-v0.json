@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::TrimRouteInfo.to_carrier_info",
+  "source_facts": "trim-helper-producer-facts-v0.json",
+  "plans": [
+    {
+      "id": "TrimRouteInfo::to_carrier_info",
+      "plan_kind": "TrimHelperCarrierProducer",
+      "receiver": "TrimRouteInfo ReadOnlyBorrowView",
+      "output": "CarrierInfo",
+      "mutation_policy": "create_new_carrier_info",
+      "publication_policy": "does_not_publish_variable_map",
+      "producer_policy": {
+        "loop_var_name": "carrier_name",
+        "loop_var_id": "placeholder_ValueId_0",
+        "carriers": "empty",
+        "trim_helper": "Some(TrimLoopHelper::from_route_info)",
+        "promoted_body_locals": "append_original_var"
+      },
+      "output_policy": {
+        "trim_helper": "produced",
+        "promoted_body_locals": "recorded_only",
+        "join_id": "not_produced"
+      },
+      "required_facts": [
+        "receiver.borrow_view=ReadOnlyBorrowView",
+        "receiver.escapes=false",
+        "produces.trim_helper=true",
+        "produces.join_id_producer=false"
+      ]
+    }
+  ],
+  "denied": [
+    "trim route lowering",
+    "promoted_body_locals lifecycle owner",
+    "join_id producer",
+    "general resolver"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false,
+    "trim_route_lowering_claim": false,
+    "promoted_body_locals_owner_claim": false,
+    "phi_join_id_claim": false,
+    "full_variable_context_claim": false
+  }
+}

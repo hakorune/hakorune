@@ -33,16 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-TRIM-HELPER-INVENTORY-OWNER-SELECTION-001
+POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after trim_helper inventory confirms trim
-metadata remains route-specific and denied by resolver/verifier/emitter
-fixtures. Do not start trim_helper producer probing, promoted_body_locals
-inventory, or emitter acceptance expansion before choosing one next owner.
+Select the next lifecycle owner after TrimRouteInfo::to_carrier_info is
+fixture-guarded as the trim helper producer. Do not start promoted_body_locals
+inventory, emitter acceptance expansion, or trim route lowering inventory
+before choosing one next owner.
 ```
 
 Lifecycle converter boundary:

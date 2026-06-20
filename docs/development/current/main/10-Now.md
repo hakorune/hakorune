@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-HELPER-INVENTORY-OWNER-SELECTION-001
+POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -61,14 +61,17 @@ before resuming lifecycle owner probing. 296x-1422 documents the converter as
 a verified-plan renderer, not an ownership policy owner. 296x-1423 selects
 trim_helper lifecycle inventory as the next owner. 296x-1424 inventories
 trim_helper as route-specific metadata with resolver/verifier/emitter deny
-boundaries intact.
+boundaries intact. 296x-1425 selects TrimRouteInfo::to_carrier_info producer
+probing. 296x-1426 fixture-guards TrimRouteInfo::to_carrier_info as
+TrimHelperCarrierProducer without trim route lowering, promoted_body_locals
+ownership, join_id producer, or general resolver claims.
 
-The active row is 296x-1425. It selects the next lifecycle owner after
-trim_helper inventory.
+The active row is 296x-1427. It selects the next lifecycle owner after
+trim_helper producer probe.
 
 ## Next
 
-1. Read 296x-1425.
+1. Read 296x-1427.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
