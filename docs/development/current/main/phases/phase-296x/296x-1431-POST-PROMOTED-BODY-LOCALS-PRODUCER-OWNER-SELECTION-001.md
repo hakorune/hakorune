@@ -1,6 +1,6 @@
 # 296x-1431 POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -52,6 +52,44 @@ full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
 ```
 
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=PROMOTED-NAME-RESOLUTION-DENY-CLOSEOUT-001
+selected_reason=promoted_body_locals producers are now fixture-guarded, but
+resolve_promoted_join_id still requires join_id. Close the deny boundary before
+emitter expansion or trim route lowering work.
+```
+
+Parked:
+
+```text
+emitter parser/MIR-checkable surface:
+  parked until promoted-name resolution deny is explicit
+
+trim route lowering inventory:
+  parked; route lowering must not infer join_id or promoted-name resolution
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+backend_behavior_changed=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1432-PROMOTED-NAME-RESOLUTION-DENY-CLOSEOUT-001
+```
+
 Checks:
 
 ```bash
@@ -67,4 +105,3 @@ do_not_expand_emitter_before_selection=1
 do_not_claim_trim_route_lowering_complete=1
 do_not_make_converter_core_policy_owner=1
 ```
-

@@ -192,21 +192,24 @@ join_id-dependent consumers without claiming join_id production or route
 lowering. 296x-1429 selects promoted_body_locals producer probing. 296x-1430
 fixture-guards trim and DigitPos promoted_body_locals producers as name
 recorders only, without join_id producer, route lowering, resolver, or emitter
-claims. The next blocker is 296x-1431: select the next lifecycle owner after
-promoted_body_locals producer probe."""
+claims. 296x-1431 selects promoted-name resolution deny closeout. 296x-1432
+closes promoted-name resolution as denied until a production join_id producer
+exists. The next blocker is 296x-1433: select the next lifecycle owner after
+promoted-name resolution deny closeout."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1431-POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1433-POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1431-POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1431-POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1431 selects the next lifecycle owner after
-promoted_body_locals producers are fixture-guarded as name recorders only."""
+latest_card = "296x-1433-POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1433-POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1433 selects the next lifecycle owner after
+promoted-name resolution is closed as a deny boundary until a production
+join_id producer exists."""
 
-current_blocker_token = "POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001"
+current_blocker_token = "POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

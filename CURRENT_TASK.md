@@ -33,16 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001
+POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after promoted_body_locals producers are
-fixture-guarded as name recorders only. Do not reopen join_id producer,
-expand emitter acceptance, or start trim route lowering before choosing one
-next owner.
+Select the next lifecycle owner after promoted-name resolution is closed as
+a deny boundary until a production join_id producer exists. Do not reopen
+join_id without new evidence, start trim route lowering, or expand emitter
+acceptance before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
