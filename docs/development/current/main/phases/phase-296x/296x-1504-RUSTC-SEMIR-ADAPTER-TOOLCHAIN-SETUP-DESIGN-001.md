@@ -35,6 +35,7 @@ developer_setup_command
 CI_setup_policy
 fail_fast_message_for_missing_rustc_private
 standalone_tool_boundary
+Rust bootstrap preservation boundary
 ```
 
 Candidates:
@@ -61,12 +62,49 @@ developer_setup_documented=1
 ci_policy_documented=1
 fail_fast_contract_documented=1
 product_crates_rustc_private_dependency=0
+rust_bootstrap_preserved=1
+rust_compat_route_preserved=1
+rust_oracle_vector_preserved=1
 implementation_started=0
 facts_generated=0
 hako_plan_emitted=0
 hako_source_emitted=0
 backend_behavior_changed=0
 ```
+
+## Bootstrap Preservation Boundary
+
+This toolchain design must not be read as removing Rust boot.
+
+```text
+Hako authority promotion:
+  allowed family by family after verified parity
+
+Rust owner demotion:
+  allowed only as semantic authority demotion for that family
+
+Rust bootstrap removal:
+  forbidden
+```
+
+The Rust path remains required for:
+
+```text
+bootstrap
+oracle comparison
+compatibility route
+iOS / Windows / new-host bring-up
+emergency recovery
+```
+
+Future task names should prefer:
+
+```text
+MIRBUILDER-<FAMILY>-HAKO-AUTHORITY-PROMOTION-001
+MIRBUILDER-<FAMILY>-RUST-OWNER-DEMOTION-001
+```
+
+and avoid names that imply deleting Rust boot.
 
 Checks:
 
@@ -83,4 +121,5 @@ do_not_add_rustc_private_dependency_in_product_crates=1
 do_not_generate_lifecycle_facts_in_design=1
 do_not_emit_HakoLifecyclePlan_in_design=1
 do_not_change_backend=1
+do_not_remove_Rust_bootstrap=1
 ```

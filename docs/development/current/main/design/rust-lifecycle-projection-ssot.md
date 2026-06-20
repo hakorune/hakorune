@@ -48,6 +48,55 @@ This is the key boundary. The long-term goal is still to generate useful
 `.hako`, but ownership is not a text-rewrite rule. Ownership is a projection
 from rustc-proven facts into a Hako-owned plan.
 
+## Rust Bootstrap Preservation
+
+Promoting a `.hako` MirBuilder family to authority does not mean removing the
+Rust bootstrap path.
+
+Use these terms:
+
+```text
+preferred:
+  Hako authority promotion
+  Rust owner demotion
+
+avoid:
+  Rust bootstrap removal
+  Rust implementation deletion
+```
+
+For every family migration, keep these invariants:
+
+```text
+rust_bootstrap_preserved=1
+rust_compat_route_preserved=1
+rust_oracle_vector_preserved=1
+rust_first_startup_preserved=1
+```
+
+Reason:
+
+```text
+iOS / Windows / new-host bring-up still needs Rust bootstrap and compatibility
+routes while .hako authority grows family by family.
+```
+
+Allowed:
+
+```text
+.hako MirBuilder becomes semantic authority for one verified family
+Rust MirBuilder path becomes bootstrap / oracle / compatibility surface
+```
+
+Forbidden:
+
+```text
+delete Rust bootstrap
+make .hako-only startup mandatory too early
+remove Rust oracle comparison before parity is stable
+break non-primary platform bring-up
+```
+
 ## Short Answer
 
 The migration goal can be described as:

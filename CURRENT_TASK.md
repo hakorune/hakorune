@@ -56,6 +56,13 @@ Short form:
 
 The converter/emitter renders verified plans. It does not choose ownership,
 borrow, move, or Drop policy directly from Rust syntax.
+
+MirBuilder family migration wording:
+  .hako authority promotion and Rust owner demotion are allowed only
+  family-by-family after verified parity.
+
+  Rust bootstrap / Rust compat route / Rust oracle vectors stay preserved.
+  Do not treat "Rust owner demotion" as Rust bootstrap removal.
 ```
 
 Current evidence:
