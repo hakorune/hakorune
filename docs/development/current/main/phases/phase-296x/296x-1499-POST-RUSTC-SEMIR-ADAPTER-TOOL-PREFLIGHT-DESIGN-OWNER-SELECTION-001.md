@@ -1,6 +1,6 @@
 # 296x-1499 POST-RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-DESIGN-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -54,6 +54,45 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=RUSTC-SEMIR-ADAPTER-TOOL-PREFLIGHT-IMPLEMENTATION-001
+selected_reason=The adapter tool boundary is documented and isolates
+rustc_private from product crates. The next smallest step is a standalone
+tool skeleton with diagnostic-only preflight and a guard confirming that no
+facts, Hako plan, .hako, or backend behavior are produced.
+implementation_started=0
+adapter_tool_created=0
+rustc_internal_adapter_started=0
+```
+
+Non-selected owners:
+
+```text
+B. root/workspace rustc-private guard:
+  parked because the preflight implementation guard must include this check
+
+C. source-shape probe retirement policy:
+  parked until a rustc adapter tool exists
+
+D. return to emitter parity:
+  parked until rustc semantic adapter replacement has a concrete tool seam
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+adapter_tool_created=0
+rustc_internal_adapter_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line
