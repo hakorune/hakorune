@@ -1,6 +1,6 @@
 # 296x-1486 RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-PROBE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -57,6 +57,42 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Closeout
+
+```text
+harness_probe_green=1
+output_kind=RustLifecycleAdapterFacts
+subject=BindingContext
+adapter_policy_owner=0
+raw_rustc_dump_as_schema=0
+backend_behavior_changed=0
+```
+
+Evidence:
+
+```bash
+bash tools/checks/rustc_semir_binding_context_adapter_harness_probe_guard.sh
+```
+
+Guard output:
+
+```text
+output_contract=rustc-semir-binding-context-adapter-harness-probe-v0
+harness_probe_green=1
+output_kind=RustLifecycleAdapterFacts
+target_neutral_adapter=1
+adapter_policy_owner=0
+raw_rustc_dump_as_schema=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Next:
+
+```text
+296x-1487-POST-RUSTC-SEMIR-BINDING-CONTEXT-HARNESS-PROBE-OWNER-SELECTION-001
 ```
 
 ## Stop Line

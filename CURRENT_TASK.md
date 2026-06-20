@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-PROBE-001
+POST-RUSTC-SEMIR-BINDING-CONTEXT-HARNESS-PROBE-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Add the first minimal BindingContext rustc semantic adapter harness probe for
-RustLifecycleFacts-v0. Do not emit HakoLifecyclePlan-v0, `.hako`, or backend
-behavior from the adapter.
+Select the next owner after the BindingContext adapter harness probe. Do not
+start rustc integration, VariableContext expansion, or trim route lowering
+before selecting one owner.
 ```
 
 Lifecycle converter boundary:
