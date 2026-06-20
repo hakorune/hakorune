@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017
+HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after
-`hakorune_mir_builder::metadata_context` materialization was closed.
+Materialize the remaining `hakorune_mir_builder` crate-root module
+(`crate`, `src/lib.rs`) as an explicit skeleton handoff.
 ```
 
 Current evidence:
@@ -118,6 +118,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-015 is closed by 296x-1370.
 RUST-SUBSET-OPTION-CONSTRUCTOR-SKELETON-SAFETY-001 is closed by 296x-1371.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016 is closed by 296x-1372.
 HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001 is closed by 296x-1373.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017 is closed by 296x-1374.
 ```
 
 Acceptance for the current slice:
@@ -130,20 +131,20 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1374.
-2. Recheck current MirBuilder context materialization status and remaining
-   green/source-shape candidates.
-3. Select the next source-shape blocker, materialization row, or aggregation row.
-4. Keep generated-program execution claim at 0.
+1. Read 296x-1375.
+2. Generate/check in the focused `hakorune_mir_builder` crate-root bundle.
+3. Add the focused wrapper and smoke rows.
+4. Keep `Use` as explicit Unsupported handoff; do not enable use/name
+   resolution or generated-program execution.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017
+HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001
 ```
 
-296x-1373 materialized `hakorune_mir_builder::metadata_context`. 296x-1374
-selects the next app-front task before implementation.
+296x-1374 selected the crate-root module because it is the smallest remaining
+`hakorune_mir_builder` module and already reaches generated-skeleton MIR emit.
 
 ## Pointers
 

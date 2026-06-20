@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017
+HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -87,14 +87,18 @@ next blocker. 296x-1371 makes Option constructor/value paths skeleton-safe and
 `metadata_context` reaches generated-skeleton MIR emit. 296x-1372 selects
 `hakorune_mir_builder::metadata_context` materialization. 296x-1373
 materializes that bundle and guards it through generated-skeleton MIR emit plus
-wrapper EXE parity. The active row is 296x-1374.
+wrapper EXE parity. 296x-1374 selects the remaining `hakorune_mir_builder`
+crate-root module as the next small materialization row. The active row is
+296x-1375.
 
 ## Next
 
-1. Read 296x-1374.
-2. Recheck current MirBuilder context materialization status.
-3. Select the next app-front task before implementation.
-4. Run:
+1. Read 296x-1375.
+2. Check in the focused `hakorune_mir_builder` crate-root bundle.
+3. Add the focused wrapper and smoke entries.
+4. Keep `Use` as an explicit Unsupported handoff; do not enable use/name
+   resolution.
+5. Run:
 
 ```bash
 cargo check -q --lib
@@ -102,7 +106,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-5. Update current pointers when the selection row closes.
+6. Update current pointers when the materialization row closes.
 
 ## Recently Closed
 

@@ -1,6 +1,6 @@
 # 296x-1374 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -51,6 +51,48 @@ candidate_A=crate/module bundle aggregation after current context set
 candidate_B=next green MirBuilder module inventory
 candidate_C=closure unsupported handoff hardening for remaining source-shape coverage
 candidate_D=return to broader crate pilot selection
+```
+
+## Probe Evidence
+
+Re-generated the `hakorune_mir_builder` RustSubset bundle in `/tmp` and
+checked the remaining crate-root module:
+
+```text
+module=crate
+source_path=src/lib.rs
+artifact_path=modules/0000.json
+items=6
+generated_skeleton_mir_emit=green
+```
+
+The crate-root module contains `Use` items only, which are already explicit
+Unsupported handoffs. No Rust name resolution, use resolution, generated
+program execution, or new `.hako` syntax is needed.
+
+All non-root `hakorune_mir_builder` source modules are already materialized:
+
+```text
+binding_context=materialized
+variable_context=materialized
+core_context=materialized
+context=materialized
+type_context=materialized
+metadata_context=materialized
+```
+
+Selecting the crate-root module next completes the checked-in single-module
+coverage for `hakorune_mir_builder` before any broader aggregation row.
+
+## Selection Result
+
+```text
+selected_next_task=HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001
+selected_scope=hakorune_mir_builder crate-root module (`crate`, src/lib.rs)
+selected_reason=smallest remaining MirBuilder module; MIR emit already green; completes 7/7 module materialization before aggregation
+implementation_allowed=0
+next_card_name=296x-1375-HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001
+summary=ok
 ```
 
 ## Selection Rules
