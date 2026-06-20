@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -30,13 +30,15 @@ closed. 296x-1394 inventoried returned map borrows and keeps
 selected immutable `variable_map()` BorrowView as the next owner. 296x-1396
 closed that BorrowView probe with fixture and guard parity. 296x-1398 closed
 snapshot/restore ownership with CloneOwnedMap and ReplaceOwned fixtures.
+296x-1400 closed `variable_map_mut()` as Deny(ReturnedMutableBorrow) with no
+external Rust callsites.
 
-The active row is 296x-1399. It selects the next VariableContext lifecycle
-owner after snapshot/restore ownership.
+The active row is 296x-1401. It selects the next lifecycle owner after
+mutable-map Deny closeout.
 
 ## Next
 
-1. Read 296x-1399.
+1. Read 296x-1401.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

@@ -33,16 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next VariableContext lifecycle owner after simple map, immutable
-BorrowView, and snapshot/restore ownership fixtures are green. Do not start
-mutable API replacement, carrier/PHI, or resolver work before choosing one
-next owner.
+Select the next lifecycle owner after VariableContext simple-map,
+immutable-BorrowView, snapshot/restore, and mutable-map Deny closeout are
+green. Do not start carrier/PHI or resolver work before choosing one next
+owner.
 ```
 
 Current evidence:
@@ -182,6 +182,11 @@ snapshot/restore ownership is selected as the next owner.
 VARIABLE-CONTEXT-SNAPSHOT-RESTORE-OWNERSHIP-001 is closed by 296x-1398;
 CloneOwnedMap and ReplaceOwned fixtures and guard are green while mutable map,
 carrier/PHI, and resolver claims remain disabled.
+VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001 is closed by
+296x-1399; mutable-map Deny closeout is selected as the next owner.
+VARIABLE-CONTEXT-MUTABLE-MAP-DENY-CLOSEOUT-001 is closed by 296x-1400;
+variable_map_mut() has no external Rust callsites and stays
+Deny(ReturnedMutableBorrow).
 ```
 
 Acceptance for the current slice:
@@ -194,7 +199,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1399.
+1. Read 296x-1401.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -203,7 +208,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
+VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:

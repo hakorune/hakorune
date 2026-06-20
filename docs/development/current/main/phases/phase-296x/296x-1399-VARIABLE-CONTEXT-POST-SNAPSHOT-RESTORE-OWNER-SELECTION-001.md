@@ -1,6 +1,6 @@
 # 296x-1399 VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -47,6 +47,47 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected_owner=A
+selected_next_task=VARIABLE-CONTEXT-MUTABLE-MAP-DENY-CLOSEOUT-001
+implementation_started=0
+```
+
+Reason:
+
+```text
+variable_map_mut() has no external Rust callsites, while changing the API would
+be a semantic/code-shape decision. The cleanest next step is to close the
+current lifecycle lane with an explicit Deny(ReturnedMutableBorrow) contract
+and a no-consumer guard.
+```
+
+Selected scope:
+
+```text
+validate external variable_map_mut() callsite count remains 0
+keep Deny(ReturnedMutableBorrow) as the lifecycle policy
+do not change Rust API or generated Hako API
+```
+
+Non-selected owners:
+
+```text
+B carrier/PHI lifecycle inventory:
+  parked until the mutable returned-borrow boundary is closed
+
+C HakoLifecycleResolver read-only skeleton:
+  parked until VariableContext unresolved API boundary is closed
+```
+
+Next:
+
+```text
+296x-1400-VARIABLE-CONTEXT-MUTABLE-MAP-DENY-CLOSEOUT-001
 ```
 
 ## Stop Line

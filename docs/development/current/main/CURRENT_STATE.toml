@@ -159,22 +159,22 @@ oracle parity while excluding returned map, snapshot/restore, carrier, and PHI
 behavior. 296x-1393 selects the returned-borrow boundary as the next lifecycle
 owner. 296x-1394 inventories `VariableContext` returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. The next
-blocker is 296x-1399: select the next VariableContext lifecycle owner after
-snapshot/restore ownership fixtures are green."""
+blocker is 296x-1401: select the next lifecycle owner after mutable-map Deny
+closeout."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1399-VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1401-VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1399-VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1399-VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1399 selects the next
-VariableContext lifecycle owner after simple map, immutable BorrowView, and
-snapshot/restore ownership fixtures are green."""
+latest_card = "296x-1401-VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1401-VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1401 selects the next
+VariableContext lifecycle owner after simple-map, immutable-BorrowView,
+snapshot/restore, and mutable-map Deny closeout are green."""
 
-current_blocker_token = "VARIABLE-CONTEXT-POST-SNAPSHOT-RESTORE-OWNER-SELECTION-001"
+current_blocker_token = "VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
