@@ -16,6 +16,21 @@ box OrderedMapBox {
     keys_value: ArrayBox
     values_value: ArrayBox
 
+    clone_owned() {
+        local next = new OrderedMapBox()
+        next.keys_value = new ArrayBox()
+        next.values_value = new ArrayBox()
+
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            next.keys_value.push(me.keys_value.get(i))
+            next.values_value.push(me.values_value.get(i))
+            i = i + 1
+        }
+
+        return next
+    }
+
     set(key, value) {
         if key == null {
             return 0

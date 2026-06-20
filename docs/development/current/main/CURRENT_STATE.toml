@@ -267,12 +267,13 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "mirbuilder-rust-to-hako-converter-task-order-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
-latest_card_summary = """The shared MirBuilder behavioral emitter and live
-lightweight facts path are in place for BindingContextNative and
-VariableContextNative simple-map. The next task is fixing VariableContext
-snapshot ownership, again without new route/card churn."""
+latest_card_summary = """BindingContextNative, VariableContextNative
+simple-map, VariableContext snapshot/restore artifact ownership, and the
+MirBuilder converter matrix guard are green. The next task is replacing
+hard-coded family generators behind that matrix, again without new
+route/card churn."""
 
-current_blocker_token = "MIRBUILDER-VARIABLE-CONTEXT-SNAPSHOT-OWNERSHIP-001"
+current_blocker_token = "MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

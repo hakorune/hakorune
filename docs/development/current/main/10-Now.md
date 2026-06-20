@@ -20,16 +20,16 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-VARIABLE-CONTEXT-SNAPSHOT-OWNERSHIP-001
+MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. The current task-order SSOT is
 `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
-The shared MirBuilder behavioral emitter and live lightweight facts path are
-in place for BindingContextNative and VariableContextNative simple-map. The
-next implementation task is fixing VariableContext snapshot ownership, without
-new route/card churn.
+BindingContextNative, VariableContextNative simple-map, VariableContext
+snapshot/restore artifact ownership transfer, and the MirBuilder converter
+matrix guard are green. The next implementation task is replacing hard-coded
+family generators behind that matrix, without new route/card churn.
 
 Historical context follows.
 

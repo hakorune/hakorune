@@ -16,11 +16,11 @@ box VariableContext {
 
 static box VariableContextApi {
     snapshot(ctx) {
-        return ctx.variable_map
+        return ctx.variable_map.clone_owned()
     }
 
     restore(ctx, snapshot) {
-        ctx.variable_map = snapshot
+        ctx.variable_map = snapshot.clone_owned()
     }
 }
 

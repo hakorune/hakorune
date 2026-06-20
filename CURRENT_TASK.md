@@ -33,14 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-VARIABLE-CONTEXT-SNAPSHOT-OWNERSHIP-001
+MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001
 ```
 
 Purpose:
 
 ```text
-Fix VariableContext snapshot ownership with clone_owned after the live
-lightweight facts converter is connected for BindingContext and VariableContext simple-map.
+Replace hard-coded family generators after the converter matrix is green.
 ```
 
 Lifecycle converter boundary:
@@ -87,12 +86,15 @@ Done:
   VariableContextNative simple-map source + behavior fixture
   shared MirBuilder behavioral emitter
   live lightweight facts converter for BindingContext and VariableContext simple-map
+  VariableContext snapshot/restore artifact ownership transfer
+  MirBuilder converter matrix guard
 
 Next:
-  Fix VariableContext snapshot ownership with clone_owned
+  Replace hard-coded family generators after converter matrix is green
 
 Then:
-  Replace hard-coded family generators after converter matrix is green
+  Keep the converter matrix green while removing family-specific generator
+  duplication
 ```
 
 Current task order:

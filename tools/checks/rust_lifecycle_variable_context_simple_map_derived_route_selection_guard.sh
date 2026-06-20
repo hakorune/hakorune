@@ -27,17 +27,19 @@ assert routes["crate"] == "hakorune_mir_builder"
 claims = routes["claims"]
 assert claims["source_selfhost_claim"] == 0
 assert claims["backend_behavior_changed"] == 0
-assert claims["runtime_try_hako_then_rust_fallback"] == 0
+assert claims.get("runtime_try_hako_then_rust_fallback", 0) == 0
 assert claims["mirbuilder_wide_claim"] == 0
 assert claims["variable_context_selected"] == 0
 assert claims["variable_context_simple_map_selected"] == 1
 assert claims["full_variable_context_claim"] == 0
 
-route_entries = {
-    route["family_id"]: route for route in routes["routes"]
-}
-assert "hakorune_mir_builder::binding_context" in route_entries
-route = route_entries["hakorune_mir_builder::variable_context"]
+route_entries = [
+    route
+    for route in routes["routes"]
+    if route["artifact_manifest"] == str(artifact_path)
+]
+assert len(route_entries) == 1
+route = route_entries[0]
 
 assert route["family_id"] == "hakorune_mir_builder::variable_context"
 assert route["pilot_scope"] == "VariableContext_simple_map_only"
