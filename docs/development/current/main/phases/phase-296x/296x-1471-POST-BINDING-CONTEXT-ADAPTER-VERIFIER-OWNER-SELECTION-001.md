@@ -1,6 +1,6 @@
 # 296x-1471 POST-BINDING-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -40,6 +40,26 @@ recommended=A
 reason=BindingContext adapter facts are now target-neutral and passively
 verified; VariableContext is the next already-inventoried family and adds the
 returned-borrow boundaries needed before a useful verifier implementation.
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001
+selected_reason=VariableContext extends the checked BindingContext adapter
+fact shape with returned immutable borrow, denied returned mutable borrow,
+snapshot/restore ownership, and carrier-sensitive read requirements.
+```
+
+Non-selected owners:
+
+```text
+B_verifier_implementation_skeleton:
+  parked until VariableContext adapter fact shape is fixed
+
+C_trim_route_fixture_selection:
+  parked while lifecycle projection fixture chain remains active
 ```
 
 ## Acceptance

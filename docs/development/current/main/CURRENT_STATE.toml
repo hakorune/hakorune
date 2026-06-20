@@ -246,20 +246,22 @@ verifier-result fixture over BindingContext adapter facts and the existing
 plan. The next blocker is 296x-1470: add that fixture and guard. 296x-1470
 adds the passive verifier-result fixture without enabling emission. The next
 blocker is 296x-1471: select the next owner after BindingContext adapter
-verification."""
+verification. 296x-1471 selects VariableContext adapter facts as the next
+fixture. The next blocker is 296x-1472: add that target-neutral fixture and
+guard."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1471-POST-BINDING-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1472-RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001.md"
 
-latest_card = "296x-1471-POST-BINDING-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1471-POST-BINDING-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1471 selects the next owner after passive
-BindingContext adapter fact verification."""
+latest_card = "296x-1472-RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1472-RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001.md"
+latest_card_summary = """296x-1472 adds a target-neutral VariableContext
+RustLifecycleFacts adapter fixture and guard."""
 
-current_blocker_token = "POST-BINDING-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001"
+current_blocker_token = "RUST-LIFECYCLE-FACTS-ADAPTER-VARIABLE-CONTEXT-FIXTURE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
