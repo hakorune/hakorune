@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001
+RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active

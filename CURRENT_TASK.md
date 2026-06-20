@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001
+RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
 ```
 
 Purpose:
 
 ```text
-Extract the first THIR structured body inventory for the selected
-BindingContext family, using the HIR inventory contract as the owner surface.
-Do not extract MIR/borrowck/drop or lifecycle facts in this row.
+Extract the first MIR-level lifecycle facts for the selected BindingContext
+family after HIR owner contract and THIR body inventory are green. Do not emit
+HakoLifecyclePlan, .hako source, backend code, or promote authority in this
+row.
 ```
 
 Lifecycle converter boundary:
@@ -78,7 +79,7 @@ Current task order:
   RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-CONTRACT-V0-001 (closed)
 
 1509:
-  RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001
+  RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001 (closed)
 
 1510:
   RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001

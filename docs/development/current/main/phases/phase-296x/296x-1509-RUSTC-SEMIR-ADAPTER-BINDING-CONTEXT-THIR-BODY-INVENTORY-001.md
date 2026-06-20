@@ -1,6 +1,6 @@
 # 296x-1509 RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -67,6 +67,40 @@ Checks:
 bash tools/checks/rustc_semir_adapter_binding_context_thir_body_inventory_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Implementation
+
+```text
+tool_modules=src/main.rs,src/thir_inventory.rs
+command=--binding-context-thir-body-inventory <rust-source> [rustc-arg...]
+guard=tools/checks/rustc_semir_adapter_binding_context_thir_body_inventory_guard.sh
+index=docs/tools/check-scripts-index.md
+```
+
+The THIR query runs from `after_expansion` after `rustc_hir_analysis::check_crate(tcx)`.
+Using `after_analysis` is too late because rustc may have stolen THIR bodies.
+
+## Closeout
+
+```text
+binding_context_family_selected=1
+thir_body_inventory_green=1
+hir_owner_reference_used=1
+selected_definition_count_positive=1
+MIR_or_borrowck_extracted=0
+drop_elaboration_extracted=0
+RustLifecycleAdapterFacts_generated=0
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Next:
+
+```text
+RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
 ```
 
 ## Stop Line
