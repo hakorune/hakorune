@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001
+POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -50,13 +50,16 @@ emitter, backend, or selection-owner claims.
 296x-1415 selects passive verifier result vocabulary before emitter probing.
 296x-1416 fixture-guards a bounded CarrierInfo::merge_from VerifiedPlan result
 without emission, backend, resolver-selection, or wide parity claims.
+296x-1417 selects one verified-plan emitter probe. 296x-1418 fixture-guards
+one CarrierInfo::merge_from lifecycle surface without executable-program,
+backend, or converter-core rewrite claims.
 
-The active row is 296x-1417. It selects the next lifecycle owner after passive
-verifier result vocabulary.
+The active row is 296x-1419. It selects the next lifecycle owner after the
+first bounded lifecycle emitter surface.
 
 ## Next
 
-1. Read 296x-1417.
+1. Read 296x-1419.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

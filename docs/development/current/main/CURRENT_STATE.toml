@@ -171,22 +171,25 @@ selects a read-only resolver skeleton. 296x-1414 adds diagnostic-only
 AllowPlan / DenyUnresolvedBoundary reporting over frozen lifecycle fixtures.
 296x-1415 selects passive verifier result vocabulary. 296x-1416 fixture-guards
 a bounded CarrierInfo::merge_from VerifiedPlan result without emission,
-backend, resolver-selection, or wide parity claims. The next blocker is
-296x-1417: select the next lifecycle owner after verifier result vocabulary."""
+backend, resolver-selection, or wide parity claims. 296x-1417 selects a bounded
+lifecycle emitter probe. 296x-1418 renders one CarrierInfo::merge_from
+verified-plan surface without executable-program, backend, or converter-core
+rewrite claims. The next blocker is 296x-1419: select the next lifecycle owner
+after the emitter probe."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1417-POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1419-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1417-POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1417-POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1417 selects the next
-lifecycle owner after passive verifier result vocabulary, choosing between one
-verified-plan emitter probe, join_id design, or trim_helper lifecycle."""
+latest_card = "296x-1419-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1419-POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1419 selects the next
+lifecycle owner after the first bounded emitter surface, choosing between
+emitter acceptance expansion, join_id design, or trim_helper lifecycle."""
 
-current_blocker_token = "POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001"
+current_blocker_token = "POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

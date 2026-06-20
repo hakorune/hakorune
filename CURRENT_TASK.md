@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001
+POST-LIFECYCLE-EMITTER-PROBE-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after passive verifier result vocabulary is
-fixture-guarded. Do not start emitter, join_id design, or trim_helper probing
-before choosing one next owner.
+Select the next lifecycle owner after the first bounded lifecycle emitter
+surface is fixture-guarded. Do not expand emitter acceptance, start join_id
+design, or start trim_helper probing before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -242,6 +242,11 @@ verifier result vocabulary is selected before emitter probing.
 LIFECYCLE-VERIFIER-RESULT-VOCAB-000 is closed by 296x-1416; a bounded
 CarrierInfo::merge_from VerifiedPlan result is fixture-guarded without
 emission, backend, resolver-selection, or wide parity claims.
+POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001 is closed by 296x-1417; one
+verified-plan emitter probe is selected as the next owner.
+RUST-TO-HAKO-LIFECYCLE-EMITTER-PROBE-001 is closed by 296x-1418; one
+CarrierInfo::merge_from lifecycle surface is fixture-guarded without
+executable-program, backend, or converter-core rewrite claims.
 ```
 
 Acceptance for the current slice:
@@ -254,7 +259,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1417.
+1. Read 296x-1419.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

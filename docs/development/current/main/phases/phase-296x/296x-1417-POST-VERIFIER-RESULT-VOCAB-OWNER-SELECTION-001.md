@@ -1,6 +1,6 @@
 # 296x-1417 POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -49,6 +49,44 @@ implementation_started=0
 backend_behavior_changed=0
 full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
+```
+
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=RUST-TO-HAKO-LIFECYCLE-EMITTER-PROBE-001
+selected_reason=emitter contract dependencies now exist as bounded fixtures.
+The first emitter probe is limited to one verified CarrierInfo::merge_from
+plan and must not become a general converter rewrite.
+```
+
+Parked:
+
+```text
+join_id vocabulary retirement/design decision:
+  parked; emitter probe must not emit join_id-dependent paths
+
+trim_helper lifecycle inventory/probe:
+  parked; emitter probe must not claim trim route ownership
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+backend_behavior_changed=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1418-RUST-TO-HAKO-LIFECYCLE-EMITTER-PROBE-001
 ```
 
 Checks:
