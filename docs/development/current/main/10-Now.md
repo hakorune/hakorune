@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-OWNER-SELECTION-001
+RUSTC-SEMIR-ADAPTER-TOOLCHAIN-SETUP-DESIGN-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -121,9 +121,10 @@ emitter implementation.
 
 296x-1502 adds diagnostic-only rustc semantic adapter toolchain compatibility
 preflight. Local stable toolchain reports
-`rustc_private_readiness=requires_nightly_or_bootstrap`. 296x-1503 is the
-current selection row: choose between HIR inventory, toolchain setup design,
-source-shape probe retirement policy, or returning to lifecycle emitter parity.
+`rustc_private_readiness=requires_nightly_or_bootstrap`. 296x-1503 selects
+toolchain setup / override design before HIR inventory. 296x-1504 is the
+current design row: choose the supported standalone adapter toolchain route
+without extracting HIR / THIR / MIR or adding product rustc_private deps.
 
 296x-1466 inventories the first BindingContext / VariableContext fact
 requirements and keeps the adapter policy-free.

@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-OWNER-SELECTION-001
+RUSTC-SEMIR-ADAPTER-TOOLCHAIN-SETUP-DESIGN-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after the diagnostic-only rustc semantic adapter
-toolchain compatibility preflight. Do not extract lifecycle facts in this row.
+Define the standalone rustc semantic adapter toolchain setup route before any
+HIR / THIR / MIR extraction row. Do not extract lifecycle facts in this row.
 ```
 
 Lifecycle converter boundary:

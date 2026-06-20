@@ -1,6 +1,6 @@
 # 296x-1503 POST-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -63,6 +63,50 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=B
+selected_next_task=RUSTC-SEMIR-ADAPTER-TOOLCHAIN-SETUP-DESIGN-001
+selected_reason=The diagnostic toolchain preflight is green, but the local
+stable toolchain reports rustc_private_readiness=requires_nightly_or_bootstrap.
+Starting HIR inventory before deciding the toolchain / override route would
+make the first rustc-internal row fail for environmental rather than semantic
+reasons.
+implementation_started=0
+facts_generated=0
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
+```
+
+Non-selected owners:
+
+```text
+A. HIR item/provenance inventory probe:
+  parked until the toolchain route is explicit and fail-fast
+
+C. source-shape probe retirement policy:
+  parked until rustc semantic facts exist or a conflict appears
+
+D. return to lifecycle emitter parity:
+  parked while the rustc semantic adapter replacement path is being made
+  executable
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+facts_generated=0
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line
