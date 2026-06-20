@@ -1,6 +1,6 @@
 # 296x-1465 POST-LIFECYCLE-PROJECTION-REFERENCE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -40,6 +40,27 @@ recommended=B
 reason=the reference says the adapter must produce facts before the converter
 can claim lifecycle-aware emission; inventorying the first concrete fact slice
 keeps policy out of the converter.
+```
+
+## Selection
+
+```text
+selected_owner=B
+selected_next_task=RUST-LIFECYCLE-FACTS-ADAPTER-CONTEXT-INVENTORY-001
+selected_reason=the lifecycle-aware converter route requires facts before
+plan selection or verified emission; BindingContext and VariableContext are
+the first already-inventoried MirBuilder contexts with useful ownership /
+borrow / OrderedMap boundaries.
+```
+
+Non-selected owners:
+
+```text
+A_executable_trim_route_lowering_pilot:
+  parked until a concrete fixture is selected and implementation row opens
+
+C_hako_lifecycle_verifier_fixture:
+  parked until adapter fact requirements are inventoried
 ```
 
 ## Acceptance

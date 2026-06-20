@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-LIFECYCLE-PROJECTION-REFERENCE-OWNER-SELECTION-001
+POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after documenting the Rust-to-Hako lifecycle
-projection reference. Do not implement resolver, verifier, or emitter behavior
-before choosing one next owner.
+Select the next owner after BindingContext / VariableContext lifecycle fact
+adapter inventory. Do not implement adapter, resolver, verifier, or emitter
+behavior before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -282,17 +282,16 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1463.
+1. Read 296x-1467.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 in this selection row.
-5. Keep backend behavior, generated-program execution, and rustc-adapter
-   claims disabled.
+4. Keep implementation_started=0 for adapter, resolver, verifier, and emitter.
+5. Keep converter core and backend behavior unchanged.
 
 Recommended next row:
 
 ```text
-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001
+RUST-LIFECYCLE-FACTS-ADAPTER-CONTEXT-INVENTORY-001
 ```
 
 Current lifecycle SSOT:
@@ -303,17 +302,18 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1463-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1466-RUST-LIFECYCLE-FACTS-ADAPTER-CONTEXT-INVENTORY-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001
+1. POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
 2. choose one of:
-   A. executable trim route lowering pilot
-   B. pilot fixture selection
-   C. second lifecycle emitter surface
+   A. BindingContext adapter fact fixture
+   B. VariableContext adapter fact fixture
+   C. HakoLifecycleVerifier context facts fixture
+   D. return to trim route fixture selection
 ```
 
 ## Pointers

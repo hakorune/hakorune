@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-LIFECYCLE-PROJECTION-REFERENCE-OWNER-SELECTION-001
+POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -115,15 +115,21 @@ lowering.
 emission is allowed only from verified HakoLifecyclePlan input, not direct Rust
 syntax ownership rewriting.
 
-The active row is 296x-1465. It selects the next owner after lifecycle
-projection reference documentation.
+296x-1465 selects RustLifecycleFacts adapter inventory for
+BindingContext/VariableContext as the next owner before resolver, verifier, or
+emitter implementation.
+
+296x-1466 inventories the first BindingContext / VariableContext fact
+requirements and keeps the adapter policy-free.
+
+The active row is 296x-1467. It selects the first owner after that inventory.
 
 ## Next
 
-1. Read 296x-1465.
-2. Choose one next lifecycle owner.
+1. Read 296x-1467.
+2. Choose one next owner.
 3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 in this selection row.
+4. Keep adapter/resolver/verifier/emitter implementation_started=0.
 5. Run:
 
 ```bash
