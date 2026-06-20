@@ -24,6 +24,8 @@ from shared_family_generator import (
     sha256_file,
     sha256_text,
     run_family_generator,
+    rust_manifest_file_entry,
+    rust_manifest_inputs,
     stable_json,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
@@ -318,10 +320,10 @@ def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict
         pilot_scope=SCOPE,
         state="DerivedShadow",
         source_rust_files=[
-            {
-                "path": "crates/hakorune_mir_builder/src/variable_context.rs",
-                "sha256": sha256_file(ROOT / "crates/hakorune_mir_builder/src/variable_context.rs"),
-            }
+            rust_manifest_file_entry(
+                path=ROOT / "crates/hakorune_mir_builder/src/variable_context.rs",
+                root=ROOT,
+            )
         ],
         generator_tool="tools/rust_lifecycle/generate_variable_context_simple_map_artifact.py",
         generator_version="variable-context-simple-map-derived-artifact-v0",
@@ -336,9 +338,12 @@ def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict
             "source_selfhost_claim": 0,
         },
         inputs={
-            "facts": {"path": str(FACTS.relative_to(ROOT)), "sha256": sha256_file(FACTS)},
-            "plan": {"path": str(PLAN.relative_to(ROOT)), "sha256": sha256_file(PLAN)},
-            "oracle": {"path": str(ORACLE.relative_to(ROOT)), "sha256": sha256_file(ORACLE)},
+            **rust_manifest_inputs(
+                ("facts", FACTS),
+                ("plan", PLAN),
+                ("oracle", ORACLE),
+                root=ROOT,
+            ),
             "recipe": {"path": str(RECIPE.relative_to(ROOT)), "sha256": sha256_text(recipe_text)},
             "verifier": {"path": str(VERIFIER.relative_to(ROOT)), "sha256": sha256_text(verifier_text)},
         },

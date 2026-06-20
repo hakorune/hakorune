@@ -29,9 +29,9 @@ lane status. The current task-order SSOT is
 BindingContextNative, VariableContextNative simple-map, VariableContext
 snapshot/restore artifact ownership transfer, the shared MirBuilder emitter,
 the shared family generator helper and driver, the shared family manifest
-helper, and the MirBuilder converter matrix guard are green. The next
-implementation task is replacing hard-coded family generators behind that
-matrix, without new route/card churn.
+helper, the shared manifest file-entry helper, and the MirBuilder converter
+matrix guard are green. The next implementation task is replacing hard-coded
+family generators behind that matrix, without new route/card churn.
 
 Historical context follows.
 

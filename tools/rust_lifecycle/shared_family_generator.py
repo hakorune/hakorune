@@ -105,3 +105,14 @@ def build_rust_derived_hako_manifest(
     if extra_fields is not None:
         manifest.update(extra_fields)
     return manifest
+
+
+def rust_manifest_file_entry(*, path: Path, root: Path) -> dict[str, Any]:
+    return {"path": str(path.relative_to(root)), "sha256": sha256_file(path)}
+
+
+def rust_manifest_inputs(*entries: tuple[str, Path], root: Path) -> dict[str, Any]:
+    return {
+        name: rust_manifest_file_entry(path=path, root=root)
+        for name, path in entries
+    }
