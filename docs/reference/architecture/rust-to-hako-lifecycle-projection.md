@@ -13,6 +13,21 @@ Yes, the converter can translate Rust ownership into .hako,
 but only after ownership is represented as a verified Hako lifecycle plan.
 ```
 
+Artifact migration is governed by:
+
+```text
+docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
+```
+
+Short form:
+
+```text
+Rust source -> derived Hako artifact -> selected mainline artifact ->
+Hako-native adoption when the family is mature.
+```
+
+Generated Hako is an execution artifact, not the final semantic/edit authority.
+
 The converter is not the policy owner.
 
 ```text
@@ -111,6 +126,17 @@ Rust crate
 This is the practical answer to "how does the converter migrate Rust to Hako?"
 The converter is developed so each layer produces a stable, testable artifact
 that the next layer can consume.
+
+For generated build-line artifacts, read "family authority promotion" as:
+
+```text
+selected execution artifact = generated Hako
+edit/reference authority = Rust source
+acceptance authority = verifier + parity
+bootstrap/platform authority = retained Rust
+```
+
+Native Hako edit/semantic authority requires the later HakoAdopted state.
 
 ## Non-Goal
 

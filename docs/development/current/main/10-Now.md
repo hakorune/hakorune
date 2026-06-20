@@ -20,14 +20,16 @@ Related:
 ## Active Blocker
 
 ```text
-BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001
+BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. 296x-1510 extracted BindingContext MIR lifecycle facts from
 optimized MIR without Hako plan, `.hako`, backend, or authority-promotion
-claims. 296x-1511 now opens BindingContext Hako lifecycle projection and the
-family-scoped authority-promotion boundary. BindingContext and VariableContext simple-map lifecycle pilots are
+claims. 296x-1511 selected the Derived-to-Native Hako Artifact Model:
+generated Hako is a selected execution artifact, while native Hako adoption is
+the later source-selfhost gate. 296x-1512 now opens the BindingContext
+behavioral derived-artifact pilot without mainline selection. BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395
 selected immutable `variable_map()` BorrowView as the next owner. 296x-1396

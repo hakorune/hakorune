@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001
+BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Project the checked BindingContext rustc facts into the HakoLifecyclePlan path
-and decide the first family-scoped authority promotion surface. Preserve Rust
-bootstrap, Rust oracle vectors, and explicit compatibility routes.
+Build the first behavioral Rust-derived Hako artifact pilot for the
+BindingContext family. Generate only a checked artifact and provenance
+manifest; do not select it on the selfhost mainline in this row.
 ```
 
 Lifecycle converter boundary:
@@ -51,6 +51,8 @@ The answer to "can the converter translate Rust ownership into .hako?" is
 documented in docs/development/current/main/design/rust-lifecycle-projection-ssot.md.
 The practical reference manual is:
 docs/reference/architecture/rust-to-hako-lifecycle-projection.md.
+The artifact migration model is:
+docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md.
 
 Short form:
   yes, but only as rustc facts -> HakoLifecyclePlan -> verifier -> emitter.
@@ -61,11 +63,10 @@ borrow, move, or Drop policy directly from Rust syntax.
 MirBuilder family migration wording:
   crate is inventory / transport / coverage sweep.
   module is provenance / focused materialization.
-  family is the only semantic authority promotion unit.
+  family is the behavioral conversion / route selection / adoption unit.
 
-  .hako authority promotion and Rust semantic-authority demotion on the
-  selfhost mainline route are allowed only family-by-family after verified
-  parity.
+  generated .hako is a selected execution artifact, not semantic/edit
+  authority. Native .hako source adoption is the later source-selfhost gate.
 
   Rust bootstrap / Rust compat route / Rust oracle vectors stay preserved.
   Do not treat semantic-authority demotion as Rust bootstrap removal.
@@ -84,10 +85,16 @@ Current task order:
   RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001 (closed)
 
 1511:
-  BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001
+  DERIVED-TO-NATIVE-HAKO-ARTIFACT-MODEL-SSOT-001 (closed)
 
 1512:
-  HAKORUNE-MIR-BUILDER-MIGRATION-COVERAGE-SWEEP-001
+  BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001
+
+1513:
+  BINDING-CONTEXT-DERIVED-ARTIFACT-MAINLINE-SELECTION-001
+
+1514:
+  BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001
 ```
 
 Current evidence:

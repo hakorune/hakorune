@@ -74,6 +74,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     lego-ization before any accepted-shape expansion
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
+- `design/derived-to-native-hako-artifact-model-ssot.md`
+  - Rust-derived Hako artifact migration owner; keeps Rust source as editable
+    reference during derived phases, generated Hako as execution artifact, and
+    Hako-native adoption as the source-selfhost exit for compiler semantic
+    families
 - `design/current-docs-archive-policy-ssot.md`
   - archive buckets, landed ledger, and current-doc slimming contract
 - `design/mir-cleanup-policy-ssot.md`
