@@ -1,6 +1,6 @@
 # 296x-1453 POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -40,6 +40,28 @@ C. second lifecycle emitter surface
 recommended=A
 reason=identity proof, adapter, and lookup consumption now exist. Re-open the
 trim route lowering decision as a proof update before any executable lowering.
+```
+
+## Decision
+
+```text
+selected_next_task=TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
+selected_scope=docs/fixture proof update only; no backend lowering
+selected_reason=the prior MissingPromotedCarrierIdentity dependency now has a
+condition-binding identity path, but executable trim lowering still needs a
+fresh proof boundary before implementation.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+generated trim route lowering pilot:
+  parked until proof update distinguishes identity readiness from lowering
+  implementation readiness.
+
+second lifecycle emitter surface:
+  parked until active trim route proof is refreshed.
 ```
 
 ## Acceptance

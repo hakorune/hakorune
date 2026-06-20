@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
+TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after scope-manager condition-binding input.
-Do not emit trim route lowering before choosing one next owner.
+Refresh the trim route lowering proof after condition-binding lookup
+consumption. Do not emit backend trim route lowering in this row.
 ```
 
 Lifecycle converter boundary:
@@ -274,17 +274,17 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1453.
-2. Choose one next lifecycle owner.
-3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 in this selection row.
+1. Read 296x-1454.
+2. Update the trim route proof docs/fixtures.
+3. Keep executable lowering decision explicit.
+4. Do not add backend lowering.
 5. Keep backend behavior, generated-program execution, and rustc-adapter
    claims disabled.
 
 Recommended next row:
 
 ```text
-POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
+TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
 ```
 
 Current lifecycle SSOT:
@@ -295,17 +295,15 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1453-POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1454-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
-2. choose one of:
-   A. trim route lowering proof update
-   B. generated trim route lowering pilot
-   C. second lifecycle emitter surface
+1. TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
+2. update proof only
+3. no backend lowering
 ```
 
 ## Pointers
