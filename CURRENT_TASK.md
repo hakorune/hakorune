@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
+RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after BindingContext / VariableContext lifecycle fact
-adapter inventory. Do not implement adapter, resolver, verifier, or emitter
-behavior before choosing one next owner.
+Add the target-neutral BindingContext RustLifecycleFacts adapter fixture and
+guard. Do not invoke rustc or start resolver, verifier, emitter, converter-core,
+or backend behavior changes.
 ```
 
 Lifecycle converter boundary:
@@ -282,11 +282,12 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1467.
-2. Choose one next lifecycle owner.
-3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 for adapter, resolver, verifier, and emitter.
-5. Keep converter core and backend behavior unchanged.
+1. Read 296x-1468.
+2. Add `binding-context-adapter-facts-v0.json`.
+3. Add `rust_lifecycle_binding_context_adapter_facts_guard.sh`.
+4. Keep Hako policy spellings out of the adapter facts fixture.
+5. Keep rustc toolchain integration, resolver, verifier, emitter, converter
+   core, and backend behavior unchanged.
 
 Recommended next row:
 
@@ -308,12 +309,11 @@ docs/development/current/main/phases/phase-296x/296x-1466-RUST-LIFECYCLE-FACTS-A
 Task sequence:
 
 ```text
-1. POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
-2. choose one of:
-   A. BindingContext adapter fact fixture
+1. RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001
+2. then select one of:
+   A. first verifier fixture over adapter facts + plan
    B. VariableContext adapter fact fixture
-   C. HakoLifecycleVerifier context facts fixture
-   D. return to trim route fixture selection
+   C. return to trim route fixture selection
 ```
 
 ## Pointers

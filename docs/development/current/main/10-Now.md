@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
+RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -122,14 +122,18 @@ emitter implementation.
 296x-1466 inventories the first BindingContext / VariableContext fact
 requirements and keeps the adapter policy-free.
 
-The active row is 296x-1467. It selects the first owner after that inventory.
+296x-1467 selects the compact BindingContext adapter fact fixture as the first
+post-inventory owner.
+
+The active row is 296x-1468. It adds the target-neutral BindingContext adapter
+facts fixture and guard.
 
 ## Next
 
-1. Read 296x-1467.
-2. Choose one next owner.
-3. Park non-selected owners explicitly.
-4. Keep adapter/resolver/verifier/emitter implementation_started=0.
+1. Read 296x-1468.
+2. Add the target-neutral BindingContext adapter facts fixture.
+3. Add the focused guard.
+4. Keep rustc toolchain integration, resolver, verifier, and emitter disabled.
 5. Run:
 
 ```bash

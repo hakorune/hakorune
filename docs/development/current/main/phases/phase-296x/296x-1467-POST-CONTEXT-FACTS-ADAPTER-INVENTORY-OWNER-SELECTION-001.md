@@ -1,6 +1,6 @@
 # 296x-1467 POST-CONTEXT-FACTS-ADAPTER-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -44,6 +44,29 @@ recommended=A
 reason=BindingContext is the smallest context family with deterministic map,
 read/write receiver, and TrivialMemory Drop facts; it should establish the
 adapter fact fixture shape before VariableContext or verifier work.
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001
+selected_reason=BindingContext is the smallest already-green lifecycle family
+and can prove the adapter output remains target-neutral before verifier or
+converter work begins.
+```
+
+Non-selected owners:
+
+```text
+B_variable_context_adapter_fact_fixture:
+  parked until BindingContext adapter fixture shape is fixed
+
+C_hako_lifecycle_verifier_context_facts_fixture:
+  parked until at least one adapter-like fact bundle exists
+
+D_trim_route_executable_fixture_selection:
+  parked while lifecycle projection fixture shape is being established
 ```
 
 ## Acceptance
