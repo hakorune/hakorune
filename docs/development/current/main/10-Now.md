@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-001
+POST-RUSTC-SEMIR-ADAPTER-TOOLCHAIN-COMPAT-PREFLIGHT-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -118,6 +118,12 @@ syntax ownership rewriting.
 296x-1465 selects RustLifecycleFacts adapter inventory for
 BindingContext/VariableContext as the next owner before resolver, verifier, or
 emitter implementation.
+
+296x-1502 adds diagnostic-only rustc semantic adapter toolchain compatibility
+preflight. Local stable toolchain reports
+`rustc_private_readiness=requires_nightly_or_bootstrap`. 296x-1503 is the
+current selection row: choose between HIR inventory, toolchain setup design,
+source-shape probe retirement policy, or returning to lifecycle emitter parity.
 
 296x-1466 inventories the first BindingContext / VariableContext fact
 requirements and keeps the adapter policy-free.
