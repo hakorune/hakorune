@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-CONTEXT-DERIVED-ARTIFACT-PILOT-SELECTION-001
+VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Select the next derived-artifact pilot after BindingContext reaches the
-DerivedMainline family route.
+Generate a VariableContext simple-map-only derived `.hako` artifact from the
+existing facts / plan / oracle fixtures.
 ```
 
 Lifecycle converter boundary:
@@ -108,7 +108,10 @@ Current task order:
   BINDING-CONTEXT-DERIVED-ROUTE-SELECTION-001 (closed)
 
 1518:
-  VARIABLE-CONTEXT-DERIVED-ARTIFACT-PILOT-SELECTION-001
+  VARIABLE-CONTEXT-DERIVED-ARTIFACT-PILOT-SELECTION-001 (closed)
+
+1519:
+  VARIABLE-CONTEXT-SIMPLE-MAP-DERIVED-ARTIFACT-PILOT-001
 ```
 
 Current evidence:
