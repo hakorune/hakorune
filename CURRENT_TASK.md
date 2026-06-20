@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-OWNER-SELECTION-001
+RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-EXTRACTION-PILOT-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after the BindingContext rustc adapter toolchain
-preflight. Do not implement lifecycle facts extraction or widen to
-VariableContext before selecting one owner.
+Produce the first real adapter output toward RustLifecycleFacts-v0 for
+BindingContext. Keep the adapter target-neutral and do not emit Hako plan,
+`.hako`, VariableContext facts, or backend behavior.
 ```
 
 Lifecycle converter boundary:
