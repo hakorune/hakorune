@@ -33,16 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
+BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001
 ```
 
 Purpose:
 
 ```text
-Extract the first MIR-level lifecycle facts for the selected BindingContext
-family after HIR owner contract and THIR body inventory are green. Do not emit
-HakoLifecyclePlan, .hako source, backend code, or promote authority in this
-row.
+Project the checked BindingContext rustc facts into the HakoLifecyclePlan path
+and decide the first family-scoped authority promotion surface. Preserve Rust
+bootstrap, Rust oracle vectors, and explicit compatibility routes.
 ```
 
 Lifecycle converter boundary:
@@ -82,7 +81,7 @@ Current task order:
   RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001 (closed)
 
 1510:
-  RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
+  RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001 (closed)
 
 1511:
   BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001

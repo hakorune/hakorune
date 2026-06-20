@@ -18,6 +18,8 @@ mod preflight;
 #[cfg(feature = "rustc-private")]
 mod hir_inventory;
 #[cfg(feature = "rustc-private")]
+mod mir_lifecycle;
+#[cfg(feature = "rustc-private")]
 mod thir_inventory;
 
 #[cfg(feature = "rustc-private")]
@@ -52,13 +54,19 @@ fn main() {
             let inputs: Vec<String> = args.collect();
             thir_inventory::run_binding_context(&inputs)
         }
+        #[cfg(feature = "rustc-private")]
+        Some("--binding-context-mir-lifecycle-facts") => {
+            let inputs: Vec<String> = args.collect();
+            mir_lifecycle::run_binding_context(&inputs)
+        }
         _ => {
             eprintln!(
                 "usage: rustc-semir-adapter \
                  (--preflight|--toolchain-preflight|--rustc-private-probe|\
                  --hir-item-provenance-inventory <rust-source>|\
                  --hir-inventory-contract <rust-source> [rustc-arg...]|\
-                 --binding-context-thir-body-inventory <rust-source> [rustc-arg...])"
+                 --binding-context-thir-body-inventory <rust-source> [rustc-arg...]|\
+                 --binding-context-mir-lifecycle-facts <rust-source> [rustc-arg...])"
             );
             std::process::exit(2);
         }

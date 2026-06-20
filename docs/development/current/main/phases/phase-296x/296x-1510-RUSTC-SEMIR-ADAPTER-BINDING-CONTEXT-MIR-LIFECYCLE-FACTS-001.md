@@ -1,6 +1,6 @@
 # 296x-1510 RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -67,6 +67,44 @@ Checks:
 bash tools/checks/rustc_semir_adapter_binding_context_mir_lifecycle_facts_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Implementation
+
+```text
+tool_modules=src/main.rs,src/mir_lifecycle.rs
+command=--binding-context-mir-lifecycle-facts <rust-source> [rustc-arg...]
+guard=tools/checks/rustc_semir_adapter_binding_context_mir_lifecycle_facts_guard.sh
+index=docs/tools/check-scripts-index.md
+```
+
+The adapter reads optimized MIR for the selected BindingContext HIR body
+owners. It inventories operand copy/move uses, borrow surface, call
+terminators, and explicit Drop terminators. It does not call a borrowck facts
+query directly and does not emit a HakoLifecyclePlan.
+
+## Closeout
+
+```text
+binding_context_family_selected=1
+mir_lifecycle_facts_green=1
+hir_owner_reference_used=1
+thir_owner_reference_used=1
+selected_definition_count_positive=1
+copy_move_inventory_present=1
+borrow_inventory_present=1
+drop_classification_present=1
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
+authority_promoted=0
+summary=ok
+```
+
+Next:
+
+```text
+BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001
 ```
 
 ## Stop Line
