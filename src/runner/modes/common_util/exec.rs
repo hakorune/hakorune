@@ -150,7 +150,7 @@ fn spawn_llvmlite_emit_obj_command(
 fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
     let tmp_dir = std::path::Path::new("tmp");
     let _ = std::fs::create_dir_all(tmp_dir);
-    tmp_dir.join("nyash_cli_emit.json")
+    tmp_dir.join(format!("nyash_cli_emit_{}.json", std::process::id()))
 }
 
 fn build_ny_llvmc_emit_obj_command(
@@ -272,7 +272,9 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
 ) -> Result<(), String> {
     let json_path = prepare_ny_llvmc_emit_json_path();
     emit_json(&json_path)?;
-    run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs)
+    let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs);
+    let _ = std::fs::remove_file(&json_path);
+    result
 }
 
 /// Emit native executable via ny-llvmc (lib-side MIR)

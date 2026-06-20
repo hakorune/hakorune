@@ -4,6 +4,8 @@ use crate::runner::stage1_bridge::program_json_entry;
 
 impl NyashRunner {
     pub(super) fn maybe_emit_and_exit(&self, groups: &CliGroups) -> bool {
+        require_source_file_for_emit_routes(groups);
+
         // RVP-0-min1:
         // hako-prefixed routes are stage1-only; rust emit path must not absorb them implicitly.
         if groups.emit.hako_emit_mir_json || groups.emit.hako_run {
@@ -65,5 +67,29 @@ impl NyashRunner {
         }
 
         false
+    }
+}
+
+fn require_source_file_for_emit_routes(groups: &CliGroups) {
+    if groups.input.file.is_some() {
+        return;
+    }
+
+    let Some(route) = source_file_required_emit_route(groups) else {
+        return;
+    };
+
+    eprintln!("❌ {route} requires an input .hako file");
+    eprintln!("   usage: hakorune {route} <output> <input.hako>");
+    std::process::exit(2);
+}
+
+fn source_file_required_emit_route(groups: &CliGroups) -> Option<&'static str> {
+    if groups.emit.emit_mir_json.is_some() {
+        Some("--emit-mir-json")
+    } else if groups.emit.emit_exe.is_some() {
+        Some("--emit-exe")
+    } else {
+        None
     }
 }
