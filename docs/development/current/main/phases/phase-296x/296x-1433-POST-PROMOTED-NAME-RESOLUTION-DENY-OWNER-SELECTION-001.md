@@ -1,6 +1,6 @@
 # 296x-1433 POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -52,6 +52,46 @@ full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
 ```
 
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=LIFECYCLE-EMITTER-PARSER-MIR-SURFACE-PROBE-001
+selected_reason=join_id, trim_helper, promoted_body_locals, and
+promoted-name resolution boundaries are explicitly denied or producer-only.
+The next smallest forward step is making the existing bounded emitter surface
+parse/MIR-checkable without generated-program, backend, or converter-core
+claims.
+```
+
+Parked:
+
+```text
+trim route lowering inventory:
+  parked; route lowering must not be inferred from emitter acceptance
+
+join_id producer revisit:
+  parked; no new production join_id evidence exists
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+backend_behavior_changed=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1434-LIFECYCLE-EMITTER-PARSER-MIR-SURFACE-PROBE-001
+```
+
 Checks:
 
 ```bash
@@ -67,4 +107,3 @@ do_not_claim_trim_route_lowering_complete=1
 do_not_make_converter_core_policy_owner=1
 do_not_claim_generated_program_execution=1
 ```
-

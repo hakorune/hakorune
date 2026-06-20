@@ -33,16 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001
+POST-LIFECYCLE-EMITTER-SURFACE-MIR-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after promoted-name resolution is closed as
-a deny boundary until a production join_id producer exists. Do not reopen
-join_id without new evidence, start trim route lowering, or expand emitter
-acceptance before choosing one next owner.
+Select the next lifecycle owner after the bounded CarrierInfo::merge_from
+emitter surface reaches MIR emit. Do not implement trim route lowering, add a
+second emitter surface, or start rustc adapter work before choosing one next
+owner.
 ```
 
 Lifecycle converter boundary:

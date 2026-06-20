@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-PROMOTED-NAME-RESOLUTION-DENY-OWNER-SELECTION-001
+POST-LIFECYCLE-EMITTER-SURFACE-MIR-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -72,14 +72,17 @@ producer probing. 296x-1430 fixture-guards trim and DigitPos
 promoted_body_locals producers as name recorders only, without join_id
 producer, route lowering, resolver, or emitter claims. 296x-1431 selects
 promoted-name resolution deny closeout. 296x-1432 closes promoted-name
-resolution as denied until a production join_id producer exists.
+resolution as denied until a production join_id producer exists. 296x-1433
+selects bounded lifecycle emitter parser/MIR surface probing. 296x-1434
+makes the existing CarrierInfo::merge_from emitter surface parser/MIR-checkable
+without generated-program, backend, or converter-core claims.
 
-The active row is 296x-1433. It selects the next lifecycle owner after
-promoted-name resolution deny closeout.
+The active row is 296x-1435. It selects the next lifecycle owner after emitter
+surface MIR acceptance.
 
 ## Next
 
-1. Read 296x-1433.
+1. Read 296x-1435.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

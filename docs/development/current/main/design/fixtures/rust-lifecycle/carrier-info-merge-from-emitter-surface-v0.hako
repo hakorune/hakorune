@@ -8,14 +8,16 @@
 // full_variable_context_parity: 0
 // mirbuilder_wide_lifecycle: 0
 
-function CarrierInfo_merge_from_lifecycle_surface(receiver: CarrierInfo, other: CarrierInfo): CarrierInfo {
-    // Verified boundary: receiver is owned and mutable.
-    // Verified boundary: other is read-only and is not mutated.
-    // Verified plan: append missing carriers by name, then sort.
-    // Verified plan: clone trim_helper only as existing route metadata.
-    // Verified plan: append missing promoted_body_locals as owned strings.
-    // Denied boundary: no join_id producer is emitted here.
-    // Denied boundary: no trim_helper lifecycle owner is claimed here.
-    // Denied boundary: no general converter rewrite is claimed here.
-    return receiver
+box LifecycleEmitterSurface {
+    merge_from_lifecycle_surface(receiver, other) {
+        // Verified boundary: receiver is owned and mutable.
+        // Verified boundary: other is read-only and is not mutated.
+        // Verified plan: append missing carriers by name, then sort.
+        // Verified plan: clone trim_helper only as existing route metadata.
+        // Verified plan: append missing promoted_body_locals as owned strings.
+        // Denied boundary: no join_id producer is emitted here.
+        // Denied boundary: no trim_helper lifecycle owner is claimed here.
+        // Denied boundary: no general converter rewrite is claimed here.
+        return receiver
+    }
 }
