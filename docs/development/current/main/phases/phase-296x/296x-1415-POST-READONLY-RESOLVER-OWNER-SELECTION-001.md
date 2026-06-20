@@ -1,6 +1,6 @@
 # 296x-1415 POST-READONLY-RESOLVER-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,46 @@ converter_emission_added=0
 backend_behavior_changed=0
 full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
+```
+
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=LIFECYCLE-VERIFIER-RESULT-VOCAB-000
+selected_reason=the emitter contract requires a positive VerifierResult
+before lifecycle-aware emission. The read-only resolver currently reports
+diagnostic Allow/Deny only, so verifier result vocabulary must be named before
+any emitter probe.
+```
+
+Parked:
+
+```text
+join_id vocabulary retirement/design decision:
+  parked; verifier vocabulary must not resolve join_id
+
+trim_helper lifecycle inventory/probe:
+  parked; verifier vocabulary must not claim trim route ownership
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+converter_emission_added=0
+backend_behavior_changed=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1416-LIFECYCLE-VERIFIER-RESULT-VOCAB-000
 ```
 
 Checks:

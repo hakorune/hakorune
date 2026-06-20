@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecycleVerifierResult",
+  "mode": "passive_fixture",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.merge_from",
+  "source_facts": "carrier-info-merge-from-facts-v0.json",
+  "source_plan": "carrier-info-merge-from-plan-v0.json",
+  "result": "VerifiedPlan",
+  "verified_facts": [
+    "receiver.ownership=OwnedCarrierInfo",
+    "receiver.access=mutable",
+    "input.borrow_view=ReadOnlyBorrowView",
+    "input.escapes=false",
+    "mutation.deduplicates_by_name=true",
+    "mutation.sorts_carriers=true"
+  ],
+  "verified_boundaries": [
+    "OwnedCarrierInfoMerge",
+    "mutate_receiver_only",
+    "other_not_mutated",
+    "does_not_publish_variable_map"
+  ],
+  "denied_boundaries": [
+    "join_id producer",
+    "trim_helper lifecycle owner",
+    "promoted_body_locals lifecycle owner",
+    "general resolver selection owner"
+  ],
+  "claims": {
+    "emission_allowed": false,
+    "backend_behavior_changed": false,
+    "resolver_selection_owner": false,
+    "full_variable_context_parity": false,
+    "mirbuilder_wide_lifecycle": false
+  }
+}

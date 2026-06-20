@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-READONLY-RESOLVER-OWNER-SELECTION-001
+POST-VERIFIER-RESULT-VOCAB-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after the read-only lifecycle resolver
-skeleton is diagnostic-guarded. Do not start verifier, emitter, join_id design,
-or trim_helper probing before choosing one next owner.
+Select the next lifecycle owner after passive verifier result vocabulary is
+fixture-guarded. Do not start emitter, join_id design, or trim_helper probing
+before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -237,6 +237,11 @@ read-only resolver skeleton is selected as the next diagnostic-only owner.
 HAKO-LIFECYCLE-RESOLVER-READONLY-SKELETON-001 is closed by 296x-1414;
 diagnostic AllowPlan / DenyUnresolvedBoundary reporting is fixture-guarded
 without verifier, emitter, backend, or selection-owner claims.
+POST-READONLY-RESOLVER-OWNER-SELECTION-001 is closed by 296x-1415; passive
+verifier result vocabulary is selected before emitter probing.
+LIFECYCLE-VERIFIER-RESULT-VOCAB-000 is closed by 296x-1416; a bounded
+CarrierInfo::merge_from VerifiedPlan result is fixture-guarded without
+emission, backend, resolver-selection, or wide parity claims.
 ```
 
 Acceptance for the current slice:
@@ -249,7 +254,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1415.
+1. Read 296x-1417.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
