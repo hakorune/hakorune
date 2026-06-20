@@ -16,7 +16,7 @@ Build a practical MirBuilder-only converter:
 
 ```text
 Rust source
-  -> rustc semantic facts
+  -> lightweight signature facts
   -> HakoLifecyclePlan
   -> verifier
   -> VerifiedHakoFamilyIR
@@ -26,6 +26,13 @@ Rust source
 This is not a full Rust translator. Rust remains bootstrap, oracle, and source
 reference. Generated `.hako` is an executable derived artifact. Mature family
 source moves to native `.hako` as the editing and semantic authority.
+
+For the current easy tier, `facts` means the existing lightweight
+signature-based extraction path that is already green for BindingContext-style
+families. Do not open the nightly `rustc_private` adapter path for
+BindingContext or VariableContext simple-map. Nightly rustc MIR/borrowck facts
+are reserved for a later gated hard tier, such as PHI, loop lowering, or
+non-trivial borrow/drop ownership.
 
 ## Work Unit Rule
 
@@ -91,14 +98,14 @@ checked-in generated artifacts.
    Emitter emits no TODO/null placeholder bodies.
    ```
 
-2. `Connect live rustc facts to simple-map converter`
+2. `Connect lightweight facts to simple-map converter`
 
    Add the first one-command path for BindingContext and VariableContext
    simple-map only.
 
    ```text
    Rust source
-     -> rustc semantic facts
+     -> lightweight signature facts
      -> HakoLifecyclePlan
      -> verifier
      -> VerifiedHakoFamilyIR

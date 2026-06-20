@@ -54,7 +54,12 @@ The artifact migration model is:
 docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md.
 
 Short form:
-  yes, but only as rustc facts -> HakoLifecyclePlan -> verifier -> emitter.
+  yes, but the current easy tier uses lightweight signature facts ->
+  HakoLifecyclePlan -> verifier -> emitter.
+
+  Do not open the nightly rustc adapter path for BindingContext or
+  VariableContext simple-map. Reserve nightly MIR/borrowck facts for a gated
+  hard tier after an explicit design stop.
 
 The converter/emitter renders verified plans. It does not choose ownership,
 borrow, move, or Drop policy directly from Rust syntax.
@@ -85,7 +90,7 @@ Next:
   Write shared MirBuilder behavioral emitter
 
 Then:
-  Connect live rustc facts to simple-map converter
+  Connect lightweight facts to simple-map converter
   Fix VariableContext snapshot ownership with clone_owned
   Replace hard-coded family generators after converter matrix is green
 ```
