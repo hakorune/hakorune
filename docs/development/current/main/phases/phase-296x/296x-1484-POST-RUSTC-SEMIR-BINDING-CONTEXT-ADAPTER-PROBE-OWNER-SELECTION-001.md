@@ -1,6 +1,6 @@
 # 296x-1484 POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,40 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-DESIGN-001
+selected_reason=BindingContext target-neutral facts are fixture-guarded. The
+next durable step is to design the smallest external rustc semantic adapter
+harness boundary before implementation. This keeps the adapter as facts-only
+and prevents Hako representation policy from leaking into the adapter.
+implementation_started=0
+```
+
+Non-selected owners:
+
+```text
+B. VariableContext lifecycle-facts adapter probe:
+  parked until the BindingContext real-adapter harness boundary is designed
+
+C. return to trim route executable fixture selection:
+  parked until lifecycle adapter boundary work reaches a stable handoff point
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+rustc_integration_started=0
+converter_emission_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line

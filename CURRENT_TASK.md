@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001
+RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-DESIGN-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after closing the BindingContext lifecycle-facts adapter
-probe shape. Do not start rustc integration, converter emission, resolver
-behavior, or backend behavior before selecting one owner.
+Design the smallest external rustc semantic adapter harness boundary for
+BindingContext lifecycle facts. Do not implement the adapter in this row.
 ```
 
 Lifecycle converter boundary:
