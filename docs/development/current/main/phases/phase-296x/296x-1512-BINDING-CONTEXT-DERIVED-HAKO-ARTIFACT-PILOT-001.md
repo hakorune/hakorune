@@ -18,6 +18,22 @@ artifact on the selfhost mainline.
 296x-1511-DERIVED-TO-NATIVE-HAKO-ARTIFACT-MODEL-SSOT-001
 ```
 
+## Blocked By
+
+```text
+none
+```
+
+Resolved prerequisite:
+
+```text
+BindingContext targets remove(name) and clear_for_function_entry().
+Those map to OrderedMapBox.remove and OrderedMapBox.clear in the generated
+artifact. 296x-1512A adds and smoke-guards those collection operations as
+library-owned behavior, so the converter/emitter no longer needs to hide this
+gap.
+```
+
 ## Scope
 
 Allowed:

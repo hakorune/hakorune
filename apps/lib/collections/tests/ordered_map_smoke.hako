@@ -68,9 +68,73 @@ static box Main {
             return 12
         }
 
+        if m.remove("b") != 21 {
+            print("remove_existing=fail")
+            return 18
+        }
+        if m.length() != 2 {
+            print("remove_length=fail")
+            return 19
+        }
+        if m.key_at(0) != "a" {
+            print("remove_key0=fail:" + m.key_at(0))
+            return 20
+        }
+        if m.key_at(1) != "c" {
+            print("remove_key1=fail:" + m.key_at(1))
+            return 21
+        }
+        if m.get("b") != null {
+            print("remove_get_deleted=fail")
+            return 22
+        }
+        if m.get("c") != 30 {
+            print("remove_value_alignment=fail")
+            return 23
+        }
+        if m.remove("missing") != null {
+            print("remove_missing=fail")
+            return 24
+        }
+        if m.remove(null) != null {
+            print("remove_null=fail")
+            return 25
+        }
+        if m.length() != 2 {
+            print("remove_missing_length=fail")
+            return 26
+        }
+
+        m.clear()
+        if m.length() != 0 {
+            print("clear_length=fail")
+            return 27
+        }
+        if m.keys().length() != 0 {
+            print("clear_keys=fail")
+            return 28
+        }
+        if m.values().length() != 0 {
+            print("clear_values=fail")
+            return 29
+        }
+        if m.get("a") != null {
+            print("clear_get=fail")
+            return 30
+        }
+        m.set("d", 40)
+        if m.length() != 1 {
+            print("reuse_after_clear_length=fail")
+            return 31
+        }
+        if m.get("d") != 40 {
+            print("reuse_after_clear_get=fail")
+            return 32
+        }
+
         local other = OrderedMap.create()
         other.set("z", 99)
-        if m.length() != 3 {
+        if m.length() != 1 {
             print("fresh_instance_original=fail")
             return 14
         }

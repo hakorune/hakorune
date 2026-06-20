@@ -268,7 +268,8 @@ latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1
 latest_card = "296x-1512-BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1512-BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001.md"
 latest_card_summary = """296x-1512 opens the BindingContext behavioral
-Rust-derived Hako artifact pilot after the Derived-to-Native model is fixed."""
+Rust-derived Hako artifact pilot after the Derived-to-Native model is fixed
+and OrderedMapBox remove/clear are closed by 296x-1512A."""
 
 current_blocker_token = "BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

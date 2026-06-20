@@ -77,6 +77,8 @@ box OrderedMapBox {
     set(key: StringBox, value)
     get(key: StringBox)
     has(key: StringBox)
+    remove(key: StringBox)
+    clear()
     length()
     keys()
     key_at(index: i64): StringBox
@@ -100,6 +102,16 @@ has:
   returns true when the key exists
   returns false when missing
 
+remove:
+  returns the removed value when the key exists
+  returns null when missing or when the key is null
+  removes exactly one key/value pair
+  preserves deterministic order and key/value alignment for remaining entries
+
+clear:
+  removes all entries
+  keeps the instance reusable by later set/get calls
+
 length:
   returns the number of entries
 
@@ -116,8 +128,8 @@ values:
   returns a snapshot ArrayBox of values in key order
 ```
 
-The v0 API does not include range queries, mutable iterators, delete, clear, or
-lower-bound search. Add those only when a real caller needs them.
+The v0 API does not include range queries, mutable iterators, or lower-bound
+search. Add those only when a real caller needs them.
 
 ## Implementation Shape
 
@@ -205,6 +217,11 @@ insert_a_then_b_keys_are_a_b=1
 insert_b_then_a_keys_are_a_b=1
 update_existing_key_no_duplicate=1
 get_missing_returns_null=1
+remove_existing_returns_value=1
+remove_missing_returns_null=1
+remove_preserves_order_and_value_alignment=1
+clear_resets_entries=1
+reusable_after_clear=1
 values_follow_key_order=1
 length_updates_after_insert_only=1
 key_at_reports_ordered_string_keys=1

@@ -83,6 +83,39 @@ box OrderedMapBox {
         return false
     }
 
+    remove(key) {
+        if key == null {
+            return null
+        }
+        local k = key
+        local next_keys = new ArrayBox()
+        local next_values = new ArrayBox()
+        local removed = null
+        local found = 0
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == k {
+                removed = me.values_value.get(i)
+                found = 1
+            } else {
+                next_keys.push(me.keys_value.get(i))
+                next_values.push(me.values_value.get(i))
+            }
+            i = i + 1
+        }
+        if found == 1 {
+            me.keys_value = next_keys
+            me.values_value = next_values
+        }
+        return removed
+    }
+
+    clear() {
+        me.keys_value = new ArrayBox()
+        me.values_value = new ArrayBox()
+        return 1
+    }
+
     length() {
         return me.keys_value.length()
     }
