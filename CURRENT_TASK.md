@@ -33,16 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
 ```
 
 Purpose:
 
 ```text
-Create the first narrow lifecycle projection pilot for MirBuilder
-BindingContext. Keep it BindingContext-specific: BTreeMap deterministic order
-projects to OrderedMapBox only through facts/plans; &self/&mut borrow facts
-remain explicit; TrivialMemory is required before memory Drop erase.
+Compare the BindingContext lifecycle pilot against Rust oracle vectors before
+any broader Hako authority promotion.
 ```
 
 Current evidence:
@@ -151,6 +149,8 @@ HakoLifecyclePlan-v0 vocabulary is documented without resolver, verifier,
 emitter, or pilot behavior.
 RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000 is closed by 296x-1386; the
 converter/emitter contract is fixed as rendering verified plans only.
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001 is closed by 296x-1387;
+BindingContext lifecycle facts/plan fixtures and guard are green.
 ```
 
 Acceptance for the current slice:
@@ -163,17 +163,17 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1387.
-2. Add BindingContext lifecycle facts fixture / plan fixture first.
-3. Require deterministic-order fact before OrderedMapBox projection.
-4. Require TrivialMemory fact before memory Drop erase.
-5. Keep general resolver, converter emission, VariableContext, and Rust
-   lifetime syntax out of this row.
+1. Read 296x-1388.
+2. Add Rust oracle vectors for BindingContext only.
+3. Compare lifecycle plan behavior against those vectors.
+4. Keep general resolver, converter lifecycle emission, VariableContext, and
+   MirBuilder-wide parity claims out of this row.
+5. Keep Rust lifetime syntax additions disabled.
 
 Recommended next row:
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
 ```
 
 Current lifecycle SSOT:
@@ -184,7 +184,7 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md
+docs/development/current/main/phases/phase-296x/296x-1388-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001.md
 ```
 
 Task sequence:

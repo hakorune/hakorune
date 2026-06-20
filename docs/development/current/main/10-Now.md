@@ -20,26 +20,23 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
+MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. The lifecycle projection SSOT, facts vocabulary, plan vocabulary,
-and emitter contract are closed.
+lane status. The narrow BindingContext lifecycle facts/plan pilot is closed.
 
-The active row is 296x-1387, which creates a narrow BindingContext lifecycle
-pilot. It must stay BindingContext-specific and must not become a general
-lifecycle resolver.
+The active row is 296x-1388, which compares the BindingContext lifecycle pilot
+against Rust oracle vectors before any broader Hako authority promotion.
 
 ## Next
 
-1. Read 296x-1387.
-2. Add BindingContext lifecycle facts fixture / plan fixture first.
-3. Require deterministic-order fact before OrderedMapBox projection.
-4. Require TrivialMemory fact before memory Drop erase.
-5. Keep general resolver, converter emission, VariableContext, and Rust
-   lifetime syntax out of this row.
-6. Run:
+1. Read 296x-1388.
+2. Add Rust oracle vectors for BindingContext only.
+3. Compare lifecycle plan behavior against those vectors.
+4. Keep general resolver, converter lifecycle emission, VariableContext, and
+   MirBuilder-wide parity claims out of this row.
+5. Run:
 
 ```bash
 git diff --check

@@ -152,24 +152,25 @@ EXE pure route. 296x-1382 closes the manifest-driven 7-module `hakorune_mir_buil
 crate-bundle aggregation through one Main-owned FileBox wrapper. 296x-1381
 freezes the Rust lifecycle projection SSOT, 296x-1384 adds passive
 RustLifecycleFacts-v0 vocabulary, 296x-1385 adds passive HakoLifecyclePlan-v0
-vocabulary, and 296x-1386 documents the lifecycle emitter contract. The next
-blocker is 296x-1387: create a narrow BindingContext lifecycle pilot without
-implementing a general resolver or adding Rust lifetime syntax."""
+vocabulary, and 296x-1386 documents the lifecycle emitter contract. 296x-1387
+adds the narrow BindingContext lifecycle pilot facts/plan fixtures and guard.
+The next blocker is 296x-1388: compare BindingContext lifecycle plan behavior
+against Rust oracle vectors before any broader promotion."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1388-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001.md"
 
-latest_card = "296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md"
-latest_card_summary = """296x-1387 creates the first narrow
-MirBuilder BindingContext lifecycle pilot: BTreeMap deterministic order maps to
-OrderedMapBox only through facts/plans, &self/&mut borrow facts stay explicit,
-and TrivialMemory is required before memory Drop erase."""
+latest_card = "296x-1388-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1388-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001.md"
+latest_card_summary = """296x-1388 compares the BindingContext
+lifecycle pilot against Rust oracle vectors for new/default, lookup/insert/
+remove/clear, ordered-map determinism, and TrivialMemory-limited Drop erase
+before any broader Hako authority promotion."""
 
-current_blocker_token = "MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001"
+current_blocker_token = "MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

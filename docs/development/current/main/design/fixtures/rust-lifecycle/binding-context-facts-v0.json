@@ -1,0 +1,135 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::binding_context",
+    "source_path": "src/binding_context.rs"
+  },
+  "type_facts": [
+    {
+      "id": "BindingContext",
+      "copy_kind": "NonCopyOwned",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory",
+      "observations": {
+        "identity_observed": false,
+        "address_observed": false,
+        "layout_observed": false,
+        "arc_count_observed": false,
+        "weak_observed": false,
+        "atomic_observed": false
+      }
+    },
+    {
+      "id": "BindingId",
+      "copy_kind": "ImmediateValue",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory"
+    }
+  ],
+  "field_facts": [
+    {
+      "id": "BindingContext.binding_map",
+      "rust_type": "BTreeMap<String, BindingId>",
+      "copy_kind": "NonCopyOwned",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory",
+      "deterministic_order_required": true,
+      "identity_observed": false,
+      "address_observed": false,
+      "layout_observed": false
+    }
+  ],
+  "method_facts": [
+    {
+      "id": "BindingContext::is_empty",
+      "receiver_borrow": {
+        "kind": "SharedRead",
+        "scope": "CallOnly",
+        "escapes": false
+      }
+    },
+    {
+      "id": "BindingContext::len",
+      "receiver_borrow": {
+        "kind": "SharedRead",
+        "scope": "CallOnly",
+        "escapes": false
+      }
+    },
+    {
+      "id": "BindingContext::contains",
+      "receiver_borrow": {
+        "kind": "SharedRead",
+        "scope": "CallOnly",
+        "escapes": false
+      }
+    },
+    {
+      "id": "BindingContext::lookup",
+      "receiver_borrow": {
+        "kind": "SharedRead",
+        "scope": "CallOnly",
+        "escapes": false
+      },
+      "returns": {
+        "copy_kind": "ImmediateValue",
+        "drop_fact": "TrivialMemory"
+      }
+    },
+    {
+      "id": "BindingContext::insert",
+      "receiver_borrow": {
+        "kind": "UniqueWrite",
+        "scope": "CallOnly",
+        "escapes": false
+      },
+      "argument_moves": [
+        {
+          "name": "name",
+          "move_kind": "ConsumeArgument"
+        },
+        {
+          "name": "binding_id",
+          "copy_kind": "ImmediateValue"
+        }
+      ]
+    },
+    {
+      "id": "BindingContext::remove",
+      "receiver_borrow": {
+        "kind": "UniqueWrite",
+        "scope": "CallOnly",
+        "escapes": false
+      },
+      "returns": {
+        "copy_kind": "ImmediateValue",
+        "drop_fact": "TrivialMemory"
+      }
+    },
+    {
+      "id": "BindingContext::clear_for_function_entry",
+      "receiver_borrow": {
+        "kind": "UniqueWrite",
+        "scope": "CallOnly",
+        "escapes": false
+      }
+    }
+  ],
+  "deny_facts": [
+    {
+      "id": "BindingContext.borrow_escape_unknown",
+      "reason": "borrow escape must be known before direct owner mutation"
+    },
+    {
+      "id": "BindingContext.binding_map_without_deterministic_order",
+      "reason": "OrderedMapBox projection requires deterministic_order_required"
+    },
+    {
+      "id": "BindingContext.drop_without_trivial_memory",
+      "reason": "memory Drop erase requires DropFact::TrivialMemory"
+    }
+  ]
+}

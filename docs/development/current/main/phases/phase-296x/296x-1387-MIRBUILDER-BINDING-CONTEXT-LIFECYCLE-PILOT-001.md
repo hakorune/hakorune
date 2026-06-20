@@ -1,6 +1,6 @@
 # 296x-1387 MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -24,6 +24,8 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 docs/development/current/main/design/rust-lifecycle-facts-vocab-v0.md
 docs/development/current/main/design/hako-lifecycle-plan-vocab-v0.md
 docs/development/current/main/design/rust-to-hako-lifecycle-emitter-contract.md
+docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-facts-v0.json
+docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-plan-v0.json
 ```
 
 ## Scope
@@ -70,6 +72,7 @@ converter_direct_ownership_policy_added=0
 Checks:
 
 ```bash
+bash tools/checks/rust_lifecycle_binding_context_pilot_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
@@ -89,4 +92,25 @@ do_not_erase_Drop_without_TrivialMemory=1
 
 ```text
 296x-1388-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
+```
+
+## Closeout Evidence
+
+```text
+binding_context_lifecycle_facts_fixture=green
+binding_context_lifecycle_plan_fixture=green
+ordered_map_projection_requires_deterministic_order_fact=green
+memory_drop_erased_only_with_TrivialMemory=green
+borrow_escape_unknown_denied=green
+rust_lifetime_syntax_added=0
+general_resolver_implemented=0
+converter_emission_added=0
+```
+
+Checks:
+
+```bash
+bash tools/checks/rust_lifecycle_binding_context_pilot_guard.sh
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
 ```

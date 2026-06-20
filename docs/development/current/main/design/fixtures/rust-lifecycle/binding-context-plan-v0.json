@@ -1,0 +1,123 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext",
+  "source_facts": "binding-context-facts-v0.json",
+  "plans": [
+    {
+      "id": "BindingContext",
+      "plan_kind": "LocalBox",
+      "publication_policy": "unpublished",
+      "cleanup_policy": "erase",
+      "required_facts": [
+        "BindingContext.escape_fact=LocalOnly",
+        "BindingContext.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "id": "BindingContext.binding_map",
+      "plan_kind": "OrderedMapBox",
+      "publication_policy": "owned_by_BindingContext",
+      "cleanup_policy": "erase",
+      "required_facts": [
+        "BindingContext.binding_map.deterministic_order_required=true",
+        "BindingContext.binding_map.escape_fact=LocalOnly",
+        "BindingContext.binding_map.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "id": "BindingContext::is_empty",
+      "plan_kind": "BorrowView",
+      "access": "read",
+      "receiver": "BindingContext",
+      "required_facts": [
+        "BindingContext::is_empty.receiver_borrow.kind=SharedRead",
+        "BindingContext::is_empty.receiver_borrow.escapes=false"
+      ]
+    },
+    {
+      "id": "BindingContext::len",
+      "plan_kind": "BorrowView",
+      "access": "read",
+      "receiver": "BindingContext",
+      "required_facts": [
+        "BindingContext::len.receiver_borrow.kind=SharedRead",
+        "BindingContext::len.receiver_borrow.escapes=false"
+      ]
+    },
+    {
+      "id": "BindingContext::contains",
+      "plan_kind": "BorrowView",
+      "access": "read",
+      "receiver": "BindingContext",
+      "required_facts": [
+        "BindingContext::contains.receiver_borrow.kind=SharedRead",
+        "BindingContext::contains.receiver_borrow.escapes=false"
+      ]
+    },
+    {
+      "id": "BindingContext::lookup",
+      "plan_kind": "BorrowView",
+      "access": "read",
+      "receiver": "BindingContext",
+      "return_plan": "Immediate",
+      "required_facts": [
+        "BindingContext::lookup.receiver_borrow.kind=SharedRead",
+        "BindingContext::lookup.receiver_borrow.escapes=false",
+        "BindingContext::lookup.returns.copy_kind=ImmediateValue"
+      ]
+    },
+    {
+      "id": "BindingContext::insert",
+      "plan_kind": "TransferOwned",
+      "access": "write",
+      "receiver": "BindingContext",
+      "required_facts": [
+        "BindingContext::insert.receiver_borrow.kind=UniqueWrite",
+        "BindingContext::insert.receiver_borrow.escapes=false",
+        "BindingContext::insert.argument_moves.name.move_kind=ConsumeArgument"
+      ]
+    },
+    {
+      "id": "BindingContext::remove",
+      "plan_kind": "TransferOwned",
+      "access": "write",
+      "receiver": "BindingContext",
+      "return_plan": "Immediate",
+      "required_facts": [
+        "BindingContext::remove.receiver_borrow.kind=UniqueWrite",
+        "BindingContext::remove.receiver_borrow.escapes=false",
+        "BindingContext::remove.returns.copy_kind=ImmediateValue"
+      ]
+    },
+    {
+      "id": "BindingContext::clear_for_function_entry",
+      "plan_kind": "TransferOwned",
+      "access": "write",
+      "receiver": "BindingContext",
+      "required_facts": [
+        "BindingContext::clear_for_function_entry.receiver_borrow.kind=UniqueWrite",
+        "BindingContext::clear_for_function_entry.receiver_borrow.escapes=false"
+      ]
+    }
+  ],
+  "denied": [
+    {
+      "id": "BindingContext.borrow_escape_unknown",
+      "deny_reason": "BorrowEscapeUnknown"
+    },
+    {
+      "id": "BindingContext.binding_map_without_deterministic_order",
+      "deny_reason": "MissingDeterministicOrderFact"
+    },
+    {
+      "id": "BindingContext.drop_without_trivial_memory",
+      "deny_reason": "MissingTrivialMemoryDropFact"
+    }
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false
+  }
+}
