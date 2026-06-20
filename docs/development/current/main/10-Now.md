@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-RUSTC-SEMIR-BINDING-CONTEXT-HARNESS-PROBE-OWNER-SELECTION-001
+RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -164,13 +164,15 @@ BindingContext adapter shape as target-neutral RustLifecycleFacts-v0 output.
 next owner. The active row is 296x-1485. It designs the BindingContext
 lifecycle-facts adapter harness boundary. The active row is 296x-1486. It adds
 the first minimal BindingContext rustc semantic adapter harness probe.
-The active row is 296x-1487. It selects the next owner after that probe.
+296x-1487 selects the minimal rustc adapter toolchain preflight as the next
+owner. The active row is 296x-1488. It adds a diagnostic-only toolchain
+preflight without extracting lifecycle facts.
 
 ## Next
 
-1. Read 296x-1487.
-2. Select one next owner.
-3. Keep implementation_started=0 in this selection row.
+1. Read 296x-1488.
+2. Add the minimal toolchain preflight.
+3. Keep lifecycle_facts_generated=0.
 4. Run:
 
 ```bash

@@ -1,6 +1,6 @@
 # 296x-1487 POST-RUSTC-SEMIR-BINDING-CONTEXT-HARNESS-PROBE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -48,6 +48,39 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-001
+selected_reason=BindingContext target-neutral fixture and harness guard are
+green. The next smallest durable step is a toolchain preflight that checks
+whether a real external rustc adapter can be introduced without using raw
+pretty dumps as stable schema or leaking Hako policy into the adapter.
+implementation_started=0
+```
+
+Non-selected owners:
+
+```text
+B. VariableContext lifecycle-facts adapter probe:
+  parked until the real BindingContext adapter entry path is proven
+
+C. return to trim route executable fixture selection:
+  parked until the lifecycle adapter boundary reaches a stable preflight point
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+rustc_integration_started=0
+backend_behavior_changed=0
 ```
 
 ## Stop Line

@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-RUSTC-SEMIR-BINDING-CONTEXT-HARNESS-PROBE-OWNER-SELECTION-001
+RUSTC-SEMIR-BINDING-CONTEXT-TOOLCHAIN-PREFLIGHT-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after the BindingContext adapter harness probe. Do not
-start rustc integration, VariableContext expansion, or trim route lowering
-before selecting one owner.
+Add the smallest toolchain preflight for a future BindingContext rustc semantic
+adapter. Do not extract real lifecycle facts from rustc yet.
 ```
 
 Lifecycle converter boundary:
