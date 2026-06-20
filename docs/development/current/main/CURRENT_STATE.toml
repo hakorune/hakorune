@@ -158,23 +158,25 @@ through 296x-1388 close the BindingContext lifecycle pilot and oracle parity;
 oracle parity while excluding returned map, snapshot/restore, carrier, and PHI
 behavior. 296x-1393 selects the returned-borrow boundary as the next lifecycle
 owner. 296x-1394 inventories `VariableContext` returned map borrows and keeps
-`variable_map_mut()` denied as a returned mutable alias boundary. The next
-blocker is 296x-1407: select the next lifecycle owner after automatic and
-explicit carrier snapshot fixtures are green."""
+`variable_map_mut()` denied as a returned mutable alias boundary. 296x-1407
+selects PHI carrier lifecycle consumer inventory before any general resolver.
+296x-1408 inventories join_id, promoted_body_locals, trim_helper, merge_from,
+and read-only CarrierInfo consumers. The next blocker is 296x-1409: select the
+next lifecycle owner after PHI carrier consumer inventory."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1407-POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1409-POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1407-POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1407-POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1407 selects the next
-lifecycle owner after automatic and explicit carrier snapshot fixtures are
-green, choosing between PHI consumer inventory or read-only resolver skeleton."""
+latest_card = "296x-1409-POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1409-POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1409 selects the next
+lifecycle owner after PHI carrier consumer inventory, choosing between join_id
+lifecycle, merge_from lifecycle, or a read-only resolver skeleton."""
 
-current_blocker_token = "POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001"
+current_blocker_token = "POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

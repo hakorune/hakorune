@@ -1,6 +1,6 @@
 # 296x-1407 POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -35,6 +35,41 @@ non_selected_owners_parked=1
 implementation_started=0
 full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
+```
+
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=PHI-CARRIER-LIFECYCLE-CONSUMER-INVENTORY-001
+selected_reason=automatic and explicit CarrierInfo snapshots are green, but
+join_id / promoted_body_locals / trim_helper consumers are not yet named as
+lifecycle owners. A general resolver would otherwise read unnamed PHI carrier
+semantics too early.
+```
+
+Parked:
+
+```text
+HAKO-LIFECYCLE-RESOLVER-READONLY-SKELETON-001:
+  parked until PHI carrier lifecycle consumers are inventoried
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1408-PHI-CARRIER-LIFECYCLE-CONSUMER-INVENTORY-001
 ```
 
 Checks:

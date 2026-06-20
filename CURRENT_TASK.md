@@ -33,15 +33,28 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001
+POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after automatic and explicit carrier snapshot
-fixtures are green. Do not start PHI consumer inventory or resolver work before
+Select the next lifecycle owner after PHI carrier lifecycle consumers are
+inventoried. Do not start join_id, merge_from, or resolver work before
 choosing one next owner.
+```
+
+Lifecycle converter boundary:
+
+```text
+The answer to "can the converter translate Rust ownership into .hako?" is
+documented in docs/development/current/main/design/rust-lifecycle-projection-ssot.md.
+
+Short form:
+  yes, but only as rustc facts -> HakoLifecyclePlan -> verifier -> emitter.
+
+The converter/emitter renders verified plans. It does not choose ownership,
+borrow, move, or Drop policy directly from Rust syntax.
 ```
 
 Current evidence:
@@ -201,6 +214,12 @@ carrier snapshot is selected as the next owner.
 VARIABLE-CONTEXT-EXPLICIT-CARRIER-SNAPSHOT-PROBE-001 is closed by 296x-1406;
 CarrierInfo::with_explicit_carriers is fixture-guarded as
 ExplicitCarrierSnapshotFromBorrowView with missing-carrier fail-fast preserved.
+POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001 is closed by 296x-1407;
+PHI carrier lifecycle consumer inventory is selected before a general
+resolver skeleton.
+PHI-CARRIER-LIFECYCLE-CONSUMER-INVENTORY-001 is closed by 296x-1408;
+join_id, promoted_body_locals, trim_helper, merge_from, and read-only
+CarrierInfo consumers are inventoried.
 ```
 
 Acceptance for the current slice:
@@ -213,7 +232,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1407.
+1. Read 296x-1409.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

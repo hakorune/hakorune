@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001
+POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -35,13 +35,16 @@ external Rust callsites. 296x-1402 inventoried carrier-sensitive map reads.
 296x-1404 fixture-guards CarrierInfo::from_variable_map as
 CarrierSnapshotFromBorrowView. 296x-1406 fixture-guards
 CarrierInfo::with_explicit_carriers as ExplicitCarrierSnapshotFromBorrowView.
+296x-1407 selects PHI carrier lifecycle consumer inventory before a general
+resolver. 296x-1408 inventories join_id, promoted_body_locals, trim_helper,
+merge_from, and read-only CarrierInfo consumers.
 
-The active row is 296x-1407. It selects the next lifecycle owner after
-automatic and explicit carrier snapshot fixtures are green.
+The active row is 296x-1409. It selects the next lifecycle owner after PHI
+carrier consumer inventory.
 
 ## Next
 
-1. Read 296x-1407.
+1. Read 296x-1409.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

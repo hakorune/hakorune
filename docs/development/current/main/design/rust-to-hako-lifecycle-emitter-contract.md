@@ -19,6 +19,41 @@ output:
   or canonical MIR surface
 ```
 
+## Operational Boundary
+
+The ownership-aware converter is not a Rust syntax rewriter. It is a renderer
+for verified lifecycle plans:
+
+```text
+RustSubsetModule-v0:
+  structure / names / source provenance
+
+VerifierResult + HakoLifecyclePlan-v0:
+  ownership / borrow / move / Drop projection
+
+converter/emitter:
+  render only
+```
+
+Allowed shorthand:
+
+```text
+converter translates Rust ownership to .hako
+```
+
+Precise meaning:
+
+```text
+rustc adapter proves lifecycle facts
+Hako resolver chooses the lifecycle plan
+verifier accepts the plan
+converter renders that verified plan
+```
+
+If any of those inputs are missing, the lifecycle-aware route fails fast. The
+existing skeleton route may still emit TODO comments, but it must not claim
+ownership or Drop parity.
+
 ## Required Inputs
 
 ```text

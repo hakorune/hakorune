@@ -68,6 +68,41 @@ It may become good enough to generate mostly useful `.hako` automatically, but
 the safety contract comes from facts + plan + verifier, not from textual
 pattern replacement.
 
+## Operational Answer
+
+When a task asks whether the converter can translate Rust ownership into
+`.hako`, answer with this boundary:
+
+```text
+Yes, but only after ownership is expressed as verified lifecycle plans.
+
+Rust syntax:
+  not enough
+
+rustc facts:
+  required input
+
+HakoLifecyclePlan:
+  required owner of representation / cleanup / borrow choices
+
+converter/emitter:
+  renders verified plans only
+```
+
+This means a future ownership-aware converter is a two-input renderer:
+
+```text
+RustSubsetModule-v0:
+  source structure and skeleton shape
+
+Verified HakoLifecyclePlan-v0:
+  ownership / borrow / move / Drop projection
+```
+
+The converter must fail fast when a lifecycle plan is missing for a semantic
+claim. It may still emit lossy skeleton TODOs on the existing skeleton route,
+but that route must not claim ownership, borrow, or Drop parity.
+
 ## Pipeline
 
 ```text
@@ -425,6 +460,49 @@ MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001:
 Do not start the pilot until the current crate-bundle transport milestone is
 closed. The lifecycle lane consumes crate transport evidence; it does not
 replace the crate-bundle input-route work.
+
+## Current Follow-up Task Queue
+
+The lifecycle lane now has enough passive vocabulary and focused fixture
+evidence to proceed by named owners. Keep these as separate rows; do not merge
+them into a general converter rewrite.
+
+```text
+PHI-CARRIER-LIFECYCLE-CONSUMER-INVENTORY-001:
+  inventory join_id / promoted_body_locals / trim_helper consumers before a
+  general resolver is introduced
+  implementation_started=0
+
+HAKO-LIFECYCLE-RESOLVER-READONLY-SKELETON-001:
+  consume frozen RustLifecycleFacts + HakoLifecyclePlan fixtures
+  produce Allow/Deny diagnostics only
+  converter_emission_added=0
+
+LIFECYCLE-VERIFIER-RESULT-VOCAB-000:
+  define the positive verifier result required by the emitter contract
+  no emission behavior
+
+RUST-TO-HAKO-LIFECYCLE-EMITTER-PROBE-001:
+  render one verified BindingContext/VariableContext plan slice
+  no direct Rust syntax ownership decisions
+
+RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001:
+  later external-adapter probe for producing lifecycle facts from rustc
+  do not use raw rustc dumps as stable schema
+```
+
+Selection rule:
+
+```text
+If a plan consumer is not named yet:
+  inventory first
+
+If facts and plan exist but no verifier result exists:
+  add verifier vocabulary before emitter work
+
+If verifier is missing or negative:
+  converter/emitter must fail fast
+```
 
 ## Stop Lines
 
