@@ -1,0 +1,59 @@
+{
+  "family_id": "hakorune_mir_builder::binding_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "birth initializes me.binding_map",
+      "hako_operation": "OrderedMap.create",
+      "id": "BindingContext::new",
+      "rust_operation": "BTreeMap::new"
+    },
+    {
+      "emits": "BindingContextApi.is_empty(ctx)",
+      "hako_operation": "OrderedMapBox.length == 0 as i64_bool_v0",
+      "id": "BindingContext::is_empty",
+      "rust_operation": "BTreeMap::is_empty"
+    },
+    {
+      "emits": "BindingContextApi.len(ctx)",
+      "hako_operation": "OrderedMapBox.length",
+      "id": "BindingContext::len",
+      "rust_operation": "BTreeMap::len"
+    },
+    {
+      "emits": "BindingContextApi.contains(ctx, name)",
+      "hako_operation": "OrderedMapBox.has as i64_bool_v0",
+      "id": "BindingContext::contains",
+      "rust_operation": "BTreeMap::contains_key"
+    },
+    {
+      "emits": "BindingContextApi.lookup(ctx, name)",
+      "hako_operation": "OrderedMapBox.get",
+      "id": "BindingContext::lookup",
+      "rust_operation": "BTreeMap::get(...).copied"
+    },
+    {
+      "emits": "BindingContextApi.insert(ctx, name, binding_id)",
+      "hako_operation": "OrderedMapBox.set",
+      "id": "BindingContext::insert",
+      "rust_operation": "BTreeMap::insert"
+    },
+    {
+      "emits": "BindingContextApi.remove(ctx, name)",
+      "hako_operation": "OrderedMapBox.remove",
+      "id": "BindingContext::remove",
+      "rust_operation": "BTreeMap::remove"
+    },
+    {
+      "emits": "BindingContextApi.clear_for_function_entry(ctx)",
+      "hako_operation": "OrderedMapBox.clear",
+      "id": "BindingContext::clear_for_function_entry",
+      "rust_operation": "BTreeMap::clear"
+    }
+  ],
+  "schema_version": 0,
+  "selected_body_count": "all_non_test_methods",
+  "source_oracle": "binding-context-oracle-vectors-v0.json",
+  "source_plan": "binding-context-plan-v0.json",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext"
+}

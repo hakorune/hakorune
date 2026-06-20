@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-BINDING-CONTEXT-DERIVED-HAKO-ARTIFACT-PILOT-001
+BINDING-CONTEXT-DERIVED-ARTIFACT-MAINLINE-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -32,6 +32,10 @@ the later source-selfhost gate. 296x-1512 now opens the BindingContext
 behavioral derived-artifact pilot without mainline selection. 296x-1512A closes
 `OrderedMapBox.remove` and `OrderedMapBox.clear` as library-owned behavior, so
 1512 no longer needs a converter/emitter workaround for those operations.
+296x-1512 closes the BindingContext DerivedShadow artifact with deterministic
+regeneration, generated Hako parse/MIR/EXE gates, and Rust oracle behavior
+parity. 296x-1513 now decides focused mainline selection while preserving Rust
+bootstrap and Rust oracle routes.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

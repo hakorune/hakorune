@@ -1,0 +1,51 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "family_id": "hakorune_mir_builder::binding_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_binding_context_artifact.py",
+    "version": "binding-context-derived-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-adapter-facts-v0.json",
+      "sha256": "3152d654379d1d1f39416fa180df8828314f832ab4bb2d30b031a9bac263f6af"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-oracle-vectors-v0.json",
+      "sha256": "1147d3c33a8a27d3a6b911707edb4848a6a34f72b33f8a515f65e48cb93d73ce"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-plan-v0.json",
+      "sha256": "ccc30fbd3037672ef51b1ce1d66bfc57f1201002c10512f3a465b28e6f0d6f84"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-behavior-recipe-v0.json",
+      "sha256": "ea8bfd2141be5f1b39727a6d1dfedf3a890d9690fc72c2e46edf0cd2ee813832"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-derived-artifact-verifier-result-v0.json",
+      "sha256": "5c0a93f56c0e5228ec1cdac76ceafe27fe386a9b0e25cb889331e544dd233459"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.hako",
+    "hako_sha256": "000bf021226aa5de02791c9cc35edeb6c10093921ce920f52555f21db1424c6b"
+  },
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/binding_context.rs",
+        "sha256": "2fbd91df99adcea0900ce1b596805e1c8d2be84d4d83046530b0b414729ee8b2"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

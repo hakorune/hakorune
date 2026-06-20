@@ -1,0 +1,43 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "hako_behavior_recipe": "verified",
+    "hako_lifecycle_plan": "verified",
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "rust_facts_input": "verified",
+    "selected_body_count": "all_non_test_methods",
+    "unclassified_drop_obligations": 0,
+    "unmapped_mir_side_effects": 0,
+    "unmapped_thir_nodes": 0,
+    "unresolved_call_targets": 0
+  },
+  "denied_boundaries": [
+    "selfhost mainline selection",
+    "HakoAdopted native source decision",
+    "MirBuilder-wide lifecycle parity",
+    "runtime try-Hako-then-Rust fallback"
+  ],
+  "family_id": "hakorune_mir_builder::binding_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "binding-context-adapter-facts-v0.json",
+  "source_plan": "binding-context-plan-v0.json",
+  "source_recipe": "binding-context-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext",
+  "transport_notes": {
+    "bool_return_transport": "i64_bool_v0",
+    "reason": "pure-first global helper ABI expects scalar i64 returns in this pilot"
+  },
+  "verified_operations": [
+    "OrderedMap.create",
+    "OrderedMapBox.length == 0 as i64_bool_v0",
+    "OrderedMapBox.length",
+    "OrderedMapBox.has as i64_bool_v0",
+    "OrderedMapBox.get",
+    "OrderedMapBox.set",
+    "OrderedMapBox.remove",
+    "OrderedMapBox.clear"
+  ]
+}
