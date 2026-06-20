@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
+STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001
 ```
 
 Purpose:
 
 ```text
-Resume the manifest-driven `hakorune_mir_builder` 7-module crate-bundle route
-using the Main-owned dynamic FileBox loop proven by 296x-1380.
+Accept the focused loop-carried string accumulation shape needed by the
+`hakorune_mir_builder` crate-bundle wrapper on the EXE pure route.
 ```
 
 Current evidence:
@@ -129,6 +129,10 @@ boundary decision: FileBox remains Main/input-route owned; helper-owned
 FileBox is not implemented in that row.
 FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001 is closed by 296x-1380; the focused
 Main-owned dynamic FileBox path loop reaches MIR emit and EXE.
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001 is blocked by
+296x-1382 after the first wrapper implementation reaches MIR emit but fails
+EXE on loop-carried string accumulation with an undefined LLVM value in
+nyash.string.concat3_hhh.
 ```
 
 Acceptance for the current slice:
@@ -141,21 +145,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1382.
-2. Implement the `hakorune_mir_builder` crate-bundle wrapper using the
-   Main-owned dynamic FileBox input route.
-3. Preserve manifest order and module/source framing.
-4. Verify wrapper EXE parity and fixture-only aggregate MIR emit.
-5. Keep use/name resolution and generated-program execution claim disabled.
+1. Read 296x-1383.
+2. Create a focused loop-carried string concat probe.
+3. Repair the pure-route lowering shape or document a narrower compiler stop
+   line if intentionally unsupported.
+4. Keep converter semantics and crate-bundle wrapper logic unchanged.
+5. Return to 296x-1382 after the focused shape is green.
 
 Recommended next row:
 
 ```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
+STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001
 ```
 
-296x-1382 resumes crate-bundle aggregation after 296x-1380 proved the dynamic
-FileBox path loop. Helper-owned FileBox remains out-of-scope.
+296x-1383 is a compiler/backend shape task. Do not hand-unroll the 7-module
+wrapper or move bundle output generation to a host tool.
 
 After 296x-1377 closes, the planned design follow-up is:
 

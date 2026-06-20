@@ -1,6 +1,6 @@
 # 296x-1382 HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
 
-Status: open
+Status: blocked
 Date: 2026-06-20
 
 ## Purpose
@@ -106,3 +106,42 @@ converter_core_changed_only_if_needed=1
 If the `Main`-owned dynamic loop cannot express manifest iteration without
 opening a new compiler shape, stop and taskize that compiler shape before
 editing converter semantics.
+
+## Blocked Evidence
+
+The Main-owned dynamic FileBox loop shape from 296x-1380 remains green.
+However, the first 1382 wrapper implementation needs to accumulate per-module
+converted text in a loop before printing the final bundle. That exposes a new
+EXE pure-route backend shape, independent of FileBox:
+
+```text
+wrapper_mir_emit=green
+wrapper_exe=red
+failure_owner=loop_carried_string_concat_pure_route
+llvm_error=use_of_undefined_value
+callee=nyash.string.concat3_hhh
+undefined_value=%r667
+```
+
+Observed command shape:
+
+```bash
+NYASH_FILEBOX_MODE=core-ro ./target/release/hakorune \
+  --emit-exe /tmp/rust_subset_hakorune_mir_builder_crate_file \
+  apps/rust-subset-to-hako/convert_hakorune_mir_builder_crate_file.hako
+```
+
+Decision:
+
+```text
+implementation_committed=0
+hand_unrolled_7_module_wrapper_fallback_used=0
+converter_core_changed=0
+new_compiler_shape_required=1
+```
+
+Next focused row:
+
+```text
+296x-1383-STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001
+```

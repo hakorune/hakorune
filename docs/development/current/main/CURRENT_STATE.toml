@@ -148,23 +148,23 @@ rust-subset smoke. 296x-1376 selects a manifest-driven 7-module
 blocked on helper-owned FileBox; 296x-1379 closes that helper shape as a
 boundary decision and keeps FileBox Main/input-route owned. 296x-1380 preserves
 FileBox receiver origin for dynamic path reads inside a Main-owned loop on the
-EXE pure route. The next blocker is 296x-1382: resume crate-bundle aggregation
-using the Main-owned dynamic FileBox loop, without hand-unrolling the 7-module
-wrapper and without enabling use/name resolution."""
+EXE pure route. 296x-1382 resumes crate-bundle aggregation but blocks on
+loop-carried string accumulation in the EXE pure route. The next blocker is
+296x-1383: accept the focused loop-carried string concat shape needed by
+crate-bundle output accumulation, without changing converter semantics."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1383-STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001.md"
 
-latest_card = "296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001.md"
-latest_card_summary = """296x-1382 resumes the `hakorune_mir_builder`
-crate-bundle aggregation using the Main-owned dynamic FileBox input route
-proved by 296x-1380."""
+latest_card = "296x-1383-STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1383-STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001.md"
+latest_card_summary = """296x-1383 isolates the loop-carried string
+accumulation shape needed by the `hakorune_mir_builder` crate-bundle wrapper."""
 
-current_blocker_token = "HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001"
+current_blocker_token = "STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
