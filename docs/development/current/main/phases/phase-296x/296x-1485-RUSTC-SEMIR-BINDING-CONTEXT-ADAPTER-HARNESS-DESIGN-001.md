@@ -1,6 +1,6 @@
 # 296x-1485 RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-DESIGN-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -55,6 +55,26 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Design
+
+```text
+design=docs/development/current/main/design/rustc-semir-binding-context-adapter-harness-design.md
+```
+
+## Closeout
+
+```text
+harness_boundary_documented=1
+adapter_output_contract=RustLifecycleFacts-v0
+toolchain_boundary_documented=1
+raw_rustc_dump_as_schema=0
+adapter_policy_owner=0
+implementation_started=0
+backend_behavior_changed=0
+
+selected_next_task=RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-PROBE-001
 ```
 
 ## Stop Line

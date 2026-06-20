@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-DESIGN-001
+RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-HARNESS-PROBE-001
 ```
 
 Purpose:
 
 ```text
-Design the smallest external rustc semantic adapter harness boundary for
-BindingContext lifecycle facts. Do not implement the adapter in this row.
+Add the first minimal BindingContext rustc semantic adapter harness probe for
+RustLifecycleFacts-v0. Do not emit HakoLifecyclePlan-v0, `.hako`, or backend
+behavior from the adapter.
 ```
 
 Lifecycle converter boundary:
