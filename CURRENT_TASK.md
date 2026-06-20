@@ -33,16 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-PROMOTED-BODY-LOCALS-INVENTORY-OWNER-SELECTION-001
+PROMOTED-BODY-LOCALS-PRODUCER-PROBE-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after promoted_body_locals inventory names
-its producers, merge behavior, and join_id-dependent consumers. Do not start
-promoted-name producer probing, emitter acceptance expansion, or trim route
-lowering inventory before choosing one next owner.
+Fixture-guard promoted_body_locals producers as name recorders only. Do not
+resolve join_id, implement trim/digitpos route lowering, or expand converter
+emission in this row.
 ```
 
 Lifecycle converter boundary:
