@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001
+BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -37,8 +37,10 @@ regeneration, generated Hako parse/MIR/EXE gates, and Rust oracle behavior
 parity. 296x-1513 records a DerivedMainline candidate route manifest for
 BindingContext only while keeping selected_on_mainline=0, Rust
 bootstrap/oracle retained, and runtime fallback forbidden. 296x-1514 now
-decides whether to wait for a real route seam, keep BindingContext permanently
-derived, or move toward native `.hako` adoption.
+selects wait_for_route_seam rather than premature HakoAdopted source
+adoption. 296x-1515 now designs the smallest explicit BindingContext
+derived-mainline route seam while preserving Rust bootstrap/oracle routes and
+forbidding runtime fallback.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

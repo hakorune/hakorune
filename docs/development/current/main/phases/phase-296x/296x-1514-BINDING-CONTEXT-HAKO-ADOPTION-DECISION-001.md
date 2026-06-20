@@ -1,6 +1,6 @@
 # 296x-1514 BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,48 @@ rust_oracle_retained=1
 generated_artifact_manual_edit=0
 source_selfhost_claim=0
 backend_behavior_changed=0
+```
+
+## Closeout
+
+```text
+output_contract=rust-lifecycle-binding-context-adoption-decision-v0
+binding_context_current_state=DerivedMainline_candidate
+selected_next_route=wait_for_route_seam
+rust_bootstrap_retained=1
+rust_oracle_retained=1
+generated_artifact_manual_edit=0
+source_selfhost_claim=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Evidence:
+
+```text
+tools/checks/rust_lifecycle_binding_context_adoption_decision_guard.sh
+```
+
+Decision:
+
+```text
+selected_next_route=wait_for_route_seam
+```
+
+Reason:
+
+```text
+BindingContext is a verified generated artifact and a DerivedMainline
+candidate, but there is no existing selfhost build-line route seam that
+consumes generated family artifacts. HakoAdopted would be premature before
+the route seam exists and before regeneration has run through more than one
+family.
+```
+
+Next:
+
+```text
+296x-1515-BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
 ```
 
 ## Stop Line

@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001
+BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
 ```
 
 Purpose:
 
 ```text
-Decide whether the BindingContext generated artifact should stay permanently
-derived, wait for a real mainline route seam, or move toward native `.hako`
-adoption after enough regeneration evidence exists.
+Design and implement the smallest explicit selfhost build-line seam that can
+select the BindingContext derived artifact without deleting Rust bootstrap,
+without making generated `.hako` edit authority, and without runtime
+try-Hako-then-Rust fallback.
 ```
 
 Lifecycle converter boundary:
@@ -97,7 +98,10 @@ Current task order:
   BINDING-CONTEXT-DERIVED-ARTIFACT-MAINLINE-SELECTION-001 (closed)
 
 1514:
-  BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001
+  BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001 (closed)
+
+1515:
+  BINDING-CONTEXT-DERIVED-MAINLINE-ROUTE-SEAM-001
 ```
 
 Current evidence:
