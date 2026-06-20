@@ -66,3 +66,42 @@ def run_family_generator(
         unchanged_label=unchanged_label,
         root=root,
     )
+
+
+def build_rust_derived_hako_manifest(
+    *,
+    family_id: str,
+    state: str,
+    source_rust_files: list[dict[str, Any]],
+    generator_tool: str,
+    generator_version: str,
+    hako_path: str,
+    hako_sha256: str,
+    claims: dict[str, Any],
+    pilot_scope: str | None = None,
+    inputs: dict[str, Any] | None = None,
+    extra_fields: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    manifest: dict[str, Any] = {
+        "schema_version": 0,
+        "kind": "RustDerivedHakoArtifact",
+        "family_id": family_id,
+        "state": state,
+        "source": {"rust_files": source_rust_files},
+        "generator": {
+            "tool": generator_tool,
+            "version": generator_version,
+        },
+        "output": {
+            "hako_path": hako_path,
+            "hako_sha256": hako_sha256,
+        },
+        "claims": claims,
+    }
+    if pilot_scope is not None:
+        manifest["pilot_scope"] = pilot_scope
+    if inputs is not None:
+        manifest["inputs"] = inputs
+    if extra_fields is not None:
+        manifest.update(extra_fields)
+    return manifest

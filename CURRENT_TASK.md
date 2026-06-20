@@ -87,6 +87,7 @@ Done:
   shared MirBuilder behavioral emitter
   shared family generator helper
   shared family generator driver
+  shared family manifest helper
   live lightweight facts converter for BindingContext and VariableContext simple-map
   VariableContext snapshot/restore artifact ownership transfer
   MirBuilder converter matrix guard

@@ -15,6 +15,7 @@ from textwrap import dedent
 from typing import Any
 
 from shared_family_generator import (
+    build_rust_derived_hako_manifest,
     read_json,
     sha256_file,
     sha256_text,
@@ -258,25 +259,29 @@ def build_hako() -> str:
 
 
 def build_manifest(hako_text: str) -> dict[str, Any]:
-    return {
-        "schema_version": 0,
-        "kind": "RustDerivedHakoArtifact",
-        "family_id": FAMILY_ID,
-        "pilot_scope": SCOPE,
-        "state": "DerivedShadow",
-        "source": {
-            "rust_files": [
-                {
-                    "path": "crates/hakorune_mir_builder/src/variable_context.rs",
-                    "sha256": sha256_file(ROOT / "crates/hakorune_mir_builder/src/variable_context.rs"),
-                }
-            ]
+    return build_rust_derived_hako_manifest(
+        family_id=FAMILY_ID,
+        pilot_scope=SCOPE,
+        state="DerivedShadow",
+        source_rust_files=[
+            {
+                "path": "crates/hakorune_mir_builder/src/variable_context.rs",
+                "sha256": sha256_file(ROOT / "crates/hakorune_mir_builder/src/variable_context.rs"),
+            }
+        ],
+        generator_tool="tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
+        generator_version="variable-context-immutable-borrow-derived-artifact-v0",
+        hako_path=str(HAKO.relative_to(ROOT)),
+        hako_sha256=sha256_text(hako_text),
+        claims={
+            "generated_hako_manual_edit": 0,
+            "mainline_selected": 0,
+            "full_variable_context_claim": 0,
+            "rust_bootstrap_retained": 1,
+            "backend_behavior_changed": 0,
+            "source_selfhost_claim": 0,
         },
-        "generator": {
-            "tool": "tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
-            "version": "variable-context-immutable-borrow-derived-artifact-v0",
-        },
-        "inputs": {
+        inputs={
             "facts": {
                 "path": str(FACTS.relative_to(ROOT)),
                 "sha256": sha256_file(FACTS),
@@ -290,20 +295,8 @@ def build_manifest(hako_text: str) -> dict[str, Any]:
                 "sha256": sha256_file(ORACLE),
             },
         },
-        "output": {
-            "hako_path": str(HAKO.relative_to(ROOT)),
-            "hako_sha256": sha256_text(hako_text),
-        },
-        "claims": {
-            "generated_hako_manual_edit": 0,
-            "mainline_selected": 0,
-            "full_variable_context_claim": 0,
-            "rust_bootstrap_retained": 1,
-            "backend_behavior_changed": 0,
-            "source_selfhost_claim": 0,
-        },
-        "excluded_methods": EXCLUDED,
-    }
+        extra_fields={"excluded_methods": EXCLUDED},
+    )
 
 
 def main() -> None:

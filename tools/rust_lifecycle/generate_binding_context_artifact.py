@@ -19,6 +19,7 @@ from extract_binding_context_facts import (
     extract_facts as extract_live_facts,
 )
 from shared_family_generator import (
+    build_rust_derived_hako_manifest,
     read_json,
     sha256_file,
     sha256_text,
@@ -346,42 +347,34 @@ def build_hako() -> str:
 
 
 def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict[str, Any]:
-    return {
-        "schema_version": 0,
-        "kind": "RustDerivedHakoArtifact",
-        "family_id": "hakorune_mir_builder::binding_context",
-        "state": "DerivedShadow",
-        "source": {
-            "rust_files": [
-                {
-                    "path": "crates/hakorune_mir_builder/src/binding_context.rs",
-                    "sha256": sha256_file(ROOT / "crates/hakorune_mir_builder/src/binding_context.rs"),
-                }
-            ]
-        },
-        "generator": {
-            "tool": "tools/rust_lifecycle/generate_binding_context_artifact.py",
-            "version": "binding-context-derived-artifact-v0",
-        },
-        "inputs": {
-            "facts": {"path": str(FACTS.relative_to(ROOT)), "sha256": sha256_file(FACTS)},
-            "plan": {"path": str(PLAN.relative_to(ROOT)), "sha256": sha256_file(PLAN)},
-            "oracle": {"path": str(ORACLE.relative_to(ROOT)), "sha256": sha256_file(ORACLE)},
-            "recipe": {"path": str(RECIPE.relative_to(ROOT)), "sha256": sha256_text(recipe_text)},
-            "verifier": {"path": str(VERIFIER.relative_to(ROOT)), "sha256": sha256_text(verifier_text)},
-        },
-        "output": {
-            "hako_path": str(HAKO.relative_to(ROOT)),
-            "hako_sha256": sha256_text(hako_text),
-        },
-        "claims": {
+    return build_rust_derived_hako_manifest(
+        family_id="hakorune_mir_builder::binding_context",
+        state="DerivedShadow",
+        source_rust_files=[
+            {
+                "path": "crates/hakorune_mir_builder/src/binding_context.rs",
+                "sha256": sha256_file(ROOT / "crates/hakorune_mir_builder/src/binding_context.rs"),
+            }
+        ],
+        generator_tool="tools/rust_lifecycle/generate_binding_context_artifact.py",
+        generator_version="binding-context-derived-artifact-v0",
+        hako_path=str(HAKO.relative_to(ROOT)),
+        hako_sha256=sha256_text(hako_text),
+        claims={
             "generated_hako_manual_edit": 0,
             "mainline_selected": 0,
             "rust_bootstrap_retained": 1,
             "backend_behavior_changed": 0,
             "source_selfhost_claim": 0,
         },
-    }
+        inputs={
+            "facts": {"path": str(FACTS.relative_to(ROOT)), "sha256": sha256_file(FACTS)},
+            "plan": {"path": str(PLAN.relative_to(ROOT)), "sha256": sha256_file(PLAN)},
+            "oracle": {"path": str(ORACLE.relative_to(ROOT)), "sha256": sha256_file(ORACLE)},
+            "recipe": {"path": str(RECIPE.relative_to(ROOT)), "sha256": sha256_text(recipe_text)},
+            "verifier": {"path": str(VERIFIER.relative_to(ROOT)), "sha256": sha256_text(verifier_text)},
+        },
+    )
 
 
 def main() -> None:

@@ -28,9 +28,10 @@ lane status. The current task-order SSOT is
 `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
 BindingContextNative, VariableContextNative simple-map, VariableContext
 snapshot/restore artifact ownership transfer, the shared MirBuilder emitter,
-the shared family generator helper and driver, and the MirBuilder converter
-matrix guard are green. The next implementation task is replacing hard-coded
-family generators behind that matrix, without new route/card churn.
+the shared family generator helper and driver, the shared family manifest
+helper, and the MirBuilder converter matrix guard are green. The next
+implementation task is replacing hard-coded family generators behind that
+matrix, without new route/card churn.
 
 Historical context follows.
 
