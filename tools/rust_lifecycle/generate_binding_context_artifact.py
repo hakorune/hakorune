@@ -19,6 +19,8 @@ from extract_binding_context_facts import (
     extract_facts as extract_live_facts,
 )
 from shared_family_generator import (
+    build_derived_artifact_verifier_result,
+    build_hako_behavior_recipe,
     build_rust_derived_hako_manifest,
     read_json,
     sha256_file,
@@ -26,6 +28,7 @@ from shared_family_generator import (
     run_family_generator,
     rust_manifest_file_entry,
     rust_manifest_inputs,
+    rust_manifest_text_entry,
     stable_json,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
@@ -102,15 +105,13 @@ def validate_inputs(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[st
 
 
 def build_recipe() -> dict[str, Any]:
-    return {
-        "schema_version": 0,
-        "kind": "HakoBehaviorRecipe",
-        "family_id": "hakorune_mir_builder::binding_context",
-        "subject": "hakorune_mir_builder::binding_context::BindingContext",
-        "source_plan": "binding-context-plan-v0.json",
-        "source_oracle": "binding-context-oracle-vectors-v0.json",
-        "selected_body_count": "all_non_test_methods",
-        "methods": [
+    return build_hako_behavior_recipe(
+        family_id="hakorune_mir_builder::binding_context",
+        subject="hakorune_mir_builder::binding_context::BindingContext",
+        source_plan="binding-context-plan-v0.json",
+        source_oracle="binding-context-oracle-vectors-v0.json",
+        selected_body_count="all_non_test_methods",
+        methods=[
             {
                 "id": "BindingContext::new",
                 "rust_operation": "BTreeMap::new",
@@ -160,20 +161,18 @@ def build_recipe() -> dict[str, Any]:
                 "emits": "BindingContextApi.clear_for_function_entry(ctx)",
             },
         ],
-    }
+    )
 
 
 def build_verifier(recipe: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "schema_version": 0,
-        "kind": "DerivedHakoArtifactVerifierResult",
-        "family_id": "hakorune_mir_builder::binding_context",
-        "subject": "hakorune_mir_builder::binding_context::BindingContext",
-        "result": "VerifiedHakoFamilyIR",
-        "source_facts": "binding-context-adapter-facts-v0.json",
-        "source_plan": "binding-context-plan-v0.json",
-        "source_recipe": "binding-context-behavior-recipe-v0.json",
-        "checks": {
+    return build_derived_artifact_verifier_result(
+        family_id="hakorune_mir_builder::binding_context",
+        subject="hakorune_mir_builder::binding_context::BindingContext",
+        source_facts="binding-context-adapter-facts-v0.json",
+        source_plan="binding-context-plan-v0.json",
+        source_oracle="binding-context-oracle-vectors-v0.json",
+        source_recipe="binding-context-behavior-recipe-v0.json",
+        checks={
             "rust_facts_input": "verified",
             "hako_lifecycle_plan": "verified",
             "hako_behavior_recipe": "verified",
@@ -186,18 +185,18 @@ def build_verifier(recipe: dict[str, Any]) -> dict[str, Any]:
             "rust_bootstrap_retained": 1,
             "backend_behavior_changed": 0,
         },
-        "verified_operations": [method["hako_operation"] for method in recipe["methods"]],
-        "transport_notes": {
+        verified_operations=[method["hako_operation"] for method in recipe["methods"]],
+        transport_notes={
             "bool_return_transport": "i64_bool_v0",
             "reason": "pure-first global helper ABI expects scalar i64 returns in this pilot",
         },
-        "denied_boundaries": [
+        denied_boundaries=[
             "selfhost mainline selection",
             "HakoAdopted native source decision",
             "MirBuilder-wide lifecycle parity",
             "runtime try-Hako-then-Rust fallback",
         ],
-    }
+    )
 
 
 def build_hako() -> str:
@@ -376,8 +375,8 @@ def build_manifest(hako_text: str, recipe_text: str, verifier_text: str) -> dict
                 ("oracle", ORACLE),
                 root=ROOT,
             ),
-            "recipe": {"path": str(RECIPE.relative_to(ROOT)), "sha256": sha256_text(recipe_text)},
-            "verifier": {"path": str(VERIFIER.relative_to(ROOT)), "sha256": sha256_text(verifier_text)},
+            "recipe": rust_manifest_text_entry(path=RECIPE, text=recipe_text, root=ROOT),
+            "verifier": rust_manifest_text_entry(path=VERIFIER, text=verifier_text, root=ROOT),
         },
     )
 

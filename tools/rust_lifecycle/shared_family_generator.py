@@ -107,8 +107,77 @@ def build_rust_derived_hako_manifest(
     return manifest
 
 
+def build_hako_behavior_recipe(
+    *,
+    family_id: str,
+    subject: str,
+    source_plan: str,
+    source_oracle: str,
+    selected_body_count: str,
+    methods: list[dict[str, Any]],
+    pilot_scope: str | None = None,
+    excluded_methods: list[str] | None = None,
+) -> dict[str, Any]:
+    recipe: dict[str, Any] = {
+        "schema_version": 0,
+        "kind": "HakoBehaviorRecipe",
+        "family_id": family_id,
+        "subject": subject,
+        "source_plan": source_plan,
+        "source_oracle": source_oracle,
+        "selected_body_count": selected_body_count,
+        "methods": methods,
+    }
+    if pilot_scope is not None:
+        recipe["pilot_scope"] = pilot_scope
+    if excluded_methods is not None:
+        recipe["excluded_methods"] = excluded_methods
+    return recipe
+
+
+def build_derived_artifact_verifier_result(
+    *,
+    family_id: str,
+    subject: str,
+    source_facts: str,
+    source_plan: str,
+    source_oracle: str,
+    source_recipe: str,
+    checks: dict[str, Any],
+    result: str = "VerifiedHakoFamilyIR",
+    pilot_scope: str | None = None,
+    verified_operations: list[str] | None = None,
+    transport_notes: dict[str, Any] | None = None,
+    denied_boundaries: list[str] | None = None,
+) -> dict[str, Any]:
+    verifier: dict[str, Any] = {
+        "schema_version": 0,
+        "kind": "DerivedHakoArtifactVerifierResult",
+        "family_id": family_id,
+        "subject": subject,
+        "result": result,
+        "source_facts": source_facts,
+        "source_plan": source_plan,
+        "source_recipe": source_recipe,
+        "checks": checks,
+    }
+    if pilot_scope is not None:
+        verifier["pilot_scope"] = pilot_scope
+    if verified_operations is not None:
+        verifier["verified_operations"] = verified_operations
+    if transport_notes is not None:
+        verifier["transport_notes"] = transport_notes
+    if denied_boundaries is not None:
+        verifier["denied_boundaries"] = denied_boundaries
+    return verifier
+
+
 def rust_manifest_file_entry(*, path: Path, root: Path) -> dict[str, Any]:
     return {"path": str(path.relative_to(root)), "sha256": sha256_file(path)}
+
+
+def rust_manifest_text_entry(*, path: Path, text: str, root: Path) -> dict[str, Any]:
+    return {"path": str(path.relative_to(root)), "sha256": sha256_text(text)}
 
 
 def rust_manifest_inputs(*entries: tuple[str, Path], root: Path) -> dict[str, Any]:

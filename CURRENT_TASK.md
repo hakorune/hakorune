@@ -89,6 +89,8 @@ Done:
   shared family generator driver
   shared family manifest helper
   shared manifest file-entry helper
+  shared manifest text-entry helper
+  shared recipe / verifier helper
   live lightweight facts converter for BindingContext and VariableContext simple-map
   VariableContext snapshot/restore artifact ownership transfer
   MirBuilder converter matrix guard
