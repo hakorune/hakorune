@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -105,13 +105,15 @@ remains denied by missing implementation readiness.
 documents a readiness gate before backend lowering.
 296x-1457 selects the trim route lowering readiness gate.
 296x-1458 implements the read-only readiness decision without backend lowering.
+296x-1459 selects readiness integration inventory. 296x-1460 inventories the
+boundary/route-lowering seam as the first valid callsite.
 
-The active row is 296x-1459. It selects the next owner after the readiness
-gate.
+The active row is 296x-1461. It selects the next owner after readiness
+integration inventory.
 
 ## Next
 
-1. Read 296x-1459.
+1. Read 296x-1461.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after the trim route lowering readiness gate.
-Do not emit backend trim route lowering before choosing one next owner.
+Select the next lifecycle owner after trim route lowering readiness integration
+inventory. Do not emit backend trim route lowering before choosing one next
+owner.
 ```
 
 Lifecycle converter boundary:
@@ -269,6 +270,7 @@ bash tools/checks/rust_lifecycle_scope_manager_condition_binding_input_guard.sh
 bash tools/checks/rust_lifecycle_trim_route_lowering_proof_update_guard.sh
 bash tools/checks/rust_lifecycle_executable_trim_route_lowering_design_guard.sh
 bash tools/checks/rust_lifecycle_trim_route_lowering_readiness_gate_guard.sh
+bash tools/checks/rust_lifecycle_trim_route_lowering_readiness_integration_inventory_guard.sh
 bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
 cargo check -q --lib
 git diff --check
@@ -277,7 +279,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1459.
+1. Read 296x-1461.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -287,7 +289,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -298,16 +300,16 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1459-POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1461-POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001
+1. POST-TRIM-ROUTE-LOWERING-READINESS-INVENTORY-OWNER-SELECTION-001
 2. choose one of:
-   A. executable trim route lowering pilot
-   B. readiness gate integration inventory
+   A. route-lowering boundary readiness integration probe
+   B. executable trim route lowering pilot
    C. second lifecycle emitter surface
 ```
 

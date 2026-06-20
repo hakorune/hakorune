@@ -1,6 +1,6 @@
 # 296x-1459 POST-TRIM-ROUTE-LOWERING-READINESS-GATE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,27 @@ C. second lifecycle emitter surface
 recommended=B
 reason=readiness gate exists but no callsite has been selected. Inventory the
 exact executable seam before a behavior-changing pilot.
+```
+
+## Decision
+
+```text
+selected_next_task=TRIM-ROUTE-LOWERING-READINESS-INTEGRATION-INVENTORY-001
+selected_scope=inventory only; no lowering code
+selected_reason=readiness gate exists as a pure decision. Before a behavior
+changing pilot, the integration seam must identify where trim metadata,
+condition bindings, and carrier info coexist.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+executable trim route lowering pilot:
+  parked until the integration seam is inventoried.
+
+second lifecycle emitter surface:
+  parked until active trim route lane reaches a concrete integration decision.
 ```
 
 ## Acceptance
