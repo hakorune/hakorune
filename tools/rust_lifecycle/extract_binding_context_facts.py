@@ -9,10 +9,17 @@ no .hako source, no backend behavior, and no VariableContext facts.
 from __future__ import annotations
 
 import argparse
-import json
-import re
 from pathlib import Path
 from typing import Any
+
+from context_fact_extraction import (
+    extract_btree_map_type,
+    extract_method_signatures,
+    immediate_return,
+    receiver_fact,
+    report_or_emit,
+    require,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,66 +31,6 @@ REFERENCE = (
 )
 
 SUBJECT = "hakorune_mir_builder::binding_context::BindingContext"
-
-
-class ExtractionError(AssertionError):
-    pass
-
-
-def require(condition: bool, message: str) -> None:
-    if not condition:
-        raise ExtractionError(message)
-
-
-def normalized_rust_type(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip())
-
-
-def extract_binding_map_type(source: str) -> str:
-    match = re.search(
-        r"binding_map\s*:\s*(?P<ty>BTreeMap\s*<\s*String\s*,\s*BindingId\s*>)",
-        source,
-    )
-    require(match is not None, "missing BindingContext.binding_map BTreeMap field")
-    return normalized_rust_type(match.group("ty")).replace(" <", "<").replace(" >", ">")
-
-
-def extract_method_signatures(source: str) -> dict[str, dict[str, Any]]:
-    pattern = re.compile(
-        r"pub\s+fn\s+(?P<name>\w+)\s*"
-        r"\((?P<params>[^)]*)\)\s*"
-        r"(?:->\s*(?P<ret>[^{]+))?\{",
-        re.MULTILINE,
-    )
-    methods: dict[str, dict[str, Any]] = {}
-    for match in pattern.finditer(source):
-        name = match.group("name")
-        if name == "new":
-            continue
-        params = normalized_rust_type(match.group("params"))
-        ret = normalized_rust_type(match.group("ret") or "")
-        methods[name] = {"params": params, "ret": ret}
-    return methods
-
-
-def receiver_fact(params: str) -> dict[str, Any]:
-    if params.startswith("&mut self"):
-        return {
-            "borrow_kind": "UniqueWrite",
-            "borrow_escape": "CallOnly",
-            "mutation": True,
-        }
-    if params.startswith("&self"):
-        return {
-            "borrow_kind": "SharedRead",
-            "borrow_escape": "CallOnly",
-            "mutation": False,
-        }
-    raise ExtractionError(f"unsupported receiver params: {params}")
-
-
-def immediate_return() -> dict[str, str]:
-    return {"copy_class": "ImmediateValue", "drop_class": "TrivialMemory"}
 
 
 def build_method_fact(name: str, signature: dict[str, Any]) -> dict[str, Any]:
@@ -112,8 +59,12 @@ def extract_facts(source_path: Path) -> dict[str, Any]:
     require("use std::collections::BTreeMap;" in source, "missing BTreeMap import")
     require("impl Drop for BindingContext" not in source, "observable Drop detected")
 
-    binding_map_type = extract_binding_map_type(source)
-    methods = extract_method_signatures(source)
+    binding_map_type = extract_btree_map_type(source, "binding_map", "BindingId")
+    methods = {
+        name: sig
+        for name, sig in extract_method_signatures(source).items()
+        if name != "new"
+    }
     expected_methods = [
         "is_empty",
         "len",
@@ -188,21 +139,6 @@ def extract_facts(source_path: Path) -> dict[str, Any]:
         },
     }
 
-
-def assert_no_hako_policy_spelling(facts: dict[str, Any]) -> None:
-    text = json.dumps(facts, sort_keys=True)
-    for forbidden in [
-        "OrderedMapBox",
-        "BorrowView",
-        "TransferOwned",
-        "LocalBox",
-        "HakoLifecyclePlan",
-        ".hako source",
-        "backend lowering",
-    ]:
-        require(forbidden not in text, f"Hako policy spelling leaked: {forbidden}")
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=Path, default=SOURCE)
@@ -211,26 +147,22 @@ def main() -> int:
     parser.add_argument("--check-reference", action="store_true")
     args = parser.parse_args()
 
-    facts = extract_facts(args.source)
-    assert_no_hako_policy_spelling(facts)
-
-    if args.check_reference:
-        reference = json.loads(args.reference.read_text())
-        require(facts == reference, "extracted facts differ from reference fixture")
-
-    if args.emit_json:
-        print(json.dumps(facts, indent=2))
-    else:
-        print("output_contract=rustc-semir-binding-context-facts-extraction-v0")
-        print("binding_context_facts_extraction_green=1")
-        print("output_kind=RustLifecycleAdapterFacts")
-        print("subject=BindingContext")
-        print("target_neutral_adapter=1")
-        print("hako_policy_owner=0")
-        print("variable_context_facts_generated=0")
-        print("backend_behavior_changed=0")
-        print("summary=ok")
-    return 0
+    return report_or_emit(
+        facts=extract_facts(args.source),
+        reference=args.reference,
+        check_reference=args.check_reference,
+        emit_json=args.emit_json,
+        report=[
+            ("output_contract", "rustc-semir-binding-context-facts-extraction-v0"),
+            ("binding_context_facts_extraction_green", "1"),
+            ("output_kind", "RustLifecycleAdapterFacts"),
+            ("subject", "BindingContext"),
+            ("target_neutral_adapter", "1"),
+            ("hako_policy_owner", "0"),
+            ("variable_context_facts_generated", "0"),
+            ("backend_behavior_changed", "0"),
+        ],
+    )
 
 
 if __name__ == "__main__":
