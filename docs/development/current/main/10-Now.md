@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -90,15 +90,17 @@ materializes that bundle and guards it through generated-skeleton MIR emit plus
 wrapper EXE parity. 296x-1374 selects the remaining `hakorune_mir_builder`
 crate-root module as the next small materialization row. 296x-1375 materializes
 that crate-root bundle and guards it through generated-skeleton MIR emit plus
-wrapper EXE parity. The active row is 296x-1376.
+wrapper EXE parity. 296x-1376 selects A2-lite crate-bundle aggregation for the
+7 materialized `hakorune_mir_builder` modules. The active row is 296x-1377.
 
 ## Next
 
-1. Read 296x-1376.
-2. Recheck that all 7 `hakorune_mir_builder` modules are materialized.
-3. Select the next app-front task before implementation.
-4. Keep generated-program execution claim at 0.
-5. Run:
+1. Read 296x-1377.
+2. Add a thin reusable crate-bundle FileBox route helper.
+3. Check in the real 7-module `hakorune_mir_builder` crate-mode bundle.
+4. Add one wrapper and smoke entries.
+5. Keep use/name resolution and generated-program execution claim disabled.
+6. Run:
 
 ```bash
 cargo check -q --lib
@@ -106,7 +108,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-6. Update current pointers when the selection row closes.
+7. Update current pointers when the aggregation row closes.
 
 ## Recently Closed
 

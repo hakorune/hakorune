@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
 ```
 
 Purpose:
 
 ```text
-Select the next rust-subset-to-hako app-front task after
-`hakorune_mir_builder` crate-root materialization was closed.
+Aggregate the 7 materialized `hakorune_mir_builder` modules through one
+manifest-driven crate-bundle Hako FileBox route.
 ```
 
 Current evidence:
@@ -120,6 +120,7 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-016 is closed by 296x-1372.
 HAKORUNE-MIR-BUILDER-METADATA-CONTEXT-MATERIALIZATION-001 is closed by 296x-1373.
 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-017 is closed by 296x-1374.
 HAKORUNE-MIR-BUILDER-CRATE-ROOT-MATERIALIZATION-001 is closed by 296x-1375.
+RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018 is closed by 296x-1376.
 ```
 
 Acceptance for the current slice:
@@ -132,19 +133,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1376.
-2. Recheck that all 7 `hakorune_mir_builder` modules are now materialized.
-3. Select the next aggregation, source-shape, or crate pilot row.
-4. Keep generated-program execution claim at 0.
+1. Read 296x-1377.
+2. Add a thin reusable crate-bundle FileBox route helper.
+3. Check in the real 7-module `hakorune_mir_builder` crate-mode bundle.
+4. Add one wrapper and smoke entries for bundle parity and aggregate MIR emit.
+5. Keep use/name resolution and generated-program execution claim disabled.
 
 Recommended next row:
 
 ```text
-RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
 ```
 
-296x-1375 materialized the remaining `hakorune_mir_builder` crate-root module.
-296x-1376 selects the next app-front task before implementation.
+296x-1376 selected A2-lite crate-bundle aggregation because all 7
+`hakorune_mir_builder` modules are materialized and the next milestone is
+crate-level transport evidence without use/name resolution.
 
 ## Pointers
 

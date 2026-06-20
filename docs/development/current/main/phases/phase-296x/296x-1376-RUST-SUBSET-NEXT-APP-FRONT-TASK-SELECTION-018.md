@@ -1,6 +1,6 @@
 # 296x-1376 RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -55,6 +55,40 @@ candidate_A=hakorune_mir_builder crate/module bundle aggregation
 candidate_B=next crate pilot inventory after builder coverage
 candidate_C=closure unsupported handoff hardening for remaining source-shape coverage
 candidate_D=return to broader MirBuilder migration support task
+```
+
+## Selection Result
+
+```text
+selected_next_task=HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
+selected_scope=generate and check in one real 7-module hakorune_mir_builder crate-mode bundle, then consume it through one manifest-driven reusable Hako FileBox route in deterministic manifest order
+selected_reason=all 7 modules are independently materialized; aggregation closes the current crate-coverage milestone without enabling name/use resolution, while avoiding another hand-unrolled wrapper
+implementation_shape=A2-lite manifest-driven reusable file-route helper
+implementation_allowed=0
+next_card_name=296x-1377-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
+summary=ok
+```
+
+## Rationale
+
+`hakorune_mir_builder` now has checked-in focused evidence for every module:
+
+```text
+7 single-module fixtures = focused regression evidence
+1 aggregate crate bundle = crate-level transport evidence
+```
+
+The next row should not hand-unroll another 7-module wrapper. It should add a
+thin reusable crate-bundle FileBox route helper and one wrapper that reads the
+real crate-mode manifest in manifest order.
+
+Do not treat aggregate skeleton MIR emit as a general namespace/linking claim.
+It is fixture-only evidence for this crate bundle.
+
+After aggregation, the intended next lane is MirBuilder migration support:
+
+```text
+next_after_aggregation=Hako MirBuilder authority migration support
 ```
 
 ## Selection Rules
