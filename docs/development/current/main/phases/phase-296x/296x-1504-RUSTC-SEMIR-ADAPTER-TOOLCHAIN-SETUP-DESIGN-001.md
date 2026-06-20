@@ -118,6 +118,7 @@ bash tools/checks/current_state_pointer_guard.sh
 ```text
 supported_toolchain_route=pinned_date_nightly
 required_component=rustc-dev
+link_support_component=llvm-tools-preview
 toolchain_file_owner=adapter_subworkspace
 formal_readiness=compile_link_run_probe
 

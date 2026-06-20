@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-RUSTC-SEMIR-ADAPTER-PINNED-NIGHTLY-PREFLIGHT-001
+RUSTC-SEMIR-ADAPTER-HIR-ITEM-PROVENANCE-INVENTORY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -125,8 +125,10 @@ preflight. Local stable toolchain reports
 toolchain setup / override design before HIR inventory. 296x-1504 selects
 pinned-date nightly plus rustc-dev and compile/link/run proof as the formal
 standalone adapter route; `RUSTC_BOOTSTRAP` is diagnostic_untrusted only.
-296x-1505 is the current implementation row: add the pinned-nightly preflight
-guard without extracting HIR / THIR / MIR or adding product rustc_private deps.
+296x-1505 implements the adapter-local pinned nightly preflight and verifies
+`rustc_driver` compile/link/run without facts or backend changes. 296x-1506
+is the current implementation row: add HIR item/provenance inventory only,
+without extracting THIR/MIR or lifecycle facts.
 
 296x-1466 inventories the first BindingContext / VariableContext fact
 requirements and keeps the adapter policy-free.

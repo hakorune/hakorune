@@ -1,6 +1,6 @@
 # 296x-1505 RUSTC-SEMIR-ADAPTER-PINNED-NIGHTLY-PREFLIGHT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -54,6 +54,7 @@ rustc_commit_hash_reported=1
 rustc_sysroot_reported=1
 
 rustc_dev_component_installed=1
+llvm_tools_component_installed=1
 rustc_private_probe_compiled=1
 rustc_private_probe_linked=1
 rustc_private_probe_executed=1
@@ -79,6 +80,55 @@ Checks:
 bash tools/checks/rustc_semir_adapter_pinned_nightly_preflight_guard.sh
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Implementation
+
+```text
+toolchain_file=tools/rust_lifecycle/rustc_semir_adapter/rust-toolchain.toml
+channel=nightly-2026-06-20
+components=rustc-dev,llvm-tools-preview
+feature=rustc-private
+probe_command=--rustc-private-probe
+guard=tools/checks/rustc_semir_adapter_pinned_nightly_preflight_guard.sh
+```
+
+`llvm-tools-preview` is included because the first real
+`rustc_driver` link probe failed without the LLVM runtime library. This keeps
+the formal readiness proof at compile / link / run level instead of accepting
+a version-string-only readiness claim.
+
+## Closeout
+
+```text
+pinned_nightly_route_documented=1
+adapter_local_toolchain_file=1
+moving_nightly_alias_used=0
+pinned_toolchain_active=1
+rustc_release_reported=1
+rustc_commit_hash_reported=1
+rustc_sysroot_reported=1
+rustc_dev_component_installed=1
+llvm_tools_component_installed=1
+rustc_private_probe_compiled=1
+rustc_private_probe_linked=1
+rustc_private_probe_executed=1
+rustc_private_readiness=verified
+canonical_bootstrap_override=0
+bootstrap_facts_accepted=0
+product_crates_rustc_private_dependency=0
+root_product_toolchain_changed=0
+facts_generated=0
+hako_plan_emitted=0
+hako_source_emitted=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Next:
+
+```text
+RUSTC-SEMIR-ADAPTER-HIR-ITEM-PROVENANCE-INVENTORY-001
 ```
 
 ## Stop Line

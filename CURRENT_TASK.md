@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RUSTC-SEMIR-ADAPTER-PINNED-NIGHTLY-PREFLIGHT-001
+RUSTC-SEMIR-ADAPTER-HIR-ITEM-PROVENANCE-INVENTORY-001
 ```
 
 Purpose:
 
 ```text
-Implement the pinned-date-nightly rustc-dev compile/link/run preflight for the
-standalone rustc semantic adapter. Do not extract lifecycle facts in this row.
+Add the first HIR item/provenance inventory for the standalone rustc semantic
+adapter. Do not extract THIR/MIR or lifecycle facts in this row.
 ```
 
 Lifecycle converter boundary:
