@@ -100,7 +100,10 @@ wrapper EXE parity. 296x-1376 selects A2-lite crate-bundle aggregation for the
 3. Check in the real 7-module `hakorune_mir_builder` crate-mode bundle.
 4. Add one wrapper and smoke entries.
 5. Keep use/name resolution and generated-program execution claim disabled.
-6. Run:
+6. After 296x-1377, use
+   `docs/development/current/main/design/rust-lifecycle-projection-ssot.md`
+   as the planned lifecycle-projection design follow-up.
+7. Run:
 
 ```bash
 cargo check -q --lib
@@ -108,7 +111,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-7. Update current pointers when the aggregation row closes.
+8. Update current pointers when the aggregation row closes.
 
 ## Recently Closed
 

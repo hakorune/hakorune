@@ -149,6 +149,18 @@ HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001
 `hakorune_mir_builder` modules are materialized and the next milestone is
 crate-level transport evidence without use/name resolution.
 
+After 296x-1377 closes, the planned design follow-up is:
+
+```text
+RUST-LIFECYCLE-PROJECTION-SSOT-001
+```
+
+SSOT draft:
+
+```text
+docs/development/current/main/design/rust-lifecycle-projection-ssot.md
+```
+
 ## Pointers
 
 - Current state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
