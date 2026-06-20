@@ -1,0 +1,346 @@
+#!/usr/bin/env python3
+"""Generate the focused VariableContext immutable BorrowView Hako artifact.
+
+This 1522 pilot is narrower than full VariableContext. It emits only the
+read-only owner-carrying BorrowView surface for VariableContext::variable_map
+and keeps returned mutable borrow, snapshot/restore, and carrier-sensitive
+behavior excluded.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+
+ROOT = Path(__file__).resolve().parents[2]
+FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
+OUT_DIR = ROOT / "lang/generated/rust_derived/hakorune_mir_builder"
+
+FACTS = FIXTURES / "variable-context-immutable-borrow-facts-v0.json"
+PLAN = FIXTURES / "variable-context-immutable-borrow-plan-v0.json"
+ORACLE = FIXTURES / "variable-context-immutable-borrow-oracle-vectors-v0.json"
+HAKO = OUT_DIR / "variable_context_immutable_borrow.hako"
+MANIFEST = OUT_DIR / "variable_context_immutable_borrow.artifact.json"
+
+SUBJECT = "hakorune_mir_builder::variable_context::VariableContext.immutable_map_borrow"
+FAMILY_ID = "hakorune_mir_builder::variable_context"
+SCOPE = "VariableContext_immutable_borrow_only"
+METHOD = "VariableContext::variable_map"
+EXCLUDED = [
+    "VariableContext::variable_map_mut",
+    "VariableContext::snapshot",
+    "VariableContext::restore",
+]
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text())
+
+
+def stable_json(data: dict[str, Any]) -> str:
+    return json.dumps(data, indent=2, sort_keys=True) + "\n"
+
+
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate_inputs(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
+    if facts.get("kind") != "RustLifecycleFacts":
+        raise SystemExit("unexpected facts kind")
+    if plan.get("kind") != "HakoLifecyclePlan":
+        raise SystemExit("unexpected plan kind")
+    if oracle.get("kind") != "RustOracleVectors":
+        raise SystemExit("unexpected oracle kind")
+    if facts.get("subject") != SUBJECT or plan.get("subject") != SUBJECT or oracle.get("subject") != SUBJECT:
+        raise SystemExit("subject mismatch")
+
+    if facts.get("base_facts") != "variable-context-simple-map-facts-v0.json":
+        raise SystemExit("unexpected base facts")
+
+    method_facts = facts.get("method_facts", [])
+    if len(method_facts) != 1:
+        raise SystemExit("expected one immutable borrow method fact")
+
+    method = method_facts[0]
+    if method.get("id") != METHOD:
+        raise SystemExit("unexpected method fact id")
+    borrow = method.get("receiver_borrow", {})
+    if borrow.get("kind") != "SharedRead":
+        raise SystemExit("expected SharedRead borrow")
+    if borrow.get("scope") != "ReturnedBorrow":
+        raise SystemExit("expected ReturnedBorrow scope")
+    if borrow.get("escapes") is not False:
+        raise SystemExit("borrow escape must be denied")
+    if borrow.get("owner_carrying_required") is not True:
+        raise SystemExit("owner-carrying borrow required")
+
+    returns = method.get("returns", {})
+    if returns.get("borrow_view") != "OwnerCarryingBorrowView":
+        raise SystemExit("unexpected borrow_view spelling")
+    if returns.get("access") != "read":
+        raise SystemExit("unexpected borrow access")
+
+    denied = {row["id"]: row for row in facts.get("denied_methods", [])}
+    for name, reason in {
+        "VariableContext::variable_map_mut": "ReturnedMutableBorrow",
+        "VariableContext::snapshot": "SnapshotOwnedMapOutOfScope",
+        "VariableContext::restore": "ReplaceOwnedOutOfScope",
+    }.items():
+        if denied.get(name, {}).get("deny_reason") != reason:
+            raise SystemExit(f"missing denied method fact: {name}")
+
+    excluded_consumers = {row["id"] for row in facts.get("excluded_consumers", [])}
+    for name in ["CarrierInfo::from_variable_map", "CarrierInfo::with_explicit_carriers"]:
+        if name not in excluded_consumers:
+            raise SystemExit(f"missing excluded consumer: {name}")
+
+    plans = {row["id"]: row for row in plan.get("plans", [])}
+    borrow_plan = plans.get(METHOD)
+    if borrow_plan is None:
+        raise SystemExit("missing borrow plan")
+    if borrow_plan.get("plan_kind") != "BorrowView":
+        raise SystemExit("borrow plan kind must be BorrowView")
+    if borrow_plan.get("access") != "read":
+        raise SystemExit("borrow plan access must be read")
+    if borrow_plan.get("owner_carrying") is not True:
+        raise SystemExit("borrow plan must be owner_carrying")
+    if borrow_plan.get("escape_policy") != "deny_if_escapes":
+        raise SystemExit("borrow plan must deny escape")
+    if borrow_plan.get("return_alias_policy") != "owner_carrying_view_only":
+        raise SystemExit("borrow plan return alias policy mismatch")
+
+    required = set(borrow_plan.get("required_facts", []))
+    for fact in [
+        "receiver_borrow.kind=SharedRead",
+        "receiver_borrow.scope=ReturnedBorrow",
+        "receiver_borrow.escapes=false",
+        "receiver_borrow.owner_carrying_required=true",
+    ]:
+        if fact not in required:
+            raise SystemExit(f"missing required fact: {fact}")
+
+    denied_plan = set(plan.get("denied", []))
+    for name in EXCLUDED + ["CarrierInfo::from_variable_map", "CarrierInfo::with_explicit_carriers", "PHI planner integration"]:
+        if name not in denied_plan:
+            raise SystemExit(f"missing denied plan boundary: {name}")
+
+    behavior = plan.get("behavior", {})
+    if behavior.get("general_resolver_implemented") is not False:
+        raise SystemExit("general resolver must remain disabled")
+    if behavior.get("converter_emission_added") is not False:
+        raise SystemExit("converter emission must remain disabled")
+    if behavior.get("rust_lifetime_syntax_added") is not False:
+        raise SystemExit("rust lifetime syntax must remain disabled")
+    if behavior.get("carrier_phi_claim") is not False:
+        raise SystemExit("carrier PHI claim must remain false")
+    if behavior.get("full_variable_context_claim") is not False:
+        raise SystemExit("full VariableContext claim must remain false")
+
+    oracle_vectors = oracle.get("vectors", [])
+    if not any(
+        op.get("op") == "borrow_view" and op.get("method") in {"variable_map", METHOD}
+        for vector in oracle_vectors
+        for op in vector.get("operations", [])
+    ):
+        raise SystemExit("missing borrow_view oracle op")
+    if not any(op.get("op") == "borrow_get" for vector in oracle_vectors for op in vector.get("operations", [])):
+        raise SystemExit("missing borrow_get oracle op")
+    if not any(op.get("op") == "borrow_len" for vector in oracle_vectors for op in vector.get("operations", [])):
+        raise SystemExit("missing borrow_len oracle op")
+    if not any(op.get("op") == "borrow_iteration_order" for vector in oracle_vectors for op in vector.get("operations", [])):
+        raise SystemExit("missing borrow_iteration_order oracle op")
+
+    denied_vectors = set(oracle.get("denied_vectors", []))
+    for name in ["variable_map_mut_returned_borrow", "snapshot", "restore", "carrier_extraction", "phi_planner_integration"]:
+        if name not in denied_vectors:
+            raise SystemExit(f"missing denied oracle vector: {name}")
+
+    scope = oracle.get("promotion_scope", {})
+    if scope.get("hako_authority") != "VariableContext immutable map borrow only":
+        raise SystemExit("unexpected oracle promotion scope")
+    if scope.get("carrier_phi_claim") is not False:
+        raise SystemExit("oracle carrier phi claim must be false")
+    if scope.get("full_variable_context_claim") is not False:
+        raise SystemExit("oracle full variable context claim must be false")
+    if scope.get("mirbuilder_wide_claim") is not False:
+        raise SystemExit("oracle mirbuilder-wide claim must be false")
+
+
+def build_hako() -> str:
+    return """// @generated by tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py
+// artifact-manifest: lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json
+// family: hakorune_mir_builder::variable_context
+// pilot-scope: VariableContext_immutable_borrow_only
+// manual-edit: forbidden
+
+using apps.lib.collections.ordered_map as OrderedMap
+
+box VariableContext {
+    variable_map: OrderedMapBox
+
+    birth() {
+        me.variable_map = OrderedMap.create()
+    }
+}
+
+static box VariableContextApi {
+    variable_map(ctx) {
+        return ctx.variable_map
+    }
+}
+
+static box VariableMapViewApi {
+    is_empty(view): i64 {
+        if view.length() == 0 {
+            return 1
+        }
+        return 0
+    }
+
+    len(view): i64 {
+        return view.length()
+    }
+
+    contains(view, name): i64 {
+        if view.has(name) == true {
+            return 1
+        }
+        return 0
+    }
+
+    lookup(view, name) {
+        return view.get(name)
+    }
+}
+
+static box Main {
+    main() {
+        local ctx = new VariableContext()
+        local view = VariableContextApi.variable_map(ctx)
+        if VariableMapViewApi.is_empty(view) != 1 {
+            print("variable_context_borrow_view_empty=fail")
+            return 1
+        }
+        if VariableMapViewApi.len(view) != 0 {
+            print("variable_context_borrow_view_len=fail")
+            return 2
+        }
+        if VariableMapViewApi.contains(view, "x") != 0 {
+            print("variable_context_borrow_view_contains=fail")
+            return 3
+        }
+        if VariableMapViewApi.lookup(view, "x") != null {
+            print("variable_context_borrow_view_lookup=fail")
+            return 4
+        }
+
+        print("variable_context_immutable_borrow_derived_artifact=ok")
+        return 0
+    }
+}
+"""
+
+
+def build_manifest(hako_text: str) -> dict[str, Any]:
+    return {
+        "schema_version": 0,
+        "kind": "RustDerivedHakoArtifact",
+        "family_id": FAMILY_ID,
+        "pilot_scope": SCOPE,
+        "state": "DerivedShadow",
+        "source": {
+            "rust_files": [
+                {
+                    "path": "crates/hakorune_mir_builder/src/variable_context.rs",
+                    "sha256": sha256_file(ROOT / "crates/hakorune_mir_builder/src/variable_context.rs"),
+                }
+            ]
+        },
+        "generator": {
+            "tool": "tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
+            "version": "variable-context-immutable-borrow-derived-artifact-v0",
+        },
+        "inputs": {
+            "facts": {
+                "path": str(FACTS.relative_to(ROOT)),
+                "sha256": sha256_file(FACTS),
+            },
+            "plan": {
+                "path": str(PLAN.relative_to(ROOT)),
+                "sha256": sha256_file(PLAN),
+            },
+            "oracle": {
+                "path": str(ORACLE.relative_to(ROOT)),
+                "sha256": sha256_file(ORACLE),
+            },
+        },
+        "output": {
+            "hako_path": str(HAKO.relative_to(ROOT)),
+            "hako_sha256": sha256_text(hako_text),
+        },
+        "claims": {
+            "generated_hako_manual_edit": 0,
+            "mainline_selected": 0,
+            "full_variable_context_claim": 0,
+            "rust_bootstrap_retained": 1,
+            "backend_behavior_changed": 0,
+            "source_selfhost_claim": 0,
+        },
+        "excluded_methods": EXCLUDED,
+    }
+
+
+def write_if_changed(path: Path, text: str) -> bool:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    old = path.read_text() if path.exists() else None
+    if old == text:
+        return False
+    path.write_text(text)
+    return True
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true", help="fail if generated files differ")
+    args = parser.parse_args()
+
+    facts = read_json(FACTS)
+    plan = read_json(PLAN)
+    oracle = read_json(ORACLE)
+    validate_inputs(facts, plan, oracle)
+
+    hako_text = build_hako()
+    manifest_text = stable_json(build_manifest(hako_text))
+
+    outputs = [
+        (HAKO, hako_text),
+        (MANIFEST, manifest_text),
+    ]
+
+    changed = []
+    for path, text in outputs:
+        if args.check:
+            if not path.exists() or path.read_text() != text:
+                changed.append(str(path.relative_to(ROOT)))
+        elif write_if_changed(path, text):
+            changed.append(str(path.relative_to(ROOT)))
+
+    if changed:
+        if args.check:
+            raise SystemExit("generated files differ: " + ", ".join(changed))
+        print("updated=" + ",".join(changed))
+    else:
+        print("generated_variable_context_immutable_borrow_artifact=unchanged")
+
+
+if __name__ == "__main__":
+    main()

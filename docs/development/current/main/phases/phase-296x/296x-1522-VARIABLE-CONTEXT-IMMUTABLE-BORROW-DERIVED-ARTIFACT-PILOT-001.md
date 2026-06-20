@@ -1,6 +1,6 @@
 # 296x-1522 VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -155,4 +155,53 @@ backend_behavior_changed=0
 
 ```text
 296x-1523-VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ROUTE-SELECTION-001
+```
+
+## Closeout
+
+```text
+output_contract=rust-lifecycle-variable-context-immutable-borrow-derived-artifact-v0
+family_id=hakorune_mir_builder::variable_context
+pilot_scope=VariableContext_immutable_borrow_only
+generated_hako_checked_in=1
+artifact_manifest_checked_in=1
+deterministic_regeneration=green
+generated_hako_parse=green
+generated_hako_mir_emit=green
+route_selected=0
+full_variable_context_claim=0
+variable_map_mut_generated=0
+snapshot_restore_generated=0
+carrier_behavior_generated=0
+rust_bootstrap_retained=1
+runtime_try_hako_then_rust_fallback=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Evidence:
+
+```text
+tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py
+tools/checks/rust_lifecycle_variable_context_immutable_borrow_derived_artifact_guard.sh
+lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.hako
+lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json
+```
+
+Boundary:
+
+```text
+This closes only the immutable BorrowView artifact pilot. It does not select
+the route, does not update family_routes.json, and does not claim full
+VariableContext or carrier-sensitive behavior.
+```
+
+## Stop Line
+
+```text
+do_not_select_route_in_same_row=1
+do_not_add_variable_map_mut_snapshot_restore_or_carrier_behavior=1
+do_not_delete_or_disable_Rust_bootstrap=1
+do_not_claim_Source_Selfhost=1
+do_not_add_runtime_fallback=1
 ```

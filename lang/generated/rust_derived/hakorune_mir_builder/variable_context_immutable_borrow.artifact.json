@@ -1,0 +1,50 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_variable_context_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [
+    "VariableContext::variable_map_mut",
+    "VariableContext::snapshot",
+    "VariableContext::restore"
+  ],
+  "family_id": "hakorune_mir_builder::variable_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
+    "version": "variable-context-immutable-borrow-derived-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-immutable-borrow-facts-v0.json",
+      "sha256": "a0a69e0346175175f0e98dbd84302f3b79fdc45c45f6939db6e5f7539535cba5"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-immutable-borrow-oracle-vectors-v0.json",
+      "sha256": "d2e3d98034ba245256dc5f99464cff4985ca680ec5d985ddccac6c1ae41fb882"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-immutable-borrow-plan-v0.json",
+      "sha256": "dc2e542266a0337cc8734d89532c347f471655273aaab117432e2b426203ee99"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.hako",
+    "hako_sha256": "77d7010bb2aad851b39df5c1b579ab3950d216663100a69aad5cf589282b4e94"
+  },
+  "pilot_scope": "VariableContext_immutable_borrow_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/variable_context.rs",
+        "sha256": "16c005b2e722539c40ebd8a14a955efae9c50e0426031bc87759a9de7ddf8123"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}
