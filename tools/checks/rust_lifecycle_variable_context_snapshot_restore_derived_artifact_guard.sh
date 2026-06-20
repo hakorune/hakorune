@@ -57,7 +57,7 @@ assert "variable_map_mut" not in hako
 assert "CarrierInfo" not in hako
 PY
 
-./target/release/hakorune --emit-mir-json "$ARTIFACT" >/tmp/hako_variable_context_snapshot_restore_artifact.mir.log 2>&1
+./target/release/hakorune --emit-mir-json /tmp/hako_variable_context_snapshot_restore_artifact.mir.json "$ARTIFACT" >/tmp/hako_variable_context_snapshot_restore_artifact.mir.log 2>&1
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-variable-context-snapshot-restore-derived-artifact-v0

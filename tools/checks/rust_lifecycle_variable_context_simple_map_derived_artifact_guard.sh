@@ -57,7 +57,7 @@ for method in [
     assert method in excluded
 PY
 
-./target/release/hakorune --emit-mir-json "$ARTIFACT" >/tmp/hako_variable_context_simple_map_artifact.mir.log 2>&1
+./target/release/hakorune --emit-mir-json /tmp/hako_variable_context_simple_map_artifact.mir.json "$ARTIFACT" >/tmp/hako_variable_context_simple_map_artifact.mir.log 2>&1
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-variable-context-simple-map-derived-artifact-v0

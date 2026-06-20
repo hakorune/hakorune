@@ -60,7 +60,7 @@ PY
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
 rm -f tmp/nyash_cli_emit.json
 
-./target/release/hakorune --emit-mir-json "$ARTIFACT" >/tmp/hako_binding_context_derived_artifact.mir.log 2>&1
+./target/release/hakorune --emit-mir-json /tmp/hako_binding_context_derived_artifact.mir.json "$ARTIFACT" >/tmp/hako_binding_context_derived_artifact.mir.log 2>&1
 ./target/release/hakorune --emit-exe "$EXE" "$ARTIFACT" >/tmp/hako_binding_context_derived_artifact.build.log 2>&1
 "$EXE" >"$RAW" 2>/tmp/hako_binding_context_derived_artifact.err
 sed '/^Result: /d' "$RAW" >"$OUT"
