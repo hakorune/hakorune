@@ -1,0 +1,47 @@
+using apps.lib.collections.ordered_map as OrderedMap
+
+box BindingContext {
+    binding_map: OrderedMapBox
+
+    birth() {
+        me.binding_map = OrderedMap.create()
+    }
+}
+
+static box BindingContextApi {
+    is_empty(ctx): i64 {
+        if ctx.binding_map.length() == 0 {
+            return 1
+        }
+        return 0
+    }
+
+    len(ctx): i64 {
+        return ctx.binding_map.length()
+    }
+
+    contains(ctx, name): i64 {
+        if ctx.binding_map.has(name) == true {
+            return 1
+        }
+        return 0
+    }
+
+    lookup(ctx, name) {
+        return ctx.binding_map.get(name)
+    }
+
+    insert(ctx, name, binding_id): i64 {
+        ctx.binding_map.set(name, binding_id)
+        return 0
+    }
+
+    remove(ctx, name) {
+        return ctx.binding_map.remove(name)
+    }
+
+    clear_for_function_entry(ctx): i64 {
+        ctx.binding_map.clear()
+        return 0
+    }
+}
