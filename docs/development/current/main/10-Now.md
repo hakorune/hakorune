@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001
+POST-CARRIER-PHI-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -31,14 +31,14 @@ selected immutable `variable_map()` BorrowView as the next owner. 296x-1396
 closed that BorrowView probe with fixture and guard parity. 296x-1398 closed
 snapshot/restore ownership with CloneOwnedMap and ReplaceOwned fixtures.
 296x-1400 closed `variable_map_mut()` as Deny(ReturnedMutableBorrow) with no
-external Rust callsites.
+external Rust callsites. 296x-1402 inventoried carrier-sensitive map reads.
 
-The active row is 296x-1401. It selects the next lifecycle owner after
-mutable-map Deny closeout.
+The active row is 296x-1403. It selects the next lifecycle owner after
+VariableContext carrier/PHI inventory.
 
 ## Next
 
-1. Read 296x-1401.
+1. Read 296x-1403.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

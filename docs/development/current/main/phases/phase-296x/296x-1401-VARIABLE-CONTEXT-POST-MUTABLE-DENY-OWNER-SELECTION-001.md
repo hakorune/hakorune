@@ -1,6 +1,6 @@
 # 296x-1401 VARIABLE-CONTEXT-POST-MUTABLE-DENY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -44,6 +44,45 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected_owner=A
+selected_next_task=VARIABLE-CONTEXT-CARRIER-PHI-LIFECYCLE-INVENTORY-001
+implementation_started=0
+```
+
+Reason:
+
+```text
+BindingContext and VariableContext local map/borrow/clone/replace boundaries
+are now fixture-guarded. Before a general lifecycle resolver can consume them,
+carrier-sensitive reads from variable_map must be named so resolver scope does
+not silently absorb JoinIR/PHI behavior.
+```
+
+Selected scope:
+
+```text
+inventory CarrierInfo::from_variable_map
+inventory CarrierInfo::with_explicit_carriers
+inventory region observer slot classification
+document why carrier/PHI remains implementation-disabled
+```
+
+Non-selected owner:
+
+```text
+B HakoLifecycleResolver read-only skeleton:
+  parked until carrier-sensitive map reads have a contract boundary
+```
+
+Next:
+
+```text
+296x-1402-VARIABLE-CONTEXT-CARRIER-PHI-LIFECYCLE-INVENTORY-001
 ```
 
 ## Stop Line
