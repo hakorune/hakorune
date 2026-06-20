@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001
+POST-LIFECYCLE-PROJECTION-REFERENCE-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after route-boundary trim readiness probe. Do
-not emit backend trim route lowering before choosing one next owner.
+Select the next lifecycle owner after documenting the Rust-to-Hako lifecycle
+projection reference. Do not implement resolver, verifier, or emitter behavior
+before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -48,6 +49,8 @@ Lifecycle converter boundary:
 ```text
 The answer to "can the converter translate Rust ownership into .hako?" is
 documented in docs/development/current/main/design/rust-lifecycle-projection-ssot.md.
+The practical reference manual is:
+docs/reference/architecture/rust-to-hako-lifecycle-projection.md.
 
 Short form:
   yes, but only as rustc facts -> HakoLifecyclePlan -> verifier -> emitter.

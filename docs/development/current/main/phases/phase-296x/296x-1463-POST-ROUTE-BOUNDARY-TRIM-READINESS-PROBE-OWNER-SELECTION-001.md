@@ -1,6 +1,6 @@
 # 296x-1463 POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001
 
-Status: open
+Status: parked
 Date: 2026-06-20
 
 ## Purpose
@@ -8,6 +8,17 @@ Date: 2026-06-20
 Select the next owner after the route-boundary trim readiness probe.
 
 This row must not emit backend trim route lowering.
+
+## Parking Note
+
+This row was parked when the user requested Rust-to-Hako lifecycle projection
+reference documentation before selecting the next implementation owner.
+
+The trim route implementation option remains available as a candidate in:
+
+```text
+296x-1465-POST-LIFECYCLE-PROJECTION-REFERENCE-OWNER-SELECTION-001
+```
 
 ## Selected By
 

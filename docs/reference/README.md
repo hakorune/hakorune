@@ -14,6 +14,8 @@
 - システムアーキテクチャ（MIR、VM、インタープリター）
 - 実行バックエンド仕様
 - 内部設計ドキュメント
+- Rust ownership / borrow / Drop migration reference:
+  `docs/reference/architecture/rust-to-hako-lifecycle-projection.md`
 
 ### concurrency/
 - `co` / `task_scope` / `nowait` / `await` / `Channel` / `sync box` / `context` / `worker_local` の reference

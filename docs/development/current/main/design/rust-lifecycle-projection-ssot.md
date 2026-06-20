@@ -31,6 +31,7 @@ Operational reference for implementers:
 
 ```text
 docs/development/current/main/design/rust-to-hako-ownership-converter-reference.md
+docs/reference/architecture/rust-to-hako-lifecycle-projection.md
 ```
 
 Short form:
