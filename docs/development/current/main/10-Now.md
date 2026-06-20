@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-06-20
+Date: 2026-06-21
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001
+MIRBUILDER-REPLACE-HARD-CODED-FAMILY-GENERATORS-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -33,9 +33,10 @@ generator entrypoint, the shared family manifest helper, the shared manifest
 file-entry helper, the shared manifest text-entry helper, the shared common
 derived manifest helper, the shared common derived-inputs helper, the shared
 recipe / verifier helper, the shared FamilyArtifactSpec helper, and the
-MirBuilder converter matrix guard are green. The next implementation task is
-connecting lightweight facts to the simple-map converter, without new
-route/card churn.
+lightweight-facts converter wrapper for BindingContext and simple-map is
+green. VariableContext native snapshot/restore is now green with clone_owned
+restore and post-restore alias-proof EXE coverage. The next task is replacing
+the remaining hard-coded family generator bodies.
 
 Historical context follows.
 
@@ -70,6 +71,8 @@ owner and records the mini-model task ladder through carrier snapshots.
 296x-1524 closes the snapshot/restore derived artifact pilot.
 296x-1525 now decides whether that generated artifact is selected as a
 derived_hako family route.
+The native snapshot/restore route is no longer blocked by executable backend
+alias-proof shape.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

@@ -4,7 +4,15 @@ use super::origin_inference::{build_route_result_box_lookup, user_box_route_rece
 use super::target_collection::{method_target_symbol, UserBoxMethodTargetFacts};
 use super::{FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute, UserBoxMethodRouteSite};
 use crate::mir::value_origin::build_value_def_map;
-use crate::mir::{Callee, MirFunction, MirInstruction};
+use crate::mir::{Callee, MirFunction, MirInstruction, ValueId};
+
+fn source_method_arg_arity(receiver: ValueId, args: &[ValueId]) -> usize {
+    if args.first().copied() == Some(receiver) {
+        args.len().saturating_sub(1)
+    } else {
+        args.len()
+    }
+}
 
 pub(super) fn refresh_function_user_box_method_routes_with_context(
     function: &mut MirFunction,
@@ -58,7 +66,8 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
             ) else {
                 continue;
             };
-            let target_symbol = method_target_symbol(&route_box_name, method, args.len());
+            let source_arity = source_method_arg_arity(*receiver, args);
+            let target_symbol = method_target_symbol(&route_box_name, method, source_arity);
             let target = targets.get(&target_symbol);
             let type_id = typed_plan_type_ids.get(&route_box_name).copied();
             routes.push(UserBoxMethodRoute {
@@ -66,7 +75,7 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
                 box_name: route_box_name,
                 method: method.clone(),
                 receiver_value: *receiver,
-                arity: args.len(),
+                arity: source_arity,
                 result_value: *dst,
                 target_symbol,
                 target_exists: target.is_some(),

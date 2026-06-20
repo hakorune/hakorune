@@ -135,6 +135,13 @@ checked-in generated artifacts.
    derived artifact aliases the map object; Rust `snapshot()` clones the
    `BTreeMap`.
 
+   Current backend result:
+
+   ```text
+   restore(ctx, snapshot) uses snapshot.clone_owned().
+   The native EXE smoke proves post-restore alias isolation.
+   ```
+
    Required native operations:
 
    ```text

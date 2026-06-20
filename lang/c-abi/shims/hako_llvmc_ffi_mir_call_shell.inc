@@ -321,6 +321,8 @@
         const char* source = entry ? read_str(entry, "source") : NULL;
         struct LoweringPlanUserBoxMethodView view;
         size_t argc = 0;
+        size_t arg_start = 0;
+        size_t logical_argc = 0;
         char ab[2048];
         int is_direct_void = 0;
         int is_direct_scalar = 0;
@@ -349,7 +351,18 @@
         }
         if (!(args && yyjson_is_arr(args))) return -1;
         argc = yyjson_arr_size(args);
-        if ((long long)argc != view.arity || argc > 63) return -1;
+        if (argc > 0) {
+          yyjson_val* first = yyjson_arr_get(args, 0);
+          long long first_arg = 0;
+          if (first && yyjson_is_num(first)) {
+            first_arg = (long long)yyjson_get_sint(first);
+            if (resolve_copy_source_reg(first_arg) == resolve_copy_source_reg(recv)) {
+              arg_start = 1;
+            }
+          }
+        }
+        logical_argc = argc >= arg_start ? argc - arg_start : 0;
+        if ((long long)logical_argc != view.arity || logical_argc > 63) return -1;
         {
           int flattened_nested_emit =
               emit_flattened_nested_alignment_result_method_call(
@@ -371,7 +384,7 @@
         if (!user_box_method_definition_target_is_ready(&view)) return -1;
         ab[0] = '\0';
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
-        for (size_t ai = 0; ai < argc; ai++) {
+        for (size_t ai = arg_start; ai < argc; ai++) {
           yyjson_val* arg = yyjson_arr_get(args, ai);
           long long arg_reg = 0;
           if (!(arg && yyjson_is_num(arg))) return -1;

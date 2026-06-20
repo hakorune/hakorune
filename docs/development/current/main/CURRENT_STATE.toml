@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-20"
+date = "2026-06-21"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
@@ -274,11 +274,15 @@ validated family generator entrypoint, the shared family manifest helper, the
 shared manifest file-entry helper, the shared manifest text-entry helper, the
 shared common derived manifest helper, the shared common derived-inputs
 helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
-helper, and the MirBuilder converter matrix guard are green. The next task is
-connecting lightweight facts to the simple-map converter, again without new
-route/card churn."""
+helper, the MirBuilder converter matrix guard, and VariableContext native
+snapshot/restore alias-proof EXE coverage are green. The lightweight-facts
+converter wrapper for BindingContext and simple-map is green, again without new
+route/card churn. Native `restore(ctx, snapshot)` uses `snapshot.clone_owned()`
+and the post-restore alias-proof smoke verifies that mutating the restored
+context does not mutate the saved snapshot. The next task is replacing the
+remaining hard-coded family generator bodies."""
 
-current_blocker_token = "MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001"
+current_blocker_token = "MIRBUILDER-REPLACE-HARD-CODED-FAMILY-GENERATORS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

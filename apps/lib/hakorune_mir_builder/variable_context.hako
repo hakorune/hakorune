@@ -9,6 +9,14 @@ box VariableContextNative {
 }
 
 static box VariableContextNativeApi {
+    snapshot(ctx: VariableContextNative): OrderedMapBox {
+        return ctx.variable_map.clone_owned()
+    }
+
+    restore(ctx: VariableContextNative, snapshot: OrderedMapBox) {
+        ctx.variable_map = snapshot.clone_owned()
+    }
+
     is_empty(ctx): i64 {
         if ctx.variable_map.length() == 0 {
             return 1

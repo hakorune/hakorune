@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-06-20
+Date: 2026-06-21
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -33,13 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001
+MIRBUILDER-REPLACE-HARD-CODED-FAMILY-GENERATORS-001
 ```
 
 Purpose:
 
 ```text
-Replace hard-coded family generators with FamilyArtifactSpec-backed thin wrappers.
+Replace the remaining hard-coded family generator bodies after the native
+snapshot/restore alias-proof guard is green.
 ```
 
 Lifecycle converter boundary:
@@ -97,13 +98,12 @@ Done:
   shared FamilyArtifactSpec helper
   live lightweight facts converter for BindingContext and VariableContext simple-map
   VariableContext snapshot/restore artifact ownership transfer
+  VariableContext native snapshot/restore smoke guard
+  VariableContext native snapshot/restore post-restore alias-proof
   MirBuilder converter matrix guard
 
 Next:
-  Connect lightweight facts to simple-map converter
-
-Then:
-  Fix VariableContext snapshot ownership
+  Replace hard-coded family generators
 ```
 
 Current task order:
