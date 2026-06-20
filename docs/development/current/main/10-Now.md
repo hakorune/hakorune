@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
+FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -93,17 +93,19 @@ that crate-root bundle and guards it through generated-skeleton MIR emit plus
 wrapper EXE parity. 296x-1376 selects A2-lite crate-bundle aggregation for the
 7 materialized `hakorune_mir_builder` modules. 296x-1377 keeps that direction
 but blocks after the reusable FileBox helper reaches MIR emit and fails EXE
-pure-route lowering. The active row is 296x-1379, focused on the FileBox/helper
-EXE shape.
+pure-route lowering. 296x-1379 closes that helper-owned FileBox shape as a
+boundary decision. FileBox remains Main/input-route owned. The active row is
+296x-1380, focused on preserving FileBox route origin for dynamic path reads in
+a Main-owned loop.
 
 ## Next
 
-1. Read 296x-1379.
-2. Reproduce the focused FileBox helper shape under MIR emit and EXE lowering.
-3. Choose either the compiler/backend fix or a documented narrower input-route
-   boundary.
+1. Read 296x-1380.
+2. Reproduce the Main-owned dynamic FileBox path loop under MIR emit and EXE
+   lowering.
+3. Repair the narrow receiver-origin loss or document a fail-fast boundary.
 4. Keep the 296x-1377 crate aggregation implementation stopped until this
-   shape is resolved.
+   dynamic input route is resolved.
 5. Keep use/name resolution and generated-program execution claim disabled.
 6. After 296x-1377 eventually closes, use
    `docs/development/current/main/design/rust-lifecycle-projection-ssot.md`

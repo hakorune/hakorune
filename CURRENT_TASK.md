@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
+FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
 ```
 
 Purpose:
 
 ```text
-Investigate and close the FileBox/newbox helper EXE shape blocker found while
-implementing the manifest-driven `hakorune_mir_builder` crate-bundle route.
+Preserve FileBox route origin for dynamic path reads inside a Main-owned loop
+so the manifest-driven `hakorune_mir_builder` crate-bundle route can continue
+without a hand-unrolled 7-module wrapper.
 ```
 
 Current evidence:
@@ -124,6 +125,9 @@ RUST-SUBSET-NEXT-APP-FRONT-TASK-SELECTION-018 is closed by 296x-1376.
 HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-001 is blocked by 296x-1377
 after the reusable FileBox helper reaches MIR emit but fails EXE pure-route
 lowering. Hand-unrolled 7-module wrapper fallback remains forbidden.
+CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001 is closed by 296x-1379 as a
+boundary decision: FileBox remains Main/input-route owned; helper-owned
+FileBox is not implemented in that row.
 ```
 
 Acceptance for the current slice:
@@ -136,22 +140,26 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1379.
-2. Reproduce the focused FileBox helper shape with MIR emit and EXE lowering.
-3. Choose the focused fix or boundary decision for FileBox inside reusable
-   crate-bundle helpers.
-4. Keep 296x-1377 implementation stopped until this shape is resolved.
+1. Read 296x-1380.
+2. Reproduce the Main-owned dynamic FileBox path loop with MIR emit and EXE
+   lowering.
+3. Repair FileBox receiver-origin preservation for that narrow input-route
+   shape, or document a fail-fast boundary if the shape is intentionally
+   unsupported.
+4. Keep 296x-1377 implementation stopped until this dynamic input route is
+   resolved.
 5. Keep use/name resolution and generated-program execution claim disabled.
 
 Recommended next row:
 
 ```text
-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001
+FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
 ```
 
-296x-1377 retains the A2-lite crate-bundle aggregation direction but blocks on
-the reusable helper EXE shape before any crate aggregation implementation is
-committed.
+296x-1379 retains the A2-lite crate-bundle aggregation direction but closes
+helper-owned FileBox as out-of-scope for now. 296x-1380 is the focused shape
+needed to keep input-route FileBox ownership without hand-unrolling module
+reads.
 
 After 296x-1377 closes, the planned design follow-up is:
 

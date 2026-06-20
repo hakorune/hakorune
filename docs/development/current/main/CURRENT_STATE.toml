@@ -148,22 +148,24 @@ rust-subset smoke. 296x-1376 selects a manifest-driven 7-module
 reusable FileBox route helper without enabling use/name resolution. 296x-1377
 keeps that A2-lite direction but blocks implementation after the reusable
 FileBox helper reaches MIR emit and fails EXE pure-route lowering; 296x-1379
-is the focused blocker for FileBox/helper EXE shape before crate aggregation
-continues."""
+closes that helper shape as a boundary decision. FileBox remains Main/input
+route owned for now. The next focused blocker is 296x-1380: preserve FileBox
+route origin for dynamic path reads inside a Main-owned loop so crate
+aggregation can continue without a hand-unrolled 7-module wrapper."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1380-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001.md"
 
-latest_card = "296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1379-CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001.md"
-latest_card_summary = """296x-1379 isolates the FileBox/newbox helper EXE
-shape blocker found while implementing the manifest-driven
-hakorune_mir_builder crate-bundle route."""
+latest_card = "296x-1380-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1380-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001.md"
+latest_card_summary = """296x-1380 isolates the FileBox receiver-origin loss
+for dynamic path reads inside a Main-owned loop, preserving the no hand-unrolled
+crate-bundle design."""
 
-current_blocker_token = "CRATE-BUNDLE-FILE-ROUTE-HELPER-EXE-SHAPE-001"
+current_blocker_token = "FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
