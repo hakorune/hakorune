@@ -1,0 +1,147 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleAdapterFacts",
+  "subject": "hakorune_mir_builder::binding_context::BindingContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::binding_context",
+    "source_path": "src/binding_context.rs"
+  },
+  "types": [
+    {
+      "id": "BindingContext",
+      "copy_class": "NonCopyOwned",
+      "escape": "LocalOnly",
+      "drop_class": "TrivialMemory",
+      "identity_observed": false,
+      "address_observed": false,
+      "layout_observed": false,
+      "thread_atomic_observed": false
+    },
+    {
+      "id": "BindingId",
+      "copy_class": "ImmediateValue",
+      "drop_class": "TrivialMemory"
+    }
+  ],
+  "fields": [
+    {
+      "id": "BindingContext.binding_map",
+      "rust_type": "BTreeMap<String, BindingId>",
+      "key_type": "String",
+      "value_type": "BindingId",
+      "copy_class": "NonCopyOwned",
+      "escape": "LocalOnly",
+      "drop_class": "TrivialMemory",
+      "deterministic_order_required": true,
+      "identity_observed": false,
+      "address_observed": false,
+      "layout_observed": false,
+      "thread_atomic_observed": false
+    }
+  ],
+  "methods": [
+    {
+      "id": "BindingContext::is_empty",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    },
+    {
+      "id": "BindingContext::len",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    },
+    {
+      "id": "BindingContext::contains",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    },
+    {
+      "id": "BindingContext::lookup",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "BindingContext::insert",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "ConsumeArgument",
+      "arguments": [
+        {
+          "name": "name",
+          "move_kind": "ConsumeArgument"
+        },
+        {
+          "name": "binding_id",
+          "copy_class": "ImmediateValue",
+          "drop_class": "TrivialMemory"
+        }
+      ]
+    },
+    {
+      "id": "BindingContext::remove",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "BindingContext::clear_for_function_entry",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None"
+    }
+  ],
+  "negative_requirements": [
+    {
+      "id": "borrow_escape_unknown",
+      "required_fact": "borrow_escape"
+    },
+    {
+      "id": "missing_deterministic_order",
+      "required_fact": "deterministic_order_required"
+    },
+    {
+      "id": "missing_trivial_memory_drop",
+      "required_fact": "drop_class=TrivialMemory"
+    }
+  ],
+  "target_neutral": {
+    "hako_policy_owner": false,
+    "hako_plan_kind_spelling_allowed": false,
+    "rendering_instruction_allowed": false,
+    "rustc_toolchain_invoked": false
+  }
+}

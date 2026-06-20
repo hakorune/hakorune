@@ -1,6 +1,6 @@
 # 296x-1468 RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -48,6 +48,32 @@ TransferOwned
 LocalBox
 HakoLifecyclePlan
 converter rendering instructions
+```
+
+## Output
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-adapter-facts-v0.json
+tools/checks/rust_lifecycle_binding_context_adapter_facts_guard.sh
+```
+
+## Result
+
+```text
+binding_context_adapter_facts_fixture_exists=1
+adapter_facts_are_target_neutral=1
+deterministic_order_fact_present=1
+shared_read_callonly_facts_present=1
+unique_write_callonly_facts_present=1
+trivial_memory_drop_fact_present=1
+hako_policy_spellings_absent=1
+implementation_started=1
+rustc_toolchain_integration_started=0
+resolver_implementation_started=0
+verifier_implementation_started=0
+emitter_implementation_started=0
+converter_core_changed=0
+backend_behavior_changed=0
 ```
 
 ## Acceptance

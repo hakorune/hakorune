@@ -239,20 +239,22 @@ before any resolver, verifier, or emitter implementation. The next blocker is
 requirements and keeps adapter policy-free. The next blocker is 296x-1467:
 select the first post-inventory fixture owner. 296x-1467 selects a compact
 BindingContext adapter fact fixture. The next blocker is 296x-1468: add that
-target-neutral fixture and guard."""
+target-neutral fixture and guard. 296x-1468 adds the fixture and confirms it
+contains no Hako policy spellings. The next blocker is 296x-1469: select the
+next owner after BindingContext adapter facts."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1468-RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1469-POST-BINDING-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1468-RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1468-RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001.md"
-latest_card_summary = """296x-1468 adds a target-neutral BindingContext
-RustLifecycleFacts adapter fixture and guard."""
+latest_card = "296x-1469-POST-BINDING-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1469-POST-BINDING-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1469 selects the next owner after adding a
+target-neutral BindingContext adapter facts fixture."""
 
-current_blocker_token = "RUST-LIFECYCLE-FACTS-ADAPTER-BINDING-CONTEXT-FIXTURE-001"
+current_blocker_token = "POST-BINDING-CONTEXT-ADAPTER-FACTS-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
