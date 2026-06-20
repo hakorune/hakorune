@@ -123,6 +123,106 @@ It may become good enough to generate mostly useful `.hako` automatically, but
 the safety contract comes from facts + plan + verifier, not from textual
 pattern replacement.
 
+## Migration Unit Model
+
+MirBuilder migration is not closed at crate granularity.
+
+Use these units:
+
+```text
+crate:
+  discovery
+  inventory
+  transport
+  coverage sweep
+
+module:
+  provenance
+  focused fixture
+  materialization boundary
+
+family:
+  semantic facts
+  lifecycle projection
+  verifier
+  oracle parity
+  Hako authority promotion
+
+route:
+  Hako selfhost mainline authority
+  Rust bootstrap / oracle / compatibility route
+```
+
+The semantic authority promotion unit is a family, not a crate and not one
+method.
+
+Good family boundaries have:
+
+```text
+one state owner
+one semantic invariant
+one oracle comparison
+one authority switch
+```
+
+Examples:
+
+```text
+CoreContext ID issuance family:
+  new / next_value / next_block / next_binding / peek operations
+
+BindingContext ordered-binding family:
+  new/default / lookup / contains / len / is_empty / insert / remove / clear
+
+VariableContext snapshot family:
+  snapshot / restore / branch-local state restoration
+
+Call family:
+  receiver classification / canonical call emission / route proof
+
+Loop family:
+  facts / recipe / verifier / lowering / PHI contract
+```
+
+Do not read a successful crate bundle or skeleton materialization as semantic
+authority migration. A crate bundle is coverage evidence. Authority changes
+only after a family has facts, plan, verifier, Rust oracle parity, and explicit
+Hako promotion.
+
+## Practical Converter Development Flow
+
+The converter pipeline is developed in layers:
+
+```text
+1. HIR inventory contract:
+   crate/module/definition/source ownership map
+
+2. THIR body inventory:
+   typed structured body for one selected family
+
+3. MIR lifecycle facts:
+   move/copy, borrow, initializedness, drop, concrete call targets
+
+4. HakoLifecyclePlan:
+   resolver-chosen Hako representation and cleanup plan
+
+5. Verifier:
+   positive proof that plan satisfies rustc facts
+
+6. Emitter:
+   render verified plan as .hako / canonical MIR
+
+7. Oracle parity:
+   compare against Rust behavior and canonical MIR
+
+8. Authority promotion:
+   Hako becomes selfhost mainline authority for that family only
+```
+
+This means the converter can eventually automate much of the Rust-to-Hako
+migration, but it remains a verified-plan renderer. The adapter does not choose
+Hako ownership or representation policy by itself.
+
 ## Converter Meaning
 
 When we say "the converter translates Rust ownership into `.hako`", the word
@@ -658,9 +758,12 @@ do not claim crate-wide executable parity before lifecycle oracle tests pass
 ## Migration Order
 
 ```text
-1. Close current crate-bundle transport milestone.
-2. Add passive RustLifecycleFacts / HakoLifecyclePlan vocabulary.
-3. Build BindingContext lifecycle pilot.
-4. Compare against Rust oracle vectors.
-5. Promote one Hako authority family only after verifier evidence.
+1. Stabilize the HIR owner inventory contract.
+2. Extract THIR body inventory for one selected family.
+3. Extract MIR / borrow / drop lifecycle facts for that family.
+4. Produce a HakoLifecyclePlan from those facts.
+5. Verify the plan.
+6. Render verified .hako / canonical MIR.
+7. Compare against Rust oracle vectors and canonical MIR.
+8. Promote one Hako authority family only after verifier evidence.
 ```

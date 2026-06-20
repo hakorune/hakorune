@@ -36,13 +36,19 @@ fn main() {
         #[cfg(feature = "rustc-private")]
         Some("--hir-item-provenance-inventory") => {
             let inputs: Vec<String> = args.collect();
-            hir_inventory::run(&inputs)
+            hir_inventory::run_key_value(&inputs)
+        }
+        #[cfg(feature = "rustc-private")]
+        Some("--hir-inventory-contract") => {
+            let inputs: Vec<String> = args.collect();
+            hir_inventory::run_contract(&inputs)
         }
         _ => {
             eprintln!(
                 "usage: rustc-semir-adapter \
                  (--preflight|--toolchain-preflight|--rustc-private-probe|\
-                 --hir-item-provenance-inventory <rust-source>)"
+                 --hir-item-provenance-inventory <rust-source>|\
+                 --hir-inventory-contract <rust-source> [rustc-arg...])"
             );
             std::process::exit(2);
         }

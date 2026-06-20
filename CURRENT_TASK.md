@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-OWNER-SELECTION-001
+RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after the first HIR item/provenance inventory. Do not
-extract THIR/MIR or lifecycle facts in this row.
+Extract the first THIR structured body inventory for the selected
+BindingContext family, using the HIR inventory contract as the owner surface.
+Do not extract MIR/borrowck/drop or lifecycle facts in this row.
 ```
 
 Lifecycle converter boundary:
@@ -58,11 +59,35 @@ The converter/emitter renders verified plans. It does not choose ownership,
 borrow, move, or Drop policy directly from Rust syntax.
 
 MirBuilder family migration wording:
-  .hako authority promotion and Rust owner demotion are allowed only
-  family-by-family after verified parity.
+  crate is inventory / transport / coverage sweep.
+  module is provenance / focused materialization.
+  family is the only semantic authority promotion unit.
+
+  .hako authority promotion and Rust semantic-authority demotion on the
+  selfhost mainline route are allowed only family-by-family after verified
+  parity.
 
   Rust bootstrap / Rust compat route / Rust oracle vectors stay preserved.
-  Do not treat "Rust owner demotion" as Rust bootstrap removal.
+  Do not treat semantic-authority demotion as Rust bootstrap removal.
+```
+
+Current task order:
+
+```text
+1508:
+  RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-CONTRACT-V0-001 (closed)
+
+1509:
+  RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-THIR-BODY-INVENTORY-001
+
+1510:
+  RUSTC-SEMIR-ADAPTER-BINDING-CONTEXT-MIR-LIFECYCLE-FACTS-001
+
+1511:
+  BINDING-CONTEXT-HAKO-LIFECYCLE-PROJECTION-AND-AUTHORITY-PROMOTION-001
+
+1512:
+  HAKORUNE-MIR-BUILDER-MIGRATION-COVERAGE-SWEEP-001
 ```
 
 Current evidence:

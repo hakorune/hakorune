@@ -60,6 +60,58 @@ requested and no verified plan exists, the conversion must fail fast. A lossy
 skeleton route may still emit TODO comments, but it cannot claim lifecycle
 parity.
 
+## Migration Granularity
+
+Use different units for different jobs:
+
+```text
+crate:
+  inventory, transport, coverage sweep
+
+module:
+  source provenance and focused materialization fixture
+
+family:
+  semantic migration, lifecycle projection, oracle parity, authority promotion
+```
+
+A crate-wide converter run is useful evidence that input transport and coverage
+work. It is not enough to promote semantic authority.
+
+Authority promotion happens family by family:
+
+```text
+1. choose one family, such as BindingContext ordered-binding behavior
+2. extract rustc facts for that family
+3. build a HakoLifecyclePlan
+4. verify the plan
+5. render .hako / canonical MIR
+6. compare with Rust oracle vectors
+7. switch the selfhost mainline authority for that family only
+```
+
+The Rust implementation stays as bootstrap, oracle, and explicit compatibility
+route. Do not read family promotion as Rust bootstrap removal.
+
+## Practical Migration Pipeline
+
+```text
+Rust crate
+  -> HIR inventory contract
+  -> selected family
+  -> THIR body inventory
+  -> MIR lifecycle facts
+  -> HakoLifecyclePlan
+  -> verifier result
+  -> .hako / canonical MIR emitter
+  -> Rust oracle parity
+  -> family authority promotion
+```
+
+This is the practical answer to "how does the converter migrate Rust to Hako?"
+The converter is developed so each layer produces a stable, testable artifact
+that the next layer can consume.
+
 ## Non-Goal
 
 Do not add Rust lifetime syntax to `.hako` as the migration model.

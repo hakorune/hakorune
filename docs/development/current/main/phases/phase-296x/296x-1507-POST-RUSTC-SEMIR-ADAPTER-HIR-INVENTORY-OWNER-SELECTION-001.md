@@ -1,6 +1,6 @@
 # 296x-1507 POST-RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -36,6 +36,30 @@ D. source-shape probe retirement policy
    value: prevent old probes from competing with rustc facts
    risk: premature until THIR/MIR facts exist
 ```
+
+## Decision
+
+```text
+selected_owner=B
+selected_next_task=RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-CONTRACT-V0-001
+selected_scope=replace the diagnostic key-value report with a repo-owned
+stable JSON contract, including the minimum real module / definition ownership
+needed to make the contract truthful
+selected_reason=THIR/MIR/lifecycle facts must reference stable HIR owners;
+the current inventory hardcodes only the root module and has no
+machine-readable owner relation
+implementation_started=0
+THIR_extracted=0
+MIR_or_borrowck_extracted=0
+RustLifecycleAdapterFacts_generated=0
+hako_plan_emitted=0
+backend_behavior_changed=0
+next_card_name=296x-1508-RUSTC-SEMIR-ADAPTER-HIR-INVENTORY-CONTRACT-V0-001
+summary=ok
+```
+
+This is not a broad HIR module-graph expansion. It is the minimum truthful HIR
+owner contract required before THIR/MIR facts can safely reference definitions.
 
 ## Acceptance
 
