@@ -33,16 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-LIFECYCLE-EMITTER-SURFACE-MIR-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after the bounded CarrierInfo::merge_from
-emitter surface reaches MIR emit. Do not implement trim route lowering, add a
-second emitter surface, or start rustc adapter work before choosing one next
-owner.
+Select the next lifecycle owner after trim route lowering inventory. Do not
+implement trim route lowering, add a second emitter surface, or start rustc
+adapter work before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -259,6 +258,8 @@ lane, with resolver/verifier/emitter deny rules intact.
 Acceptance for the current slice:
 
 ```bash
+bash tools/checks/rust_lifecycle_trim_route_lowering_inventory_guard.sh
+bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
@@ -266,16 +267,17 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1421.
+1. Read 296x-1437.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
-5. Keep full VariableContext and MirBuilder-wide lifecycle claims disabled.
+5. Keep backend behavior, generated-program execution, and rustc-adapter
+   claims disabled.
 
 Recommended next row:
 
 ```text
-POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -286,18 +288,17 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1393-RUST-LIFECYCLE-POST-VARIABLE-SIMPLE-MAP-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1437-POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. RUST-LIFECYCLE-PROJECTION-SSOT-001
-2. RUST-LIFECYCLE-FACTS-VOCAB-000
-3. HAKO-LIFECYCLE-PLAN-VOCAB-000
-4. RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000
-5. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
-6. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
+1. POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
+2. choose one of:
+   A. TRIM-ROUTE-LOWERING-DECISION-PROBE-001
+   B. second lifecycle emitter surface
+   C. rustc lifecycle facts adapter design/probe
 ```
 
 ## Pointers

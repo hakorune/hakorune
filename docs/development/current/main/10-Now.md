@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-LIFECYCLE-EMITTER-SURFACE-MIR-OWNER-SELECTION-001
+POST-TRIM-ROUTE-LOWERING-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -75,14 +75,17 @@ promoted-name resolution deny closeout. 296x-1432 closes promoted-name
 resolution as denied until a production join_id producer exists. 296x-1433
 selects bounded lifecycle emitter parser/MIR surface probing. 296x-1434
 makes the existing CarrierInfo::merge_from emitter surface parser/MIR-checkable
-without generated-program, backend, or converter-core claims.
+without generated-program, backend, or converter-core claims. 296x-1435
+selects trim route lowering inventory as the next owner. 296x-1436 inventories
+the trim route lowering boundary without backend, generated-program,
+rustc-adapter, or resolver-Allow claims.
 
-The active row is 296x-1435. It selects the next lifecycle owner after emitter
-surface MIR acceptance.
+The active row is 296x-1437. It selects the next lifecycle owner after trim
+route lowering inventory.
 
 ## Next
 
-1. Read 296x-1435.
+1. Read 296x-1437.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

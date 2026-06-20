@@ -1,6 +1,6 @@
 # 296x-1435 POST-LIFECYCLE-EMITTER-SURFACE-MIR-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -40,6 +40,29 @@ surfaces or rustc adapter work, document the trim route lowering boundary that
 must remain separate from lifecycle producer facts.
 ```
 
+## Decision
+
+```text
+selected_next_task=TRIM-ROUTE-LOWERING-INVENTORY-001
+selected_scope=inventory-only boundary documentation for trim route lowering
+selected_reason=trim_helper production, promoted_body_locals recording,
+promoted-name denial, and emitter surface MIR acceptance are now bounded.
+The remaining ambiguity is where actual trim route lowering starts, and that
+must be named before adding another emitter surface or rustc adapter probe.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+second lifecycle emitter surface:
+  parked until trim route lowering boundary is documented.
+
+rustc lifecycle facts adapter probe:
+  parked until the current route-local lifecycle chain has a clear lowering
+  owner boundary.
+```
+
 ## Acceptance
 
 ```text
@@ -67,4 +90,3 @@ do_not_add_second_emitter_surface_before_selection=1
 do_not_start_rustc_adapter_without_design_card=1
 do_not_claim_generated_program_execution=1
 ```
-
