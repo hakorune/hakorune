@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001
+POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after PHI carrier lifecycle consumers are
-inventoried. Do not start join_id, merge_from, or resolver work before
-choosing one next owner.
+Select the next lifecycle owner after join_id producer inventory. Do not start
+join_id vocabulary changes, merge_from lifecycle probing, or resolver work
+before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -220,6 +220,12 @@ resolver skeleton.
 PHI-CARRIER-LIFECYCLE-CONSUMER-INVENTORY-001 is closed by 296x-1408;
 join_id, promoted_body_locals, trim_helper, merge_from, and read-only
 CarrierInfo consumers are inventoried.
+POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001 is closed by
+296x-1409; join_id producer inventory is selected before any probe or
+resolver.
+PHI-CARRIER-JOIN-ID-LIFECYCLE-PRODUCER-INVENTORY-001 is closed by 296x-1410;
+production CarrierVar.join_id has no Some(ValueId) producer and is None-only
+outside tests/fixtures.
 ```
 
 Acceptance for the current slice:
@@ -232,7 +238,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1409.
+1. Read 296x-1411.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

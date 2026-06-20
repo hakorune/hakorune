@@ -60,6 +60,7 @@ meaning of Some(ValueId):
 
 current producer:
   not owned by carrier snapshot constructors
+  no production assignment to Some(ValueId) is currently identified
 
 current consumers:
   CarrierInfo::resolve_promoted_join_id
@@ -78,7 +79,31 @@ resolver must not require join_id until the assignment producer is named
 Future row:
 
 ```text
-PHI-CARRIER-JOIN-ID-LIFECYCLE-PROBE-001
+PHI-CARRIER-JOIN-ID-LIFECYCLE-PRODUCER-INVENTORY-001
+```
+
+Producer search result:
+
+```text
+production CarrierVar constructors:
+  initialize join_id=None
+
+production mutation:
+  no `carrier.join_id = Some(...)` assignment found
+
+production Some(ValueId):
+  none found
+
+test/fixture Some(ValueId):
+  scope_manager tests only
+```
+
+Implication:
+
+```text
+join_id lifecycle is not currently a proven production plan.
+Before resolver work, decide whether join_id is stale vocabulary,
+test-only vocabulary, or an unimplemented producer boundary.
 ```
 
 ## promoted_body_locals
@@ -218,6 +243,7 @@ The next implementation-capable row should pick exactly one owner:
 
 ```text
 join_id assignment
+join_id producer absence / retirement decision
 promoted_body_locals ownership
 trim_helper ownership
 merge_from ownership

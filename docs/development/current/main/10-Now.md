@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001
+POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -38,13 +38,16 @@ CarrierInfo::with_explicit_carriers as ExplicitCarrierSnapshotFromBorrowView.
 296x-1407 selects PHI carrier lifecycle consumer inventory before a general
 resolver. 296x-1408 inventories join_id, promoted_body_locals, trim_helper,
 merge_from, and read-only CarrierInfo consumers.
+296x-1409 selects join_id producer inventory before any probe or resolver.
+296x-1410 records that production `CarrierVar.join_id` has no `Some(ValueId)`
+producer and is currently None-only outside tests/fixtures.
 
-The active row is 296x-1409. It selects the next lifecycle owner after PHI
-carrier consumer inventory.
+The active row is 296x-1411. It selects the next lifecycle owner after join_id
+producer inventory.
 
 ## Next
 
-1. Read 296x-1409.
+1. Read 296x-1411.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

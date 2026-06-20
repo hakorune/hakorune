@@ -1,6 +1,6 @@
 # 296x-1409 POST-PHI-CARRIER-CONSUMER-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -50,6 +50,44 @@ implementation_started=0
 general_resolver_started=0
 full_VariableContext_parity_claim=0
 MirBuilder_wide_lifecycle_claim=0
+```
+
+## Selection
+
+```text
+selected_owner=A-lite
+selected_next_task=PHI-CARRIER-JOIN-ID-LIFECYCLE-PRODUCER-INVENTORY-001
+selected_reason=join_id is the first missing positive owner for promoted
+carrier lookup, but source search shows no production assignment from None to
+Some yet. Inventory the producer absence before any probe or resolver work.
+```
+
+Parked:
+
+```text
+CarrierInfo merge_from lifecycle probe:
+  parked until join_id producer boundary is known
+
+HakoLifecycleResolver read-only skeleton:
+  parked until join_id producer absence/presence is explicit
+```
+
+## Closeout
+
+```text
+next_owner_selected=1
+selected_owner_scope_documented=1
+non_selected_owners_parked=1
+implementation_started=0
+general_resolver_started=0
+full_VariableContext_parity_claim=0
+MirBuilder_wide_lifecycle_claim=0
+```
+
+Next:
+
+```text
+296x-1410-PHI-CARRIER-JOIN-ID-LIFECYCLE-PRODUCER-INVENTORY-001
 ```
 
 Checks:
