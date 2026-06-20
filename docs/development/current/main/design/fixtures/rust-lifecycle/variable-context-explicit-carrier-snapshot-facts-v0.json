@@ -1,0 +1,46 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.with_explicit_carriers",
+  "source": {
+    "crate": "hakorune",
+    "module": "src::mir::join_ir::lowering::carrier_info",
+    "source_path": "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs"
+  },
+  "base_facts": [
+    "variable-context-immutable-borrow-facts-v0.json",
+    "variable-context-carrier-snapshot-facts-v0.json"
+  ],
+  "method_fact": {
+    "id": "CarrierInfo::with_explicit_carriers",
+    "input_borrow": {
+      "source": "VariableContext::variable_map",
+      "borrow_view": "OwnerCarryingBorrowView",
+      "access": "read",
+      "escapes": false
+    },
+    "operation": "ExplicitCarrierSnapshotFromBorrowView",
+    "loop_var_name": {"move_kind": "ConsumeArgument"},
+    "loop_var_id": {"copy_kind": "ImmediateValue", "drop_fact": "TrivialMemory"},
+    "carrier_names": {
+      "ownership": "owned_strings",
+      "missing_carrier_policy": "fail_fast"
+    },
+    "map_requirements": {
+      "deterministic_order_required": true,
+      "value_drop_fact": "TrivialMemory"
+    },
+    "output": {
+      "owns_carrier_names": true,
+      "copies_value_ids": true,
+      "value_id_copy_kind": "ImmediateValue",
+      "join_id_initialized": false
+    }
+  },
+  "denied_followups": [
+    "join_id lifecycle",
+    "promoted_body_locals lifecycle",
+    "trim_helper lifecycle",
+    "PHI planner integration"
+  ]
+}

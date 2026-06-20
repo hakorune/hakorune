@@ -1,0 +1,45 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.with_explicit_carriers",
+  "source_facts": "variable-context-explicit-carrier-snapshot-facts-v0.json",
+  "plans": [
+    {
+      "id": "CarrierInfo::with_explicit_carriers",
+      "plan_kind": "ExplicitCarrierSnapshotFromBorrowView",
+      "input": "VariableContext::variable_map BorrowView",
+      "access": "read",
+      "mutation_policy": "none",
+      "publication_policy": "does_not_publish_variable_map",
+      "missing_carrier_policy": "fail_fast",
+      "output_policy": {
+        "carrier_names": "owned_strings",
+        "host_id": "copied_ValueId",
+        "join_id": "None_uninitialized",
+        "role": "LoopState",
+        "init": "FromHost"
+      },
+      "required_facts": [
+        "input_borrow.borrow_view=OwnerCarryingBorrowView",
+        "input_borrow.escapes=false",
+        "carrier_names.ownership=owned_strings",
+        "carrier_names.missing_carrier_policy=fail_fast",
+        "map_requirements.value_drop_fact=TrivialMemory",
+        "output.value_id_copy_kind=ImmediateValue"
+      ]
+    }
+  ],
+  "denied": [
+    "join_id lifecycle",
+    "promoted_body_locals lifecycle",
+    "trim_helper lifecycle",
+    "PHI planner integration"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false,
+    "phi_join_id_claim": false,
+    "full_variable_context_claim": false
+  }
+}

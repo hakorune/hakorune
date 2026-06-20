@@ -1,6 +1,6 @@
 # 296x-1405 POST-CARRIER-SNAPSHOT-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -46,6 +46,48 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected_owner=A
+selected_next_task=VARIABLE-CONTEXT-EXPLICIT-CARRIER-SNAPSHOT-PROBE-001
+implementation_started=0
+```
+
+Reason:
+
+```text
+CarrierInfo::with_explicit_carriers is the remaining carrier snapshot variant.
+It shares the BorrowView input boundary but adds requested-name ownership and
+missing-carrier fail-fast behavior. That is still smaller than PHI consumer
+inventory or a general resolver.
+```
+
+Selected scope:
+
+```text
+fixture CarrierInfo::with_explicit_carriers
+plan kind=ExplicitCarrierSnapshotFromBorrowView
+preserve missing carrier fail-fast
+deny downstream PHI lifecycle
+```
+
+Non-selected owners:
+
+```text
+B PHI carrier lifecycle consumer inventory:
+  parked until explicit carrier snapshot is fixed
+
+C HakoLifecycleResolver read-only skeleton:
+  parked until both carrier snapshot variants are fixed
+```
+
+Next:
+
+```text
+296x-1406-VARIABLE-CONTEXT-EXPLICIT-CARRIER-SNAPSHOT-PROBE-001
 ```
 
 ## Stop Line

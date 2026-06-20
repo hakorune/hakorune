@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-CARRIER-SNAPSHOT-OWNER-SELECTION-001
+POST-EXPLICIT-CARRIER-SNAPSHOT-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -33,14 +33,15 @@ snapshot/restore ownership with CloneOwnedMap and ReplaceOwned fixtures.
 296x-1400 closed `variable_map_mut()` as Deny(ReturnedMutableBorrow) with no
 external Rust callsites. 296x-1402 inventoried carrier-sensitive map reads.
 296x-1404 fixture-guards CarrierInfo::from_variable_map as
-CarrierSnapshotFromBorrowView.
+CarrierSnapshotFromBorrowView. 296x-1406 fixture-guards
+CarrierInfo::with_explicit_carriers as ExplicitCarrierSnapshotFromBorrowView.
 
-The active row is 296x-1405. It selects the next lifecycle owner after
-CarrierInfo::from_variable_map snapshot fixtures are green.
+The active row is 296x-1407. It selects the next lifecycle owner after
+automatic and explicit carrier snapshot fixtures are green.
 
 ## Next
 
-1. Read 296x-1405.
+1. Read 296x-1407.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

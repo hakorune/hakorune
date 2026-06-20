@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.with_explicit_carriers",
+  "source": "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs",
+  "vectors": [
+    {
+      "id": "loop_var_i_with_requested_carriers",
+      "input_map": [
+        {"name": "i", "value_id": 5},
+        {"name": "sum", "value_id": 10},
+        {"name": "count", "value_id": 11},
+        {"name": "tmp", "value_id": 12}
+      ],
+      "loop_var_name": "i",
+      "loop_var_id": 5,
+      "carrier_names": ["sum", "count"],
+      "expect": {
+        "carrier_count": 2,
+        "carriers": [
+          {"name": "count", "host_id": 11, "join_id": null, "role": "LoopState", "init": "FromHost"},
+          {"name": "sum", "host_id": 10, "join_id": null, "role": "LoopState", "init": "FromHost"}
+        ]
+      },
+      "requires": [
+        "owner_carrying_BorrowView",
+        "requested_names_owned",
+        "missing_carrier_fail_fast",
+        "ValueId.copy_kind=ImmediateValue"
+      ]
+    },
+    {
+      "id": "missing_requested_carrier_fails",
+      "input_map": [
+        {"name": "i", "value_id": 5},
+        {"name": "sum", "value_id": 10}
+      ],
+      "loop_var_name": "i",
+      "loop_var_id": 5,
+      "carrier_names": ["missing"],
+      "expect_error": "Carrier variable 'missing' not found in variable_map"
+    }
+  ],
+  "denied_vectors": [
+    "join_id_assignment",
+    "promoted_body_locals",
+    "trim_helper",
+    "phi_planner_integration"
+  ],
+  "promotion_scope": {
+    "hako_authority": "CarrierInfo::with_explicit_carriers snapshot only",
+    "phi_join_id_claim": false,
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}
