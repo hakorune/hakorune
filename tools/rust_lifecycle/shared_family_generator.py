@@ -6,7 +6,8 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Iterable
+from collections.abc import Callable, Iterable
+from typing import Any
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -50,3 +51,18 @@ def write_outputs(outputs: Iterable[tuple[Path, str]], *, check: bool, unchanged
         return
 
     print(unchanged_label)
+
+
+def run_family_generator(
+    *,
+    check: bool,
+    root: Path,
+    unchanged_label: str,
+    outputs_factory: Callable[[], Iterable[tuple[Path, str]]],
+) -> None:
+    write_outputs(
+        outputs_factory(),
+        check=check,
+        unchanged_label=unchanged_label,
+        root=root,
+    )

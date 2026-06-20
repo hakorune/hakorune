@@ -22,8 +22,8 @@ from shared_family_generator import (
     read_json,
     sha256_file,
     sha256_text,
+    run_family_generator,
     stable_json,
-    write_outputs,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
 
@@ -401,18 +401,16 @@ def main() -> None:
     verifier_text = stable_json(verifier)
     manifest_text = stable_json(build_manifest(hako_text, recipe_text, verifier_text))
 
-    outputs = [
-        (RECIPE, recipe_text),
-        (VERIFIER, verifier_text),
-        (HAKO, hako_text),
-        (MANIFEST, manifest_text),
-    ]
-
-    write_outputs(
-        outputs,
+    run_family_generator(
         check=args.check,
-        unchanged_label="generated_binding_context_artifact=unchanged",
         root=ROOT,
+        unchanged_label="generated_binding_context_artifact=unchanged",
+        outputs_factory=lambda: [
+            (RECIPE, recipe_text),
+            (VERIFIER, verifier_text),
+            (HAKO, hako_text),
+            (MANIFEST, manifest_text),
+        ],
     )
 
 
