@@ -1,6 +1,6 @@
 # 296x-1475 POST-VARIABLE-CONTEXT-ADAPTER-VERIFIER-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -40,6 +40,27 @@ reason=BindingContext and VariableContext adapter facts are now passively
 verified; the next smallest implementation step is a fixture-only verifier
 skeleton that consumes checked-in JSON fixtures without rustc integration or
 converter emission.
+```
+
+## Selection
+
+```text
+selected_owner=A
+selected_next_task=HAKO-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-001
+selected_reason=both context families now have adapter facts and passive
+verifier-result fixtures, so the next smallest implementation step is a
+fixture-only checker that consumes checked-in JSON and does not touch rustc,
+converter, emitter, resolver, or backend behavior.
+```
+
+Non-selected owners:
+
+```text
+B_trim_route_fixture_selection:
+  parked while lifecycle fixture checker is made reusable
+
+C_variable_context_returned_mutable_borrow_api_replacement_design:
+  parked until the verifier skeleton can report the denied boundary uniformly
 ```
 
 ## Acceptance
