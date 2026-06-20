@@ -258,20 +258,20 @@ adapter verifier fixtures are present. 296x-1475 selects a fixture-only
 verifier skeleton. The next blocker is 296x-1476: add that reusable checker
 without rustc/converter/emitter/backend behavior changes. 296x-1476 adds the
 fixture-only checker for BindingContext and VariableContext. The next blocker
-is 296x-1483: probe BindingContext rustc semantic lifecycle facts adapter shape."""
+is 296x-1484: select the next owner after the BindingContext adapter probe."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1483-RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1484-POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1483-RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1483-RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001.md"
-latest_card_summary = """296x-1483 probes the BindingContext rustc semantic
-adapter shape for target-neutral RustLifecycleFacts-v0 output."""
+latest_card = "296x-1484-POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1484-POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1484 selects the next owner after closing the
+BindingContext lifecycle-facts adapter probe shape."""
 
-current_blocker_token = "RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001"
+current_blocker_token = "POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

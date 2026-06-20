@@ -1,6 +1,6 @@
 # 296x-1483 RUSTC-SEMIR-BINDING-CONTEXT-LIFECYCLE-FACTS-ADAPTER-PROBE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -59,6 +59,42 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Closeout
+
+```text
+binding_context_adapter_probe_green=1
+output_kind=RustLifecycleAdapterFacts
+target_neutral_adapter=1
+hako_policy_owner=0
+raw_rustc_dump_as_schema=0
+backend_behavior_changed=0
+rustc_toolchain_integration_started=0
+```
+
+Evidence:
+
+```bash
+bash tools/checks/rust_lifecycle_binding_context_adapter_facts_guard.sh
+```
+
+Guard output:
+
+```text
+output_contract=rust-lifecycle-binding-context-adapter-facts-v0
+binding_context_adapter_facts_fixture_exists=1
+adapter_facts_are_target_neutral=1
+hako_policy_spellings_absent=1
+rustc_toolchain_integration_started=0
+backend_behavior_changed=0
+summary=ok
+```
+
+Next:
+
+```text
+296x-1484-POST-RUSTC-SEMIR-BINDING-CONTEXT-ADAPTER-PROBE-OWNER-SELECTION-001
 ```
 
 ## Stop Line
