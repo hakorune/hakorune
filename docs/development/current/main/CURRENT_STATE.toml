@@ -222,20 +222,23 @@ condition-bindings input probe. 296x-1452 adds the input and focused lookup
 tests without trim route lowering. 296x-1453 selects trim route lowering proof
 update. 296x-1454 refreshes the proof: condition-binding identity is available,
 but executable lowering remains denied by missing implementation readiness. The
-next blocker is 296x-1455: select the next owner after proof update."""
+next blocker is 296x-1455: select the next owner after proof update. 296x-1455
+selects executable trim route lowering implementation design. 296x-1456
+documents a readiness gate before backend lowering. The next blocker is
+296x-1457: select the next owner after executable trim route lowering design."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1455-POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1457-POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1455-POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1455-POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1455 selects the next owner after trim route
-lowering proof update."""
+latest_card = "296x-1457-POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1457-POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1457 selects the next owner after executable
+trim route lowering design."""
 
-current_blocker_token = "POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001"
+current_blocker_token = "POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

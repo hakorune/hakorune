@@ -1,6 +1,6 @@
 # 296x-1455 POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -39,6 +39,27 @@ recommended=A-design
 reason=proof update retired the identity blocker but executable lowering is
 still denied by MissingExecutableTrimRouteLoweringImplementation. Design the
 implementation seam before code changes.
+```
+
+## Decision
+
+```text
+selected_next_task=EXECUTABLE-TRIM-ROUTE-LOWERING-IMPLEMENTATION-DESIGN-001
+selected_scope=design only; no lowering code
+selected_reason=identity and lookup proof are available, but executable trim
+lowering is now blocked by implementation readiness. A design row must define
+the lowering seam before backend/code changes.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+generated trim route lowering pilot:
+  parked until implementation seam is documented.
+
+second lifecycle emitter surface:
+  parked until active trim route lowering lane reaches a design decision.
 ```
 
 ## Acceptance

@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001
+POST-EXECUTABLE-TRIM-ROUTE-LOWERING-DESIGN-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -101,12 +101,15 @@ the explicit condition_bindings input and lookup order without changing code.
 296x-1453 selects trim route lowering proof update.
 296x-1454 refreshes the proof: identity is available, executable lowering
 remains denied by missing implementation readiness.
+296x-1455 selects executable trim route lowering implementation design. 296x-1456
+documents a readiness gate before backend lowering.
 
-The active row is 296x-1455. It selects the next owner after the proof update.
+The active row is 296x-1457. It selects the next owner after executable trim
+route lowering design.
 
 ## Next
 
-1. Read 296x-1455.
+1. Read 296x-1457.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
