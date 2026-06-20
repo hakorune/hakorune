@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.promoted_body_locals.producers",
+  "vectors": [
+    {
+      "id": "trim_records_original_var",
+      "producer": "TrimRouteInfo::to_carrier_info",
+      "input": {
+        "var_name": "ch",
+        "carrier_name": "is_ch_match"
+      },
+      "expect": {
+        "promoted_body_locals": ["ch"],
+        "join_id_produced": false,
+        "route_lowering_claim": false
+      },
+      "requires": [
+        "append_original_name",
+        "no_join_id_producer"
+      ]
+    },
+    {
+      "id": "digitpos_records_original_var",
+      "producer": "DigitPosPromoter::try_promote",
+      "input": {
+        "var_name": "digit_pos",
+        "bool_carrier_name": "is_digit_pos",
+        "int_carrier_name": "digit_value"
+      },
+      "expect": {
+        "promoted_body_locals": ["digit_pos"],
+        "join_id_produced": false,
+        "route_lowering_claim": false
+      },
+      "requires": [
+        "append_original_name",
+        "no_join_id_producer",
+        "no_digitpos_route_lowering_claim"
+      ]
+    }
+  ],
+  "denied_vectors": [
+    "join_id_assignment",
+    "promoted_name_resolution",
+    "trim_route_lowering",
+    "digitpos_route_lowering",
+    "general_resolver"
+  ],
+  "promotion_scope": {
+    "hako_authority": "CarrierInfo.promoted_body_locals producer records only",
+    "join_id_producer": false,
+    "route_lowering_claim": false,
+    "promoted_name_resolution_claim": false,
+    "full_variable_context_claim": false,
+    "mirbuilder_wide_claim": false
+  }
+}

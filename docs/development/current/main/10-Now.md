@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-PROMOTED-BODY-LOCALS-PRODUCER-PROBE-001
+POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -68,14 +68,16 @@ ownership, join_id producer, or general resolver claims. 296x-1427 selects
 promoted_body_locals inventory. 296x-1428 inventories promoted_body_locals
 producers, merge behavior, and join_id-dependent consumers without claiming
 join_id production or route lowering. 296x-1429 selects promoted_body_locals
-producer probing.
+producer probing. 296x-1430 fixture-guards trim and DigitPos
+promoted_body_locals producers as name recorders only, without join_id
+producer, route lowering, resolver, or emitter claims.
 
-The active row is 296x-1430. It fixture-guards promoted_body_locals producers
-as name recorders only.
+The active row is 296x-1431. It selects the next lifecycle owner after
+promoted_body_locals producer probe.
 
 ## Next
 
-1. Read 296x-1430.
+1. Read 296x-1431.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

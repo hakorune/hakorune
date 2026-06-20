@@ -1,6 +1,6 @@
 # 296x-1430 PROMOTED-BODY-LOCALS-PRODUCER-PROBE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -54,6 +54,47 @@ general_resolver_implemented=0
 backend_behavior_changed=0
 ```
 
+## Closeout
+
+```text
+trim_records_promoted_body_local=1
+digitpos_records_promoted_body_local=1
+producer_facts_fixture=green
+producer_plan_fixture=green
+producer_oracle_vectors=green
+join_id_producer=0
+route_lowering_claim=0
+general_resolver_implemented=0
+backend_behavior_changed=0
+```
+
+Evidence:
+
+```bash
+bash tools/checks/rust_lifecycle_promoted_body_locals_producer_guard.sh
+```
+
+Guard output:
+
+```text
+output_contract=rust-lifecycle-promoted-body-locals-producer-v0
+trim_records_promoted_body_local=1
+digitpos_records_promoted_body_local=1
+producer_facts_fixture=green
+producer_plan_fixture=green
+producer_oracle_vectors=green
+join_id_producer=0
+route_lowering_claim=0
+general_resolver_implemented=0
+summary=ok
+```
+
+Next:
+
+```text
+296x-1431-POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001
+```
+
 Checks:
 
 ```bash
@@ -70,4 +111,3 @@ do_not_implement_trim_or_digitpos_route_lowering=1
 do_not_expand_converter_emitter=1
 do_not_modify_Rust_behavior=1
 ```
-

@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.promoted_body_locals.producers",
+  "source": {
+    "crate": "hakorune",
+    "modules": [
+      "src::mir::loop_route_detection::support::body_local::carrier",
+      "src::mir::loop_route_detection::support::body_local::digitpos"
+    ]
+  },
+  "producer_facts": [
+    {
+      "id": "TrimRouteInfo::to_carrier_info",
+      "records": "self.var_name",
+      "target": "CarrierInfo.promoted_body_locals",
+      "operation": "PromotedBodyLocalNameRecord",
+      "join_id_producer": false,
+      "route_lowering_claim": false
+    },
+    {
+      "id": "DigitPosPromoter::try_promote",
+      "records": "detection.var_name",
+      "target": "CarrierInfo.promoted_body_locals",
+      "operation": "PromotedBodyLocalNameRecord",
+      "join_id_producer": false,
+      "route_lowering_claim": false
+    }
+  ],
+  "denied_followups": [
+    "join_id producer",
+    "promoted name resolution",
+    "trim route lowering",
+    "digitpos route lowering",
+    "general resolver"
+  ]
+}

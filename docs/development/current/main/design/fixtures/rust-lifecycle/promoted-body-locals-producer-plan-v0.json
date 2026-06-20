@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecyclePlan",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo.promoted_body_locals.producers",
+  "source_facts": "promoted-body-locals-producer-facts-v0.json",
+  "plans": [
+    {
+      "id": "TrimRouteInfo::to_carrier_info.promoted_body_local",
+      "plan_kind": "PromotedBodyLocalNameRecord",
+      "source": "TrimRouteInfo.var_name",
+      "target": "CarrierInfo.promoted_body_locals",
+      "record_policy": "append_original_name",
+      "required_facts": [
+        "TrimRouteInfo::to_carrier_info.records=self.var_name",
+        "join_id_producer=false",
+        "route_lowering_claim=false"
+      ]
+    },
+    {
+      "id": "DigitPosPromoter::try_promote.promoted_body_local",
+      "plan_kind": "PromotedBodyLocalNameRecord",
+      "source": "DigitPosDetection.var_name",
+      "target": "CarrierInfo.promoted_body_locals",
+      "record_policy": "append_original_name",
+      "required_facts": [
+        "DigitPosPromoter::try_promote.records=detection.var_name",
+        "join_id_producer=false",
+        "route_lowering_claim=false"
+      ]
+    }
+  ],
+  "denied": [
+    "join_id producer",
+    "promoted name resolution",
+    "trim route lowering",
+    "digitpos route lowering",
+    "general resolver"
+  ],
+  "behavior": {
+    "general_resolver_implemented": false,
+    "converter_emission_added": false,
+    "rust_lifetime_syntax_added": false,
+    "join_id_producer": false,
+    "route_lowering_claim": false,
+    "promoted_name_resolution_claim": false,
+    "full_variable_context_claim": false
+  }
+}

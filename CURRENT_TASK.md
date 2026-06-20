@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-PROMOTED-BODY-LOCALS-PRODUCER-PROBE-001
+POST-PROMOTED-BODY-LOCALS-PRODUCER-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Fixture-guard promoted_body_locals producers as name recorders only. Do not
-resolve join_id, implement trim/digitpos route lowering, or expand converter
-emission in this row.
+Select the next lifecycle owner after promoted_body_locals producers are
+fixture-guarded as name recorders only. Do not reopen join_id producer,
+expand emitter acceptance, or start trim route lowering before choosing one
+next owner.
 ```
 
 Lifecycle converter boundary:
