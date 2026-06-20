@@ -2,6 +2,7 @@
         long long dst;
         long long lhs;
         long long rhs;
+        int emitted;
       };
       struct StringConcatTripleRec {
         long long dst;
@@ -66,6 +67,7 @@
           long long first,
           long long second,
           long long third);
+      auto int ensure_string_concat_pair_materialized(FILE* f, long long reg);
       auto void remember_deferred_const_suffix_kernel_slot(
           long long dst,
           long long lhs,
@@ -86,6 +88,20 @@
         if (!reg) return 0;
         for (size_t i = 0; i < string_concat_pairs_n; i++) {
           if (string_concat_pairs[i].dst != reg) continue;
+          if (lhs) *lhs = string_concat_pairs[i].lhs;
+          if (rhs) *rhs = string_concat_pairs[i].rhs;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int string_concat_pair_is_deferred(long long reg, long long* lhs, long long* rhs) {
+        if (!reg) return 0;
+        reg = resolve_copy_source_reg(reg);
+        if (!reg) return 0;
+        for (size_t i = 0; i < string_concat_pairs_n; i++) {
+          if (string_concat_pairs[i].dst != reg) continue;
+          if (string_concat_pairs[i].emitted) return 0;
           if (lhs) *lhs = string_concat_pairs[i].lhs;
           if (rhs) *rhs = string_concat_pairs[i].rhs;
           return 1;

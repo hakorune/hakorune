@@ -143,7 +143,7 @@
                 "pair_chain",
                 route_extra);
           }
-          remember_string_concat_pair(dst, lhs, rhs);
+          remember_deferred_string_concat_pair(dst, lhs, rhs);
           finalize_string_concat_result(dst);
           return 1;
         }

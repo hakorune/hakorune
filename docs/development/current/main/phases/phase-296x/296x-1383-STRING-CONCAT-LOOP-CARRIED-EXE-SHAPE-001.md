@@ -1,6 +1,6 @@
 # 296x-1383 STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -95,3 +95,33 @@ generated_program_execution_claim=0
 
 If fixing this requires a broad string-corridor redesign, stop and split the
 owner before editing the crate-bundle wrapper.
+
+## Result
+
+```text
+output_contract=rust-subset-string-loop-carried-concat-exe-shape-v0
+loop_carried_string_concat_mir_emit=green
+loop_carried_string_concat_exe=green
+output_matches_expected=green
+summary=ok
+```
+
+Implementation:
+
+```text
+deferred concat pairs now track emitted state
+deferred concat pairs are materialized before later concat_hh / concat3 use
+concat3 chain emission uses materialize-aware argument marshaling
+```
+
+Stable guard:
+
+```bash
+bash tools/checks/rust_subset_string_loop_carried_concat_exe_shape_guard.sh
+```
+
+Next:
+
+```text
+return_to=296x-1382-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
+```

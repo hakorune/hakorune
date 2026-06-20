@@ -34,19 +34,43 @@
         return 0;
       }
 
-      auto void remember_string_concat_pair(long long dst, long long lhs, long long rhs) {
+      auto void remember_string_concat_pair_with_state(
+          long long dst,
+          long long lhs,
+          long long rhs,
+          int emitted) {
         if (!dst || !lhs || !rhs) return;
         for (size_t i = 0; i < string_concat_pairs_n; i++) {
           if (string_concat_pairs[i].dst != dst) continue;
           string_concat_pairs[i].lhs = lhs;
           string_concat_pairs[i].rhs = rhs;
+          string_concat_pairs[i].emitted = emitted;
           return;
         }
         if (string_concat_pairs_n < ARR_LEN(string_concat_pairs)) {
           string_concat_pairs[string_concat_pairs_n].dst = dst;
           string_concat_pairs[string_concat_pairs_n].lhs = lhs;
           string_concat_pairs[string_concat_pairs_n].rhs = rhs;
+          string_concat_pairs[string_concat_pairs_n].emitted = emitted;
           string_concat_pairs_n++;
+        }
+      }
+
+      auto void remember_string_concat_pair(long long dst, long long lhs, long long rhs) {
+        remember_string_concat_pair_with_state(dst, lhs, rhs, 1);
+      }
+
+      auto void remember_deferred_string_concat_pair(long long dst, long long lhs, long long rhs) {
+        remember_string_concat_pair_with_state(dst, lhs, rhs, 0);
+      }
+
+      auto void mark_string_concat_pair_emitted(long long dst) {
+        if (!dst) return;
+        dst = resolve_copy_source_reg(dst);
+        for (size_t i = 0; i < string_concat_pairs_n; i++) {
+          if (string_concat_pairs[i].dst != dst) continue;
+          string_concat_pairs[i].emitted = 1;
+          return;
         }
       }
 
@@ -243,6 +267,8 @@
         int ty = get_type(reg);
         int base_ty = get_type(base);
         char buf[128];
+        ensure_string_concat_pair_materialized(f, reg);
+        base = resolve_copy_source_reg(reg);
         if (string_concat_arg_is_string_handle(reg)) {
           append_string_concat_arg_ref(out, out_cap, reg, first);
           return;
@@ -353,6 +379,23 @@
             dst);
         mark_string_const_box_emitted(dst);
         finalize_string_concat_result(dst);
+        return 1;
+      }
+
+      auto int ensure_string_concat_pair_materialized(FILE* f, long long reg) {
+        long long lhs = 0;
+        long long rhs = 0;
+        char ab[256];
+        if (!string_concat_pair_is_deferred(reg, &lhs, &rhs)) return 0;
+        reg = resolve_copy_source_reg(reg);
+        ensure_string_concat_pair_materialized(f, lhs);
+        ensure_string_concat_pair_materialized(f, rhs);
+        ab[0] = '\0';
+        append_string_concat_marshaled_arg_ref(f, ab, sizeof(ab), lhs, 1, reg, "defer_lhs");
+        append_string_concat_marshaled_arg_ref(f, ab, sizeof(ab), rhs, 0, reg, "defer_rhs");
+        fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat_hh\"(%s)\n", reg, ab);
+        finalize_string_concat_result(reg);
+        mark_string_concat_pair_emitted(reg);
         return 1;
       }
 

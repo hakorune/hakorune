@@ -148,7 +148,7 @@ Current partitions:
   - thin wrapper for string concat lowering that now delegates emit details
 - `hako_llvmc_ffi_string_concat_emit.inc`
   - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
-  - now partitioned further into `hako_llvmc_ffi_string_concat_emit_helpers.inc` and `hako_llvmc_ffi_string_concat_emit_routes.inc`
+  - now partitioned further into `hako_llvmc_ffi_string_concat_emit_helpers.inc`, `hako_llvmc_ffi_string_concat_emit_routes.inc`, and `hako_llvmc_ffi_string_concat_emit_concat3_routes.inc`
   - shared emit helpers read `shared_receiver` and slot-hop substring metadata through the candidate/plan reader seams; they must not regrow route scanners
 - `hako_llvmc_ffi_string_chain_terms.inc`
   - shared string-chain enum/name terms used by policy and producer-window seams

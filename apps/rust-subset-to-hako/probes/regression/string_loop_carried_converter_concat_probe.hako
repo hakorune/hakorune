@@ -1,0 +1,40 @@
+// 296x-1383 regression probe.
+//
+// The loop carries an accumulated String and appends converter output returned
+// from RustSubsetConverter.convert(). This used to fail EXE pure lowering with
+// an undefined value in nyash.string.concat3_hhh when a deferred concat pair
+// was consumed by a later concat chain.
+
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local files = new ArrayBox()
+        files.push("apps/rust-subset-to-hako/examples/simple_subset.json")
+        files.push("apps/rust-subset-to-hako/examples/edge_subset.json")
+
+        local converter = new RustSubsetConverter()
+        local output = ""
+        local i = 0
+        loop(i < files.length()) {
+            local path = files.get(i)
+            local file = new FileBox()
+            local opened = file.open(path, "r")
+            if opened == 0 { return 1 }
+            local text = file.read()
+            file.close()
+            if text == null { return 1 }
+
+            local chunk = converter.convert(text)
+            if i != 0 {
+                output = output + "\n\n"
+            }
+            output = output + "// module " + path
+            output = output + "\n" + chunk
+            i = i + 1
+        }
+
+        print(output)
+        return 0
+    }
+}

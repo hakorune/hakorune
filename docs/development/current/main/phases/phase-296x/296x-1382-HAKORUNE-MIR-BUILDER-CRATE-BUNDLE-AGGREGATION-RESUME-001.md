@@ -1,6 +1,6 @@
 # 296x-1382 HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
 
-Status: blocked
+Status: open
 Date: 2026-06-20
 
 ## Purpose
@@ -144,4 +144,24 @@ Next focused row:
 
 ```text
 296x-1383-STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001
+```
+
+## Resume Evidence
+
+296x-1383 closed the focused loop-carried string concat EXE shape:
+
+```text
+loop_carried_string_concat_mir_emit=green
+loop_carried_string_concat_exe=green
+output_matches_expected=green
+crate_bundle_wrapper_can_resume=1
+```
+
+Resume this row with the same constraints:
+
+```text
+helper_owned_FileBox=0
+hand_unrolled_7_module_wrapper_fallback=0
+use_resolution=0
+name_resolution=0
 ```
