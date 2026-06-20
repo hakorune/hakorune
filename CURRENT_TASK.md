@@ -87,6 +87,7 @@ Done:
   shared MirBuilder behavioral emitter
   shared family generator helper
   shared family generator driver
+  shared validated family generator entrypoint
   shared family manifest helper
   shared manifest file-entry helper
   shared manifest text-entry helper

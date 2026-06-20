@@ -23,9 +23,8 @@ from shared_family_generator import (
     build_common_rust_derived_inputs,
     build_common_rust_derived_manifest,
     build_hako_behavior_recipe,
-    read_json,
-    run_family_generator,
     stable_json,
+    run_validated_family_generator,
 )
 from shared_mirbuilder_emitter import emit_verified_family_hako
 
@@ -345,11 +344,6 @@ def main() -> None:
     parser.add_argument("--check", action="store_true", help="fail if generated files differ")
     args = parser.parse_args()
 
-    facts = extract_live_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE)
-    plan = read_json(PLAN)
-    oracle = read_json(ORACLE)
-    validate_inputs(facts, plan, oracle)
-
     recipe = build_recipe()
     verifier = build_verifier(recipe)
     hako_text = build_hako()
@@ -357,10 +351,14 @@ def main() -> None:
     verifier_text = stable_json(verifier)
     manifest_text = stable_json(build_manifest(hako_text, recipe_text, verifier_text))
 
-    run_family_generator(
+    run_validated_family_generator(
         check=args.check,
         root=ROOT,
         unchanged_label="generated_variable_context_simple_map_artifact=unchanged",
+        load_facts=lambda: extract_live_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE),
+        plan_path=PLAN,
+        oracle_path=ORACLE,
+        validate_inputs=validate_inputs,
         outputs_factory=lambda: [
             (RECIPE, recipe_text),
             (VERIFIER, verifier_text),

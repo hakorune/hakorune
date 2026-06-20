@@ -270,12 +270,12 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-rust-to-hako
 latest_card_summary = """BindingContextNative, VariableContextNative
 simple-map, VariableContext snapshot/restore artifact ownership, the shared
 MirBuilder emitter, the shared family generator helper and driver, the shared
-family manifest helper, the shared manifest file-entry helper, the shared
-manifest text-entry helper, the shared common derived manifest helper, the
-shared common derived-inputs helper, the shared recipe / verifier helper,
-and the MirBuilder converter matrix guard are green. The next task is
-replacing hard-coded family generators behind that matrix, again without
-new route/card churn."""
+validated family generator entrypoint, the shared family manifest helper, the
+shared manifest file-entry helper, the shared manifest text-entry helper, the
+shared common derived manifest helper, the shared common derived-inputs
+helper, the shared recipe / verifier helper, and the MirBuilder converter
+matrix guard are green. The next task is replacing hard-coded family
+generators behind that matrix, again without new route/card churn."""
 
 current_blocker_token = "MIRBUILDER-REPLACE-HARDCODED-FAMILY-GENERATORS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

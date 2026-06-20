@@ -68,6 +68,29 @@ def run_family_generator(
     )
 
 
+def run_validated_family_generator(
+    *,
+    check: bool,
+    root: Path,
+    unchanged_label: str,
+    load_facts: Callable[[], dict[str, Any]],
+    plan_path: Path,
+    oracle_path: Path,
+    validate_inputs: Callable[[dict[str, Any], dict[str, Any], dict[str, Any]], None],
+    outputs_factory: Callable[[], Iterable[tuple[Path, str]]],
+) -> None:
+    facts = load_facts()
+    plan = read_json(plan_path)
+    oracle = read_json(oracle_path)
+    validate_inputs(facts, plan, oracle)
+    run_family_generator(
+        check=check,
+        root=root,
+        unchanged_label=unchanged_label,
+        outputs_factory=outputs_factory,
+    )
+
+
 def build_rust_derived_hako_manifest(
     *,
     family_id: str,
