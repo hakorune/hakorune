@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001
+VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -50,8 +50,11 @@ and carrier-sensitive behavior stay out of scope. 296x-1519 now generates
 that bounded artifact. 296x-1520 now decides its derived route selection.
 296x-1521 selects immutable `variable_map()` BorrowView as the next bounded
 owner and records the mini-model task ladder through carrier snapshots.
-296x-1522 now opens the immutable BorrowView derived artifact pilot; route
-selection remains next-row work.
+296x-1522 closes the immutable BorrowView derived artifact pilot.
+296x-1523 selects that generated artifact as a derived_hako family route.
+296x-1524 closes the snapshot/restore derived artifact pilot.
+296x-1525 now decides whether that generated artifact is selected as a
+derived_hako family route.
 BindingContext and VariableContext simple-map lifecycle pilots are
 closed. 296x-1394 inventoried returned map borrows and keeps
 `variable_map_mut()` denied as a returned mutable alias boundary. 296x-1395

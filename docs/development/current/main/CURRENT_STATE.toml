@@ -263,15 +263,15 @@ active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1522-VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1525-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001.md"
 
-latest_card = "296x-1522-VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1522-VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001.md"
-latest_card_summary = """296x-1521 selects VariableContext immutable
-variable_map BorrowView as the next bounded owner, and 296x-1522 opens the
-derived artifact pilot for that slice only."""
+latest_card = "296x-1525-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1525-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001.md"
+latest_card_summary = """296x-1524 closes the snapshot/restore artifact
+pilot, and 296x-1525 decides whether that generated artifact is selected as a
+derived_hako family route."""
 
-current_blocker_token = "VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ARTIFACT-PILOT-001"
+current_blocker_token = "VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
