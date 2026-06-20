@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-CARRIER-PHI-INVENTORY-OWNER-SELECTION-001
+POST-CARRIER-SNAPSHOT-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after VariableContext carrier/PHI inventory is
-closed. Do not start carrier snapshot, PHI consumer inventory, or resolver work
-before choosing one next owner.
+Select the next lifecycle owner after CarrierInfo::from_variable_map snapshot
+fixtures are green. Do not start explicit carrier snapshot, PHI consumer
+inventory, or resolver work before choosing one next owner.
 ```
 
 Current evidence:
@@ -191,6 +191,11 @@ carrier/PHI lifecycle inventory is selected as the next owner.
 VARIABLE-CONTEXT-CARRIER-PHI-LIFECYCLE-INVENTORY-001 is closed by 296x-1402;
 CarrierInfo and region-observer map consumers are inventoried, with carrier
 snapshot probes and PHI consumer inventory named as follow-ups.
+POST-CARRIER-PHI-INVENTORY-OWNER-SELECTION-001 is closed by 296x-1403;
+CarrierInfo::from_variable_map snapshot is selected as the next owner.
+VARIABLE-CONTEXT-CARRIER-SNAPSHOT-PLAN-PROBE-001 is closed by 296x-1404;
+CarrierInfo::from_variable_map is fixture-guarded as
+CarrierSnapshotFromBorrowView without PHI join_id or resolver claims.
 ```
 
 Acceptance for the current slice:
@@ -203,7 +208,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1403.
+1. Read 296x-1405.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -212,7 +217,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-POST-CARRIER-PHI-INVENTORY-OWNER-SELECTION-001
+POST-CARRIER-SNAPSHOT-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:

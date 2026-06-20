@@ -1,6 +1,6 @@
 # 296x-1403 POST-CARRIER-PHI-INVENTORY-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -51,6 +51,49 @@ Checks:
 ```bash
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+## Decision
+
+```text
+selected_owner=A
+selected_next_task=VARIABLE-CONTEXT-CARRIER-SNAPSHOT-PLAN-PROBE-001
+implementation_started=0
+```
+
+Reason:
+
+```text
+CarrierInfo::from_variable_map is the broad carrier-sensitive consumer named
+by the inventory. It can be modeled as a read-only snapshot from an
+owner-carrying BorrowView without claiming downstream PHI join_id lifecycle.
+```
+
+Selected scope:
+
+```text
+fixture CarrierInfo::from_variable_map
+plan kind=CarrierSnapshotFromBorrowView
+deny downstream PHI join_id / promoted_body_locals / trim_helper lifecycle
+```
+
+Non-selected owners:
+
+```text
+B ExplicitCarrierSnapshotFromBorrowView:
+  parked until automatic carrier snapshot is fixed
+
+C PHI carrier lifecycle consumer inventory:
+  parked until carrier snapshot output contract is fixed
+
+D HakoLifecycleResolver read-only skeleton:
+  parked until carrier snapshot contract is probed
+```
+
+Next:
+
+```text
+296x-1404-VARIABLE-CONTEXT-CARRIER-SNAPSHOT-PLAN-PROBE-001
 ```
 
 ## Stop Line
