@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001
+POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -96,13 +96,15 @@ additive adapter design that keeps legacy `resolve_promoted_join_id` intact.
 as a read-only `CarrierInfo` query without scope-manager wiring or trim route
 lowering. 296x-1449 selects scope-manager wiring design. 296x-1450 documents
 the explicit condition_bindings input and lookup order without changing code.
+296x-1451 selects the scope-manager condition-bindings input probe.
+296x-1452 adds the input and focused lookup tests without trim route lowering.
 
-The active row is 296x-1451. It selects the next owner after scope-manager
-condition-binding wiring design.
+The active row is 296x-1453. It selects the next owner after scope-manager
+condition-binding input.
 
 ## Next
 
-1. Read 296x-1451.
+1. Read 296x-1453.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

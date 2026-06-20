@@ -5,7 +5,7 @@
 //! currently represents it.
 
 use super::carrier_info::CarrierInfo;
-use super::condition_env::ConditionEnv;
+use super::condition_env::{ConditionBinding, ConditionEnv};
 use super::loop_body_local_env::LoopBodyLocalEnv;
 use crate::mir::loop_route_detection::support::function_scope::CapturedEnv;
 use crate::mir::ValueId;
@@ -28,6 +28,7 @@ pub struct LoopBreakScopeManager<'a> {
     pub loop_body_local_env: Option<&'a LoopBodyLocalEnv>,
     pub captured_env: Option<&'a CapturedEnv>,
     pub carrier_info: &'a CarrierInfo,
+    pub condition_bindings: &'a [ConditionBinding],
 }
 
 impl<'a> ScopeManager for LoopBreakScopeManager<'a> {
@@ -48,6 +49,13 @@ impl<'a> ScopeManager for LoopBreakScopeManager<'a> {
                     return self.condition_env.get(name);
                 }
             }
+        }
+
+        if let Some(id) = self
+            .carrier_info
+            .resolve_promoted_condition_binding_identity(name, self.condition_bindings)
+        {
+            return Some(id);
         }
 
         #[allow(deprecated)]
@@ -88,6 +96,7 @@ mod tests {
         CarrierInfo, CarrierInit, CarrierRole, CarrierVar,
     };
     use crate::mir::loop_route_detection::support::function_scope::CapturedVar;
+    use crate::mir::loop_route_detection::support::trim::TrimLoopHelper;
 
     #[test]
     fn test_loop_break_scope_manager_loop_var() {
@@ -107,6 +116,7 @@ mod tests {
             loop_body_local_env: None,
             captured_env: None,
             carrier_info: &carrier_info,
+            condition_bindings: &[],
         };
 
         assert_eq!(scope.lookup("i"), Some(ValueId(100)));
@@ -138,6 +148,7 @@ mod tests {
             loop_body_local_env: None,
             captured_env: None,
             carrier_info: &carrier_info,
+            condition_bindings: &[],
         };
 
         assert_eq!(scope.lookup("sum"), Some(ValueId(101)));
@@ -168,9 +179,76 @@ mod tests {
             loop_body_local_env: None,
             captured_env: None,
             carrier_info: &carrier_info,
+            condition_bindings: &[],
         };
 
         assert_eq!(scope.lookup("digit_pos"), Some(ValueId(102)));
+    }
+
+    #[test]
+    fn test_loop_break_scope_manager_condition_binding_adapter() {
+        let mut condition_env = ConditionEnv::new();
+        condition_env.insert("i".to_string(), ValueId(100));
+
+        let carrier_info = CarrierInfo {
+            loop_var_name: "i".to_string(),
+            loop_var_id: ValueId(1),
+            carriers: vec![],
+            trim_helper: Some(TrimLoopHelper {
+                original_var: "ch".to_string(),
+                carrier_name: "is_ch_match".to_string(),
+                whitespace_chars: vec![" ".to_string()],
+            }),
+            promoted_body_locals: vec!["ch".to_string()],
+        };
+        let condition_bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        let scope = LoopBreakScopeManager {
+            condition_env: &condition_env,
+            loop_body_local_env: None,
+            captured_env: None,
+            carrier_info: &carrier_info,
+            condition_bindings: &condition_bindings,
+        };
+
+        assert_eq!(scope.lookup("ch"), Some(ValueId(200)));
+    }
+
+    #[test]
+    fn test_loop_break_scope_manager_condition_env_wins_over_adapter() {
+        let mut condition_env = ConditionEnv::new();
+        condition_env.insert("ch".to_string(), ValueId(111));
+
+        let carrier_info = CarrierInfo {
+            loop_var_name: "i".to_string(),
+            loop_var_id: ValueId(1),
+            carriers: vec![],
+            trim_helper: Some(TrimLoopHelper {
+                original_var: "ch".to_string(),
+                carrier_name: "is_ch_match".to_string(),
+                whitespace_chars: vec![" ".to_string()],
+            }),
+            promoted_body_locals: vec!["ch".to_string()],
+        };
+        let condition_bindings = vec![ConditionBinding::new(
+            "is_ch_match".to_string(),
+            ValueId(20),
+            ValueId(200),
+        )];
+
+        let scope = LoopBreakScopeManager {
+            condition_env: &condition_env,
+            loop_body_local_env: None,
+            captured_env: None,
+            carrier_info: &carrier_info,
+            condition_bindings: &condition_bindings,
+        };
+
+        assert_eq!(scope.lookup("ch"), Some(ValueId(111)));
     }
 
     #[test]
@@ -194,6 +272,7 @@ mod tests {
             loop_body_local_env: Some(&body_local_env),
             captured_env: None,
             carrier_info: &carrier_info,
+            condition_bindings: &[],
         };
 
         assert_eq!(scope.lookup("temp"), Some(ValueId(200)));
@@ -228,6 +307,7 @@ mod tests {
             loop_body_local_env: None,
             captured_env: Some(&captured_env),
             carrier_info: &carrier_info,
+            condition_bindings: &[],
         };
 
         assert_eq!(scope.lookup("len"), Some(ValueId(201)));

@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001
+POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after scope-manager condition-binding wiring
-design. Do not change lookup behavior or emit trim route lowering before
-choosing one next owner.
+Select the next lifecycle owner after scope-manager condition-binding input.
+Do not emit trim route lowering before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -266,6 +265,7 @@ bash tools/checks/rust_lifecycle_condition_binding_promoted_identity_guard.sh
 bash tools/checks/rust_lifecycle_condition_binding_resolution_design_guard.sh
 bash tools/checks/rust_lifecycle_condition_binding_resolution_adapter_guard.sh
 bash tools/checks/rust_lifecycle_scope_manager_condition_binding_wiring_design_guard.sh
+bash tools/checks/rust_lifecycle_scope_manager_condition_binding_input_guard.sh
 bash tools/checks/rust_lifecycle_emitter_surface_mir_guard.sh
 cargo check -q --lib
 git diff --check
@@ -274,7 +274,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1451.
+1. Read 296x-1453.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
@@ -284,7 +284,7 @@ bash tools/checks/current_state_pointer_guard.sh
 Recommended next row:
 
 ```text
-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001
+POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
 ```
 
 Current lifecycle SSOT:
@@ -295,16 +295,16 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1451-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001.md
+docs/development/current/main/phases/phase-296x/296x-1453-POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001
+1. POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001
 2. choose one of:
-   A. scope-manager condition-bindings input probe
-   B. trim route lowering proof update
+   A. trim route lowering proof update
+   B. generated trim route lowering pilot
    C. second lifecycle emitter surface
 ```
 

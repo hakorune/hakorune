@@ -24,9 +24,9 @@ assert "wiring_shape=explicit_scope_manager_condition_bindings_input" in card
 assert "do_not_change_scope_manager_code=1" in card
 assert "do_not_emit_trim_route_lowering=1" in card
 
-# This is a design row; scope manager still has the legacy lookup only.
+# The design guarantees the legacy lookup remains available even after later
+# implementation rows add the condition-binding adapter path.
 assert "self.carrier_info.resolve_promoted_join_id(name)" in scope
-assert "resolve_promoted_condition_binding_identity" not in scope
 PY
 
 cat <<'REPORT'

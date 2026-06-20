@@ -1,6 +1,6 @@
 # 296x-1451 POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,27 @@ C. second lifecycle emitter surface
 recommended=A-probe
 reason=design fixed the explicit input boundary. Add that input and guard the
 lookup order before reopening trim route lowering.
+```
+
+## Decision
+
+```text
+selected_next_task=SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001
+selected_scope=add explicit condition_bindings input and focused lookup tests
+selected_reason=the adapter exists and the wiring design fixed the lookup
+boundary. The smallest next step is to let ScopeManager consume the adapter
+from an explicit slice while preserving the legacy path.
+implementation_started=0
+```
+
+## Parked Owners
+
+```text
+trim route lowering proof update:
+  parked until scope-manager lookup consumes condition bindings.
+
+second lifecycle emitter surface:
+  parked until this active lookup boundary is probed.
 ```
 
 ## Acceptance

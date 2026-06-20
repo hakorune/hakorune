@@ -38,6 +38,7 @@ fn test_expr_lowerer_simple_comparison() {
         loop_body_local_env: None,
         captured_env: None,
         carrier_info: &carrier_info,
+        condition_bindings: &[],
     };
 
     let mut builder = create_test_builder();
@@ -82,6 +83,7 @@ fn test_expr_lowerer_variable_not_found() {
         loop_body_local_env: None,
         captured_env: None,
         carrier_info: &carrier_info,
+        condition_bindings: &[],
     };
 
     let mut builder = create_test_builder();
@@ -126,6 +128,7 @@ fn test_expr_lowerer_unsupported_node() {
         loop_body_local_env: None,
         captured_env: None,
         carrier_info: &carrier_info,
+        condition_bindings: &[],
     };
 
     let mut builder = create_test_builder();
@@ -204,6 +207,7 @@ fn make_basic_scope() -> LoopBreakScopeManager<'static> {
         loop_body_local_env: None,
         captured_env: None,
         carrier_info: carrier_ref,
+        condition_bindings: &[],
     }
 }
 
@@ -231,6 +235,7 @@ fn make_scope_with_p_and_s() -> LoopBreakScopeManager<'static> {
         loop_body_local_env: None,
         captured_env: None,
         carrier_info: carrier_ref,
+        condition_bindings: &[],
     }
 }
 
@@ -378,6 +383,7 @@ fn test_expr_lowerer_loop_break_digit_pos_less_zero_generates_compare() {
         loop_body_local_env: None,
         captured_env: None,
         carrier_info: &carrier_info,
+        condition_bindings: &[],
     };
 
     let mut builder = create_test_builder();
