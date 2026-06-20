@@ -1,0 +1,101 @@
+// convert_hakorune_mir_builder_crate_file.hako — 7-module crate bundle wrapper.
+//
+// Main owns FileBox and the dynamic artifact path loop. Converter/core helpers
+// receive already-read RustSubsetModule JSON text and do not operate FileBox.
+
+using apps.lib.json_native.parser.parser as JsonParserUtils
+using apps.lib.json_native.utils.string as StringUtils
+using apps.rust_subset_to_hako.converter_core as RustSubsetConverter
+
+static box Main {
+    main() {
+        local bundle_root = "apps/rust-subset-to-hako/examples/hakorune_mir_builder_crate_expected"
+        local manifest_path = bundle_root + "/crate-manifest.json"
+
+        local manifest_file = new FileBox()
+        local manifest_opened = manifest_file.open(manifest_path, "r")
+        if manifest_opened == 0 {
+            print("// error: crate manifest open failed")
+            return 1
+        }
+        local manifest_text = manifest_file.read()
+        manifest_file.close()
+        if manifest_text == null {
+            print("// error: crate manifest read failed")
+            return 1
+        }
+
+        local manifest = JsonParserUtils.parse_json(manifest_text)
+        if manifest == null {
+            print("// error: invalid crate manifest JSON")
+            return 1
+        }
+        if manifest.get_node("schema_version").as_int() != 0 {
+            print("// error: unsupported crate manifest schema_version")
+            return 1
+        }
+        if manifest.get_node("kind").as_string() != "RustSubsetCrateManifest" {
+            print("// error: unsupported crate manifest kind")
+            return 1
+        }
+        if manifest.get_node("crate_name").as_string() != "hakorune_mir_builder" {
+            print("// error: unexpected crate name")
+            return 1
+        }
+
+        local modules = manifest.get_node("modules")
+        if modules == null {
+            print("// error: crate manifest modules must be an array")
+            return 1
+        }
+        if modules.get_kind() != "array" {
+            print("// error: crate manifest modules must be an array")
+            return 1
+        }
+        if modules.length() != 7 {
+            print("// error: hakorune_mir_builder manifest must contain 7 modules")
+            return 1
+        }
+
+        local converter = new RustSubsetConverter()
+        local output = ""
+        local i = 0
+        loop(i < modules.length()) {
+            local entry = modules.get_node(i)
+            local module_name = entry.get_node("module").as_string()
+            local source_path = entry.get_node("source_path").as_string()
+            local artifact_path = entry.get_node("artifact_path").as_string()
+
+            if module_name == "" { return 1 }
+            if source_path == "" { return 1 }
+            if artifact_path == "" { return 1 }
+            if StringUtils.starts_with(artifact_path, "/") { return 1 }
+            if StringUtils.contains(artifact_path, "..") { return 1 }
+
+            local artifact_file = new FileBox()
+            local artifact_opened = artifact_file.open(bundle_root + "/" + artifact_path, "r")
+            if artifact_opened == 0 { return 1 }
+            local module_text = artifact_file.read()
+            artifact_file.close()
+            if module_text == null { return 1 }
+
+            local module_doc = JsonParserUtils.parse_json(module_text)
+            if module_doc == null { return 1 }
+            if module_doc.get_node("schema_version").as_int() != 0 { return 1 }
+            if module_doc.get_node("kind").as_string() != "RustSubsetModule" { return 1 }
+            if module_doc.get_node("module").as_string() != module_name { return 1 }
+
+            local module_output = converter.convert(module_text)
+            if i != 0 {
+                output = output + "\n\n"
+            }
+            output = output + "// module " + module_name
+            output = output + "\n// source " + source_path
+            output = output + "\n" + module_output
+            i = i + 1
+        }
+
+        print(output)
+        return 0
+    }
+}

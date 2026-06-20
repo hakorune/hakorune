@@ -1,0 +1,528 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "fields": [
+        {
+          "name": "value_types",
+          "type": "BTreeMap<ValueId, MirType>"
+        },
+        {
+          "name": "value_kinds",
+          "type": "HashMap<ValueId, MirValueKind>"
+        },
+        {
+          "name": "value_origin_newbox",
+          "type": "BTreeMap<ValueId, String>"
+        },
+        {
+          "name": "string_literals",
+          "type": "BTreeMap<ValueId, String>"
+        },
+        {
+          "name": "map_value_types",
+          "type": "BTreeMap<ValueId, MirType>"
+        },
+        {
+          "name": "map_literal_value_types",
+          "type": "BTreeMap<UnsupportedType, MirType>"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "TypeContext"
+    },
+    {
+      "fields": [
+        {
+          "name": "value_types",
+          "type": "BTreeMap<ValueId, MirType>"
+        },
+        {
+          "name": "value_kinds",
+          "type": "HashMap<ValueId, MirValueKind>"
+        },
+        {
+          "name": "value_origin_newbox",
+          "type": "BTreeMap<ValueId, String>"
+        },
+        {
+          "name": "string_literals",
+          "type": "BTreeMap<ValueId, String>"
+        },
+        {
+          "name": "map_value_types",
+          "type": "BTreeMap<ValueId, MirType>"
+        },
+        {
+          "name": "map_literal_value_types",
+          "type": "BTreeMap<UnsupportedType, MirType>"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "TypeContextSnapshot"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self-qualified call expression is out of v0 skeleton scope: Self::default"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "value_id"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "get",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_types",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "get_type",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "Option<MirType>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "value_id"
+                  },
+                  {
+                    "kind": "Name",
+                    "name": "ty"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "insert",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_types",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "set_type",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            },
+            {
+              "name": "ty",
+              "type": "MirType"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Unsupported",
+                    "reason": "associated const/value path expression is out of v0 skeleton scope: MirValueKind::Temporary"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "unwrap_or",
+                "receiver": {
+                  "args": [],
+                  "kind": "MethodCall",
+                  "method": "copied",
+                  "receiver": {
+                    "args": [
+                      {
+                        "kind": "Name",
+                        "name": "value_id"
+                      }
+                    ],
+                    "kind": "MethodCall",
+                    "method": "get",
+                    "receiver": {
+                      "base": {
+                        "kind": "Name",
+                        "name": "self"
+                      },
+                      "field": "value_kinds",
+                      "kind": "Field"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "get_kind",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "MirValueKind"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "value_id"
+                  },
+                  {
+                    "kind": "Name",
+                    "name": "kind"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "insert",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_kinds",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "set_kind",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            },
+            {
+              "name": "kind",
+              "type": "MirValueKind"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Unsupported",
+                    "reason": "unsupported expression: Closure"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "map",
+                "receiver": {
+                  "args": [
+                    {
+                      "kind": "Name",
+                      "name": "value_id"
+                    }
+                  ],
+                  "kind": "MethodCall",
+                  "method": "get",
+                  "receiver": {
+                    "base": {
+                      "kind": "Name",
+                      "name": "self"
+                    },
+                    "field": "value_origin_newbox",
+                    "kind": "Field"
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "get_origin_box",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            }
+          ],
+          "receiver": "self_ref",
+          "return_type": "Option<String>"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [
+                  {
+                    "kind": "Name",
+                    "name": "value_id"
+                  },
+                  {
+                    "kind": "Name",
+                    "name": "class_name"
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "insert",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_origin_newbox",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "set_origin_box",
+          "params": [
+            {
+              "name": "value_id",
+              "type": "ValueId"
+            },
+            {
+              "name": "class_name",
+              "type": "String"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Expr",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "clear",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_origin_newbox",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "clear_origin_boxes",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "void"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Struct"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "take_snapshot",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "TypeContextSnapshot"
+        },
+        {
+          "body": [
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "value_types",
+                "kind": "Field"
+              },
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "snapshot"
+                },
+                "field": "value_types",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "value_kinds",
+                "kind": "Field"
+              },
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "snapshot"
+                },
+                "field": "value_kinds",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "value_origin_newbox",
+                "kind": "Field"
+              },
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "snapshot"
+                },
+                "field": "value_origin_newbox",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "string_literals",
+                "kind": "Field"
+              },
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "snapshot"
+                },
+                "field": "string_literals",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "map_value_types",
+                "kind": "Field"
+              },
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "snapshot"
+                },
+                "field": "map_value_types",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "map_literal_value_types",
+                "kind": "Field"
+              },
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "snapshot"
+                },
+                "field": "map_literal_value_types",
+                "kind": "Field"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "restore_snapshot",
+          "params": [
+            {
+              "name": "snapshot",
+              "type": "TypeContextSnapshot"
+            }
+          ],
+          "receiver": "self_mut",
+          "return_type": "void"
+        }
+      ],
+      "target": "TypeContext"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::type_context",
+  "schema_version": 0
+}

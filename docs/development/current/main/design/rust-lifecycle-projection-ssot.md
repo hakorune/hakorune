@@ -41,6 +41,32 @@ This is the key boundary. The long-term goal is still to generate useful
 `.hako`, but ownership is not a text-rewrite rule. Ownership is a projection
 from rustc-proven facts into a Hako-owned plan.
 
+## Short Answer
+
+The migration goal can be described as:
+
+```text
+converterで所有権などをうまく.hakoに変換する
+```
+
+but only with this ownership split:
+
+```text
+correct:
+  rustc adapter proves lifecycle facts
+  Hako resolver chooses the Hako lifecycle plan
+  verifier checks the plan
+  converter/emitter prints the verified plan as .hako / canonical MIR
+
+incorrect:
+  converter reads Rust syntax and directly decides ownership / borrow / Drop
+```
+
+So the converter is the final emission surface, not the policy owner.
+It may become good enough to generate mostly useful `.hako` automatically, but
+the safety contract comes from facts + plan + verifier, not from textual
+pattern replacement.
+
 ## Pipeline
 
 ```text
@@ -165,6 +191,27 @@ output:
 ```
 
 The emitter does not re-run escape, ownership, drop, or borrow decisions.
+
+Allowed responsibilities:
+
+```text
+render record / box / function / method text
+render plan-selected cleanup / birth / field initializer shape
+render verified BorrowView / TransferOwned lowering surface
+preserve diagnostics and source provenance
+fail-fast when a verified plan is missing
+```
+
+Forbidden responsibilities:
+
+```text
+choose record vs box from Rust syntax alone
+choose OrderedMapBox because the adapter saw BTreeMap
+erase Drop because a Rust value looks memory-only
+turn &mut into direct mutation without non-escape proof
+turn Arc/Rc into ordinary boxes without observation facts
+invent fallback ownership when facts are unknown
+```
 
 ## Projection Categories
 
@@ -345,14 +392,22 @@ Rust memory-only Drop:
 ```text
 RUST-LIFECYCLE-PROJECTION-SSOT-001:
   document adapter / resolver / verifier / emitter ownership boundaries
+  document the converter-as-emitter answer explicitly
 
 RUST-LIFECYCLE-FACTS-VOCAB-000:
   passive schema vocabulary for RustLifecycleFacts-v0
+  includes CopyKind / MoveKind / BorrowFact / DropFact / EscapeFact
   no conversion behavior
 
 HAKO-LIFECYCLE-PLAN-VOCAB-000:
   passive schema vocabulary for HakoLifecyclePlan-v0
+  includes Immediate / AggregateLocal / BorrowView / TransferOwned /
+  LocalBox / OrderedMapBox / HostResource / CompatShim
   no emitter behavior
+
+RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000:
+  passive emitter contract for rendering verified lifecycle plans
+  converter direct ownership policy remains forbidden
 
 MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001:
   BindingContext facts + plan + verifier evidence

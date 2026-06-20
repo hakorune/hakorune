@@ -1,6 +1,6 @@
 # 296x-1381 RUST-LIFECYCLE-PROJECTION-SSOT-001
 
-Status: planned
+Status: open
 Date: 2026-06-20
 
 ## Purpose
@@ -37,6 +37,7 @@ rust_adapter_emits_facts_only=1
 hako_lifecycle_resolver_owns_representation_policy=1
 verifier_owns_projection_validity=1
 emitter_reads_verified_plan_only=1
+converter_emits_verified_lifecycle_plan=1
 rust_lifetime_syntax_added=0
 ```
 
@@ -52,13 +53,50 @@ rust_lifetime_syntax_added=0
 3. HAKO-LIFECYCLE-PLAN-VOCAB-000
    Add passive HakoLifecyclePlan-v0 vocabulary only.
 
-4. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
+4. RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000
+   Document the converter/emitter contract for printing only verified Hako
+   lifecycle plans. No direct ownership / borrow / Drop policy is allowed in
+   the converter.
+
+5. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
    Project BindingContext BTreeMap/&self/&mut self/memory-only Drop into
    OrderedMapBox and Hako lifecycle plans.
 
-5. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
+6. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
    Compare against Rust oracle vectors and promote only the BindingContext
    family if green.
+```
+
+## User-Facing Answer
+
+```text
+yes_but_precise=1
+```
+
+The desired end state is that Rust ownership / borrow / Drop information can
+produce useful `.hako`, but the converter is not allowed to decide those
+semantics by itself.
+
+```text
+adapter:
+  proves Rust lifecycle facts
+
+resolver:
+  chooses Hako lifecycle plan
+
+verifier:
+  checks the plan
+
+converter/emitter:
+  renders the verified plan
+```
+
+That means the phrase "converterで所有権などをうまく.hakoに変換する" is
+acceptable as a product description, but the implementation contract is:
+
+```text
+converter_direct_ownership_policy=0
+converter_verified_plan_emission=1
 ```
 
 ## Acceptance
@@ -66,9 +104,10 @@ rust_lifetime_syntax_added=0
 ```text
 rust_lifecycle_projection_ssot_exists=1
 adapter_resolver_verifier_emitter_boundaries_documented=1
+converter_emitter_boundary_documented=1
 converter_direct_ownership_policy_forbidden=1
 first_pilot=BindingContext
-current_filebox_crate_bundle_blocker_unchanged=1
+crate_bundle_transport_closed_by_1382=1
 implementation_started=0
 ```
 
@@ -93,5 +132,5 @@ do_not_claim_crate_wide_executable_parity=1
 
 ## Notes
 
-This row is a planned follow-up. It does not replace the active 296x-1380
-FileBox dynamic path loop blocker, and it does not reopen crate aggregation.
+This row follows the 296x-1382 crate-bundle transport closeout. It does not
+reopen crate aggregation.

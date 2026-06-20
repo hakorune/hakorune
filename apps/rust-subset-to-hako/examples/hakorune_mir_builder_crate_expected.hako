@@ -1,0 +1,385 @@
+// module crate
+// source src/lib.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// module crate::binding_context
+// source src/binding_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record BindingContext {
+    binding_map: BTreeMap<String, BindingId>
+}
+
+function BindingContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+function BindingContext_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function BindingContext_is_empty(receiver: BindingContext): bool {
+    return receiver.binding_map.is_empty()
+}
+
+function BindingContext_len(receiver: BindingContext): usize {
+    return receiver.binding_map.len()
+}
+
+function BindingContext_contains(receiver: BindingContext, name: String): bool {
+    return receiver.binding_map.contains_key(name)
+}
+
+function BindingContext_lookup(receiver: BindingContext, name: String): Option<BindingId> {
+    return receiver.binding_map.get(name).copied()
+}
+
+function BindingContext_insert(receiver: BindingContext, name: String, binding_id: BindingId): void {
+    receiver.binding_map.insert(name, binding_id)
+}
+
+function BindingContext_remove(receiver: BindingContext, name: String): Option<BindingId> {
+    return receiver.binding_map.remove(name)
+}
+
+function BindingContext_clear_for_function_entry(receiver: BindingContext): void {
+    receiver.binding_map.clear()
+}
+
+// TODO: Mod items are out of v0 scope
+
+// module crate::context
+// source src/context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record BoxCompilationContext {
+    variable_map: BTreeMap<String, ValueId>
+    value_origin_newbox: BTreeMap<ValueId, String>
+    value_types: BTreeMap<ValueId, MirType>
+}
+
+function BoxCompilationContext_new(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::default */
+}
+
+function BoxCompilationContext_is_empty(receiver: BoxCompilationContext): bool {
+    return receiver.variable_map.is_empty() && receiver.value_origin_newbox.is_empty() && receiver.value_types.is_empty()
+}
+
+function BoxCompilationContext_size_info(receiver: BoxCompilationContext): UnsupportedType {
+    return null /* TODO: unsupported expression: Tuple */
+}
+
+// TODO: Mod items are out of v0 scope
+
+// module crate::core_context
+// source src/core_context.rs
+// TODO: Use items are out of v0 scope
+
+record CoreContext {
+    value_gen: ValueIdGenerator
+    block_gen: BasicBlockIdGenerator
+    next_binding_id: i64
+    temp_slot_counter: i64
+    debug_join_counter: i64
+}
+
+function CoreContext_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function CoreContext_next_value(receiver: CoreContext): ValueId {
+    return receiver.value_gen.next()
+}
+
+function CoreContext_next_block(receiver: CoreContext): BasicBlockId {
+    return receiver.block_gen.next()
+}
+
+function CoreContext_next_binding(receiver: CoreContext): BindingId {
+    local id: Unknown = null /* TODO: associated function call expression is out of v0 skeleton scope: BindingId::new */
+    receiver.next_binding_id = receiver.next_binding_id.saturating_add(1)
+    /* TODO: statement macro out of v0 scope */
+    return id
+}
+
+function CoreContext_next_temp_slot(receiver: CoreContext): i64 {
+    local id: Unknown = receiver.temp_slot_counter
+    receiver.temp_slot_counter = receiver.temp_slot_counter.saturating_add(1)
+    return id
+}
+
+function CoreContext_next_debug_join(receiver: CoreContext): i64 {
+    local id: Unknown = receiver.debug_join_counter
+    receiver.debug_join_counter = receiver.debug_join_counter.saturating_add(1)
+    return id
+}
+
+function CoreContext_peek_next_value(receiver: CoreContext): ValueId {
+    return receiver.value_gen.peek_next()
+}
+
+function CoreContext_peek_next_block(receiver: CoreContext): BasicBlockId {
+    return receiver.block_gen.peek_next()
+}
+
+function CoreContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+// TODO: Mod items are out of v0 scope
+
+// module crate::metadata_context
+// source src/metadata_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+// TODO: empty record HintSink is out of v0 skeleton scope
+
+function HintSink_new(): Self {
+    return null /* TODO: Self value expression is out of v0 skeleton scope: Self */
+}
+
+function HintSink_scope_enter(receiver: HintSink, _id: i64): void {
+    // empty body
+}
+
+function HintSink_scope_leave(receiver: HintSink, _id: i64): void {
+    // empty body
+}
+
+function HintSink_join_result(receiver: HintSink, _var: S): void {
+    // empty body
+}
+
+record MetadataContext {
+    current_span: SpanT
+    source_file: Option<String>
+    hint_sink: HintSink
+    current_region_stack: Array
+    value_origin_spans: HashMap<ValueId, SpanT>
+    value_origin_callers: HashMap<ValueId, String>
+}
+
+function MetadataContext_new(current_span: SpanT): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function MetadataContext_current_span(receiver: MetadataContext): SpanT {
+    return receiver.current_span
+}
+
+function MetadataContext_set_current_span(receiver: MetadataContext, span: SpanT): void {
+    receiver.current_span = span
+}
+
+function MetadataContext_set_source_file(receiver: MetadataContext, source: S): void {
+    receiver.source_file = null /* TODO: Option constructor/value expression is out of v0 skeleton scope: Some */
+}
+
+function MetadataContext_clear_source_file(receiver: MetadataContext): void {
+    receiver.source_file = null /* TODO: Option constructor/value expression is out of v0 skeleton scope: None */
+}
+
+function MetadataContext_current_source_file(receiver: MetadataContext): Option<String> {
+    return receiver.source_file.clone()
+}
+
+function MetadataContext_hint_scope_enter(receiver: MetadataContext, id: i64): void {
+    receiver.hint_sink.scope_enter(id)
+}
+
+function MetadataContext_hint_scope_leave(receiver: MetadataContext, id: i64): void {
+    receiver.hint_sink.scope_leave(id)
+}
+
+function MetadataContext_hint_join_result(receiver: MetadataContext, var: S): void {
+    receiver.hint_sink.join_result(var.into())
+}
+
+function MetadataContext_push_region(receiver: MetadataContext, region_id: RegionIdT): void {
+    receiver.current_region_stack.push(region_id)
+}
+
+function MetadataContext_pop_region(receiver: MetadataContext): Option<RegionIdT> {
+    return receiver.current_region_stack.pop()
+}
+
+function MetadataContext_current_region_stack(receiver: MetadataContext): UnsupportedType {
+    return receiver.current_region_stack
+}
+
+function MetadataContext_record_value_span(receiver: MetadataContext, value_id: ValueId, span: SpanT): void {
+    receiver.value_origin_spans.insert(value_id, span)
+}
+
+function MetadataContext_value_span(receiver: MetadataContext, value_id: ValueId): Option<SpanT> {
+    return receiver.value_origin_spans.get(value_id).copied()
+}
+
+function MetadataContext_record_value_caller(receiver: MetadataContext, value_id: ValueId, caller: std_panic_Location): void {
+    local loc: Unknown = null /* TODO: unsupported expression: Macro */
+    receiver.value_origin_callers.insert(value_id, loc)
+}
+
+function MetadataContext_value_caller(receiver: MetadataContext, value_id: ValueId): Option<String> {
+    return receiver.value_origin_callers.get(value_id).map(null /* TODO: unsupported expression: Closure */)
+}
+
+function MetadataContext_value_origin_callers(receiver: MetadataContext): HashMap<ValueId, String> {
+    return receiver.value_origin_callers
+}
+
+function MetadataContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+// TODO: Mod items are out of v0 scope
+
+// module crate::type_context
+// source src/type_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record TypeContext {
+    value_types: BTreeMap<ValueId, MirType>
+    value_kinds: HashMap<ValueId, MirValueKind>
+    value_origin_newbox: BTreeMap<ValueId, String>
+    string_literals: BTreeMap<ValueId, String>
+    map_value_types: BTreeMap<ValueId, MirType>
+    map_literal_value_types: BTreeMap<UnsupportedType, MirType>
+}
+
+record TypeContextSnapshot {
+    value_types: BTreeMap<ValueId, MirType>
+    value_kinds: HashMap<ValueId, MirValueKind>
+    value_origin_newbox: BTreeMap<ValueId, String>
+    string_literals: BTreeMap<ValueId, String>
+    map_value_types: BTreeMap<ValueId, MirType>
+    map_literal_value_types: BTreeMap<UnsupportedType, MirType>
+}
+
+function TypeContext_new(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::default */
+}
+
+function TypeContext_get_type(receiver: TypeContext, value_id: ValueId): Option<MirType> {
+    return receiver.value_types.get(value_id)
+}
+
+function TypeContext_set_type(receiver: TypeContext, value_id: ValueId, ty: MirType): void {
+    receiver.value_types.insert(value_id, ty)
+}
+
+function TypeContext_get_kind(receiver: TypeContext, value_id: ValueId): MirValueKind {
+    return receiver.value_kinds.get(value_id).copied().unwrap_or(null /* TODO: associated const/value path expression is out of v0 skeleton scope: MirValueKind::Temporary */)
+}
+
+function TypeContext_set_kind(receiver: TypeContext, value_id: ValueId, kind: MirValueKind): void {
+    receiver.value_kinds.insert(value_id, kind)
+}
+
+function TypeContext_get_origin_box(receiver: TypeContext, value_id: ValueId): Option<String> {
+    return receiver.value_origin_newbox.get(value_id).map(null /* TODO: unsupported expression: Closure */)
+}
+
+function TypeContext_set_origin_box(receiver: TypeContext, value_id: ValueId, class_name: String): void {
+    receiver.value_origin_newbox.insert(value_id, class_name)
+}
+
+function TypeContext_clear_origin_boxes(receiver: TypeContext): void {
+    receiver.value_origin_newbox.clear()
+}
+
+function TypeContext_take_snapshot(receiver: TypeContext): TypeContextSnapshot {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function TypeContext_restore_snapshot(receiver: TypeContext, snapshot: TypeContextSnapshot): void {
+    receiver.value_types = snapshot.value_types
+    receiver.value_kinds = snapshot.value_kinds
+    receiver.value_origin_newbox = snapshot.value_origin_newbox
+    receiver.string_literals = snapshot.string_literals
+    receiver.map_value_types = snapshot.map_value_types
+    receiver.map_literal_value_types = snapshot.map_literal_value_types
+}
+
+// module crate::variable_context
+// source src/variable_context.rs
+// TODO: Use items are out of v0 scope
+
+// TODO: Use items are out of v0 scope
+
+record VariableContext {
+    variable_map: BTreeMap<String, ValueId>
+}
+
+function VariableContext_default(): Self {
+    return null /* TODO: Self-qualified call expression is out of v0 skeleton scope: Self::new */
+}
+
+function VariableContext_new(): Self {
+    return null /* TODO: unsupported expression: Struct */
+}
+
+function VariableContext_lookup(receiver: VariableContext, name: String): Option<ValueId> {
+    return receiver.variable_map.get(name).copied()
+}
+
+function VariableContext_require(receiver: VariableContext, name: String, context: String): Result<ValueId, String> {
+    return receiver.variable_map.get(name).copied().ok_or_else(null /* TODO: unsupported expression: Closure */)
+}
+
+function VariableContext_insert(receiver: VariableContext, name: String, value_id: ValueId): void {
+    receiver.variable_map.insert(name, value_id)
+}
+
+function VariableContext_remove(receiver: VariableContext, name: String): Option<ValueId> {
+    return receiver.variable_map.remove(name)
+}
+
+function VariableContext_variable_map(receiver: VariableContext): BTreeMap<String, ValueId> {
+    return receiver.variable_map
+}
+
+function VariableContext_variable_map_mut(receiver: VariableContext): BTreeMap<String, ValueId> {
+    return receiver.variable_map
+}
+
+function VariableContext_contains(receiver: VariableContext, name: String): bool {
+    return receiver.variable_map.contains_key(name)
+}
+
+function VariableContext_len(receiver: VariableContext): usize {
+    return receiver.variable_map.len()
+}
+
+function VariableContext_is_empty(receiver: VariableContext): bool {
+    return receiver.variable_map.is_empty()
+}
+
+function VariableContext_snapshot(receiver: VariableContext): BTreeMap<String, ValueId> {
+    return receiver.variable_map.clone()
+}
+
+function VariableContext_restore(receiver: VariableContext, snapshot: BTreeMap<String, ValueId>): void {
+    receiver.variable_map = snapshot
+}
+
+// TODO: Mod items are out of v0 scope

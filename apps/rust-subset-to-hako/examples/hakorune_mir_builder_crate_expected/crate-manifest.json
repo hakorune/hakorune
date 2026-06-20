@@ -1,0 +1,47 @@
+{
+  "crate_name": "hakorune_mir_builder",
+  "kind": "RustSubsetCrateManifest",
+  "modules": [
+    {
+      "artifact_path": "modules/0000.json",
+      "module": "crate",
+      "source_path": "src/lib.rs"
+    },
+    {
+      "artifact_path": "modules/0001.json",
+      "module": "crate::binding_context",
+      "source_path": "src/binding_context.rs"
+    },
+    {
+      "artifact_path": "modules/0002.json",
+      "module": "crate::context",
+      "source_path": "src/context.rs"
+    },
+    {
+      "artifact_path": "modules/0003.json",
+      "module": "crate::core_context",
+      "source_path": "src/core_context.rs"
+    },
+    {
+      "artifact_path": "modules/0004.json",
+      "module": "crate::metadata_context",
+      "source_path": "src/metadata_context.rs"
+    },
+    {
+      "artifact_path": "modules/0005.json",
+      "module": "crate::type_context",
+      "source_path": "src/type_context.rs"
+    },
+    {
+      "artifact_path": "modules/0006.json",
+      "module": "crate::variable_context",
+      "source_path": "src/variable_context.rs"
+    }
+  ],
+  "root_module": "crate",
+  "schema_version": 0,
+  "target": {
+    "kind": "lib",
+    "name": "hakorune_mir_builder"
+  }
+}

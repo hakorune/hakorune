@@ -1,6 +1,6 @@
 # 296x-1382 HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -164,4 +164,58 @@ helper_owned_FileBox=0
 hand_unrolled_7_module_wrapper_fallback=0
 use_resolution=0
 name_resolution=0
+```
+
+## Closeout Evidence
+
+The 7-module `hakorune_mir_builder` crate-bundle route is now materialized
+through one Main-owned FileBox wrapper.
+
+```text
+manifest_bundle_checked_in=1
+manifest_schema_version=0
+manifest_kind=RustSubsetCrateManifest
+manifest_crate_name=hakorune_mir_builder
+module_count=7
+manifest_order_preserved=1
+all_artifacts_read=1
+all_artifact_roots=RustSubsetModule
+all_module_ids_match=1
+all_module_outputs_generated=1
+stable_module_source_framing=1
+bundle_output_golden=green
+wrapper_exe_parity=green
+aggregate_text_mir_emit=green
+aggregate_text_mir_emit_scope=fixture_only
+generated_program_execution_claim=0
+cross_module_linking_claim=0
+combined_namespace_semantics_claim=0
+helper_owned_FileBox=0
+hand_unrolled_7_module_wrapper_fallback=0
+use_resolution=0
+name_resolution=0
+```
+
+Focused guard:
+
+```bash
+bash tools/checks/rust_subset_hakorune_mir_builder_crate_bundle_guard.sh
+```
+
+Full app-front smoke:
+
+```bash
+RUST_SUBSET_RUN_ADAPTER=1 bash apps/rust-subset-to-hako/smoke.sh
+```
+
+Result:
+
+```text
+summary=ok
+```
+
+Next row:
+
+```text
+296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001
 ```

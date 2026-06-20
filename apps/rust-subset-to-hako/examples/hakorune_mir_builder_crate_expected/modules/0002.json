@@ -1,0 +1,137 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "fields": [
+        {
+          "name": "variable_map",
+          "type": "BTreeMap<String, ValueId>"
+        },
+        {
+          "name": "value_origin_newbox",
+          "type": "BTreeMap<ValueId, String>"
+        },
+        {
+          "name": "value_types",
+          "type": "BTreeMap<ValueId, MirType>"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "BoxCompilationContext"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self-qualified call expression is out of v0 skeleton scope: Self::default"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Binary",
+                "left": {
+                  "kind": "Binary",
+                  "left": {
+                    "args": [],
+                    "kind": "MethodCall",
+                    "method": "is_empty",
+                    "receiver": {
+                      "base": {
+                        "kind": "Name",
+                        "name": "self"
+                      },
+                      "field": "variable_map",
+                      "kind": "Field"
+                    }
+                  },
+                  "op": "&&",
+                  "right": {
+                    "args": [],
+                    "kind": "MethodCall",
+                    "method": "is_empty",
+                    "receiver": {
+                      "base": {
+                        "kind": "Name",
+                        "name": "self"
+                      },
+                      "field": "value_origin_newbox",
+                      "kind": "Field"
+                    }
+                  }
+                },
+                "op": "&&",
+                "right": {
+                  "args": [],
+                  "kind": "MethodCall",
+                  "method": "is_empty",
+                  "receiver": {
+                    "base": {
+                      "kind": "Name",
+                      "name": "self"
+                    },
+                    "field": "value_types",
+                    "kind": "Field"
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "is_empty",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "bool"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Tuple"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "size_info",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "UnsupportedType"
+        }
+      ],
+      "target": "BoxCompilationContext"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Mod",
+      "summary": "Mod items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::context",
+  "schema_version": 0
+}

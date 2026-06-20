@@ -33,15 +33,19 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
+RUST-LIFECYCLE-PROJECTION-SSOT-001
 ```
 
 Purpose:
 
 ```text
-Resume the manifest-driven `hakorune_mir_builder` 7-module crate-bundle route
-using the Main-owned dynamic FileBox loop and loop-carried string accumulation
-shapes now proven by 296x-1380 and 296x-1383.
+Freeze the Rust lifecycle projection boundary before any BindingContext
+lifecycle pilot:
+
+rustc adapter emits lifecycle facts;
+Hako resolver chooses lifecycle plans;
+verifier checks the plans;
+converter/emitter renders only verified plans.
 ```
 
 Current evidence:
@@ -136,6 +140,10 @@ EXE on loop-carried string accumulation with an undefined LLVM value in
 nyash.string.concat3_hhh.
 STRING-CONCAT-LOOP-CARRIED-EXE-SHAPE-001 is closed by 296x-1383; deferred
 concat pairs are materialized before later concat_hh / concat3 use.
+HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001 is closed by
+296x-1382; the manifest-driven 7-module `hakorune_mir_builder` crate-bundle
+wrapper reaches adapter crate-mode golden, wrapper EXE parity, and
+fixture-only aggregate generated-skeleton MIR emit.
 ```
 
 Acceptance for the current slice:
@@ -148,35 +156,24 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1382.
-2. Implement the `hakorune_mir_builder` crate-bundle wrapper using the
-   Main-owned dynamic FileBox input route.
-3. Preserve manifest order and module/source framing.
-4. Verify wrapper EXE parity and fixture-only aggregate MIR emit.
-5. Keep use/name resolution and generated-program execution claim disabled.
+1. Read 296x-1381.
+2. Finish the Rust lifecycle projection SSOT.
+3. Keep converter direct ownership policy forbidden.
+4. Keep Rust lifetime syntax additions disabled.
+5. Do not start the BindingContext lifecycle pilot until the SSOT row closes.
 
 Recommended next row:
-
-```text
-HAKORUNE-MIR-BUILDER-CRATE-BUNDLE-AGGREGATION-RESUME-001
-```
-
-296x-1382 can resume now that 296x-1380 and 296x-1383 closed the input-route
-FileBox and loop-carried string concat EXE shapes.
-
-After 296x-1377 closes, the planned design follow-up is:
 
 ```text
 RUST-LIFECYCLE-PROJECTION-SSOT-001
 ```
 
-SSOT draft:
+Current lifecycle SSOT:
 
 ```text
 docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 ```
-
-Planned card:
+Current card:
 
 ```text
 docs/development/current/main/phases/phase-296x/296x-1381-RUST-LIFECYCLE-PROJECTION-SSOT-001.md
@@ -188,8 +185,9 @@ Task sequence:
 1. RUST-LIFECYCLE-PROJECTION-SSOT-001
 2. RUST-LIFECYCLE-FACTS-VOCAB-000
 3. HAKO-LIFECYCLE-PLAN-VOCAB-000
-4. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
-5. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
+4. RUST-TO-HAKO-LIFECYCLE-EMITTER-CONTRACT-000
+5. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001
+6. MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-ORACLE-PARITY-001
 ```
 
 ## Pointers

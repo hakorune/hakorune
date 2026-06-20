@@ -1,0 +1,363 @@
+{
+  "items": [
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Use",
+      "summary": "Use items are out of v0 scope"
+    },
+    {
+      "fields": [
+        {
+          "name": "value_gen",
+          "type": "ValueIdGenerator"
+        },
+        {
+          "name": "block_gen",
+          "type": "BasicBlockIdGenerator"
+        },
+        {
+          "name": "next_binding_id",
+          "type": "u32"
+        },
+        {
+          "name": "temp_slot_counter",
+          "type": "u32"
+        },
+        {
+          "name": "debug_join_counter",
+          "type": "u32"
+        }
+      ],
+      "identity": false,
+      "kind": "Struct",
+      "name": "CoreContext"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "unsupported expression: Struct"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "next",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_gen",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "next_value",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "ValueId"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "next",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "block_gen",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "next_block",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "BasicBlockId"
+        },
+        {
+          "body": [
+            {
+              "kind": "Let",
+              "name": "id",
+              "type": "Unknown",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "associated function call expression is out of v0 skeleton scope: BindingId::new"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "next_binding_id",
+                "kind": "Field"
+              },
+              "value": {
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "type": "i64",
+                    "value": 1
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "saturating_add",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "next_binding_id",
+                  "kind": "Field"
+                }
+              }
+            },
+            {
+              "kind": "Unsupported",
+              "reason": "statement macro out of v0 scope"
+            },
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Name",
+                "name": "id"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "next_binding",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "BindingId"
+        },
+        {
+          "body": [
+            {
+              "kind": "Let",
+              "name": "id",
+              "type": "Unknown",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "temp_slot_counter",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "temp_slot_counter",
+                "kind": "Field"
+              },
+              "value": {
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "type": "i64",
+                    "value": 1
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "saturating_add",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "temp_slot_counter",
+                  "kind": "Field"
+                }
+              }
+            },
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Name",
+                "name": "id"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "next_temp_slot",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "u32"
+        },
+        {
+          "body": [
+            {
+              "kind": "Let",
+              "name": "id",
+              "type": "Unknown",
+              "value": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "debug_join_counter",
+                "kind": "Field"
+              }
+            },
+            {
+              "kind": "Assign",
+              "target": {
+                "base": {
+                  "kind": "Name",
+                  "name": "self"
+                },
+                "field": "debug_join_counter",
+                "kind": "Field"
+              },
+              "value": {
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "type": "i64",
+                    "value": 1
+                  }
+                ],
+                "kind": "MethodCall",
+                "method": "saturating_add",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "debug_join_counter",
+                  "kind": "Field"
+                }
+              }
+            },
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Name",
+                "name": "id"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "next_debug_join",
+          "params": [],
+          "receiver": "self_mut",
+          "return_type": "u32"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "peek_next",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "value_gen",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "peek_next_value",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "ValueId"
+        },
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "args": [],
+                "kind": "MethodCall",
+                "method": "peek_next",
+                "receiver": {
+                  "base": {
+                    "kind": "Name",
+                    "name": "self"
+                  },
+                  "field": "block_gen",
+                  "kind": "Field"
+                }
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "peek_next_block",
+          "params": [],
+          "receiver": "self_ref",
+          "return_type": "BasicBlockId"
+        }
+      ],
+      "target": "CoreContext"
+    },
+    {
+      "kind": "Impl",
+      "methods": [
+        {
+          "body": [
+            {
+              "kind": "Return",
+              "value": {
+                "kind": "Unsupported",
+                "reason": "Self-qualified call expression is out of v0 skeleton scope: Self::new"
+              }
+            }
+          ],
+          "kind": "Function",
+          "name": "default",
+          "params": [],
+          "return_type": "Self"
+        }
+      ],
+      "target": "CoreContext"
+    },
+    {
+      "kind": "Unsupported",
+      "rust_kind": "Mod",
+      "summary": "Mod items are out of v0 scope"
+    }
+  ],
+  "kind": "RustSubsetModule",
+  "module": "crate::core_context",
+  "schema_version": 0
+}

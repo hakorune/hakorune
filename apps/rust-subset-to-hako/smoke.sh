@@ -125,6 +125,38 @@ run_adapter_crate_diff() {
   diff -u "$expected_dir/modules/0002.json" "$actual/modules/0002.json"
 }
 
+run_adapter_crate_diff_named() {
+  local label="$1"
+  local crate_root="$2"
+  local expected_dir="$3"
+  local tmp_name="$4"
+  local crate_name="$5"
+  local target_kind="$6"
+  local target_name="$7"
+  local module_count="$8"
+
+  local actual="/tmp/rust_subset_syn_${tmp_name}_crate"
+
+  echo "[rust-subset/smoke] host adapter crate: $label"
+  rm -rf "$actual"
+  cargo run --manifest-path "$SYN_ADAPTER_MANIFEST" --quiet -- \
+    --crate-root "$crate_root" \
+    --out-dir "$actual" \
+    --crate-name "$crate_name" \
+    --target-kind "$target_kind" \
+    --target-name "$target_name"
+  diff -u "$expected_dir/crate-manifest.json" "$actual/crate-manifest.json"
+
+  local i=0
+  local loop_count="$module_count"
+  while [[ "$i" -lt "$loop_count" ]]; do
+    local file
+    file="$(printf "%04d.json" "$i")"
+    diff -u "$expected_dir/modules/$file" "$actual/modules/$file"
+    i=$((i + 1))
+  done
+}
+
 run_simple_semantic_parity() {
   local actual="/tmp/rust_subset_syn_simple.json"
 
@@ -215,6 +247,16 @@ if [[ "${RUST_SUBSET_RUN_ADAPTER:-0}" == "1" ]]; then
     "$EXAMPLES_DIR/mini_crate" \
     "$EXAMPLES_DIR/mini_crate_expected" \
     "mini_crate"
+
+  run_adapter_crate_diff_named \
+    "hakorune_mir_builder crate bundle handoff" \
+    "crates/hakorune_mir_builder" \
+    "$EXAMPLES_DIR/hakorune_mir_builder_crate_expected" \
+    "hakorune_mir_builder" \
+    "hakorune_mir_builder" \
+    "lib" \
+    "hakorune_mir_builder" \
+    "7"
 fi
 
 emit_mir_json "json probe" "$JSON_PROBE" "/tmp/hako_json_probe.mir.json"
@@ -262,6 +304,7 @@ CONVERTER_FIXTURES=(
   "hakorune_mir_builder metadata_context fixture converter|$APP_DIR/convert_hakorune_mir_builder_metadata_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_metadata_context_expected.hako|convert_hakorune_mir_builder_metadata_context_crate_file"
   "hakorune_mir_builder core_context fixture converter|$APP_DIR/convert_hakorune_mir_builder_core_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_core_context_expected.hako|convert_hakorune_mir_builder_core_context_crate_file"
   "hakorune_mir_builder context fixture converter|$APP_DIR/convert_hakorune_mir_builder_context_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_context_expected.hako|convert_hakorune_mir_builder_context_crate_file"
+  "hakorune_mir_builder crate bundle fixture converter|$APP_DIR/convert_hakorune_mir_builder_crate_file.hako|$EXAMPLES_DIR/hakorune_mir_builder_crate_expected.hako|convert_hakorune_mir_builder_crate_file"
 )
 
 for entry in "${CONVERTER_FIXTURES[@]}"; do
@@ -343,6 +386,11 @@ run_generated_hako_mir_acceptance \
   "hakorune_mir_builder context generated skeleton" \
   "$APP_DIR/convert_hakorune_mir_builder_context_crate_file.hako" \
   "hakorune_mir_builder_context_handoff"
+
+run_generated_hako_mir_acceptance \
+  "hakorune_mir_builder crate bundle generated skeleton" \
+  "$APP_DIR/convert_hakorune_mir_builder_crate_file.hako" \
+  "hakorune_mir_builder_crate_handoff"
 
 if [[ "${RUST_SUBSET_RUN_REGRESSION:-0}" == "1" ]]; then
   echo "[rust-subset/smoke] EXE: regression probes"

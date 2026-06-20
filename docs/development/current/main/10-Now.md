@@ -20,105 +20,32 @@ Related:
 ## Active Blocker
 
 ```text
-FILEBOX-DYNAMIC-PATH-LOOP-EXE-SHAPE-001
+RUST-LIFECYCLE-PROJECTION-SSOT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
-lane status. The current rust-subset app-front lane is on the selected
-`hakorune_mir_core` ID-module slice. 296x-1338 cleared tuple-struct constructor
-expressions, 296x-1339 cleared compound assignment, and 296x-1340 cleared
-Self-qualified calls as explicit Unsupported handoffs in the external adapter.
-296x-1341 checks in the selected ID-module bundle and guards it through
-generated-skeleton MIR emit plus wrapper EXE parity. 296x-1342 selects
-`hakorune_mir_core::value_kind` as the next single-module materialization task.
-296x-1343 materializes that value_kind bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
-296x-1344 selects enum variant value skeleton-safety as the next app-front
-blocker after `crate::effect` exposes `Effect_Mut` as an undefined generated
-symbol. 296x-1345 makes enum variant value references skeleton-safe as
-unsupported expression handoffs; `crate::effect` now advances to unresolved
-`Vec_new`.
-296x-1346 makes `Vec::new()` calls skeleton-safe as unsupported expression
-handoffs, and `crate::effect` now reaches generated-skeleton MIR emit.
-296x-1347 materializes the effect bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
-296x-1348 selects `hakorune_mir_builder::binding_context` as the next
-MirBuilder-relevant single-module materialization task.
-296x-1349 materializes that binding_context bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
-296x-1350 selects `hakorune_mir_builder::variable_context` as the next
-MirBuilder-relevant single-module materialization task because its generated
-skeleton already reaches MIR emit.
-296x-1351 materializes that variable_context bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
-296x-1352 selects associated function call skeleton-safety because
-`BindingId::new` and `CallFlags::new` currently emit unresolved generated
-globals.
-296x-1353 makes those calls explicit Unsupported handoffs, keeps module-path
-calls like `crate::util::add1` intact, and advances real modules:
-`core_context` is green while `call_unified` now stops at `EffectMask_IO`.
-296x-1354 selects associated const/value path skeleton-safety because
-`EffectMask::IO` currently emits `EffectMask_IO` as an undefined generated
-variable.
-296x-1355 makes associated const/value paths explicit Unsupported handoffs,
-keeps module-path calls intact, and advances `hakorune_mir_defs::call_unified`
-to generated-skeleton MIR emit.
-296x-1356 selects `hakorune_mir_builder::core_context` as the next
-MirBuilder-relevant single-module materialization task because its generated
-skeleton already reaches MIR emit.
-296x-1357 materializes that core_context bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
-296x-1358 selects `hakorune_mir_builder::context` as the next builder-owned
-context materialization task.
-296x-1359 materializes that context bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
-296x-1360 selects `hakorune_mir_defs::call_unified` as the next green
-materialization task after previous skeleton-safety blockers were closed.
-296x-1361 materializes that call_unified bundle and guards it through
-generated-skeleton MIR emit, wrapper EXE parity, and full rust-subset smoke.
+lane status. The rust-subset app-front crate-bundle milestone is now closed:
+296x-1382 materialized the 7-module `hakorune_mir_builder` bundle through one
+Main-owned FileBox wrapper, with adapter crate-mode golden, wrapper EXE parity,
+and fixture-only aggregate generated-skeleton MIR emit green.
 
-296x-1367 materializes `hakorune_mir_builder::type_context` and guards it
-through generated-skeleton MIR emit plus wrapper EXE parity. 296x-1368 selects
-Self value skeleton-safety after `metadata_context` exposes `HintSink_new`
-returning an undefined generated `Self` value. 296x-1369 makes Self value
-references skeleton-safe and advances `metadata_context` to unresolved function
-`Some`. 296x-1370 selects Option constructor/value path skeleton-safety as the
-next blocker. 296x-1371 makes Option constructor/value paths skeleton-safe and
-`metadata_context` reaches generated-skeleton MIR emit. 296x-1372 selects
-`hakorune_mir_builder::metadata_context` materialization. 296x-1373
-materializes that bundle and guards it through generated-skeleton MIR emit plus
-wrapper EXE parity. 296x-1374 selects the remaining `hakorune_mir_builder`
-crate-root module as the next small materialization row. 296x-1375 materializes
-that crate-root bundle and guards it through generated-skeleton MIR emit plus
-wrapper EXE parity. 296x-1376 selects A2-lite crate-bundle aggregation for the
-7 materialized `hakorune_mir_builder` modules. 296x-1377 keeps that direction
-but blocks after the reusable FileBox helper reaches MIR emit and fails EXE
-pure-route lowering. 296x-1379 closes that helper-owned FileBox shape as a
-boundary decision. FileBox remains Main/input-route owned. The active row is
-296x-1380, focused on preserving FileBox route origin for dynamic path reads in
-a Main-owned loop.
+The active row is 296x-1381, which freezes the Rust lifecycle projection
+boundary before any BindingContext lifecycle pilot.
 
 ## Next
 
-1. Read 296x-1380.
-2. Reproduce the Main-owned dynamic FileBox path loop under MIR emit and EXE
-   lowering.
-3. Repair the narrow receiver-origin loss or document a fail-fast boundary.
-4. Keep the 296x-1377 crate aggregation implementation stopped until this
-   dynamic input route is resolved.
-5. Keep use/name resolution and generated-program execution claim disabled.
-6. After 296x-1377 eventually closes, use
-   `docs/development/current/main/design/rust-lifecycle-projection-ssot.md`
-   as the planned lifecycle-projection design follow-up.
-7. Run:
+1. Read 296x-1381.
+2. Finish the Rust lifecycle projection SSOT.
+3. Keep converter direct ownership policy forbidden.
+4. Keep Rust lifetime syntax additions disabled.
+5. Do not start the BindingContext lifecycle pilot until the SSOT row closes.
+6. Run:
 
 ```bash
 cargo check -q --lib
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
-
-8. Update current pointers when the aggregation row closes.
 
 ## Recently Closed
 
