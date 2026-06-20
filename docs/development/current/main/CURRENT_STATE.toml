@@ -186,21 +186,25 @@ route-specific metadata with resolver/verifier/emitter deny boundaries intact.
 296x-1425 selects TrimRouteInfo::to_carrier_info producer probing. 296x-1426
 fixture-guards TrimRouteInfo::to_carrier_info as TrimHelperCarrierProducer
 without trim route lowering, promoted_body_locals ownership, join_id producer,
-or general resolver claims. The next blocker is 296x-1427: select the next
-lifecycle owner after trim_helper producer probe."""
+or general resolver claims. 296x-1427 selects promoted_body_locals inventory.
+296x-1428 inventories promoted_body_locals producers, merge behavior, and
+join_id-dependent consumers without claiming join_id production or route
+lowering. The next blocker is 296x-1429: select the next lifecycle owner after
+promoted_body_locals inventory."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1427-POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/296x-1429-POST-PROMOTED-BODY-LOCALS-INVENTORY-OWNER-SELECTION-001.md"
 
-latest_card = "296x-1427-POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1427-POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001.md"
-latest_card_summary = """296x-1427 selects the next lifecycle owner after
-TrimRouteInfo::to_carrier_info is fixture-guarded as the trim helper producer."""
+latest_card = "296x-1429-POST-PROMOTED-BODY-LOCALS-INVENTORY-OWNER-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1429-POST-PROMOTED-BODY-LOCALS-INVENTORY-OWNER-SELECTION-001.md"
+latest_card_summary = """296x-1429 selects the next lifecycle owner after
+promoted_body_locals inventory names its producers, merge behavior, and
+join_id-dependent consumers."""
 
-current_blocker_token = "POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001"
+current_blocker_token = "POST-PROMOTED-BODY-LOCALS-INVENTORY-OWNER-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

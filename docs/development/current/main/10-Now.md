@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-TRIM-HELPER-PRODUCER-OWNER-SELECTION-001
+POST-PROMOTED-BODY-LOCALS-INVENTORY-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -64,14 +64,17 @@ trim_helper as route-specific metadata with resolver/verifier/emitter deny
 boundaries intact. 296x-1425 selects TrimRouteInfo::to_carrier_info producer
 probing. 296x-1426 fixture-guards TrimRouteInfo::to_carrier_info as
 TrimHelperCarrierProducer without trim route lowering, promoted_body_locals
-ownership, join_id producer, or general resolver claims.
+ownership, join_id producer, or general resolver claims. 296x-1427 selects
+promoted_body_locals inventory. 296x-1428 inventories promoted_body_locals
+producers, merge behavior, and join_id-dependent consumers without claiming
+join_id production or route lowering.
 
-The active row is 296x-1427. It selects the next lifecycle owner after
-trim_helper producer probe.
+The active row is 296x-1429. It selects the next lifecycle owner after
+promoted_body_locals inventory.
 
 ## Next
 
-1. Read 296x-1427.
+1. Read 296x-1429.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.
