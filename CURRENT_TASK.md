@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001
+POST-READONLY-RESOLVER-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Select the next lifecycle owner after CarrierInfo::merge_from is
-fixture-guarded as an owned mutation boundary. Do not start join_id vocabulary
-changes, trim_helper probing, or resolver work before choosing one next owner.
+Select the next lifecycle owner after the read-only lifecycle resolver
+skeleton is diagnostic-guarded. Do not start verifier, emitter, join_id design,
+or trim_helper probing before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -232,6 +232,11 @@ boundary.
 CARRIER-INFO-MERGE-FROM-LIFECYCLE-PROBE-001 is closed by 296x-1412;
 merge_from is fixture-guarded as OwnedCarrierInfoMerge without join_id producer
 or resolver claims.
+POST-MERGE-FROM-LIFECYCLE-OWNER-SELECTION-001 is closed by 296x-1413;
+read-only resolver skeleton is selected as the next diagnostic-only owner.
+HAKO-LIFECYCLE-RESOLVER-READONLY-SKELETON-001 is closed by 296x-1414;
+diagnostic AllowPlan / DenyUnresolvedBoundary reporting is fixture-guarded
+without verifier, emitter, backend, or selection-owner claims.
 ```
 
 Acceptance for the current slice:
@@ -244,7 +249,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1413.
+1. Read 296x-1415.
 2. Choose one next lifecycle owner.
 3. Park non-selected owners explicitly.
 4. Keep implementation_started=0 in this selection row.

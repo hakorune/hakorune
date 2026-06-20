@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "HakoLifecycleResolverDiagnostics",
+  "mode": "read_only",
+  "selection_owner": false,
+  "converter_emission_added": false,
+  "backend_behavior_changed": false,
+  "verifier_promotion": false,
+  "allow": [
+    {
+      "id": "BindingContext",
+      "plan_fixture": "binding-context-plan-v0.json",
+      "decision": "AllowPlan"
+    },
+    {
+      "id": "VariableContext.simple_map",
+      "plan_fixture": "variable-context-simple-map-plan-v0.json",
+      "decision": "AllowPlan"
+    },
+    {
+      "id": "VariableContext.immutable_BorrowView",
+      "plan_fixture": "variable-context-immutable-borrow-plan-v0.json",
+      "decision": "AllowPlan"
+    },
+    {
+      "id": "VariableContext.snapshot_restore",
+      "plan_fixture": "variable-context-snapshot-restore-plan-v0.json",
+      "decision": "AllowPlan"
+    },
+    {
+      "id": "CarrierInfo.from_variable_map",
+      "plan_fixture": "variable-context-carrier-snapshot-plan-v0.json",
+      "decision": "AllowPlan"
+    },
+    {
+      "id": "CarrierInfo.with_explicit_carriers",
+      "plan_fixture": "variable-context-explicit-carrier-snapshot-plan-v0.json",
+      "decision": "AllowPlan"
+    },
+    {
+      "id": "CarrierInfo.merge_from",
+      "plan_fixture": "carrier-info-merge-from-plan-v0.json",
+      "decision": "AllowPlan"
+    }
+  ],
+  "deny": [
+    {
+      "id": "CarrierVar.join_id.production_lifecycle",
+      "decision": "DenyUnresolvedBoundary",
+      "reason": "no_production_Some_ValueId_producer"
+    },
+    {
+      "id": "CarrierInfo.trim_helper.lifecycle_owner",
+      "decision": "DenyUnresolvedBoundary",
+      "reason": "route_specific_metadata_owner_not_selected"
+    },
+    {
+      "id": "CarrierInfo.promoted_body_locals.lifecycle_owner",
+      "decision": "DenyUnresolvedBoundary",
+      "reason": "promotion_owner_not_selected"
+    }
+  ],
+  "claims": {
+    "join_id_dependent_paths_allowed": false,
+    "full_variable_context_parity": false,
+    "mirbuilder_wide_lifecycle": false,
+    "resolver_selection_owner": false
+  }
+}
