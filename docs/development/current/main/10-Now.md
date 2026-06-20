@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-HAKO-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-001
+POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -147,15 +147,18 @@ enabling emission.
 
 296x-1475 selects a fixture-only verifier skeleton as the next owner.
 
-The active row is 296x-1476. It adds the reusable checker over checked-in
-context lifecycle JSON fixtures.
+296x-1476 adds the fixture-only lifecycle checker over checked-in
+BindingContext and VariableContext JSON fixtures.
+
+The active row is 296x-1477. It selects the next owner after the verifier
+skeleton.
 
 ## Next
 
-1. Read 296x-1476.
-2. Add the fixture-only verifier skeleton.
-3. Add the focused guard.
-4. Keep rustc/converter/emitter/backend behavior unchanged.
+1. Read 296x-1477.
+2. Choose one next owner.
+3. Park non-selected owners explicitly.
+4. Keep implementation_started=0 in this selection row.
 5. Run:
 
 ```bash

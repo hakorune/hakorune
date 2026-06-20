@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-HAKO-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-001
+POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
 ```
 
 Purpose:
 
 ```text
-Add a fixture-only lifecycle verifier skeleton over checked-in context JSON
-fixtures. Do not invoke rustc or change converter, emitter, resolver, or
-backend behavior.
+Select the next owner after adding the fixture-only lifecycle verifier
+skeleton. Do not implement trim lowering, lifecycle emission, rustc integration,
+or backend behavior before choosing one next owner.
 ```
 
 Lifecycle converter boundary:
@@ -282,12 +282,11 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Task Order
 
-1. Read 296x-1476.
-2. Add the reusable JSON fixture checker under `tools/rust_lifecycle/`.
-3. Add `rust_lifecycle_fixture_verifier_skeleton_guard.sh`.
-4. Verify BindingContext and VariableContext cases.
-5. Keep rustc integration, converter core, emitter, resolver, and backend
-   behavior unchanged.
+1. Read 296x-1477.
+2. Choose one next lifecycle / route owner.
+3. Park non-selected owners explicitly.
+4. Keep implementation_started=0 in this selection row.
+5. Keep converter core and backend behavior unchanged.
 
 Recommended next row:
 
@@ -309,8 +308,8 @@ docs/development/current/main/phases/phase-296x/296x-1466-RUST-LIFECYCLE-FACTS-A
 Task sequence:
 
 ```text
-1. HAKO-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-001
-2. then select one of:
+1. POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
+2. choose one of:
    A. return to trim route fixture selection
    B. VariableContext returned mutable borrow API replacement design
    C. lifecycle-aware emitter pilot design
