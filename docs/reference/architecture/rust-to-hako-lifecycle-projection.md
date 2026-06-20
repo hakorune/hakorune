@@ -32,6 +32,34 @@ converter / emitter:
 This keeps the migration structural. Rust syntax is not rewritten directly into
 Hako ownership behavior.
 
+## What "Converter" Means Here
+
+In this reference, "converter" is shorthand for the verified projection
+pipeline.
+
+```text
+RustSubsetModule-v0:
+  source structure
+
+RustLifecycleFacts-v0:
+  ownership / borrow / move / Drop facts
+
+HakoLifecyclePlan-v0:
+  Hako-owned representation and cleanup choice
+
+VerifierResult:
+  positive proof that the plan satisfies the facts
+
+converter / emitter:
+  renders the verified plan
+```
+
+The converter may be the final tool that prints `.hako`, but it must not choose
+ownership policy from Rust syntax alone. If a lifecycle-aware conversion is
+requested and no verified plan exists, the conversion must fail fast. A lossy
+skeleton route may still emit TODO comments, but it cannot claim lifecycle
+parity.
+
 ## Non-Goal
 
 Do not add Rust lifetime syntax to `.hako` as the migration model.

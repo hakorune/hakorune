@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
+RUST-TO-HAKO-CONVERTER-TWO-INPUT-BOUNDARY-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -150,16 +150,18 @@ enabling emission.
 296x-1476 adds the fixture-only lifecycle checker over checked-in
 BindingContext and VariableContext JSON fixtures.
 
-The active row is 296x-1477. It selects the next owner after the verifier
-skeleton.
+296x-1477 selected the ownership-aware converter boundary tasking before
+returning to implementation. 296x-1478 records the converter task sequence as
+verified HakoLifecyclePlan rendering, not direct Rust syntax ownership
+rewriting. The active row is 296x-1479. It defines the lifecycle-aware
+converter input boundary.
 
 ## Next
 
-1. Read 296x-1477.
-2. Choose one next owner.
-3. Park non-selected owners explicitly.
-4. Keep implementation_started=0 in this selection row.
-5. Run:
+1. Read 296x-1479.
+2. Document the two-input converter boundary.
+3. Keep implementation_started=0 in this boundary row.
+4. Run:
 
 ```bash
 git diff --check

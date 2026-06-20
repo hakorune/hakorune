@@ -74,6 +74,46 @@ It may become good enough to generate mostly useful `.hako` automatically, but
 the safety contract comes from facts + plan + verifier, not from textual
 pattern replacement.
 
+## Converter Meaning
+
+When we say "the converter translates Rust ownership into `.hako`", the word
+`converter` means the whole verified projection pipeline, not one direct text
+rewriter.
+
+```text
+accepted meaning:
+  RustSubsetModule-v0
+  + RustLifecycleFacts-v0
+  + verified HakoLifecyclePlan-v0
+  -> .hako / canonical MIR
+
+rejected meaning:
+  Rust syntax
+  -> converter guesses ownership / borrow / Drop policy
+  -> .hako
+```
+
+The practical implementation has four roles:
+
+```text
+external rustc adapter:
+  produce Rust facts only
+
+Hako lifecycle resolver:
+  choose representation / borrow / cleanup plan
+
+Hako lifecycle verifier:
+  allow only plans that satisfy the facts
+
+converter / emitter:
+  render the verified plan
+```
+
+If a task needs executable ownership parity and no verified lifecycle plan is
+available, the converter must fail fast. The existing skeleton route may still
+emit TODO comments, but that route must not claim ownership, borrow, move, or
+Drop parity.
+
 ## Operational Answer
 
 When a task asks whether the converter can translate Rust ownership into
@@ -495,6 +535,38 @@ RUST-TO-HAKO-LIFECYCLE-EMITTER-PROBE-001:
 RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001:
   later external-adapter probe for producing lifecycle facts from rustc
   do not use raw rustc dumps as stable schema
+```
+
+## Ownership-Aware Converter Task Queue
+
+Use this queue when the next task is specifically "make the converter handle
+Rust ownership well".
+
+```text
+RUST-TO-HAKO-OWNERSHIP-CONVERTER-TASK-SEQUENCE-001:
+  document the converter as a verified-plan renderer
+  choose the next concrete converter/emitter row
+  implementation_started=0
+
+RUST-TO-HAKO-CONVERTER-TWO-INPUT-BOUNDARY-001:
+  define the converter input as RustSubsetModule-v0 plus a verified
+  HakoLifecyclePlan-v0
+  lifecycle_claim_without_verified_plan=fail_fast
+  skeleton_todo_route_still_allowed=1
+
+RUST-TO-HAKO-LIFECYCLE-EMITTER-SURFACE-001:
+  render one existing verified plan fixture into `.hako`
+  no direct Rust syntax ownership decisions
+
+RUST-TO-HAKO-LIFECYCLE-PARITY-GATE-001:
+  compare emitted `.hako` / canonical MIR against the Rust oracle for the
+  selected family only
+  no crate-wide executable parity claim
+
+RUSTC-SEMIR-LIFECYCLE-FACTS-ADAPTER-PROBE-001:
+  later external adapter probe
+  rustc facts only
+  Hako representation policy remains resolver-owned
 ```
 
 Selection rule:

@@ -1,6 +1,6 @@
 # 296x-1477 POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -41,6 +41,29 @@ recommended=A
 reason=the lifecycle projection documentation, adapter facts, passive verifier
 fixtures, and fixture-only checker are now in place. The earlier trim route
 lane was parked only to document and task lifecycle projection boundaries.
+```
+
+## Selection
+
+```text
+selected_owner=C-lite
+selected_next_task=RUST-TO-HAKO-OWNERSHIP-CONVERTER-TASK-SEQUENCE-001
+selected_reason=user asked to pin the answer to "converterで所有権などを
+うまく.hakoに変換するであってるか" before returning to implementation.
+The correct boundary is converter/emitter as verified-plan renderer, not
+converter-as-policy-owner.
+implementation_started=0
+```
+
+Non-selected owners:
+
+```text
+A. return to trim route fixture selection:
+  parked until the ownership-aware converter boundary tasking is recorded
+
+B. VariableContext returned mutable borrow API replacement design:
+  parked; returned mutable borrow remains Deny(ReturnedMutableBorrow)
+  until a dedicated API replacement row is selected
 ```
 
 ## Acceptance

@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
+RUST-TO-HAKO-CONVERTER-TWO-INPUT-BOUNDARY-001
 ```
 
 Purpose:
 
 ```text
-Select the next owner after adding the fixture-only lifecycle verifier
-skeleton. Do not implement trim lowering, lifecycle emission, rustc integration,
-or backend behavior before choosing one next owner.
+Define the lifecycle-aware converter input boundary as RustSubsetModule-v0 plus
+verified HakoLifecyclePlan-v0. Do not implement converter emission, rustc
+integration, lifecycle resolver behavior, or backend behavior in this row.
 ```
 
 Lifecycle converter boundary:
