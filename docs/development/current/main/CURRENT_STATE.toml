@@ -310,7 +310,9 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   for focused carrier-data maps. The explicit carrier snapshot artifact has
   now accepted the remaining `requested_names` ArrayBox indexing as a general
   `ArrayBox.get` shape, without key-name-specific type special casing. The
-  current blocker is none."""
+  next selected task is closing the CarrierInfo easy-tier live facts
+  conversion so typed operation IR is compiled from live facts instead of
+  hard-coded spec operations. The current blocker is none."""
 
 current_blocker_token = "none"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

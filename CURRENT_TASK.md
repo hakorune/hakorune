@@ -36,11 +36,20 @@ Current blocker:
 none
 ```
 
+Next task:
+
+```text
+Close CarrierInfo easy-tier live facts conversion
+```
+
 Purpose:
 
 ```text
 No active blocker. 296x-1540 landed by accepting the remaining
 `ArrayBox.get` route shape without key-name-specific type special casing.
+The next selected task is to close the CarrierInfo easy-tier live facts
+conversion so typed operation IR is compiled from live facts instead of
+hard-coded spec operations.
 ```
 
 Lifecycle converter boundary:
@@ -127,9 +136,10 @@ Next:
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
   2. Accept typed output-argument mutation for generated bridge APIs. (closed)
-  3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
-  4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
-  5. Retire raw Hako method body strings from active MirBuilder family specs. (closed)
+ 3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
+ 4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
+ 5. Retire raw Hako method body strings from active MirBuilder family specs. (closed)
+  6. Close CarrierInfo easy-tier live facts conversion.
 ```
 
 Current task order:

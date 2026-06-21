@@ -403,6 +403,35 @@ checked-in generated artifacts.
    `return ctx.variable_map`.
    ```
 
+20. `Close CarrierInfo easy-tier live facts conversion`
+
+   Status: planned.
+
+   Close the remaining easy-tier gap by making CarrierInfo converter methods
+   compile typed operation IR from live lightweight facts plus plan inputs
+   instead of hard-coded spec operations. Keep the hard-tier stops parked and
+   do not open the nightly rustc adapter path for this slice.
+
+   Acceptance:
+
+   ```text
+   live lightweight facts + plan compile the CarrierInfo snapshot methods
+   into ApiMethodSpec.operations
+
+   spec contains no hard-coded CarrierSnapshotFromOwnedMap or
+   ExplicitCarrierSnapshotFromOwnedMap operation bodies
+
+   unknown resolved call targets still fail closed
+
+   generated .hako stays byte-identical
+
+   carrier snapshot and explicit carrier EXE remain green
+
+   bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh remains green
+
+   no new route/card/guard files are added
+   ```
+
 ## Parked Work
 
 Do not extend the simple-map path into these areas:
