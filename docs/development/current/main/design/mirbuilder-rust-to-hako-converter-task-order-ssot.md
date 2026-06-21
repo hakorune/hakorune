@@ -310,7 +310,7 @@ checked-in generated artifacts.
 
 16. `Accept typed output-argument mutation for generated bridge APIs`
 
-   Status: active.
+   Status: landed.
 
    Let generated `CarrierInfoApi.from_snapshot(carrier_data, ...)` mutate a
    typed `OrderedMapBox` output parameter that remains visible to the caller,
@@ -318,7 +318,7 @@ checked-in generated artifacts.
 
 17. `Preserve OrderedMapBox.get result type origin`
 
-   Status: pending.
+   Status: active.
 
    Preserve known object origins through `OrderedMapBox.set/get` pairs for
    focused carrier-data objects, so `info.get("carrier_names").get(0)` can

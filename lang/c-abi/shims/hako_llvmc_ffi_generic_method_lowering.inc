@@ -876,6 +876,8 @@
               set_route = classify_generic_method_set_route(
                   bname, &plan, array_set_plain_i64, array_set_string_handle);
             }
+            ab[0] = '\0';
+            if (recv) append_i64_arg_ref(ab, ab_cap, recv, 1);
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
             switch (set_route) {

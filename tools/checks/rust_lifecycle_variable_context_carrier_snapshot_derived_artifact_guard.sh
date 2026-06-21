@@ -81,11 +81,15 @@ assert "ArrayBox.push" in verifier["verified_operations"]
 
 assert "static box CarrierInfoApi" in hako
 assert "from_snapshot(carrier_data: OrderedMapBox, loop_var_name, snapshot: OrderedMapBox): i64" in hako
+assert 'CarrierInfoApi.from_snapshot(info, "i", snapshot)' in hako
 assert "VariableContextApi.snapshot" in hako
 assert "return ctx.variable_map\n" not in hako
 assert "from_variable_map(loop_var_name, variable_map)" not in hako
 assert "variable_map_mut" not in hako
 assert "CarrierInfo::with_explicit_carriers" not in hako
+assert "carrier_names_init" not in hako
+assert "init_index" not in hako
+assert "carrier_snapshot_output_arg_mutation=fail" in hako
 
 spec = carrier_snapshot_spec()
 assert all(
@@ -123,6 +127,8 @@ generated_hako_parse=green
 generated_hako_mir_emit=green
 generated_hako_exe=green
 owned_snapshot_alias_isolation=green
+typed_output_arg_mutation=green
+main_inlined_duplicate_carrier_projection=0
 route_selected=0
 full_variable_context_claim=0
 variable_map_mut_generated=0

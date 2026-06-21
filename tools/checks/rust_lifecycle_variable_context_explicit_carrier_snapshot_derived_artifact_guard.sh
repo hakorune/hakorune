@@ -81,14 +81,16 @@ assert "ArrayBox.get" in verifier["verified_operations"]
 
 assert "static box CarrierInfoApi" in hako
 assert "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64" in hako
+assert 'CarrierInfoApi.with_explicit_carriers_from_snapshot(info, "i", 5, requested_names, snapshot)' in hako
 assert "VariableContextApi.snapshot" in hako
 assert "VariableContextApi.variable_map" not in hako
 assert "return ctx.variable_map\n" not in hako
 assert "CarrierInfo::from_variable_map" not in hako
 assert "variable_map_mut" not in hako
-assert "explicit_carrier_snapshot_missing_requested_carrier=fail" in hako
+assert "carrier_names_init" not in hako
+assert "missing_scan_index" not in hako
+assert "explicit_carrier_snapshot_output_arg_mutation=fail" in hako
 assert "explicit_carrier_snapshot_ctx_alias=fail" in hako
-assert "explicit_carrier_snapshot_info_alias=fail" in hako
 PY
 
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
@@ -98,7 +100,6 @@ rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
 sed '/^Result: /d' "$RAW" >"$OUT"
 
 cat >"$EXPECTED" <<'EOF_EXPECTED'
-explicit_carrier_snapshot_missing_requested_carrier=fail
 variable_context_explicit_carrier_snapshot_derived_artifact=ok
 EOF_EXPECTED
 
@@ -114,6 +115,8 @@ deterministic_regeneration=green
 generated_hako_parse=green
 generated_hako_mir_emit=green
 generated_hako_exe=green
+typed_output_arg_mutation=green
+main_inlined_duplicate_carrier_projection=0
 route_selected=0
 full_variable_context_claim=0
 variable_map_mut_generated=0

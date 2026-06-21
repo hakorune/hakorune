@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
+ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
 ```
 
 Purpose:
 
 ```text
-Accept generated bridge APIs that mutate typed output arguments so generated
-CarrierInfo artifacts no longer inline operation bodies in Main.
+Preserve OrderedMapBox.get result type origin for focused carrier-data maps so
+nested ArrayBox reads route without RuntimeDataBox widening.
 ```
 
 Lifecycle converter boundary:
@@ -117,13 +117,15 @@ Done:
   OrderedMapBox method calls through origin-copied receivers
   explicit CarrierInfo conversion from owned snapshot
   native CarrierInfo snapshot APIs
+  imported instance method route acceptance for native CarrierInfo APIs
+  typed output-argument mutation for generated bridge APIs
 
 Next:
-  TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
+  ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
-  2. Accept typed output-argument mutation for generated bridge APIs.
+  2. Accept typed output-argument mutation for generated bridge APIs. (closed)
   3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps.
 ```
 

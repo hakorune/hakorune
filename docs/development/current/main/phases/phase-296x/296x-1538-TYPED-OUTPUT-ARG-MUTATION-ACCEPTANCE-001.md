@@ -1,6 +1,6 @@
 # 296x-1538 TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
 
-Status: pending
+Status: closed
 Date: 2026-06-21
 
 ## Purpose
@@ -46,6 +46,15 @@ bash tools/checks/rust_lifecycle_variable_context_carrier_snapshot_derived_artif
 bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_artifact_guard.sh
   generated_hako_exe=green
   no inlined duplicate carrier projection in Main
+```
+
+Result:
+
+```text
+CarrierInfoApi.from_snapshot(info, "i", snapshot) runs in generated Main.
+CarrierInfoApi.with_explicit_carriers_from_snapshot(...) runs in generated Main.
+typed_output_arg_mutation=green
+main_inlined_duplicate_carrier_projection=0
 ```
 
 ## Stop Line

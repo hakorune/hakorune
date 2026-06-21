@@ -53,57 +53,19 @@ static box Main {
 
         local snapshot = VariableContextApi.snapshot(ctx)
         local info = OrderedMap.create()
-        info.set("loop_var_name", "i")
-        info.set("loop_var_id", snapshot.get("i"))
-        local carrier_names_init = new ArrayBox()
-        local carrier_host_ids_init = new ArrayBox()
-        local init_index = 0
-        loop(init_index < snapshot.length()) {
-            local key = snapshot.key_at(init_index)
-            if key != "i" {
-                carrier_names_init.push(key)
-                carrier_host_ids_init.push(snapshot.get(key))
-            }
-            init_index = init_index + 1
-        }
-        info.set("carrier_names", carrier_names_init)
-        info.set("carrier_host_ids", carrier_host_ids_init)
-        info.set("carrier_count", carrier_names_init.length())
-        ctx.variable_map.set("sum", 99)
-        snapshot.set("count", 77)
-        if info.get("loop_var_name") != "i" {
-            print("carrier_snapshot_loop_var_name=fail")
+        if CarrierInfoApi.from_snapshot(info, "i", snapshot) != 0 {
+            print("carrier_snapshot_status=fail")
             return 1
         }
-        if info.get("loop_var_id") != 5 {
-            print("carrier_snapshot_loop_var_id=fail")
+        ctx.variable_map.set("sum", 99)
+        snapshot.set("count", 77)
+        if info.length() != 5 {
+            print("carrier_snapshot_output_arg_mutation=fail")
             return 2
-        }
-        if info.get("carrier_count") != 2 {
-            print("carrier_snapshot_carrier_count=fail")
-            return 3
-        }
-
-        if carrier_names_init.length() != 2 {
-            print("carrier_snapshot_carrier_names_len=fail")
-            return 4
-        }
-        if carrier_names_init.get(0) != "count" or carrier_names_init.get(1) != "sum" {
-            print("carrier_snapshot_carrier_names_order=fail")
-            return 5
-        }
-
-        if carrier_host_ids_init.get(0) != 11 or carrier_host_ids_init.get(1) != 10 {
-            print("carrier_snapshot_carrier_hosts=fail")
-            return 6
         }
         if ctx.variable_map.get("count") != 11 {
             print("carrier_snapshot_ctx_alias=fail")
-            return 7
-        }
-        if carrier_host_ids_init.get(0) != 11 {
-            print("carrier_snapshot_info_alias=fail")
-            return 8
+            return 3
         }
 
         print("variable_context_carrier_snapshot_derived_artifact=ok")

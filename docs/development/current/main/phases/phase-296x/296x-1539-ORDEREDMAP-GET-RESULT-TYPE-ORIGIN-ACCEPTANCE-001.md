@@ -1,6 +1,6 @@
 # 296x-1539 ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
 
-Status: pending
+Status: active
 Date: 2026-06-21
 
 ## Purpose

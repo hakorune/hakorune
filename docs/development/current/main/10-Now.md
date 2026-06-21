@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
+ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -42,9 +42,11 @@ CarrierInfo artifact now reaches MIR and EXE with alias-isolation coverage.
 Explicit CarrierInfo conversion now uses the same owned snapshot input and
 reaches generated Hako MIR/EXE with missing-carrier fail-fast coverage. Native
 CarrierInfo snapshot APIs now have EXE smokes for direct from_snapshot and
-explicit snapshot instance calls. The active task is accepting typed
-output-argument mutation for generated bridge APIs so generated CarrierInfo
-artifacts no longer inline operation bodies in Main.
+explicit snapshot instance calls. Generated CarrierInfo bridge APIs now mutate
+typed OrderedMapBox output arguments directly from Main, without inlining their
+operation bodies. The active task is preserving OrderedMapBox.get result type
+origin for focused carrier-data maps so nested ArrayBox reads route without
+RuntimeDataBox widening.
 
 Historical context follows.
 

@@ -441,6 +441,12 @@
         if (!(args && yyjson_is_arr(args))) return 0;
         argc = yyjson_arr_size(args);
         if (argc == 3) {
+          long long maybe_receiver = 0;
+          if (!same_module_function_read_arg_reg(args, 0, &maybe_receiver)) return 0;
+          if (resolve_copy_source_reg(maybe_receiver) !=
+              resolve_copy_source_reg(recv)) {
+            return 0;
+          }
           key_index = 1;
           value_index = 2;
         } else if (argc != 2) {

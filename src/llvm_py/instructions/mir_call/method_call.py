@@ -58,6 +58,17 @@ def _flattened_nested_method_call_route_enabled() -> bool:
     )
 
 
+def _strip_duplicate_receiver_arg(receiver, args):
+    if not args:
+        return args
+    try:
+        if int(args[0]) == int(receiver):
+            return args[1:]
+    except _SAFE_METHOD_CALL_EXC:
+        return args
+    return args
+
+
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
     """
     Lower box method call - TRUE UNIFIED IMPLEMENTATION
@@ -280,13 +291,14 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         result = ir.Constant(i64, 0)
 
     elif method in {"get", "push", "set", "has", "clear", "delete"}:
+        collection_args = _strip_duplicate_receiver_arg(receiver, args)
         result = lower_collection_method_call(
             builder=builder,
             declare=declare,
             box_name=box_name,
             method_name=method,
             recv_h=recv_h,
-            arg_ids=args,
+            arg_ids=collection_args,
             resolve_arg=_resolve_arg,
             resolver=resolver,
             receiver_vid=receiver,
