@@ -454,7 +454,7 @@ checkable before selecting a larger new family.
 
 21. `Repair MirBuilder converter matrix coverage`
 
-   Status: planned.
+   Status: closed.
 
    Current issue:
 
@@ -489,7 +489,7 @@ checkable before selecting a larger new family.
 
 22. `Expand lightweight converter entrypoint`
 
-   Status: planned.
+   Status: closed.
 
    Current issue:
 

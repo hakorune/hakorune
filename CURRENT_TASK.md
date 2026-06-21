@@ -39,17 +39,15 @@ none
 Next task:
 
 ```text
-Repair MirBuilder converter matrix coverage
+Add durable negative converter fixtures
 ```
 
 Purpose:
 
 ```text
-CarrierInfo easy-tier live facts conversion is landed and the task-order SSOT
-has been updated to match. The next implementation task is converter coverage
-hygiene: make the matrix guard and check-script index reflect the current
-derived/native CarrierInfo and VariableContext coverage before selecting a new
-MirBuilder family pilot.
+The next implementation task is to consolidate fail-closed coverage into a
+small reusable negative fixture corpus. Keep the existing deny reasons
+truthful and avoid inline Python mutations inside guards.
 ```
 
 Lifecycle converter boundary:
