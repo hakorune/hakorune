@@ -430,6 +430,7 @@ checked-in generated artifacts.
    bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh remains green
 
    no new route/card/guard files are added
+   ```
 
    Evidence:
 
@@ -439,7 +440,396 @@ checked-in generated artifacts.
    bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_artifact_guard.sh
    bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
    ```
+
+## Remaining Work Backlog
+
+This backlog records the post-CarrierInfo inventory. It is a task-order guide,
+not a new route/card lane. Prefer implementation commits that close a real
+converter capability or a real guard coverage gap.
+
+### Phase A: Converter Coverage Hygiene
+
+Goal: make the existing easy-tier converter surface truthful and one-command
+checkable before selecting a larger new family.
+
+21. `Repair MirBuilder converter matrix coverage`
+
+   Status: planned.
+
+   Current issue:
+
+   ```text
+   rust_mirbuilder_converter_matrix_guard.sh reports a broad converter matrix,
+   but it does not run every current artifact/native/hardcode guard it implies.
    ```
+
+   Required scope:
+
+   ```text
+   include carrier snapshot artifact guard
+   include explicit carrier snapshot artifact guard
+   include native snapshot/restore guard
+   include native CarrierInfo snapshot guard
+   include no-carrier-key-type-special-case guard
+   include no-silent-hardcode guard where meaningful for staged diffs
+   update docs/tools/check-scripts-index.md matrix wording
+   ```
+
+   Acceptance:
+
+   ```text
+   bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
+     covers every family/status it reports
+
+   docs/tools/check-scripts-index.md
+     describes the same coverage
+
+   no generated artifact output changes
+   no route/card file added
+   ```
+
+22. `Expand lightweight converter entrypoint`
+
+   Status: planned.
+
+   Current issue:
+
+   ```text
+   tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py
+   only covers BindingContext and VariableContext simple-map.
+   ```
+
+   Required scope:
+
+   ```text
+   add --all
+   include variable-context-snapshot-restore
+   include variable-context-carrier-snapshot
+   include variable-context-explicit-carrier-snapshot
+   keep immutable borrow as Deny(ReturnedReadBorrow), not generated alias
+   update tools/checks/rust_mirbuilder_lightweight_facts_converter_guard.sh
+   ```
+
+   Acceptance:
+
+   ```text
+   python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --all --check
+     green
+
+   generated .hako artifacts stay byte-identical
+   unknown shapes still fail closed
+   no nightly rustc adapter path opened
+   ```
+
+23. `Add durable negative converter fixtures`
+
+   Status: planned.
+
+   Current issue:
+
+   ```text
+   Some fail-closed checks are inline Python mutations inside guards rather
+   than a small reusable negative fixture corpus.
+   ```
+
+   Required negative cases:
+
+   ```text
+   UnsupportedResolvedCallTarget
+   ReturnedReadBorrow
+   ReturnedMutableBorrow
+   CarrierSensitiveAlias
+   missing requested carrier fail-fast
+   hardcoded representation token in decision path
+   TODO/null placeholder emission
+   ```
+
+   Acceptance:
+
+   ```text
+   one negative matrix guard runs the fixture corpus
+   each case reports the intended Deny reason
+   no happy-path generated artifact changes
+   ```
+
+24. `Unify carrier artifact generator runner`
+
+   Status: planned.
+
+   Current issue:
+
+   ```text
+   Binding/simple-map/snapshot use the shared generator runner, while carrier
+   artifacts use a separate write_outputs flow.
+   ```
+
+   Acceptance:
+
+   ```text
+   carrier snapshot and explicit carrier snapshot use the shared validated
+   generator path or a documented equivalent helper
+
+   generated .hako and artifact manifests stay byte-identical
+   carrier snapshot and explicit carrier EXE guards stay green
+   ```
+
+25. `Track generated-to-native adoption matrix`
+
+   Status: planned.
+
+   Current issue:
+
+   ```text
+   Native Hako sources and guards exist, but generated route selection and
+   native semantic-authority adoption are not summarized by one matrix.
+   ```
+
+   Required scope:
+
+   ```text
+   BindingContextNative
+   VariableContextNative simple-map
+   VariableContextNative snapshot/restore
+   CarrierInfoNative snapshot APIs
+   ```
+
+   Acceptance:
+
+   ```text
+   one adoption matrix guard or report distinguishes:
+     generated derived_hako route
+     native_hako source existence
+     native behavior EXE guard
+     source_selfhost_claim=0 unless explicitly promoted
+   ```
+
+### Phase B: Next Easy-Tier Family Pilot
+
+Goal: choose exactly one bounded MirBuilder family slice with real behavior
+facts. Skeleton transport alone is not enough.
+
+26. `Select bounded BoxCompilationContext facts pilot`
+
+   Status: planned.
+
+   Rationale:
+
+   ```text
+   context / BoxCompilationContext is the smallest plausible next easy-tier
+   candidate. Start with constructor + is_empty only.
+   ```
+
+   Required scope:
+
+   ```text
+   live lightweight facts
+   HakoLifecyclePlan
+   oracle vectors
+   typed operation IR
+   generated artifact
+   MIR/EXE acceptance
+   no size_info claim unless separately proven
+   ```
+
+   Rough size:
+
+   ```text
+   5-7 tasks for constructor + is_empty
+   ```
+
+27. `Evaluate CoreContext scalar counter vocabulary`
+
+   Status: planned after task 26.
+
+   Required new vocabulary candidates:
+
+   ```text
+   scalar counter field initialization
+   increment / saturating_add
+   ID constructor calls
+   struct-return construction
+   ```
+
+   Rough size:
+
+   ```text
+   7-10 tasks
+   ```
+
+28. `Evaluate TypeContext bounded map slice`
+
+   Status: planned after task 26 unless CoreContext is selected first.
+
+   Known complications:
+
+   ```text
+   non-String keys
+   HashMap rather than BTreeMap
+   Option/default behavior
+   closure-shaped source paths
+   snapshot struct behavior
+   ```
+
+   Rough size:
+
+   ```text
+   8-12 tasks for a narrow first slice
+   ```
+
+29. `Keep MetadataContext deferred`
+
+   Status: parked until a smaller candidate lands.
+
+   Reason:
+
+   ```text
+   generics, Option, Vec, HashMap, closures/macros, source-file cloning, and
+   region stack push/pop make this too broad for the next easy-tier pilot.
+   ```
+
+   Rough size:
+
+   ```text
+   10-15 tasks if later narrowed
+   ```
+
+### Phase C: Hard-Tier Design Stops
+
+Goal: enter these only with an explicit design decision. Do not drive-by extend
+the easy-tier converter into these areas.
+
+30. `ReturnedMutableBorrow replacement decision`
+
+   Status: design stop.
+
+   Choices to decide:
+
+   ```text
+   explicit mutation APIs
+   bounded with-map operation
+   ReplaceOwned-style ownership transfer
+   ```
+
+   Rough size:
+
+   ```text
+   2-4 tasks after decision
+   ```
+
+31. `ReturnedReadBorrow / read-view decision`
+
+   Status: design stop.
+
+   Current contract remains:
+
+   ```text
+   NoReturnedAlias + OwnedReadSnapshotProjection
+   ```
+
+   Rough size:
+
+   ```text
+   3-5 tasks if true read views are selected
+   ```
+
+32. `CarrierSensitiveAlias proof`
+
+   Status: design stop.
+
+   Rough size:
+
+   ```text
+   3-5 tasks
+   ```
+
+33. `PHI and join_id lifecycle`
+
+   Status: design stop.
+
+   Blocking facts:
+
+   ```text
+   CarrierVar.join_id production is not modeled for production behavior.
+   promoted_body_locals, trim_helper, merge_from, and resolver/emitter parity
+   depend on this decision.
+   ```
+
+   Rough size:
+
+   ```text
+   6-9 tasks
+   ```
+
+34. `Loop / trim route lowering`
+
+   Status: design stop.
+
+   Rough size:
+
+   ```text
+   5-8 tasks
+   ```
+
+35. `NonTrivialDrop`
+
+   Status: design stop.
+
+   Rough size:
+
+   ```text
+   6-10 tasks
+   ```
+
+36. `UnsafeOrFFI`
+
+   Status: design stop.
+
+   Rough size:
+
+   ```text
+   6-10 tasks
+   ```
+
+37. `NullableMapValue`
+
+   Status: design stop.
+
+   Rough size:
+
+   ```text
+   2-4 tasks
+   ```
+
+38. `NonAsciiOrderedKey`
+
+   Status: design stop.
+
+   Rough size:
+
+   ```text
+   2-3 tasks
+   ```
+
+## Rough Remaining Size
+
+Current estimate after task 20:
+
+```text
+converter coverage hygiene:
+  5 tasks
+
+next easy-tier family pilot:
+  5-7 tasks for the first bounded BoxCompilationContext slice
+
+all inventoried easy-tier candidates:
+  30-45 tasks
+
+hard-tier design-stop work:
+  35-58 tasks
+
+MirBuilder-wide selfhost remaining:
+  roughly 70-110 tasks if all parked hard-tier areas are included
+```
 
 ## Parked Work
 

@@ -39,15 +39,17 @@ none
 Next task:
 
 ```text
-none
+Repair MirBuilder converter matrix coverage
 ```
 
 Purpose:
 
 ```text
 CarrierInfo easy-tier live facts conversion is landed and the task-order SSOT
-has been updated to match. No active converter lane blocker is selected right
-now; use the MirBuilder converter task-order SSOT when the next task is picked.
+has been updated to match. The next implementation task is converter coverage
+hygiene: make the matrix guard and check-script index reflect the current
+derived/native CarrierInfo and VariableContext coverage before selecting a new
+MirBuilder family pilot.
 ```
 
 Lifecycle converter boundary:
@@ -127,17 +129,21 @@ Done:
   imported instance method route acceptance for native CarrierInfo APIs
   typed output-argument mutation for generated bridge APIs
   OrderedMapBox.get result type-origin acceptance for focused carrier-data maps
+  explicit carrier ArrayBox.get without key-name-specific type special casing
+  raw Hako method body string retirement
+  CarrierInfo easy-tier live facts conversion
 
 Next:
-  none
+  Repair MirBuilder converter matrix coverage
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
   2. Accept typed output-argument mutation for generated bridge APIs. (closed)
- 3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
- 4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
- 5. Retire raw Hako method body strings from active MirBuilder family specs. (closed)
-  6. Close CarrierInfo easy-tier live facts conversion.
+  3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
+  4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
+  5. Retire raw Hako method body strings from active MirBuilder family specs. (closed)
+  6. Close CarrierInfo easy-tier live facts conversion. (closed)
+  7. Repair MirBuilder converter matrix coverage.
 ```
 
 Current task order:
