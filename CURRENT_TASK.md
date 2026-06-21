@@ -39,17 +39,15 @@ none
 Next task:
 
 ```text
-Close CarrierInfo easy-tier live facts conversion
+none
 ```
 
 Purpose:
 
 ```text
-No active blocker. 296x-1540 landed by accepting the remaining
-`ArrayBox.get` route shape without key-name-specific type special casing.
-The next selected task is to close the CarrierInfo easy-tier live facts
-conversion so typed operation IR is compiled from live facts instead of
-hard-coded spec operations.
+CarrierInfo easy-tier live facts conversion is landed and the task-order SSOT
+has been updated to match. No active converter lane blocker is selected right
+now; use the MirBuilder converter task-order SSOT when the next task is picked.
 ```
 
 Lifecycle converter boundary:
@@ -200,7 +198,7 @@ Current task order:
   VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ARTIFACT-PILOT-001 (closed)
 
 1525:
-  VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001
+  VARIABLE-CONTEXT-SNAPSHOT-RESTORE-DERIVED-ROUTE-SELECTION-001 (closed)
 ```
 
 Current evidence:

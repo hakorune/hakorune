@@ -405,7 +405,7 @@ checked-in generated artifacts.
 
 20. `Close CarrierInfo easy-tier live facts conversion`
 
-   Status: planned.
+   Status: landed.
 
    Close the remaining easy-tier gap by making CarrierInfo converter methods
    compile typed operation IR from live lightweight facts plus plan inputs
@@ -430,6 +430,15 @@ checked-in generated artifacts.
    bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh remains green
 
    no new route/card/guard files are added
+
+   Evidence:
+
+   ```text
+   454482b5c7 Implement CarrierInfo live facts conversion
+   bash tools/checks/rust_lifecycle_variable_context_carrier_snapshot_derived_artifact_guard.sh
+   bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_artifact_guard.sh
+   bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
+   ```
    ```
 
 ## Parked Work
