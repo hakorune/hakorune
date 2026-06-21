@@ -33,10 +33,7 @@ fn records_direct_array_push_core_method_route() {
         Some(GenericMethodReturnShape::ScalarI64)
     );
     assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
+    assert_eq!(route.publication_policy(), None);
 }
 
 #[test]
@@ -74,10 +71,7 @@ fn records_box_push_as_dynamic_array_append_route() {
         Some(GenericMethodReturnShape::ScalarI64)
     );
     assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
+    assert_eq!(route.publication_policy(), None);
 }
 
 #[test]
@@ -121,10 +115,7 @@ fn records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route() {
         Some(GenericMethodReturnShape::ScalarI64)
     );
     assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
+    assert_eq!(route.publication_policy(), None);
 }
 
 #[test]
@@ -208,10 +199,47 @@ fn records_runtime_data_arraybox_push_through_phi_flow_as_cold_core_method_route
         Some(GenericMethodReturnShape::ScalarI64)
     );
     assert_eq!(route.value_demand(), GenericMethodValueDemand::WriteAny);
+    assert_eq!(route.publication_policy(), None);
+}
+
+#[test]
+fn records_ordered_mapbox_get_as_generic_map_load_route() {
+    let mut function = make_function();
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "OrderedMapBox".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: crate::mir::ConstValue::String("requested_names".to_string()),
+    });
+    block.add_instruction(method_call(Some(3), "OrderedMapBox", "get", 1, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.route_id(), "generic_method.get");
+    assert_eq!(route.box_name(), "OrderedMapBox");
+    assert_eq!(route.method(), "get");
+    assert_eq!(route.receiver_origin_box(), Some("OrderedMapBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapLoadAny);
+    assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
+    let core_method = route
+        .core_method()
+        .expect("OrderedMapBox get core method op");
+    assert_eq!(core_method.op, CoreMethodOp::MapGet);
     assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
     );
+    assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+    assert_eq!(route.publication_policy(), None);
 }
 
 #[test]

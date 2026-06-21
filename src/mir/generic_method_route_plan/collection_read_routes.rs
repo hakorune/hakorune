@@ -52,7 +52,7 @@ pub(super) fn match_generic_has_route(
         .or_else(|| {
             matches!(
                 box_name.as_str(),
-                "ArrayBox" | "DirectArrayI64" | "MapBox" | "Box"
+                "ArrayBox" | "DirectArrayI64" | "MapBox" | "OrderedMapBox" | "Box"
             )
             .then(|| box_name.clone())
         });
@@ -65,7 +65,7 @@ pub(super) fn match_generic_has_route(
                 CoreMethodLoweringTier::WarmDirectAbi,
             )),
         ),
-        "MapBox" => (
+        "MapBox" | "OrderedMapBox" => (
             map_has_route_kind_for_key(key_route),
             Some(CoreMethodOpCarrier::manifest(
                 CoreMethodOp::MapHas,
@@ -160,7 +160,7 @@ pub(super) fn match_generic_get_route(
         .or_else(|| {
             matches!(
                 box_name.as_str(),
-                "ArrayBox" | "DirectArrayI64" | "MapBox" | "Box"
+                "ArrayBox" | "DirectArrayI64" | "MapBox" | "OrderedMapBox" | "Box"
             )
             .then(|| box_name.clone())
         });
@@ -215,7 +215,12 @@ pub(super) fn match_generic_get_route(
         ));
     }
 
-    if box_name == "MapBox" && receiver_origin_box.as_deref() == Some("MapBox") {
+    if matches!(box_name.as_str(), "MapBox" | "OrderedMapBox")
+        && matches!(
+            receiver_origin_box.as_deref(),
+            Some("MapBox" | "OrderedMapBox")
+        )
+    {
         if let Some(scalar_fact) = prove_scalar_i64_map_get_store_fact(
             function,
             def_map,
@@ -327,7 +332,12 @@ pub(super) fn match_generic_get_route(
         ));
     }
 
-    if box_name != "RuntimeDataBox" || receiver_origin_box.as_deref() != Some("MapBox") {
+    if box_name != "RuntimeDataBox"
+        || !matches!(
+            receiver_origin_box.as_deref(),
+            Some("MapBox" | "OrderedMapBox")
+        )
+    {
         return None;
     }
 
@@ -434,7 +444,9 @@ pub(super) fn match_generic_len_route(
         .or_else(|| len_surface_origin_box_name(box_name).map(str::to_string));
     let (route_kind, core_op) =
         match len_surface_origin_box_name(box_name).or(receiver_origin_box.as_deref()) {
-            Some("MapBox") => (GenericMethodRouteKind::MapEntryCount, CoreMethodOp::MapLen),
+            Some("MapBox") | Some("OrderedMapBox") => {
+                (GenericMethodRouteKind::MapEntryCount, CoreMethodOp::MapLen)
+            }
             Some("ArrayBox") => (GenericMethodRouteKind::ArraySlotLen, CoreMethodOp::ArrayLen),
             Some("StringBox") => (GenericMethodRouteKind::StringLen, CoreMethodOp::StringLen),
             Some("Box") => (GenericMethodRouteKind::AnyLength, CoreMethodOp::AnyLen),
@@ -554,6 +566,10 @@ fn generic_len_self_arg_is_supported(
                 .as_deref()
                 == Some("ArrayBox")
         }
+        "OrderedMapBox" => {
+            receiver_origin_box_name(function, def_map, args[0]).as_deref()
+                == Some("OrderedMapBox")
+        }
         "Box" => true,
         _ => false,
     }
@@ -566,6 +582,7 @@ fn is_len_method(method: &str) -> bool {
 fn len_surface_origin_box_name(box_name: &str) -> Option<&'static str> {
     match box_name {
         "MapBox" => Some("MapBox"),
+        "OrderedMapBox" => Some("OrderedMapBox"),
         "ArrayBox" => Some("ArrayBox"),
         "StringBox" => Some("StringBox"),
         "Box" => Some("Box"),
