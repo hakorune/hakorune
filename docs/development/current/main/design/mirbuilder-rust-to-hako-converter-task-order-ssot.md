@@ -178,9 +178,26 @@ checked-in generated artifacts.
 
 6. `Select MirBuilder next-family facts pilot`
 
-   Choose exactly one non-VariableContext family for bounded facts extraction,
-   or keep VariableContext as the only active behavioral family if readiness
-   is absent.
+   Decision: keep VariableContext as the only active behavioral family.
+
+   The `context`, `core_context`, `type_context`, and `metadata_context`
+   candidates are still skeleton transport only. Do not select a new
+   non-VariableContext family until one has lifecycle facts, plan, recipe,
+   oracle, artifact readiness, and route readiness.
+
+7. `Implement operation-backed VariableContext simple-map conversion`
+
+   Status: current implementation landed.
+
+   VariableContext simple-map generation now compiles live lightweight body
+   facts and the selected plan into typed ordered-map operations before the
+   shared emitter renders `.hako`. This removes raw Hako API body strings from
+   the simple-map spec.
+
+8. `Generalize ordered-map converter to BindingContext`
+
+   Next implementation task. Move BindingContext from raw Hako API body strings
+   onto the same ordered-map operation compiler, including `MapClear`.
 
 ## Parked Work
 

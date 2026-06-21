@@ -21,7 +21,7 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-simple-map-facts-v0.json",
-      "sha256": "daec935933d1f7a68ee54305432059fc7ab2bd3cf7a1564eedf379a64b527c31"
+      "sha256": "3c814dac3d12951625a8a85a25af310d55b404c59c1d6ebcb1442b9e115c474c"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-simple-map-oracle-vectors-v0.json",

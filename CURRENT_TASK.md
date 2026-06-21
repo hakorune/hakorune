@@ -33,15 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001
+GENERALIZE-ORDERED-MAP-CONVERTER-TO-BINDING-CONTEXT-001
 ```
 
 Purpose:
 
 ```text
-Select exactly one non-VariableContext family for bounded facts extraction, or
-keep VariableContext as the only active behavioral family if readiness is
-absent.
+Move BindingContext onto the same operation-backed ordered-map converter path
+now used by VariableContext simple-map.
 ```
 
 Lifecycle converter boundary:
@@ -107,9 +106,11 @@ Done:
   VariableContext explicit carrier snapshot route selection
   MirBuilder next-family readiness inventory
   MirBuilder converter matrix guard
+  MirBuilder next-family facts pilot selection
+  operation-backed VariableContext simple-map conversion
 
 Next:
-  MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001
+  GENERALIZE-ORDERED-MAP-CONVERTER-TO-BINDING-CONTEXT-001
 ```
 
 Current task order:

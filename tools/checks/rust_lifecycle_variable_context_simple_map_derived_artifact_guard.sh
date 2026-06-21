@@ -12,7 +12,14 @@ python3 "$GENERATOR" --check
 
 python3 - <<'PY'
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, "tools/rust_lifecycle")
+from extract_variable_context_simple_map_facts import SOURCE, extract_facts
+from mirbuilder_family_artifacts import variable_context_simple_map_spec
+from mirbuilder_ordered_map_converter import OrderedMapConversionDeny, compile_variable_context_simple_map_methods
+from shared_family_generator import read_json
 
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json").read_text())
 verifier = json.loads(Path("docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-simple-map-derived-artifact-verifier-result-v0.json").read_text())
@@ -55,6 +62,24 @@ for method in [
     "VariableContext::restore",
 ]:
     assert method in excluded
+
+spec = variable_context_simple_map_spec()
+assert spec.box.initializer is None
+assert spec.box.initializer_operation == {"kind": "NewOrderedMap"}
+assert spec.api_methods
+assert all(method.body_lines is None for method in spec.api_methods)
+assert all(method.operations for method in spec.api_methods)
+
+facts = extract_facts(SOURCE)
+plan = read_json(Path("docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-simple-map-plan-v0.json"))
+compile_variable_context_simple_map_methods(facts, plan)
+facts["body_facts"][1]["operation"] = "UnexpectedMapGet"
+try:
+    compile_variable_context_simple_map_methods(facts, plan)
+except OrderedMapConversionDeny as exc:
+    assert exc.reason == "UnsupportedResolvedCallTarget"
+else:
+    raise AssertionError("unsupported simple-map body shape must fail closed")
 PY
 
 ./target/release/hakorune --emit-mir-json /tmp/hako_variable_context_simple_map_artifact.mir.json "$ARTIFACT" >/tmp/hako_variable_context_simple_map_artifact.mir.log 2>&1

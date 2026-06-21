@@ -13,13 +13,15 @@ class BoxSpec:
     name: str
     field_name: str
     field_type: str
-    initializer: str
+    initializer: str | None = None
+    initializer_operation: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
 class ApiMethodSpec:
     signature: str
-    body_lines: list[str]
+    body_lines: list[str] | None = None
+    operations: list[dict[str, Any]] | None = None
 
 
 @dataclass(frozen=True)

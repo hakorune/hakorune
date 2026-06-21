@@ -1,6 +1,6 @@
 # 296x-1533 MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001
 
-Status: open
+Status: landed
 Date: 2026-06-21
 
 ## Purpose
@@ -38,6 +38,19 @@ keep_variable_context_only
 or
 select_one_non_variable_context_family
 ```
+
+## Decision
+
+```text
+decision=keep_variable_context_only
+reason=no_non_variable_context_family_is_behaviorally_ready
+next=operation_backed_variable_context_simple_map_converter
+```
+
+The non-VariableContext candidates remain skeleton transport only. The next
+implementation keeps the active behavioral converter on VariableContext and
+moves simple-map generation from raw Hako body strings to typed ordered-map
+operations.
 
 ## Stop Line
 

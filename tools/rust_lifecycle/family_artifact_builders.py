@@ -17,6 +17,17 @@ from shared_family_generator import (
 from shared_mirbuilder_emitter import emit_verified_family_hako
 
 
+def _build_api_method_ir(method: Any) -> dict[str, Any]:
+    data: dict[str, Any] = {"signature": method.signature}
+    if method.operations is not None:
+        data["operations"] = method.operations
+        return data
+    if method.body_lines is None:
+        raise ValueError(f"method has neither operations nor body_lines: {method.signature}")
+    data["body_lines"] = method.body_lines
+    return data
+
+
 def _build_method_payloads(spec: FamilyArtifactSpec) -> list[dict[str, Any]]:
     return [
         {
@@ -91,27 +102,24 @@ def _build_family_artifact_hako_object(spec: FamilyArtifactSpec) -> dict[str, An
             "name": spec.box.name,
             "field_name": spec.box.field_name,
             "field_type": spec.box.field_type,
-            "initializer": spec.box.initializer,
         },
         "main": {"lines": spec.main_lines},
     }
+    if spec.box.initializer_operation is not None:
+        verified_ir["box"]["initializer_operation"] = spec.box.initializer_operation
+    else:
+        verified_ir["box"]["initializer"] = spec.box.initializer
     if spec.api_name is not None:
         verified_ir["api"] = {
             "name": spec.api_name,
             "trailing_blank_line": spec.api_trailing_blank_line,
-            "methods": [
-                {"signature": method.signature, "body_lines": method.body_lines}
-                for method in spec.api_methods
-            ],
+            "methods": [_build_api_method_ir(method) for method in spec.api_methods],
         }
     if spec.static_boxes:
         verified_ir["static_boxes"] = [
             {
                 "name": static_box.name,
-                "methods": [
-                    {"signature": method.signature, "body_lines": method.body_lines}
-                    for method in static_box.methods
-                ],
+                "methods": [_build_api_method_ir(method) for method in static_box.methods],
                 "trailing_blank_line": static_box.trailing_blank_line,
             }
             for static_box in spec.static_boxes

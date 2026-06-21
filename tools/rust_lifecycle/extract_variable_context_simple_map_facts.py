@@ -16,6 +16,7 @@ from context_fact_extraction import (
     extract_method_signatures,
     report_or_emit,
     require,
+    normalized_rust_type,
 )
 
 
@@ -48,6 +49,100 @@ EXCLUDED_CONSUMERS = [
     "PHI planner integration",
     "JoinIR carrier extraction",
 ]
+
+
+def extract_method_body(source: str, name: str) -> str:
+    marker = f"pub fn {name}"
+    start = source.find(marker)
+    require(start >= 0, f"missing method body: {name}")
+    brace = source.find("{", start)
+    require(brace >= 0, f"missing method body brace: {name}")
+    depth = 0
+    for index in range(brace, len(source)):
+        char = source[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return normalized_rust_type(source[brace + 1 : index])
+    raise AssertionError(f"unterminated method body: {name}")
+
+
+def build_body_fact(name: str, source: str) -> dict[str, Any]:
+    bodies = {
+        "new": (
+            "Self { variable_map: BTreeMap::new(), }",
+            {
+                "operation": "NewOrderedMap",
+                "callee_spelling": "BTreeMap::new",
+                "selected_field": "variable_map",
+                "return_shape": "Self",
+            },
+        ),
+        "lookup": (
+            "self.variable_map.get(name).copied()",
+            {
+                "operation": "MapGet",
+                "callee_spelling": "BTreeMap::get + Option::copied",
+                "selected_field": "variable_map",
+                "argument_shape": "borrowed_name",
+                "return_shape": "Option<ValueId>",
+            },
+        ),
+        "contains": (
+            "self.variable_map.contains_key(name)",
+            {
+                "operation": "MapHas",
+                "callee_spelling": "BTreeMap::contains_key",
+                "selected_field": "variable_map",
+                "argument_shape": "borrowed_name",
+                "return_shape": "bool",
+            },
+        ),
+        "len": (
+            "self.variable_map.len()",
+            {
+                "operation": "MapLength",
+                "callee_spelling": "BTreeMap::len",
+                "selected_field": "variable_map",
+                "return_shape": "usize",
+            },
+        ),
+        "is_empty": (
+            "self.variable_map.is_empty()",
+            {
+                "operation": "MapIsEmpty",
+                "callee_spelling": "BTreeMap::is_empty",
+                "selected_field": "variable_map",
+                "return_shape": "bool",
+            },
+        ),
+        "insert": (
+            "self.variable_map.insert(name, value_id);",
+            {
+                "operation": "MapSet",
+                "callee_spelling": "BTreeMap::insert",
+                "selected_field": "variable_map",
+                "argument_shape": "owned_name_and_value_id",
+                "return_shape": "()",
+            },
+        ),
+        "remove": (
+            "self.variable_map.remove(name)",
+            {
+                "operation": "MapRemove",
+                "callee_spelling": "BTreeMap::remove",
+                "selected_field": "variable_map",
+                "argument_shape": "borrowed_name",
+                "return_shape": "Option<ValueId>",
+            },
+        ),
+    }
+    expected, fact = bodies[name]
+    actual = extract_method_body(source, name)
+    require(actual == expected, f"unsupported simple-map body shape: {name}")
+    return {"id": f"VariableContext::{name}", **fact}
 
 
 def receiver_borrow(params: str) -> dict[str, Any]:
@@ -128,6 +223,7 @@ def extract_facts(source_path: Path) -> dict[str, Any]:
             }
         ],
         "method_facts": [build_method_fact(name, signatures[name]) for name in METHODS],
+        "body_facts": [build_body_fact(name, source) for name in ["new", *METHODS]],
         "excluded_methods": [
             {
                 "id": "VariableContext::variable_map",

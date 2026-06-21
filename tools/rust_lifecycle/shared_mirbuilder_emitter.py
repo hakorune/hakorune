@@ -17,11 +17,61 @@ def _indent(lines: Sequence[str], spaces: int) -> list[str]:
     return [prefix + line if line else "" for line in lines]
 
 
+def _render_initializer(box: Mapping[str, Any]) -> str:
+    operation = box.get("initializer_operation")
+    if operation is None:
+        return str(box["initializer"])
+    if operation.get("kind") == "NewOrderedMap":
+        return "OrderedMap.create()"
+    raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")
+
+
+def _render_operation(operation: Mapping[str, Any]) -> list[str]:
+    kind = operation["kind"]
+    field = operation.get("field")
+    if kind == "MapGet":
+        return [f"return ctx.{field}.get({operation['key']})"]
+    if kind == "MapHas":
+        return [
+            f"if ctx.{field}.has({operation['key']}) == true {{",
+            "    return 1",
+            "}",
+            "return 0",
+        ]
+    if kind == "MapLength":
+        return [f"return ctx.{field}.length()"]
+    if kind == "MapIsEmpty":
+        return [
+            f"if ctx.{field}.length() == 0 {{",
+            "    return 1",
+            "}",
+            "return 0",
+        ]
+    if kind == "MapSet":
+        return [f"ctx.{field}.set({operation['key']}, {operation['value']})"]
+    if kind == "MapRemove":
+        return [f"return ctx.{field}.remove({operation['key']})"]
+    if kind == "MapClear":
+        return [f"ctx.{field}.clear()"]
+    if kind == "ReturnI64":
+        return [f"return {operation['return_value']}"]
+    raise ValueError(f"unsupported Hako operation: {kind}")
+
+
+def _render_method_body(method: Mapping[str, Any]) -> list[str]:
+    if "operations" not in method:
+        return list(method["body_lines"])
+    lines: list[str] = []
+    for operation in method["operations"]:
+        lines.extend(_render_operation(operation))
+    return lines
+
+
 def _render_static_box(name: str, methods: Sequence[Mapping[str, Any]], trailing_blank_line: bool) -> list[str]:
     lines = [f"static box {name} {{"]
     for index, method in enumerate(methods):
         lines.append(f"    {method['signature']} {{")
-        lines.extend(_indent(method["body_lines"], 8))
+        lines.extend(_indent(_render_method_body(method), 8))
         lines.append("    }")
         if index != len(methods) - 1 or trailing_blank_line:
             lines.append("")
@@ -51,7 +101,7 @@ def emit_verified_family_hako(verified_ir: Mapping[str, Any]) -> str:
             f"    {field_name}: {box['field_type']}",
             "",
             "    birth() {",
-            f"        me.{field_name} = {box['initializer']}",
+            f"        me.{field_name} = {_render_initializer(box)}",
             "    }",
             "}",
             "",

@@ -286,10 +286,13 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   mutable map deny lock is now closed across the selected VariableContext
   routes, and the readiness inventory has confirmed that the current MirBuilder
   context/core_context/type_context/metadata_context candidates are still
-  skeleton transport only. The next task is the MirBuilder next-family facts
-  pilot selection row."""
+  skeleton transport only. 296x-1533 is closed as
+  keep_variable_context_only. VariableContext simple-map generation now uses
+  live lightweight body facts plus typed ordered-map operations instead of raw
+  Hako body strings. The next implementation task is generalizing the same
+  ordered-map converter path to BindingContext."""
 
-current_blocker_token = "MIRBUILDER-NEXT-FAMILY-LIFECYCLE-FACTS-PILOT-SELECTION-001"
+current_blocker_token = "GENERALIZE-ORDERED-MAP-CONVERTER-TO-BINDING-CONTEXT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

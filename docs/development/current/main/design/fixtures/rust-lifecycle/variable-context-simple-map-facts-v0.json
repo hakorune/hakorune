@@ -64,6 +64,61 @@
       "returns": {"copy_kind": "ImmediateValue", "drop_fact": "TrivialMemory"}
     }
   ],
+  "body_facts": [
+    {
+      "id": "VariableContext::new",
+      "operation": "NewOrderedMap",
+      "callee_spelling": "BTreeMap::new",
+      "selected_field": "variable_map",
+      "return_shape": "Self"
+    },
+    {
+      "id": "VariableContext::lookup",
+      "operation": "MapGet",
+      "callee_spelling": "BTreeMap::get + Option::copied",
+      "selected_field": "variable_map",
+      "argument_shape": "borrowed_name",
+      "return_shape": "Option<ValueId>"
+    },
+    {
+      "id": "VariableContext::contains",
+      "operation": "MapHas",
+      "callee_spelling": "BTreeMap::contains_key",
+      "selected_field": "variable_map",
+      "argument_shape": "borrowed_name",
+      "return_shape": "bool"
+    },
+    {
+      "id": "VariableContext::len",
+      "operation": "MapLength",
+      "callee_spelling": "BTreeMap::len",
+      "selected_field": "variable_map",
+      "return_shape": "usize"
+    },
+    {
+      "id": "VariableContext::is_empty",
+      "operation": "MapIsEmpty",
+      "callee_spelling": "BTreeMap::is_empty",
+      "selected_field": "variable_map",
+      "return_shape": "bool"
+    },
+    {
+      "id": "VariableContext::insert",
+      "operation": "MapSet",
+      "callee_spelling": "BTreeMap::insert",
+      "selected_field": "variable_map",
+      "argument_shape": "owned_name_and_value_id",
+      "return_shape": "()"
+    },
+    {
+      "id": "VariableContext::remove",
+      "operation": "MapRemove",
+      "callee_spelling": "BTreeMap::remove",
+      "selected_field": "variable_map",
+      "argument_shape": "borrowed_name",
+      "return_shape": "Option<ValueId>"
+    }
+  ],
   "excluded_methods": [
     {
       "id": "VariableContext::variable_map",

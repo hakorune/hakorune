@@ -22,6 +22,7 @@ from family_artifact_builders import (
     build_family_artifact_verifier_text,
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FamilyArtifactSpec, StaticBoxSpec
+from mirbuilder_ordered_map_converter import compile_variable_context_simple_map_methods
 from shared_family_generator import read_json, run_validated_family_generator
 
 
@@ -129,6 +130,23 @@ def validate_variable_context_simple_map(facts: dict[str, Any], plan: dict[str, 
     missing = sorted(methods - {row["id"] for row in facts["method_facts"]})
     if missing:
         raise SystemExit(f"missing method facts: {missing}")
+    body_facts = {row["id"]: row for row in facts.get("body_facts", [])}
+    for method, operation in {
+        "VariableContext::new": "NewOrderedMap",
+        "VariableContext::lookup": "MapGet",
+        "VariableContext::contains": "MapHas",
+        "VariableContext::len": "MapLength",
+        "VariableContext::is_empty": "MapIsEmpty",
+        "VariableContext::insert": "MapSet",
+        "VariableContext::remove": "MapRemove",
+    }.items():
+        body_fact = body_facts.get(method)
+        if body_fact is None:
+            raise SystemExit(f"missing body fact: {method}")
+        if body_fact.get("operation") != operation:
+            raise SystemExit(f"unexpected body operation for {method}")
+        if body_fact.get("selected_field") != "variable_map":
+            raise SystemExit(f"unexpected body field for {method}")
     missing_excluded = sorted(excluded_methods - {row["id"] for row in facts["excluded_methods"]})
     if missing_excluded:
         raise SystemExit(f"missing excluded methods: {missing_excluded}")
@@ -431,6 +449,12 @@ def binding_context_spec() -> FamilyArtifactSpec:
 
 def variable_context_simple_map_spec() -> FamilyArtifactSpec:
     excluded = ["VariableContext::variable_map", "VariableContext::variable_map_mut", "VariableContext::snapshot", "VariableContext::restore"]
+    facts = extract_variable_context_simple_map_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE)
+    plan = read_json(FIXTURES / "variable-context-simple-map-plan-v0.json")
+    api_methods = [
+        ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
+        for method in compile_variable_context_simple_map_methods(facts, plan)
+    ]
     return FamilyArtifactSpec(
         root=ROOT,
         generated_by="tools/rust_lifecycle/generate_variable_context_simple_map_artifact.py",
@@ -438,7 +462,12 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
-        box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer="OrderedMap.create()"),
+        box=BoxSpec(
+            name="VariableContext",
+            field_name="variable_map",
+            field_type="OrderedMapBox",
+            initializer_operation={"kind": "NewOrderedMap"},
+        ),
         main_lines=_lines("""
             local ctx = new VariableContext()
             if VariableContextApi.is_empty(ctx) != 1 {
@@ -508,24 +537,7 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
         recipe_subject="hakorune_mir_builder::variable_context::VariableContext.simple_map",
         selected_body_count="simple_map_methods_only",
         api_name="VariableContextApi",
-        api_methods=[
-            ApiMethodSpec(signature="is_empty(ctx): i64", body_lines=_lines("""
-                    if ctx.variable_map.length() == 0 {
-                        return 1
-                    }
-                    return 0
-                """)),
-            ApiMethodSpec(signature="len(ctx): i64", body_lines=["return ctx.variable_map.length()"]),
-            ApiMethodSpec(signature="contains(ctx, name): i64", body_lines=_lines("""
-                    if ctx.variable_map.has(name) == true {
-                        return 1
-                    }
-                    return 0
-                """)),
-            ApiMethodSpec(signature="lookup(ctx, name)", body_lines=["return ctx.variable_map.get(name)"]),
-            ApiMethodSpec(signature="insert(ctx, name, value_id): i64", body_lines=["ctx.variable_map.set(name, value_id)", "return 0"]),
-            ApiMethodSpec(signature="remove(ctx, name)", body_lines=["return ctx.variable_map.remove(name)"]),
-        ],
+        api_methods=api_methods,
         methods=[
             BehaviorMethodSpec(id="VariableContext::lookup", rust_operation="BTreeMap::get(...).copied", hako_operation="OrderedMapBox.get", emits="VariableContextApi.lookup(ctx, name)"),
             BehaviorMethodSpec(id="VariableContext::contains", rust_operation="BTreeMap::contains_key", hako_operation="OrderedMapBox.has as i64_bool_v0", emits="VariableContextApi.contains(ctx, name)"),
