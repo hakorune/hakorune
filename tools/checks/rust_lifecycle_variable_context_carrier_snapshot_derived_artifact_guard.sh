@@ -97,7 +97,7 @@ assert "carrier_snapshot_output_arg_mutation=fail" in hako
 
 spec = carrier_snapshot_spec()
 assert all(
-    method.body_lines is None and method.operations
+    method.operations
     for static_box in spec.static_boxes
     for method in static_box.methods
 )

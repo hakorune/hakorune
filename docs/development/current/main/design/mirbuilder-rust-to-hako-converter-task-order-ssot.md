@@ -348,7 +348,7 @@ checked-in generated artifacts.
 
 19. `Retire raw Hako method body strings`
 
-   Status: next implementation task.
+   Status: landed.
 
    Goal:
 
@@ -363,20 +363,8 @@ checked-in generated artifacts.
    Current inventory:
 
    ```text
-   Real converter debt:
-     tools/rust_lifecycle/mirbuilder_family_artifacts.py
-       variable_context_immutable_borrow_spec()
-         VariableContextApi.variable_map(ctx)
-         VariableMapViewApi.is_empty/len/contains/lookup
-
-     tools/rust_lifecycle/shared_mirbuilder_emitter.py
-       _render_method_body() body_lines compatibility path
-
-     tools/rust_lifecycle/family_artifact_spec.py
-       ApiMethodSpec.body_lines
-
-     tools/rust_lifecycle/family_artifact_builders.py
-       _build_api_method_ir() body_lines fallback
+   Active MirBuilder converter specs:
+     operations-backed only
 
    Not debt for this task:
      FamilyArtifactSpec.main_lines

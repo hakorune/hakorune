@@ -20,7 +20,6 @@ class BoxSpec:
 @dataclass(frozen=True)
 class ApiMethodSpec:
     signature: str
-    body_lines: list[str] | None = None
     operations: list[dict[str, Any]] | None = None
 
 

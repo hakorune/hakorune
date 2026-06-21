@@ -67,7 +67,7 @@ spec = binding_context_spec()
 assert spec.box.initializer is None
 assert spec.box.initializer_operation == {"kind": "NewOrderedMap"}
 assert spec.api_methods
-assert all(method.body_lines is None for method in spec.api_methods)
+assert all(method.operations is not None for method in spec.api_methods)
 assert all(method.operations for method in spec.api_methods)
 
 facts = extract_facts(SOURCE)

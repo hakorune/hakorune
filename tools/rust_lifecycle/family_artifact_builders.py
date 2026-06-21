@@ -19,12 +19,9 @@ from shared_mirbuilder_emitter import emit_verified_family_hako
 
 def _build_api_method_ir(method: Any) -> dict[str, Any]:
     data: dict[str, Any] = {"signature": method.signature}
-    if method.operations is not None:
-        data["operations"] = method.operations
-        return data
-    if method.body_lines is None:
-        raise ValueError(f"method has neither operations nor body_lines: {method.signature}")
-    data["body_lines"] = method.body_lines
+    if method.operations is None:
+        raise ValueError(f"method has no operations: {method.signature}")
+    data["operations"] = method.operations
     return data
 
 

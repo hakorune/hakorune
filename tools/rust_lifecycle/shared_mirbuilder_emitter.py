@@ -26,37 +26,57 @@ def _render_initializer(box: Mapping[str, Any]) -> str:
     raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")
 
 
+def _render_source_expr(operation: Mapping[str, Any]) -> str:
+    source = operation.get("source")
+    if source is not None:
+        return str(source)
+    field = operation.get("field")
+    if field is not None:
+        return f"ctx.{field}"
+    raise ValueError(f"operation is missing source/field: {operation.get('kind')}")
+
+
 def _render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
-    field = operation.get("field")
     if kind == "MapGet":
-        return [f"return ctx.{field}.get({operation['key']})"]
+        source = _render_source_expr(operation)
+        return [f"return {source}.get({operation['key']})"]
     if kind == "MapHas":
+        source = _render_source_expr(operation)
         return [
-            f"if ctx.{field}.has({operation['key']}) == true {{",
+            f"if {source}.has({operation['key']}) == true {{",
             "    return 1",
             "}",
             "return 0",
         ]
     if kind == "MapLength":
-        return [f"return ctx.{field}.length()"]
+        source = _render_source_expr(operation)
+        return [f"return {source}.length()"]
     if kind == "MapIsEmpty":
+        source = _render_source_expr(operation)
         return [
-            f"if ctx.{field}.length() == 0 {{",
+            f"if {source}.length() == 0 {{",
             "    return 1",
             "}",
             "return 0",
         ]
     if kind == "MapSet":
-        return [f"ctx.{field}.set({operation['key']}, {operation['value']})"]
+        source = _render_source_expr(operation)
+        return [f"{source}.set({operation['key']}, {operation['value']})"]
     if kind == "MapRemove":
-        return [f"return ctx.{field}.remove({operation['key']})"]
+        source = _render_source_expr(operation)
+        return [f"return {source}.remove({operation['key']})"]
     if kind == "MapClear":
-        return [f"ctx.{field}.clear()"]
+        source = _render_source_expr(operation)
+        return [f"{source}.clear()"]
     if kind == "CloneOwnedMap":
-        return [f"return ctx.{field}.clone_owned()"]
+        source = _render_source_expr(operation)
+        return [f"return {source}.clone_owned()"]
     if kind == "ReplaceOwnedMap":
-        return [f"ctx.{field} = {operation['value']}.clone_owned()"]
+        source = _render_source_expr(operation)
+        return [f"{source} = {operation['value']}.clone_owned()"]
+    if kind == "ReturnSource":
+        return [f"return {_render_source_expr(operation)}"]
     if kind == "CarrierSnapshotFromOwnedMap":
         map_arg = operation["map_arg"]
         loop_var = operation["loop_var"]
@@ -142,7 +162,7 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
 
 def _render_method_body(method: Mapping[str, Any]) -> list[str]:
     if "operations" not in method:
-        return list(method["body_lines"])
+        raise ValueError(f"method has no operations: {method['signature']}")
     lines: list[str] = []
     for operation in method["operations"]:
         lines.extend(_render_operation(operation))

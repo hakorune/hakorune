@@ -627,24 +627,22 @@ def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
         oracle_path=FIXTURES / "variable-context-immutable-borrow-oracle-vectors-v0.json",
         pilot_scope="VariableContext_immutable_borrow_only",
         static_boxes=[
-            StaticBoxSpec(name="VariableContextApi", methods=[ApiMethodSpec(signature="variable_map(ctx)", body_lines=["return ctx.variable_map"])]),
+            StaticBoxSpec(
+                name="VariableContextApi",
+                methods=[
+                    ApiMethodSpec(
+                        signature="variable_map(ctx)",
+                        operations=[{"kind": "ReturnSource", "source": "ctx.variable_map"}],
+                    )
+                ],
+            ),
             StaticBoxSpec(
                 name="VariableMapViewApi",
                 methods=[
-                    ApiMethodSpec(signature="is_empty(view): i64", body_lines=_lines("""
-                            if view.length() == 0 {
-                                return 1
-                            }
-                            return 0
-                        """)),
-                    ApiMethodSpec(signature="len(view): i64", body_lines=["return view.length()"]),
-                    ApiMethodSpec(signature="contains(view, name): i64", body_lines=_lines("""
-                            if view.has(name) == true {
-                                return 1
-                            }
-                            return 0
-                        """)),
-                    ApiMethodSpec(signature="lookup(view, name)", body_lines=["return view.get(name)"]),
+                    ApiMethodSpec(signature="is_empty(view): i64", operations=[{"kind": "MapIsEmpty", "source": "view"}]),
+                    ApiMethodSpec(signature="len(view): i64", operations=[{"kind": "MapLength", "source": "view"}]),
+                    ApiMethodSpec(signature="contains(view, name): i64", operations=[{"kind": "MapHas", "source": "view", "key": "name"}]),
+                    ApiMethodSpec(signature="lookup(view, name)", operations=[{"kind": "MapGet", "source": "view", "key": "name"}]),
                 ],
             ),
         ],
