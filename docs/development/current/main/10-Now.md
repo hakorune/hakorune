@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
+NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -44,9 +44,10 @@ reaches generated Hako MIR/EXE with missing-carrier fail-fast coverage. Native
 CarrierInfo snapshot APIs now have EXE smokes for direct from_snapshot and
 explicit snapshot instance calls. Generated CarrierInfo bridge APIs now mutate
 typed OrderedMapBox output arguments directly from Main, without inlining their
-operation bodies. The active task is preserving OrderedMapBox.get result type
-origin for focused carrier-data maps so nested ArrayBox reads route without
-RuntimeDataBox widening.
+operation bodies. Focused OrderedMapBox.get result-origin publication now
+preserves ArrayBox origins for carrier-data maps, so nested
+`info.get("carrier_names").get(0)` routes without RuntimeDataBox widening. The
+active task is selecting the next MirBuilder converter slice.
 
 Historical context follows.
 

@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
+NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED
 ```
 
 Purpose:
 
 ```text
-Preserve OrderedMapBox.get result type origin for focused carrier-data maps so
-nested ArrayBox reads route without RuntimeDataBox widening.
+Select the next MirBuilder converter implementation slice after closing
+OrderedMapBox.get result type-origin acceptance.
 ```
 
 Lifecycle converter boundary:
@@ -119,14 +119,15 @@ Done:
   native CarrierInfo snapshot APIs
   imported instance method route acceptance for native CarrierInfo APIs
   typed output-argument mutation for generated bridge APIs
+  OrderedMapBox.get result type-origin acceptance for focused carrier-data maps
 
 Next:
-  ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
+  NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
   2. Accept typed output-argument mutation for generated bridge APIs. (closed)
-  3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps.
+  3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
 ```
 
 Current task order:

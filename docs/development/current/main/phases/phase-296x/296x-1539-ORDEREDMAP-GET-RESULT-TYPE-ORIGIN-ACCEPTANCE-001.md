@@ -1,6 +1,6 @@
 # 296x-1539 ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001
 
-Status: active
+Status: closed
 Date: 2026-06-21
 
 ## Purpose
@@ -49,6 +49,15 @@ focused EXE smoke:
 expected:
   generated EXE green
   no RuntimeDataBox.get fallback widening
+```
+
+Result:
+
+```text
+orderedmap_get_result_type_origin=green
+runtime_data_get_for_carrier_arrays=0
+variable_context_carrier_snapshot generated EXE green
+variable_context_explicit_carrier_snapshot generated EXE green
 ```
 
 ## Stop Line

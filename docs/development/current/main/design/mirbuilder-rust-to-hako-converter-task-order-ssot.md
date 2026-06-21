@@ -318,7 +318,7 @@ checked-in generated artifacts.
 
 17. `Preserve OrderedMapBox.get result type origin`
 
-   Status: active.
+   Status: landed.
 
    Preserve known object origins through `OrderedMapBox.set/get` pairs for
    focused carrier-data objects, so `info.get("carrier_names").get(0)` can

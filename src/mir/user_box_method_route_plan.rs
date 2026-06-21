@@ -220,6 +220,10 @@ impl UserBoxMethodRoute {
         }
     }
 
+    pub fn override_target_result_box_name(&mut self, box_name: String) {
+        self.target_result_box_name = Some(box_name);
+    }
+
     pub fn definition_owner(&self) -> &'static str {
         if self.is_direct_abi_target() {
             "typed_object_method"

@@ -95,9 +95,32 @@ static box Main {
             print("explicit_carrier_snapshot_output_arg_mutation=fail")
             return 2
         }
+        local requested_name_copy = info.get("requested_names")
+        local carrier_names = info.get("carrier_names")
+        local carrier_host_ids = info.get("carrier_host_ids")
+        if requested_name_copy.length() != 2 {
+            print("explicit_carrier_snapshot_requested_names_count=fail")
+            return 3
+        }
+        if requested_name_copy.get(0) != "sum" or requested_name_copy.get(1) != "count" {
+            print("explicit_carrier_snapshot_requested_names_copy=fail")
+            return 4
+        }
+        if carrier_names.length() != 2 {
+            print("explicit_carrier_snapshot_carrier_names_len=fail")
+            return 5
+        }
+        if carrier_names.get(0) != "count" or carrier_names.get(1) != "sum" {
+            print("explicit_carrier_snapshot_carrier_names_order=fail")
+            return 6
+        }
+        if carrier_host_ids.get(0) != 11 or carrier_host_ids.get(1) != 10 {
+            print("explicit_carrier_snapshot_carrier_hosts=fail")
+            return 7
+        }
         if ctx.variable_map.get("count") != 11 {
             print("explicit_carrier_snapshot_ctx_alias=fail")
-            return 3
+            return 8
         }
 
         print("variable_context_explicit_carrier_snapshot_derived_artifact=ok")
