@@ -460,7 +460,8 @@ checkable before selecting a larger new family.
 
    ```text
    rust_mirbuilder_converter_matrix_guard.sh reports a broad converter matrix,
-   but it does not run every current artifact/native/hardcode guard it implies.
+   but it does not run every current green artifact/native/hardcode guard it
+   should report.
    ```
 
    Required scope:
@@ -469,7 +470,6 @@ checkable before selecting a larger new family.
    include carrier snapshot artifact guard
    include explicit carrier snapshot artifact guard
    include native snapshot/restore guard
-   include native CarrierInfo snapshot guard
    include no-carrier-key-type-special-case guard
    include no-silent-hardcode guard where meaningful for staged diffs
    update docs/tools/check-scripts-index.md matrix wording
