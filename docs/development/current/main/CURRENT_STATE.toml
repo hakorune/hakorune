@@ -265,8 +265,8 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1537-IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001.md"
+latest_card = "TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1538-TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001.md"
 latest_card_summary = """BindingContextNative, VariableContextNative
 simple-map, VariableContext snapshot/restore artifact ownership, the shared
 MirBuilder emitter, the shared family generator helper and driver, the shared
@@ -304,10 +304,11 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   now uses owned snapshot input and reaches generated Hako MIR/EXE with
   missing-carrier fail-fast coverage. Native CarrierInfo snapshot APIs now
   have EXE smokes for from_snapshot and explicit snapshot input. The next
-  blocker is accepting imported user-box instance method routes so native Hako
-  APIs can use direct instance calls instead of static wrapper workarounds."""
+  blocker is accepting typed output-argument mutation for generated bridge APIs
+  so generated CarrierInfo artifacts no longer inline operation bodies in
+  Main."""
 
-current_blocker_token = "IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001"
+current_blocker_token = "TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

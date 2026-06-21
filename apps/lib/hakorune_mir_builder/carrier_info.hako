@@ -19,60 +19,68 @@ box CarrierInfoNative {
         me.requested_names = new ArrayBox()
     }
 
-}
-
-static box CarrierInfoNativeApi {
-    from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64 {
-        info.loop_var_name = loop_var_name
-        info.loop_var_id = snapshot.get(loop_var_name)
-        info.carrier_names = new ArrayBox()
-        info.carrier_host_ids = new ArrayBox()
+    from_snapshot(loop_var_name, snapshot: OrderedMapBox): i64 {
+        me.loop_var_name = loop_var_name
+        me.loop_var_id = snapshot.get(loop_var_name)
+        me.carrier_names = new ArrayBox()
+        me.carrier_host_ids = new ArrayBox()
 
         local i = 0
         loop(i < snapshot.length()) {
             local key = snapshot.key_at(i)
             if key != loop_var_name {
-                info.carrier_names.push(key)
-                info.carrier_host_ids.push(snapshot.get(key))
+                me.carrier_names.push(key)
+                me.carrier_host_ids.push(snapshot.get(key))
             }
             i = i + 1
         }
 
-        info.carrier_count = info.carrier_names.length()
+        me.carrier_count = me.carrier_names.length()
         return 0
     }
 
-    with_explicit_carriers_from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64 {
-        info.loop_var_name = loop_var_name
-        info.loop_var_id = snapshot.get(loop_var_name)
-        local input_requested_names = info.requested_names
-        info.requested_names = new ArrayBox()
+    with_explicit_carriers_from_snapshot(loop_var_name, snapshot: OrderedMapBox): i64 {
+        me.loop_var_name = loop_var_name
+        me.loop_var_id = snapshot.get(loop_var_name)
+        local input_requested_names = me.requested_names
+        me.requested_names = new ArrayBox()
 
         local requested_index = 0
         loop(requested_index < input_requested_names.length()) {
             local requested_name = input_requested_names.get(requested_index)
-            info.requested_names.push(requested_name)
+            me.requested_names.push(requested_name)
             requested_index = requested_index + 1
         }
-        info.requested_name_count = info.requested_names.length()
-        info.carrier_names = new ArrayBox()
-        info.carrier_host_ids = new ArrayBox()
+        me.requested_name_count = me.requested_names.length()
+        me.carrier_names = new ArrayBox()
+        me.carrier_host_ids = new ArrayBox()
 
         local i = 0
-        loop(i < info.requested_names.length()) {
-            local requested_name = info.requested_names.get(i)
+        loop(i < me.requested_names.length()) {
+            local requested_name = me.requested_names.get(i)
             local host_id = snapshot.get(requested_name)
             if host_id == null {
                 print("carrier_info_native_missing_requested_carrier=fail")
                 return 1
             }
-            info.carrier_names.push(requested_name)
-            info.carrier_host_ids.push(host_id)
+            me.carrier_names.push(requested_name)
+            me.carrier_host_ids.push(host_id)
             i = i + 1
         }
 
-        info.carrier_count = info.carrier_names.length()
+        me.carrier_count = me.carrier_names.length()
         return 0
+    }
+
+}
+
+static box CarrierInfoNativeApi {
+    from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64 {
+        return info.from_snapshot(loop_var_name, snapshot)
+    }
+
+    with_explicit_carriers_from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64 {
+        return info.with_explicit_carriers_from_snapshot(loop_var_name, snapshot)
     }
 
     requested_names_contains(requested_names, name): i64 {

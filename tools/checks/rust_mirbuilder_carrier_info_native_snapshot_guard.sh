@@ -17,10 +17,20 @@ from pathlib import Path
 source = Path("apps/lib/hakorune_mir_builder/carrier_info.hako").read_text()
 assert "box CarrierInfoNative" in source
 assert "static box CarrierInfoNativeApi" in source
+assert "from_snapshot(loop_var_name, snapshot: OrderedMapBox): i64" in source
+assert "with_explicit_carriers_from_snapshot(loop_var_name, snapshot: OrderedMapBox): i64" in source
 assert "from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64" in source
 assert "with_explicit_carriers_from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64" in source
 assert "return ctx.variable_map" not in source
 assert "OrderedMapReadViewBox" not in source
+
+snapshot_test = Path("apps/tests/phase296x_carrier_info_native_snapshot_min.hako").read_text()
+explicit_test = Path("apps/tests/phase296x_carrier_info_native_explicit_snapshot_min.hako").read_text()
+assert 'info.from_snapshot("i", snapshot)' in snapshot_test
+assert "CarrierInfoNativeApi.from_snapshot(info" not in snapshot_test
+assert 'info.with_explicit_carriers_from_snapshot("i", snapshot)' in explicit_test
+assert 'missing_info.with_explicit_carriers_from_snapshot("i", snapshot)' in explicit_test
+assert "CarrierInfoNativeApi.with_explicit_carriers_from_snapshot(info" not in explicit_test
 PY
 
 ./target/release/hakorune --emit-exe "$SNAPSHOT_EXE" "$SNAPSHOT_SOURCE" >/tmp/phase296x_carrier_info_native_snapshot_min.build.log 2>&1
@@ -37,6 +47,7 @@ output_contract=rust-mirbuilder-carrier-info-native-snapshot-v0
 carrier_info_native_source=green
 from_snapshot_exe=green
 explicit_snapshot_exe=green
+imported_instance_method_route=green
 missing_requested_carrier_fail_fast=green
 snapshot_context_output_alias_isolation=green
 raw_variable_map_alias=0

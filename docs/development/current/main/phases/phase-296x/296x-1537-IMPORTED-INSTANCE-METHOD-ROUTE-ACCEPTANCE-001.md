@@ -1,6 +1,6 @@
 # 296x-1537 IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
 
-Status: active
+Status: closed
 Date: 2026-06-21
 
 ## Purpose
@@ -50,6 +50,18 @@ apps/tests/phase296x_carrier_info_native_explicit_snapshot_min.hako
 bash tools/checks/rust_mirbuilder_carrier_info_native_snapshot_guard.sh
   from_snapshot_exe=green
   explicit_snapshot_exe=green
+  imported_instance_method_route=green
+```
+
+## Result
+
+```text
+CarrierInfoNative now owns direct instance methods:
+  info.from_snapshot("i", snapshot)
+  info.with_explicit_carriers_from_snapshot("i", snapshot)
+
+The static CarrierInfoNativeApi wrappers remain as compatibility shims and
+delegate to the instance methods.
 ```
 
 ## Stop Line

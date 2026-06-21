@@ -16,7 +16,7 @@ static box Main {
 
         local info = new CarrierInfoNative()
         info.requested_names = requested_names
-        if CarrierInfoNativeApi.with_explicit_carriers_from_snapshot(info, "i", snapshot) != 0 {
+        if info.with_explicit_carriers_from_snapshot("i", snapshot) != 0 {
             print("carrier_info_native_explicit_status=fail")
             return 1
         }
@@ -49,7 +49,7 @@ static box Main {
         missing_requested.push("missing")
         local missing_info = new CarrierInfoNative()
         missing_info.requested_names = missing_requested
-        if CarrierInfoNativeApi.with_explicit_carriers_from_snapshot(missing_info, "i", snapshot) == 0 {
+        if missing_info.with_explicit_carriers_from_snapshot("i", snapshot) == 0 {
             print("carrier_info_native_explicit_missing_failfast=fail")
             return 7
         }

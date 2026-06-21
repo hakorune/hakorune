@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
+TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
 ```
 
 Purpose:
 
 ```text
-Accept imported user-box instance method routes so native `.hako` APIs can use
-direct instance calls without static wrapper workarounds.
+Accept generated bridge APIs that mutate typed output arguments so generated
+CarrierInfo artifacts no longer inline operation bodies in Main.
 ```
 
 Lifecycle converter boundary:
@@ -119,7 +119,7 @@ Done:
   native CarrierInfo snapshot APIs
 
 Next:
-  IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
+  TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.

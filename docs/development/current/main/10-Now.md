@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
+TYPED-OUTPUT-ARG-MUTATION-ACCEPTANCE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -41,9 +41,10 @@ has just landed native CarrierInfo snapshot APIs. The basic owned-snapshot
 CarrierInfo artifact now reaches MIR and EXE with alias-isolation coverage.
 Explicit CarrierInfo conversion now uses the same owned snapshot input and
 reaches generated Hako MIR/EXE with missing-carrier fail-fast coverage. Native
-CarrierInfo snapshot APIs now have EXE smokes for from_snapshot and explicit
-snapshot input. The active task is accepting imported user-box instance method
-routes so native APIs can use direct instance calls.
+CarrierInfo snapshot APIs now have EXE smokes for direct from_snapshot and
+explicit snapshot instance calls. The active task is accepting typed
+output-argument mutation for generated bridge APIs so generated CarrierInfo
+artifacts no longer inline operation bodies in Main.
 
 Historical context follows.
 

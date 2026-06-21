@@ -302,7 +302,7 @@ checked-in generated artifacts.
 
 15. `Accept imported instance method routes for native Hako APIs`
 
-   Status: active.
+   Status: landed.
 
    Accept direct imported user-box instance calls such as
    `info.from_snapshot("i", snapshot)` without by-name fallback or
@@ -310,7 +310,7 @@ checked-in generated artifacts.
 
 16. `Accept typed output-argument mutation for generated bridge APIs`
 
-   Status: pending.
+   Status: active.
 
    Let generated `CarrierInfoApi.from_snapshot(carrier_data, ...)` mutate a
    typed `OrderedMapBox` output parameter that remains visible to the caller,

@@ -10,7 +10,7 @@ static box Main {
 
         local snapshot: OrderedMapBox = VariableContextNativeApi.snapshot(ctx)
         local info = new CarrierInfoNative()
-        if CarrierInfoNativeApi.from_snapshot(info, "i", snapshot) != 0 {
+        if info.from_snapshot("i", snapshot) != 0 {
             print("carrier_info_native_snapshot_status=fail")
             return 1
         }
