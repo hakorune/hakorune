@@ -22,7 +22,7 @@ bash tools/checks/rust_lifecycle_variable_context_carrier_snapshot_derived_route
 bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_route_selection_guard.sh
 
-bash tools/checks/rust_lifecycle_no_carrier_key_type_special_case_guard.sh
+bash tools/checks/rust_mirbuilder_negative_converter_fixtures_guard.sh
 bash tools/checks/rust_lifecycle_no_silent_hardcode_guard.sh
 
 cat <<'REPORT'
@@ -33,7 +33,7 @@ returned_read_borrow=Deny(ReturnedReadBorrow)
 variable_context_snapshot_restore=green
 variable_context_carrier_snapshot=green
 variable_context_explicit_carrier_snapshot=green
-no_carrier_key_type_special_case=green
+negative_converter_fixtures=green
 no_silent_hardcode=green
 shared_emitter=green
 summary=ok

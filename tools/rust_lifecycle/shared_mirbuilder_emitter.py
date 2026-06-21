@@ -40,35 +40,126 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
     if kind == "MapGet":
         source = _render_source_expr(operation)
-        return [f"return {source}.get({operation['key']})"]
+        keys = f"{source}.keys_value"
+        values = f"{source}.values_value"
+        return [
+            f"if {operation['key']} == null {{",
+            "    return null",
+            "}",
+            f"local key = {operation['key']}",
+            "local i = 0",
+            f"loop(i < {keys}.length()) {{",
+            f"    if {keys}.get(i) == key {{",
+            f"        return {values}.get(i)",
+            "    }",
+            "    i = i + 1",
+            "}",
+            "return null",
+        ]
     if kind == "MapHas":
         source = _render_source_expr(operation)
+        keys = f"{source}.keys_value"
         return [
-            f"if {source}.has({operation['key']}) == true {{",
-            "    return 1",
+            f"if {operation['key']} == null {{",
+            "    return 0",
+            "}",
+            f"local key = {operation['key']}",
+            "local i = 0",
+            f"loop(i < {keys}.length()) {{",
+            f"    if {keys}.get(i) == key {{",
+            "        return 1",
+            "    }",
+            "    i = i + 1",
             "}",
             "return 0",
         ]
     if kind == "MapLength":
         source = _render_source_expr(operation)
-        return [f"return {source}.length()"]
+        keys = f"{source}.keys_value"
+        return [f"return {keys}.length()"]
     if kind == "MapIsEmpty":
         source = _render_source_expr(operation)
+        keys = f"{source}.keys_value"
         return [
-            f"if {source}.length() == 0 {{",
+            f"if {keys}.length() == 0 {{",
             "    return 1",
             "}",
             "return 0",
         ]
     if kind == "MapSet":
         source = _render_source_expr(operation)
-        return [f"{source}.set({operation['key']}, {operation['value']})"]
+        keys = f"{source}.keys_value"
+        values = f"{source}.values_value"
+        return [
+            f"if {operation['key']} == null {{",
+            "    return 0",
+            "}",
+            f"local key = {operation['key']}",
+            "local i = 0",
+            f"loop(i < {keys}.length()) {{",
+            f"    if {keys}.get(i) == key {{",
+            f"        {values}.set(i, {operation['value']})",
+            "        return 1",
+            "    }",
+            "    i = i + 1",
+            "}",
+            f"{keys}.push(key)",
+            f"{values}.push({operation['value']})",
+            f"local pos = {keys}.length() - 1",
+            "loop(pos > 0) {",
+            "    local prev = pos - 1",
+            f"    local a = {keys}.get(prev)",
+            f"    local b = {keys}.get(pos)",
+            "    if a < b or a == b {",
+            "        return 1",
+            "    }",
+            f"    local av = {values}.get(prev)",
+            f"    local bv = {values}.get(pos)",
+            f"    {keys}.set(prev, b)",
+            f"    {keys}.set(pos, a)",
+            f"    {values}.set(prev, bv)",
+            f"    {values}.set(pos, av)",
+            "    pos = pos - 1",
+            "}",
+            "return 1",
+        ]
     if kind == "MapRemove":
         source = _render_source_expr(operation)
-        return [f"return {source}.remove({operation['key']})"]
+        keys = f"{source}.keys_value"
+        values = f"{source}.values_value"
+        return [
+            f"if {operation['key']} == null {{",
+            "    return null",
+            "}",
+            f"local key = {operation['key']}",
+            f"local next_keys = new ArrayBox()",
+            f"local next_values = new ArrayBox()",
+            "local removed = null",
+            "local found = 0",
+            "local i = 0",
+            f"loop(i < {keys}.length()) {{",
+            f"    if {keys}.get(i) == key {{",
+            f"        removed = {values}.get(i)",
+            "        found = 1",
+            "    } else {",
+            f"        next_keys.push({keys}.get(i))",
+            f"        next_values.push({values}.get(i))",
+            "    }",
+            "    i = i + 1",
+            "}",
+            "if found == 1 {",
+            f"    {source}.keys_value = next_keys",
+            f"    {source}.values_value = next_values",
+            "}",
+            "return removed",
+        ]
     if kind == "MapClear":
         source = _render_source_expr(operation)
-        return [f"{source}.clear()"]
+        return [
+            f"{source}.keys_value = new ArrayBox()",
+            f"{source}.values_value = new ArrayBox()",
+            "return 1",
+        ]
     if kind == "CloneOwnedMap":
         source = _render_source_expr(operation)
         return [f"return {source}.clone_owned()"]

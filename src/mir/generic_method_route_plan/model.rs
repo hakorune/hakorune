@@ -454,6 +454,10 @@ impl GenericMethodRoute {
         self.evidence.result_origin_box.as_deref()
     }
 
+    pub(crate) fn override_result_origin_box(&mut self, box_name: String) {
+        self.evidence.result_origin_box = Some(box_name);
+    }
+
     pub fn effect_tags(&self) -> &'static [&'static str] {
         self.decision.route_kind.effect_tags()
     }

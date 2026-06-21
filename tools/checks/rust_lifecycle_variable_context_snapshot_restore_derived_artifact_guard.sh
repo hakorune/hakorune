@@ -13,13 +13,13 @@ bash tools/checks/rust_lifecycle_variable_context_snapshot_restore_guard.sh
 
 python3 - <<'PY'
 import json
+import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, "tools/rust_lifecycle")
 from extract_variable_context_snapshot_restore_facts import SOURCE, extract_facts
 from mirbuilder_family_artifacts import variable_context_snapshot_restore_spec
-from mirbuilder_ordered_map_converter import OrderedMapConversionDeny, compile_variable_context_snapshot_restore_methods
 from shared_family_generator import read_json
 
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json").read_text())
@@ -70,16 +70,18 @@ assert spec.api_methods
 assert all(method.operations is not None for method in spec.api_methods)
 assert all(method.operations for method in spec.api_methods)
 
-facts = extract_facts(SOURCE)
-plan = read_json(Path("docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-snapshot-restore-plan-v0.json"))
-compile_variable_context_snapshot_restore_methods(facts, plan)
-facts["body_facts"][0]["operation"] = "UnexpectedClone"
-try:
-    compile_variable_context_snapshot_restore_methods(facts, plan)
-except OrderedMapConversionDeny as exc:
-    assert exc.reason == "UnsupportedResolvedCallTarget"
-else:
-    raise AssertionError("unsupported snapshot/restore body shape must fail closed")
+result = subprocess.run(
+    [
+        "python3",
+        "tools/rust_lifecycle/mirbuilder_negative_converter_fixtures.py",
+        "--case",
+        "variable_context_snapshot_restore_unsupported_resolved_call_target",
+    ],
+    check=True,
+    capture_output=True,
+    text=True,
+)
+assert "variable_context_snapshot_restore_unsupported_resolved_call_target=green" in result.stdout
 PY
 
 ./target/release/hakorune --emit-mir-json /tmp/hako_variable_context_snapshot_restore_artifact.mir.json "$ARTIFACT" >/tmp/hako_variable_context_snapshot_restore_artifact.mir.log 2>&1

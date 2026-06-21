@@ -15,38 +15,112 @@ box BindingContext {
 
 static box BindingContextApi {
     is_empty(ctx): i64 {
-        if ctx.binding_map.length() == 0 {
+        if ctx.binding_map.keys_value.length() == 0 {
             return 1
         }
         return 0
     }
 
     len(ctx): i64 {
-        return ctx.binding_map.length()
+        return ctx.binding_map.keys_value.length()
     }
 
     contains(ctx, name): i64 {
-        if ctx.binding_map.has(name) == true {
-            return 1
+        if name == null {
+            return 0
+        }
+        local key = name
+        local i = 0
+        loop(i < ctx.binding_map.keys_value.length()) {
+            if ctx.binding_map.keys_value.get(i) == key {
+                return 1
+            }
+            i = i + 1
         }
         return 0
     }
 
     lookup(ctx, name) {
-        return ctx.binding_map.get(name)
+        if name == null {
+            return null
+        }
+        local key = name
+        local i = 0
+        loop(i < ctx.binding_map.keys_value.length()) {
+            if ctx.binding_map.keys_value.get(i) == key {
+                return ctx.binding_map.values_value.get(i)
+            }
+            i = i + 1
+        }
+        return null
     }
 
     insert(ctx, name, binding_id): i64 {
-        ctx.binding_map.set(name, binding_id)
+        if name == null {
+            return 0
+        }
+        local key = name
+        local i = 0
+        loop(i < ctx.binding_map.keys_value.length()) {
+            if ctx.binding_map.keys_value.get(i) == key {
+                ctx.binding_map.values_value.set(i, binding_id)
+                return 1
+            }
+            i = i + 1
+        }
+        ctx.binding_map.keys_value.push(key)
+        ctx.binding_map.values_value.push(binding_id)
+        local pos = ctx.binding_map.keys_value.length() - 1
+        loop(pos > 0) {
+            local prev = pos - 1
+            local a = ctx.binding_map.keys_value.get(prev)
+            local b = ctx.binding_map.keys_value.get(pos)
+            if a < b or a == b {
+                return 1
+            }
+            local av = ctx.binding_map.values_value.get(prev)
+            local bv = ctx.binding_map.values_value.get(pos)
+            ctx.binding_map.keys_value.set(prev, b)
+            ctx.binding_map.keys_value.set(pos, a)
+            ctx.binding_map.values_value.set(prev, bv)
+            ctx.binding_map.values_value.set(pos, av)
+            pos = pos - 1
+        }
+        return 1
         return 0
     }
 
     remove(ctx, name) {
-        return ctx.binding_map.remove(name)
+        if name == null {
+            return null
+        }
+        local key = name
+        local next_keys = new ArrayBox()
+        local next_values = new ArrayBox()
+        local removed = null
+        local found = 0
+        local i = 0
+        loop(i < ctx.binding_map.keys_value.length()) {
+            if ctx.binding_map.keys_value.get(i) == key {
+                removed = ctx.binding_map.values_value.get(i)
+                found = 1
+            } else {
+                next_keys.push(ctx.binding_map.keys_value.get(i))
+                next_values.push(ctx.binding_map.values_value.get(i))
+            }
+            i = i + 1
+        }
+        if found == 1 {
+            ctx.binding_map.keys_value = next_keys
+            ctx.binding_map.values_value = next_values
+        }
+        return removed
     }
 
     clear_for_function_entry(ctx): i64 {
-        ctx.binding_map.clear()
+        ctx.binding_map.keys_value = new ArrayBox()
+        ctx.binding_map.values_value = new ArrayBox()
+        return 1
         return 0
     }
 

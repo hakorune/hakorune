@@ -141,7 +141,7 @@ def compile_explicit_carrier_snapshot_methods(facts: dict[str, Any], plan: dict[
     _require(method.get("carrier_names", {}).get("missing_carrier_policy") == "fail_fast", "UnsupportedResolvedCallTarget")
     return [
         HakoMethodIR(
-            "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64",
+            "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names: ArrayBox, snapshot: OrderedMapBox): i64",
             [
                 op(
                     "ExplicitCarrierSnapshotFromOwnedMap",

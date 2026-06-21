@@ -98,6 +98,7 @@ fn refresh_function_ordered_map_get_result_origins(function: &mut MirFunction) {
     for (value, ty) in published {
         function.metadata.value_types.insert(value, ty);
     }
+    override_ordered_map_get_generic_route_origins(function);
     override_ordered_map_get_user_box_route_origins(function);
     rewrite_runtime_data_receivers_with_published_origins(function);
 }
@@ -256,6 +257,22 @@ fn override_ordered_map_get_user_box_route_origins(function: &mut MirFunction) {
         if box_name == "ArrayBox" {
             route.override_target_result_box_name(box_name.clone());
         }
+    }
+}
+
+fn override_ordered_map_get_generic_route_origins(function: &mut MirFunction) {
+    let value_types = function.metadata.value_types.clone();
+    for route in &mut function.metadata.generic_method_routes {
+        if route.box_name() != "OrderedMapBox" || route.method() != "get" {
+            continue;
+        }
+        let Some(result_value) = route.result_value() else {
+            continue;
+        };
+        let Some(MirType::Box(box_name)) = value_types.get(&result_value) else {
+            continue;
+        };
+        route.override_result_origin_box(box_name.clone());
     }
 }
 

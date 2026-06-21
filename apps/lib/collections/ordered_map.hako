@@ -135,6 +135,17 @@ box OrderedMapBox {
         return me.keys_value.length()
     }
 
+    len() {
+        return me.keys_value.length()
+    }
+
+    is_empty() {
+        if me.keys_value.length() == 0 {
+            return 1
+        }
+        return 0
+    }
+
     keys() {
         local out = new ArrayBox()
         local i = 0

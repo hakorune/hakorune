@@ -88,7 +88,7 @@ assert "OrderedMapBox.key_at" in verifier["verified_operations"]
 assert "ArrayBox.get" in verifier["verified_operations"]
 
 assert "static box CarrierInfoApi" in hako
-assert "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64" in hako
+assert "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names: ArrayBox, snapshot: OrderedMapBox): i64" in hako
 assert 'CarrierInfoApi.with_explicit_carriers_from_snapshot(info, "i", 5, requested_names, snapshot)' in hako
 assert 'local requested_name_copy = info.get("requested_names")' in hako
 assert 'local carrier_names = info.get("carrier_names")' in hako

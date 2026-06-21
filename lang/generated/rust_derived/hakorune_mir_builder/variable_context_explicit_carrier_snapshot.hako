@@ -21,7 +21,7 @@ static box VariableContextApi {
 }
 
 static box CarrierInfoApi {
-    with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64 {
+    with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names: ArrayBox, snapshot: OrderedMapBox): i64 {
         carrier_data.set("loop_var_name", loop_var_name)
         carrier_data.set("loop_var_id", loop_var_id)
 
