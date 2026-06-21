@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
+NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
 ```
 
 Purpose:
 
 ```text
-Move explicit CarrierInfo conversion from raw returned-map aliasing to owned
-snapshot input, while preserving missing requested carrier fail-fast behavior.
+Adopt native CarrierInfo snapshot APIs now that generated owned-snapshot
+CarrierInfo paths are green.
 ```
 
 Lifecycle converter boundary:
@@ -115,13 +115,14 @@ Done:
     standalone VariableContext::variable_map -> Deny(ReturnedReadBorrow)
   owned-snapshot CarrierInfo conversion
   OrderedMapBox method calls through origin-copied receivers
+  explicit CarrierInfo conversion from owned snapshot
 
 Next:
-  EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
+  NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
 
 Task sequence:
-  1. Implement explicit CarrierInfo conversion from owned snapshot.
-  2. Adopt native CarrierInfo snapshot APIs.
+  1. Adopt native CarrierInfo snapshot APIs.
+  2. Add native from_snapshot and explicit snapshot EXE smokes.
 ```
 
 Current task order:

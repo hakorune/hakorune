@@ -82,6 +82,59 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"{output}.set(\"carrier_count\", carrier_names.length())",
             "return 0",
         ]
+    if kind == "ExplicitCarrierSnapshotFromOwnedMap":
+        map_arg = operation["map_arg"]
+        loop_var = operation["loop_var"]
+        loop_var_id = operation["loop_var_id"]
+        requested_names = operation["requested_names"]
+        output = operation["output_arg"]
+        return [
+            f"{output}.set(\"loop_var_name\", {loop_var})",
+            f"{output}.set(\"loop_var_id\", {loop_var_id})",
+            "",
+            "local requested_name_copy = new ArrayBox()",
+            "local requested_index = 0",
+            f"loop(requested_index < {requested_names}.length()) {{",
+            f"    local requested_name = {requested_names}.get(requested_index)",
+            "    requested_name_copy.push(requested_name)",
+            "    requested_index = requested_index + 1",
+            "}",
+            f"{output}.set(\"requested_names\", requested_name_copy)",
+            "",
+            "local requested_name_map = OrderedMap.create()",
+            "local name_index = 0",
+            "loop(name_index < requested_name_copy.length()) {",
+            "    local requested_name = requested_name_copy.get(name_index)",
+            "    requested_name_map.set(requested_name, 1)",
+            "    name_index = name_index + 1",
+            "}",
+            "",
+            "local carrier_names = new ArrayBox()",
+            "local carrier_host_ids = new ArrayBox()",
+            "local i = 0",
+            f"loop(i < {map_arg}.length()) {{",
+            f"    local key = {map_arg}.key_at(i)",
+            f"    if key != {loop_var} {{",
+            "        local requested_match = requested_name_map.get(key)",
+            "        if requested_match != null {",
+            "            carrier_names.push(key)",
+            f"            carrier_host_ids.push({map_arg}.get(key))",
+            "        }",
+            "    }",
+            "    i = i + 1",
+            "}",
+            "",
+            "if carrier_names.length() != requested_name_copy.length() {",
+            "    print(\"explicit_carrier_snapshot_missing_requested_carrier=fail\")",
+            "    return 1",
+            "}",
+            "",
+            f"{output}.set(\"carrier_names\", carrier_names)",
+            f"{output}.set(\"carrier_host_ids\", carrier_host_ids)",
+            f"{output}.set(\"carrier_count\", carrier_names.length())",
+            f"{output}.set(\"requested_name_count\", requested_name_copy.length())",
+            "return 0",
+        ]
     if kind == "ReturnI64":
         return [f"return {operation['return_value']}"]
     raise ValueError(f"unsupported Hako operation: {kind}")

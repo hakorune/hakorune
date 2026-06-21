@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
+NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -37,9 +37,10 @@ lightweight-facts converter wrapper for BindingContext and simple-map is
 green. VariableContext native snapshot/restore is now green with clone_owned
 restore and post-restore alias-proof EXE coverage. ReturnedReadBorrow is now
 resolved as NoReturnedAlias plus OwnedReadSnapshotProjection. The active task
-is moving explicit CarrierInfo conversion onto the owned snapshot input
-contract. The basic owned-snapshot CarrierInfo artifact now reaches MIR and EXE
-with alias-isolation coverage.
+is adopting native CarrierInfo snapshot APIs. The basic owned-snapshot
+CarrierInfo artifact now reaches MIR and EXE with alias-isolation coverage.
+Explicit CarrierInfo conversion now uses the same owned snapshot input and
+reaches generated Hako MIR/EXE with missing-carrier fail-fast coverage.
 
 Historical context follows.
 

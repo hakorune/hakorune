@@ -9,7 +9,7 @@
   },
   "excluded_methods": [
     "VariableContext::variable_map_mut",
-    "VariableContext::snapshot",
+    "VariableContext::variable_map",
     "VariableContext::restore",
     "CarrierInfo::from_variable_map",
     "join_id lifecycle",
@@ -25,29 +25,29 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-facts-v0.json",
-      "sha256": "9a9b462c74caa550c77c881ba38b148093a3d02b677ea8b335ceae04f1781b44"
+      "sha256": "bc5134eed890e3edc82b969b1b2dba03645ff9e70aae1b830926b646dc1dda5e"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-oracle-vectors-v0.json",
-      "sha256": "fff29433b321f09c7cfbb78898d3e2652e827ac96708792a04be1dee53b507cf"
+      "sha256": "3e6cf6f4eeab570ad2dbdfa253cde4856234c7c486d5b289f5a198f3c5e9a326"
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-plan-v0.json",
-      "sha256": "8ef6fe8058397997fdb81db6e87b80a1dfe1e91b612c4c730644bb3749bed5c3"
+      "sha256": "89e413a9e655288aeb95b324d66371c345543fa76966b50dc132ae96cc7aaa73"
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-behavior-recipe-v0.json",
-      "sha256": "bd0572528c527b54fb23e91f5f17c9741965a4ca12d9ae3f59491a9a4ba14a62"
+      "sha256": "4dae8d08c81291d0e61a6c6aaad48bc5c1ad32b2507bd4f8f5e4c8a171fd722a"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-derived-artifact-verifier-result-v0.json",
-      "sha256": "2181fe41b174570b9656e9f19424931e250e269579bbc8802c206af63133f771"
+      "sha256": "405f288ad6181831fd2328d9082375f1c89e8af4c443dc4e8c44bbbea93654ae"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.hako",
-    "hako_sha256": "b6ec36a2c61c56ab880b362a5ba38f02ef4bb37123634b51214554868586d183"
+    "hako_sha256": "eb5f0690b6136dc619188ef2d5442427f8d6ab378902e00b4cacd17e09b69b4d"
   },
   "pilot_scope": "VariableContext_explicit_carrier_snapshot_only",
   "schema_version": 0,

@@ -23,7 +23,7 @@
         ]
       },
       "requires": [
-        "owner_carrying_BorrowView",
+        "owned_read_snapshot_projection",
         "requested_names_owned",
         "missing_carrier_fail_fast",
         "ValueId.copy_kind=ImmediateValue"

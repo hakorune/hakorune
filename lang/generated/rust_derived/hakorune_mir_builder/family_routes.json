@@ -6,7 +6,7 @@
     "runtime_try_hako_then_rust_fallback": 0,
     "source_selfhost_claim": 0,
     "variable_context_carrier_snapshot_selected": 1,
-    "variable_context_explicit_carrier_snapshot_selected": 0,
+    "variable_context_explicit_carrier_snapshot_selected": 1,
     "variable_context_immutable_borrow_selected": 0,
     "variable_context_snapshot_restore_selected": 1,
     "variable_context_simple_map_selected": 1,
@@ -82,13 +82,11 @@
       "family_id": "hakorune_mir_builder::variable_context",
       "guard_command": "bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_route_selection_guard.sh",
       "pilot_scope": "VariableContext_explicit_carrier_snapshot_only",
-      "route": "denied",
+      "route": "derived_hako",
       "rust_bootstrap_route": "retained",
       "rust_oracle_route": "retained",
-      "selected_on_mainline": false,
-      "state": "Denied",
-      "deny_reason": "ReturnedReadBorrow",
-      "replacement_policy": "OwnedReadSnapshotProjection"
+      "selected_on_mainline": true,
+      "state": "DerivedMainline"
     }
   ],
   "schema_version": 0

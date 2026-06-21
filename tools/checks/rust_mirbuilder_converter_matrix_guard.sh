@@ -17,12 +17,15 @@ bash tools/checks/rust_lifecycle_variable_context_snapshot_restore_derived_artif
 bash tools/checks/rust_lifecycle_variable_context_snapshot_restore_derived_route_selection_guard.sh
 bash tools/checks/rust_lifecycle_variable_context_snapshot_restore_guard.sh
 
+bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_route_selection_guard.sh
+
 cat <<'REPORT'
 matrix=rust-mirbuilder-converter-v0
 binding_context=green
 variable_context_simple_map=green
 returned_read_borrow=Deny(ReturnedReadBorrow)
 variable_context_snapshot_restore=green
+variable_context_explicit_carrier_snapshot=green
 shared_emitter=green
 summary=ok
 REPORT

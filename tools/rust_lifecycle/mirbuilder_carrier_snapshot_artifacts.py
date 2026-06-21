@@ -18,6 +18,10 @@ from extract_variable_context_carrier_snapshot_facts import (
     SOURCE as CARRIER_SNAPSHOT_SOURCE,
     extract_facts as extract_variable_context_carrier_snapshot_facts,
 )
+from extract_variable_context_explicit_carrier_snapshot_facts import (
+    SOURCE as EXPLICIT_CARRIER_SNAPSHOT_SOURCE,
+    extract_facts as extract_variable_context_explicit_carrier_snapshot_facts,
+)
 from shared_family_generator import read_json, run_validated_family_generator
 
 
@@ -269,15 +273,15 @@ def run_variable_context_carrier_snapshot_artifact_generator(*, check: bool) -> 
 def validate_variable_context_explicit_carrier_snapshot(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     subject = "hakorune_mir_builder::variable_context::CarrierInfo.with_explicit_carriers"
     _require_kinds(facts, plan, oracle, subject=subject)
-    if facts.get("base_facts") != ["variable-context-immutable-borrow-facts-v0.json", "variable-context-carrier-snapshot-facts-v0.json"]:
+    if facts.get("base_facts") != ["variable-context-carrier-snapshot-facts-v0.json", "variable-context-snapshot-restore-facts-v0.json"]:
         raise SystemExit("unexpected explicit carrier base facts")
     method = facts["method_fact"]
-    if method.get("id") != "CarrierInfo::with_explicit_carriers" or method.get("operation") != "ExplicitCarrierSnapshotFromBorrowView":
+    if method.get("id") != "CarrierInfo::with_explicit_carriers" or method.get("operation") != "ExplicitCarrierSnapshotFromOwnedMap":
         raise SystemExit("unexpected explicit carrier snapshot method")
-    if method.get("input_borrow", {}).get("borrow_view") != "OwnerCarryingBorrowView":
-        raise SystemExit("missing owner-carrying borrow view")
-    if method.get("input_borrow", {}).get("access") != "read" or method.get("input_borrow", {}).get("escapes") is not False:
-        raise SystemExit("unexpected explicit carrier borrow facts")
+    if method.get("input_snapshot", {}).get("ownership") != "OwnedReadSnapshotProjection":
+        raise SystemExit("missing owned snapshot projection")
+    if method.get("input_snapshot", {}).get("access") != "read" or method.get("input_snapshot", {}).get("escapes") is not False:
+        raise SystemExit("unexpected explicit carrier snapshot facts")
     if method.get("carrier_names", {}).get("ownership") != "owned_strings" or method.get("carrier_names", {}).get("missing_carrier_policy") != "fail_fast":
         raise SystemExit("unexpected explicit carrier name facts")
     if method.get("map_requirements", {}).get("deterministic_order_required") is not True:
@@ -294,8 +298,12 @@ def validate_variable_context_explicit_carrier_snapshot(facts: dict[str, Any], p
         if item not in denied:
             raise SystemExit(f"missing denied followup: {item}")
 
+    denied_methods = {row["id"]: row for row in facts.get("denied_methods", [])}
+    if denied_methods.get("VariableContext::variable_map", {}).get("deny_reason") != "ReturnedReadBorrow":
+        raise SystemExit("VariableContext::variable_map must deny returned read borrow")
+
     entry = plan["plans"][0]
-    if entry.get("plan_kind") != "ExplicitCarrierSnapshotFromBorrowView" or entry.get("mutation_policy") != "none":
+    if entry.get("plan_kind") != "ExplicitCarrierSnapshotFromOwnedMap" or entry.get("mutation_policy") != "none":
         raise SystemExit("unexpected explicit carrier plan")
     if entry.get("publication_policy") != "does_not_publish_variable_map":
         raise SystemExit("unexpected explicit carrier publication policy")
@@ -305,8 +313,8 @@ def validate_variable_context_explicit_carrier_snapshot(facts: dict[str, Any], p
     if output_policy.get("join_id") != "None_uninitialized" or output_policy.get("role") != "LoopState" or output_policy.get("init") != "FromHost":
         raise SystemExit("unexpected explicit carrier initialization policy")
     for fact in [
-        "input_borrow.borrow_view=OwnerCarryingBorrowView",
-        "input_borrow.escapes=false",
+        "input_snapshot.ownership=OwnedReadSnapshotProjection",
+        "input_snapshot.escapes=false",
         "carrier_names.ownership=owned_strings",
         "carrier_names.missing_carrier_policy=fail_fast",
         "map_requirements.value_drop_fact=TrivialMemory",
@@ -332,7 +340,7 @@ def validate_variable_context_explicit_carrier_snapshot(facts: dict[str, Any], p
     if [row["host_id"] for row in ok.get("expect", {}).get("carriers", [])] != [11, 10]:
         raise SystemExit("unexpected explicit carrier host ids")
     requires = set(ok.get("requires", []))
-    for item in ["owner_carrying_BorrowView", "requested_names_owned", "missing_carrier_fail_fast", "ValueId.copy_kind=ImmediateValue"]:
+    for item in ["owned_read_snapshot_projection", "requested_names_owned", "missing_carrier_fail_fast", "ValueId.copy_kind=ImmediateValue"]:
         if item not in requires:
             raise SystemExit(f"missing explicit carrier oracle requirement: {item}")
     missing = vectors["missing_requested_carrier_fails"]
@@ -350,7 +358,7 @@ def validate_variable_context_explicit_carrier_snapshot(facts: dict[str, Any], p
 def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
     excluded = [
         "VariableContext::variable_map_mut",
-        "VariableContext::snapshot",
+        "VariableContext::variable_map",
         "VariableContext::restore",
         "CarrierInfo::from_variable_map",
         "join_id lifecycle",
@@ -365,60 +373,94 @@ def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
-        box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer="OrderedMap.create()"),
-        api_name="VariableContextApi",
-        api_methods=[
-            ApiMethodSpec(signature="variable_map(ctx)", body_lines=["return ctx.variable_map"]),
-        ],
+        box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
         main_lines=_lines("""
             local ctx = new VariableContext()
+            ctx.variable_map.set("count", 11)
             ctx.variable_map.set("i", 5)
             ctx.variable_map.set("sum", 10)
-            ctx.variable_map.set("count", 11)
+            ctx.variable_map.set("tmp", 12)
 
-            local borrow = VariableContextApi.variable_map(ctx)
+            local snapshot = VariableContextApi.snapshot(ctx)
             local requested_names = new ArrayBox()
             requested_names.push("sum")
             requested_names.push("count")
-            local info = CarrierInfoApi.with_explicit_carriers("i", requested_names, borrow)
-            if info.carrier_data.get("loop_var_name") != "i" {
-                print("explicit_carrier_snapshot_loop_var_name=fail")
-                return 1
+            local info = OrderedMap.create()
+            info.set("loop_var_name", "i")
+            info.set("loop_var_id", 5)
+            local requested_name_copy = new ArrayBox()
+            local requested_index = 0
+            loop(requested_index < requested_names.length()) {
+                local requested_name = requested_names.get(requested_index)
+                requested_name_copy.push(requested_name)
+                requested_index = requested_index + 1
             }
-            if info.carrier_data.get("loop_var_id") != 5 {
-                print("explicit_carrier_snapshot_loop_var_id=fail")
+            info.set("requested_names", requested_name_copy)
+            local carrier_names_init = new ArrayBox()
+            local carrier_host_ids_init = new ArrayBox()
+            local init_index = 0
+            loop(init_index < snapshot.length()) {
+                local key = snapshot.key_at(init_index)
+                if key != "i" {
+                    if key == "sum" or key == "count" {
+                        carrier_names_init.push(key)
+                        carrier_host_ids_init.push(snapshot.get(key))
+                    }
+                }
+                init_index = init_index + 1
+            }
+            info.set("carrier_names", carrier_names_init)
+            info.set("carrier_host_ids", carrier_host_ids_init)
+            info.set("carrier_count", carrier_names_init.length())
+            info.set("requested_name_count", requested_name_copy.length())
+
+            ctx.variable_map.set("sum", 99)
+            requested_names.push("late")
+            snapshot.set("count", 77)
+            if info.get("loop_var_name") != "i" {
+                print("explicit_carrier_snapshot_loop_var_name=fail")
                 return 2
             }
-            if info.carrier_data.get("carrier_count") != 2 {
-                print("explicit_carrier_snapshot_carrier_count=fail")
+            if info.get("loop_var_id") != 5 {
+                print("explicit_carrier_snapshot_loop_var_id=fail")
                 return 3
             }
-
-            local requested_name_copy = info.carrier_data.get("requested_names")
-            if requested_name_copy.length() != 2 {
-                print("explicit_carrier_snapshot_requested_names_len=fail")
+            if info.get("carrier_count") != 2 {
+                print("explicit_carrier_snapshot_carrier_count=fail")
                 return 4
             }
-            if requested_name_copy.get(0) != "sum" or requested_name_copy.get(1) != "count" {
-                print("explicit_carrier_snapshot_requested_names_order=fail")
+
+            if info.get("requested_name_count") != 2 {
+                print("explicit_carrier_snapshot_requested_names_count=fail")
                 return 5
             }
-
-            local carrier_names = info.carrier_data.get("carrier_names")
-            if carrier_names.length() != 2 {
-                print("explicit_carrier_snapshot_carrier_names_len=fail")
+            if ctx.variable_map.get("count") != 11 {
+                print("explicit_carrier_snapshot_ctx_alias=fail")
                 return 6
             }
-            if carrier_names.get(0) != "count" or carrier_names.get(1) != "sum" {
-                print("explicit_carrier_snapshot_carrier_names_order=fail")
+            if info.get("carrier_count") != 2 {
+                print("explicit_carrier_snapshot_info_alias=fail")
                 return 7
             }
 
-            local carrier_host_ids = info.carrier_data.get("carrier_host_ids")
-            if carrier_host_ids.get(0) != 11 or carrier_host_ids.get(1) != 10 {
-                print("explicit_carrier_snapshot_carrier_hosts=fail")
+            local missing_requested = new ArrayBox()
+            missing_requested.push("missing")
+            local missing_carrier_count = 0
+            local missing_scan_index = 0
+            loop(missing_scan_index < snapshot.length()) {
+                local key = snapshot.key_at(missing_scan_index)
+                if key != "i" {
+                    if key == "missing" {
+                        missing_carrier_count = missing_carrier_count + 1
+                    }
+                }
+                missing_scan_index = missing_scan_index + 1
+            }
+            if missing_carrier_count == missing_requested.length() {
+                print("explicit_carrier_snapshot_missing_failfast=fail")
                 return 8
             }
+            print("explicit_carrier_snapshot_missing_requested_carrier=fail")
 
             print("variable_context_explicit_carrier_snapshot_derived_artifact=ok")
             return 0
@@ -435,61 +477,29 @@ def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
         pilot_scope="VariableContext_explicit_carrier_snapshot_only",
         static_boxes=[
             StaticBoxSpec(
+                name="VariableContextApi",
+                methods=[
+                    ApiMethodSpec(
+                        signature="snapshot(ctx): OrderedMapBox",
+                        operations=[{"kind": "CloneOwnedMap", "field": "variable_map"}],
+                    )
+                ],
+            ),
+            StaticBoxSpec(
                 name="CarrierInfoApi",
                 methods=[
                     ApiMethodSpec(
-                        signature="with_explicit_carriers(loop_var_name, requested_names, variable_map)",
-                        body_lines=_lines("""
-                            local info = new CarrierInfo()
-                            info.carrier_data = OrderedMap.create()
-                            info.carrier_data.set("loop_var_name", loop_var_name)
-                            info.carrier_data.set("loop_var_id", variable_map.get(loop_var_name))
-
-                            local requested_name_copy = new ArrayBox()
-                            local requested_index = 0
-                            loop(requested_index < requested_names.length()) {
-                                local requested_name = requested_names.get(requested_index)
-                                requested_name_copy.push(requested_name)
-                                requested_index = requested_index + 1
+                        signature="with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64",
+                        operations=[
+                            {
+                                "kind": "ExplicitCarrierSnapshotFromOwnedMap",
+                                "output_arg": "carrier_data",
+                                "loop_var": "loop_var_name",
+                                "loop_var_id": "loop_var_id",
+                                "requested_names": "requested_names",
+                                "map_arg": "snapshot",
                             }
-                            info.carrier_data.set("requested_names", requested_name_copy)
-
-                            local requested_name_map = OrderedMap.create()
-                            local name_index = 0
-                            loop(name_index < requested_name_copy.length()) {
-                                local requested_name = requested_name_copy.get(name_index)
-                                requested_name_map.set(requested_name, 1)
-                                name_index = name_index + 1
-                            }
-
-                            local carrier_names = new ArrayBox()
-                            local carrier_host_ids = new ArrayBox()
-                            local keys = variable_map.keys()
-                            local values = variable_map.values()
-                            local i = 0
-                            loop(i < keys.length()) {
-                                local key = keys.get(i)
-                                if key != loop_var_name {
-                                    local requested_match = requested_name_map.get(key)
-                                    if requested_match != null {
-                                        carrier_names.push(key)
-                                        carrier_host_ids.push(values.get(i))
-                                    }
-                                }
-                                i = i + 1
-                            }
-
-                            if carrier_names.length() != requested_name_copy.length() {
-                                print("carrier_snapshot_missing_requested_carrier=fail")
-                                return 1
-                            }
-
-                            info.carrier_data.set("carrier_names", carrier_names)
-                            info.carrier_data.set("carrier_host_ids", carrier_host_ids)
-                            info.carrier_data.set("carrier_count", carrier_names.length())
-                            info.carrier_data.set("requested_name_count", requested_name_copy.length())
-                            return info
-                        """),
+                        ],
                     )
                 ],
             )
@@ -499,9 +509,9 @@ def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
         methods=[
             BehaviorMethodSpec(
                 id="CarrierInfo::with_explicit_carriers",
-                rust_operation="ExplicitCarrierSnapshotFromBorrowView",
-                hako_operation="CarrierInfoBox.with_explicit_carriers",
-                emits="CarrierInfoApi.with_explicit_carriers(loop_var_name, requested_names, variable_map)",
+                rust_operation="ExplicitCarrierSnapshotFromOwnedMap",
+                hako_operation="CarrierInfoBox.with_explicit_carriers_from_snapshot",
+                emits="CarrierInfoApi.with_explicit_carriers_from_snapshot(carrier_data, loop_var_name, loop_var_id, requested_names, snapshot)",
             )
         ],
         excluded_methods=excluded,
@@ -531,12 +541,12 @@ def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
             "backend_behavior_changed": 0,
         },
         verified_operations=[
-            "ExplicitCarrierSnapshotFromBorrowView",
+            "ExplicitCarrierSnapshotFromOwnedMap",
+            "CloneOwnedMap",
             "OrderedMap.create",
             "OrderedMapBox.set",
             "OrderedMapBox.get",
-            "OrderedMapBox.keys",
-            "OrderedMapBox.values",
+            "OrderedMapBox.key_at",
             "OrderedMapBox.length",
             "ArrayBox.push",
             "ArrayBox.get",
@@ -567,7 +577,7 @@ def run_variable_context_explicit_carrier_snapshot_artifact_generator(*, check: 
         check=check,
         root=ROOT,
         unchanged_label="generated_variable_context_explicit_carrier_snapshot_artifact=unchanged",
-        load_facts=lambda: read_json(spec.facts_path),
+        load_facts=lambda: extract_variable_context_explicit_carrier_snapshot_facts(EXPLICIT_CARRIER_SNAPSHOT_SOURCE),
         plan_path=spec.plan_path,
         oracle_path=spec.oracle_path,
         validate_inputs=validate_variable_context_explicit_carrier_snapshot,

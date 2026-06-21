@@ -6,6 +6,10 @@ cd "$ROOT_DIR"
 
 GENERATOR="tools/rust_lifecycle/generate_variable_context_explicit_carrier_snapshot_artifact.py"
 ARTIFACT="lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.hako"
+EXE="/tmp/hako_variable_context_explicit_carrier_snapshot_artifact"
+RAW="$EXE.out.raw"
+OUT="$EXE.out"
+EXPECTED="$EXE.expected"
 
 python3 "$GENERATOR" --check
 bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_guard.sh
@@ -32,7 +36,7 @@ assert manifest["claims"]["backend_behavior_changed"] == 0
 assert manifest["claims"]["source_selfhost_claim"] == 0
 for method in [
     "VariableContext::variable_map_mut",
-    "VariableContext::snapshot",
+    "VariableContext::variable_map",
     "VariableContext::restore",
     "CarrierInfo::from_variable_map",
     "join_id lifecycle",
@@ -56,7 +60,9 @@ assert recipe["kind"] == "HakoBehaviorRecipe"
 assert recipe["pilot_scope"] == "VariableContext_explicit_carrier_snapshot_only"
 assert recipe["selected_body_count"] == "explicit_carrier_snapshot_methods_only"
 assert recipe["methods"][0]["id"] == "CarrierInfo::with_explicit_carriers"
+assert recipe["methods"][0]["rust_operation"] == "ExplicitCarrierSnapshotFromOwnedMap"
 assert "CarrierInfo::from_variable_map" in set(recipe["excluded_methods"])
+assert "VariableContext::variable_map" in set(recipe["excluded_methods"])
 
 assert verifier["kind"] == "DerivedHakoArtifactVerifierResult"
 assert verifier["result"] == "VerifiedHakoFamilyIR"
@@ -68,18 +74,35 @@ assert checks["missing_carrier_fail_fast"] == 1
 assert checks["full_variable_context_claim"] == 0
 assert checks["rust_bootstrap_retained"] == 1
 assert checks["backend_behavior_changed"] == 0
-assert "ExplicitCarrierSnapshotFromBorrowView" in verifier["verified_operations"]
-assert "OrderedMapBox.keys" in verifier["verified_operations"]
+assert "ExplicitCarrierSnapshotFromOwnedMap" in verifier["verified_operations"]
+assert "CloneOwnedMap" in verifier["verified_operations"]
+assert "OrderedMapBox.key_at" in verifier["verified_operations"]
 assert "ArrayBox.get" in verifier["verified_operations"]
 
-assert "CarrierInfoApi.with_explicit_carriers" in hako
-assert "VariableContextApi.variable_map" in hako
+assert "static box CarrierInfoApi" in hako
+assert "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64" in hako
+assert "VariableContextApi.snapshot" in hako
+assert "VariableContextApi.variable_map" not in hako
+assert "return ctx.variable_map\n" not in hako
 assert "CarrierInfo::from_variable_map" not in hako
 assert "variable_map_mut" not in hako
-assert "carrier_snapshot_missing_requested_carrier=fail" in hako
+assert "explicit_carrier_snapshot_missing_requested_carrier=fail" in hako
+assert "explicit_carrier_snapshot_ctx_alias=fail" in hako
+assert "explicit_carrier_snapshot_info_alias=fail" in hako
 PY
 
+rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
 ./target/release/hakorune --emit-mir-json /tmp/hako_variable_context_explicit_carrier_snapshot_artifact.mir.json "$ARTIFACT" >/tmp/hako_variable_context_explicit_carrier_snapshot_artifact.mir.log 2>&1
+./target/release/hakorune --emit-exe "$EXE" "$ARTIFACT" >/tmp/hako_variable_context_explicit_carrier_snapshot_artifact.build.log 2>&1
+"$EXE" >"$RAW" 2>/tmp/hako_variable_context_explicit_carrier_snapshot_artifact.err
+sed '/^Result: /d' "$RAW" >"$OUT"
+
+cat >"$EXPECTED" <<'EOF_EXPECTED'
+explicit_carrier_snapshot_missing_requested_carrier=fail
+variable_context_explicit_carrier_snapshot_derived_artifact=ok
+EOF_EXPECTED
+
+diff -u "$EXPECTED" "$OUT"
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-variable-context-explicit-carrier-snapshot-derived-artifact-v0
@@ -90,9 +113,13 @@ artifact_manifest_checked_in=1
 deterministic_regeneration=green
 generated_hako_parse=green
 generated_hako_mir_emit=green
+generated_hako_exe=green
 route_selected=0
 full_variable_context_claim=0
 variable_map_mut_generated=0
+returned_read_borrow_deny=green
+owned_snapshot_alias_isolation=green
+missing_carrier_fail_fast=green
 carrier_behavior_generated=1
 rust_bootstrap_retained=1
 runtime_try_hako_then_rust_fallback=0

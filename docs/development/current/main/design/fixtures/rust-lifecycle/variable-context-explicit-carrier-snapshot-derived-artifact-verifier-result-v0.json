@@ -18,7 +18,7 @@
   },
   "denied_boundaries": [
     "VariableContext::variable_map_mut",
-    "VariableContext::snapshot",
+    "VariableContext::variable_map",
     "VariableContext::restore",
     "CarrierInfo::from_variable_map",
     "join_id lifecycle",
@@ -42,12 +42,12 @@
     "requested_names_transport": "ArrayBox"
   },
   "verified_operations": [
-    "ExplicitCarrierSnapshotFromBorrowView",
+    "ExplicitCarrierSnapshotFromOwnedMap",
+    "CloneOwnedMap",
     "OrderedMap.create",
     "OrderedMapBox.set",
     "OrderedMapBox.get",
-    "OrderedMapBox.keys",
-    "OrderedMapBox.values",
+    "OrderedMapBox.key_at",
     "OrderedMapBox.length",
     "ArrayBox.push",
     "ArrayBox.get"

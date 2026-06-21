@@ -286,14 +286,16 @@ checked-in generated artifacts.
 
 13. `Implement explicit CarrierInfo conversion from owned snapshot`
 
-   Status: active.
+   Status: landed.
 
    This must not use raw `VariableContextApi.variable_map()` and must preserve
    missing requested carrier fail-fast behavior.
 
 14. `Adopt native CarrierInfo snapshot APIs`
 
-   Add native `.hako` authority only after generated owned-snapshot carrier
+   Status: active.
+
+   Add native `.hako` authority now that generated owned-snapshot carrier
    paths are green.
 
 ## Parked Work

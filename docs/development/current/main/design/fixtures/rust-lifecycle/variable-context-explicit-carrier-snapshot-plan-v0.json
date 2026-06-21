@@ -6,8 +6,8 @@
   "plans": [
     {
       "id": "CarrierInfo::with_explicit_carriers",
-      "plan_kind": "ExplicitCarrierSnapshotFromBorrowView",
-      "input": "VariableContext::variable_map BorrowView",
+      "plan_kind": "ExplicitCarrierSnapshotFromOwnedMap",
+      "input": "VariableContext::snapshot OwnedReadSnapshotProjection",
       "access": "read",
       "mutation_policy": "none",
       "publication_policy": "does_not_publish_variable_map",
@@ -20,8 +20,8 @@
         "init": "FromHost"
       },
       "required_facts": [
-        "input_borrow.borrow_view=OwnerCarryingBorrowView",
-        "input_borrow.escapes=false",
+        "input_snapshot.ownership=OwnedReadSnapshotProjection",
+        "input_snapshot.escapes=false",
         "carrier_names.ownership=owned_strings",
         "carrier_names.missing_carrier_policy=fail_fast",
         "map_requirements.value_drop_fact=TrivialMemory",

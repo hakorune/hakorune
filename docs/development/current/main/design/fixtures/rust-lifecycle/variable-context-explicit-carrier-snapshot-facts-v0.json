@@ -8,18 +8,18 @@
     "source_path": "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs"
   },
   "base_facts": [
-    "variable-context-immutable-borrow-facts-v0.json",
-    "variable-context-carrier-snapshot-facts-v0.json"
+    "variable-context-carrier-snapshot-facts-v0.json",
+    "variable-context-snapshot-restore-facts-v0.json"
   ],
   "method_fact": {
     "id": "CarrierInfo::with_explicit_carriers",
-    "input_borrow": {
-      "source": "VariableContext::variable_map",
-      "borrow_view": "OwnerCarryingBorrowView",
+    "input_snapshot": {
+      "source": "VariableContext::snapshot",
+      "ownership": "OwnedReadSnapshotProjection",
       "access": "read",
       "escapes": false
     },
-    "operation": "ExplicitCarrierSnapshotFromBorrowView",
+    "operation": "ExplicitCarrierSnapshotFromOwnedMap",
     "loop_var_name": {"move_kind": "ConsumeArgument"},
     "loop_var_id": {"copy_kind": "ImmediateValue", "drop_fact": "TrivialMemory"},
     "carrier_names": {
@@ -37,6 +37,12 @@
       "join_id_initialized": false
     }
   },
+  "denied_methods": [
+    {
+      "id": "VariableContext::variable_map",
+      "deny_reason": "ReturnedReadBorrow"
+    }
+  ],
   "denied_followups": [
     "join_id lifecycle",
     "promoted_body_locals lifecycle",

@@ -34,7 +34,7 @@ assert claims["variable_context_simple_map_selected"] == 1
 assert claims["variable_context_immutable_borrow_selected"] == 0
 assert claims["variable_context_snapshot_restore_selected"] == 1
 assert claims["variable_context_carrier_snapshot_selected"] == 1
-assert claims["variable_context_explicit_carrier_snapshot_selected"] == 0
+assert claims["variable_context_explicit_carrier_snapshot_selected"] == 1
 assert claims["full_variable_context_claim"] == 0
 
 route_entries = [
@@ -47,11 +47,9 @@ route = route_entries[0]
 
 assert route["family_id"] == "hakorune_mir_builder::variable_context"
 assert route["pilot_scope"] == "VariableContext_explicit_carrier_snapshot_only"
-assert route["route"] == "denied"
-assert route["state"] == "Denied"
-assert route["selected_on_mainline"] is False
-assert route["deny_reason"] == "ReturnedReadBorrow"
-assert route["replacement_policy"] == "OwnedReadSnapshotProjection"
+assert route["route"] == "derived_hako"
+assert route["state"] == "DerivedMainline"
+assert route["selected_on_mainline"] is True
 assert route["artifact_manifest"] == str(artifact_path)
 assert route["guard_command"] == "bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_derived_route_selection_guard.sh"
 assert route["fallback_policy"] == "forbidden"
@@ -73,7 +71,7 @@ assert artifact["claims"]["backend_behavior_changed"] == 0
 excluded = set(artifact["excluded_methods"])
 for method in [
     "VariableContext::variable_map_mut",
-    "VariableContext::snapshot",
+    "VariableContext::variable_map",
     "VariableContext::restore",
     "CarrierInfo::from_variable_map",
 ]:
@@ -84,10 +82,9 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-variable-context-explicit-carrier-snapshot-derived-route-selection-v0
 family_id=hakorune_mir_builder::variable_context
 pilot_scope=VariableContext_explicit_carrier_snapshot_only
-selected_route=denied
-route_state=Denied
-deny_reason=ReturnedReadBorrow
-replacement_policy=OwnedReadSnapshotProjection
+selected_route=derived_hako
+route_state=DerivedMainline
+selected_on_mainline=1
 route_seam_ssot_verified=1
 artifact_manifest_verified=1
 full_variable_context_claim=0

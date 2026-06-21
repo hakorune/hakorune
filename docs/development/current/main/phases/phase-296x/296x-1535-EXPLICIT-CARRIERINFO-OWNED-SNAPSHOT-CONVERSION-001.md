@@ -1,6 +1,6 @@
 # 296x-1535 EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
 
-Status: active
+Status: landed
 Date: 2026-06-21
 
 ## Purpose
@@ -35,6 +35,18 @@ requested names owned copy=green
 snapshot/context/output alias isolation=green
 generated Hako MIR=green
 generated Hako EXE=green
+```
+
+## Result
+
+```text
+raw variable_map alias generated=0
+with_explicit_carriers_from_snapshot generated=1
+missing requested carrier fail-fast=green
+snapshot/context/output alias isolation=green
+generated Hako MIR=green
+generated Hako EXE=green
+route=derived_hako
 ```
 
 ## Stop Line

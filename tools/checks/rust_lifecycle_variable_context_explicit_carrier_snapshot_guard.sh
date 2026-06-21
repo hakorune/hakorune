@@ -20,9 +20,9 @@ assert "variable-context-carrier-snapshot-facts-v0.json" in facts["base_facts"]
 
 method = facts["method_fact"]
 assert method["id"] == "CarrierInfo::with_explicit_carriers"
-assert method["operation"] == "ExplicitCarrierSnapshotFromBorrowView"
-assert method["input_borrow"]["borrow_view"] == "OwnerCarryingBorrowView"
-assert method["input_borrow"]["escapes"] is False
+assert method["operation"] == "ExplicitCarrierSnapshotFromOwnedMap"
+assert method["input_snapshot"]["ownership"] == "OwnedReadSnapshotProjection"
+assert method["input_snapshot"]["escapes"] is False
 assert method["loop_var_id"]["copy_kind"] == "ImmediateValue"
 assert method["carrier_names"]["ownership"] == "owned_strings"
 assert method["carrier_names"]["missing_carrier_policy"] == "fail_fast"
@@ -31,15 +31,18 @@ assert method["output"]["join_id_initialized"] is False
 
 for item in ["join_id lifecycle", "promoted_body_locals lifecycle", "PHI planner integration"]:
     assert item in set(facts["denied_followups"])
+denied_methods = {row["id"]: row for row in facts["denied_methods"]}
+assert denied_methods["VariableContext::variable_map"]["deny_reason"] == "ReturnedReadBorrow"
 
 entry = plan["plans"][0]
 assert entry["id"] == "CarrierInfo::with_explicit_carriers"
-assert entry["plan_kind"] == "ExplicitCarrierSnapshotFromBorrowView"
+assert entry["plan_kind"] == "ExplicitCarrierSnapshotFromOwnedMap"
 assert entry["mutation_policy"] == "none"
 assert entry["publication_policy"] == "does_not_publish_variable_map"
 assert entry["missing_carrier_policy"] == "fail_fast"
 assert entry["output_policy"]["carrier_names"] == "owned_strings"
 assert entry["output_policy"]["join_id"] == "None_uninitialized"
+assert "input_snapshot.ownership=OwnedReadSnapshotProjection" in entry["required_facts"]
 assert "carrier_names.ownership=owned_strings" in entry["required_facts"]
 assert "carrier_names.missing_carrier_policy=fail_fast" in entry["required_facts"]
 
@@ -54,6 +57,7 @@ ok = vectors["loop_var_i_with_requested_carriers"]
 assert ok["carrier_names"] == ["sum", "count"]
 assert [row["name"] for row in ok["expect"]["carriers"]] == ["count", "sum"]
 assert all(row["join_id"] is None for row in ok["expect"]["carriers"])
+assert "owned_read_snapshot_projection" in ok["requires"]
 assert "requested_names_owned" in ok["requires"]
 assert "missing_carrier_fail_fast" in ok["requires"]
 
@@ -72,7 +76,8 @@ output_contract=rust-lifecycle-variable-context-explicit-carrier-snapshot-v0
 explicit_carrier_snapshot_facts_fixture=green
 explicit_carrier_snapshot_plan_fixture=green
 explicit_carrier_snapshot_oracle_vectors=green
-requires_owner_carrying_BorrowView=green
+requires_owned_read_snapshot_projection=green
+returned_read_borrow_deny=green
 requires_requested_names_owned=green
 missing_carrier_fail_fast_preserved=green
 mutates_VariableContext=0

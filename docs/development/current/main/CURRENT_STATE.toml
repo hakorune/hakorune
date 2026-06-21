@@ -265,8 +265,8 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1535-EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001.md"
+latest_card = "NATIVE-CARRIERINFO-SNAPSHOT-APIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1536-NATIVE-CARRIERINFO-SNAPSHOT-APIS-001.md"
 latest_card_summary = """BindingContextNative, VariableContextNative
 simple-map, VariableContext snapshot/restore artifact ownership, the shared
 MirBuilder emitter, the shared family generator helper and driver, the shared
@@ -298,13 +298,14 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   Deny(ReturnedReadBorrow), while known non-escaping CarrierInfo bulk reads use
   an owned snapshot input. The active blocker is now backend receiver-route
   acceptance for OrderedMapBox method calls through typed static-method
-  parameters; the owned-snapshot CarrierInfo generated artifact reaches MIR but
-  EXE is now green with owned snapshot alias-isolation after origin-aware
-  duplicate receiver stripping and key_at/get carrier projection. The next
-  blocker is moving explicit CarrierInfo conversion to the same owned snapshot
-  contract."""
+  parameters; the owned-snapshot CarrierInfo generated artifact reaches MIR and
+  EXE with owned snapshot alias-isolation after origin-aware duplicate receiver
+  stripping and key_at/get carrier projection. Explicit CarrierInfo conversion
+  now uses owned snapshot input and reaches generated Hako MIR/EXE with
+  missing-carrier fail-fast coverage. The next blocker is adopting native
+  CarrierInfo snapshot APIs."""
 
-current_blocker_token = "EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001"
+current_blocker_token = "NATIVE-CARRIERINFO-SNAPSHOT-APIS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
