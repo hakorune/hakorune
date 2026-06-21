@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-GENERALIZE-ORDERED-MAP-CONVERTER-TO-BINDING-CONTEXT-001
+IMPLEMENT-OWNED-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-CONVERSION-001
 ```
 
 Purpose:
 
 ```text
-Move BindingContext onto the same operation-backed ordered-map converter path
-now used by VariableContext simple-map.
+Move VariableContext snapshot/restore onto CloneOwnedMap / ReplaceOwnedMap
+operation IR.
 ```
 
 Lifecycle converter boundary:
@@ -108,9 +108,10 @@ Done:
   MirBuilder converter matrix guard
   MirBuilder next-family facts pilot selection
   operation-backed VariableContext simple-map conversion
+  operation-backed BindingContext ordered-map conversion
 
 Next:
-  GENERALIZE-ORDERED-MAP-CONVERTER-TO-BINDING-CONTEXT-001
+  IMPLEMENT-OWNED-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-CONVERSION-001
 ```
 
 Current task order:

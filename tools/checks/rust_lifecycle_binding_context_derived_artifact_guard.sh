@@ -16,7 +16,14 @@ python3 "$GENERATOR" --check
 
 python3 - <<'PY'
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, "tools/rust_lifecycle")
+from extract_binding_context_facts import SOURCE, extract_facts
+from mirbuilder_family_artifacts import binding_context_spec
+from mirbuilder_ordered_map_converter import OrderedMapConversionDeny, compile_binding_context_methods
+from shared_family_generator import read_json
 
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json").read_text())
 verifier = json.loads(Path("docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-derived-artifact-verifier-result-v0.json").read_text())
@@ -55,6 +62,24 @@ for method in [
     "BindingContext::clear_for_function_entry",
 ]:
     assert method in method_ids
+
+spec = binding_context_spec()
+assert spec.box.initializer is None
+assert spec.box.initializer_operation == {"kind": "NewOrderedMap"}
+assert spec.api_methods
+assert all(method.body_lines is None for method in spec.api_methods)
+assert all(method.operations for method in spec.api_methods)
+
+facts = extract_facts(SOURCE)
+plan = read_json(Path("docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-plan-v0.json"))
+compile_binding_context_methods(facts, plan)
+facts["body_facts"][1]["operation"] = "UnexpectedMapIsEmpty"
+try:
+    compile_binding_context_methods(facts, plan)
+except OrderedMapConversionDeny as exc:
+    assert exc.reason == "UnsupportedResolvedCallTarget"
+else:
+    raise AssertionError("unsupported BindingContext body shape must fail closed")
 PY
 
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"

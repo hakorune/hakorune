@@ -13,10 +13,10 @@ from typing import Any
 
 from context_fact_extraction import (
     extract_btree_map_type,
+    extract_method_body,
     extract_method_signatures,
     report_or_emit,
     require,
-    normalized_rust_type,
 )
 
 
@@ -49,24 +49,6 @@ EXCLUDED_CONSUMERS = [
     "PHI planner integration",
     "JoinIR carrier extraction",
 ]
-
-
-def extract_method_body(source: str, name: str) -> str:
-    marker = f"pub fn {name}"
-    start = source.find(marker)
-    require(start >= 0, f"missing method body: {name}")
-    brace = source.find("{", start)
-    require(brace >= 0, f"missing method body brace: {name}")
-    depth = 0
-    for index in range(brace, len(source)):
-        char = source[index]
-        if char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return normalized_rust_type(source[brace + 1 : index])
-    raise AssertionError(f"unterminated method body: {name}")
 
 
 def build_body_fact(name: str, source: str) -> dict[str, Any]:

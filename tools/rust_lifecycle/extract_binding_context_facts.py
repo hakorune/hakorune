@@ -14,6 +14,7 @@ from typing import Any
 
 from context_fact_extraction import (
     extract_btree_map_type,
+    extract_method_body,
     extract_method_signatures,
     immediate_return,
     receiver_fact,
@@ -31,6 +32,91 @@ REFERENCE = (
 )
 
 SUBJECT = "hakorune_mir_builder::binding_context::BindingContext"
+
+
+def build_body_fact(name: str, source: str) -> dict[str, Any]:
+    bodies = {
+        "new": (
+            "Self { binding_map: BTreeMap::new(), }",
+            {
+                "operation": "NewOrderedMap",
+                "callee_spelling": "BTreeMap::new",
+                "selected_field": "binding_map",
+                "return_shape": "Self",
+            },
+        ),
+        "is_empty": (
+            "self.binding_map.is_empty()",
+            {
+                "operation": "MapIsEmpty",
+                "callee_spelling": "BTreeMap::is_empty",
+                "selected_field": "binding_map",
+                "return_shape": "bool",
+            },
+        ),
+        "len": (
+            "self.binding_map.len()",
+            {
+                "operation": "MapLength",
+                "callee_spelling": "BTreeMap::len",
+                "selected_field": "binding_map",
+                "return_shape": "usize",
+            },
+        ),
+        "contains": (
+            "self.binding_map.contains_key(name)",
+            {
+                "operation": "MapHas",
+                "callee_spelling": "BTreeMap::contains_key",
+                "selected_field": "binding_map",
+                "argument_shape": "borrowed_name",
+                "return_shape": "bool",
+            },
+        ),
+        "lookup": (
+            "self.binding_map.get(name).copied()",
+            {
+                "operation": "MapGet",
+                "callee_spelling": "BTreeMap::get + Option::copied",
+                "selected_field": "binding_map",
+                "argument_shape": "borrowed_name",
+                "return_shape": "Option<BindingId>",
+            },
+        ),
+        "insert": (
+            "self.binding_map.insert(name, binding_id);",
+            {
+                "operation": "MapSet",
+                "callee_spelling": "BTreeMap::insert",
+                "selected_field": "binding_map",
+                "argument_shape": "owned_name_and_binding_id",
+                "return_shape": "()",
+            },
+        ),
+        "remove": (
+            "self.binding_map.remove(name)",
+            {
+                "operation": "MapRemove",
+                "callee_spelling": "BTreeMap::remove",
+                "selected_field": "binding_map",
+                "argument_shape": "borrowed_name",
+                "return_shape": "Option<BindingId>",
+            },
+        ),
+        "clear_for_function_entry": (
+            "self.binding_map.clear();",
+            {
+                "operation": "MapClear",
+                "callee_spelling": "BTreeMap::clear",
+                "selected_field": "binding_map",
+                "return_shape": "()",
+            },
+        ),
+    }
+    expected, fact = bodies[name]
+    actual = extract_method_body(source, name)
+    require(actual == expected, f"unsupported binding body shape: {name}")
+    return {"id": f"BindingContext::{name}", **fact}
 
 
 def build_method_fact(name: str, signature: dict[str, Any]) -> dict[str, Any]:
@@ -120,6 +206,7 @@ def extract_facts(source_path: Path) -> dict[str, Any]:
             }
         ],
         "methods": [build_method_fact(name, methods[name]) for name in expected_methods],
+        "body_facts": [build_body_fact(name, source) for name in ["new", *expected_methods]],
         "negative_requirements": [
             {"id": "borrow_escape_unknown", "required_fact": "borrow_escape"},
             {

@@ -52,6 +52,24 @@ def extract_method_signatures(source: str) -> dict[str, dict[str, Any]]:
     return methods
 
 
+def extract_method_body(source: str, name: str) -> str:
+    marker = f"pub fn {name}"
+    start = source.find(marker)
+    require(start >= 0, f"missing method body: {name}")
+    brace = source.find("{", start)
+    require(brace >= 0, f"missing method body brace: {name}")
+    depth = 0
+    for index in range(brace, len(source)):
+        char = source[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return normalized_rust_type(source[brace + 1 : index])
+    raise ExtractionError(f"unterminated method body: {name}")
+
+
 def receiver_fact(params: str) -> dict[str, Any]:
     if params.startswith("&mut self"):
         return {

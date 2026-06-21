@@ -22,7 +22,7 @@ from family_artifact_builders import (
     build_family_artifact_verifier_text,
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FamilyArtifactSpec, StaticBoxSpec
-from mirbuilder_ordered_map_converter import compile_variable_context_simple_map_methods
+from mirbuilder_ordered_map_converter import compile_binding_context_methods, compile_variable_context_simple_map_methods
 from shared_family_generator import read_json, run_validated_family_generator
 
 
@@ -91,6 +91,24 @@ def validate_binding_context(facts: dict[str, Any], plan: dict[str, Any], oracle
     missing = sorted(set(methods[1:]) - {row["id"] for row in facts["methods"]})
     if missing:
         raise SystemExit(f"missing method facts: {missing}")
+    body_facts = {row["id"]: row for row in facts.get("body_facts", [])}
+    for method, operation in {
+        "BindingContext::new": "NewOrderedMap",
+        "BindingContext::is_empty": "MapIsEmpty",
+        "BindingContext::len": "MapLength",
+        "BindingContext::contains": "MapHas",
+        "BindingContext::lookup": "MapGet",
+        "BindingContext::insert": "MapSet",
+        "BindingContext::remove": "MapRemove",
+        "BindingContext::clear_for_function_entry": "MapClear",
+    }.items():
+        body_fact = body_facts.get(method)
+        if body_fact is None:
+            raise SystemExit(f"missing body fact: {method}")
+        if body_fact.get("operation") != operation:
+            raise SystemExit(f"unexpected body operation for {method}")
+        if body_fact.get("selected_field") != "binding_map":
+            raise SystemExit(f"unexpected body field for {method}")
     for op in ["new", "is_empty", "len", "contains", "lookup", "insert", "remove", "clear_for_function_entry"]:
         if op not in _oracle_ops(oracle):
             raise SystemExit(f"missing oracle op: {op}")
@@ -315,6 +333,12 @@ def validate_variable_context_snapshot_restore(facts: dict[str, Any], plan: dict
 
 
 def binding_context_spec() -> FamilyArtifactSpec:
+    facts = extract_binding_context_facts(BINDING_CONTEXT_SOURCE)
+    plan = read_json(FIXTURES / "binding-context-plan-v0.json")
+    api_methods = [
+        ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
+        for method in compile_binding_context_methods(facts, plan)
+    ]
     return FamilyArtifactSpec(
         root=ROOT,
         generated_by="tools/rust_lifecycle/generate_binding_context_artifact.py",
@@ -322,7 +346,12 @@ def binding_context_spec() -> FamilyArtifactSpec:
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
         family_comment="hakorune_mir_builder::binding_context",
         using_module="apps.lib.collections.ordered_map",
-        box=BoxSpec(name="BindingContext", field_name="binding_map", field_type="OrderedMapBox", initializer="OrderedMap.create()"),
+        box=BoxSpec(
+            name="BindingContext",
+            field_name="binding_map",
+            field_type="OrderedMapBox",
+            initializer_operation={"kind": "NewOrderedMap"},
+        ),
         main_lines=_lines("""
             local ctx = new BindingContext()
             if BindingContextApi.is_empty(ctx) != 1 {
@@ -409,25 +438,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
         recipe_subject="hakorune_mir_builder::binding_context::BindingContext",
         selected_body_count="all_non_test_methods",
         api_name="BindingContextApi",
-        api_methods=[
-            ApiMethodSpec(signature="is_empty(ctx): i64", body_lines=_lines("""
-                    if ctx.binding_map.length() == 0 {
-                        return 1
-                    }
-                    return 0
-                """)),
-            ApiMethodSpec(signature="len(ctx): i64", body_lines=["return ctx.binding_map.length()"]),
-            ApiMethodSpec(signature="contains(ctx, name): i64", body_lines=_lines("""
-                    if ctx.binding_map.has(name) == true {
-                        return 1
-                    }
-                    return 0
-                """)),
-            ApiMethodSpec(signature="lookup(ctx, name)", body_lines=["return ctx.binding_map.get(name)"]),
-            ApiMethodSpec(signature="insert(ctx, name, binding_id): i64", body_lines=["ctx.binding_map.set(name, binding_id)", "return 0"]),
-            ApiMethodSpec(signature="remove(ctx, name)", body_lines=["return ctx.binding_map.remove(name)"]),
-            ApiMethodSpec(signature="clear_for_function_entry(ctx): i64", body_lines=["ctx.binding_map.clear()", "return 0"]),
-        ],
+        api_methods=api_methods,
         api_trailing_blank_line=True,
         methods=[
             BehaviorMethodSpec(id="BindingContext::new", rust_operation="BTreeMap::new", hako_operation="OrderedMap.create", emits="birth initializes me.binding_map"),

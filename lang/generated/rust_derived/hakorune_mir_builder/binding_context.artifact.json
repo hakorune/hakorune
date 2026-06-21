@@ -14,7 +14,7 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-adapter-facts-v0.json",
-      "sha256": "3152d654379d1d1f39416fa180df8828314f832ab4bb2d30b031a9bac263f6af"
+      "sha256": "f3346ebb5d05021b36e61574e51eefbb7ebcabb53f928ef35b09e4e55fb47275"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/binding-context-oracle-vectors-v0.json",

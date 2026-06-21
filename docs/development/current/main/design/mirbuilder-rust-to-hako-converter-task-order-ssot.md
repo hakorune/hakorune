@@ -196,8 +196,16 @@ checked-in generated artifacts.
 
 8. `Generalize ordered-map converter to BindingContext`
 
-   Next implementation task. Move BindingContext from raw Hako API body strings
-   onto the same ordered-map operation compiler, including `MapClear`.
+   Status: current implementation landed.
+
+   BindingContext generation now uses the same ordered-map operation compiler,
+   including `MapClear`. The BindingContext spec no longer stores raw Hako API
+   body strings.
+
+9. `Implement owned VariableContext snapshot/restore conversion`
+
+   Next implementation task. Move snapshot/restore from raw Hako body strings
+   onto `CloneOwnedMap` and `ReplaceOwnedMap` operation IR.
 
 ## Parked Work
 

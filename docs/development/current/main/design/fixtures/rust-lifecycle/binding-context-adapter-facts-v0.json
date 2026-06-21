@@ -124,6 +124,68 @@
       "ownership_effect": "None"
     }
   ],
+  "body_facts": [
+    {
+      "id": "BindingContext::new",
+      "operation": "NewOrderedMap",
+      "callee_spelling": "BTreeMap::new",
+      "selected_field": "binding_map",
+      "return_shape": "Self"
+    },
+    {
+      "id": "BindingContext::is_empty",
+      "operation": "MapIsEmpty",
+      "callee_spelling": "BTreeMap::is_empty",
+      "selected_field": "binding_map",
+      "return_shape": "bool"
+    },
+    {
+      "id": "BindingContext::len",
+      "operation": "MapLength",
+      "callee_spelling": "BTreeMap::len",
+      "selected_field": "binding_map",
+      "return_shape": "usize"
+    },
+    {
+      "id": "BindingContext::contains",
+      "operation": "MapHas",
+      "callee_spelling": "BTreeMap::contains_key",
+      "selected_field": "binding_map",
+      "argument_shape": "borrowed_name",
+      "return_shape": "bool"
+    },
+    {
+      "id": "BindingContext::lookup",
+      "operation": "MapGet",
+      "callee_spelling": "BTreeMap::get + Option::copied",
+      "selected_field": "binding_map",
+      "argument_shape": "borrowed_name",
+      "return_shape": "Option<BindingId>"
+    },
+    {
+      "id": "BindingContext::insert",
+      "operation": "MapSet",
+      "callee_spelling": "BTreeMap::insert",
+      "selected_field": "binding_map",
+      "argument_shape": "owned_name_and_binding_id",
+      "return_shape": "()"
+    },
+    {
+      "id": "BindingContext::remove",
+      "operation": "MapRemove",
+      "callee_spelling": "BTreeMap::remove",
+      "selected_field": "binding_map",
+      "argument_shape": "borrowed_name",
+      "return_shape": "Option<BindingId>"
+    },
+    {
+      "id": "BindingContext::clear_for_function_entry",
+      "operation": "MapClear",
+      "callee_spelling": "BTreeMap::clear",
+      "selected_field": "binding_map",
+      "return_shape": "()"
+    }
+  ],
   "negative_requirements": [
     {
       "id": "borrow_escape_unknown",
