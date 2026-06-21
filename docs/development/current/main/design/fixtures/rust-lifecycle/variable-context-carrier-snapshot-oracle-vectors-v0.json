@@ -21,7 +21,7 @@
         ]
       },
       "requires": [
-        "owner_carrying_BorrowView",
+        "owned_read_snapshot_projection",
         "deterministic_order_required=true",
         "ValueId.copy_kind=ImmediateValue"
       ]

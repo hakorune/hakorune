@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-RETURNED-READ-BORROW-DESIGN-STOP-001
+EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
 ```
 
 Purpose:
 
 ```text
-Stop before immutable borrow / returned read borrow conversion and choose the
-API contract deliberately.
+Move explicit CarrierInfo conversion from raw returned-map aliasing to owned
+snapshot input, while preserving missing requested carrier fail-fast behavior.
 ```
 
 Lifecycle converter boundary:
@@ -110,9 +110,18 @@ Done:
   operation-backed VariableContext simple-map conversion
   operation-backed BindingContext ordered-map conversion
   operation-backed VariableContext snapshot/restore conversion
+  ReturnedReadBorrow design stop:
+    NoReturnedAlias + OwnedReadSnapshotProjection
+    standalone VariableContext::variable_map -> Deny(ReturnedReadBorrow)
+  owned-snapshot CarrierInfo conversion
+  OrderedMapBox method calls through origin-copied receivers
 
 Next:
-  RETURNED-READ-BORROW-DESIGN-STOP-001
+  EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
+
+Task sequence:
+  1. Implement explicit CarrierInfo conversion from owned snapshot.
+  2. Adopt native CarrierInfo snapshot APIs.
 ```
 
 Current task order:

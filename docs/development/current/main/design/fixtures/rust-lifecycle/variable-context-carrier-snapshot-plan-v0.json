@@ -6,8 +6,8 @@
   "plans": [
     {
       "id": "CarrierInfo::from_variable_map",
-      "plan_kind": "CarrierSnapshotFromBorrowView",
-      "input": "VariableContext::variable_map BorrowView",
+      "plan_kind": "CarrierSnapshotFromOwnedMap",
+      "input": "VariableContext::snapshot OwnedReadSnapshotProjection",
       "access": "read",
       "mutation_policy": "none",
       "publication_policy": "does_not_publish_variable_map",
@@ -19,8 +19,8 @@
         "init": "FromHost"
       },
       "required_facts": [
-        "input_borrow.borrow_view=OwnerCarryingBorrowView",
-        "input_borrow.escapes=false",
+        "input_snapshot.ownership=OwnedReadSnapshotProjection",
+        "input_snapshot.escapes=false",
         "map_requirements.deterministic_order_required=true",
         "map_requirements.value_drop_fact=TrivialMemory",
         "output.value_id_copy_kind=ImmediateValue"
@@ -28,6 +28,7 @@
     }
   ],
   "denied": [
+    "VariableContext::variable_map standalone conversion",
     "CarrierInfo::with_explicit_carriers",
     "join_id lifecycle",
     "promoted_body_locals lifecycle",

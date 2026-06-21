@@ -33,7 +33,7 @@ assert external_code_uses == [], external_code_uses
 claims = route_manifest["claims"]
 assert claims["variable_context_selected"] == 0
 assert claims["variable_context_simple_map_selected"] == 1
-assert claims["variable_context_immutable_borrow_selected"] == 1
+assert claims["variable_context_immutable_borrow_selected"] == 0
 assert claims["variable_context_snapshot_restore_selected"] == 1
 assert claims["full_variable_context_claim"] == 0
 

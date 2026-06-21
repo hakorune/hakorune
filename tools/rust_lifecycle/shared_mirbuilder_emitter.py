@@ -57,6 +57,31 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
         return [f"return ctx.{field}.clone_owned()"]
     if kind == "ReplaceOwnedMap":
         return [f"ctx.{field} = {operation['value']}.clone_owned()"]
+    if kind == "CarrierSnapshotFromOwnedMap":
+        map_arg = operation["map_arg"]
+        loop_var = operation["loop_var"]
+        output = operation["output_arg"]
+        return [
+            f"{output}.set(\"loop_var_name\", {loop_var})",
+            f"{output}.set(\"loop_var_id\", {map_arg}.get({loop_var}))",
+            "",
+            "local carrier_names = new ArrayBox()",
+            "local carrier_host_ids = new ArrayBox()",
+            "local i = 0",
+            f"loop(i < {map_arg}.length()) {{",
+            f"    local key = {map_arg}.key_at(i)",
+            f"    if key != {loop_var} {{",
+            "        carrier_names.push(key)",
+            f"        carrier_host_ids.push({map_arg}.get(key))",
+            "    }",
+            "    i = i + 1",
+            "}",
+            "",
+            f"{output}.set(\"carrier_names\", carrier_names)",
+            f"{output}.set(\"carrier_host_ids\", carrier_host_ids)",
+            f"{output}.set(\"carrier_count\", carrier_names.length())",
+            "return 0",
+        ]
     if kind == "ReturnI64":
         return [f"return {operation['return_value']}"]
     raise ValueError(f"unsupported Hako operation: {kind}")

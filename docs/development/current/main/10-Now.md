@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-REPLACE-HARD-CODED-FAMILY-GENERATORS-001
+EXPLICIT-CARRIERINFO-OWNED-SNAPSHOT-CONVERSION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -35,8 +35,11 @@ derived manifest helper, the shared common derived-inputs helper, the shared
 recipe / verifier helper, the shared FamilyArtifactSpec helper, and the
 lightweight-facts converter wrapper for BindingContext and simple-map is
 green. VariableContext native snapshot/restore is now green with clone_owned
-restore and post-restore alias-proof EXE coverage. The next task is replacing
-the remaining hard-coded family generator bodies.
+restore and post-restore alias-proof EXE coverage. ReturnedReadBorrow is now
+resolved as NoReturnedAlias plus OwnedReadSnapshotProjection. The active task
+is moving explicit CarrierInfo conversion onto the owned snapshot input
+contract. The basic owned-snapshot CarrierInfo artifact now reaches MIR and EXE
+with alias-isolation coverage.
 
 Historical context follows.
 

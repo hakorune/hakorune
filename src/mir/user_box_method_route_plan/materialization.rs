@@ -3,11 +3,21 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::origin_inference::{build_route_result_box_lookup, user_box_route_receiver_box_name};
 use super::target_collection::{method_target_symbol, UserBoxMethodTargetFacts};
 use super::{FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute, UserBoxMethodRouteSite};
-use crate::mir::value_origin::build_value_def_map;
+use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{Callee, MirFunction, MirInstruction, ValueId};
 
-fn source_method_arg_arity(receiver: ValueId, args: &[ValueId]) -> usize {
-    if args.first().copied() == Some(receiver) {
+fn source_method_arg_arity(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+    args: &[ValueId],
+) -> usize {
+    if args.first().copied() == Some(receiver)
+        || args.first().is_some_and(|arg| {
+            resolve_value_origin(function, def_map, *arg)
+                == resolve_value_origin(function, def_map, receiver)
+        })
+    {
         args.len().saturating_sub(1)
     } else {
         args.len()
@@ -66,7 +76,7 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
             ) else {
                 continue;
             };
-            let source_arity = source_method_arg_arity(*receiver, args);
+            let source_arity = source_method_arg_arity(function, &def_map, *receiver, args);
             let target_symbol = method_target_symbol(&route_box_name, method, source_arity);
             let target = targets.get(&target_symbol);
             let type_id = typed_plan_type_ids.get(&route_box_name).copied();

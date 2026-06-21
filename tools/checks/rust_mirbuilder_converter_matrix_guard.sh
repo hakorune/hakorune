@@ -21,7 +21,7 @@ cat <<'REPORT'
 matrix=rust-mirbuilder-converter-v0
 binding_context=green
 variable_context_simple_map=green
-variable_context_immutable_borrow=green
+returned_read_borrow=Deny(ReturnedReadBorrow)
 variable_context_snapshot_restore=green
 shared_emitter=green
 summary=ok

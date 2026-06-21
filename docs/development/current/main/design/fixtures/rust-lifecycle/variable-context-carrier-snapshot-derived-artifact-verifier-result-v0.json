@@ -16,7 +16,7 @@
   },
   "denied_boundaries": [
     "VariableContext::variable_map_mut",
-    "VariableContext::snapshot",
+    "VariableContext::variable_map",
     "VariableContext::restore",
     "CarrierInfo::with_explicit_carriers",
     "join_id lifecycle",
@@ -35,16 +35,17 @@
   "subject": "hakorune_mir_builder::variable_context::CarrierInfo.from_variable_map",
   "transport_notes": {
     "carrier_host_ids_transport": "ArrayBox",
+    "carrier_info_transport": "caller-owned OrderedMapBox carrier_data",
     "carrier_names_transport": "ArrayBox",
     "loop_var_id_transport": "i64"
   },
   "verified_operations": [
-    "CarrierSnapshotFromBorrowView",
+    "CarrierSnapshotFromOwnedMap",
+    "CloneOwnedMap",
     "OrderedMap.create",
     "OrderedMapBox.set",
     "OrderedMapBox.get",
-    "OrderedMapBox.keys",
-    "OrderedMapBox.values",
+    "OrderedMapBox.key_at",
     "OrderedMapBox.length",
     "ArrayBox.push"
   ]

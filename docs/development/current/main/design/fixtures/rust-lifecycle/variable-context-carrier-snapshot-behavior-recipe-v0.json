@@ -1,7 +1,7 @@
 {
   "excluded_methods": [
     "VariableContext::variable_map_mut",
-    "VariableContext::snapshot",
+    "VariableContext::variable_map",
     "VariableContext::restore",
     "CarrierInfo::with_explicit_carriers",
     "join_id lifecycle",
@@ -13,10 +13,10 @@
   "kind": "HakoBehaviorRecipe",
   "methods": [
     {
-      "emits": "CarrierInfoApi.from_variable_map(loop_var_name, variable_map)",
-      "hako_operation": "CarrierInfoBox.from_variable_map",
+      "emits": "CarrierInfoApi.from_snapshot(carrier_data, loop_var_name, snapshot)",
+      "hako_operation": "CarrierInfoBox.from_snapshot",
       "id": "CarrierInfo::from_variable_map",
-      "rust_operation": "CarrierSnapshotFromBorrowView"
+      "rust_operation": "CarrierSnapshotFromOwnedMap"
     }
   ],
   "pilot_scope": "VariableContext_carrier_snapshot_only",

@@ -28,7 +28,7 @@ assert claims["runtime_try_hako_then_rust_fallback"] == 0
 assert claims["mirbuilder_wide_claim"] == 0
 assert claims["variable_context_selected"] == 0
 assert claims["variable_context_simple_map_selected"] == 1
-assert claims["variable_context_immutable_borrow_selected"] == 1
+assert claims["variable_context_immutable_borrow_selected"] == 0
 assert claims["variable_context_snapshot_restore_selected"] == 1
 assert claims["full_variable_context_claim"] == 0
 

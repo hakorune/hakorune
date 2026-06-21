@@ -213,8 +213,88 @@ checked-in generated artifacts.
 
 10. `ReturnedReadBorrow design stop`
 
-   Next boundary. Do not auto-convert immutable borrow / returned read borrow
-   until the API contract is chosen deliberately.
+   Status: closed by design decision.
+
+   Easy-tier contract:
+
+   ```text
+   NoReturnedAlias
+   + OwnedReadSnapshotProjection
+   ```
+
+   `VariableContext::variable_map()` standalone conversion is
+   `Deny(ReturnedReadBorrow)`. Known non-escaping bulk consumers use
+   `VariableContextApi.snapshot(ctx)` and consume an owned snapshot. Do not
+   introduce `OrderedMapReadViewBox` until a later Drop/lifetime hard tier.
+
+11. `Accept OrderedMapBox parameter receiver route`
+
+   Status: landed.
+
+   The owned-snapshot `CarrierInfo` converter slice now has the intended
+   meaning path:
+
+   ```text
+   VariableContextApi.snapshot(ctx)
+     -> CarrierInfoApi.from_snapshot(carrier_data, loop_var_name, snapshot)
+   ```
+
+   The generated artifact reaches MIR and EXE. The route was unblocked by
+   making user-box method target arity strip duplicate receiver arguments by
+   origin, not only by exact value id.
+
+   Previous failing backend receiver shape:
+
+   ```text
+   CarrierInfoApi.from_snapshot(
+       carrier_data: OrderedMapBox,
+       loop_var_name,
+       snapshot: OrderedMapBox
+   )
+
+   carrier_data.set(...)
+   ```
+
+   Current failure:
+
+   ```text
+   reason=mir_call_no_route
+   callee_symbol=set
+   next_check_hint=check_callee_route_or_receiver_origin
+   ```
+
+   This is a BoxCount task: add the smallest backend/MIR acceptance shape for
+   method calls on typed `OrderedMapBox` parameters. Do not weaken the owned
+   snapshot contract and do not reintroduce raw `return ctx.variable_map`.
+
+12. `Close owned-snapshot CarrierInfo conversion`
+
+   Status: landed.
+
+   Acceptance:
+
+   ```text
+   bash tools/checks/rust_lifecycle_variable_context_carrier_snapshot_derived_artifact_guard.sh
+
+   expected:
+     generated_hako_mir_emit=green
+     generated_hako_exe=green
+     owned_snapshot_alias_isolation=green
+     publishes_variable_map=0
+     returned_read_borrow_deny=green
+   ```
+
+13. `Implement explicit CarrierInfo conversion from owned snapshot`
+
+   Status: active.
+
+   This must not use raw `VariableContextApi.variable_map()` and must preserve
+   missing requested carrier fail-fast behavior.
+
+14. `Adopt native CarrierInfo snapshot APIs`
+
+   Add native `.hako` authority only after generated owned-snapshot carrier
+   paths are green.
 
 ## Parked Work
 
