@@ -300,6 +300,30 @@ checked-in generated artifacts.
    static `CarrierInfoNativeApi` methods and has EXE smokes for `from_snapshot`
    and explicit snapshot input.
 
+15. `Accept imported instance method routes for native Hako APIs`
+
+   Status: active.
+
+   Accept direct imported user-box instance calls such as
+   `info.from_snapshot("i", snapshot)` without by-name fallback or
+   RuntimeDataBox dispatch widening.
+
+16. `Accept typed output-argument mutation for generated bridge APIs`
+
+   Status: pending.
+
+   Let generated `CarrierInfoApi.from_snapshot(carrier_data, ...)` mutate a
+   typed `OrderedMapBox` output parameter that remains visible to the caller,
+   so generated Main no longer has to inline the operation body.
+
+17. `Preserve OrderedMapBox.get result type origin`
+
+   Status: pending.
+
+   Preserve known object origins through `OrderedMapBox.set/get` pairs for
+   focused carrier-data objects, so `info.get("carrier_names").get(0)` can
+   route as `ArrayBox.get` rather than `RuntimeDataBox.get`.
+
 ## Parked Work
 
 Do not extend the simple-map path into these areas:

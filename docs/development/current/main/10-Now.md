@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
+IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -42,7 +42,8 @@ CarrierInfo artifact now reaches MIR and EXE with alias-isolation coverage.
 Explicit CarrierInfo conversion now uses the same owned snapshot input and
 reaches generated Hako MIR/EXE with missing-carrier fail-fast coverage. Native
 CarrierInfo snapshot APIs now have EXE smokes for from_snapshot and explicit
-snapshot input.
+snapshot input. The active task is accepting imported user-box instance method
+routes so native APIs can use direct instance calls.
 
 Historical context follows.
 

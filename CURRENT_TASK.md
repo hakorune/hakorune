@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
+IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
 ```
 
 Purpose:
 
 ```text
-Adopt native CarrierInfo snapshot APIs now that generated owned-snapshot
-CarrierInfo paths are green.
+Accept imported user-box instance method routes so native `.hako` APIs can use
+direct instance calls without static wrapper workarounds.
 ```
 
 Lifecycle converter boundary:
@@ -119,11 +119,12 @@ Done:
   native CarrierInfo snapshot APIs
 
 Next:
-  next implementation slice selection
+  IMPORTED-INSTANCE-METHOD-ROUTE-ACCEPTANCE-001
 
 Task sequence:
-  1. Choose the next implementation slice.
-  2. Keep docs-only / route-only work out unless a Deny stop needs human input.
+  1. Accept imported instance method route for native CarrierInfo APIs.
+  2. Accept typed output-argument mutation for generated bridge APIs.
+  3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps.
 ```
 
 Current task order:
