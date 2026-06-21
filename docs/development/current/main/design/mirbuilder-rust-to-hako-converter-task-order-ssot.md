@@ -346,6 +346,75 @@ checked-in generated artifacts.
    bash tools/checks/rust_lifecycle_no_carrier_key_type_special_case_guard.sh
    ```
 
+19. `Retire raw Hako method body strings`
+
+   Status: next implementation task.
+
+   Goal:
+
+   ```text
+   generated family API method bodies
+     = typed operations only
+
+   acceptance Main harnesses
+     = allowed to remain as main_lines for now
+   ```
+
+   Current inventory:
+
+   ```text
+   Real converter debt:
+     tools/rust_lifecycle/mirbuilder_family_artifacts.py
+       variable_context_immutable_borrow_spec()
+         VariableContextApi.variable_map(ctx)
+         VariableMapViewApi.is_empty/len/contains/lookup
+
+     tools/rust_lifecycle/shared_mirbuilder_emitter.py
+       _render_method_body() body_lines compatibility path
+
+     tools/rust_lifecycle/family_artifact_spec.py
+       ApiMethodSpec.body_lines
+
+     tools/rust_lifecycle/family_artifact_builders.py
+       _build_api_method_ir() body_lines fallback
+
+   Not debt for this task:
+     FamilyArtifactSpec.main_lines
+     static Main acceptance harness text
+     generated behavior smoke scripts
+   ```
+
+   Implementation order:
+
+   ```text
+   1. Replace immutable-borrow raw alias artifact with
+      Deny(ReturnedReadBorrow) verification.
+
+   2. Remove ApiMethodSpec.body_lines from active generator specs.
+
+   3. Remove the emitter/builders body_lines compatibility path.
+
+   4. Add or update a guard so generated API method specs cannot use
+      body_lines again. Keep main_lines allowed until a separate harness
+      IR task exists.
+   ```
+
+   Acceptance:
+
+   ```text
+   rg -n "body_lines" tools/rust_lifecycle
+     shows only transitional docs or no matches in executable generator code.
+
+   bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
+     remains green.
+
+   bash tools/checks/rust_lifecycle_no_silent_hardcode_guard.sh
+     remains green.
+
+   ReturnedReadBorrow stays fail-fast. Do not reintroduce raw
+   `return ctx.variable_map`.
+   ```
+
 ## Parked Work
 
 Do not extend the simple-map path into these areas:

@@ -122,13 +122,15 @@ Done:
   OrderedMapBox.get result type-origin acceptance for focused carrier-data maps
 
 Next:
-  none
+  Retire raw Hako method body strings from the MirBuilder converter.
+  Keep acceptance `main_lines` as harness text for now.
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
   2. Accept typed output-argument mutation for generated bridge APIs. (closed)
   3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
   4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
+  5. Retire raw Hako method body strings from active MirBuilder family specs.
 ```
 
 Current task order:
