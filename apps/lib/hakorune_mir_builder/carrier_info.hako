@@ -1,0 +1,88 @@
+using apps.lib.collections.ordered_map as OrderedMap
+
+box CarrierInfoNative {
+    loop_var_name: StringBox
+    loop_var_id: i64
+    carrier_count: i64
+    requested_name_count: i64
+    carrier_names: ArrayBox
+    carrier_host_ids: ArrayBox
+    requested_names: ArrayBox
+
+    birth() {
+        me.loop_var_name = ""
+        me.loop_var_id = 0
+        me.carrier_count = 0
+        me.requested_name_count = 0
+        me.carrier_names = new ArrayBox()
+        me.carrier_host_ids = new ArrayBox()
+        me.requested_names = new ArrayBox()
+    }
+
+}
+
+static box CarrierInfoNativeApi {
+    from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64 {
+        info.loop_var_name = loop_var_name
+        info.loop_var_id = snapshot.get(loop_var_name)
+        info.carrier_names = new ArrayBox()
+        info.carrier_host_ids = new ArrayBox()
+
+        local i = 0
+        loop(i < snapshot.length()) {
+            local key = snapshot.key_at(i)
+            if key != loop_var_name {
+                info.carrier_names.push(key)
+                info.carrier_host_ids.push(snapshot.get(key))
+            }
+            i = i + 1
+        }
+
+        info.carrier_count = info.carrier_names.length()
+        return 0
+    }
+
+    with_explicit_carriers_from_snapshot(info: CarrierInfoNative, loop_var_name, snapshot: OrderedMapBox): i64 {
+        info.loop_var_name = loop_var_name
+        info.loop_var_id = snapshot.get(loop_var_name)
+        local input_requested_names = info.requested_names
+        info.requested_names = new ArrayBox()
+
+        local requested_index = 0
+        loop(requested_index < input_requested_names.length()) {
+            local requested_name = input_requested_names.get(requested_index)
+            info.requested_names.push(requested_name)
+            requested_index = requested_index + 1
+        }
+        info.requested_name_count = info.requested_names.length()
+        info.carrier_names = new ArrayBox()
+        info.carrier_host_ids = new ArrayBox()
+
+        local i = 0
+        loop(i < info.requested_names.length()) {
+            local requested_name = info.requested_names.get(i)
+            local host_id = snapshot.get(requested_name)
+            if host_id == null {
+                print("carrier_info_native_missing_requested_carrier=fail")
+                return 1
+            }
+            info.carrier_names.push(requested_name)
+            info.carrier_host_ids.push(host_id)
+            i = i + 1
+        }
+
+        info.carrier_count = info.carrier_names.length()
+        return 0
+    }
+
+    requested_names_contains(requested_names, name): i64 {
+        local i = 0
+        loop(i < requested_names.length()) {
+            if requested_names.get(i) == name {
+                return 1
+            }
+            i = i + 1
+        }
+        return 0
+    }
+}

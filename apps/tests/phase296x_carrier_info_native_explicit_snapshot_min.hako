@@ -1,0 +1,60 @@
+using apps.lib.hakorune_mir_builder.variable_context as VariableContextNativeApi
+using apps.lib.hakorune_mir_builder.carrier_info as CarrierInfoNativeApi
+
+static box Main {
+    main() {
+        local ctx = new VariableContextNative()
+        VariableContextNativeApi.insert(ctx, "count", 11)
+        VariableContextNativeApi.insert(ctx, "i", 5)
+        VariableContextNativeApi.insert(ctx, "sum", 10)
+        VariableContextNativeApi.insert(ctx, "tmp", 12)
+
+        local snapshot: OrderedMapBox = VariableContextNativeApi.snapshot(ctx)
+        local requested_names = new ArrayBox()
+        requested_names.push("sum")
+        requested_names.push("count")
+
+        local info = new CarrierInfoNative()
+        info.requested_names = requested_names
+        if CarrierInfoNativeApi.with_explicit_carriers_from_snapshot(info, "i", snapshot) != 0 {
+            print("carrier_info_native_explicit_status=fail")
+            return 1
+        }
+
+        VariableContextNativeApi.insert(ctx, "sum", 99)
+        requested_names.push("late")
+        snapshot.set("count", 77)
+        if info.loop_var_name != "i" {
+            print("carrier_info_native_explicit_loop_var=fail")
+            return 2
+        }
+        if info.loop_var_id != 5 {
+            print("carrier_info_native_explicit_loop_var_id=fail")
+            return 3
+        }
+        if info.carrier_count != 2 {
+            print("carrier_info_native_explicit_count=fail")
+            return 4
+        }
+        if info.requested_name_count != 2 {
+            print("carrier_info_native_explicit_requested_count=fail")
+            return 5
+        }
+        if ctx.variable_map.get("count") != 11 {
+            print("carrier_info_native_explicit_ctx_alias=fail")
+            return 6
+        }
+
+        local missing_requested = new ArrayBox()
+        missing_requested.push("missing")
+        local missing_info = new CarrierInfoNative()
+        missing_info.requested_names = missing_requested
+        if CarrierInfoNativeApi.with_explicit_carriers_from_snapshot(missing_info, "i", snapshot) == 0 {
+            print("carrier_info_native_explicit_missing_failfast=fail")
+            return 7
+        }
+
+        print("carrier_info_native_explicit_snapshot=ok")
+        return 0
+    }
+}

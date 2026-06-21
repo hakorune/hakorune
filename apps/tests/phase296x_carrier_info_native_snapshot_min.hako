@@ -1,0 +1,44 @@
+using apps.lib.hakorune_mir_builder.variable_context as VariableContextNativeApi
+using apps.lib.hakorune_mir_builder.carrier_info as CarrierInfoNativeApi
+
+static box Main {
+    main() {
+        local ctx = new VariableContextNative()
+        VariableContextNativeApi.insert(ctx, "count", 11)
+        VariableContextNativeApi.insert(ctx, "i", 5)
+        VariableContextNativeApi.insert(ctx, "sum", 10)
+
+        local snapshot: OrderedMapBox = VariableContextNativeApi.snapshot(ctx)
+        local info = new CarrierInfoNative()
+        if CarrierInfoNativeApi.from_snapshot(info, "i", snapshot) != 0 {
+            print("carrier_info_native_snapshot_status=fail")
+            return 1
+        }
+
+        VariableContextNativeApi.insert(ctx, "sum", 99)
+        snapshot.set("count", 77)
+        if info.loop_var_name != "i" {
+            print("carrier_info_native_snapshot_loop_var=fail")
+            return 2
+        }
+        if info.loop_var_id != 5 {
+            print("carrier_info_native_snapshot_loop_var_id=fail")
+            return 3
+        }
+        if info.carrier_count != 2 {
+            print("carrier_info_native_snapshot_count=fail")
+            return 4
+        }
+        if ctx.variable_map.get("count") != 11 {
+            print("carrier_info_native_snapshot_ctx_alias=fail")
+            return 5
+        }
+        if info.carrier_count != 2 {
+            print("carrier_info_native_snapshot_info_alias=fail")
+            return 6
+        }
+
+        print("carrier_info_native_snapshot=ok")
+        return 0
+    }
+}

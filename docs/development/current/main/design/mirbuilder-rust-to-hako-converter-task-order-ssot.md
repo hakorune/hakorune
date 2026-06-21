@@ -293,10 +293,12 @@ checked-in generated artifacts.
 
 14. `Adopt native CarrierInfo snapshot APIs`
 
-   Status: active.
+   Status: landed.
 
-   Add native `.hako` authority now that generated owned-snapshot carrier
-   paths are green.
+   Native `.hako` authority is added after generated owned-snapshot carrier
+   paths are green. The native API uses `CarrierInfoNative` fields plus
+   static `CarrierInfoNativeApi` methods and has EXE smokes for `from_snapshot`
+   and explicit snapshot input.
 
 ## Parked Work
 

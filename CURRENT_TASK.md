@@ -116,13 +116,14 @@ Done:
   owned-snapshot CarrierInfo conversion
   OrderedMapBox method calls through origin-copied receivers
   explicit CarrierInfo conversion from owned snapshot
+  native CarrierInfo snapshot APIs
 
 Next:
-  NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
+  next implementation slice selection
 
 Task sequence:
-  1. Adopt native CarrierInfo snapshot APIs.
-  2. Add native from_snapshot and explicit snapshot EXE smokes.
+  1. Choose the next implementation slice.
+  2. Keep docs-only / route-only work out unless a Deny stop needs human input.
 ```
 
 Current task order:

@@ -302,8 +302,9 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   EXE with owned snapshot alias-isolation after origin-aware duplicate receiver
   stripping and key_at/get carrier projection. Explicit CarrierInfo conversion
   now uses owned snapshot input and reaches generated Hako MIR/EXE with
-  missing-carrier fail-fast coverage. The next blocker is adopting native
-  CarrierInfo snapshot APIs."""
+  missing-carrier fail-fast coverage. Native CarrierInfo snapshot APIs now
+  have EXE smokes for from_snapshot and explicit snapshot input. The next
+  blocker is selecting the next implementation slice."""
 
 current_blocker_token = "NATIVE-CARRIERINFO-SNAPSHOT-APIS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

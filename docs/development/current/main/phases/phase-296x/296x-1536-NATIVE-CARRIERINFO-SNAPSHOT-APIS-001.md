@@ -1,6 +1,6 @@
 # 296x-1536 NATIVE-CARRIERINFO-SNAPSHOT-APIS-001
 
-Status: active
+Status: landed
 Date: 2026-06-21
 
 ## Purpose
@@ -30,6 +30,18 @@ with_explicit_carriers_from_snapshot native EXE=green
 missing requested carrier fail-fast=green
 snapshot/context/output alias isolation=green
 raw variable_map alias generated=0
+```
+
+## Result
+
+```text
+apps/lib/hakorune_mir_builder/carrier_info.hako=added
+from_snapshot native EXE=green
+with_explicit_carriers_from_snapshot native EXE=green
+missing requested carrier fail-fast=green
+snapshot/context/output alias isolation=green
+raw variable_map alias=0
+OrderedMapReadViewBox=0
 ```
 
 ## Stop Line
