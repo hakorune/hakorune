@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dataclass_field
 from typing import Any
 
 
@@ -14,6 +14,7 @@ class HakoOperation:
     key: str | None = None
     value: str | None = None
     return_value: int | None = None
+    extra: dict[str, Any] = dataclass_field(default_factory=dict)
 
     def to_json(self) -> dict[str, Any]:
         data: dict[str, Any] = {"kind": self.kind}
@@ -25,6 +26,7 @@ class HakoOperation:
         }.items():
             if value is not None:
                 data[key] = value
+        data.update(self.extra)
         return data
 
 
@@ -41,4 +43,8 @@ class HakoMethodIR:
 
 
 def op(kind: str, **kwargs: Any) -> HakoOperation:
-    return HakoOperation(kind=kind, **kwargs)
+    known: dict[str, Any] = {}
+    for key in ("field", "key", "value", "return_value"):
+        if key in kwargs:
+            known[key] = kwargs.pop(key)
+    return HakoOperation(kind=kind, extra=kwargs, **known)

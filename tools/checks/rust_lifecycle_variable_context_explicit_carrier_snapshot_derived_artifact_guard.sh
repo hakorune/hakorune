@@ -18,7 +18,15 @@ python3 - <<'PY'
 import json
 from pathlib import Path
 
+import sys
+
+sys.path.insert(0, "tools/rust_lifecycle")
+from mirbuilder_carrier_snapshot_artifacts import _api_methods_from_compiled, explicit_carrier_snapshot_spec
+from mirbuilder_carrier_snapshot_converter import compile_explicit_carrier_snapshot_methods
+
 base = Path("docs/development/current/main/design/fixtures/rust-lifecycle")
+facts = json.loads((base / "variable-context-explicit-carrier-snapshot-facts-v0.json").read_text())
+plan = json.loads((base / "variable-context-explicit-carrier-snapshot-plan-v0.json").read_text())
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.artifact.json").read_text())
 recipe = json.loads((base / "variable-context-explicit-carrier-snapshot-behavior-recipe-v0.json").read_text())
 verifier = json.loads((base / "variable-context-explicit-carrier-snapshot-derived-artifact-verifier-result-v0.json").read_text())
@@ -97,6 +105,13 @@ assert "carrier_names_init" not in hako
 assert "missing_scan_index" not in hako
 assert "explicit_carrier_snapshot_output_arg_mutation=fail" in hako
 assert "explicit_carrier_snapshot_ctx_alias=fail" in hako
+
+spec = explicit_carrier_snapshot_spec(_api_methods_from_compiled(compile_explicit_carrier_snapshot_methods(facts, plan)))
+assert all(
+    method.operations
+    for static_box in spec.static_boxes
+    for method in static_box.methods
+)
 PY
 
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"

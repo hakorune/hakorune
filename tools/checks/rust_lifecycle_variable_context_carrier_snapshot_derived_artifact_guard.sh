@@ -20,9 +20,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, "tools/rust_lifecycle")
-from mirbuilder_carrier_snapshot_artifacts import carrier_snapshot_spec
+from mirbuilder_carrier_snapshot_artifacts import _api_methods_from_compiled, carrier_snapshot_spec
+from mirbuilder_carrier_snapshot_converter import compile_carrier_snapshot_methods
 
 base = Path("docs/development/current/main/design/fixtures/rust-lifecycle")
+facts = json.loads((base / "variable-context-carrier-snapshot-facts-v0.json").read_text())
+plan = json.loads((base / "variable-context-carrier-snapshot-plan-v0.json").read_text())
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/variable_context_carrier_snapshot.artifact.json").read_text())
 recipe = json.loads((base / "variable-context-carrier-snapshot-behavior-recipe-v0.json").read_text())
 verifier = json.loads((base / "variable-context-carrier-snapshot-derived-artifact-verifier-result-v0.json").read_text())
@@ -95,7 +98,7 @@ assert "carrier_names_init" not in hako
 assert "init_index" not in hako
 assert "carrier_snapshot_output_arg_mutation=fail" in hako
 
-spec = carrier_snapshot_spec()
+spec = carrier_snapshot_spec(_api_methods_from_compiled(compile_carrier_snapshot_methods(facts, plan)))
 assert all(
     method.operations
     for static_box in spec.static_boxes

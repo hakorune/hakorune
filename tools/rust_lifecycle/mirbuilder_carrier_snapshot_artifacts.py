@@ -7,6 +7,10 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
+from mirbuilder_carrier_snapshot_converter import (
+    compile_carrier_snapshot_methods,
+    compile_explicit_carrier_snapshot_methods,
+)
 from family_artifact_builders import (
     build_family_artifact_hako_text,
     build_family_artifact_manifest_text,
@@ -22,7 +26,8 @@ from extract_variable_context_explicit_carrier_snapshot_facts import (
     SOURCE as EXPLICIT_CARRIER_SNAPSHOT_SOURCE,
     extract_facts as extract_variable_context_explicit_carrier_snapshot_facts,
 )
-from shared_family_generator import read_json, run_validated_family_generator
+from shared_family_generator import read_json, write_outputs
+from verified_hako_family_ir import HakoMethodIR
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,6 +38,13 @@ VARIABLE_CONTEXT_SOURCE = ROOT / "src/mir/join_ir/lowering/carrier_info/carrier_
 
 def _lines(text: str) -> list[str]:
     return dedent(text).strip("\n").splitlines()
+
+
+def _api_methods_from_compiled(methods: list[HakoMethodIR]) -> list[ApiMethodSpec]:
+    return [
+        ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
+        for method in methods
+    ]
 
 
 def _require_kinds(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any], *, subject: str) -> None:
@@ -116,7 +128,7 @@ def validate_variable_context_carrier_snapshot(facts: dict[str, Any], plan: dict
         raise SystemExit("unexpected carrier promotion scope")
 
 
-def carrier_snapshot_spec() -> FamilyArtifactSpec:
+def carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArtifactSpec:
     excluded = [
         "VariableContext::variable_map_mut",
         "VariableContext::variable_map",
@@ -194,12 +206,7 @@ def carrier_snapshot_spec() -> FamilyArtifactSpec:
             ),
             StaticBoxSpec(
                 name="CarrierInfoApi",
-                methods=[
-                    ApiMethodSpec(
-                        signature="from_snapshot(carrier_data: OrderedMapBox, loop_var_name, snapshot: OrderedMapBox): i64",
-                        operations=[{"kind": "CarrierSnapshotFromOwnedMap", "output_arg": "carrier_data", "loop_var": "loop_var_name", "map_arg": "snapshot"}],
-                    )
-                ],
+                methods=carrier_api_methods,
             ),
         ],
         recipe_subject="hakorune_mir_builder::variable_context::CarrierInfo.from_variable_map",
@@ -223,7 +230,11 @@ def carrier_snapshot_spec() -> FamilyArtifactSpec:
 
 
 def run_variable_context_carrier_snapshot_artifact_generator(*, check: bool) -> None:
-    spec = carrier_snapshot_spec()
+    facts = extract_variable_context_carrier_snapshot_facts(CARRIER_SNAPSHOT_SOURCE)
+    plan = read_json(FIXTURES / "variable-context-carrier-snapshot-plan-v0.json")
+    oracle = read_json(FIXTURES / "variable-context-carrier-snapshot-oracle-vectors-v0.json")
+    validate_variable_context_carrier_snapshot(facts, plan, oracle)
+    spec = carrier_snapshot_spec(_api_methods_from_compiled(compile_carrier_snapshot_methods(facts, plan)))
     recipe_text = build_family_artifact_recipe_text(spec)
     verifier_text = build_family_artifact_verifier_text(spec)
     hako_text = build_family_artifact_hako_text(spec)
@@ -234,15 +245,11 @@ def run_variable_context_carrier_snapshot_artifact_generator(*, check: bool) -> 
         (spec.hako_path, hako_text),
         (OUT_DIR / Path(spec.artifact_manifest).name, manifest_text),
     ]
-    run_validated_family_generator(
+    write_outputs(
+        outputs,
         check=check,
-        root=ROOT,
         unchanged_label="generated_variable_context_carrier_snapshot_artifact=unchanged",
-        load_facts=lambda: extract_variable_context_carrier_snapshot_facts(CARRIER_SNAPSHOT_SOURCE),
-        plan_path=spec.plan_path,
-        oracle_path=spec.oracle_path,
-        validate_inputs=validate_variable_context_carrier_snapshot,
-        outputs_factory=lambda: outputs,
+        root=ROOT,
     )
 
 
@@ -331,7 +338,7 @@ def validate_variable_context_explicit_carrier_snapshot(facts: dict[str, Any], p
         raise SystemExit("unexpected explicit carrier promotion scope")
 
 
-def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
+def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArtifactSpec:
     excluded = [
         "VariableContext::variable_map_mut",
         "VariableContext::variable_map",
@@ -427,21 +434,7 @@ def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
             ),
             StaticBoxSpec(
                 name="CarrierInfoApi",
-                methods=[
-                    ApiMethodSpec(
-                        signature="with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names, snapshot: OrderedMapBox): i64",
-                        operations=[
-                            {
-                                "kind": "ExplicitCarrierSnapshotFromOwnedMap",
-                                "output_arg": "carrier_data",
-                                "loop_var": "loop_var_name",
-                                "loop_var_id": "loop_var_id",
-                                "requested_names": "requested_names",
-                                "map_arg": "snapshot",
-                            }
-                        ],
-                    )
-                ],
+                methods=carrier_api_methods,
             )
         ],
         recipe_subject="hakorune_mir_builder::variable_context::CarrierInfo.with_explicit_carriers",
@@ -503,7 +496,11 @@ def explicit_carrier_snapshot_spec() -> FamilyArtifactSpec:
 
 
 def run_variable_context_explicit_carrier_snapshot_artifact_generator(*, check: bool) -> None:
-    spec = explicit_carrier_snapshot_spec()
+    facts = extract_variable_context_explicit_carrier_snapshot_facts(EXPLICIT_CARRIER_SNAPSHOT_SOURCE)
+    plan = read_json(FIXTURES / "variable-context-explicit-carrier-snapshot-plan-v0.json")
+    oracle = read_json(FIXTURES / "variable-context-explicit-carrier-snapshot-oracle-vectors-v0.json")
+    validate_variable_context_explicit_carrier_snapshot(facts, plan, oracle)
+    spec = explicit_carrier_snapshot_spec(_api_methods_from_compiled(compile_explicit_carrier_snapshot_methods(facts, plan)))
     recipe_text = build_family_artifact_recipe_text(spec)
     verifier_text = build_family_artifact_verifier_text(spec)
     hako_text = build_family_artifact_hako_text(spec)
@@ -513,13 +510,9 @@ def run_variable_context_explicit_carrier_snapshot_artifact_generator(*, check: 
         (spec.hako_path, hako_text),
         (OUT_DIR / Path(spec.artifact_manifest).name, build_family_artifact_manifest_text(spec, hako_text=hako_text, recipe_text=recipe_text, verifier_text=verifier_text)),
     ]
-    run_validated_family_generator(
+    write_outputs(
+        outputs,
         check=check,
-        root=ROOT,
         unchanged_label="generated_variable_context_explicit_carrier_snapshot_artifact=unchanged",
-        load_facts=lambda: extract_variable_context_explicit_carrier_snapshot_facts(EXPLICIT_CARRIER_SNAPSHOT_SOURCE),
-        plan_path=spec.plan_path,
-        oracle_path=spec.oracle_path,
-        validate_inputs=validate_variable_context_explicit_carrier_snapshot,
-        outputs_factory=lambda: outputs,
+        root=ROOT,
     )
