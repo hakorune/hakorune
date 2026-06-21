@@ -314,6 +314,9 @@ fn route_value_class(
                 "string_len" | "array_slot_len" | "string_indexof" | "string_lastindexof" => {
                     Some(ValueClass::ScalarI64)
                 }
+                "array_slot_load_any" | "map_load_any" | "runtime_data_load_any" => {
+                    Some(ValueClass::MixedRuntimeI64OrHandle)
+                }
                 "string_contains" => Some(ValueClass::ScalarI64),
                 _ => None,
             },

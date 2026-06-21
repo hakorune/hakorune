@@ -71,6 +71,8 @@ use value_type_publish::{
 };
 use void_side_effect_body::is_void_side_effect_body_function;
 
+use crate::mir::generic_method_route_facts::GenericMethodReturnShape;
+use crate::mir::generic_method_route_plan::GenericMethodRouteKind;
 use crate::mir::same_module_body_shape::{same_module_body_supported, supported_backend_global};
 
 // Module-wide route convergence is owned by route_fixpoint.rs. Keep this
@@ -380,6 +382,16 @@ fn infer_same_module_static_helper_return_contract(
             }
         }
     }
+    for route in &function.metadata.generic_method_routes {
+        if let Some(value) = route.result_value() {
+            if let Some(contract) = same_module_static_helper_generic_route_return_contract(
+                route.return_shape(),
+                route.route_kind(),
+            ) {
+                result_contracts.insert(value, contract);
+            }
+        }
+    }
 
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
@@ -448,6 +460,29 @@ fn same_module_static_helper_route_return_contract(
             Some(GlobalCallReturnContract::ObjectHandle)
         }
         _ => None,
+    }
+}
+
+fn same_module_static_helper_generic_route_return_contract(
+    return_shape: Option<GenericMethodReturnShape>,
+    route_kind: GenericMethodRouteKind,
+) -> Option<GlobalCallReturnContract> {
+    match return_shape {
+        Some(GenericMethodReturnShape::ScalarI64)
+        | Some(GenericMethodReturnShape::ScalarI64OrMissingZero) => {
+            Some(GlobalCallReturnContract::ScalarI64)
+        }
+        Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle) => {
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
+        }
+        None => match route_kind {
+            GenericMethodRouteKind::MapLoadAny
+            | GenericMethodRouteKind::RuntimeDataLoadAny
+            | GenericMethodRouteKind::ArraySlotLoadAny => {
+                Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
+            }
+            _ => None,
+        },
     }
 }
 

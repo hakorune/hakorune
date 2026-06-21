@@ -18,9 +18,14 @@ fn detects_runtime_data_has_route() {
         function.metadata.generic_method_routes[0].route_kind(),
         GenericMethodRouteKind::RuntimeDataContainsAny
     );
-    assert!(function.metadata.generic_method_routes[0]
+    let core_method = function.metadata.generic_method_routes[0]
         .core_method()
-        .is_none());
+        .expect("RuntimeDataBox has core method");
+    assert_eq!(core_method.op, CoreMethodOp::AnyHas);
+    assert_eq!(
+        core_method.lowering_tier,
+        CoreMethodLoweringTier::WarmDirectAbi
+    );
     assert_eq!(
         function.metadata.generic_method_routes[0].return_shape(),
         None

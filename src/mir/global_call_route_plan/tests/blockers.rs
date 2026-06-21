@@ -380,6 +380,161 @@ fn refresh_module_global_call_routes_accepts_same_module_mixed_runtime_return() 
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_same_module_map_get_return() {
+    let mut module = MirModule::new("global_call_same_module_map_get_return_test".to_string());
+    module
+        .metadata
+        .user_box_decls
+        .insert("OrderedMapBox".to_string(), Vec::new());
+    module
+        .metadata
+        .typed_object_plans
+        .push(crate::mir::function::TypedObjectPlan {
+            box_name: "VariableContextNative".to_string(),
+            type_id: 23,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 1,
+            fields: vec![crate::mir::function::TypedObjectFieldPlan {
+                name: "variable_map".to_string(),
+                slot: 0,
+                declared_type_name: Some("OrderedMapBox".to_string()),
+                storage: crate::mir::function::TypedObjectFieldStorage::Handle,
+                is_weak: false,
+            }],
+        });
+    module
+        .metadata
+        .typed_object_plans
+        .push(crate::mir::function::TypedObjectPlan {
+            box_name: "OrderedMapBox".to_string(),
+            type_id: 24,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+    let caller = make_function_with_global_call_args(
+        "Helper.lookup/2",
+        Some(ValueId::new(7)),
+        vec![ValueId::new(1), ValueId::new(2)],
+    );
+
+    let mut ordered_get = MirFunction::new(
+        FunctionSignature {
+            name: "OrderedMapBox.get/1".to_string(),
+            params: vec![MirType::Box("OrderedMapBox".to_string()), MirType::String],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    ordered_get.params = vec![ValueId::new(0), ValueId::new(1)];
+    let mut ordered_get_block = BasicBlock::new(BasicBlockId::new(0));
+    ordered_get_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(2),
+        box_type: "MapBox".to_string(),
+        args: Vec::new(),
+    });
+    ordered_get_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(3)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "RuntimeDataBox".to_string(),
+            method: "get".to_string(),
+            receiver: Some(ValueId::new(2)),
+            certainty: TypeCertainty::Union,
+            box_kind: CalleeBoxKind::RuntimeData,
+        }),
+        args: vec![ValueId::new(1)],
+        effects: EffectMask::PURE,
+    });
+    ordered_get_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    ordered_get.add_block(ordered_get_block);
+
+    let mut lookup = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.lookup/2".to_string(),
+            params: vec![
+                MirType::Box("VariableContextNative".to_string()),
+                MirType::String,
+            ],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    lookup.params = vec![ValueId::new(0), ValueId::new(1)];
+    let entry = lookup.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(0),
+    });
+    entry.instructions.push(MirInstruction::FieldGet {
+        dst: ValueId::new(3),
+        base: ValueId::new(2),
+        field: "variable_map".to_string(),
+        declared_type: None,
+    });
+    entry.instructions.push(MirInstruction::Copy {
+        dst: ValueId::new(6),
+        src: ValueId::new(1),
+    });
+    entry.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId::new(4)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "OrderedMapBox".to_string(),
+            method: "get".to_string(),
+            receiver: Some(ValueId::new(3)),
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::RuntimeData,
+        }),
+        args: vec![ValueId::new(6)],
+        effects: EffectMask::PURE,
+    });
+    entry.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+
+    module.functions.insert("main".to_string(), caller);
+    module.add_function(ordered_get);
+    module
+        .functions
+        .insert("Helper.lookup/2".to_string(), lookup);
+
+    crate::mir::generic_method_route_plan::refresh_module_generic_method_routes(&mut module);
+    refresh_module_global_call_routes(&mut module);
+    crate::mir::user_box_method_route_plan::refresh_module_user_box_method_routes(&mut module);
+
+    assert!(module.functions["Helper.lookup/2"]
+        .metadata
+        .generic_method_routes
+        .is_empty());
+    let lookup_method_route = &module.functions["Helper.lookup/2"]
+        .metadata
+        .user_box_method_routes[0];
+    assert_eq!(
+        lookup_method_route.reason(),
+        None,
+        "{lookup_method_route:?}"
+    );
+    assert_eq!(
+        lookup_method_route.return_shape(),
+        Some("mixed_runtime_i64_or_handle")
+    );
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.reason(), None, "{route:?}");
+    assert_eq!(route.return_shape(), Some("mixed_runtime_i64_or_handle"));
+    assert_eq!(route.target_result_box_name(), None);
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+    assert_eq!(route.definition_owner(), "uniform_mir");
+    assert_eq!(route.proof(), "typed_global_call_same_module_mixed_runtime");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_body() {
     let mut module = MirModule::new("global_call_map_child_field_get_string_test".to_string());
     let caller =

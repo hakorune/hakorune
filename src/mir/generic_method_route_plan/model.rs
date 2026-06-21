@@ -462,7 +462,6 @@ impl GenericMethodRoute {
         self.decision.route_kind.effect_tags()
     }
 
-    #[cfg(test)]
     pub(crate) fn route_kind(&self) -> GenericMethodRouteKind {
         self.decision.route_kind
     }

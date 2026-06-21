@@ -11,6 +11,8 @@ RUN_LOG="/tmp/phase296x_variable_context_native_snapshot_restore_min.run.log"
 
 rm -f "$EXE" "$BUILD_LOG" "$RUN_LOG"
 
+bash tools/build_hako_llvmc_ffi.sh >/dev/null
+
 dump_log() {
   local label="$1"
   local path="$2"
