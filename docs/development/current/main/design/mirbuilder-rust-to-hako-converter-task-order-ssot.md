@@ -469,7 +469,6 @@ checkable before selecting a larger new family.
    ```text
    include carrier snapshot artifact guard
    include explicit carrier snapshot artifact guard
-   include native snapshot/restore guard
    include no-carrier-key-type-special-case guard
    include no-silent-hardcode guard where meaningful for staged diffs
    update docs/tools/check-scripts-index.md matrix wording
