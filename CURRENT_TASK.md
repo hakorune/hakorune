@@ -132,7 +132,7 @@ Done:
   CarrierInfo easy-tier live facts conversion
 
 Next:
-  Repair MirBuilder converter matrix coverage
+  Add durable negative converter fixtures
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
@@ -141,7 +141,9 @@ Task sequence:
   4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
   5. Retire raw Hako method body strings from active MirBuilder family specs. (closed)
   6. Close CarrierInfo easy-tier live facts conversion. (closed)
-  7. Repair MirBuilder converter matrix coverage.
+  7. Accept explicit CarrierInfo same-module bridge call. (closed)
+  8. Repair MirBuilder converter matrix coverage. (closed)
+  9. Add durable negative converter fixtures.
 ```
 
 Current task order:

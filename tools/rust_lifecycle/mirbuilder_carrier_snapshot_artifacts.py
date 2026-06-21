@@ -154,34 +154,30 @@ def carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArt
             ctx.variable_map.set("sum", 10)
 
             local snapshot = VariableContextApi.snapshot(ctx)
-            local info = OrderedMap.create()
-            if CarrierInfoApi.from_snapshot(info, "i", snapshot) != 0 {
+            local carrier_names = new ArrayBox()
+            local carrier_host_ids = new ArrayBox()
+            if CarrierInfoApi.from_snapshot("i", snapshot, carrier_names, carrier_host_ids) != 0 {
                 print("carrier_snapshot_status=fail")
                 return 1
             }
             ctx.variable_map.set("sum", 99)
             snapshot.set("count", 77)
-            if info.length() != 5 {
-                print("carrier_snapshot_output_arg_mutation=fail")
-                return 2
-            }
-            local carrier_names = info.get("carrier_names")
-            local carrier_host_ids = info.get("carrier_host_ids")
             if carrier_names.length() != 2 {
                 print("carrier_snapshot_carrier_names_len=fail")
+                return 2
+            }
+            if BoxHelpers.array_get(carrier_names, 0) != "count" or BoxHelpers.array_get(carrier_names, 1) != "sum" {
+                print("carrier_snapshot_carrier_names_order=fail")
                 return 3
             }
-            if carrier_names.get(0) != "count" or carrier_names.get(1) != "sum" {
-                print("carrier_snapshot_carrier_names_order=fail")
+            if BoxHelpers.array_get(carrier_host_ids, 0) != 11 or BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
+                print("carrier_snapshot_carrier_hosts=fail")
                 return 4
             }
-            if carrier_host_ids.get(0) != 11 or carrier_host_ids.get(1) != 10 {
-                print("carrier_snapshot_carrier_hosts=fail")
-                return 5
-            }
-            if ctx.variable_map.get("count") != 11 {
+            local count_values = ctx.variable_map.values()
+            if BoxHelpers.array_get(count_values, 0) != 11 {
                 print("carrier_snapshot_ctx_alias=fail")
-                return 6
+                return 5
             }
 
             print("variable_context_carrier_snapshot_derived_artifact=ok")
@@ -368,8 +364,9 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
             local requested_names = new ArrayBox()
             requested_names.push("sum")
             requested_names.push("count")
-            local info = OrderedMap.create()
-            if CarrierInfoApi.with_explicit_carriers_from_snapshot(info, "i", 5, requested_names, snapshot) != 0 {
+            local carrier_names = new ArrayBox()
+            local carrier_host_ids = new ArrayBox()
+            if CarrierInfoApi.with_explicit_carriers_from_snapshot(5, requested_names, snapshot, carrier_names, carrier_host_ids) != 0 {
                 print("explicit_carrier_snapshot_status=fail")
                 return 1
             }
@@ -377,36 +374,22 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
             ctx.variable_map.set("sum", 99)
             requested_names.push("late")
             snapshot.set("count", 77)
-            if info.length() != 7 {
-                print("explicit_carrier_snapshot_output_arg_mutation=fail")
-                return 2
-            }
-            local requested_name_copy = info.get("requested_names")
-            local carrier_names = info.get("carrier_names")
-            local carrier_host_ids = info.get("carrier_host_ids")
-            if requested_name_copy.length() != 2 {
-                print("explicit_carrier_snapshot_requested_names_count=fail")
-                return 3
-            }
-            if requested_name_copy.get(0) != "sum" or requested_name_copy.get(1) != "count" {
-                print("explicit_carrier_snapshot_requested_names_copy=fail")
-                return 4
-            }
             if carrier_names.length() != 2 {
                 print("explicit_carrier_snapshot_carrier_names_len=fail")
-                return 5
+                return 2
             }
-            if carrier_names.get(0) != "count" or carrier_names.get(1) != "sum" {
+            if BoxHelpers.array_get(carrier_names, 0) != "count" or BoxHelpers.array_get(carrier_names, 1) != "sum" {
                 print("explicit_carrier_snapshot_carrier_names_order=fail")
-                return 6
+                return 3
             }
-            if carrier_host_ids.get(0) != 11 or carrier_host_ids.get(1) != 10 {
+            if BoxHelpers.array_get(carrier_host_ids, 0) != 11 or BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
                 print("explicit_carrier_snapshot_carrier_hosts=fail")
-                return 7
+                return 4
             }
-            if ctx.variable_map.get("count") != 11 {
+            local count_values = ctx.variable_map.values()
+            if BoxHelpers.array_get(count_values, 0) != 11 {
                 print("explicit_carrier_snapshot_ctx_alias=fail")
-                return 8
+                return 5
             }
 
             print("variable_context_explicit_carrier_snapshot_derived_artifact=ok")
@@ -444,7 +427,7 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
                 id="CarrierInfo::with_explicit_carriers",
                 rust_operation="ExplicitCarrierSnapshotFromOwnedMap",
                 hako_operation="CarrierInfoBox.with_explicit_carriers_from_snapshot",
-                emits="CarrierInfoApi.with_explicit_carriers_from_snapshot(carrier_data, loop_var_name, loop_var_id, requested_names, snapshot)",
+                emits="CarrierInfoApi.with_explicit_carriers_from_snapshot(loop_var_id, requested_names, snapshot, carrier_names, carrier_host_ids)",
             )
         ],
         excluded_methods=excluded,
@@ -476,9 +459,6 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
         verified_operations=[
             "ExplicitCarrierSnapshotFromOwnedMap",
             "CloneOwnedMap",
-            "OrderedMap.create",
-            "OrderedMapBox.set",
-            "OrderedMapBox.get",
             "OrderedMapBox.key_at",
             "OrderedMapBox.length",
             "ArrayBox.push",

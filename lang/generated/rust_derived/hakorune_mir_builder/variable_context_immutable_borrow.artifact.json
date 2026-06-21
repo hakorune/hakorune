@@ -34,7 +34,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.hako",
-    "hako_sha256": "1eaf4d1a052814448a2125b72ea7a9cfb5280ee8c56f50268eb5a63ea132eed9"
+    "hako_sha256": "90637e22909e3f71af2eb871a53ee8ce85bcd509446bef317d42fc418bf3fceb"
   },
   "pilot_scope": "VariableContext_immutable_borrow_only",
   "schema_version": 0,

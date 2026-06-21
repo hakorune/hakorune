@@ -49,8 +49,8 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"local key = {operation['key']}",
             "local i = 0",
             f"loop(i < keys.length()) {{",
-            "    if keys.get(i) == key {",
-            "        return values.get(i)",
+            "    if BoxHelpers.array_get(keys, i) == key {",
+            "        return BoxHelpers.array_get(values, i)",
             "    }",
             "    i = i + 1",
             "}",
@@ -66,7 +66,7 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"local key = {operation['key']}",
             "local i = 0",
             f"loop(i < keys.length()) {{",
-            "    if keys.get(i) == key {",
+            "    if BoxHelpers.array_get(keys, i) == key {",
             "        return 1",
             "    }",
             "    i = i + 1",
@@ -97,7 +97,7 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"local key = {operation['key']}",
             "local i = 0",
             f"loop(i < {source}.keys_value.length()) {{",
-            f"    if {source}.keys_value.get(i) == key {{",
+            f"    if BoxHelpers.array_get({source}.keys_value, i) == key {{",
             f"        {source}.values_value.set(i, {operation['value']})",
             "        return 1",
             "    }",
@@ -108,13 +108,13 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"local pos = {source}.keys_value.length() - 1",
             "loop(pos > 0) {",
             "    local prev = pos - 1",
-            f"    local a = {source}.keys_value.get(prev)",
-            f"    local b = {source}.keys_value.get(pos)",
+            f"    local a = BoxHelpers.array_get({source}.keys_value, prev)",
+            f"    local b = BoxHelpers.array_get({source}.keys_value, pos)",
             "    if a < b or a == b {",
             "        return 1",
             "    }",
-            f"    local av = {source}.values_value.get(prev)",
-            f"    local bv = {source}.values_value.get(pos)",
+            f"    local av = BoxHelpers.array_get({source}.values_value, prev)",
+            f"    local bv = BoxHelpers.array_get({source}.values_value, pos)",
             f"    {source}.keys_value.set(prev, b)",
             f"    {source}.keys_value.set(pos, a)",
             f"    {source}.values_value.set(prev, bv)",
@@ -146,74 +146,65 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
     if kind == "CarrierSnapshotFromOwnedMap":
         map_arg = operation["map_arg"]
         loop_var = operation["loop_var"]
-        output = operation["output_arg"]
+        carrier_names = operation["carrier_names_arg"]
+        carrier_host_ids = operation["carrier_host_ids_arg"]
         return [
             f"local snapshot_total = {map_arg}.keys_value.length()",
-            "local carrier_names = new ArrayBox()",
-            "local carrier_host_ids = new ArrayBox()",
             "local loop_var_id = null",
             "local carrier_count = 0",
             "local i = 0",
             f"loop(i < snapshot_total) {{",
-            f"    local key = {map_arg}.keys_value.get(i)",
-            f"    local value = {map_arg}.values_value.get(i)",
+            f"    local key = BoxHelpers.array_get({map_arg}.keys_value, i)",
+            f"    local value = BoxHelpers.array_get({map_arg}.values_value, i)",
             f"    if key == {loop_var} {{",
             "        loop_var_id = value",
             "    } else {",
-            "        carrier_names.push(key)",
-            "        carrier_host_ids.push(value)",
+            f"        {carrier_names}.push(key)",
+            f"        {carrier_host_ids}.push(value)",
             "        carrier_count = carrier_count + 1",
             "    }",
             "    i = i + 1",
             "}",
             "",
-            f"{output}.set(\"loop_var_name\", {loop_var})",
-            f"{output}.set(\"loop_var_id\", loop_var_id)",
-            f"{output}.set(\"carrier_names\", carrier_names)",
-            f"{output}.set(\"carrier_host_ids\", carrier_host_ids)",
-            f"{output}.set(\"carrier_count\", carrier_count)",
             "return 0",
         ]
     if kind == "ExplicitCarrierSnapshotFromOwnedMap":
         map_arg = operation["map_arg"]
-        loop_var = operation["loop_var"]
         loop_var_id = operation["loop_var_id"]
         requested_names = operation["requested_names"]
-        output = operation["output_arg"]
+        carrier_names = operation["carrier_names_arg"]
+        carrier_host_ids = operation["carrier_host_ids_arg"]
         return [
             f"local snapshot_total = {map_arg}.keys_value.length()",
+            "local loop_var_name = null",
             "local requested_name_copy = new ArrayBox()",
             "local requested_name_total = " + f"{requested_names}.length()",
             "local requested_index = 0",
             f"loop(requested_index < requested_name_total) {{",
-            f"    local requested_name = {requested_names}.get(requested_index)",
+            f"    local requested_name = BoxHelpers.array_get({requested_names}, requested_index)",
             "    requested_name_copy.push(requested_name)",
             "    requested_index = requested_index + 1",
             "}",
             "",
-            f"{output}.set(\"loop_var_name\", {loop_var})",
-            f"{output}.set(\"loop_var_id\", {loop_var_id})",
-            f"{output}.set(\"requested_names\", requested_name_copy)",
-            "",
-            "local carrier_names = new ArrayBox()",
-            "local carrier_host_ids = new ArrayBox()",
             "local carrier_count = 0",
             "local i = 0",
             f"loop(i < snapshot_total) {{",
-            f"    local key = {map_arg}.keys_value.get(i)",
-            f"    local value = {map_arg}.values_value.get(i)",
-            f"    if key != {loop_var} {{",
-            "        local requested_match = 0",
-            "        local name_index = 0",
-            "        loop(name_index < requested_name_total) {",
-            "            if requested_name_copy.get(name_index) == key {",
-            "                requested_match = 1",
-            "            }",
-            "            name_index = name_index + 1",
-            "        }",
+            f"    local key = BoxHelpers.array_get({map_arg}.keys_value, i)",
+            f"    local value = BoxHelpers.array_get({map_arg}.values_value, i)",
+            f"    if value == {loop_var_id} {{",
+            "        loop_var_name = key",
+            "    } else {",
+                "        local requested_match = 0",
+                "        local name_index = 0",
+                "        loop(name_index < requested_name_total) {",
+            "            if BoxHelpers.array_get(requested_name_copy, name_index) == key {",
+                    "                requested_match = 1",
+                    "            }",
+                    "            name_index = name_index + 1",
+                "        }",
             "        if requested_match != 0 {",
-            "            carrier_names.push(key)",
-            "            carrier_host_ids.push(value)",
+            f"            {carrier_names}.push(key)",
+            f"            {carrier_host_ids}.push(value)",
             "            carrier_count = carrier_count + 1",
             "        }",
             "    }",
@@ -225,10 +216,6 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             "    return 1",
             "}",
             "",
-            f"{output}.set(\"carrier_count\", carrier_count)",
-            f"{output}.set(\"carrier_names\", carrier_names)",
-            f"{output}.set(\"carrier_host_ids\", carrier_host_ids)",
-            f"{output}.set(\"requested_name_count\", requested_name_total)",
             "return 0",
         ]
     if kind == "ReturnI64":
@@ -270,6 +257,7 @@ def emit_verified_family_hako(verified_ir: Mapping[str, Any]) -> str:
 
     using_module = verified_ir["using_module"]
     lines.extend([f"using {using_module} as OrderedMap", ""])
+    lines.extend(["using selfhost.shared.common.box_helpers as BoxHelpers", ""])
 
     box = verified_ir["box"]
     field_name = box["field_name"]

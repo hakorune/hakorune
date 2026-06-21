@@ -6,6 +6,8 @@
 
 using apps.lib.collections.ordered_map as OrderedMap
 
+using selfhost.shared.common.box_helpers as BoxHelpers
+
 box VariableContext {
     variable_map: OrderedMapBox
 
@@ -21,33 +23,30 @@ static box VariableContextApi {
 }
 
 static box CarrierInfoApi {
-    with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names: ArrayBox, snapshot: OrderedMapBox): i64 {
+    with_explicit_carriers_from_snapshot(loop_var_id: i64, requested_names: ArrayBox, snapshot: OrderedMapBox, carrier_names: ArrayBox, carrier_host_ids: ArrayBox): i64 {
         local snapshot_total = snapshot.keys_value.length()
+        local loop_var_name = null
         local requested_name_copy = new ArrayBox()
         local requested_name_total = requested_names.length()
         local requested_index = 0
         loop(requested_index < requested_name_total) {
-            local requested_name = requested_names.get(requested_index)
+            local requested_name = BoxHelpers.array_get(requested_names, requested_index)
             requested_name_copy.push(requested_name)
             requested_index = requested_index + 1
         }
 
-        carrier_data.set("loop_var_name", loop_var_name)
-        carrier_data.set("loop_var_id", loop_var_id)
-        carrier_data.set("requested_names", requested_name_copy)
-
-        local carrier_names = new ArrayBox()
-        local carrier_host_ids = new ArrayBox()
         local carrier_count = 0
         local i = 0
         loop(i < snapshot_total) {
-            local key = snapshot.keys_value.get(i)
-            local value = snapshot.values_value.get(i)
-            if key != loop_var_name {
+            local key = BoxHelpers.array_get(snapshot.keys_value, i)
+            local value = BoxHelpers.array_get(snapshot.values_value, i)
+            if value == loop_var_id {
+                loop_var_name = key
+            } else {
                 local requested_match = 0
                 local name_index = 0
                 loop(name_index < requested_name_total) {
-                    if requested_name_copy.get(name_index) == key {
+                    if BoxHelpers.array_get(requested_name_copy, name_index) == key {
                         requested_match = 1
                     }
                     name_index = name_index + 1
@@ -66,10 +65,6 @@ static box CarrierInfoApi {
             return 1
         }
 
-        carrier_data.set("carrier_count", carrier_count)
-        carrier_data.set("carrier_names", carrier_names)
-        carrier_data.set("carrier_host_ids", carrier_host_ids)
-        carrier_data.set("requested_name_count", requested_name_total)
         return 0
     }
 }
@@ -86,8 +81,9 @@ static box Main {
         local requested_names = new ArrayBox()
         requested_names.push("sum")
         requested_names.push("count")
-        local info = OrderedMap.create()
-        if CarrierInfoApi.with_explicit_carriers_from_snapshot(info, "i", 5, requested_names, snapshot) != 0 {
+        local carrier_names = new ArrayBox()
+        local carrier_host_ids = new ArrayBox()
+        if CarrierInfoApi.with_explicit_carriers_from_snapshot(5, requested_names, snapshot, carrier_names, carrier_host_ids) != 0 {
             print("explicit_carrier_snapshot_status=fail")
             return 1
         }
@@ -95,36 +91,22 @@ static box Main {
         ctx.variable_map.set("sum", 99)
         requested_names.push("late")
         snapshot.set("count", 77)
-        if info.length() != 7 {
-            print("explicit_carrier_snapshot_output_arg_mutation=fail")
-            return 2
-        }
-        local requested_name_copy = info.get("requested_names")
-        local carrier_names = info.get("carrier_names")
-        local carrier_host_ids = info.get("carrier_host_ids")
-        if requested_name_copy.length() != 2 {
-            print("explicit_carrier_snapshot_requested_names_count=fail")
-            return 3
-        }
-        if requested_name_copy.get(0) != "sum" or requested_name_copy.get(1) != "count" {
-            print("explicit_carrier_snapshot_requested_names_copy=fail")
-            return 4
-        }
         if carrier_names.length() != 2 {
             print("explicit_carrier_snapshot_carrier_names_len=fail")
-            return 5
+            return 2
         }
-        if carrier_names.get(0) != "count" or carrier_names.get(1) != "sum" {
+        if BoxHelpers.array_get(carrier_names, 0) != "count" or BoxHelpers.array_get(carrier_names, 1) != "sum" {
             print("explicit_carrier_snapshot_carrier_names_order=fail")
-            return 6
+            return 3
         }
-        if carrier_host_ids.get(0) != 11 or carrier_host_ids.get(1) != 10 {
+        if BoxHelpers.array_get(carrier_host_ids, 0) != 11 or BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
             print("explicit_carrier_snapshot_carrier_hosts=fail")
-            return 7
+            return 4
         }
-        if ctx.variable_map.get("count") != 11 {
+        local count_values = ctx.variable_map.values()
+        if BoxHelpers.array_get(count_values, 0) != 11 {
             print("explicit_carrier_snapshot_ctx_alias=fail")
-            return 8
+            return 5
         }
 
         print("variable_context_explicit_carrier_snapshot_derived_artifact=ok")

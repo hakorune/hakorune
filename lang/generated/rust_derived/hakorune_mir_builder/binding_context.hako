@@ -5,6 +5,8 @@
 
 using apps.lib.collections.ordered_map as OrderedMap
 
+using selfhost.shared.common.box_helpers as BoxHelpers
+
 box BindingContext {
     binding_map: OrderedMapBox
 
@@ -35,7 +37,7 @@ static box BindingContextApi {
         local key = name
         local i = 0
         loop(i < keys.length()) {
-            if keys.get(i) == key {
+            if BoxHelpers.array_get(keys, i) == key {
                 return 1
             }
             i = i + 1
@@ -52,8 +54,8 @@ static box BindingContextApi {
         local key = name
         local i = 0
         loop(i < keys.length()) {
-            if keys.get(i) == key {
-                return values.get(i)
+            if BoxHelpers.array_get(keys, i) == key {
+                return BoxHelpers.array_get(values, i)
             }
             i = i + 1
         }
@@ -67,7 +69,7 @@ static box BindingContextApi {
         local key = name
         local i = 0
         loop(i < ctx.binding_map.keys_value.length()) {
-            if ctx.binding_map.keys_value.get(i) == key {
+            if BoxHelpers.array_get(ctx.binding_map.keys_value, i) == key {
                 ctx.binding_map.values_value.set(i, binding_id)
                 return 1
             }
@@ -78,13 +80,13 @@ static box BindingContextApi {
         local pos = ctx.binding_map.keys_value.length() - 1
         loop(pos > 0) {
             local prev = pos - 1
-            local a = ctx.binding_map.keys_value.get(prev)
-            local b = ctx.binding_map.keys_value.get(pos)
+            local a = BoxHelpers.array_get(ctx.binding_map.keys_value, prev)
+            local b = BoxHelpers.array_get(ctx.binding_map.keys_value, pos)
             if a < b or a == b {
                 return 1
             }
-            local av = ctx.binding_map.values_value.get(prev)
-            local bv = ctx.binding_map.values_value.get(pos)
+            local av = BoxHelpers.array_get(ctx.binding_map.values_value, prev)
+            local bv = BoxHelpers.array_get(ctx.binding_map.values_value, pos)
             ctx.binding_map.keys_value.set(prev, b)
             ctx.binding_map.keys_value.set(pos, a)
             ctx.binding_map.values_value.set(prev, bv)

@@ -83,12 +83,15 @@ assert "OrderedMapBox.key_at" in verifier["verified_operations"]
 assert "ArrayBox.push" in verifier["verified_operations"]
 
 assert "static box CarrierInfoApi" in hako
-assert "from_snapshot(carrier_data: OrderedMapBox, loop_var_name, snapshot: OrderedMapBox): i64" in hako
-assert 'CarrierInfoApi.from_snapshot(info, "i", snapshot)' in hako
-assert 'local carrier_names = info.get("carrier_names")' in hako
-assert 'local carrier_host_ids = info.get("carrier_host_ids")' in hako
-assert 'carrier_names.get(0)' in hako
-assert 'carrier_host_ids.get(0)' in hako
+assert "from_snapshot(loop_var_name, snapshot: OrderedMapBox, carrier_names: ArrayBox, carrier_host_ids: ArrayBox): i64" in hako
+assert 'CarrierInfoApi.from_snapshot("i", snapshot, carrier_names, carrier_host_ids)' in hako
+assert "using selfhost.shared.common.box_helpers as BoxHelpers" in hako
+assert 'local carrier_names = new ArrayBox()' in hako
+assert 'local carrier_host_ids = new ArrayBox()' in hako
+assert 'BoxHelpers.array_get(carrier_names, 0)' in hako
+assert 'BoxHelpers.array_get(carrier_host_ids, 0)' in hako
+assert 'local count_values = ctx.variable_map.values()' in hako
+assert 'BoxHelpers.array_get(count_values, 0)' in hako
 assert "VariableContextApi.snapshot" in hako
 assert "return ctx.variable_map\n" not in hako
 assert "from_variable_map(loop_var_name, variable_map)" not in hako
@@ -96,7 +99,7 @@ assert "variable_map_mut" not in hako
 assert "CarrierInfo::with_explicit_carriers" not in hako
 assert "carrier_names_init" not in hako
 assert "init_index" not in hako
-assert "carrier_snapshot_output_arg_mutation=fail" in hako
+assert "carrier_snapshot_output_arg_mutation=fail" not in hako
 
 spec = carrier_snapshot_spec(_api_methods_from_compiled(compile_carrier_snapshot_methods(facts, plan)))
 assert all(

@@ -229,6 +229,34 @@ fn records_arraybox_length_self_arg_route() {
 }
 
 #[test]
+fn records_arraybox_length_self_arg_route_from_typed_param_copy() {
+    let mut function = make_function();
+    function.signature.params = vec![MirType::Box("ArrayBox".to_string())];
+    function.params = vec![ValueId::new(1)];
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry");
+    block.add_instruction(MirInstruction::Copy {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    });
+    block.add_instruction(method_call(Some(3), "ArrayBox", "length", 2, vec![2]));
+
+    refresh_function_generic_method_routes(&mut function);
+
+    assert_eq!(function.metadata.generic_method_routes.len(), 1);
+    let route = &function.metadata.generic_method_routes[0];
+    assert_eq!(route.box_name(), "ArrayBox");
+    assert_eq!(route.method(), "length");
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLen);
+    let core_method = route.core_method().expect("ArrayLen carrier");
+    assert_eq!(core_method.op, CoreMethodOp::ArrayLen);
+}
+
+#[test]
 fn records_runtime_data_len_from_receiver_origin() {
     let mut function = make_function();
     let block = function

@@ -44,9 +44,6 @@
   "verified_operations": [
     "ExplicitCarrierSnapshotFromOwnedMap",
     "CloneOwnedMap",
-    "OrderedMap.create",
-    "OrderedMapBox.set",
-    "OrderedMapBox.get",
     "OrderedMapBox.key_at",
     "OrderedMapBox.length",
     "ArrayBox.push",

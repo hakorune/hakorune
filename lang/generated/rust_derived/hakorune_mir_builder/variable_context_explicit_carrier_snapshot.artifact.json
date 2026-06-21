@@ -37,17 +37,17 @@
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-behavior-recipe-v0.json",
-      "sha256": "4dae8d08c81291d0e61a6c6aaad48bc5c1ad32b2507bd4f8f5e4c8a171fd722a"
+      "sha256": "a69c6e0324c92562a6e193f7b8be6f1eed09e11a1c8e62d0668d4274570a80d4"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-carrier-snapshot-derived-artifact-verifier-result-v0.json",
-      "sha256": "405f288ad6181831fd2328d9082375f1c89e8af4c443dc4e8c44bbbea93654ae"
+      "sha256": "c5356b5718150f848fa8b151178a893435ac51f197d0040644a154b9ce9fd2d5"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.hako",
-    "hako_sha256": "cf925b3466e00284d84763021e3a3d790a52f99ef413a105b88f9bcff0b0d3dc"
+    "hako_sha256": "b1300fdb1ed15d143e048f93fe6bb4db15215d3ea4020dd11d87dcc3a04bb872"
   },
   "pilot_scope": "VariableContext_explicit_carrier_snapshot_only",
   "schema_version": 0,

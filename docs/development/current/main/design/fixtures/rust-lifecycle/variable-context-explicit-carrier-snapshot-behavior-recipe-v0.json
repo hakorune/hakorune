@@ -13,7 +13,7 @@
   "kind": "HakoBehaviorRecipe",
   "methods": [
     {
-      "emits": "CarrierInfoApi.with_explicit_carriers_from_snapshot(carrier_data, loop_var_name, loop_var_id, requested_names, snapshot)",
+      "emits": "CarrierInfoApi.with_explicit_carriers_from_snapshot(loop_var_id, requested_names, snapshot, carrier_names, carrier_host_ids)",
       "hako_operation": "CarrierInfoBox.with_explicit_carriers_from_snapshot",
       "id": "CarrierInfo::with_explicit_carriers",
       "rust_operation": "ExplicitCarrierSnapshotFromOwnedMap"

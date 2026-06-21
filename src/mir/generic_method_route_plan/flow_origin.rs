@@ -239,6 +239,16 @@ pub(super) fn generic_array_flow_origin_box_name(
     receiver: ValueId,
 ) -> Option<String> {
     let mut array_values = BTreeMap::<ValueId, &'static str>::new();
+    for (index, param) in function.params.iter().enumerate() {
+        let Some(ty) = function.signature.params.get(index) else {
+            continue;
+        };
+        if let MirType::Box(box_name) = ty {
+            if let Some(origin_box) = collection_origin_box_name(box_name) {
+                array_values.insert(*param, origin_box);
+            }
+        }
+    }
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
 

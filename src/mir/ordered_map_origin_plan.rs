@@ -24,7 +24,7 @@ pub fn refresh_module_ordered_map_get_result_origins(module: &mut MirModule) {
 pub fn refresh_module_carrier_api_ordered_map_get_result_origins(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         match function.signature.name.as_str() {
-            "CarrierInfoApi.from_snapshot/3"
+            "CarrierInfoApi.from_snapshot/4"
             | "CarrierInfoApi.with_explicit_carriers_from_snapshot/5" => {
                 refresh_function_ordered_map_get_result_origins(function);
             }
@@ -115,7 +115,7 @@ fn seed_carrier_info_output_schema(
     };
     let output_origin = resolve_value_origin(function, def_map, output_arg);
     match symbol {
-        "CarrierInfoApi.from_snapshot/3" => {
+        "CarrierInfoApi.from_snapshot/4" => {
             seed_array_key(schema, output_origin, "carrier_names");
             seed_array_key(schema, output_origin, "carrier_host_ids");
         }
@@ -380,7 +380,7 @@ mod tests {
         push_call(
             entry,
             10,
-            Callee::Global("CarrierInfoApi.from_snapshot/3".to_string()),
+            Callee::Global("CarrierInfoApi.from_snapshot/4".to_string()),
             vec![1, 2, 3],
             EffectMask::IO,
         );

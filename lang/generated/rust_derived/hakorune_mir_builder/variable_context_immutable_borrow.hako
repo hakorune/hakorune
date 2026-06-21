@@ -6,6 +6,8 @@
 
 using apps.lib.collections.ordered_map as OrderedMap
 
+using selfhost.shared.common.box_helpers as BoxHelpers
+
 box VariableContext {
     variable_map: OrderedMapBox
 
@@ -42,7 +44,7 @@ static box VariableMapViewApi {
         local key = name
         local i = 0
         loop(i < keys.length()) {
-            if keys.get(i) == key {
+            if BoxHelpers.array_get(keys, i) == key {
                 return 1
             }
             i = i + 1
@@ -59,8 +61,8 @@ static box VariableMapViewApi {
         local key = name
         local i = 0
         loop(i < keys.length()) {
-            if keys.get(i) == key {
-                return values.get(i)
+            if BoxHelpers.array_get(keys, i) == key {
+                return BoxHelpers.array_get(values, i)
             }
             i = i + 1
         }

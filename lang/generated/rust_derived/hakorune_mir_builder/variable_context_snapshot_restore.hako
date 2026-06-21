@@ -6,6 +6,8 @@
 
 using apps.lib.collections.ordered_map as OrderedMap
 
+using selfhost.shared.common.box_helpers as BoxHelpers
+
 box VariableContext {
     variable_map: OrderedMapBox
 

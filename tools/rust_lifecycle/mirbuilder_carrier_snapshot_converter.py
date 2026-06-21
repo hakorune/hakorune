@@ -106,8 +106,16 @@ def compile_carrier_snapshot_methods(facts: dict[str, Any], plan: dict[str, Any]
     _require(_method_fact(facts).get("output", {}).get("copies_value_ids") is True, "UnsupportedResolvedCallTarget")
     return [
         HakoMethodIR(
-            "from_snapshot(carrier_data: OrderedMapBox, loop_var_name, snapshot: OrderedMapBox): i64",
-            [op("CarrierSnapshotFromOwnedMap", output_arg="carrier_data", loop_var="loop_var_name", map_arg="snapshot")],
+            "from_snapshot(loop_var_name, snapshot: OrderedMapBox, carrier_names: ArrayBox, carrier_host_ids: ArrayBox): i64",
+            [
+                op(
+                    "CarrierSnapshotFromOwnedMap",
+                    loop_var="loop_var_name",
+                    map_arg="snapshot",
+                    carrier_names_arg="carrier_names",
+                    carrier_host_ids_arg="carrier_host_ids",
+                )
+            ],
         )
     ]
 
@@ -141,15 +149,15 @@ def compile_explicit_carrier_snapshot_methods(facts: dict[str, Any], plan: dict[
     _require(method.get("carrier_names", {}).get("missing_carrier_policy") == "fail_fast", "UnsupportedResolvedCallTarget")
     return [
         HakoMethodIR(
-            "with_explicit_carriers_from_snapshot(carrier_data: OrderedMapBox, loop_var_name, loop_var_id, requested_names: ArrayBox, snapshot: OrderedMapBox): i64",
+            "with_explicit_carriers_from_snapshot(loop_var_id: i64, requested_names: ArrayBox, snapshot: OrderedMapBox, carrier_names: ArrayBox, carrier_host_ids: ArrayBox): i64",
             [
                 op(
                     "ExplicitCarrierSnapshotFromOwnedMap",
-                    output_arg="carrier_data",
-                    loop_var="loop_var_name",
                     loop_var_id="loop_var_id",
                     requested_names="requested_names",
                     map_arg="snapshot",
+                    carrier_names_arg="carrier_names",
+                    carrier_host_ids_arg="carrier_host_ids",
                 )
             ],
         )
