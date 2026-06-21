@@ -77,6 +77,8 @@ use super::{
     },
     route_fixpoint::refresh_module_route_fixpoint,
     rune_plan_refresh::refresh_function_rune_plans,
+    ordered_map_origin_plan::refresh_module_ordered_map_get_result_origins,
+    ordered_map_origin_plan::refresh_module_carrier_api_ordered_map_get_result_origins,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
     span_access_plan::refresh_function_span_access_plans,
@@ -231,8 +233,19 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_layout_and_decl_plans(module);
     let module_metadata = module.metadata.clone();
     refresh_all_functions_semantic_metadata(module, &module_metadata);
+    // Seed carrier-API result origins before route convergence so the API
+    // bodies themselves can lower nested ArrayBox reads without widening.
+    refresh_module_carrier_api_ordered_map_get_result_origins(module);
     refresh_module_route_convergence(module);
+    // Reassert focused carrier-data map result origins before the post-fixpoint
+    // consumer refresh so caller-side OrderedMapBox.get reads keep the ArrayBox
+    // result origin when route metadata is rebuilt.
+    refresh_module_ordered_map_get_result_origins(module);
     refresh_function_post_fixpoint_consumers(module, &module_metadata);
+    // Post-fixpoint consumers may rebuild route metadata again, so reassert the
+    // focused carrier-data result origins one last time before contract checks.
+    refresh_module_carrier_api_ordered_map_get_result_origins(module);
+    refresh_module_ordered_map_get_result_origins(module);
     refresh_module_contracts_and_exact_numeric(module);
 }
 

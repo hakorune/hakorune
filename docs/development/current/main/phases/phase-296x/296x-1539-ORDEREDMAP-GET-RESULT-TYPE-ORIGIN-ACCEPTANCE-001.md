@@ -57,7 +57,7 @@ Result:
 orderedmap_get_result_type_origin=green
 runtime_data_get_for_carrier_arrays=0
 variable_context_carrier_snapshot generated EXE green
-variable_context_explicit_carrier_snapshot generated EXE green
+variable_context_explicit_carrier_snapshot generated EXE landed in 296x-1540
 ```
 
 ## Stop Line
@@ -66,4 +66,5 @@ variable_context_explicit_carrier_snapshot generated EXE green
 do_not_claim_general_dependent_map_typing=1
 do_not_change_mixed_RuntimeDataBox_get_contract=1
 do_not_infer_from_string_key_names_globally=1
+do_not_add_requested_names_type_special_case=1
 ```

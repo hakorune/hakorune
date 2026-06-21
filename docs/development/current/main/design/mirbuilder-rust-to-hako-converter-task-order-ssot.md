@@ -324,6 +324,28 @@ checked-in generated artifacts.
    focused carrier-data objects, so `info.get("carrier_names").get(0)` can
    route as `ArrayBox.get` rather than `RuntimeDataBox.get`.
 
+18. `Accept explicit carrier ArrayBox.get`
+
+   Status: landed.
+
+   The explicit carrier snapshot artifact now accepts the remaining route
+   shape at the backend/MIR acceptance boundary for:
+
+   ```text
+   local requested_name_copy = info.get("requested_names")
+   requested_name_copy.get(0)
+   ```
+
+   This was solved as a general accepted `ArrayBox.get` route / receiver-
+   origin publication shape. No key-name-specific type escape was added in
+   `ordered_map_origin_plan.rs`.
+
+   Guard:
+
+   ```text
+   bash tools/checks/rust_lifecycle_no_carrier_key_type_special_case_guard.sh
+   ```
+
 ## Parked Work
 
 Do not extend the simple-map path into these areas:

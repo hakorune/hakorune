@@ -70,6 +70,8 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) -> RouteFixpointRep
     refresh_module_typed_object_field_value_types(module);
     report.typed_object_field_value_type_passes += 1;
 
+    // Seed focused carrier-data map result origins before generic/user-box
+    // refresh so downstream ArrayBox reads can inherit the published type.
     refresh_module_ordered_map_get_result_origins(module);
 
     refresh_module_generic_method_routes(module);
@@ -85,6 +87,8 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) -> RouteFixpointRep
     refresh_module_global_call_routes(module);
     report.global_passes += 1;
 
+    // Re-run the focused origin publication after user-box routes settle so
+    // route result-box overrides and nested ArrayBox reads stay aligned.
     refresh_module_ordered_map_get_result_origins(module);
     refresh_module_generic_method_routes(module);
     report.generic_passes += 1;

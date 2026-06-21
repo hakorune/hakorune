@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED
+none
 ```
 
 Purpose:
 
 ```text
-Select the next MirBuilder converter implementation slice after closing
-OrderedMapBox.get result type-origin acceptance.
+No active blocker. 296x-1540 landed by accepting the remaining
+`ArrayBox.get` route shape without key-name-specific type special casing.
 ```
 
 Lifecycle converter boundary:
@@ -122,12 +122,13 @@ Done:
   OrderedMapBox.get result type-origin acceptance for focused carrier-data maps
 
 Next:
-  NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED
+  none
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
   2. Accept typed output-argument mutation for generated bridge APIs. (closed)
   3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
+  4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
 ```
 
 Current task order:

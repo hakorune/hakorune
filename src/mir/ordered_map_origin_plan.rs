@@ -1,5 +1,5 @@
 /*!
- * Focused OrderedMapBox result-origin publication.
+ * Focused carrier-data OrderedMapBox result-origin publication.
  *
  * This is not general dependent map typing. It only publishes object result
  * origins for constant-key OrderedMapBox reads when a prior focused producer
@@ -18,6 +18,18 @@ type MapKey = (ValueId, String);
 pub fn refresh_module_ordered_map_get_result_origins(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_ordered_map_get_result_origins(function);
+    }
+}
+
+pub fn refresh_module_carrier_api_ordered_map_get_result_origins(module: &mut MirModule) {
+    for function in module.functions.values_mut() {
+        match function.signature.name.as_str() {
+            "CarrierInfoApi.from_snapshot/3"
+            | "CarrierInfoApi.with_explicit_carriers_from_snapshot/5" => {
+                refresh_function_ordered_map_get_result_origins(function);
+            }
+            _ => {}
+        }
     }
 }
 
@@ -243,6 +255,354 @@ fn override_ordered_map_get_user_box_route_origins(function: &mut MirFunction) {
         };
         if box_name == "ArrayBox" {
             route.override_target_result_box_name(box_name.clone());
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::{
+        BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        MirInstruction, MirModule, MirType, ValueId,
+    };
+    use std::collections::BTreeMap;
+
+    fn make_function() -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    fn push_const(block: &mut crate::mir::BasicBlock, dst: u32, value: ConstValue) {
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(dst),
+            value,
+        });
+    }
+
+    fn push_call(
+        block: &mut crate::mir::BasicBlock,
+        dst: u32,
+        callee: Callee,
+        args: Vec<u32>,
+        effects: EffectMask,
+    ) {
+        block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(dst)),
+            func: ValueId::INVALID,
+            callee: Some(callee),
+            args: args.into_iter().map(ValueId::new).collect(),
+            effects,
+        });
+    }
+
+    fn string_consts(function: &MirFunction) -> BTreeMap<ValueId, String> {
+        let mut out = BTreeMap::new();
+        for block in function.blocks.values() {
+            for instruction in &block.instructions {
+                if let MirInstruction::Const {
+                    dst,
+                    value: ConstValue::String(text),
+                } = instruction
+                {
+                    out.insert(*dst, text.clone());
+                }
+            }
+        }
+        out
+    }
+
+    fn method_calls<'a>(
+        function: &'a MirFunction,
+        box_name: &str,
+        method: &str,
+    ) -> Vec<&'a MirInstruction> {
+        let mut calls = Vec::new();
+        for block in function.blocks.values() {
+            for instruction in &block.instructions {
+                if let MirInstruction::Call {
+                    callee:
+                        Some(Callee::Method {
+                            box_name: call_box_name,
+                            method: call_method,
+                            ..
+                        }),
+                    ..
+                } = instruction
+                {
+                    if call_box_name == box_name && call_method == method {
+                        calls.push(instruction);
+                    }
+                }
+            }
+        }
+        calls
+    }
+
+    #[test]
+    fn publishes_arraybox_origin_and_rewrites_nested_reads() {
+        let mut module = MirModule::new("ordered_map_origin_plan_test".to_string());
+        let mut function = make_function();
+        let entry = function.get_block_mut(BasicBlockId::new(0)).expect("entry");
+
+        entry.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "OrderedMapBox".to_string(),
+            args: vec![],
+        });
+        push_const(entry, 2, ConstValue::String("i".to_string()));
+        push_const(entry, 3, ConstValue::String("snapshot".to_string()));
+        push_call(
+            entry,
+            10,
+            Callee::Global("CarrierInfoApi.from_snapshot/3".to_string()),
+            vec![1, 2, 3],
+            EffectMask::IO,
+        );
+        push_const(entry, 4, ConstValue::String("carrier_names".to_string()));
+        push_call(
+            entry,
+            11,
+            Callee::Method {
+                box_name: "OrderedMapBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![4],
+            EffectMask::PURE,
+        );
+        push_const(entry, 5, ConstValue::Integer(0));
+        push_call(
+            entry,
+            12,
+            Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(11)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![5],
+            EffectMask::PURE,
+        );
+
+        module.add_function(function);
+        refresh_module_ordered_map_get_result_origins(&mut module);
+
+        let function = module.get_function("main").expect("main");
+        assert_eq!(
+            function.metadata.value_types.get(&ValueId::new(11)),
+            Some(&MirType::Box("ArrayBox".to_string()))
+        );
+
+        let consts = string_consts(function);
+        let ordered_map_get_calls = method_calls(function, "OrderedMapBox", "get");
+        assert_eq!(ordered_map_get_calls.len(), 1);
+        let ordered_map_call = ordered_map_get_calls[0];
+        let ordered_map_dst = match ordered_map_call {
+            MirInstruction::Call { dst, args, .. } => {
+                assert_eq!(consts.get(&args[0]), Some(&"carrier_names".to_string()));
+                dst.expect("dst")
+            }
+            _ => unreachable!(),
+        };
+        assert_eq!(ordered_map_dst, ValueId::new(11));
+
+        let nested_calls = method_calls(function, "ArrayBox", "get");
+        assert_eq!(nested_calls.len(), 1);
+        match nested_calls[0] {
+            MirInstruction::Call {
+                callee:
+                    Some(Callee::Method {
+                        box_name,
+                        method,
+                        receiver: Some(receiver),
+                        ..
+                    }),
+                args,
+                ..
+            } => {
+                assert_eq!(box_name, "ArrayBox");
+                assert_eq!(method, "get");
+                assert_eq!(*receiver, ValueId::new(11));
+                assert_eq!(args.len(), 1);
+            }
+            _ => panic!("expected rewritten ArrayBox.get call"),
+        }
+    }
+
+    #[test]
+    fn publishes_arraybox_origin_for_explicit_carrier_snapshot_reads() {
+        let mut module = MirModule::new("ordered_map_origin_plan_explicit_test".to_string());
+        let mut function = make_function();
+        let entry = function.get_block_mut(BasicBlockId::new(0)).expect("entry");
+
+        entry.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "OrderedMapBox".to_string(),
+            args: vec![],
+        });
+        push_const(entry, 2, ConstValue::String("i".to_string()));
+        push_const(entry, 3, ConstValue::String("snapshot".to_string()));
+        push_call(
+            entry,
+            10,
+            Callee::Global("CarrierInfoApi.with_explicit_carriers_from_snapshot/5".to_string()),
+            vec![1, 2, 99, 3, 4],
+            EffectMask::IO,
+        );
+        push_const(entry, 4, ConstValue::String("requested_names".to_string()));
+        push_call(
+            entry,
+            11,
+            Callee::Method {
+                box_name: "OrderedMapBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![4],
+            EffectMask::PURE,
+        );
+        push_const(entry, 5, ConstValue::Integer(0));
+        push_call(
+            entry,
+            12,
+            Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(11)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![5],
+            EffectMask::PURE,
+        );
+        push_const(entry, 6, ConstValue::String("carrier_names".to_string()));
+        push_call(
+            entry,
+            13,
+            Callee::Method {
+                box_name: "OrderedMapBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![6],
+            EffectMask::PURE,
+        );
+        push_const(entry, 7, ConstValue::Integer(1));
+        push_call(
+            entry,
+            14,
+            Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(13)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![7],
+            EffectMask::PURE,
+        );
+        push_const(entry, 8, ConstValue::String("carrier_host_ids".to_string()));
+        push_call(
+            entry,
+            15,
+            Callee::Method {
+                box_name: "OrderedMapBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![8],
+            EffectMask::PURE,
+        );
+        push_const(entry, 9, ConstValue::Integer(2));
+        push_call(
+            entry,
+            16,
+            Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(15)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![9],
+            EffectMask::PURE,
+        );
+
+        module.add_function(function);
+        refresh_module_ordered_map_get_result_origins(&mut module);
+
+        let function = module.get_function("main").expect("main");
+        for value in [11_u32, 13, 15] {
+            assert_eq!(
+                function.metadata.value_types.get(&ValueId::new(value)),
+                Some(&MirType::Box("ArrayBox".to_string()))
+            );
+        }
+
+        let consts = string_consts(function);
+        let ordered_map_get_calls = method_calls(function, "OrderedMapBox", "get");
+        assert_eq!(ordered_map_get_calls.len(), 3);
+        let mut seen = BTreeMap::new();
+        for call in ordered_map_get_calls {
+            match call {
+                MirInstruction::Call {
+                    dst: Some(dst),
+                    args,
+                    ..
+                } => {
+                    let key = consts.get(&args[0]).cloned().expect("string key");
+                    seen.insert(key, *dst);
+                }
+                _ => unreachable!(),
+            }
+        }
+        assert_eq!(seen.get("requested_names"), Some(&ValueId::new(11)));
+        assert_eq!(seen.get("carrier_names"), Some(&ValueId::new(13)));
+        assert_eq!(seen.get("carrier_host_ids"), Some(&ValueId::new(15)));
+
+        let array_get_calls = method_calls(function, "ArrayBox", "get");
+        assert_eq!(array_get_calls.len(), 3);
+        for call in array_get_calls {
+            match call {
+                MirInstruction::Call {
+                    callee:
+                        Some(Callee::Method {
+                            box_name,
+                            method,
+                            receiver: Some(receiver),
+                            ..
+                        }),
+                    args,
+                    ..
+                } => {
+                    assert_eq!(box_name, "ArrayBox");
+                    assert_eq!(method, "get");
+                    assert!(matches!(
+                        receiver,
+                        ValueId(11) | ValueId(13) | ValueId(15)
+                    ));
+                    assert_eq!(args.len(), 1);
+                }
+                _ => panic!("expected rewritten ArrayBox.get call"),
+            }
         }
     }
 }

@@ -265,8 +265,8 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1539-ORDEREDMAP-GET-RESULT-TYPE-ORIGIN-ACCEPTANCE-001.md"
+latest_card = "EXPLICIT-CARRIER-ARRAYBOX-GET-ACCEPTANCE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1540-EXPLICIT-CARRIER-ARRAYBOX-GET-ACCEPTANCE-001.md"
 latest_card_summary = """BindingContextNative, VariableContextNative
 simple-map, VariableContext snapshot/restore artifact ownership, the shared
 MirBuilder emitter, the shared family generator helper and driver, the shared
@@ -296,10 +296,10 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   ReturnedReadBorrow is resolved as NoReturnedAlias plus
   OwnedReadSnapshotProjection: standalone VariableContext::variable_map is
   Deny(ReturnedReadBorrow), while known non-escaping CarrierInfo bulk reads use
-  an owned snapshot input. The active blocker is now backend receiver-route
-  acceptance for OrderedMapBox method calls through typed static-method
-  parameters; the owned-snapshot CarrierInfo generated artifact reaches MIR and
-  EXE with owned snapshot alias-isolation after origin-aware duplicate receiver
+  an owned snapshot input. Backend receiver-route acceptance for
+  OrderedMapBox method calls through typed static-method parameters is closed;
+  the owned-snapshot CarrierInfo generated artifact reaches MIR and EXE with
+  owned snapshot alias-isolation after origin-aware duplicate receiver
   stripping and key_at/get carrier projection. Explicit CarrierInfo conversion
   now uses owned snapshot input and reaches generated Hako MIR/EXE with
   missing-carrier fail-fast coverage. Native CarrierInfo snapshot APIs now
@@ -307,11 +307,12 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   CarrierInfo bridge APIs now mutate typed OrderedMapBox output arguments
   directly from Main, without inlining their operation bodies. Focused
   OrderedMapBox.get result-origin publication now preserves ArrayBox origins
-  for carrier-data maps, so nested `info.get("carrier_names").get(0)` routes
-  without RuntimeDataBox widening. The next blocker is selecting the next
-  MirBuilder converter slice."""
+  for focused carrier-data maps. The explicit carrier snapshot artifact has
+  now accepted the remaining `requested_names` ArrayBox indexing as a general
+  `ArrayBox.get` shape, without key-name-specific type special casing. The
+  current blocker is none."""
 
-current_blocker_token = "NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED"
+current_blocker_token = "none"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

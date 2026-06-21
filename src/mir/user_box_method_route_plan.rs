@@ -220,6 +220,10 @@ impl UserBoxMethodRoute {
         }
     }
 
+    /// Focused post-inference override for carrier-data result publication.
+    ///
+    /// This is intentionally narrow: it patches a known result-origin lane
+    /// after inference has already established the route.
     pub fn override_target_result_box_name(&mut self, box_name: String) {
         self.target_result_box_name = Some(box_name);
     }
