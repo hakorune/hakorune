@@ -33,14 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-IMPLEMENT-OWNED-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-CONVERSION-001
+RETURNED-READ-BORROW-DESIGN-STOP-001
 ```
 
 Purpose:
 
 ```text
-Move VariableContext snapshot/restore onto CloneOwnedMap / ReplaceOwnedMap
-operation IR.
+Stop before immutable borrow / returned read borrow conversion and choose the
+API contract deliberately.
 ```
 
 Lifecycle converter boundary:
@@ -109,9 +109,10 @@ Done:
   MirBuilder next-family facts pilot selection
   operation-backed VariableContext simple-map conversion
   operation-backed BindingContext ordered-map conversion
+  operation-backed VariableContext snapshot/restore conversion
 
 Next:
-  IMPLEMENT-OWNED-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-CONVERSION-001
+  RETURNED-READ-BORROW-DESIGN-STOP-001
 ```
 
 Current task order:

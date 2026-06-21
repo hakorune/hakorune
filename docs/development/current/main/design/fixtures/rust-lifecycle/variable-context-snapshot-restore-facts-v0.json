@@ -39,6 +39,23 @@
       }
     }
   ],
+  "body_facts": [
+    {
+      "id": "VariableContext::snapshot",
+      "operation": "CloneOwnedMap",
+      "callee_spelling": "BTreeMap::clone",
+      "selected_field": "variable_map",
+      "return_shape": "BTreeMap<String, ValueId>"
+    },
+    {
+      "id": "VariableContext::restore",
+      "operation": "ReplaceOwnedMap",
+      "callee_spelling": "assignment",
+      "selected_field": "variable_map",
+      "argument_shape": "owned_snapshot",
+      "return_shape": "()"
+    }
+  ],
   "denied_methods": [
     {
       "id": "VariableContext::variable_map_mut",

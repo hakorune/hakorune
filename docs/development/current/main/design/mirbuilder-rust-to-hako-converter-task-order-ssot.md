@@ -204,8 +204,17 @@ checked-in generated artifacts.
 
 9. `Implement owned VariableContext snapshot/restore conversion`
 
-   Next implementation task. Move snapshot/restore from raw Hako body strings
-   onto `CloneOwnedMap` and `ReplaceOwnedMap` operation IR.
+   Status: current implementation landed.
+
+   Snapshot/restore generation now uses live lightweight body facts and
+   `CloneOwnedMap` / `ReplaceOwnedMap` operation IR. The emitter keeps
+   `restore(ctx, snapshot)` alias-proof by cloning the owned snapshot when
+   writing the context field.
+
+10. `ReturnedReadBorrow design stop`
+
+   Next boundary. Do not auto-convert immutable borrow / returned read borrow
+   until the API contract is chosen deliberately.
 
 ## Parked Work
 

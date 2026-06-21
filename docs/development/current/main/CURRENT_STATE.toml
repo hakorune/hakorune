@@ -290,10 +290,12 @@ helper, the shared recipe / verifier helper, the shared FamilyArtifactSpec
   keep_variable_context_only. VariableContext simple-map generation now uses
   live lightweight body facts plus typed ordered-map operations instead of raw
   Hako body strings. BindingContext now uses the same operation-backed
-  ordered-map converter path, including MapClear. The next implementation
-  task is owned VariableContext snapshot/restore conversion."""
+  ordered-map converter path, including MapClear. VariableContext
+  snapshot/restore now uses live lightweight body facts and CloneOwnedMap /
+  ReplaceOwnedMap operation IR while preserving alias-proof restore emission.
+  The next boundary is ReturnedReadBorrow design for immutable borrow."""
 
-current_blocker_token = "IMPLEMENT-OWNED-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-CONVERSION-001"
+current_blocker_token = "RETURNED-READ-BORROW-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -53,6 +53,10 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
         return [f"return ctx.{field}.remove({operation['key']})"]
     if kind == "MapClear":
         return [f"ctx.{field}.clear()"]
+    if kind == "CloneOwnedMap":
+        return [f"return ctx.{field}.clone_owned()"]
+    if kind == "ReplaceOwnedMap":
+        return [f"ctx.{field} = {operation['value']}.clone_owned()"]
     if kind == "ReturnI64":
         return [f"return {operation['return_value']}"]
     raise ValueError(f"unsupported Hako operation: {kind}")

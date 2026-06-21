@@ -109,3 +109,33 @@ def compile_binding_context_methods(
         value_arg="binding_id",
         include_clear=True,
     )
+
+
+def compile_variable_context_snapshot_restore_methods(
+    facts: dict[str, Any],
+    plan: dict[str, Any],
+    *,
+    field_name: str = "variable_map",
+) -> list[HakoMethodIR]:
+    plans = {row["id"]: row for row in plan.get("plans", [])}
+    _require(plans.get("VariableContext::snapshot", {}).get("plan_kind") == "CloneOwnedMap", "UnsupportedResolvedCallTarget")
+    _require(plans.get("VariableContext::restore", {}).get("plan_kind") == "ReplaceOwned", "UnsupportedResolvedCallTarget")
+
+    method_facts = {row["id"]: row for row in facts.get("method_facts", [])}
+    snapshot = method_facts.get("VariableContext::snapshot")
+    restore = method_facts.get("VariableContext::restore")
+    _require(snapshot is not None and snapshot.get("operation") == "CloneOwnedMap", "UnsupportedResolvedCallTarget")
+    _require(restore is not None and restore.get("operation") == "ReplaceOwned", "UnsupportedResolvedCallTarget")
+
+    body_facts = {row["id"]: row for row in facts.get("body_facts", [])}
+    snapshot_body = body_facts.get("VariableContext::snapshot")
+    restore_body = body_facts.get("VariableContext::restore")
+    _require(snapshot_body is not None and snapshot_body.get("operation") == "CloneOwnedMap", "UnsupportedResolvedCallTarget")
+    _require(restore_body is not None and restore_body.get("operation") == "ReplaceOwnedMap", "UnsupportedResolvedCallTarget")
+    _require(snapshot_body.get("selected_field") == field_name, "UnsupportedResolvedCallTarget")
+    _require(restore_body.get("selected_field") == field_name, "UnsupportedResolvedCallTarget")
+
+    return [
+        HakoMethodIR("snapshot(ctx)", [op("CloneOwnedMap", field=field_name)]),
+        HakoMethodIR("restore(ctx, snapshot)", [op("ReplaceOwnedMap", field=field_name, value="snapshot")]),
+    ]

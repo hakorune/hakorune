@@ -29,7 +29,7 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-snapshot-restore-facts-v0.json",
-      "sha256": "e50bec1f839228fcb5a18a7169787636aa55c699000c48b57b01811dafb1e8c8"
+      "sha256": "6f61dae3e891ea8fd5af72aeb6cb984de2bb570b942e74399e3d68fe5717667b"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-snapshot-restore-oracle-vectors-v0.json",

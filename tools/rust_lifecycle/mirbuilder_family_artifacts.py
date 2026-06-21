@@ -15,6 +15,9 @@ from extract_variable_context_simple_map_facts import (
     SOURCE as VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE,
     extract_facts as extract_variable_context_simple_map_facts,
 )
+from extract_variable_context_snapshot_restore_facts import (
+    extract_facts as extract_variable_context_snapshot_restore_facts,
+)
 from family_artifact_builders import (
     build_family_artifact_hako_text,
     build_family_artifact_manifest_text,
@@ -22,7 +25,11 @@ from family_artifact_builders import (
     build_family_artifact_verifier_text,
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FamilyArtifactSpec, StaticBoxSpec
-from mirbuilder_ordered_map_converter import compile_binding_context_methods, compile_variable_context_simple_map_methods
+from mirbuilder_ordered_map_converter import (
+    compile_binding_context_methods,
+    compile_variable_context_simple_map_methods,
+    compile_variable_context_snapshot_restore_methods,
+)
 from shared_family_generator import read_json, run_validated_family_generator
 
 
@@ -288,6 +295,18 @@ def validate_variable_context_snapshot_restore(facts: dict[str, Any], plan: dict
     cleanup = restore.get("old_value_cleanup", {})
     if cleanup.get("required_fact") != "VariableContext.variable_map.drop_fact=TrivialMemory":
         raise SystemExit("restore cleanup fact mismatch")
+    body_facts = {row["id"]: row for row in facts.get("body_facts", [])}
+    for method, operation in {
+        "VariableContext::snapshot": "CloneOwnedMap",
+        "VariableContext::restore": "ReplaceOwnedMap",
+    }.items():
+        body_fact = body_facts.get(method)
+        if body_fact is None:
+            raise SystemExit(f"missing body fact: {method}")
+        if body_fact.get("operation") != operation:
+            raise SystemExit(f"unexpected body operation for {method}")
+        if body_fact.get("selected_field") != "variable_map":
+            raise SystemExit(f"unexpected body field for {method}")
     denied = {row["id"]: row for row in facts.get("denied_methods", [])}
     if denied.get("VariableContext::variable_map_mut", {}).get("deny_reason") != "ReturnedMutableBorrow":
         raise SystemExit("variable_map_mut must remain denied")
@@ -636,6 +655,12 @@ def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
 
 def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
     excluded = ["VariableContext::variable_map", "VariableContext::variable_map_mut", "VariableContext::lookup", "VariableContext::require", "VariableContext::insert", "VariableContext::remove", "VariableContext::contains", "VariableContext::len", "VariableContext::is_empty", "CarrierInfo::from_variable_map", "CarrierInfo::with_explicit_carriers", "PHI planner integration"]
+    facts = extract_variable_context_snapshot_restore_facts(VARIABLE_CONTEXT_SOURCE)
+    plan = read_json(FIXTURES / "variable-context-snapshot-restore-plan-v0.json")
+    api_methods = [
+        ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
+        for method in compile_variable_context_snapshot_restore_methods(facts, plan)
+    ]
     return FamilyArtifactSpec(
         root=ROOT,
         generated_by="tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
@@ -643,7 +668,12 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
-        box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer="OrderedMap.create()"),
+        box=BoxSpec(
+            name="VariableContext",
+            field_name="variable_map",
+            field_type="OrderedMapBox",
+            initializer_operation={"kind": "NewOrderedMap"},
+        ),
         main_lines=_lines("""
             local ctx = new VariableContext()
             local snapshot = VariableContextApi.snapshot(ctx)
@@ -661,10 +691,7 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
         oracle_path=FIXTURES / "variable-context-snapshot-restore-oracle-vectors-v0.json",
         pilot_scope="VariableContext_snapshot_restore_only",
         api_name="VariableContextApi",
-        api_methods=[
-            ApiMethodSpec(signature="snapshot(ctx)", body_lines=["return ctx.variable_map.clone_owned()"]),
-            ApiMethodSpec(signature="restore(ctx, snapshot)", body_lines=["ctx.variable_map = snapshot.clone_owned()"]),
-        ],
+        api_methods=api_methods,
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_variable_context_claim": 0, "rust_bootstrap_retained": 1, "backend_behavior_changed": 0, "source_selfhost_claim": 0},
         extra_manifest_fields={"excluded_methods": excluded},
     )
@@ -674,7 +701,7 @@ _GENERATORS = {
     "binding_context": (binding_context_spec, validate_binding_context, lambda spec: extract_binding_context_facts(BINDING_CONTEXT_SOURCE), "generated_binding_context_artifact=unchanged"),
     "variable_context_simple_map": (variable_context_simple_map_spec, validate_variable_context_simple_map, lambda spec: extract_variable_context_simple_map_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE), "generated_variable_context_simple_map_artifact=unchanged"),
     "variable_context_immutable_borrow": (variable_context_immutable_borrow_spec, validate_variable_context_immutable_borrow, lambda spec: read_json(spec.facts_path), "generated_variable_context_immutable_borrow_artifact=unchanged"),
-    "variable_context_snapshot_restore": (variable_context_snapshot_restore_spec, validate_variable_context_snapshot_restore, lambda spec: read_json(spec.facts_path), "generated_variable_context_snapshot_restore_artifact=unchanged"),
+    "variable_context_snapshot_restore": (variable_context_snapshot_restore_spec, validate_variable_context_snapshot_restore, lambda spec: extract_variable_context_snapshot_restore_facts(VARIABLE_CONTEXT_SOURCE), "generated_variable_context_snapshot_restore_artifact=unchanged"),
 }
 
 
