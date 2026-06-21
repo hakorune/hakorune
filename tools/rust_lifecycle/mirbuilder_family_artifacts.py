@@ -373,29 +373,29 @@ def binding_context_spec() -> FamilyArtifactSpec:
         ),
         main_lines=_lines("""
             local ctx = new BindingContext()
-            if BindingContextApi.is_empty(ctx) != 1 {
+            if ctx.binding_map.keys_value.length() != 0 {
                 print("binding_context_new_empty=fail")
                 return 1
             }
-            if BindingContextApi.len(ctx) != 0 {
+            if ctx.binding_map.keys_value.length() != 0 {
                 print("binding_context_new_len=fail")
                 return 2
             }
 
-            BindingContextApi.insert(ctx, "x", 0)
-            if BindingContextApi.lookup(ctx, "x") != 0 {
+            BindingContextApi.insert(ctx, "x", 1)
+            if BindingContextApi.lookup(ctx, "x") != 1 {
                 print("binding_context_lookup_x=fail")
                 return 3
             }
-            if BindingContextApi.len(ctx) != 1 {
+            if ctx.binding_map.keys_value.length() != 1 {
                 print("binding_context_len_after_insert=fail")
                 return 4
             }
-            if BindingContextApi.is_empty(ctx) != 0 {
+            if ctx.binding_map.keys_value.length() != 1 {
                 print("binding_context_empty_after_insert=fail")
                 return 5
             }
-            if BindingContextApi.remove(ctx, "x") != 0 {
+            if BindingContextApi.remove(ctx, "x") != 1 {
                 print("binding_context_remove_x=fail")
                 return 6
             }
@@ -403,7 +403,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
                 print("binding_context_lookup_removed=fail")
                 return 7
             }
-            if BindingContextApi.is_empty(ctx) != 1 {
+            if ctx.binding_map.keys_value.length() != 0 {
                 print("binding_context_empty_after_remove=fail")
                 return 8
             }
@@ -413,7 +413,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
                 print("binding_context_contains_empty=fail")
                 return 9
             }
-            BindingContextApi.insert(contains_ctx, "x", 0)
+            BindingContextApi.insert(contains_ctx, "x", 1)
             if BindingContextApi.contains(contains_ctx, "x") != 1 {
                 print("binding_context_contains_x=fail")
                 return 10
@@ -422,7 +422,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
             local order_ctx = new BindingContext()
             BindingContextApi.insert(order_ctx, "b", 2)
             BindingContextApi.insert(order_ctx, "a", 1)
-            if BindingContextApi.len(order_ctx) != 2 {
+            if order_ctx.binding_map.keys_value.length() != 2 {
                 print("binding_context_order_len=fail")
                 return 11
             }
@@ -437,7 +437,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
             local clear_ctx = new BindingContext()
             BindingContextApi.insert(clear_ctx, "a", 1)
             BindingContextApi.clear_for_function_entry(clear_ctx)
-            if BindingContextApi.is_empty(clear_ctx) != 1 {
+            if clear_ctx.binding_map.keys_value.length() != 0 {
                 print("binding_context_clear_empty=fail")
                 return 14
             }

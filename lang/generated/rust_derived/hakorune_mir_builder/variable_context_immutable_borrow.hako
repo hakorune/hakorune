@@ -22,25 +22,49 @@ static box VariableContextApi {
 
 static box VariableMapViewApi {
     is_empty(view): i64 {
-        if view.length() == 0 {
+        local keys = view.keys_value
+        if keys.length() == 0 {
             return 1
         }
         return 0
     }
 
     len(view): i64 {
-        return view.length()
+        local keys = view.keys_value
+        return keys.length()
     }
 
     contains(view, name): i64 {
-        if view.has(name) == true {
-            return 1
+        local keys = view.keys_value
+        if name == null {
+            return 0
+        }
+        local key = name
+        local i = 0
+        loop(i < keys.length()) {
+            if keys.get(i) == key {
+                return 1
+            }
+            i = i + 1
         }
         return 0
     }
 
     lookup(view, name) {
-        return view.get(name)
+        local keys = view.keys_value
+        local values = view.values_value
+        if name == null {
+            return null
+        }
+        local key = name
+        local i = 0
+        loop(i < keys.length()) {
+            if keys.get(i) == key {
+                return values.get(i)
+            }
+            i = i + 1
+        }
+        return null
     }
 }
 

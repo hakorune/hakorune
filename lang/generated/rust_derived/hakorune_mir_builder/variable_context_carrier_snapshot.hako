@@ -22,24 +22,30 @@ static box VariableContextApi {
 
 static box CarrierInfoApi {
     from_snapshot(carrier_data: OrderedMapBox, loop_var_name, snapshot: OrderedMapBox): i64 {
-        carrier_data.set("loop_var_name", loop_var_name)
-        carrier_data.set("loop_var_id", snapshot.get(loop_var_name))
-
+        local snapshot_total = snapshot.keys_value.length()
         local carrier_names = new ArrayBox()
         local carrier_host_ids = new ArrayBox()
+        local loop_var_id = null
+        local carrier_count = 0
         local i = 0
-        loop(i < snapshot.length()) {
-            local key = snapshot.key_at(i)
-            if key != loop_var_name {
+        loop(i < snapshot_total) {
+            local key = snapshot.keys_value.get(i)
+            local value = snapshot.values_value.get(i)
+            if key == loop_var_name {
+                loop_var_id = value
+            } else {
                 carrier_names.push(key)
-                carrier_host_ids.push(snapshot.get(key))
+                carrier_host_ids.push(value)
+                carrier_count = carrier_count + 1
             }
             i = i + 1
         }
 
+        carrier_data.set("loop_var_name", loop_var_name)
+        carrier_data.set("loop_var_id", loop_var_id)
         carrier_data.set("carrier_names", carrier_names)
         carrier_data.set("carrier_host_ids", carrier_host_ids)
-        carrier_data.set("carrier_count", carrier_names.length())
+        carrier_data.set("carrier_count", carrier_count)
         return 0
     }
 }

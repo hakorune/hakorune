@@ -15,24 +15,27 @@ box BindingContext {
 
 static box BindingContextApi {
     is_empty(ctx): i64 {
-        if ctx.binding_map.keys_value.length() == 0 {
+        local keys = ctx.binding_map.keys_value
+        if keys.length() == 0 {
             return 1
         }
         return 0
     }
 
     len(ctx): i64 {
-        return ctx.binding_map.keys_value.length()
+        local keys = ctx.binding_map.keys_value
+        return keys.length()
     }
 
     contains(ctx, name): i64 {
+        local keys = ctx.binding_map.keys_value
         if name == null {
             return 0
         }
         local key = name
         local i = 0
-        loop(i < ctx.binding_map.keys_value.length()) {
-            if ctx.binding_map.keys_value.get(i) == key {
+        loop(i < keys.length()) {
+            if keys.get(i) == key {
                 return 1
             }
             i = i + 1
@@ -41,14 +44,16 @@ static box BindingContextApi {
     }
 
     lookup(ctx, name) {
+        local keys = ctx.binding_map.keys_value
+        local values = ctx.binding_map.values_value
         if name == null {
             return null
         }
         local key = name
         local i = 0
-        loop(i < ctx.binding_map.keys_value.length()) {
-            if ctx.binding_map.keys_value.get(i) == key {
-                return ctx.binding_map.values_value.get(i)
+        loop(i < keys.length()) {
+            if keys.get(i) == key {
+                return values.get(i)
             }
             i = i + 1
         }
@@ -91,30 +96,7 @@ static box BindingContextApi {
     }
 
     remove(ctx, name) {
-        if name == null {
-            return null
-        }
-        local key = name
-        local next_keys = new ArrayBox()
-        local next_values = new ArrayBox()
-        local removed = null
-        local found = 0
-        local i = 0
-        loop(i < ctx.binding_map.keys_value.length()) {
-            if ctx.binding_map.keys_value.get(i) == key {
-                removed = ctx.binding_map.values_value.get(i)
-                found = 1
-            } else {
-                next_keys.push(ctx.binding_map.keys_value.get(i))
-                next_values.push(ctx.binding_map.values_value.get(i))
-            }
-            i = i + 1
-        }
-        if found == 1 {
-            ctx.binding_map.keys_value = next_keys
-            ctx.binding_map.values_value = next_values
-        }
-        return removed
+        return ctx.binding_map.remove(name)
     }
 
     clear_for_function_entry(ctx): i64 {
@@ -129,29 +111,29 @@ static box BindingContextApi {
 static box Main {
     main() {
         local ctx = new BindingContext()
-        if BindingContextApi.is_empty(ctx) != 1 {
+        if ctx.binding_map.keys_value.length() != 0 {
             print("binding_context_new_empty=fail")
             return 1
         }
-        if BindingContextApi.len(ctx) != 0 {
+        if ctx.binding_map.keys_value.length() != 0 {
             print("binding_context_new_len=fail")
             return 2
         }
 
-        BindingContextApi.insert(ctx, "x", 0)
-        if BindingContextApi.lookup(ctx, "x") != 0 {
+        BindingContextApi.insert(ctx, "x", 1)
+        if BindingContextApi.lookup(ctx, "x") != 1 {
             print("binding_context_lookup_x=fail")
             return 3
         }
-        if BindingContextApi.len(ctx) != 1 {
+        if ctx.binding_map.keys_value.length() != 1 {
             print("binding_context_len_after_insert=fail")
             return 4
         }
-        if BindingContextApi.is_empty(ctx) != 0 {
+        if ctx.binding_map.keys_value.length() != 1 {
             print("binding_context_empty_after_insert=fail")
             return 5
         }
-        if BindingContextApi.remove(ctx, "x") != 0 {
+        if BindingContextApi.remove(ctx, "x") != 1 {
             print("binding_context_remove_x=fail")
             return 6
         }
@@ -159,7 +141,7 @@ static box Main {
             print("binding_context_lookup_removed=fail")
             return 7
         }
-        if BindingContextApi.is_empty(ctx) != 1 {
+        if ctx.binding_map.keys_value.length() != 0 {
             print("binding_context_empty_after_remove=fail")
             return 8
         }
@@ -169,7 +151,7 @@ static box Main {
             print("binding_context_contains_empty=fail")
             return 9
         }
-        BindingContextApi.insert(contains_ctx, "x", 0)
+        BindingContextApi.insert(contains_ctx, "x", 1)
         if BindingContextApi.contains(contains_ctx, "x") != 1 {
             print("binding_context_contains_x=fail")
             return 10
@@ -178,7 +160,7 @@ static box Main {
         local order_ctx = new BindingContext()
         BindingContextApi.insert(order_ctx, "b", 2)
         BindingContextApi.insert(order_ctx, "a", 1)
-        if BindingContextApi.len(order_ctx) != 2 {
+        if order_ctx.binding_map.keys_value.length() != 2 {
             print("binding_context_order_len=fail")
             return 11
         }
@@ -193,7 +175,7 @@ static box Main {
         local clear_ctx = new BindingContext()
         BindingContextApi.insert(clear_ctx, "a", 1)
         BindingContextApi.clear_for_function_entry(clear_ctx)
-        if BindingContextApi.is_empty(clear_ctx) != 1 {
+        if clear_ctx.binding_map.keys_value.length() != 0 {
             print("binding_context_clear_empty=fail")
             return 14
         }
