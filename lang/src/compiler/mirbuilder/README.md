@@ -44,13 +44,13 @@ Pinned fixture (Phase-0):
 - `apps/tests/phase29bq_blockexpr_basic_min.hako`
 
 Entry (Phase-0):
-- `lang/src/compiler/mirbuilder/emit_mir_json_v0.hako`
+- `lang/src/mir/builder/compat/emit_mir_json_v0.hako`
   - Input (Phase-0): env `HAKO_PROGRAM_JSON_FILE` (preferred) or `HAKO_PROGRAM_JSON`, containing **Program(JSON v0)** or **AST JSON (roundtrip)**.
   - Output: prints **MIR JSON v0** to stdout (single line).
 
 Quick manual run (Phase-0 pin):
 - Emit AST JSON: `./target/release/hakorune --emit-ast-json /tmp/p.json apps/tests/phase29bq_blockexpr_basic_min.hako`
-- Emit MIR JSON v0 (via `.hako` entry): `HAKO_PROGRAM_JSON_FILE=/tmp/p.json ./target/release/hakorune --backend vm lang/src/compiler/mirbuilder/emit_mir_json_v0.hako > /tmp/mir.json`
+- Emit MIR JSON v0 (via canonical compat entry): `HAKO_PROGRAM_JSON_FILE=/tmp/p.json ./target/release/hakorune --backend vm lang/src/mir/builder/compat/emit_mir_json_v0.hako > /tmp/mir.json`
 - Execute MIR JSON: `./target/release/hakorune --mir-json-file /tmp/mir.json`
 
 Pinned fixture (Phase-1):

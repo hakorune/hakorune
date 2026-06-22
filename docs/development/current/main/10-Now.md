@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001
+CABI-GENERIC-METHOD-ROUTE-TUPLE-HARDCODE-CLEANUP-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -79,9 +79,11 @@ Program(JSON) compat executable entry under `lang/src/mir/builder/compat/`.
 Print, Expr(Call env.console.log Var), fallthrough If, Stage-0 Loop, and
 phase21 Loop+If return-var Program(JSON) contracts are green through MIR/EXE
 execution without old compiler-tree runtime fallback. The remaining old-entry
-drain target is the AST JSON phase0 pin. CoreContext stays next for the
-easy-tier converter lane after this cleanup boundary is documented. Crate
-linker work stays parked.
+drain target is now retired: the AST JSON phase0 pin points at the canonical
+compat entry under `lang/src/mir/builder/compat/emit_mir_json_v0.hako`.
+The next cleanup lane is the C ABI generic_method route tuple hardcode.
+CoreContext stays next for the easy-tier converter lane after this cleanup
+boundary is documented. Crate linker work stays parked.
 
 Historical context follows.
 

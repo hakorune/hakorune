@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001
+CABI-GENERIC-METHOD-ROUTE-TUPLE-HARDCODE-CLEANUP-001
 ```
 
 Next task:
 
 ```text
-Drain the remaining AST JSON phase0 old compiler-tree entry to the canonical MirBuilder path.
+Clean up c-abi generic_method route tuple hardcode.
 ```
 
 Purpose:
@@ -50,8 +50,9 @@ The canonical Program(JSON) compat executable entry under
 smoke target for Print, Expr(Call env.console.log Var), fallthrough If,
 Stage-0 Loop, and phase21 Loop+If return-var contracts. The old compiler-tree
 Program(JSON) entry remains present but is not used as runtime fallback for
-those contracts. The remaining old-entry drain target is the AST JSON phase0
-pin.
+those contracts. The AST JSON phase0 pin is now redirected to the canonical
+compat entry under `lang/src/mir/builder/compat/emit_mir_json_v0.hako`, so the
+remaining compiler-tree surface is legacy-only and no longer a pin target.
 ```
 
 Lifecycle converter boundary:
