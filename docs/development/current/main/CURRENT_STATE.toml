@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1626-MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001.md"
+latest_card = "MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1627-MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001.md"
 latest_card_summary = """The
-MirBuilder compat caller drain is now inventoried. Stage-A bridge and active
-JoinIR smokes still call the legacy compiler-tree Program(JSON) entries, so the
-next implementation owner is a redirect through a canonical compat entry, not
-physical deletion."""
+canonical MirBuilder compat entry probe is blocked by planner-required route
+ambiguity before redirect logic runs: `loop_true_break_continue` and
+`generic_loop_v1` can both appear as candidates. The next owner is route
+candidate disjointness, not compat redirect wiring or physical deletion."""
 
-current_blocker_token = "none"
+current_blocker_token = "MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

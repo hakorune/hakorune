@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-none
+MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -73,9 +73,12 @@ ordered-map crate bundle is landed, VariableContext snapshot/restore is now
 landed as a typed harness closeout, the MirBuilder home is now locked to
 `lang/src/mir/builder/`, and the legacy compiler-tree surface now has an
 explicit caller drain inventory. Stage-A bridge and active JoinIR smokes still
-use the old compiler-tree Program(JSON) entries, so the next implementation
-owner is a canonical compat entry plus caller redirect. CoreContext stays next
-for the easy-tier converter lane after this cleanup boundary is documented.
+use the old compiler-tree Program(JSON) entries. A reverted canonical compat
+entry probe failed before redirect logic ran because planner-required route
+selection saw both `loop_true_break_continue` and `generic_loop_v1`; the next
+implementation owner is candidate disjointness for that overlap. CoreContext
+stays next for the easy-tier converter lane after this cleanup boundary is
+documented.
 Crate linker work stays parked.
 
 Historical context follows.

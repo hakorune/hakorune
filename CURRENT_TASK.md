@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-none
+MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001
 ```
 
 Next task:
 
 ```text
-MirBuilder compat caller drain inventory
+Make loop_true_break_continue and generic_loop_v1 route candidates disjoint
 ```
 
 Purpose:
@@ -50,11 +50,11 @@ crate-level bundle. BindingContext and VariableContext simple-map are both
 landed as typed family artifacts, VariableContext snapshot/restore is now
 landed as a typed harness closeout, the MirBuilder home is locked to
 `lang/src/mir/builder/`, and the compiler-tree compatibility surface now has
-an explicit caller drain inventory. Stage-A bridge and active JoinIR smokes
-still use the old compiler-tree Program(JSON) entries, so the next
-implementation owner is a canonical compat entry plus caller redirect, not
-physical deletion. CoreContext stays next for the easy-tier converter lane
-after this cleanup boundary is documented.
+an explicit caller drain inventory. A reverted canonical compat entry probe
+failed before redirect logic ran because planner-required route selection saw
+both `loop_true_break_continue` and `generic_loop_v1`. The next implementation
+owner is candidate disjointness for that overlap, then the canonical compat
+entry and caller redirect can resume.
 ```
 
 Lifecycle converter boundary:
@@ -71,6 +71,7 @@ Latest landed card:
 
 ```text
 docs/development/current/main/phases/phase-296x/296x-1626-MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001.md
+docs/development/current/main/phases/phase-296x/296x-1627-MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001.md
 ```
 
 Short form:
