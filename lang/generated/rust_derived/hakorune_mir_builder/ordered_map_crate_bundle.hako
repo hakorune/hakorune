@@ -226,7 +226,7 @@ static box VariableContextApi {
         return ctx.variable_map.remove(name)
     }
 
-    snapshot(ctx) {
+    snapshot(ctx): OrderedMapBox {
         return ctx.variable_map.clone_owned()
     }
 
@@ -276,6 +276,17 @@ static box Main {
             return 7
         }
         local snapshot = VariableContextApi.snapshot(variable_ctx)
+        snapshot.set("y", 7)
+        local snapshot_lookup = snapshot.get("y")
+        if snapshot_lookup != 7 {
+            print("ordered_map_bundle_variable_context_snapshot_get=fail")
+            return 8
+        }
+        local post_snapshot_mutation_lookup = VariableContextApi.lookup(variable_ctx, "y")
+        if post_snapshot_mutation_lookup != 42 {
+            print("ordered_map_bundle_variable_context_snapshot_alias=fail")
+            return 9
+        }
         print("ordered_map_crate_bundle=ok")
         return 0
     }

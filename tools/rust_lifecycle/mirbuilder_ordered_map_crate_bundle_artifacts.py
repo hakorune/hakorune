@@ -109,6 +109,11 @@ def _bundle_main_operations() -> list[dict[str, Any]]:
         op("StaticCall", target="variable_lookup", callee="VariableContextApi.lookup", args=["variable_ctx", {"literal": "y"}]).to_json(),
         op("AssertEq", left="variable_lookup", right=42, fail_message="ordered_map_bundle_variable_context_lookup=fail", fail_code=7).to_json(),
         op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["variable_ctx"]).to_json(),
+        op("MethodCall", callee="snapshot_set", receiver="snapshot", method="set", args=[{"literal": "y"}, 7]).to_json(),
+        op("MethodCall", target="snapshot_lookup", receiver="snapshot", method="get", args=[{"literal": "y"}]).to_json(),
+        op("AssertEq", left="snapshot_lookup", right=7, fail_message="ordered_map_bundle_variable_context_snapshot_get=fail", fail_code=8).to_json(),
+        op("StaticCall", target="post_snapshot_mutation_lookup", callee="VariableContextApi.lookup", args=["variable_ctx", {"literal": "y"}]).to_json(),
+        op("AssertEq", left="post_snapshot_mutation_lookup", right=42, fail_message="ordered_map_bundle_variable_context_snapshot_alias=fail", fail_code=9).to_json(),
         op("Print", text="ordered_map_crate_bundle=ok").to_json(),
         op("ReturnI64", return_value=0).to_json(),
     ]
@@ -217,16 +222,12 @@ def build_ordered_map_crate_bundle_manifest_text(hako_text: str) -> str:
                 "BindingContext.insert_lookup",
                 "BoxCompilationContext.new_is_empty",
                 "VariableContext.simple_map.insert_lookup",
-                "VariableContext.snapshot_owned_projection_call",
+                "VariableContext.snapshot_owned_projection_set_get",
             ],
             "deferred_capabilities": [
                 {
                     "name": "VariableContext.restore_exe_call",
                     "reason": "backend currently denies void static call shape for VariableContextApi.restore/2",
-                },
-                {
-                    "name": "VariableContext.snapshot_mutation_alias_proof_in_bundle",
-                    "reason": "backend currently cannot route OrderedMapBox.set from snapshot-return receiver origin in Main",
                 },
             ],
         },

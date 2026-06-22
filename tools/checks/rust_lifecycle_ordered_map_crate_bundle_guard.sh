@@ -38,11 +38,10 @@ assert manifest["exercised_capabilities"] == [
     "BindingContext.insert_lookup",
     "BoxCompilationContext.new_is_empty",
     "VariableContext.simple_map.insert_lookup",
-    "VariableContext.snapshot_owned_projection_call",
+    "VariableContext.snapshot_owned_projection_set_get",
 ]
 assert [entry["name"] for entry in manifest["deferred_capabilities"]] == [
     "VariableContext.restore_exe_call",
-    "VariableContext.snapshot_mutation_alias_proof_in_bundle",
 ]
 assert len(manifest["source"]["rust_files"]) == 3
 assert len(manifest["inputs"]["bundle_members"]) == 4

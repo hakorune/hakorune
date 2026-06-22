@@ -43,7 +43,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.hako",
-    "hako_sha256": "4cc4e99f9980630b0abd7294b4cf095c8b798924040c5b09af6b2de0f2146814"
+    "hako_sha256": "308aa07efb803c69a7ac6b11fcee619b8cc1972e0f7454d479e99e1e00ee0d46"
   },
   "pilot_scope": "VariableContext_snapshot_restore_only",
   "schema_version": 0,

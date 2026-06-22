@@ -56,17 +56,12 @@ def _variable_context_snapshot_api_methods() -> list[ApiMethodSpec]:
     methods = [
         method
         for method in compile_variable_context_snapshot_restore_methods(facts, plan)
-        if method.signature == "snapshot(ctx)"
+        if method.signature == "snapshot(ctx): OrderedMapBox"
     ]
     if len(methods) != 1:
         raise SystemExit("expected exactly one compiled VariableContextApi.snapshot method")
     method = methods[0]
-    return [
-        ApiMethodSpec(
-            signature="snapshot(ctx): OrderedMapBox",
-            operations=[operation.to_json() for operation in method.operations],
-        )
-    ]
+    return [ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])]
 
 
 def _require_kinds(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any], *, subject: str) -> None:

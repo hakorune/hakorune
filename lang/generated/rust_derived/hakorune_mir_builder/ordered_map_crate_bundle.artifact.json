@@ -17,17 +17,13 @@
     {
       "name": "VariableContext.restore_exe_call",
       "reason": "backend currently denies void static call shape for VariableContextApi.restore/2"
-    },
-    {
-      "name": "VariableContext.snapshot_mutation_alias_proof_in_bundle",
-      "reason": "backend currently cannot route OrderedMapBox.set from snapshot-return receiver origin in Main"
     }
   ],
   "exercised_capabilities": [
     "BindingContext.insert_lookup",
     "BoxCompilationContext.new_is_empty",
     "VariableContext.simple_map.insert_lookup",
-    "VariableContext.snapshot_owned_projection_call"
+    "VariableContext.snapshot_owned_projection_set_get"
   ],
   "family_id": "hakorune_mir_builder::ordered_map_bundle",
   "generator": {
@@ -66,7 +62,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.hako",
-    "hako_sha256": "69ff0b971e277fd89b620b46063688908c7d7b24d98bcf8e91fcc314542b679e"
+    "hako_sha256": "1167fd688aca4c44a2e4d7698f7ba25e2fdfea567fb3a27dc9a1355f1504e9e4"
   },
   "pilot_scope": "MirBuilder_easy_v0_ordered_map_bundle",
   "schema_version": 0,

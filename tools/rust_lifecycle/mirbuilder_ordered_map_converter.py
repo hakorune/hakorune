@@ -136,7 +136,7 @@ def compile_variable_context_snapshot_restore_methods(
     _require(restore_body.get("selected_field") == field_name, "UnsupportedResolvedCallTarget")
 
     return [
-        HakoMethodIR("snapshot(ctx)", [op("CloneOwnedMap", field=field_name)]),
+        HakoMethodIR("snapshot(ctx): OrderedMapBox", [op("CloneOwnedMap", field=field_name)]),
         HakoMethodIR("restore(ctx, snapshot)", [op("ReplaceOwnedMap", field=field_name, value="snapshot")]),
     ]
 
