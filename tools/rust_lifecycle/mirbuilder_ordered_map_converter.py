@@ -139,3 +139,57 @@ def compile_variable_context_snapshot_restore_methods(
         HakoMethodIR("snapshot(ctx)", [op("CloneOwnedMap", field=field_name)]),
         HakoMethodIR("restore(ctx, snapshot)", [op("ReplaceOwnedMap", field=field_name, value="snapshot")]),
     ]
+
+
+def compile_box_compilation_context_methods(
+    facts: dict[str, Any],
+    plan: dict[str, Any],
+    *,
+    field_names: list[str] | None = None,
+) -> list[HakoMethodIR]:
+    field_names = field_names or ["variable_map", "value_origin_newbox", "value_types"]
+    subject = "hakorune_mir_builder::context::BoxCompilationContext"
+    _require(facts.get("kind") == "RustLifecycleFacts", "UnsupportedResolvedCallTarget")
+    _require(plan.get("kind") == "HakoLifecyclePlan", "UnsupportedResolvedCallTarget")
+    _require(facts.get("subject") == subject and plan.get("subject") == subject, "UnsupportedResolvedCallTarget")
+
+    type_facts = {row["id"]: row for row in facts.get("type_facts", [])}
+    field_facts = {row["id"]: row for row in facts.get("field_facts", [])}
+    method_facts = {row["id"]: row for row in facts.get("method_facts", [])}
+    body_facts = {row["id"]: row for row in facts.get("body_facts", [])}
+    plans = {row["id"]: row for row in plan.get("plans", [])}
+
+    _require(type_facts.get("BoxCompilationContext", {}).get("drop_fact") == "TrivialMemory", "ConstructorLifecycleMismatch")
+    for field_name in field_names:
+        field_id = f"BoxCompilationContext.{field_name}"
+        field_fact = field_facts.get(field_id)
+        _require(field_fact is not None, "ConstructorLifecycleMismatch")
+        _require(field_fact.get("deterministic_order_required") is True, "ConstructorLifecycleMismatch")
+        _require(field_fact.get("drop_fact") == "TrivialMemory", "ConstructorLifecycleMismatch")
+        field_plan = plans.get(field_id)
+        _require(field_plan is not None and field_plan.get("plan_kind") == "OrderedMapBox", "ConstructorLifecycleMismatch")
+
+    constructor = method_facts.get("BoxCompilationContext::new")
+    _require(constructor is not None, "ConstructorLifecycleMismatch")
+    _require(constructor.get("returns", {}).get("copy_kind") == "NonCopyOwned", "ConstructorLifecycleMismatch")
+    _require(constructor.get("returns", {}).get("drop_fact") == "TrivialMemory", "ConstructorLifecycleMismatch")
+    constructor_body = body_facts.get("BoxCompilationContext::new")
+    _require(constructor_body is not None and constructor_body.get("operation") == "DefaultConstruct", "ConstructorLifecycleMismatch")
+    _require(constructor_body.get("selected_fields") == field_names, "ConstructorLifecycleMismatch")
+
+    is_empty = method_facts.get("BoxCompilationContext::is_empty")
+    _require(is_empty is not None, "UnsupportedResolvedCallTarget")
+    _require(is_empty.get("returns", {}).get("copy_kind") == "ImmediateValue", "UnsupportedResolvedCallTarget")
+    _require(is_empty.get("returns", {}).get("drop_fact") == "TrivialMemory", "UnsupportedResolvedCallTarget")
+    is_empty_body = body_facts.get("BoxCompilationContext::is_empty")
+    _require(is_empty_body is not None and is_empty_body.get("operation") == "CompositeMapIsEmpty", "UnsupportedResolvedCallTarget")
+    _require(is_empty_body.get("selected_fields") == field_names, "UnsupportedResolvedCallTarget")
+    _require(plans.get("BoxCompilationContext", {}).get("plan_kind") == "LocalBox", "ConstructorLifecycleMismatch")
+    _require(plans.get("BoxCompilationContext::new", {}).get("plan_kind") == "DefaultConstruct", "ConstructorLifecycleMismatch")
+    _require(plans.get("BoxCompilationContext::is_empty", {}).get("plan_kind") == "BorrowView", "UnsupportedResolvedCallTarget")
+    return [
+        HakoMethodIR(
+            "is_empty(ctx): i64",
+            [op("AllFieldsMapIsEmpty", source="ctx", fields=field_names)],
+        )
+    ]

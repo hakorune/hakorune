@@ -522,7 +522,7 @@ checkable before selecting a larger new family.
 
 23. `Add durable negative converter fixtures`
 
-   Status: planned.
+   Status: closed.
 
    Current issue:
 
@@ -543,6 +543,13 @@ checkable before selecting a larger new family.
    TODO/null placeholder emission
    ```
 
+   Result:
+
+   ```text
+   The negative converter matrix guard now loads case order and parked status
+   from `mirbuilder-negative-converter-fixtures-v0.json`.
+   ```
+
    Acceptance:
 
    ```text
@@ -553,7 +560,7 @@ checkable before selecting a larger new family.
 
 24. `Unify carrier artifact generator runner`
 
-   Status: planned.
+   Status: closed.
 
    Current issue:
 
@@ -572,9 +579,16 @@ checkable before selecting a larger new family.
    carrier snapshot and explicit carrier EXE guards stay green
    ```
 
+   Result:
+
+   ```text
+   Both carrier artifact generators now call the shared validated generator
+   path instead of a bespoke write_outputs branch.
+   ```
+
 25. `Track generated-to-native adoption matrix`
 
-   Status: planned.
+   Status: closed.
 
    Current issue:
 
@@ -602,6 +616,15 @@ checkable before selecting a larger new family.
      source_selfhost_claim=0 unless explicitly promoted
    ```
 
+   Result:
+
+   ```text
+   The adoption matrix report now distinguishes generated route, native source,
+   native EXE smoke, and source_selfhost_claim for BindingContextNative,
+   VariableContextNative simple-map, VariableContextNative snapshot/restore,
+   and CarrierInfoNative snapshot APIs.
+   ```
+
 ### Phase B: Next Easy-Tier Family Pilot
 
 Goal: choose exactly one bounded MirBuilder family slice with real behavior
@@ -609,13 +632,20 @@ facts. Skeleton transport alone is not enough.
 
 26. `Select bounded BoxCompilationContext facts pilot`
 
-   Status: planned.
+   Status: landed.
 
    Rationale:
 
    ```text
    context / BoxCompilationContext is the smallest plausible next easy-tier
    candidate. Start with constructor + is_empty only.
+   ```
+
+   First landed slice:
+
+   ```text
+   lightweight facts extraction guard for constructor + is_empty only is green
+   typed operation IR + generated artifact + route selection are green
    ```
 
    Required scope:
@@ -638,7 +668,7 @@ facts. Skeleton transport alone is not enough.
 
 27. `Evaluate CoreContext scalar counter vocabulary`
 
-   Status: planned after task 26.
+   Status: landed.
 
    Required new vocabulary candidates:
 
@@ -649,6 +679,14 @@ facts. Skeleton transport alone is not enough.
    struct-return construction
    ```
 
+   Result:
+
+   ```text
+   The CoreContext scalar-counter vocabulary is fixed in a separate
+   machine-readable consultation fixture, while route selection remains
+   unopened.
+   ```
+
    Rough size:
 
    ```text
@@ -657,7 +695,7 @@ facts. Skeleton transport alone is not enough.
 
 28. `Evaluate TypeContext bounded map slice`
 
-   Status: planned after task 26 unless CoreContext is selected first.
+   Status: landed.
 
    Known complications:
 
@@ -675,9 +713,17 @@ facts. Skeleton transport alone is not enough.
    8-12 tasks for a narrow first slice
    ```
 
+   Result:
+
+   ```text
+   The bounded TypeContext map slice is fixed in a separate
+   machine-readable consultation fixture, while route selection remains
+   unopened and the nightly rustc adapter path stays parked.
+   ```
+
 29. `Keep MetadataContext deferred`
 
-   Status: parked until a smaller candidate lands.
+   Status: landed.
 
    Reason:
 
@@ -686,10 +732,38 @@ facts. Skeleton transport alone is not enough.
    region stack push/pop make this too broad for the next easy-tier pilot.
    ```
 
+   Result:
+
+   ```text
+   MetadataContext is explicitly parked in a consultation-only inventory.
+   The deferred decision is durable, while route selection and the nightly
+   rustc adapter path remain unopened.
+   ```
+
    Rough size:
 
    ```text
    10-15 tasks if later narrowed
+   ```
+
+29.5 `Record CoreContext readiness inventory`
+
+   Status: landed.
+
+   This row is consultation-only and does not select a route. It records that
+   `hakorune_mir_builder::core_context::CoreContext` is the next plausible
+   easy-tier smoke candidate after BoxCompilationContext, but lifecycle facts,
+   Hako lifecycle plan, behavior recipe, oracle vectors, derived artifact
+   manifest, and route entry are still absent. The inventory is fixture-backed
+   so the consultation row stays durable without opening route selection.
+
+   Design stop:
+
+   ```text
+   scalar counter field initialization
+   increment / saturating_add
+   ID constructor calls
+   struct-return construction
    ```
 
 ### Phase C: Hard-Tier Design Stops
@@ -699,7 +773,7 @@ the easy-tier converter into these areas.
 
 30. `ReturnedMutableBorrow replacement decision`
 
-   Status: design stop.
+   Status: landed.
 
    Choices to decide:
 
@@ -715,14 +789,29 @@ the easy-tier converter into these areas.
    2-4 tasks after decision
    ```
 
+   Result:
+
+   ```text
+   The returned mutable borrow decision space is fixed in a
+   machine-readable consultation fixture while the Deny(ReturnedMutableBorrow)
+   boundary remains intact and route selection stays unopened.
+   ```
+
 31. `ReturnedReadBorrow / read-view decision`
 
-   Status: design stop.
+   Status: landed.
 
    Current contract remains:
 
    ```text
    NoReturnedAlias + OwnedReadSnapshotProjection
+   ```
+
+   Result:
+
+   ```text
+   The current contract keeps bulk read consumers on owned snapshots, and
+   true read views are deferred to a later hard tier.
    ```
 
    Rough size:
@@ -733,7 +822,15 @@ the easy-tier converter into these areas.
 
 32. `CarrierSensitiveAlias proof`
 
-   Status: design stop.
+   Status: landed.
+
+   Result:
+
+   ```text
+   Carrier-sensitive consumers remain inventory-only, the read contract stays
+   NoReturnedAlias + OwnedReadSnapshotProjection, and route selection remains
+   unopened.
+   ```
 
    Rough size:
 
@@ -743,14 +840,14 @@ the easy-tier converter into these areas.
 
 33. `PHI and join_id lifecycle`
 
-   Status: design stop.
+   Status: landed.
 
-   Blocking facts:
+   Result:
 
    ```text
-   CarrierVar.join_id production is not modeled for production behavior.
-   promoted_body_locals, trim_helper, merge_from, and resolver/emitter parity
-   depend on this decision.
+   CarrierVar.join_id remains parked as test vocabulary, trim_helper and
+   promoted_body_locals stay separate inventory boundaries, and route
+   selection remains unopened.
    ```
 
    Rough size:
@@ -761,7 +858,14 @@ the easy-tier converter into these areas.
 
 34. `Loop / trim route lowering`
 
-   Status: design stop.
+   Status: landed.
+
+   Result:
+
+   ```text
+   Trim route lowering remains parked, the readiness gate and route-boundary
+   probes stay separate, and executable lowering remains unopened.
+   ```
 
    Rough size:
 
@@ -771,7 +875,14 @@ the easy-tier converter into these areas.
 
 35. `NonTrivialDrop`
 
-   Status: design stop.
+   Status: landed.
+
+   Result:
+
+   ```text
+   Nontrivial Drop remains parked, TrivialMemory cleanup remains the only
+   erase path, and route selection remains unopened.
+   ```
 
    Rough size:
 
@@ -781,7 +892,15 @@ the easy-tier converter into these areas.
 
 36. `UnsafeOrFFI`
 
-   Status: design stop.
+   Status: landed.
+
+   Result:
+
+   ```text
+   UnsafeOrFFI remains parked as a consultation-only inventory slice.
+   Broad unsafe surface and FFI stay separate from the easy-tier converter,
+   and route selection remains unopened.
+   ```
 
    Rough size:
 
@@ -791,7 +910,15 @@ the easy-tier converter into these areas.
 
 37. `NullableMapValue`
 
-   Status: design stop.
+   Status: landed.
+
+   Result:
+
+   ```text
+   NullableMapValue remains parked as a consultation-only inventory slice.
+   Null-free Option stays separate from nullable map payload handling, and
+   route selection remains unopened.
+   ```
 
    Rough size:
 
@@ -801,7 +928,15 @@ the easy-tier converter into these areas.
 
 38. `NonAsciiOrderedKey`
 
-   Status: design stop.
+   Status: landed.
+
+   Result:
+
+   ```text
+   NonAsciiOrderedKey remains parked as a consultation-only inventory slice.
+   String-only OrderedMapBox remains separate from non-ASCII collation
+   policy, and route selection remains unopened.
+   ```
 
    Rough size:
 
@@ -809,25 +944,1065 @@ the easy-tier converter into these areas.
    2-3 tasks
    ```
 
+39. `ConstructorLifecycleMismatch`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   ConstructorLifecycleMismatch remains parked as a consultation-only
+   inventory slice. Declaration-site field initializers stay separate from
+   birth-time constructor logic, and route selection remains unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   2-4 tasks
+   ```
+
+40. `CoreContext`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   CoreContext remains the next easy-tier family pilot selection. The pilot
+   stays bounded to the scalar-counter slice, and route selection remains
+   unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   5-8 tasks
+   ```
+
+41. `CoreContext scalar-counter facts pilot`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   CoreContext scalar-counter facts pilot remains parked as a
+   consultation-only inventory slice. The extracted facts fixture, readiness
+   inventory, and scalar-counter vocabulary stay bounded, and route selection
+   remains unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-3 tasks
+   ```
+
+42. `CoreContext scalar-counter plan/oracle`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   CoreContext scalar-counter plan/oracle remains parked as a
+   consultation-only inventory slice. The missing plan and oracle fixtures are
+   recorded explicitly, and route selection remains unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+43. `TypeContext bounded map slice pilot selection`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   TypeContext bounded map slice pilot selection remains parked as a
+   consultation-only selection slice. The bounded map-slice readiness stays
+   explicit, and route selection remains unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-3 tasks
+   ```
+
+44. `TypeContext bounded map slice facts pilot`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   TypeContext bounded map slice facts pilot remains parked as a
+   consultation-only inventory slice. The bounded facts extractor stays
+   absent, and route selection remains unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+45. `Inventory remaining easy-tier smoke readiness before crate smoke`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   BoxCompilationContext is the current crate-smoke readiness boundary.
+   CoreContext, TypeContext, and MetadataContext remain consultation-only,
+   and the crate-level probe remains unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-3 tasks
+   ```
+
+46. `Select BoxCompilationContext crate smoke probe candidate`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   BoxCompilationContext remains the first crate-level probe candidate. The
+   landed slice stays bounded to constructor plus is_empty, and crate-level
+   probe selection remains consultation-only.
+   ```
+
+   Rough size:
+
+   ```text
+   1-3 tasks
+   ```
+
+47. `Select minimal BoxCompilationContext crate smoke harness owner`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The minimal crate smoke harness design is the next owner. The selected
+   probe candidate remains BoxCompilationContext, and crate-level probe
+   selection remains consultation-only.
+   ```
+
+   Rough size:
+
+   ```text
+   1-3 tasks
+   ```
+
+48. `Define minimal BoxCompilationContext crate smoke harness`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The minimal crate smoke harness is a thin wrapper over the landed
+   readiness, selection, and owner-selection rows. It stays consultation-only
+   and keeps the crate-level probe unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+49. `Define minimal BoxCompilationContext crate smoke harness command contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The minimal crate smoke harness command contract is pinned as a thin
+   machine-readable wrapper over the landed readiness, selection,
+   owner-selection, and harness-design rows. It keeps the crate-level probe
+   unopened and does not widen route selection or the nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+50. `Inventory representative BoxCompilationContext crate smoke probe surface`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke probe surface is pinned as a thin
+   machine-readable inventory over the landed readiness, selection,
+   owner-selection, harness-design, and command-contract rows. It keeps the
+   crate-level probe unopened and does not widen route selection or the
+   nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+51. `Define representative BoxCompilationContext crate smoke probe output contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke probe output contract is pinned as a thin
+   machine-readable contract over the landed readiness, selection,
+   owner-selection, harness-design, command-contract, and probe-inventory
+   rows. It keeps the crate-level probe unopened and does not widen route
+   selection or the nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+52. `Define representative BoxCompilationContext crate smoke probe result contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke probe result contract is pinned as a thin
+   machine-readable contract over the landed readiness, selection,
+   owner-selection, harness-design, command-contract, probe-inventory, and
+   probe-output-contract rows. It keeps the crate-level probe unopened and
+   does not widen route selection or the nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+53. `Define representative BoxCompilationContext crate smoke probe closeout contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke probe closeout contract is pinned as a thin
+   machine-readable contract over the landed readiness, selection,
+   owner-selection, harness-design, command-contract, probe-inventory,
+   probe-output-contract, and probe-result-contract rows. It keeps the
+   crate-level probe unopened and does not widen route selection or the
+   nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+54. `Verify representative BoxCompilationContext crate smoke consultation bundle`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke consultation bundle is pinned as a thin
+   machine-readable verification bundle over the landed readiness, selection,
+   owner-selection, harness-design, command-contract, probe-inventory,
+   probe-output-contract, probe-result-contract, and probe-closeout-contract
+   rows. It keeps the crate-level probe unopened and does not widen route
+   selection or the nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+55. `Run representative BoxCompilationContext crate smoke consultation bundle`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke consultation bundle is now executable as a
+   single guarded run over the landed readiness, selection, owner-selection,
+   harness-design, command-contract, probe-inventory, probe-output-contract,
+   probe-result-contract, probe-closeout-contract, and verification-bundle
+   rows. It keeps the crate-level probe unopened and does not widen route
+   selection or the nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+56. `Record representative BoxCompilationContext crate smoke consultation bundle execution summary`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The representative crate-smoke consultation bundle execution is now
+   recorded as a durable summary over the landed readiness, selection,
+   owner-selection, harness-design, command-contract, probe-inventory,
+   probe-output-contract, probe-result-contract, probe-closeout-contract,
+   verification-bundle, and run rows. It keeps the crate-level probe
+   unopened and does not widen route selection or the nightly rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+57. `Inventory remaining converter coverage hygiene slices`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The remaining MirBuilder converter coverage hygiene debt is now
+   machine-readable: five raw-harness family-spec slices remain across the
+   main_lines carriers, plus one raw ReturnSource contract slice. The typed
+   converter core, shared renderer, shared generator layer, and
+   ordered-map converter stay intact.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+58. `Choose BindingContext and VariableContext simple-map harness family as first typed harness rewrite slice`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BindingContext and VariableContext simple-map harness family is the
+   first typed harness rewrite slice because it is the smallest shared
+   ordered-map harness cluster, it is already covered by the lightweight
+   converter entrypoint, and it can be isolated before BoxCompilationContext,
+   snapshot/restore, and carrier snapshot work.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+59. `Define typed harness rewrite contract for BindingContext and VariableContext simple-map`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The first typed harness rewrite contract is now explicit: the shared
+   ordered-map family is the rewrite surface, the current raw main_lines are
+   the input carrier, and route selection / nightly rustc adapter / runtime
+   fallback stay unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+60. `Define typed harness rewrite emission contract for BindingContext and VariableContext simple-map`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The typed harness rewrite emission contract is now explicit: the shared
+   emitter is the only emission path for BindingContext and VariableContext
+   simple-map, and it must not widen route selection or reopen the nightly
+   rustc adapter.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+61. `Define typed harness rewrite implementation boundary for BindingContext and VariableContext simple-map`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The implementation boundary is now explicit: BindingContext and
+   VariableContext simple-map remain the first rewrite family, the shared
+   emitter remains the only emission path, and route selection / nightly
+   rustc adapter / runtime fallback stay unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+62. `Define typed harness rewrite implementation entry contract for BindingContext and VariableContext simple-map`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The implementation entry contract is now explicit: if implementation starts,
+   the first touch set is the shared ordered-map family only, and it must keep
+   BindingContext and VariableContext simple-map as the only members.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+63. `Define typed harness rewrite initial patch sequence for BindingContext and VariableContext simple-map`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The initial patch sequence is now explicit: the shared spec carrier is
+   updated first, then the shared builder, then the shared emitter, and only
+   after that does the selected family spec host switch to the typed harness
+   payload.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+64. `Confirm BoxCompilationContext as the next crate-level probe candidate after the remaining converter coverage hygiene inventory`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   BoxCompilationContext remains the next crate-level probe candidate after
+   the remaining converter coverage hygiene inventory, and the probe itself
+   stays unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+65. `Select BoxCompilationContext harness as the next raw-string coverage slice after the remaining converter coverage hygiene inventory`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   BoxCompilationContext harness is now the selected next raw-string
+   coverage slice after the remaining converter coverage hygiene inventory,
+   while other raw-string slices stay deferred.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+66. `Define the typed execution harness IR contract for the selected BoxCompilationContext harness slice`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext harness contract is now explicit as typed
+   execution intent, while the raw harness text, route selection, nightly
+   rustc adapter, and runtime fallback all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+67. `Define the typed execution harness IR shape contract for the selected BoxCompilationContext harness slice`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext typed harness IR shape is now explicit as a
+   minimal consultation-only data shape, while builder behavior, emitter
+   behavior, route selection, nightly rustc adapter, and runtime fallback all
+   remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+68. `Define the acceptance owner and summary contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext acceptance owner and summary are now explicit
+   as a consultation-only contract, while execution wiring, route selection,
+   nightly rustc adapter, and runtime fallback all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+69. `Define the validation boundary contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext validation boundary is now explicit as a
+   consultation-only contract, while execution wiring, route selection,
+   nightly rustc adapter, and runtime fallback all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+70. `Define the validation execution bundle contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext validation execution bundle is now explicit as
+   a consultation-only descriptor, while execution wiring, route selection,
+   nightly rustc adapter, and runtime fallback all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+71. `Define the validation summary artifact contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext validation summary artifact is now explicit as
+   a consultation-only descriptor, while execution wiring, route selection,
+   nightly rustc adapter, and runtime fallback all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+72. `Define the later implementation boundary for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext later implementation boundary is now explicit
+   as a consultation-only separator between the typed harness consultation
+   slices and any later implementation work.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+73. `Define the validation run summary contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext validation run summary is now explicit as a
+   consultation-only descriptor, while execution wiring, route selection,
+   nightly rustc adapter, and runtime fallback all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+74. `Define the implementation-start boundary contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext implementation-start boundary is now explicit
+   as the consultation-only point where implementation work would begin,
+   while route selection, nightly rustc adapter, and runtime fallback all
+   remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+75. `Define the implementation entry contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext implementation entry is now explicit as the
+   consultation-only point where implementation work would actually begin,
+   while route selection, nightly rustc adapter, and runtime fallback all
+   remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+76. `Define the implementation touch set for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext implementation touch set is now explicit as
+   the consultation-only first concrete slice that implementation would
+   touch, while route selection, nightly rustc adapter, and runtime fallback
+   all remain unopened.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+77. `Define the implementation wiring contract for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext implementation wiring is now explicit as the
+   consultation-only connection between the first implementation touch set
+   and the later implementation boundary.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+78. `Define the initial patch sequence for the selected BoxCompilationContext typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext initial patch sequence is now explicit as the
+   consultation-only first patch order that follows the implementation
+   wiring contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+79. `Define the implementation touch set for the selected VariableContext snapshot/restore typed execution harness IR`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The VariableContext snapshot/restore implementation touch set is now
+   explicit as the consultation-only first concrete slice that would follow
+   the remaining raw-string debt inventory.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+80. `Define the implementation touch set for the selected CarrierInfo snapshot harness typed execution path`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The CarrierInfo snapshot harness implementation touch set is now
+   explicit as the consultation-only first concrete slice that would follow
+   the remaining raw-string debt inventory.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+81. `Replace the VariableContext immutable-borrow ReturnSource contract with an owned snapshot contract decision`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The VariableContext immutable-borrow surface now has an explicit
+   consultation-only decision to replace the raw ReturnSource contract with
+   an owned snapshot contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+82. `Define the BoxCompilationContext typed execution harness rewrite contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext harness rewrite boundary is now explicit as
+   the consultation-only contract that follows the remaining raw-string
+   debt inventory.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+83. `Define the first representative easy-tier crate-level probe contract for the selected BoxCompilationContext harness path`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The first representative easy-tier crate-level probe for
+   BoxCompilationContext is now explicit as the consultation-only contract
+   that follows the landed harness wrapper rows.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+84. `Define the typed harness payload schema for the selected BoxCompilationContext harness path`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext typed harness payload schema is now explicit
+   as the consultation-only payload contract that follows the probe
+   contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+85. `Define the builder rendering contract for the selected BoxCompilationContext typed harness payload schema`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext builder rendering contract is now explicit as
+   the consultation-only rendering boundary that follows the payload schema
+   contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+86. `Define the emitter consumption contract for the selected BoxCompilationContext typed harness payload schema`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext emitter consumption contract is now explicit
+   as the consultation-only shared-emitter boundary that follows the
+   builder rendering contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+87. `Define the family artifact host contract for the selected BoxCompilationContext typed harness payload path`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext family artifact host contract is now explicit
+   as the consultation-only host boundary that follows the emitter
+   consumption contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+88. `Define the artifact manifest contract for the selected BoxCompilationContext typed harness payload path`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext artifact manifest contract is now explicit as
+   the consultation-only manifest boundary that follows the family artifact
+   host contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+89. `Define the typed harness contract for the selected VariableContext snapshot/restore surface`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The VariableContext snapshot/restore typed harness contract is now
+   explicit as the consultation-only surface that follows the
+   implementation touch set contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+90. `Define the BoxCompilationContext typed harness consultation closeout contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext consultation chain is now explicitly closed
+   as a consultation-only boundary that follows the artifact manifest
+   contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+91. `Define the VariableContext snapshot/restore consultation closeout contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The VariableContext consultation chain is now explicitly closed as a
+   consultation-only boundary that follows the typed harness contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+92. `Define the shared ordered-map family consultation closeout contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The shared ordered-map family consultation chain is now explicitly
+   closed as a consultation-only boundary that follows the initial patch
+   sequence contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+93. `Define the VariableContext immutable-borrow consultation closeout contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The VariableContext immutable-borrow consultation chain is now
+   explicitly closed as a consultation-only boundary that follows the
+   ReturnSource decision.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+94. `Define the CarrierInfo snapshot harness consultation closeout contract`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The CarrierInfo consultation chain is now explicitly closed as a
+   consultation-only boundary that follows the snapshot harness touch set
+   contract.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
 ## Rough Remaining Size
 
-Current estimate after task 20:
+Current estimate after task 94:
 
 ```text
 converter coverage hygiene:
   5 tasks
 
-next easy-tier family pilot:
-  5-7 tasks for the first bounded BoxCompilationContext slice
+first representative easy-tier crate-level probe:
+  1-2 tasks after the remaining coverage inventory and the now-landed
+  harness wrapper rows
 
 all inventoried easy-tier candidates:
-  30-45 tasks
+  19-34 tasks
 
 hard-tier design-stop work:
   35-58 tasks
 
 MirBuilder-wide selfhost remaining:
-  roughly 70-110 tasks if all parked hard-tier areas are included
+  roughly 59-94 tasks if all parked hard-tier areas are included
 ```
 
 ## Parked Work

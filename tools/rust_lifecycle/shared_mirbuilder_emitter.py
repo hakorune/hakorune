@@ -26,6 +26,15 @@ def _render_initializer(box: Mapping[str, Any]) -> str:
     raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")
 
 
+def _render_field_initializer(field: Mapping[str, Any]) -> str:
+    operation = field.get("initializer_operation")
+    if operation is None:
+        return str(field["initializer"])
+    if operation.get("kind") == "NewOrderedMap":
+        return "OrderedMap.create()"
+    raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")
+
+
 def _render_source_expr(operation: Mapping[str, Any]) -> str:
     source = operation.get("source")
     if source is not None:
@@ -220,6 +229,18 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
         ]
     if kind == "ReturnI64":
         return [f"return {operation['return_value']}"]
+    if kind == "AllFieldsMapIsEmpty":
+        source = _render_source_expr(operation)
+        fields = operation.get("fields", [])
+        if not fields:
+            return ["return 1"]
+        checks = [f"{source}.{field}.is_empty()" for field in fields]
+        return [
+            f"if {' && '.join(checks)} {{",
+            "    return 1",
+            "}",
+            "return 0",
+        ]
     raise ValueError(f"unsupported Hako operation: {kind}")
 
 
@@ -260,19 +281,32 @@ def emit_verified_family_hako(verified_ir: Mapping[str, Any]) -> str:
     lines.extend(["using selfhost.shared.common.box_helpers as BoxHelpers", ""])
 
     box = verified_ir["box"]
-    field_name = box["field_name"]
-    lines.extend(
-        [
-            f"box {box['name']} {{",
-            f"    {field_name}: {box['field_type']}",
-            "",
-            "    birth() {",
-            f"        me.{field_name} = {_render_initializer(box)}",
-            "    }",
-            "}",
-            "",
-        ]
-    )
+    box_fields = box.get("fields")
+    if box_fields is not None:
+        lines.append(f"box {box['name']} {{")
+        for field in box_fields:
+            lines.append(f"    {field['name']}: {field['field_type']}")
+        lines.append("")
+        lines.append("    birth() {")
+        for field in box_fields:
+            lines.append(f"        me.{field['name']} = {_render_field_initializer(field)}")
+        lines.append("    }")
+        lines.append("}")
+        lines.append("")
+    else:
+        field_name = box["field_name"]
+        lines.extend(
+            [
+                f"box {box['name']} {{",
+                f"    {field_name}: {box['field_type']}",
+                "",
+                "    birth() {",
+                f"        me.{field_name} = {_render_initializer(box)}",
+                "    }",
+                "}",
+                "",
+            ]
+        )
 
     static_boxes = verified_ir.get("static_boxes")
     if static_boxes is None:

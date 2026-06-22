@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FAMILY_SCRIPTS = {
     "binding-context": "tools/rust_lifecycle/generate_binding_context_artifact.py",
+    "box-compilation-context": "tools/rust_lifecycle/generate_box_compilation_context_artifact.py",
     "variable-context-simple-map": "tools/rust_lifecycle/generate_variable_context_simple_map_artifact.py",
     "variable-context-snapshot-restore": "tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
     "variable-context-carrier-snapshot": "tools/rust_lifecycle/generate_variable_context_carrier_snapshot_artifact.py",

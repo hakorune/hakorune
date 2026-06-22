@@ -1,0 +1,29 @@
+{
+  "current_contract": "selection_only",
+  "decision": [
+    "select BoxCompilationContext as the first crate-level probe candidate",
+    "keep the probe bounded to the landed ctor + is_empty slice",
+    "do not open route selection or the nightly rustc adapter"
+  ],
+  "crate_level_probe_candidate": "BoxCompilationContext",
+  "kind": "MirBuilderEasyTierCrateSmokeSelection",
+  "probe_scope": "BoxCompilationContext_ctor_is_empty_only",
+  "schema_version": 0,
+  "selected_next_probe": "BoxCompilationContext",
+  "source": {
+    "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-readiness-v0.json",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ],
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "supporting_evidence": [
+    "the readiness inventory fixes BoxCompilationContext as the current crate-smoke boundary",
+    "remaining easy-tier consultation candidates are explicit",
+    "crate-level probe remains unopened"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [
+    "BoxCompilationContext::size_info"
+  ],
+  "family_id": "hakorune_mir_builder::context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_box_compilation_context_artifact.py",
+    "version": "box-compilation-context-derived-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-facts-v0.json",
+      "sha256": "0ca51307fb8640c4732edc9e2009b2c9bf806c4020884927c420d0d70d907da8"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-oracle-v0.json",
+      "sha256": "6e73ebdc741ca195ffac9bc7b530463b705d372529c5ac39d6431b0f0666076d"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-plan-v0.json",
+      "sha256": "218faa83528f3dbfb0d49259aab37a40b134d8a76841201005e7d27bf42681b0"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-behavior-recipe-v0.json",
+      "sha256": "a1f61848b28eaea0e5ddd7520f7e780ec015becb83bfe3ab622e9f44f05f4a56"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-derived-artifact-verifier-result-v0.json",
+      "sha256": "956013cfa08e267688c460de9e1de8508859b53c369851757a4b8ea205c9ed75"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.hako",
+    "hako_sha256": "af2fb14fe4671d9db20aa70df6ac78224823262f6106191a274ee40720199ba6"
+  },
+  "pilot_scope": "BoxCompilationContext_ctor_is_empty_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/context.rs",
+        "sha256": "8378ef6ee1f5670ef3493b5226e5313e75f98ba98b832d4e187bfbccaaf834d3"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

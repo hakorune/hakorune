@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEasyTierSmokeReadinessInventory",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::context",
+    "source_path": "crates/hakorune_mir_builder/src/context.rs"
+  },
+  "current_landed_slice": "BoxCompilationContext_ctor_is_empty_only",
+  "remaining_easy_tier_consultation_candidates": [
+    "CoreContext",
+    "TypeContext",
+    "MetadataContext"
+  ],
+  "present": {
+    "facts_fixture": 1,
+    "plan_fixture": 1,
+    "oracle_fixture": 1,
+    "recipe_fixture": 1,
+    "verifier_fixture": 1,
+    "generated_hako": 1,
+    "generated_manifest": 1
+  },
+  "crate_level_probe_opened": 0,
+  "nightly_rustc_adapter_opened": 0,
+  "route_selection_opened": 0,
+  "runtime_fallback_opened": 0,
+  "next_move": "inventory remaining easy-tier smoke readiness before crate smoke",
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

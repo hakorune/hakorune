@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNonAsciiOrderedKeyInventory",
+  "subject": "MirBuilder non-ASCII ordered key boundary",
+  "source": {
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+    "ordered_map_boundary": "docs/development/current/main/design/ordered-map-box-boundary-ssot.md"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep NonAsciiOrderedKey parked until a dedicated key collation contract is named",
+    "keep deterministic String-key ordering separate from non-ASCII collation questions",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "OrderedMapBox v0 uses String only keys.",
+    "OrderedMapBox ordering is deterministic lexical key order.",
+    "claim Rust BTreeMap parity beyond String-key deterministic iteration is forbidden."
+  ],
+  "open_questions": [
+    "Should non-ASCII keys follow Rust String byte ordering exactly or require an explicit collation contract?",
+    "Should the converter defer all non-ASCII key questions until a later hard tier?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

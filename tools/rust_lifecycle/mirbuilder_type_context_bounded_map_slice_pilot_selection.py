@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Select the next easy-tier TypeContext pilot."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any
+
+from context_fact_extraction import require
+
+
+ROOT = Path(__file__).resolve().parents[2]
+READINESS = ROOT / "docs/development/current/main/phases/phase-296x/296x-1548-TYPE-CONTEXT-BOUNDED-MAP-SLICE-READINESS-001.md"
+REFERENCE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-bounded-map-slice-pilot-selection-v0.json"
+
+
+def select_type_context_pilot() -> dict[str, Any]:
+    readiness = READINESS.read_text()
+    require("TypeContext is broader than the scalar-counter CoreContext slice" in readiness, "TypeContext readiness evidence missing")
+    require("route selection remains unopened" in readiness, "TypeContext readiness missing route stop")
+
+    return {
+        "schema_version": 0,
+        "kind": "MirBuilderTypeContextBoundedMapSlicePilotSelection",
+        "subject": "hakorune_mir_builder::type_context::TypeContext",
+        "source": {
+            "readiness_inventory": "docs/development/current/main/phases/phase-296x/296x-1548-TYPE-CONTEXT-BOUNDED-MAP-SLICE-READINESS-001.md",
+            "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+        },
+        "current_contract": "selection_only",
+        "selected_next_pilot": "TypeContext",
+        "pilot_scope": "TypeContext_bounded_map_slice_only",
+        "decision": [
+            "select TypeContext bounded map slice as the next easy-tier family pilot after CoreContext consultation rows",
+            "keep the pilot bounded to the map-slice inventory only",
+            "do not select route or nightly rustc adapter",
+        ],
+        "supporting_evidence": [
+            "TypeContext bounded map slice readiness is fixed in a machine-readable inventory",
+            "TypeContext remains broader than CoreContext and needs bounded slice treatment",
+            "route selection remains unopened",
+        ],
+        "stop_line": [
+            "do_not_select_route=1",
+            "do_not_open_nightly_rustc_adapter=1",
+            "do_not_claim_mirbuilder_wide_conversion=1",
+            "do_not_add_runtime_fallback=1",
+        ],
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--emit-json", action="store_true")
+    parser.add_argument("--check-reference", action="store_true")
+    args = parser.parse_args()
+
+    report = select_type_context_pilot()
+    if args.check_reference:
+        expected = json.loads(REFERENCE.read_text())
+        require(report == expected, "type-context pilot selection differs from reference fixture")
+    if args.emit_json:
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
+
+    print("output_contract=rust-mirbuilder-type-context-bounded-map-slice-pilot-selection-v0")
+    print("selected_next_pilot=TypeContext")
+    print("pilot_scope=TypeContext_bounded_map_slice_only")
+    print("route_selection=0")
+    print("nightly_rustc_adapter=0")
+    print("decision=selection_only")
+    print("summary=ok")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

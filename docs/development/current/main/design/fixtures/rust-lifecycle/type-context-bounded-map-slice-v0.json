@@ -1,0 +1,50 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderTypeContextBoundedMapSlice",
+  "subject": "hakorune_mir_builder::type_context::TypeContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::type_context",
+    "source_path": "src/type_context.rs"
+  },
+  "present": {
+    "source_methods": [
+      "new",
+      "get_type",
+      "set_type",
+      "get_kind",
+      "set_kind",
+      "get_origin_box",
+      "set_origin_box",
+      "clear_origin_boxes",
+      "take_snapshot",
+      "restore_snapshot"
+    ],
+    "field_shapes": [
+      "value_types: BTreeMap<ValueId, MirType>",
+      "value_kinds: HashMap<ValueId, MirValueKind>",
+      "value_origin_newbox: BTreeMap<ValueId, String>",
+      "string_literals: BTreeMap<ValueId, String>",
+      "map_value_types: BTreeMap<ValueId, MirType>",
+      "map_literal_value_types: BTreeMap<(ValueId, String), MirType>"
+    ],
+    "snapshot_shapes": [
+      "TypeContextSnapshot stores all mirrored fields",
+      "take_snapshot uses std::mem::take",
+      "restore_snapshot reassigns owned fields"
+    ]
+  },
+  "next_design_stop": [
+    "non-String keys",
+    "HashMap rather than BTreeMap",
+    "Option/default behavior",
+    "closure-shaped source paths",
+    "snapshot struct behavior"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

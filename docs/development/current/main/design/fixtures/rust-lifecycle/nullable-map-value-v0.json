@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNullableMapValueInventory",
+  "subject": "MirBuilder nullable map value boundary",
+  "source": {
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+    "option_policy": "docs/development/current/main/design/hako-option-null-no-match-policy-ssot.md",
+    "enum_surface": "docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md",
+    "negative_converter_fixtures": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-negative-converter-fixtures-v0.json"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep NullableMapValue parked until an explicit missing-vs-null carrier contract is named",
+    "keep null-free Option and nullable map payload disambiguation separate",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "null is a language value, Option<T> is a public null-free optional value",
+    "Option::None is not null",
+    "Option::Some(null) is forbidden",
+    "TODO/null placeholder emission remains a separate negative fixture case"
+  ],
+  "open_questions": [
+    "Should nullable map payloads use explicit Option<T> or a dedicated missing-value carrier?",
+    "Should missing and explicit null remain distinct at the map boundary?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

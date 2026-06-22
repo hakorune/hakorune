@@ -97,15 +97,30 @@ def _build_family_artifact_hako_object(spec: FamilyArtifactSpec) -> dict[str, An
         "using_module": spec.using_module,
         "box": {
             "name": spec.box.name,
-            "field_name": spec.box.field_name,
-            "field_type": spec.box.field_type,
         },
         "main": {"lines": spec.main_lines},
     }
-    if spec.box.initializer_operation is not None:
-        verified_ir["box"]["initializer_operation"] = spec.box.initializer_operation
+    if spec.box.fields:
+        verified_ir["box"]["fields"] = [
+            {
+                "name": field.name,
+                "field_type": field.field_type,
+                **({"initializer": field.initializer} if field.initializer is not None else {}),
+                **(
+                    {"initializer_operation": field.initializer_operation}
+                    if field.initializer_operation is not None
+                    else {}
+                ),
+            }
+            for field in spec.box.fields
+        ]
     else:
-        verified_ir["box"]["initializer"] = spec.box.initializer
+        verified_ir["box"]["field_name"] = spec.box.field_name
+        verified_ir["box"]["field_type"] = spec.box.field_type
+        if spec.box.initializer_operation is not None:
+            verified_ir["box"]["initializer_operation"] = spec.box.initializer_operation
+        else:
+            verified_ir["box"]["initializer"] = spec.box.initializer
     if spec.api_name is not None:
         verified_ir["api"] = {
             "name": spec.api_name,

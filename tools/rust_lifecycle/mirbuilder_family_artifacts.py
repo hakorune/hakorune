@@ -11,6 +11,10 @@ from extract_binding_context_facts import (
     SOURCE as BINDING_CONTEXT_SOURCE,
     extract_facts as extract_binding_context_facts,
 )
+from extract_box_compilation_context_facts import (
+    SOURCE as BOX_COMPILATION_CONTEXT_SOURCE,
+    extract_facts as extract_box_compilation_context_facts,
+)
 from extract_variable_context_simple_map_facts import (
     SOURCE as VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE,
     extract_facts as extract_variable_context_simple_map_facts,
@@ -24,8 +28,9 @@ from family_artifact_builders import (
     build_family_artifact_recipe_text,
     build_family_artifact_verifier_text,
 )
-from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FamilyArtifactSpec, StaticBoxSpec
+from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_ordered_map_converter import (
+    compile_box_compilation_context_methods,
     compile_binding_context_methods,
     compile_variable_context_simple_map_methods,
     compile_variable_context_snapshot_restore_methods,
@@ -117,6 +122,59 @@ def validate_binding_context(facts: dict[str, Any], plan: dict[str, Any], oracle
         if body_fact.get("selected_field") != "binding_map":
             raise SystemExit(f"unexpected body field for {method}")
     for op in ["new", "is_empty", "len", "contains", "lookup", "insert", "remove", "clear_for_function_entry"]:
+        if op not in _oracle_ops(oracle):
+            raise SystemExit(f"missing oracle op: {op}")
+
+
+def validate_box_compilation_context(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
+    subject = "hakorune_mir_builder::context::BoxCompilationContext"
+    _require_kinds(facts, plan, oracle, facts_kind="RustLifecycleFacts", subject=subject)
+    field_names = ["variable_map", "value_origin_newbox", "value_types"]
+    type_fact = {row["id"]: row for row in facts["type_facts"]}.get("BoxCompilationContext")
+    if type_fact is None or type_fact.get("drop_fact") != "TrivialMemory":
+        raise SystemExit("BoxCompilationContext drop fact mismatch")
+    for field_name in field_names:
+        field_id = f"BoxCompilationContext.{field_name}"
+        field_fact = {row["id"]: row for row in facts["field_facts"]}.get(field_id)
+        if field_fact is None:
+            raise SystemExit(f"missing field fact: {field_id}")
+        if field_fact.get("deterministic_order_required") is not True:
+            raise SystemExit(f"missing deterministic order fact: {field_id}")
+        if field_fact.get("drop_fact") != "TrivialMemory":
+            raise SystemExit(f"unexpected drop fact: {field_id}")
+        plan_entry = {row["id"]: row for row in plan["plans"]}.get(field_id)
+        if plan_entry is None or plan_entry.get("plan_kind") != "OrderedMapBox":
+            raise SystemExit(f"unexpected field plan: {field_id}")
+    body_facts = {row["id"]: row for row in facts["body_facts"]}
+    new_fact = body_facts.get("BoxCompilationContext::new")
+    if new_fact is None or new_fact.get("operation") != "DefaultConstruct":
+        raise SystemExit("constructor body fact mismatch")
+    if new_fact.get("selected_fields") != field_names:
+        raise SystemExit("constructor selected fields mismatch")
+    empty_fact = body_facts.get("BoxCompilationContext::is_empty")
+    if empty_fact is None or empty_fact.get("operation") != "CompositeMapIsEmpty":
+        raise SystemExit("is_empty body fact mismatch")
+    if empty_fact.get("selected_fields") != field_names:
+        raise SystemExit("is_empty selected fields mismatch")
+    plans = {row["id"]: row for row in plan["plans"]}
+    if plans["BoxCompilationContext"]["plan_kind"] != "LocalBox":
+        raise SystemExit("BoxCompilationContext must be LocalBox")
+    if plans["BoxCompilationContext::new"]["plan_kind"] != "DefaultConstruct":
+        raise SystemExit("constructor plan mismatch")
+    if plans["BoxCompilationContext::is_empty"]["plan_kind"] != "BorrowView":
+        raise SystemExit("is_empty plan mismatch")
+    for fact in ["BoxCompilationContext.escape_fact=LocalOnly", "BoxCompilationContext.drop_fact=TrivialMemory"]:
+        if fact not in set(plans["BoxCompilationContext"].get("required_facts", [])):
+            raise SystemExit(f"missing required fact: {fact}")
+    for fact in [
+        "BoxCompilationContext::new.returns.copy_kind=NonCopyOwned",
+        "BoxCompilationContext::new.returns.drop_fact=TrivialMemory",
+        "BoxCompilationContext::is_empty.receiver_borrow.kind=SharedRead",
+        "BoxCompilationContext::is_empty.receiver_borrow.escapes=false",
+    ]:
+        if fact not in set(plans["BoxCompilationContext::new"].get("required_facts", []) + plans["BoxCompilationContext::is_empty"].get("required_facts", [])):
+            raise SystemExit(f"missing required fact: {fact}")
+    for op in ["new", "is_empty"]:
         if op not in _oracle_ops(oracle):
             raise SystemExit(f"missing oracle op: {op}")
 
@@ -585,6 +643,92 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
     )
 
 
+def box_compilation_context_spec() -> FamilyArtifactSpec:
+    facts = extract_box_compilation_context_facts(BOX_COMPILATION_CONTEXT_SOURCE)
+    plan = read_json(FIXTURES / "box-compilation-context-plan-v0.json")
+    oracle = read_json(FIXTURES / "box-compilation-context-oracle-v0.json")
+    api_methods = [
+        ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
+        for method in compile_box_compilation_context_methods(facts, plan)
+    ]
+    return FamilyArtifactSpec(
+        root=ROOT,
+        generated_by="tools/rust_lifecycle/generate_box_compilation_context_artifact.py",
+        generator_version="box-compilation-context-derived-artifact-v0",
+        artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json",
+        family_comment="hakorune_mir_builder::context",
+        using_module="apps.lib.collections.ordered_map",
+        box=BoxSpec(
+            name="BoxCompilationContext",
+            fields=[
+                FieldSpec(name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
+                FieldSpec(name="value_origin_newbox", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
+                FieldSpec(name="value_types", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
+            ],
+        ),
+        main_lines=_lines("""
+            local ctx = new BoxCompilationContext()
+            if BoxCompilationContextApi.is_empty(ctx) != 1 {
+                print("box_compilation_context_new_empty=fail")
+                return 1
+            }
+            if ctx.variable_map.keys_value.length() != 0 {
+                print("box_compilation_context_variable_map_init=fail")
+                return 2
+            }
+            if ctx.value_origin_newbox.keys_value.length() != 0 {
+                print("box_compilation_context_value_origin_init=fail")
+                return 3
+            }
+            if ctx.value_types.keys_value.length() != 0 {
+                print("box_compilation_context_value_types_init=fail")
+                return 4
+            }
+            ctx.variable_map.set("x", 1)
+            if BoxCompilationContextApi.is_empty(ctx) != 0 {
+                print("box_compilation_context_non_empty=fail")
+                return 5
+            }
+            print("box_compilation_context_derived_artifact=ok")
+            return 0
+        """),
+        family_id="hakorune_mir_builder::context",
+        state="DerivedShadow",
+        source_rust_file=BOX_COMPILATION_CONTEXT_SOURCE,
+        hako_path=OUT_DIR / "box_compilation_context.hako",
+        facts_path=FIXTURES / "box-compilation-context-facts-v0.json",
+        plan_path=FIXTURES / "box-compilation-context-plan-v0.json",
+        oracle_path=FIXTURES / "box-compilation-context-oracle-v0.json",
+        recipe_path=FIXTURES / "box-compilation-context-behavior-recipe-v0.json",
+        verifier_path=FIXTURES / "box-compilation-context-derived-artifact-verifier-result-v0.json",
+        pilot_scope="BoxCompilationContext_ctor_is_empty_only",
+        recipe_subject="hakorune_mir_builder::context::BoxCompilationContext",
+        selected_body_count="constructor_is_empty_only",
+        api_name="BoxCompilationContextApi",
+        api_methods=api_methods,
+        methods=[
+            BehaviorMethodSpec(
+                id="BoxCompilationContext::new",
+                rust_operation="DefaultConstruct",
+                hako_operation="BoxCompilationContext.birth",
+                emits="BoxCompilationContext.birth initializes three ordered maps",
+            ),
+            BehaviorMethodSpec(
+                id="BoxCompilationContext::is_empty",
+                rust_operation="CompositeMapIsEmpty",
+                hako_operation="BoxCompilationContextBox.all_fields_empty",
+                emits="BoxCompilationContextApi.is_empty(ctx)",
+            ),
+        ],
+        excluded_methods=["BoxCompilationContext::size_info"],
+        claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "rust_bootstrap_retained": 1, "backend_behavior_changed": 0, "source_selfhost_claim": 0},
+        verifier_checks={"rust_facts_input": "verified", "hako_lifecycle_plan": "verified", "hako_behavior_recipe": "verified", "selected_body_count": "constructor_is_empty_only", "unmapped_thir_nodes": 0, "unmapped_mir_side_effects": 0, "unresolved_call_targets": 0, "unclassified_drop_obligations": 0, "mainline_selected": 0, "rust_bootstrap_retained": 1, "backend_behavior_changed": 0},
+        verified_operations=["DefaultConstruct", "NewOrderedMap", "AllFieldsMapIsEmpty"],
+        transport_notes={"bool_return_transport": "i64_bool_v0", "box_birth": "three ordered maps"},
+        extra_manifest_fields={"excluded_methods": ["BoxCompilationContext::size_info"]},
+    )
+
+
 def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
     excluded = ["VariableContext::variable_map_mut", "VariableContext::snapshot", "VariableContext::restore"]
     return FamilyArtifactSpec(
@@ -697,6 +841,7 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
 
 _GENERATORS = {
     "binding_context": (binding_context_spec, validate_binding_context, lambda spec: extract_binding_context_facts(BINDING_CONTEXT_SOURCE), "generated_binding_context_artifact=unchanged"),
+    "box_compilation_context": (box_compilation_context_spec, validate_box_compilation_context, lambda spec: extract_box_compilation_context_facts(BOX_COMPILATION_CONTEXT_SOURCE), "generated_box_compilation_context_artifact=unchanged"),
     "variable_context_simple_map": (variable_context_simple_map_spec, validate_variable_context_simple_map, lambda spec: extract_variable_context_simple_map_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE), "generated_variable_context_simple_map_artifact=unchanged"),
     "variable_context_immutable_borrow": (variable_context_immutable_borrow_spec, validate_variable_context_immutable_borrow, lambda spec: read_json(spec.facts_path), "generated_variable_context_immutable_borrow_artifact=unchanged"),
     "variable_context_snapshot_restore": (variable_context_snapshot_restore_spec, validate_variable_context_snapshot_restore, lambda spec: extract_variable_context_snapshot_restore_facts(VARIABLE_CONTEXT_SOURCE), "generated_variable_context_snapshot_restore_artifact=unchanged"),

@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-06-21
+Date: 2026-06-22
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -39,15 +39,26 @@ none
 Next task:
 
 ```text
-Add durable negative converter fixtures
+Define the CarrierInfo snapshot harness consultation closeout contract
 ```
 
 Purpose:
 
 ```text
-The next implementation task is to consolidate fail-closed coverage into a
-small reusable negative fixture corpus. Keep the existing deny reasons
-truthful and avoid inline Python mutations inside guards.
+CoreContext, TypeContext, MetadataContext, returned mutable borrow,
+returned read borrow, carrier-sensitive alias, PHI and join_id, loop/trim
+route lowering, NonTrivialDrop, UnsafeOrFFI, NullableMapValue, and
+NonAsciiOrderedKey consultation slices are landed. The
+ConstructorLifecycleMismatch decision is now landed as a consultation-only
+inventory slice. The CoreContext pilot selection is now landed as a
+consultation-only selection. The CoreContext scalar-counter facts pilot is
+now landed as a consultation-only inventory slice. The CoreContext
+scalar-counter plan/oracle inventory is now landed as a consultation-only
+inventory slice. The TypeContext bounded map slice pilot selection is now
+landed as a consultation-only selection. The next step is the bounded
+TypeContext map-slice facts pilot without opening route selection or the
+nightly rustc adapter path. The TypeContext bounded map slice facts pilot is
+  now landed as a consultation-only inventory slice. BoxCompilationContext is now landed, the remaining easy-tier smoke readiness is inventoried, the first crate-level probe candidate is selected, the minimal crate smoke harness owner is selected, the minimal crate smoke harness is defined, the minimal crate smoke harness command contract is defined, the representative crate smoke probe surface is inventoried, the representative crate smoke probe output contract is defined, the representative crate smoke probe result contract is defined, the representative crate smoke probe closeout contract is defined, the representative crate smoke consultation bundle is verified, the representative crate smoke consultation bundle has been executed in a single guarded run, and the summary has been recorded. Keep route selection unopened and do not open the nightly rustc adapter path. The remaining converter coverage hygiene slices are inventoried in `docs/development/current/main/investigations/mirbuilder-converter-coverage-hygiene-2026-06-22.md`, the first typed harness rewrite slice is selected as the BindingContext and VariableContext simple-map harness family, the rewrite contract, emission contract, implementation boundary, and implementation entry contract are landed, the initial patch sequence is landed, and the next move is to define the initial patch sequence for the selected BoxCompilationContext typed execution harness IR.
 ```
 
 Lifecycle converter boundary:
@@ -60,9 +71,28 @@ docs/reference/architecture/rust-to-hako-lifecycle-projection.md.
 The artifact migration model is:
 docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md.
 
+Latest landed card:
+
+```text
+docs/development/current/main/phases/phase-296x/296x-1583-MIRBUILDER-TYPED-HARNESS-REWRITE-INITIAL-PATCH-SEQUENCE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-001.md
+```
+
 Short form:
   yes, but the current easy tier uses lightweight signature facts ->
   HakoLifecyclePlan -> verifier -> emitter.
+  CoreContext, TypeContext, MetadataContext, the returned mutable borrow
+  decision, the read-view decision, the carrier-sensitive alias proof, the PHI
+  and join_id lifecycle inventory, the loop/trim route lowering inventory, the
+  NonTrivialDrop inventory, the ConstructorLifecycleMismatch inventory, the
+  CoreContext pilot selection, the CoreContext scalar-counter facts pilot, the
+  CoreContext scalar-counter plan/oracle inventory, the TypeContext bounded
+  map slice pilot selection, the TypeContext bounded map slice facts pilot,
+  the BoxCompilationContext crate smoke readiness inventory, the
+  BoxCompilationContext crate smoke selection, the BoxCompilationContext crate
+  smoke harness owner selection, and the BoxCompilationContext crate smoke
+  harness design are currently consultation-only: their source shapes and
+  decision space are landed, while lifecycle facts, plan, recipe, oracle,
+  manifest, and route entry remain absent.
 
   Do not open the nightly rustc adapter path for BindingContext or
   VariableContext simple-map. Reserve nightly MIR/borrowck facts for a gated
@@ -130,9 +160,17 @@ Done:
   explicit carrier ArrayBox.get without key-name-specific type special casing
   raw Hako method body string retirement
   CarrierInfo easy-tier live facts conversion
+  BoxCompilationContext typed operation IR
+  CoreContext readiness inventory
+  TypeContext bounded map slice
+  CarrierSensitiveAlias proof
+  PHI and join_id lifecycle
+  Loop / trim route lowering
+  NonTrivialDrop
+  UnsafeOrFFI
 
 Next:
-  Add durable negative converter fixtures
+  NonAsciiOrderedKey
 
 Task sequence:
   1. Accept imported instance method route for native CarrierInfo APIs.
@@ -143,7 +181,17 @@ Task sequence:
   6. Close CarrierInfo easy-tier live facts conversion. (closed)
   7. Accept explicit CarrierInfo same-module bridge call. (closed)
   8. Repair MirBuilder converter matrix coverage. (closed)
-  9. Add durable negative converter fixtures.
+  9. Evaluate CoreContext scalar counter vocabulary. (closed)
+  10. Evaluate TypeContext bounded map slice. (closed)
+  11. ReturnedMutableBorrow replacement decision. (closed)
+  12. ReturnedReadBorrow / read-view decision. (closed)
+  13. CarrierSensitiveAlias proof. (closed)
+  14. PHI and join_id lifecycle. (closed)
+  15. Loop / trim route lowering. (closed)
+  16. NonTrivialDrop. (closed)
+  17. UnsafeOrFFI. (closed)
+  18. NullableMapValue. (closed)
+  19. NonAsciiOrderedKey. (closed)
 ```
 
 Current task order:

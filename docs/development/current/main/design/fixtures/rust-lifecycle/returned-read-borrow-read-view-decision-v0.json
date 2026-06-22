@@ -1,0 +1,27 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderReturnedReadBorrowReadViewDecision",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::variable_context",
+    "source_path": "src/variable_context.rs"
+  },
+  "current_contract": "NoReturnedAlias + OwnedReadSnapshotProjection",
+  "decision": [
+    "keep OwnedReadSnapshotProjection for bulk read consumers",
+    "defer true read-view selection",
+    "do not re-open variable_map() as a naked borrowed alias"
+  ],
+  "supporting_evidence": [
+    "variable_map() returns &BTreeMap<String, ValueId>",
+    "CarrierInfo::from_variable_map(...) consumes owned snapshot inputs",
+    "read-only tests and observation remain the current non-owning consumers"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

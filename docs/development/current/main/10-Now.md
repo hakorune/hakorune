@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-06-21
+Date: 2026-06-22
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-NEXT-MIRBUILDER-CONVERTER-SLICE-SELECTION-NEEDED
+none
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -32,22 +32,44 @@ the shared family generator helper and driver, the shared validated family
 generator entrypoint, the shared family manifest helper, the shared manifest
 file-entry helper, the shared manifest text-entry helper, the shared common
 derived manifest helper, the shared common derived-inputs helper, the shared
-recipe / verifier helper, the shared FamilyArtifactSpec helper, and the
-lightweight-facts converter wrapper for BindingContext and simple-map is
-green. VariableContext native snapshot/restore is now green with clone_owned
-restore and post-restore alias-proof EXE coverage. ReturnedReadBorrow is now
-resolved as NoReturnedAlias plus OwnedReadSnapshotProjection. The active task
-has just landed native CarrierInfo snapshot APIs. The basic owned-snapshot
-CarrierInfo artifact now reaches MIR and EXE with alias-isolation coverage.
-Explicit CarrierInfo conversion now uses the same owned snapshot input and
-reaches generated Hako MIR/EXE with missing-carrier fail-fast coverage. Native
-CarrierInfo snapshot APIs now have EXE smokes for direct from_snapshot and
-explicit snapshot instance calls. Generated CarrierInfo bridge APIs now mutate
-typed OrderedMapBox output arguments directly from Main, without inlining their
-operation bodies. Focused OrderedMapBox.get result-origin publication now
-preserves ArrayBox origins for carrier-data maps, so nested
-`info.get("carrier_names").get(0)` routes without RuntimeDataBox widening. The
-active task is selecting the next MirBuilder converter slice.
+recipe / verifier helper, the shared FamilyArtifactSpec helper, the
+lightweight-facts converter wrapper for BindingContext and simple-map, the
+negative converter corpus, the shared carrier artifact runner, and the
+generated-to-native adoption matrix report are green. CoreContext readiness
+inventory, the CoreContext scalar-counter vocabulary row, the TypeContext
+bounded map slice row, the MetadataContext deferred inventory row, the
+returned mutable borrow replacement decision row, the returned read borrow /
+read-view decision row, the carrier-sensitive alias proof row, the PHI and
+join_id lifecycle row, the loop / trim route lowering row, the NonTrivialDrop
+row, the UnsafeOrFFI row, the NullableMapValue row, the NonAsciiOrderedKey
+row, the ConstructorLifecycleMismatch row, the CoreContext pilot selection
+row, the CoreContext scalar-counter facts pilot row, the CoreContext
+scalar-counter plan/oracle inventory row, the TypeContext bounded map slice
+pilot selection row, and the TypeContext bounded map slice facts pilot row are
+all landed as consultation-only slices; they keep lifecycle facts, Hako plan,
+behavior recipe, oracle vectors, manifest, and route entry absent. The
+inventory rows are fixture-backed so the consultation lane stays durable
+without opening route selection. VariableContext native snapshot/restore is
+now green with clone_owned restore and post-restore alias-proof EXE coverage.
+ReturnedReadBorrow is now resolved as NoReturnedAlias plus
+OwnedReadSnapshotProjection. BoxCompilationContext typed operation IR is now
+landed with multi-field birth initialization, `AllFieldsMapIsEmpty`, and
+derived_hako route selection. The BoxCompilationContext crate-smoke
+readiness inventory is landed, the crate-smoke selection is landed, the
+minimal harness owner is landed, the minimal harness is defined, the minimal
+harness command contract is defined, and the representative probe surface,
+probe output contract, probe result contract, probe closeout contract, and
+    consultation bundle are all landed. The representative bundle has already
+    been executed in a single guarded run, and the current converter coverage
+    hygiene inventory is now landed in
+    `docs/development/current/main/investigations/mirbuilder-converter-coverage-hygiene-2026-06-22.md`.
+The first typed harness rewrite slice is selected as BindingContext and
+VariableContext simple-map, the rewrite contract is landed, the emission
+contract is landed, the implementation boundary is landed, the
+implementation entry contract is landed, the initial patch sequence is
+landed, BoxCompilationContext is the next crate-level probe candidate, and
+the next consultation step is to move the remaining easy-tier inventory
+toward the BoxCompilationContext crate-level probe contract.
 
 Historical context follows.
 

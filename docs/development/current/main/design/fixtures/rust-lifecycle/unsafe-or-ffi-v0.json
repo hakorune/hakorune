@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUnsafeOrFFIInventory",
+  "subject": "MirBuilder unsafe / FFI boundary",
+  "source": {
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+    "substrate_capability_ladder": "docs/development/current/main/design/substrate-capability-ladder-ssot.md",
+    "hako_plan_vocab": "docs/development/current/main/design/hako-lifecycle-plan-vocab-v0.md",
+    "rust_to_hako_ownership_reference": "docs/development/current/main/design/rust-to-hako-ownership-converter-reference.md",
+    "rustc_semir_boundary": "docs/development/current/main/design/rustc-semir-internal-adapter-boundary.md"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep UnsafeOrFFI parked until a restricted unsafe capability contract or explicit CompatShim row is named",
+    "keep broad unsafe surface and FFI separate from the easy-tier converter",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "Do not replace this with a broad C-style unsafe surface.",
+    "CompatShim must be explicit and diagnostic-visible.",
+    "Unknown facts do not silently become CompatShim.",
+    "The converter is an emission surface. It is not the ownership policy owner.",
+    "The adapter is a Rust facts producer. It is not a Hako policy owner."
+  ],
+  "open_questions": [
+    "Should the later hard tier use restricted unsafe capability modules or a CompatShim boundary?",
+    "Which future families need explicit FFI rather than pure transport?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

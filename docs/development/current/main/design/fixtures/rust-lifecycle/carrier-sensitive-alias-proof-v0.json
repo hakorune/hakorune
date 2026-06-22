@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCarrierSensitiveAliasProof",
+  "subject": "hakorune_mir_builder::variable_context::CarrierInfo carrier-sensitive consumers",
+  "source": {
+    "carrier_readiness_inventory": "docs/development/current/main/phases/phase-296x/296x-1527-VARIABLE-CONTEXT-CARRIER-DERIVED-ARTIFACT-READINESS-INVENTORY-001.md",
+    "read_view_decision": "docs/development/current/main/phases/phase-296x/296x-1551-RETURNED-READ-BORROW-READ-VIEW-DECISION-001.md",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep carrier-sensitive consumers parked until a separate hard-tier contract names the alias model",
+    "keep read-only BorrowView and owned snapshot readiness separate",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "carrier-sensitive consumers remain inventory-only in 296x-1527",
+    "NoReturnedAlias + OwnedReadSnapshotProjection remains the current VariableContext read contract",
+    "read_borrow_ready=1 and owned_transfer_ready=1 are already green"
+  ],
+  "open_questions": [
+    "Does carrier extraction need a dedicated alias contract or remain owned-snapshot based?",
+    "Where should join_id ownership be modeled relative to promoted_body_locals and trim_helper?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

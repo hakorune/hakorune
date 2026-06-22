@@ -1,0 +1,118 @@
+{
+  "body_facts": [
+    {
+      "callee_spelling": "Self::default",
+      "id": "BoxCompilationContext::new",
+      "operation": "DefaultConstruct",
+      "return_shape": "Self",
+      "selected_fields": [
+        "variable_map",
+        "value_origin_newbox",
+        "value_types"
+      ]
+    },
+    {
+      "callee_spelling": "BTreeMap::is_empty && BTreeMap::is_empty && BTreeMap::is_empty",
+      "id": "BoxCompilationContext::is_empty",
+      "operation": "CompositeMapIsEmpty",
+      "return_shape": "bool",
+      "selected_fields": [
+        "variable_map",
+        "value_origin_newbox",
+        "value_types"
+      ]
+    }
+  ],
+  "excluded_methods": [
+    {
+      "id": "BoxCompilationContext::size_info",
+      "reason": "tuple shape is outside the bounded constructor/is_empty pilot"
+    }
+  ],
+  "field_facts": [
+    {
+      "copy_kind": "NonCopyOwned",
+      "deterministic_order_required": true,
+      "drop_fact": "TrivialMemory",
+      "escape_fact": "LocalOnly",
+      "id": "BoxCompilationContext.variable_map",
+      "rust_type": "BTreeMap<String, ValueId>"
+    },
+    {
+      "copy_kind": "NonCopyOwned",
+      "deterministic_order_required": true,
+      "drop_fact": "TrivialMemory",
+      "escape_fact": "LocalOnly",
+      "id": "BoxCompilationContext.value_origin_newbox",
+      "rust_type": "BTreeMap<ValueId, String>"
+    },
+    {
+      "copy_kind": "NonCopyOwned",
+      "deterministic_order_required": true,
+      "drop_fact": "TrivialMemory",
+      "escape_fact": "LocalOnly",
+      "id": "BoxCompilationContext.value_types",
+      "rust_type": "BTreeMap<ValueId, MirType>"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "method_facts": [
+    {
+      "id": "BoxCompilationContext::new",
+      "ownership_effect": "None",
+      "returns": {
+        "copy_kind": "NonCopyOwned",
+        "drop_fact": "TrivialMemory"
+      }
+    },
+    {
+      "id": "BoxCompilationContext::is_empty",
+      "receiver_borrow": {
+        "escapes": false,
+        "kind": "SharedRead",
+        "scope": "CallOnly"
+      },
+      "returns": {
+        "copy_kind": "ImmediateValue",
+        "drop_fact": "TrivialMemory"
+      }
+    }
+  ],
+  "negative_requirements": [
+    {
+      "id": "missing_deterministic_order",
+      "required_fact": "deterministic_order_required"
+    },
+    {
+      "id": "missing_trivial_memory_drop",
+      "required_fact": "drop_fact=TrivialMemory"
+    }
+  ],
+  "schema_version": 0,
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::context",
+    "source_path": "src/context.rs"
+  },
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "type_facts": [
+    {
+      "copy_kind": "NonCopyOwned",
+      "drop_fact": "TrivialMemory",
+      "escape_fact": "LocalOnly",
+      "id": "BoxCompilationContext"
+    },
+    {
+      "copy_kind": "ImmediateValue",
+      "drop_fact": "TrivialMemory",
+      "escape_fact": "LocalOnly",
+      "id": "ValueId"
+    },
+    {
+      "copy_kind": "NonCopyOwned",
+      "drop_fact": "TrivialMemory",
+      "escape_fact": "LocalOnly",
+      "id": "MirType"
+    }
+  ]
+}

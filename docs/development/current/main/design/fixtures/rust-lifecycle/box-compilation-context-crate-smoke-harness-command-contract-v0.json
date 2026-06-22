@@ -1,0 +1,50 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEasyTierCrateSmokeHarnessCommandContract",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "current_landed_slice": "BoxCompilationContext_ctor_is_empty_only",
+  "crate_level_probe_candidate": "BoxCompilationContext",
+  "selected_next_owner": "minimal crate smoke harness command contract",
+  "current_contract": "command_contract_only",
+  "source": {
+    "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-readiness-v0.json",
+    "probe_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-selection-v0.json",
+    "owner_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-harness-owner-selection-v0.json",
+    "harness_design": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-harness-design-v0.json"
+  },
+  "command_sequence": [
+    "python3 tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_readiness_inventory.py --check-reference",
+    "python3 tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_selection.py --check-reference",
+    "python3 tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_harness_owner_selection.py --check-reference",
+    "python3 tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_harness_design.py --check-reference",
+    "bash tools/checks/current_state_pointer_guard.sh"
+  ],
+  "decision": [
+    "define the thin command sequence for the minimal crate-smoke harness",
+    "keep the wrapper bounded to the landed readiness, selection, owner-selection, and harness-design rows",
+    "do not open route selection or the nightly rustc adapter"
+  ],
+  "harness_boundary": [
+    "readiness inventory guard",
+    "probe selection guard",
+    "harness owner selection guard",
+    "harness design guard",
+    "command contract guard"
+  ],
+  "supporting_evidence": [
+    "the probe candidate is already fixed",
+    "the minimal harness owner is already fixed",
+    "the thin harness wrapper is already fixed",
+    "crate-level probe remains unopened"
+  ],
+  "crate_level_probe_opened": 0,
+  "nightly_rustc_adapter_opened": 0,
+  "route_selection_opened": 0,
+  "runtime_fallback_opened": 0,
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

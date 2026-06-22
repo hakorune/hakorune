@@ -1,0 +1,34 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNonTrivialDropInventory",
+  "subject": "MirBuilder Drop boundary",
+  "source": {
+    "binding_context_pilot": "docs/development/current/main/phases/phase-296x/296x-1387-MIRBUILDER-BINDING-CONTEXT-LIFECYCLE-PILOT-001.md",
+    "hako_plan_vocab": "docs/development/current/main/design/hako-lifecycle-plan-vocab-v0.md",
+    "rust_drop_boundary": "docs/development/current/main/design/rustc-semir-internal-adapter-boundary.md",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+    "variable_context_simple_map_pilot": "docs/development/current/main/phases/phase-296x/296x-1391-VARIABLE-CONTEXT-LIFECYCLE-SIMPLE-MAP-PILOT-001.md"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep NonTrivialDrop parked until a positive TrivialMemory or verifier-approved cleanup contract is named",
+    "keep nontrivial Drop separate from the simple-map and snapshot/restore pilots that already require TrivialMemory",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "Drop may be erased only from a positive TrivialMemory fact",
+    "Hako lifecycle plan forbids erasing Drop without TrivialMemory or verifier-approved cleanup",
+    "BindingContext and VariableContext simple-map pilots already close the memory-only Drop erase path under TrivialMemory",
+    "No concrete nontrivial Drop owner is selected in the current task-order"
+  ],
+  "open_questions": [
+    "Which future families need StructuralOwned, CustomSemanticDrop, HostResource, or Conditional Drop handling?",
+    "Should nontrivial Drop remain parked until a later hard tier after ownership and borrow policy are named?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

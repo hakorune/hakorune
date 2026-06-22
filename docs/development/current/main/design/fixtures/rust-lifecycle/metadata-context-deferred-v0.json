@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMetadataContextDeferredInventory",
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::metadata_context",
+    "source_path": "src/metadata_context.rs"
+  },
+  "present": {
+    "source_methods": [
+      "new",
+      "current_span",
+      "set_current_span",
+      "set_source_file",
+      "clear_source_file",
+      "current_source_file",
+      "hint_scope_enter",
+      "hint_scope_leave",
+      "hint_join_result",
+      "push_region",
+      "pop_region",
+      "current_region_stack",
+      "record_value_span",
+      "value_span",
+      "record_value_caller",
+      "value_caller",
+      "value_origin_callers"
+    ],
+    "field_shapes": [
+      "MetadataContext<SpanT, RegionIdT>",
+      "current_span: SpanT",
+      "hint_sink: HintSink",
+      "source_file: Option<String>",
+      "current_region_stack: Vec<RegionIdT>",
+      "value_origin_spans: HashMap<ValueId, SpanT>",
+      "value_origin_callers: HashMap<ValueId, String>"
+    ]
+  },
+  "deferred_reason": [
+    "generics",
+    "Option<String>",
+    "Vec region stack",
+    "HashMap origin tables",
+    "diagnostic caller provenance",
+    "source-file cloning"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

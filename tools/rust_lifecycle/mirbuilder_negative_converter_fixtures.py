@@ -16,6 +16,7 @@ from typing import Any, Callable
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 GENERATED = ROOT / "lang/generated/rust_derived/hakorune_mir_builder"
+CORPUS = FIXTURES / "mirbuilder-negative-converter-fixtures-v0.json"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -60,6 +61,45 @@ def _load_guard_output(script: str) -> str:
     if result.returncode != 0:
         raise SystemExit(result.stdout + result.stderr)
     return result.stdout
+
+
+def _load_corpus() -> tuple[list[str], dict[str, str]]:
+    corpus = _load_json(CORPUS)
+    if corpus.get("kind") != "MirBuilderNegativeConverterFixtureCorpus":
+        raise SystemExit("unexpected negative fixture corpus kind")
+    cases = corpus.get("cases")
+    if not isinstance(cases, list) or not cases:
+        raise SystemExit("unexpected negative fixture corpus cases")
+
+    ordered: list[str] = []
+    statuses: dict[str, str] = {}
+    seen: set[str] = set()
+    for case in cases:
+        if not isinstance(case, dict):
+            raise SystemExit("unexpected negative fixture corpus entry")
+        case_id = case.get("id")
+        status = case.get("status")
+        if not isinstance(case_id, str) or not case_id:
+            raise SystemExit("negative fixture corpus entry missing id")
+        if case_id in seen:
+            raise SystemExit(f"duplicate negative fixture corpus case: {case_id}")
+        if case_id not in CASE_RUNNERS:
+            raise SystemExit(f"unknown negative fixture corpus case: {case_id}")
+        if status not in {"green", "parked"}:
+            raise SystemExit(f"unexpected negative fixture corpus status: {case_id}")
+        ordered.append(case_id)
+        statuses[case_id] = status
+        seen.add(case_id)
+
+    missing = sorted(set(CASE_RUNNERS) - seen)
+    if missing:
+        raise SystemExit(f"missing negative fixture corpus cases: {missing}")
+
+    extra = sorted(seen - set(CASE_RUNNERS))
+    if extra:
+        raise SystemExit(f"unexpected negative fixture corpus cases: {extra}")
+
+    return ordered, statuses
 
 
 def _converter_case(
@@ -216,20 +256,18 @@ def main() -> int:
     if bool(args.case) == bool(args.all):
         raise SystemExit("choose exactly one of --case or --all")
 
+    ordered, statuses = _load_corpus()
+
     if args.case:
         name, reason = run_case(args.case)
-        print(f"{name}=green")
+        print(f"{name}={statuses[name]}")
         print(f"{name}_reason={reason}")
         print("summary=ok")
         return 0
 
-    ordered = list(CASE_RUNNERS)
     for name in ordered:
         case_name, reason = run_case(name)
-        if case_name == "carrier_sensitive_alias":
-            print(f"{case_name}=parked")
-        else:
-            print(f"{case_name}=green")
+        print(f"{case_name}={statuses[name]}")
         print(f"{case_name}_reason={reason}")
     print("summary=ok")
     return 0

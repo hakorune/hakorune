@@ -9,12 +9,21 @@ from typing import Any
 
 
 @dataclass(frozen=True)
-class BoxSpec:
+class FieldSpec:
     name: str
-    field_name: str
     field_type: str
     initializer: str | None = None
     initializer_operation: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class BoxSpec:
+    name: str
+    field_name: str | None = None
+    field_type: str | None = None
+    initializer: str | None = None
+    initializer_operation: dict[str, Any] | None = None
+    fields: list[FieldSpec] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

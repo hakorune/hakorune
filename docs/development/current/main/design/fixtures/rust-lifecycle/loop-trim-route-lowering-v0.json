@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopTrimRouteLoweringInventory",
+  "subject": "Loop / trim route lowering",
+  "source": {
+    "trim_route_lowering_inventory": "docs/development/current/main/phases/phase-296x/296x-1436-TRIM-ROUTE-LOWERING-INVENTORY-001.md",
+    "trim_route_lowering_readiness_gate": "docs/development/current/main/phases/phase-296x/296x-1458-TRIM-ROUTE-LOWERING-READINESS-GATE-001.md",
+    "trim_route_lowering_readiness_integration_inventory": "docs/development/current/main/phases/phase-296x/296x-1460-TRIM-ROUTE-LOWERING-READINESS-INTEGRATION-INVENTORY-001.md",
+    "route_boundary_probe": "docs/development/current/main/phases/phase-296x/296x-1462-ROUTE-BOUNDARY-TRIM-READINESS-INTEGRATION-PROBE-001.md",
+    "route_boundary_owner_selection": "docs/development/current/main/phases/phase-296x/296x-1463-POST-ROUTE-BOUNDARY-TRIM-READINESS-PROBE-OWNER-SELECTION-001.md",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep trim route lowering parked until a concrete trim fixture is selected",
+    "keep route-boundary readiness and boundary probes separate from executable lowering",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "trim route lowering inventory documents the boundary and no executable lowering",
+    "readiness gate exists and denies missing trim helper, invalid trim metadata, and missing condition binding identity",
+    "route-boundary probe consumes CarrierInfo and condition_bindings without backend lowering",
+    "owner selection is parked pending a concrete trim fixture"
+  ],
+  "open_questions": [
+    "Which concrete trim fixture should be selected before executable lowering?",
+    "Should loop/trim lowering remain separate from promoted carrier identity and join_id?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

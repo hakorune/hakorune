@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCoreContextPilotSelection",
+  "subject": "hakorune_mir_builder::core_context::CoreContext",
+  "source": {
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+    "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-readiness-inventory-v0.json",
+    "scalar_counter_vocabulary": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-scalar-counter-vocabulary-v0.json"
+  },
+  "current_contract": "selection_only",
+  "selected_next_pilot": "CoreContext",
+  "pilot_scope": "CoreContext_scalar_counter_only",
+  "decision": [
+    "select CoreContext as the next easy-tier family pilot",
+    "keep the pilot bounded to the scalar-counter slice",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "core_context readiness inventory names CoreContext as the next easy-tier candidate",
+    "core_context scalar-counter vocabulary is fixed in a machine-readable fixture",
+    "route selection remains unopened"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

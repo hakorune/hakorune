@@ -26,7 +26,7 @@ from extract_variable_context_explicit_carrier_snapshot_facts import (
     SOURCE as EXPLICIT_CARRIER_SNAPSHOT_SOURCE,
     extract_facts as extract_variable_context_explicit_carrier_snapshot_facts,
 )
-from shared_family_generator import read_json, write_outputs
+from shared_family_generator import read_json, run_validated_family_generator
 from verified_hako_family_ir import HakoMethodIR
 
 
@@ -56,6 +56,45 @@ def _require_kinds(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str
         raise SystemExit("unexpected oracle kind")
     if facts.get("subject") != subject or plan.get("subject") != subject or oracle.get("subject") != subject:
         raise SystemExit("subject mismatch")
+
+
+def _write_validated_family_artifact(
+    *,
+    check: bool,
+    unchanged_label: str,
+    facts: dict[str, Any],
+    plan: dict[str, Any],
+    oracle: dict[str, Any],
+    validate: Any,
+    spec_factory: Any,
+) -> None:
+    validate(facts, plan, oracle)
+    spec = spec_factory()
+    recipe_text = build_family_artifact_recipe_text(spec)
+    verifier_text = build_family_artifact_verifier_text(spec)
+    hako_text = build_family_artifact_hako_text(spec)
+    manifest_text = build_family_artifact_manifest_text(
+        spec,
+        hako_text=hako_text,
+        recipe_text=recipe_text,
+        verifier_text=verifier_text,
+    )
+    outputs = []
+    if recipe_text is not None and spec.recipe_path is not None:
+        outputs.append((spec.recipe_path, recipe_text))
+    if verifier_text is not None and spec.verifier_path is not None:
+        outputs.append((spec.verifier_path, verifier_text))
+    outputs.extend([(spec.hako_path, hako_text), (OUT_DIR / Path(spec.artifact_manifest).name, manifest_text)])
+    return run_validated_family_generator(
+        check=check,
+        root=ROOT,
+        unchanged_label=unchanged_label,
+        load_facts=lambda: facts,
+        plan_path=spec.plan_path,
+        oracle_path=spec.oracle_path,
+        validate_inputs=lambda loaded_facts, loaded_plan, loaded_oracle: validate(loaded_facts, loaded_plan, loaded_oracle),
+        outputs_factory=lambda: outputs,
+    )
 
 
 def validate_variable_context_carrier_snapshot(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
@@ -229,23 +268,14 @@ def run_variable_context_carrier_snapshot_artifact_generator(*, check: bool) -> 
     facts = extract_variable_context_carrier_snapshot_facts(CARRIER_SNAPSHOT_SOURCE)
     plan = read_json(FIXTURES / "variable-context-carrier-snapshot-plan-v0.json")
     oracle = read_json(FIXTURES / "variable-context-carrier-snapshot-oracle-vectors-v0.json")
-    validate_variable_context_carrier_snapshot(facts, plan, oracle)
-    spec = carrier_snapshot_spec(_api_methods_from_compiled(compile_carrier_snapshot_methods(facts, plan)))
-    recipe_text = build_family_artifact_recipe_text(spec)
-    verifier_text = build_family_artifact_verifier_text(spec)
-    hako_text = build_family_artifact_hako_text(spec)
-    manifest_text = build_family_artifact_manifest_text(spec, hako_text=hako_text, recipe_text=recipe_text, verifier_text=verifier_text)
-    outputs = [
-        (spec.recipe_path, recipe_text),
-        (spec.verifier_path, verifier_text),
-        (spec.hako_path, hako_text),
-        (OUT_DIR / Path(spec.artifact_manifest).name, manifest_text),
-    ]
-    write_outputs(
-        outputs,
+    _write_validated_family_artifact(
         check=check,
         unchanged_label="generated_variable_context_carrier_snapshot_artifact=unchanged",
-        root=ROOT,
+        facts=facts,
+        plan=plan,
+        oracle=oracle,
+        validate=validate_variable_context_carrier_snapshot,
+        spec_factory=lambda: carrier_snapshot_spec(_api_methods_from_compiled(compile_carrier_snapshot_methods(facts, plan))),
     )
 
 
@@ -479,20 +509,12 @@ def run_variable_context_explicit_carrier_snapshot_artifact_generator(*, check: 
     facts = extract_variable_context_explicit_carrier_snapshot_facts(EXPLICIT_CARRIER_SNAPSHOT_SOURCE)
     plan = read_json(FIXTURES / "variable-context-explicit-carrier-snapshot-plan-v0.json")
     oracle = read_json(FIXTURES / "variable-context-explicit-carrier-snapshot-oracle-vectors-v0.json")
-    validate_variable_context_explicit_carrier_snapshot(facts, plan, oracle)
-    spec = explicit_carrier_snapshot_spec(_api_methods_from_compiled(compile_explicit_carrier_snapshot_methods(facts, plan)))
-    recipe_text = build_family_artifact_recipe_text(spec)
-    verifier_text = build_family_artifact_verifier_text(spec)
-    hako_text = build_family_artifact_hako_text(spec)
-    outputs = [
-        (spec.recipe_path, recipe_text),
-        (spec.verifier_path, verifier_text),
-        (spec.hako_path, hako_text),
-        (OUT_DIR / Path(spec.artifact_manifest).name, build_family_artifact_manifest_text(spec, hako_text=hako_text, recipe_text=recipe_text, verifier_text=verifier_text)),
-    ]
-    write_outputs(
-        outputs,
+    _write_validated_family_artifact(
         check=check,
         unchanged_label="generated_variable_context_explicit_carrier_snapshot_artifact=unchanged",
-        root=ROOT,
+        facts=facts,
+        plan=plan,
+        oracle=oracle,
+        validate=validate_variable_context_explicit_carrier_snapshot,
+        spec_factory=lambda: explicit_carrier_snapshot_spec(_api_methods_from_compiled(compile_explicit_carrier_snapshot_methods(facts, plan))),
     )

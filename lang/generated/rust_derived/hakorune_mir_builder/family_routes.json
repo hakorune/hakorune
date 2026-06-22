@@ -27,6 +27,18 @@
       "state": "DerivedMainline"
     },
     {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json",
+      "fallback_policy": "forbidden",
+      "family_id": "hakorune_mir_builder::context",
+      "guard_command": "bash tools/checks/rust_lifecycle_box_compilation_context_derived_route_selection_guard.sh",
+      "mainline_selection_scope": "BoxCompilationContext_only",
+      "route": "derived_hako",
+      "rust_bootstrap_route": "retained",
+      "rust_oracle_route": "retained",
+      "selected_on_mainline": true,
+      "state": "DerivedMainline"
+    },
+    {
       "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
       "fallback_policy": "forbidden",
       "family_id": "hakorune_mir_builder::variable_context",

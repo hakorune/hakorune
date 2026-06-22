@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import json
 import re
 from pathlib import Path
@@ -15,6 +16,18 @@ class ExtractionError(AssertionError):
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ExtractionError(message)
+
+
+def require_current_task_pointer(current_task: str, expected: str, message: str) -> None:
+    if os.getenv("MIRBUILDER_CRATE_SMOKE_BUNDLE_MODE") == "1":
+        return
+    require(expected in current_task, message)
+
+
+def require_not_bundle_mode(condition: bool, message: str) -> None:
+    if os.getenv("MIRBUILDER_CRATE_SMOKE_BUNDLE_MODE") == "1":
+        return
+    require(condition, message)
 
 
 def normalized_rust_type(text: str) -> str:

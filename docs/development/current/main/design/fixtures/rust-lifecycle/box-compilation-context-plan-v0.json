@@ -1,0 +1,81 @@
+{
+  "behavior": {
+    "converter_emission_added": false,
+    "general_resolver_implemented": false,
+    "rust_lifetime_syntax_added": false
+  },
+  "denied": [
+    {
+      "deny_reason": "TupleShapeOutOfBoundedPilot",
+      "id": "BoxCompilationContext.size_info"
+    }
+  ],
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "cleanup_policy": "erase",
+      "id": "BoxCompilationContext",
+      "plan_kind": "LocalBox",
+      "publication_policy": "unpublished",
+      "required_facts": [
+        "BoxCompilationContext.escape_fact=LocalOnly",
+        "BoxCompilationContext.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "cleanup_policy": "erase",
+      "id": "BoxCompilationContext.variable_map",
+      "plan_kind": "OrderedMapBox",
+      "publication_policy": "owned_by_BoxCompilationContext",
+      "required_facts": [
+        "BoxCompilationContext.variable_map.deterministic_order_required=true",
+        "BoxCompilationContext.variable_map.escape_fact=LocalOnly",
+        "BoxCompilationContext.variable_map.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "cleanup_policy": "erase",
+      "id": "BoxCompilationContext.value_origin_newbox",
+      "plan_kind": "OrderedMapBox",
+      "publication_policy": "owned_by_BoxCompilationContext",
+      "required_facts": [
+        "BoxCompilationContext.value_origin_newbox.deterministic_order_required=true",
+        "BoxCompilationContext.value_origin_newbox.escape_fact=LocalOnly",
+        "BoxCompilationContext.value_origin_newbox.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "cleanup_policy": "erase",
+      "id": "BoxCompilationContext.value_types",
+      "plan_kind": "OrderedMapBox",
+      "publication_policy": "owned_by_BoxCompilationContext",
+      "required_facts": [
+        "BoxCompilationContext.value_types.deterministic_order_required=true",
+        "BoxCompilationContext.value_types.escape_fact=LocalOnly",
+        "BoxCompilationContext.value_types.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "access": "construct",
+      "id": "BoxCompilationContext::new",
+      "plan_kind": "DefaultConstruct",
+      "required_facts": [
+        "BoxCompilationContext::new.returns.copy_kind=NonCopyOwned",
+        "BoxCompilationContext::new.returns.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "access": "read",
+      "id": "BoxCompilationContext::is_empty",
+      "plan_kind": "BorrowView",
+      "receiver": "BoxCompilationContext",
+      "required_facts": [
+        "BoxCompilationContext::is_empty.receiver_borrow.kind=SharedRead",
+        "BoxCompilationContext::is_empty.receiver_borrow.escapes=false"
+      ]
+    }
+  ],
+  "schema_version": 0,
+  "source_facts": "box-compilation-context-facts-v0.json",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext"
+}

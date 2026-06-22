@@ -1,0 +1,51 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCoreContextScalarCounterVocabulary",
+  "subject": "hakorune_mir_builder::core_context::CoreContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::core_context",
+    "source_path": "src/core_context.rs"
+  },
+  "present": {
+    "source_methods": [
+      "new",
+      "next_value",
+      "next_block",
+      "next_binding",
+      "next_temp_slot",
+      "next_debug_join",
+      "peek_next_value",
+      "peek_next_block"
+    ],
+    "body_operations": [
+      "ScalarCounterInit",
+      "GeneratorNext",
+      "GeneratorNext",
+      "BindingIdNewAndIncrement",
+      "CounterNext",
+      "CounterNext",
+      "GeneratorPeekNext",
+      "GeneratorPeekNext"
+    ],
+    "operation_vocabulary": [
+      "ScalarCounterInit",
+      "GeneratorNext",
+      "BindingIdNewAndIncrement",
+      "CounterNext",
+      "GeneratorPeekNext"
+    ]
+  },
+  "next_design_stop": [
+    "scalar counter field initialization",
+    "increment / saturating_add",
+    "ID constructor calls",
+    "struct-return construction"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

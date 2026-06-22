@@ -1,0 +1,27 @@
+{
+  "excluded_methods": [
+    "BoxCompilationContext::size_info"
+  ],
+  "family_id": "hakorune_mir_builder::context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "BoxCompilationContext.birth initializes three ordered maps",
+      "hako_operation": "BoxCompilationContext.birth",
+      "id": "BoxCompilationContext::new",
+      "rust_operation": "DefaultConstruct"
+    },
+    {
+      "emits": "BoxCompilationContextApi.is_empty(ctx)",
+      "hako_operation": "BoxCompilationContextBox.all_fields_empty",
+      "id": "BoxCompilationContext::is_empty",
+      "rust_operation": "CompositeMapIsEmpty"
+    }
+  ],
+  "pilot_scope": "BoxCompilationContext_ctor_is_empty_only",
+  "schema_version": 0,
+  "selected_body_count": "constructor_is_empty_only",
+  "source_oracle": "box-compilation-context-oracle-v0.json",
+  "source_plan": "box-compilation-context-plan-v0.json",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext"
+}

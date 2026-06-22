@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEasyTierCrateSmokeHarnessOwnerSelection",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::context",
+    "source_path": "crates/hakorune_mir_builder/src/context.rs"
+  },
+  "current_landed_slice": "BoxCompilationContext_ctor_is_empty_only",
+  "crate_level_probe_candidate": "BoxCompilationContext",
+  "current_contract": "selection_only",
+  "decision": [
+    "select the minimal crate smoke harness design as the next owner",
+    "keep the harness bounded to the landed BoxCompilationContext slice",
+    "do not open route selection or the nightly rustc adapter"
+  ],
+  "selected_next_owner": "minimal crate smoke harness design",
+  "owner_scope": "BoxCompilationContext_ctor_is_empty_only",
+  "supporting_evidence": [
+    "the crate-level probe candidate is already fixed",
+    "the landed slice remains bounded to constructor plus is_empty",
+    "crate-level probe remains unopened"
+  ],
+  "crate_level_probe_opened": 0,
+  "nightly_rustc_adapter_opened": 0,
+  "route_selection_opened": 0,
+  "runtime_fallback_opened": 0,
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

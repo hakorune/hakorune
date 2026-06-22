@@ -1,0 +1,42 @@
+{
+  "kind": "MirBuilderNegativeConverterFixtureCorpus",
+  "subject": "hakorune_mir_builder",
+  "cases": [
+    {
+      "id": "binding_context_unsupported_resolved_call_target",
+      "status": "green"
+    },
+    {
+      "id": "variable_context_simple_map_unsupported_resolved_call_target",
+      "status": "green"
+    },
+    {
+      "id": "variable_context_snapshot_restore_unsupported_resolved_call_target",
+      "status": "green"
+    },
+    {
+      "id": "returned_read_borrow",
+      "status": "green"
+    },
+    {
+      "id": "returned_mutable_borrow",
+      "status": "green"
+    },
+    {
+      "id": "carrier_sensitive_alias",
+      "status": "parked"
+    },
+    {
+      "id": "missing_requested_carrier_fail_fast",
+      "status": "green"
+    },
+    {
+      "id": "hardcoded_representation_token_in_decision_path",
+      "status": "green"
+    },
+    {
+      "id": "todo_null_placeholder_emission",
+      "status": "green"
+    }
+  ]
+}

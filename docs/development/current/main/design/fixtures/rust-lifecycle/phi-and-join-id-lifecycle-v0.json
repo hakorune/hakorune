@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPhiAndJoinIdLifecycleInventory",
+  "subject": "CarrierVar.join_id and PHI carrier lifecycle",
+  "source": {
+    "join_id_inventory": "docs/development/current/main/phases/phase-296x/296x-1410-PHI-CARRIER-JOIN-ID-LIFECYCLE-PRODUCER-INVENTORY-001.md",
+    "join_id_selection": "docs/development/current/main/phases/phase-296x/296x-1411-POST-JOIN-ID-PRODUCER-INVENTORY-OWNER-SELECTION-001.md",
+    "carrier_inventory": "docs/development/current/main/phases/phase-296x/296x-1408-PHI-CARRIER-LIFECYCLE-CONSUMER-INVENTORY-001.md",
+    "trim_helper_inventory": "docs/development/current/main/phases/phase-296x/296x-1424-TRIM-HELPER-CARRIER-LIFECYCLE-INVENTORY-001.md",
+    "promoted_body_locals_inventory": "docs/development/current/main/phases/phase-296x/296x-1428-PROMOTED-BODY-LOCALS-LIFECYCLE-INVENTORY-001.md",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "current_contract": "inventory_only",
+  "decision": [
+    "keep CarrierVar.join_id parked as test vocabulary until a production producer is named",
+    "keep PHI and join_id lifecycle separate from trim_helper, promoted_body_locals, and merge_from ownership",
+    "do not select route or nightly rustc adapter"
+  ],
+  "supporting_evidence": [
+    "production constructors initialize join_id as None",
+    "join_id has no production Some(ValueId) producer",
+    "merge_from is a real production mutation boundary, but join_id remains parked",
+    "trim_helper and promoted_body_locals are independently inventoried"
+  ],
+  "open_questions": [
+    "Does join_id need a dedicated production producer or remain parked as test vocabulary?",
+    "Should future PHI consumers be named before any trim_helper/promoted_body_locals route work?"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

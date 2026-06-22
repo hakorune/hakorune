@@ -1,0 +1,190 @@
+{
+  "schema_version": 0,
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::core_context::CoreContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::core_context",
+    "source_path": "src/core_context.rs"
+  },
+  "type_facts": [
+    {
+      "id": "CoreContext",
+      "copy_kind": "NonCopyOwned",
+      "escape_fact": "LocalOnly",
+      "drop_fact": "TrivialMemory"
+    }
+  ],
+  "method_facts": [
+    {
+      "id": "CoreContext::new",
+      "receiver": {
+        "borrow_kind": "Owned",
+        "borrow_escape": "LocalOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    },
+    {
+      "id": "CoreContext::next_value",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "CoreContext::next_block",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "CoreContext::next_binding",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "CoreContext::next_temp_slot",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "CoreContext::next_debug_join",
+      "receiver": {
+        "borrow_kind": "UniqueWrite",
+        "borrow_escape": "CallOnly",
+        "mutation": true
+      },
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
+    },
+    {
+      "id": "CoreContext::peek_next_value",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    },
+    {
+      "id": "CoreContext::peek_next_block",
+      "receiver": {
+        "borrow_kind": "SharedRead",
+        "borrow_escape": "CallOnly",
+        "mutation": false
+      },
+      "ownership_effect": "None"
+    }
+  ],
+  "body_facts": [
+    {
+      "id": "CoreContext::new",
+      "operation": "ScalarCounterInit",
+      "callee_spelling": "ValueIdGenerator::new + BasicBlockIdGenerator::new",
+      "selected_fields": [
+        "value_gen",
+        "block_gen",
+        "next_binding_id",
+        "temp_slot_counter",
+        "debug_join_counter"
+      ],
+      "return_shape": "Self"
+    },
+    {
+      "id": "CoreContext::next_value",
+      "operation": "GeneratorNext",
+      "callee_spelling": "ValueIdGenerator::next",
+      "selected_field": "value_gen",
+      "return_shape": "ValueId"
+    },
+    {
+      "id": "CoreContext::next_block",
+      "operation": "GeneratorNext",
+      "callee_spelling": "BasicBlockIdGenerator::next",
+      "selected_field": "block_gen",
+      "return_shape": "BasicBlockId"
+    },
+    {
+      "id": "CoreContext::next_binding",
+      "operation": "BindingIdNewAndIncrement",
+      "callee_spelling": "BindingId::new + saturating_add + debug_assert",
+      "selected_field": "next_binding_id",
+      "return_shape": "BindingId"
+    },
+    {
+      "id": "CoreContext::next_temp_slot",
+      "operation": "CounterNext",
+      "callee_spelling": "saturating_add",
+      "selected_field": "temp_slot_counter",
+      "return_shape": "u32"
+    },
+    {
+      "id": "CoreContext::next_debug_join",
+      "operation": "CounterNext",
+      "callee_spelling": "saturating_add",
+      "selected_field": "debug_join_counter",
+      "return_shape": "u32"
+    },
+    {
+      "id": "CoreContext::peek_next_value",
+      "operation": "GeneratorPeekNext",
+      "callee_spelling": "ValueIdGenerator::peek_next",
+      "selected_field": "value_gen",
+      "return_shape": "ValueId"
+    },
+    {
+      "id": "CoreContext::peek_next_block",
+      "operation": "GeneratorPeekNext",
+      "callee_spelling": "BasicBlockIdGenerator::peek_next",
+      "selected_field": "block_gen",
+      "return_shape": "BasicBlockId"
+    }
+  ],
+  "negative_requirements": [
+    {
+      "id": "missing_counter_init",
+      "required_fact": "ScalarCounterInit"
+    },
+    {
+      "id": "missing_saturating_add",
+      "required_fact": "saturating_add"
+    },
+    {
+      "id": "missing_bindingid_constructor",
+      "required_fact": "BindingId::new"
+    }
+  ]
+}

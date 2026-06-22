@@ -1,0 +1,37 @@
+{
+  "drop_oracle": {
+    "drop_observable": false,
+    "required_fact": "BoxCompilationContext.drop_fact=TrivialMemory"
+  },
+  "excluded_vectors": [
+    "size_info",
+    "carrier_extraction",
+    "phi_planner_integration"
+  ],
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "hako_authority": "BoxCompilationContext only",
+    "mirbuilder_wide_claim": false,
+    "variable_context_claim": false
+  },
+  "schema_version": 0,
+  "source": "crates/hakorune_mir_builder/src/context.rs",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "vectors": [
+    {
+      "id": "box_compilation_context_basic",
+      "operations": [
+        {
+          "op": "new",
+          "expect": {
+            "is_empty": true
+          }
+        },
+        {
+          "op": "is_empty",
+          "expect": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "kind": "MirBuilderCoreContextReadinessInventory",
+  "missing": {
+    "behavior_recipe": 1,
+    "derived_artifact_manifest": 1,
+    "generated_behavior": 1,
+    "hako_lifecycle_plan": 1,
+    "lifecycle_facts": 0,
+    "nightly_rustc_adapter": 0,
+    "oracle_vectors": 1,
+    "route_entry_missing": 1,
+    "route_entry_present": 0
+  },
+  "missing_paths": [
+    "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json",
+    "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json",
+    "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-behavior-recipe-v0.json",
+    "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-derived-artifact-verifier-result-v0.json",
+    "lang/generated/rust_derived/hakorune_mir_builder/core_context.hako",
+    "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+    "tools/checks/rust_lifecycle_core_context_derived_artifact_guard.sh",
+    "tools/checks/rust_lifecycle_core_context_derived_route_selection_guard.sh"
+  ],
+  "next_design_stop": [
+    "scalar counter field initialization",
+    "increment / saturating_add",
+    "ID constructor calls",
+    "struct-return construction"
+  ],
+  "next_easy_tier_candidate": "CoreContext",
+  "present": {
+    "inventory_shape": [
+      "scalar counter field initialization",
+      "increment / saturating_add",
+      "ID constructor calls",
+      "struct-return construction"
+    ],
+    "lifecycle_facts_present": 1,
+    "source_methods": [
+      "new",
+      "next_value",
+      "next_block",
+      "next_binding",
+      "next_temp_slot",
+      "next_debug_join",
+      "peek_next_value",
+      "peek_next_block"
+    ]
+  },
+  "schema_version": 0,
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::core_context",
+    "source_path": "src/core_context.rs"
+  },
+  "stop_line": [
+    "do_not_select_route_in_same_row=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ],
+  "subject": "hakorune_mir_builder::core_context::CoreContext"
+}

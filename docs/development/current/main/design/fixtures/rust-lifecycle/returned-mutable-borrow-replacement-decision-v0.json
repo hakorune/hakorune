@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderReturnedMutableBorrowReplacementDecision",
+  "subject": "hakorune_mir_builder::variable_context::VariableContext",
+  "source": {
+    "crate": "hakorune_mir_builder",
+    "module": "crate::variable_context",
+    "source_path": "src/variable_context.rs"
+  },
+  "current_boundary": {
+    "method": "VariableContext::variable_map_mut",
+    "signature": "pub fn variable_map_mut(&mut self) -> &mut BTreeMap<String, ValueId>",
+    "policy": "Deny(ReturnedMutableBorrow)"
+  },
+  "candidate_replacements": [
+    "explicit mutation APIs",
+    "bounded with-map operation",
+    "ReplaceOwned-style ownership transfer"
+  ],
+  "current_supporting_methods": [
+    "variable_map",
+    "variable_map_mut",
+    "snapshot",
+    "restore"
+  ],
+  "reason": [
+    "returned mutable alias is caller-owned",
+    "replacement policy remains an explicit design decision",
+    "converter/emitter must not choose the representation"
+  ],
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}

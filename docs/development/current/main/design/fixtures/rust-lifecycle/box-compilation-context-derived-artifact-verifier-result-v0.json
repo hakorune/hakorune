@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "hako_behavior_recipe": "verified",
+    "hako_lifecycle_plan": "verified",
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "rust_facts_input": "verified",
+    "selected_body_count": "constructor_is_empty_only",
+    "unclassified_drop_obligations": 0,
+    "unmapped_mir_side_effects": 0,
+    "unmapped_thir_nodes": 0,
+    "unresolved_call_targets": 0
+  },
+  "family_id": "hakorune_mir_builder::context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "BoxCompilationContext_ctor_is_empty_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "box-compilation-context-facts-v0.json",
+  "source_plan": "box-compilation-context-plan-v0.json",
+  "source_recipe": "box-compilation-context-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "transport_notes": {
+    "bool_return_transport": "i64_bool_v0",
+    "box_birth": "three ordered maps"
+  },
+  "verified_operations": [
+    "DefaultConstruct",
+    "NewOrderedMap",
+    "AllFieldsMapIsEmpty"
+  ]
+}

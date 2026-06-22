@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEasyTierCrateSmokeHarnessDesign",
+  "subject": "hakorune_mir_builder::context::BoxCompilationContext",
+  "current_landed_slice": "BoxCompilationContext_ctor_is_empty_only",
+  "crate_level_probe_candidate": "BoxCompilationContext",
+  "selected_next_owner": "minimal crate smoke harness design",
+  "current_contract": "selection_only",
+  "source": {
+    "owner_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-harness-owner-selection-v0.json",
+    "probe_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-selection-v0.json",
+    "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/box-compilation-context-crate-smoke-readiness-v0.json"
+  },
+  "decision": [
+    "define a thin crate-smoke harness wrapper around the landed checks",
+    "keep the harness bounded to the BoxCompilationContext ctor + is_empty slice",
+    "do not open route selection or the nightly rustc adapter"
+  ],
+  "harness_boundary": [
+    "readiness inventory guard",
+    "probe selection guard",
+    "harness owner selection guard"
+  ],
+  "supporting_evidence": [
+    "the probe candidate is already fixed",
+    "the minimal harness owner is already fixed",
+    "crate-level probe remains unopened"
+  ],
+  "crate_level_probe_opened": 0,
+  "nightly_rustc_adapter_opened": 0,
+  "route_selection_opened": 0,
+  "runtime_fallback_opened": 0,
+  "stop_line": [
+    "do_not_select_route=1",
+    "do_not_open_nightly_rustc_adapter=1",
+    "do_not_claim_mirbuilder_wide_conversion=1",
+    "do_not_add_runtime_fallback=1"
+  ]
+}
