@@ -265,13 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPAT-REDIRECT-DRAIN-PLAN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1625-MIRBUILDER-COMPAT-REDIRECT-DRAIN-PLAN-001.md"
+latest_card = "MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1626-MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001.md"
 latest_card_summary = """The
-MirBuilder compat redirect plan is now explicit: the canonical authority is
-lang/src/mir/builder/**, the legacy compiler-tree surface may forward toward it,
-and the reverse import direction is forbidden while physical deletion stays
-parked."""
+MirBuilder compat caller drain is now inventoried. Stage-A bridge and active
+JoinIR smokes still call the legacy compiler-tree Program(JSON) entries, so the
+next implementation owner is a redirect through a canonical compat entry, not
+physical deletion."""
 
 current_blocker_token = "none"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

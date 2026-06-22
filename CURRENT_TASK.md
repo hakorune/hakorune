@@ -39,7 +39,7 @@ none
 Next task:
 
 ```text
-MirBuilder compat redirect drain plan
+MirBuilder compat caller drain inventory
 ```
 
 Purpose:
@@ -50,10 +50,11 @@ crate-level bundle. BindingContext and VariableContext simple-map are both
 landed as typed family artifacts, VariableContext snapshot/restore is now
 landed as a typed harness closeout, the MirBuilder home is locked to
 `lang/src/mir/builder/`, and the compiler-tree compatibility surface now has
-an explicit redirect / drain plan. The large deletion ideas are still parked
-because live references remain; cleanup now means moving callers and unique
-behavior toward the canonical home before deleting anything. CoreContext stays
-next for the easy-tier converter lane after this cleanup boundary is documented.
+an explicit caller drain inventory. Stage-A bridge and active JoinIR smokes
+still use the old compiler-tree Program(JSON) entries, so the next
+implementation owner is a canonical compat entry plus caller redirect, not
+physical deletion. CoreContext stays next for the easy-tier converter lane
+after this cleanup boundary is documented.
 ```
 
 Lifecycle converter boundary:
@@ -69,7 +70,7 @@ docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.
 Latest landed card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1625-MIRBUILDER-COMPAT-REDIRECT-DRAIN-PLAN-001.md
+docs/development/current/main/phases/phase-296x/296x-1626-MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001.md
 ```
 
 Short form:
