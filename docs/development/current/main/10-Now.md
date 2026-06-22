@@ -70,8 +70,9 @@ implementation entry contract is landed, the initial patch sequence is
 landed, BoxCompilationContext was the next crate-level probe candidate, the
 typed BoxCompilationContext Main execution harness is implemented, the
 ordered-map crate bundle is landed, VariableContext snapshot/restore is now
-landed as a typed harness closeout, and the next parked consultation slice is
-NonAsciiOrderedKey. Crate linker work stays parked.
+landed as a typed harness closeout, and CoreContext is the next easy-tier
+candidate. Its readiness inventory is green, but plan/oracle/derived artifact
+paths are still missing. Crate linker work stays parked.
 
 Historical context follows.
 

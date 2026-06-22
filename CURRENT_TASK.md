@@ -39,7 +39,7 @@ none
 Next task:
 
 ```text
-NonAsciiOrderedKey
+CoreContext readiness inventory
 ```
 
 Purpose:
@@ -48,8 +48,9 @@ Purpose:
 The selected ordered-map harness family has landed its representative
 crate-level bundle. BindingContext and VariableContext simple-map are both
 landed as typed family artifacts, VariableContext snapshot/restore is now
-landed as a typed harness closeout, and the next parked consultation slice is
-NonAsciiOrderedKey while keeping crate linker and nightly rustc paths
+landed as a typed harness closeout, and CoreContext is the next easy-tier
+candidate. Its readiness inventory is green, but plan/oracle/derived artifact
+paths are still missing while crate linker and nightly rustc paths stay
 unopened.
 ```
 
