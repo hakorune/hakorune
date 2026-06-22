@@ -1,10 +1,9 @@
 // verify.hako — Selfhost MIR verifier (Scaffold)
-// Phase‑20.12b: minimal contract; always OK for now.
+// Phase-20.12b: minimal contract; fail-fast until real checks exist.
 
 static box SelfhostMirVerify {
   verify(json_path) {
-    // TODO: parse JSON and check: block start PHIs, pred coverage, no undefined uses
-    return 0 // 0=ok (placeholder)
+    print("[selfhost/mir_builder/verify:unimplemented]")
+    return 2
   }
 }
-
