@@ -167,21 +167,27 @@ Done:
   UnsafeOrFFI
   NonAsciiOrderedKey
   direct-shape lowerer boundary
+  direct-shape rule table
+  single_ordered_map_context lowering
+  multi_ordered_map_context lowering
+  scalar_counter_context lowering
+  process-only inventory legacy downgrade
 
 Next:
-  Implement direct-shape rule table for easy-tier MirBuilder conversion.
+  Re-evaluate partial crate bundle after direct-shape lowerer cleanup.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
-  2. Implement direct-shape rule table.
+  2. Implement direct-shape rule table. (closed)
   3. Move BindingContext and VariableContext simple-map to the shared
-     single_ordered_map_context rule.
+     single_ordered_map_context rule. (closed)
   4. Move BoxCompilationContext new/is_empty to the multi_ordered_map_context
-     rule.
-  5. Move CoreContext scalar counters to the scalar_counter_context rule.
+     rule. (closed)
+  5. Move CoreContext scalar counters to the scalar_counter_context rule. (closed)
   6. Downgrade process-only inventories to legacy traceability and keep
      `convert_mirbuilder_lightweight_facts.py --all --check` plus
-     `rust_mirbuilder_converter_matrix_guard.sh` as the active workflow.
+     `rust_mirbuilder_converter_matrix_guard.sh` as the active workflow. (closed)
+  7. Re-evaluate partial crate bundle after direct-shape lowerer cleanup.
 ```
 
 Current task order:

@@ -29,12 +29,7 @@ from family_artifact_builders import (
     build_family_artifact_verifier_text,
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
-from mirbuilder_ordered_map_converter import (
-    compile_box_compilation_context_methods,
-    compile_binding_context_methods,
-    compile_variable_context_simple_map_methods,
-    compile_variable_context_snapshot_restore_methods,
-)
+from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
 from mirbuilder_core_context_artifacts import (
     CORE_CONTEXT_SOURCE,
     core_context_spec,
@@ -414,7 +409,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
     plan = read_json(FIXTURES / "binding-context-plan-v0.json")
     api_methods = [
         ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
-        for method in compile_binding_context_methods(facts, plan)
+        for method in lower_direct_shape_methods("binding_context.single_ordered_map_context", facts, plan)
     ]
     return FamilyArtifactSpec(
         root=ROOT,
@@ -502,7 +497,7 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
     plan = read_json(FIXTURES / "variable-context-simple-map-plan-v0.json")
     api_methods = [
         ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
-        for method in compile_variable_context_simple_map_methods(facts, plan)
+        for method in lower_direct_shape_methods("variable_context.single_ordered_map_context", facts, plan)
     ]
     return FamilyArtifactSpec(
         root=ROOT,
@@ -586,7 +581,7 @@ def box_compilation_context_spec() -> FamilyArtifactSpec:
     oracle = read_json(FIXTURES / "box-compilation-context-oracle-v0.json")
     api_methods = [
         ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
-        for method in compile_box_compilation_context_methods(facts, plan)
+        for method in lower_direct_shape_methods("box_compilation_context.multi_ordered_map_context", facts, plan)
     ]
     return FamilyArtifactSpec(
         root=ROOT,
@@ -710,7 +705,7 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
     plan = read_json(FIXTURES / "variable-context-snapshot-restore-plan-v0.json")
     api_methods = [
         ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
-        for method in compile_variable_context_snapshot_restore_methods(facts, plan)
+        for method in lower_direct_shape_methods("variable_context.owned_ordered_map_snapshot", facts, plan)
     ]
     return FamilyArtifactSpec(
         root=ROOT,

@@ -121,7 +121,7 @@ The next cleanup/implementation series is:
 
 1. `Document direct-shape lowerer boundary`
 
-   Status: this SSOT update.
+   Status: closed.
 
    Purpose:
 
@@ -131,6 +131,8 @@ The next cleanup/implementation series is:
    ```
 
 2. `Implement direct-shape rule table`
+
+   Status: closed.
 
    Move the easy-tier operation selection into a small rule table keyed by
    source shape, not by family name.
@@ -148,6 +150,8 @@ The next cleanup/implementation series is:
 
 3. `Move BoxCompilationContext to multi-map direct shape`
 
+   Status: closed.
+
    Treat `BoxCompilationContext::new` and `is_empty` as
    `multi_ordered_map_context`, not a bespoke lifecycle consultation.
 
@@ -159,6 +163,8 @@ The next cleanup/implementation series is:
    ```
 
 4. `Move CoreContext scalar counters to scalar-counter direct shape`
+
+   Status: closed.
 
    Keep only scalar counter methods in the easy tier. Generator-object methods
    stay parked.
@@ -172,6 +178,8 @@ The next cleanup/implementation series is:
 
 5. `Downgrade process-only inventories to legacy traceability`
 
+   Status: closed.
+
    Keep old readiness/selection/probe documents as historical evidence, but do
    not make them the active workflow.
 
@@ -183,6 +191,8 @@ The next cleanup/implementation series is:
    ```
 
 6. `Re-evaluate partial crate bundle after direct lowerer cleanup`
+
+   Status: next.
 
    Do not add another family or crate linker slice until the easy-tier direct
    rule table owns the existing BindingContext, VariableContext,

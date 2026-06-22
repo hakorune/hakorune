@@ -8,7 +8,7 @@ from typing import Any
 
 from extract_core_context_facts import SOURCE as CORE_CONTEXT_SOURCE, extract_facts as extract_core_context_facts
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec
-from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
+from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
 from shared_family_generator import read_json
 from verified_hako_family_ir import op
 
@@ -76,7 +76,7 @@ def core_context_spec() -> FamilyArtifactSpec:
     plan = read_json(FIXTURES / "core-context-plan-v0.json")
     api_methods = [
         ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
-        for method in compile_core_context_scalar_methods(facts, plan)
+        for method in lower_direct_shape_methods("core_context.scalar_counter_context", facts, plan)
     ]
     return FamilyArtifactSpec(
         root=ROOT,

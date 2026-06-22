@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Direct shape lowerer for easy-tier MirBuilder Rust-to-Hako conversion."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Callable
+
+from mirbuilder_ordered_map_converter import (
+    compile_box_compilation_context_methods,
+    compile_ordered_map_family_methods,
+    compile_variable_context_snapshot_restore_methods,
+)
+from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
+from verified_hako_family_ir import HakoMethodIR
+
+
+class DirectShapeLoweringDeny(RuntimeError):
+    def __init__(self, shape: str, reason: str) -> None:
+        super().__init__(f"Deny({reason}) for {shape}")
+        self.shape = shape
+        self.reason = reason
+
+
+DirectLowerer = Callable[[dict[str, Any], dict[str, Any]], list[HakoMethodIR]]
+
+
+@dataclass(frozen=True)
+class DirectShapeRule:
+    shape: str
+    lower: DirectLowerer
+    description: str
+
+
+def _single_ordered_map_context(
+    *,
+    type_name: str,
+    field_id: str,
+    field_name: str,
+    value_arg: str,
+    include_clear: bool = False,
+) -> DirectLowerer:
+    def lower(facts: dict[str, Any], plan: dict[str, Any]) -> list[HakoMethodIR]:
+        return compile_ordered_map_family_methods(
+            facts,
+            plan,
+            type_name=type_name,
+            field_id=field_id,
+            field_name=field_name,
+            value_arg=value_arg,
+            include_clear=include_clear,
+        )
+
+    return lower
+
+
+DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
+    "binding_context.single_ordered_map_context": DirectShapeRule(
+        shape="single_ordered_map_context",
+        lower=_single_ordered_map_context(
+            type_name="BindingContext",
+            field_id="BindingContext.binding_map",
+            field_name="binding_map",
+            value_arg="binding_id",
+            include_clear=True,
+        ),
+        description="one BTreeMap field with BindingContext clear support",
+    ),
+    "variable_context.single_ordered_map_context": DirectShapeRule(
+        shape="single_ordered_map_context",
+        lower=_single_ordered_map_context(
+            type_name="VariableContext",
+            field_id="VariableContext.variable_map",
+            field_name="variable_map",
+            value_arg="value_id",
+        ),
+        description="one BTreeMap field for VariableContext simple-map methods",
+    ),
+    "variable_context.owned_ordered_map_snapshot": DirectShapeRule(
+        shape="owned_ordered_map_snapshot",
+        lower=lambda facts, plan: compile_variable_context_snapshot_restore_methods(facts, plan),
+        description="BTreeMap clone and owned restore replacement",
+    ),
+    "box_compilation_context.multi_ordered_map_context": DirectShapeRule(
+        shape="multi_ordered_map_context",
+        lower=lambda facts, plan: compile_box_compilation_context_methods(facts, plan),
+        description="default construction plus all-fields ordered-map emptiness",
+    ),
+    "core_context.scalar_counter_context": DirectShapeRule(
+        shape="scalar_counter_context",
+        lower=lambda facts, plan: compile_core_context_scalar_methods(facts, plan),
+        description="bounded i64 scalar counters with generator-object methods denied",
+    ),
+}
+
+
+def lower_direct_shape_methods(
+    rule_id: str,
+    facts: dict[str, Any],
+    plan: dict[str, Any],
+) -> list[HakoMethodIR]:
+    rule = DIRECT_SHAPE_RULES.get(rule_id)
+    if rule is None:
+        raise DirectShapeLoweringDeny(rule_id, "UnsupportedDirectShape")
+    return rule.lower(facts, plan)
