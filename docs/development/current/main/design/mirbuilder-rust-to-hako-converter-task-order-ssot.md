@@ -281,7 +281,8 @@ Phase order:
    Status:
 
    ```text
-   working tree has the shared same-module method-view registry include.
+   green in working tree; same-module view rows are backed by the shared
+   registry include.
    ```
 
 Parked until the generic_method registry is green:

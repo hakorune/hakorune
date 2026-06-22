@@ -39,7 +39,7 @@ MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001
 Next task:
 
 ```text
-Move same-module method views to the generic_method route tuple registry.
+Drain the remaining AST JSON phase0 old compiler-tree entry to the canonical MirBuilder path.
 ```
 
 Purpose:
