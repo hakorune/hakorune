@@ -9,6 +9,7 @@
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
 
 static box LowerLoopLocalReturnVarBox {
   _find_key_in_range(s, key_pat, from_pos, end_pos) {
@@ -22,7 +23,7 @@ static box LowerLoopLocalReturnVarBox {
     if k < 0 { return null }
     local k_colon = JsonFragBox.index_of_from(s, ":", k)
     if k_colon < 0 || k_colon >= end_pos { return null }
-    return JsonFragBox.read_string_after(s, k_colon + 1)
+    return me._read_json_string_after(s, k_colon + 1, end_pos)
   }
 
   _read_int_field_in_range(s, key_pat, from_pos, end_pos) {
@@ -104,10 +105,16 @@ static box LowerLoopLocalReturnVarBox {
     if program_json == null { return null }
     local s = me._coerce_text_compat(program_json)
 
-    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
+    local k_loop_type = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
+    if k_loop_type < 0 { return null }
+    local k_loop = JsonFragBox.last_index_of_from(s, "{\"body\":[", k_loop_type)
     if k_loop < 0 { return null }
-    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_loop)
+    local k_cmp_type = JsonFragBox.last_index_of_from(s, "\"type\":\"Compare\"", k_loop_type)
+    if k_cmp_type < 0 { return null }
+    if k_cmp_type < k_loop { return null }
+    local k_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_cmp_type)
     if k_cmp < 0 { return null }
+    if k_cmp < k_loop { return null }
 
     local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
     if varname == null { return null }
@@ -121,28 +128,41 @@ static box LowerLoopLocalReturnVarBox {
 
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_loop)
     if k_ret < 0 { return null }
-    local k_ret_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret)
+    local k_ret_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_ret)
+    if k_ret_expr < 0 { return null }
+    local k_ret_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret_expr)
     if k_ret_var < 0 { return null }
-    local k_ret_name = JsonFragBox.index_of_from(s, "\"name\"", k_ret_var)
+    if k_ret_var > k_ret { return null }
+    local k_ret_name = JsonFragBox.index_of_from(s, "\"name\"", k_ret_expr)
     if k_ret_name < 0 { return null }
+    if k_ret_name > k_ret { return null }
     local k_ret_name_colon = JsonFragBox.index_of_from(s, ":", k_ret_name)
     if k_ret_name_colon < 0 { return null }
-    local ret_name = JsonFragBox.read_string_after(s, k_ret_name_colon + 1)
+    local ret_name = me._read_json_string_after(s, k_ret_name_colon + 1, s.length())
     if ret_name == null || ret_name != varname { return null }
 
     local step_v = me._read_step_int(s, k_loop, k_ret, varname)
     if step_v == null { return null }
 
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + init_v + "}},{\"op\":\"jump\",\"target\":1}]}," +
-      "{\"id\":1,\"instructions\":[{\"op\":\"phi\",\"dst\":2,\"incoming\":[[1,0],[6,3]]},{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + limit_v + "}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":2,\"rhs\":3,\"dst\":4},{\"op\":\"branch\",\"cond\":4,\"then\":2,\"else\":4}]}," +
-      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + step_v + "}},{\"op\":\"binop\",\"operation\":\"+\",\"lhs\":2,\"rhs\":5,\"dst\":6},{\"op\":\"jump\",\"target\":3}]}," +
-      "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
-      "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":2}]}]}]}"
-    return mir
+    return CompatMirEmitBox.emit_loop_local_return_var_text(init_v, limit_v, step_v)
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _read_json_string_after(s, from_pos, end_pos) {
+    local n = s.length()
+    if end_pos > n { end_pos = n }
+    if from_pos < 0 || from_pos >= end_pos { return null }
+    local seg = s.substring(from_pos, end_pos)
+    local q1 = seg.indexOf("\"")
+    if q1 < 0 { return null }
+    local rest_start = q1 + 1
+    if rest_start >= seg.length() { return null }
+    local rest = seg.substring(rest_start, seg.length())
+    local q2 = rest.indexOf("\"")
+    if q2 < 0 { return null }
+    return rest.substring(0, q2)
   }
 }

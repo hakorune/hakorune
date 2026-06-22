@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-06-22
+Date: 2026-06-23
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-LOOP-CONTRACT-ACCEPTANCE-001
+MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001
 ```
 
 Next task:
 
 ```text
-Accept canonical MirBuilder Stage-0 Loop Program(JSON) contract without old-tree fallback
+Drain the remaining AST JSON phase0 old compiler-tree entry to the canonical MirBuilder path
 ```
 
 Purpose:
@@ -47,15 +47,11 @@ Purpose:
 ```text
 The canonical Program(JSON) compat executable entry under
 `lang/src/mir/builder/compat/` is now the active Stage-A / JoinIR Program(JSON)
-smoke target for Print, Expr(Call env.console.log Var), and fallthrough If
-contracts. The old compiler-tree Program(JSON) entry remains present but is
-not used as runtime fallback for those redirected non-loop contracts. The AST
-JSON phase0 pin and phase21 Loop Program(JSON) pin remain separate old-entry
-drain targets. The remaining blocker is Stage-0 Loop Program(JSON): attempts
-to add a small canonical loop lowerer exposed
-`[freeze:contract][ssa/phi_input/without_def]` in
-`BuildProgramFragmentBox.inject_json_fragment/2`. Fix the acceptance /
-compiler-shape issue before re-enabling the Loop contract pin.
+smoke target for Print, Expr(Call env.console.log Var), fallthrough If,
+Stage-0 Loop, and phase21 Loop+If return-var contracts. The old compiler-tree
+Program(JSON) entry remains present but is not used as runtime fallback for
+those contracts. The remaining old-entry drain target is the AST JSON phase0
+pin.
 ```
 
 Lifecycle converter boundary:
@@ -76,6 +72,7 @@ docs/development/current/main/phases/phase-296x/296x-1627-MIRBUILDER-COMPAT-ENTR
 docs/development/current/main/phases/phase-296x/296x-1628-MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001.md
 docs/development/current/main/phases/phase-296x/296x-1629-MIRBUILDER-CANONICAL-COMPAT-ENTRY-COVERAGE-STOP-001.md
 docs/development/current/main/phases/phase-296x/296x-1630-MIRBUILDER-CANONICAL-PROGRAM-JSON-COMPAT-REDIRECT-001.md
+docs/development/current/main/phases/phase-296x/296x-1631-MIRBUILDER-CANONICAL-LOOP-PROGRAM-JSON-ACCEPTANCE-001.md
 ```
 
 Short form:

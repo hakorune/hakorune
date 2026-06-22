@@ -6,6 +6,7 @@
 # - Print node shape
 # - Expr(Call env.console.log(...)) shape
 # - If node shape (R4 minimal)
+# - Loop node shape (R5 minimal)
 
 set -euo pipefail
 
@@ -19,6 +20,7 @@ export HAKO_JOINIR_PLANNER_REQUIRED=1
 ENTRY="$NYASH_ROOT/lang/src/mir/builder/compat/program_json_v0_entry.hako"
 FIXTURE_EXPR_CALL="$NYASH_ROOT/apps/tests/phase29bq_hako_mirbuilder_phase4_local_print_var_min.hako"
 FIXTURE_IF="$NYASH_ROOT/apps/tests/phase29bq_hako_mirbuilder_phase10_local_if_return_min.hako"
+FIXTURE_LOOP="$NYASH_ROOT/apps/tests/phase29bq_hako_mirbuilder_phase11_local_loop_return_var_min.hako"
 
 TMP_DIR="${PHASE29BQ_FAST_LOG_DIR:-/tmp}"
 RUN_ID="phase29bq_hako_program_json_contract_pin_${$}"
@@ -98,5 +100,18 @@ if ! rg -n '"type":"If"' "$PJSON_IF" >/dev/null; then
   exit 1
 fi
 emit_and_run_case "if_node" "$PJSON_IF" "" 0
+
+# 4) Loop node shape from Stage-0 emit
+PJSON_LOOP="$TMP_DIR/${RUN_ID}_loop_node.json"
+stageb_emit_program_json_v0_fixture "$PJSON_LOOP" "$FIXTURE_LOOP"
+if ! rg -n '"type":"Loop"' "$PJSON_LOOP" >/dev/null; then
+  echo "[FAIL] loop_node: Program JSON contract missing Loop node" >&2
+  exit 1
+fi
+if ! rg -n '"op":"<"' "$PJSON_LOOP" >/dev/null; then
+  echo "[FAIL] loop_node: Program JSON contract missing Loop Compare '<' op" >&2
+  exit 1
+fi
+emit_and_run_case "loop_node" "$PJSON_LOOP" "" 3
 
 echo "[PASS] hako_program_json_contract_pin: PASS"

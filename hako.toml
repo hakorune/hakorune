@@ -238,6 +238,7 @@ search_paths = ["target/release"]
 "hako.mir.builder.internal.lower_return_var_local" = "lang/src/mir/builder/internal/lower_return_var_local_box.hako"
 "hako.mir.builder.internal.lower_print_var_return_int" = "lang/src/mir/builder/internal/lower_print_var_return_int_box.hako"
 "hako.mir.builder.internal.lower_if_var_eq_int_fallthrough" = "lang/src/mir/builder/internal/lower_if_var_eq_int_fallthrough_box.hako"
+"hako.mir.builder.internal.lower_loop_if_return_var" = "lang/src/mir/builder/internal/lower_loop_if_return_var_box.hako"
 "hako.mir.builder.internal.lower_return_string" = "lang/src/mir/builder/internal/lower_return_string_box.hako"
 "hako.mir.builder.internal.lower_return_float" = "lang/src/mir/builder/internal/lower_return_float_box.hako"
 "hako.mir.builder.internal.lower_return_method_array_map" = "lang/src/mir/builder/internal/lower_return_method_array_map_box.hako"

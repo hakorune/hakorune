@@ -1,0 +1,118 @@
+// lower_loop_if_return_var_box.hako
+// Pattern: Local(i=Int); Loop(i<Int){ If(i<Int){Return Int}; i=i+Int }; Return Var(i).
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using "hako.mir.builder.internal.loop_scan" as LoopScanBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
+
+static box LowerLoopIfReturnVarBox {
+  try_lower(program_json) {
+    if program_json == null { return null }
+    local s = "" + program_json
+
+    local k_loop_type = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
+    if k_loop_type < 0 { return null }
+    local k_loop = JsonFragBox.last_index_of_from(s, "{\"body\":[", k_loop_type)
+    if k_loop < 0 { return null }
+    local k_cmp_type = JsonFragBox.last_index_of_from(s, "\"type\":\"Compare\"", k_loop_type)
+    if k_cmp_type < 0 { return null }
+    if k_cmp_type < k_loop { return null }
+    local k_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_cmp_type)
+    if k_cmp < 0 { return null }
+    if k_cmp < k_loop { return null }
+    local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
+    if varname == null || varname == "" { return null }
+
+    local init_v = PatternUtilBox.find_local_int_before(s, varname, k_loop)
+    if init_v == null { return null }
+
+    local loop_limit = me._read_compare_rhs_int(s, k_cmp)
+    if loop_limit == null { return null }
+
+    local k_body = JsonFragBox.index_of_from(s, "\"body\":[", k_loop)
+    if k_body < 0 { return null }
+    local k_if_type = JsonFragBox.index_of_from(s, "\"type\":\"If\"", k_body)
+    if k_if_type < 0 { return null }
+    if k_if_type > k_cmp { return null }
+    local k_if = JsonFragBox.last_index_of_from(s, "{\"cond\":", k_if_type)
+    if k_if < 0 || k_if < k_body { return null }
+    local k_if_cmp_type = JsonFragBox.last_index_of_from(s, "\"type\":\"Compare\"", k_if_type)
+    if k_if_cmp_type < 0 || k_if_cmp_type < k_if { return null }
+    local k_if_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_if_cmp_type)
+    if k_if_cmp < 0 || k_if_cmp < k_if { return null }
+    local k_body_local_type = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_if_type)
+    if k_body_local_type < 0 { return null }
+    if k_body_local_type > k_cmp { return null }
+    local k_body_local = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_body_local_type)
+    if k_body_local < 0 || k_body_local < k_if_type { return null }
+    local k_after_return = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_body_local_type)
+    if k_after_return < 0 { return null }
+
+    local if_limit = me._read_compare_rhs_int(s, k_if_cmp)
+    if if_limit == null { return null }
+    local then_retv = me._read_then_return_int(s, k_if, k_body_local)
+    if then_retv == null { return null }
+    local step_v = me._read_increment_step(s, k_body_local, k_after_return, varname)
+    if step_v == null { return null }
+    if me._return_var_matches(s, k_after_return, varname) != 1 { return null }
+
+    return CompatMirEmitBox.emit_loop_if_return_var_text(init_v, loop_limit, step_v, if_limit, then_retv)
+  }
+
+  _read_compare_rhs_int(s, from_pos) {
+    local k_cmp_type = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", from_pos)
+    if k_cmp_type < 0 { return null }
+    local k_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_cmp_type)
+    if k_cmp < 0 { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":\"<\"", k_cmp)
+    if k_op < 0 || k_op > k_cmp_type { return null }
+    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
+    if k_rhs < 0 || k_rhs > k_cmp_type { return null }
+    local k_rhs_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
+    if k_rhs_int < 0 || k_rhs_int > k_cmp_type { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
+    if k_val < 0 || k_val > k_cmp_type { return null }
+    return JsonFragBox.read_int_after(s, k_val + 8)
+  }
+
+  _read_then_return_int(s, k_if, end_pos) {
+    local k_then = JsonFragBox.index_of_from(s, "\"then\":[", k_if)
+    if k_then < 0 || k_then > end_pos { return null }
+    local k_ret_type = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_then)
+    if k_ret_type < 0 || k_ret_type > end_pos { return null }
+    local k_ret_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_ret_type)
+    if k_ret_expr < 0 || k_ret_expr < k_then { return null }
+    local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_ret_expr)
+    if k_int < 0 || k_int > k_ret_type { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
+    if k_val < 0 || k_val > k_ret_type { return null }
+    return JsonFragBox.read_int_after(s, k_val + 8)
+  }
+
+  _read_increment_step(s, from_pos, end_pos, varname) {
+    local k_name = JsonFragBox.index_of_from(s, "\"name\":\"" + varname + "\"", from_pos)
+    if k_name < 0 || k_name > end_pos { return null }
+    local k_bin_type = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", from_pos)
+    if k_bin_type < 0 || k_bin_type > end_pos { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":\"+\"", from_pos)
+    if k_op < 0 || k_op > k_bin_type { return null }
+    local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"name\":\"" + varname + "\",\"type\":\"Var\"}", from_pos)
+    if k_lhs < 0 || k_lhs > k_bin_type { return null }
+    local k_rhs_int = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Int\"", from_pos)
+    if k_rhs_int < 0 || k_rhs_int > k_bin_type { return null }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
+    if k_val < 0 || k_val > k_bin_type { return null }
+    return JsonFragBox.read_int_after(s, k_val + 8)
+  }
+
+  _return_var_matches(s, k_ret, varname) {
+    local k_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_ret)
+    if k_expr < 0 { return 0 }
+    local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_expr)
+    if k_var < 0 || k_var > k_ret { return 0 }
+    local k_name = JsonFragBox.index_of_from(s, "\"name\":\"" + varname + "\"", k_expr)
+    if k_name < 0 || k_name > k_ret { return 0 }
+    return 1
+  }
+}

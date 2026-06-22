@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-22"
+date = "2026-06-23"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
@@ -265,17 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CANONICAL-PROGRAM-JSON-COMPAT-REDIRECT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1630-MIRBUILDER-CANONICAL-PROGRAM-JSON-COMPAT-REDIRECT-001.md"
-latest_card_summary = """Stage-A compat bridge and active JoinIR MirBuilder
-Program(JSON) smokes now point at the canonical Program(JSON v0) compat entry under
-`lang/src/mir/builder/compat/`. Print, Expr(Call env.console.log Var), and
-fallthrough If Program(JSON) contracts are green through MIR/EXE execution.
-Loop Program(JSON) remains deferred behind a selfhost acceptance/compiler-shape
-blocker; the phase21 Loop pin remains an old-entry drain target until that
-acceptance blocker is fixed."""
+latest_card = "MIRBUILDER-CANONICAL-LOOP-PROGRAM-JSON-ACCEPTANCE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1631-MIRBUILDER-CANONICAL-LOOP-PROGRAM-JSON-ACCEPTANCE-001.md"
+latest_card_summary = """The canonical Program(JSON v0) compat entry now
+accepts the Stage-0 Loop node contract and the phase21 Loop+If return-var
+shape through MIR/EXE execution. The old compiler-tree Program(JSON) entry is
+not used as runtime fallback for these contracts. The remaining old-entry
+drain target is the AST JSON phase0 pin."""
 
-current_blocker_token = "MIRBUILDER-CANONICAL-COMPAT-LOOP-CONTRACT-ACCEPTANCE-001"
+current_blocker_token = "MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

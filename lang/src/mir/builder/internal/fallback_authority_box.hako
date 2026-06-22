@@ -15,6 +15,7 @@ using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIn
 using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
 using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
 using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
+using "hako.mir.builder.internal.lower_loop_if_return_var" as LowerLoopIfReturnVarBox
 using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
 using "hako.mir.builder.internal.lower_print_var_return_int" as LowerPrintVarReturnIntBox
@@ -71,6 +72,7 @@ static box BuilderFallbackAuthorityBox {
     { local out_ifm = LowerIfMergeLocalReturnVarBox.try_lower(s); if out_ifm != null { return out_ifm } }
     {
       if BuilderConfigBox.skip_loops_on() != 1 {
+        { local out_loop_if = LowerLoopIfReturnVarBox.try_lower(s); if out_loop_if != null { return out_loop_if } }
         { local out_loop_min = LowerLoopLocalReturnVarBox.try_lower(s); if out_loop_min != null { return out_loop_min } }
         { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return out_loop } }
       }

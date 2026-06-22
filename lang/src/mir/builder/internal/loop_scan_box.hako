@@ -9,11 +9,11 @@ static box LoopScanBox {
     local kr = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cmp)
     if kl >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kl) >= 0 {
       local kn = JsonFragBox.index_of_from(s, "\"name\":\"", kl)
-      if kn >= 0 { return JsonFragBox.read_string_after(s, kn + 7) }
+      if kn >= 0 { return me._read_string_after_quote(s, kn + 8) }
     }
     if kr >= 0 && JsonFragBox.index_of_from(s, "\"type\":\"Var\"", kr) >= 0 {
       local kn2 = JsonFragBox.index_of_from(s, "\"name\":\"", kr)
-      if kn2 >= 0 { return JsonFragBox.read_string_after(s, kn2 + 7) }
+      if kn2 >= 0 { return me._read_string_after_quote(s, kn2 + 8) }
     }
     return null
   }
@@ -87,5 +87,14 @@ static box LoopScanBox {
   }
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _read_string_after_quote(s, start_pos) {
+    local n = s.length()
+    if start_pos < 0 || start_pos >= n { return null }
+    local rest = s.substring(start_pos, n)
+    local q = rest.indexOf("\"")
+    if q < 0 { return null }
+    return rest.substring(0, q)
   }
 }

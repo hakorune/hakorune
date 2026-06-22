@@ -30,6 +30,7 @@ builder.internal.lower_loop_multi_carrier_box = "builder/internal/lower_loop_mul
 builder.internal.lower_loop_count_param_box = "builder/internal/lower_loop_count_param_box.hako"
 builder.internal.lower_print_var_return_int_box = "builder/internal/lower_print_var_return_int_box.hako"
 builder.internal.lower_if_var_eq_int_fallthrough_box = "builder/internal/lower_if_var_eq_int_fallthrough_box.hako"
+builder.internal.lower_loop_if_return_var_box = "builder/internal/lower_loop_if_return_var_box.hako"
 builder.internal.lower_if_merge_local_return_var_box = "builder/internal/lower_if_merge_local_return_var_box.hako"
 builder.internal.lower_loop_local_return_var_box = "builder/internal/lower_loop_local_return_var_box.hako"
 builder.internal.loop_opts_adapter_box = "builder/internal/loop_opts_adapter_box.hako"

@@ -139,6 +139,58 @@ static box CompatMirEmitBox {
       "]}]}]}"
   }
 
+  method emit_loop_local_return_var_text(local_init, loop_limit, loop_step) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init + "}}," +
+      "{\"op\":\"jump\",\"target\":1}" +
+      "]}," +
+      "{\"id\":1,\"instructions\":[" +
+      "{\"op\":\"phi\",\"dst\":2,\"incoming\":[[1,0],[6,3]]}," +
+      "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + loop_limit + "}}," +
+      "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":2,\"rhs\":3,\"dst\":4}," +
+      "{\"op\":\"branch\",\"cond\":4,\"then\":2,\"else\":4}" +
+      "]}," +
+      "{\"id\":2,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + loop_step + "}}," +
+      "{\"op\":\"binop\",\"operation\":\"+\",\"lhs\":2,\"rhs\":5,\"dst\":6}," +
+      "{\"op\":\"jump\",\"target\":3}" +
+      "]}," +
+      "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
+      "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":2}]}" +
+      "]}]}"
+  }
+
+  method emit_loop_if_return_var_text(local_init, loop_limit, loop_step, if_limit, if_return) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init + "}}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + loop_limit + "}}," +
+      "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + loop_step + "}}," +
+      "{\"op\":\"const\",\"dst\":8,\"value\":{\"type\":\"i64\",\"value\":" + if_limit + "}}," +
+      "{\"op\":\"jump\",\"target\":1}" +
+      "]}," +
+      "{\"id\":1,\"instructions\":[" +
+      "{\"op\":\"phi\",\"dst\":4,\"incoming\":[[1,0],[6,3]]}," +
+      "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":2,\"dst\":5}," +
+      "{\"op\":\"branch\",\"cond\":5,\"then\":2,\"else\":5}" +
+      "]}," +
+      "{\"id\":2,\"instructions\":[" +
+      "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":4,\"rhs\":8,\"dst\":7}," +
+      "{\"op\":\"branch\",\"cond\":7,\"then\":4,\"else\":3}" +
+      "]}," +
+      "{\"id\":3,\"instructions\":[" +
+      "{\"op\":\"binop\",\"dst\":6,\"lhs\":4,\"rhs\":3,\"operation\":\"+\"}," +
+      "{\"op\":\"jump\",\"target\":1}" +
+      "]}," +
+      "{\"id\":4,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":10,\"value\":{\"type\":\"i64\",\"value\":" + if_return + "}}," +
+      "{\"op\":\"ret\",\"value\":10}" +
+      "]}," +
+      "{\"id\":5,\"instructions\":[{\"op\":\"ret\",\"value\":4}]}" +
+      "]}]}"
+  }
+
   method emit_return_call0(name) {
     local insts = [
       %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},

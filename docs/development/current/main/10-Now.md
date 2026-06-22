@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-06-22
+Date: 2026-06-23
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-LOOP-CONTRACT-ACCEPTANCE-001
+MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -76,15 +76,12 @@ explicit caller drain inventory. The planner-required route overlap between
 `loop_true_break_continue` and `generic_loop_v1` is now closed, and Stage-A
 bridge plus active JoinIR MirBuilder Program(JSON) smokes now target the canonical
 Program(JSON) compat executable entry under `lang/src/mir/builder/compat/`.
-Print, Expr(Call env.console.log Var), and fallthrough If Program(JSON)
-contracts are green through MIR/EXE execution. Stage-0 Loop Program(JSON)
-remains the active blocker after a small canonical loop lowerer attempt exposed
-`[freeze:contract][ssa/phi_input/without_def]` in
-`BuildProgramFragmentBox.inject_json_fragment/2`; this is an acceptance /
-compiler-shape blocker, not an old compiler-tree fallback. The AST JSON
-phase0 pin and phase21 Loop Program(JSON) pin remain separate old-entry drain
-targets. CoreContext stays next for the easy-tier converter lane after this
-cleanup boundary is documented. Crate linker work stays parked.
+Print, Expr(Call env.console.log Var), fallthrough If, Stage-0 Loop, and
+phase21 Loop+If return-var Program(JSON) contracts are green through MIR/EXE
+execution without old compiler-tree runtime fallback. The remaining old-entry
+drain target is the AST JSON phase0 pin. CoreContext stays next for the
+easy-tier converter lane after this cleanup boundary is documented. Crate
+linker work stays parked.
 
 Historical context follows.
 
