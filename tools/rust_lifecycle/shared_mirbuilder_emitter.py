@@ -359,14 +359,12 @@ def _render_method_body(method: Mapping[str, Any]) -> list[str]:
 
 
 def _render_main_body(main: Mapping[str, Any]) -> list[str]:
-    if "operations" in main:
-        lines: list[str] = []
-        for operation in main["operations"]:
-            lines.extend(_render_main_operation(operation))
-        return lines
-    if "lines" in main:
-        return list(main["lines"])
-    raise ValueError("main has no operations or lines")
+    if "operations" not in main:
+        raise ValueError("main has no operations")
+    lines: list[str] = []
+    for operation in main["operations"]:
+        lines.extend(_render_main_operation(operation))
+    return lines
 
 
 def _render_static_box(name: str, methods: Sequence[Mapping[str, Any]], trailing_blank_line: bool) -> list[str]:

@@ -89,11 +89,8 @@ def build_family_artifact_verifier_text(spec: FamilyArtifactSpec) -> str | None:
 
 
 def _build_family_artifact_hako_object(spec: FamilyArtifactSpec) -> dict[str, Any]:
-    main: dict[str, Any]
-    if spec.main_operations is not None:
-        main = {"operations": [operation.to_json() for operation in spec.main_operations]}
-    else:
-        main = {"lines": spec.main_lines}
+    if not spec.main_operations:
+        raise ValueError("FamilyArtifactSpec.main_operations is required")
     verified_ir = {
         "generated_by": spec.generated_by,
         "artifact_manifest": spec.artifact_manifest,
@@ -103,7 +100,7 @@ def _build_family_artifact_hako_object(spec: FamilyArtifactSpec) -> dict[str, An
         "box": {
             "name": spec.box.name,
         },
-        "main": main,
+        "main": {"operations": [operation.to_json() for operation in spec.main_operations]},
     }
     if spec.box.fields:
         verified_ir["box"]["fields"] = [

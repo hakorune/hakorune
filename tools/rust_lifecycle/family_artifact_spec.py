@@ -58,7 +58,6 @@ class FamilyArtifactSpec:
     family_comment: str
     using_module: str
     box: BoxSpec
-    main_lines: list[str]
     family_id: str
     state: str
     source_rust_file: Path
@@ -83,4 +82,4 @@ class FamilyArtifactSpec:
     transport_notes: dict[str, Any] | None = None
     denied_boundaries: list[str] | None = None
     extra_manifest_fields: dict[str, Any] = field(default_factory=dict)
-    main_operations: list[HakoOperation] | None = None
+    main_operations: list[HakoOperation] = field(default_factory=list)

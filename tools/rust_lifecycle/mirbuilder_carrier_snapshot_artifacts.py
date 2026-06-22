@@ -208,7 +208,6 @@ def carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArt
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
         box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="VariableContext"),
             op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "count"}, 11]),
@@ -395,7 +394,6 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
         box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="VariableContext"),
             op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "count"}, 11]),

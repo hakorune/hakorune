@@ -423,7 +423,6 @@ def binding_context_spec() -> FamilyArtifactSpec:
             field_type="OrderedMapBox",
             initializer_operation={"kind": "NewOrderedMap"},
         ),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="BindingContext"),
             op("AssertEq", left="ctx.binding_map.keys_value.length()", right=0, fail_message="binding_context_new_empty=fail", fail_code=1),
@@ -512,7 +511,6 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
             field_type="OrderedMapBox",
             initializer_operation={"kind": "NewOrderedMap"},
         ),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="VariableContext"),
             op("StaticCall", target="new_empty", callee="VariableContextApi.is_empty", args=["ctx"]),
@@ -599,7 +597,6 @@ def box_compilation_context_spec() -> FamilyArtifactSpec:
                 FieldSpec(name="value_types", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
             ],
         ),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="BoxCompilationContext"),
             op("StaticCall", target="is_empty_result", callee="BoxCompilationContextApi.is_empty", args=["ctx"]),
@@ -654,7 +651,6 @@ def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
         box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="VariableContext"),
             op("StaticCall", target="view", callee="VariableContextApi.variable_map", args=["ctx"]),
@@ -723,7 +719,6 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
             field_type="OrderedMapBox",
             initializer_operation={"kind": "NewOrderedMap"},
         ),
-        main_lines=[],
         main_operations=[
             op("NewBox", target="ctx", box="VariableContext"),
             op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["ctx"]),
