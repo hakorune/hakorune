@@ -192,11 +192,37 @@ The next cleanup/implementation series is:
 
 6. `Re-evaluate partial crate bundle after direct lowerer cleanup`
 
+   Status: closed.
+
+   The ordered-map crate bundle now includes the direct-shape easy tier:
+
+   ```text
+   BindingContext
+   BoxCompilationContext new/is_empty
+   CoreContext scalar counters
+   VariableContext simple-map
+   VariableContext snapshot/restore
+   ```
+
+   The bundle executable also exercises `VariableContextApi.restore/2`, so the
+   previous `VariableContext.restore_exe_call` deferred capability is closed.
+
+7. `Select the next post-bundle direct-shape slice`
+
    Status: next.
 
-   Do not add another family or crate linker slice until the easy-tier direct
-   rule table owns the existing BindingContext, VariableContext,
-   BoxCompilationContext, and CoreContext scalar-counter paths.
+   Do not enter hard tier by accident. The next slice must be one of:
+
+   ```text
+   another direct-shape easy-tier family with bounded live facts
+   crate-bundle symbol/link verification over the current bundle
+   native adoption movement into lang/src/mir/builder/
+   ```
+
+   If the candidate requires returned borrow, mutable alias, PHI, loop-carried
+   state, Drop, unsafe/FFI, nullable map value, non-ASCII key ordering, or
+   CoreContext generator-object transport, stop with `Deny(reason)` instead of
+   adding a compatibility hack.
 
 ## Current Completed Native Targets
 

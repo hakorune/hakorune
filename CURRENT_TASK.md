@@ -172,9 +172,10 @@ Done:
   multi_ordered_map_context lowering
   scalar_counter_context lowering
   process-only inventory legacy downgrade
+  ordered-map crate bundle v3 with CoreContext scalar counters and VariableContext restore
 
 Next:
-  Re-evaluate partial crate bundle after direct-shape lowerer cleanup.
+  Select the next post-bundle direct-shape slice.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -187,7 +188,8 @@ Task sequence:
   6. Downgrade process-only inventories to legacy traceability and keep
      `convert_mirbuilder_lightweight_facts.py --all --check` plus
      `rust_mirbuilder_converter_matrix_guard.sh` as the active workflow. (closed)
-  7. Re-evaluate partial crate bundle after direct-shape lowerer cleanup.
+  7. Re-evaluate partial crate bundle after direct-shape lowerer cleanup. (closed)
+  8. Select the next post-bundle direct-shape slice.
 ```
 
 Current task order:

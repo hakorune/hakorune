@@ -26,25 +26,26 @@ assert manifest["claims"]["generated_hako_manual_edit"] == 0
 assert manifest["claims"]["mainline_selected"] == 0
 assert manifest["claims"]["rust_bootstrap_retained"] == 1
 assert manifest["claims"]["backend_behavior_changed"] == 0
-assert manifest["generator"]["version"] == "mirbuilder-easy-v0-ordered-map-bundle-v1"
+assert manifest["generator"]["version"] == "mirbuilder-easy-v0-ordered-map-bundle-v3"
 assert manifest["bundle_kind"] == "mirbuilder_easy_v0_ordered_map_bundle"
 assert manifest["bundle_members"] == [
     "hakorune_mir_builder::binding_context",
     "hakorune_mir_builder::context",
+    "hakorune_mir_builder::core_context.scalar_counters",
     "hakorune_mir_builder::variable_context.simple_map",
     "hakorune_mir_builder::variable_context.snapshot_restore",
 ]
 assert manifest["exercised_capabilities"] == [
     "BindingContext.insert_lookup",
     "BoxCompilationContext.new_is_empty",
+    "CoreContext.scalar_counters",
     "VariableContext.simple_map.insert_lookup",
     "VariableContext.snapshot_owned_projection_set_get",
+    "VariableContext.snapshot_restore",
 ]
-assert [entry["name"] for entry in manifest["deferred_capabilities"]] == [
-    "VariableContext.restore_exe_call",
-]
-assert len(manifest["source"]["rust_files"]) == 3
-assert len(manifest["inputs"]["bundle_members"]) == 4
+assert manifest["deferred_capabilities"] == []
+assert len(manifest["source"]["rust_files"]) == 4
+assert len(manifest["inputs"]["bundle_members"]) == 5
 PY
 
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
@@ -61,7 +62,7 @@ EOF_EXPECTED
 diff -u "$EXPECTED" "$OUT"
 
 cat <<'REPORT'
-output_contract=rust-lifecycle-mirbuilder-easy-v0-ordered-map-bundle-v1
+output_contract=rust-lifecycle-mirbuilder-easy-v0-ordered-map-bundle-v3
 family_id=hakorune_mir_builder::ordered_map_bundle
 generated_hako_checked_in=1
 artifact_manifest_checked_in=1
