@@ -4,8 +4,6 @@
        * These helpers consume MIR-owned route metadata and LoweringPlan rows.
        * Site scanning and name fallback stay outside this file.
        */
-      #include "hako_llvmc_ffi_generic_method_route_registry.inc"
-
       auto enum MirCallNeedKind
       mir_call_need_kind_from_route_metadata_tokens(
           const char* route_id,

@@ -14,8 +14,6 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS,
       };
 
-#include "hako_llvmc_ffi_generic_method_route_registry.inc"
-
       struct GenericMethodRouteState {
         int recv_org;
         int runtime_array_len;

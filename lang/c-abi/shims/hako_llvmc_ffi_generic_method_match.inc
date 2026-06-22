@@ -1,6 +1,4 @@
       #include "hako_llvmc_ffi_generic_method_policy.inc"
-      #include "hako_llvmc_ffi_generic_method_route_registry.inc"
-
       auto enum GenericMethodEmitKind
       classify_generic_method_emit_kind_from_lowering_plan(yyjson_val* entry) {
         struct LoweringPlanGenericMethodView view;

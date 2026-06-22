@@ -1,3 +1,7 @@
+/* Shared registry include guard. */
+#ifndef HAKO_LLVMC_GENERIC_METHOD_ROUTE_REGISTRY_INC
+#define HAKO_LLVMC_GENERIC_METHOD_ROUTE_REGISTRY_INC
+
       /*
        * Generic-method route tuple registry.
        *
@@ -11,7 +15,7 @@
         const char* route_kind;
         const char* helper_symbol;
         const char* route_proof;
-        enum LoweringPlanTierMetadata tier;
+        int tier;
         int route_result;
         int emit_kind;
         int need_kind;
@@ -57,7 +61,7 @@
                   "runtime_data_load_any",
                   "nyash.runtime_data.get_hh",
                   "get_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   1,
                   2,
                   4,
@@ -68,7 +72,7 @@
                   "runtime_data_load_any",
                   NULL,
                   NULL,
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   1,
                   2,
                   4,
@@ -79,7 +83,7 @@
                   "map_load_scalar_i64",
                   "nyash.map.scalar_load_hi",
                   "map_set_scalar_i64_same_key_no_escape",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   1,
                   2,
                   4,
@@ -90,7 +94,7 @@
                   "map_load_scalar_i64",
                   "nyash.map.scalar_load_hi",
                   "map_set_scalar_i64_dominates_no_escape",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   1,
                   2,
                   4,
@@ -101,7 +105,7 @@
                   "map_load_scalar_i64",
                   "nyash.map.scalar_load_hi",
                   "map_set_scalar_i64_covered_dynamic_i64_key_no_escape",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   1,
                   2,
                   4,
@@ -112,7 +116,7 @@
                   "map_load_any",
                   "nyash.map.slot_load_hh",
                   "get_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   1,
                   2,
                   4,
@@ -123,7 +127,7 @@
                   "array_slot_load_any",
                   "nyash.array.slot_load_hi",
                   "get_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   5,
                   2,
                   13,
@@ -134,7 +138,7 @@
                   "runtime_data_contains_any",
                   "nyash.runtime_data.has_hh",
                   "has_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   3,
                   6,
                   8,
@@ -145,7 +149,7 @@
                   "map_contains_any",
                   "nyash.map.probe_hh",
                   "has_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   3,
                   6,
                   5,
@@ -156,7 +160,7 @@
                   "map_contains_i64",
                   "nyash.map.probe_hi",
                   "has_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   3,
                   6,
                   5,
@@ -167,7 +171,7 @@
                   "array_contains_any",
                   "nyash.array.has_hh",
                   "has_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   3,
                   6,
                   14,
@@ -178,7 +182,7 @@
                   "map_entry_count",
                   "nyash.map.entry_count_i64",
                   "len_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   2,
                   3,
                   3,
@@ -189,7 +193,7 @@
                   "array_slot_len",
                   "nyash.array.slot_len_h",
                   "len_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   4,
                   3,
                   11,
@@ -200,7 +204,7 @@
                   "any_length",
                   "nyash.any.length_h",
                   "len_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   9,
                   3,
                   22,
@@ -211,7 +215,7 @@
                   "string_len",
                   "nyash.string.len_fast_h",
                   "len_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   8,
                   3,
                   16,
@@ -222,7 +226,7 @@
                   "array_append_any",
                   "nyash.array.slot_append_hh",
                   "push_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   6,
                   4,
                   10,
@@ -233,7 +237,7 @@
                   "map_keys_array",
                   "nyash.map.keys_h",
                   "keys_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   0,
                   7,
                   7,
@@ -244,7 +248,7 @@
                   "map_store_i64",
                   "nyash.map.slot_store_hih",
                   "set_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   0,
                   1,
                   2,
@@ -255,7 +259,7 @@
                   "map_store_any",
                   "nyash.map.slot_store_hhh",
                   "set_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   0,
                   1,
                   2,
@@ -266,7 +270,7 @@
                   "array_store_any",
                   "nyash.array.slot_store_hii",
                   "set_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   0,
                   1,
                   12,
@@ -277,7 +281,7 @@
                   "array_store_any",
                   "nyash.array.slot_store_hih",
                   "set_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   0,
                   1,
                   12,
@@ -288,7 +292,7 @@
                   "array_store_any",
                   "nyash.array.set_his",
                   "set_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   0,
                   1,
                   12,
@@ -299,7 +303,7 @@
                   "map_delete_any",
                   "nyash.map.delete_hh",
                   "delete_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+                  3,
                   0,
                   0,
                   6,
@@ -310,7 +314,7 @@
                   "string_substring",
                   "nyash.string.substring_hii",
                   "substring_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   8,
                   5,
                   17,
@@ -321,7 +325,7 @@
                   "string_indexof",
                   "nyash.string.indexOf_hh",
                   "indexof_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   10,
                   0,
                   19,
@@ -332,7 +336,7 @@
                   "string_last_indexof",
                   "nyash.string.lastIndexOf_hh",
                   "lastindexof_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   11,
                   0,
                   19,
@@ -343,7 +347,7 @@
                   "string_contains",
                   "nyash.string.contains_hh",
                   "contains_surface_policy",
-                  HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+                  2,
                   12,
                   0,
                   20,
@@ -355,7 +359,7 @@
           const char* route_id,
           const char* core_op,
           const char* route_kind,
-          enum LoweringPlanTierMetadata tier) {
+          int tier) {
         size_t i = 0;
         for (i = 0;
              i < sizeof(hako_llvmc_generic_method_route_registry_rows) /
@@ -400,3 +404,4 @@
         }
         return NULL;
       }
+#endif /* HAKO_LLVMC_GENERIC_METHOD_ROUTE_REGISTRY_INC */
