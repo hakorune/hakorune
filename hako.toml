@@ -214,6 +214,7 @@ search_paths = ["target/release"]
 "hako.using.resolve.ssot" = "lang/src/using/resolve_ssot_box.hako"
 "hako.llvm.emit" = "lang/src/llvm_ir/emit/LLVMEmitBox.hako"
 "hako.mir.builder.internal.prog_scan" = "lang/src/mir/builder/internal/prog_scan_box.hako"
+"hako.mir.builder.internal.program_json_shape" = "lang/src/mir/builder/internal/program_json_shape_box.hako"
 "hako.mir.builder.internal.pattern_util" = "lang/src/mir/builder/internal/pattern_util_box.hako"
 "hako.mir.builder.internal.if_mir_emit" = "lang/src/mir/builder/internal/if_mir_emit_box.hako"
 "hako.mir.builder.internal.compat_mir_emit" = "lang/src/mir/builder/internal/compat_mir_emit_box.hako"

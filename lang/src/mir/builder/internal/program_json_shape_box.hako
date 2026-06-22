@@ -1,0 +1,51 @@
+// program_json_shape_box.hako
+// Bounded shape probes for canonical Stage-0 Program(JSON).
+// This is not a JSON parser; callers use it only after finding a nearby type anchor.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box ProgramJsonShapeBox {
+  read_string_after_quote(s, start_pos) {
+    local n = s.length()
+    if start_pos < 0 || start_pos >= n { return null }
+    local rest = s.substring(start_pos, n)
+    local q = rest.indexOf("\"")
+    if q < 0 { return null }
+    return rest.substring(0, q)
+  }
+
+  read_json_string_after(s, from_pos, end_pos) {
+    local n = s.length()
+    if end_pos > n { end_pos = n }
+    if from_pos < 0 || from_pos >= end_pos { return null }
+    local seg = s.substring(from_pos, end_pos)
+    local q1 = seg.indexOf("\"")
+    if q1 < 0 { return null }
+    local rest_start = q1 + 1
+    if rest_start >= seg.length() { return null }
+    local rest = seg.substring(rest_start, seg.length())
+    local q2 = rest.indexOf("\"")
+    if q2 < 0 { return null }
+    return rest.substring(0, q2)
+  }
+
+  loop_object_start_before_type(s, type_pos) {
+    return JsonFragBox.last_index_of_from(s, "{\"body\":[", type_pos)
+  }
+
+  compare_object_start_before_type(s, type_pos) {
+    return JsonFragBox.last_index_of_from(s, "{\"lhs\":{", type_pos)
+  }
+
+  local_stmt_start_before_type(s, type_pos) {
+    local k_decl = JsonFragBox.last_index_of_from(s, "{\"declared_type\"", type_pos)
+    local k_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", type_pos)
+    if k_decl >= 0 && k_decl > k_expr { return k_decl }
+    if k_expr >= 0 { return k_expr }
+    return type_pos
+  }
+
+  return_expr_start_before_type(s, type_pos) {
+    return JsonFragBox.last_index_of_from(s, "{\"expr\":", type_pos)
+  }
+}

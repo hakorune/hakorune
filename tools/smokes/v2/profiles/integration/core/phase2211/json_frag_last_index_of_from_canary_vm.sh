@@ -1,5 +1,5 @@
 #!/bin/bash
-# JsonFrag.last_index_of_from() canary — Loop with break/continue → expect 0+1+4 = 5
+# JsonFrag.last_index_of_from() canary — Loop with continue at 2, break at 3 → expect 0+1 = 1
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"; fi
@@ -39,8 +39,8 @@ rc=$?
 set -e
 rm -f "$tmp_json" || true
 
-if [ "$rc" -eq 5 ]; then
+if [ "$rc" -eq 1 ]; then
   echo "[PASS] json_frag_last_index_of_from_canary_vm"
   exit 0
 fi
-echo "[FAIL] json_frag_last_index_of_from_canary_vm (rc=$rc, expect 5)" >&2; exit 1
+echo "[FAIL] json_frag_last_index_of_from_canary_vm (rc=$rc, expect 1)" >&2; exit 1

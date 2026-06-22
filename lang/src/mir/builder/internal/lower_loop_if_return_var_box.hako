@@ -5,6 +5,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using "hako.mir.builder.internal.loop_scan" as LoopScanBox
 using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
+using "hako.mir.builder.internal.program_json_shape" as ProgramJsonShapeBox
 
 static box LowerLoopIfReturnVarBox {
   try_lower(program_json) {
@@ -13,12 +14,12 @@ static box LowerLoopIfReturnVarBox {
 
     local k_loop_type = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
     if k_loop_type < 0 { return null }
-    local k_loop = JsonFragBox.last_index_of_from(s, "{\"body\":[", k_loop_type)
+    local k_loop = ProgramJsonShapeBox.loop_object_start_before_type(s, k_loop_type)
     if k_loop < 0 { return null }
     local k_cmp_type = JsonFragBox.last_index_of_from(s, "\"type\":\"Compare\"", k_loop_type)
     if k_cmp_type < 0 { return null }
     if k_cmp_type < k_loop { return null }
-    local k_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_cmp_type)
+    local k_cmp = ProgramJsonShapeBox.compare_object_start_before_type(s, k_cmp_type)
     if k_cmp < 0 { return null }
     if k_cmp < k_loop { return null }
     local varname = LoopScanBox.find_loop_var_name(s, k_cmp)
@@ -39,12 +40,12 @@ static box LowerLoopIfReturnVarBox {
     if k_if < 0 || k_if < k_body { return null }
     local k_if_cmp_type = JsonFragBox.last_index_of_from(s, "\"type\":\"Compare\"", k_if_type)
     if k_if_cmp_type < 0 || k_if_cmp_type < k_if { return null }
-    local k_if_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_if_cmp_type)
+    local k_if_cmp = ProgramJsonShapeBox.compare_object_start_before_type(s, k_if_cmp_type)
     if k_if_cmp < 0 || k_if_cmp < k_if { return null }
     local k_body_local_type = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_if_type)
     if k_body_local_type < 0 { return null }
     if k_body_local_type > k_cmp { return null }
-    local k_body_local = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_body_local_type)
+    local k_body_local = ProgramJsonShapeBox.local_stmt_start_before_type(s, k_body_local_type)
     if k_body_local < 0 || k_body_local < k_if_type { return null }
     local k_after_return = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_body_local_type)
     if k_after_return < 0 { return null }
@@ -63,7 +64,7 @@ static box LowerLoopIfReturnVarBox {
   _read_compare_rhs_int(s, from_pos) {
     local k_cmp_type = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", from_pos)
     if k_cmp_type < 0 { return null }
-    local k_cmp = JsonFragBox.last_index_of_from(s, "{\"lhs\":{", k_cmp_type)
+    local k_cmp = ProgramJsonShapeBox.compare_object_start_before_type(s, k_cmp_type)
     if k_cmp < 0 { return null }
     local k_op = JsonFragBox.index_of_from(s, "\"op\":\"<\"", k_cmp)
     if k_op < 0 || k_op > k_cmp_type { return null }
@@ -81,7 +82,7 @@ static box LowerLoopIfReturnVarBox {
     if k_then < 0 || k_then > end_pos { return null }
     local k_ret_type = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_then)
     if k_ret_type < 0 || k_ret_type > end_pos { return null }
-    local k_ret_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_ret_type)
+    local k_ret_expr = ProgramJsonShapeBox.return_expr_start_before_type(s, k_ret_type)
     if k_ret_expr < 0 || k_ret_expr < k_then { return null }
     local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_ret_expr)
     if k_int < 0 || k_int > k_ret_type { return null }
@@ -107,7 +108,7 @@ static box LowerLoopIfReturnVarBox {
   }
 
   _return_var_matches(s, k_ret, varname) {
-    local k_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_ret)
+    local k_expr = ProgramJsonShapeBox.return_expr_start_before_type(s, k_ret)
     if k_expr < 0 { return 0 }
     local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_expr)
     if k_var < 0 || k_var > k_ret { return 0 }

@@ -1,0 +1,37 @@
+// JsonFragBox.read_string_after contract:
+// - key-based string reads keep one-character values.
+// - empty JSON strings are valid values.
+// - unquoted values fail closed as null.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
+static box Main {
+  main() {
+    local json_one = env.get("JSON_ONE")
+    local k_one = JsonFragBox.index_of_from(json_one, "\"name\":\"", 0)
+    local one = JsonFragBox.read_string_after(json_one, k_one + 7)
+    if one != "i" {
+      print("one=fail")
+      return 1
+    }
+
+    local json_empty = env.get("JSON_EMPTY")
+    local k_empty = JsonFragBox.index_of_from(json_empty, "\"name\":\"", 0)
+    local empty = JsonFragBox.read_string_after(json_empty, k_empty + 7)
+    if empty != "" {
+      print("empty=fail")
+      return 2
+    }
+
+    local json_bad = env.get("JSON_BAD")
+    local k_bad = JsonFragBox.index_of_from(json_bad, "\"name\":", 0)
+    local bad = JsonFragBox.read_string_after(json_bad, k_bad + 7)
+    if bad != null {
+      print("bad=fail")
+      return 3
+    }
+
+    print("json_frag_read_string_contract=ok")
+    return 0
+  }
+}

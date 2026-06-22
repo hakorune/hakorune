@@ -2,6 +2,7 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
+using "hako.mir.builder.internal.program_json_shape" as ProgramJsonShapeBox
 
 static box PatternUtilBox {
   map_cmp(sym) { if sym=="<" {return "Lt"} if sym==">" {return "Gt"} if sym=="<=" {return "Le"} if sym==">=" {return "Ge"} if sym=="==" {return "Eq"} if sym=="!=" {return "Ne"} return null }
@@ -48,10 +49,10 @@ static box PatternUtilBox {
     local pos=0; local last=-1
     loop(true){
       local k=JsonFragBox.index_of_from(s, "\"type\":\"Local\"",pos); if k<0||k>=before_pos{break}
-      local stmt_start = me._local_stmt_start_before(s, k)
+      local stmt_start = ProgramJsonShapeBox.local_stmt_start_before_type(s, k)
       local kn=JsonFragBox.index_of_from(s, "\"name\":\"",stmt_start)
       if kn>=0{
-        local nm = me._read_string_after_quote(s, kn + 8)
+        local nm = ProgramJsonShapeBox.read_string_after_quote(s, kn + 8)
         if nm == name { last=stmt_start }
       }
       pos=k+1
@@ -365,20 +366,5 @@ static box PatternUtilBox {
   }
   _encode_bounds(lb, rb) {
     return me._coerce_text_compat(lb) + ":" + me._coerce_text_compat(rb)
-  }
-  _read_string_after_quote(s, start_pos) {
-    local n = s.length()
-    if start_pos < 0 || start_pos >= n { return null }
-    local rest = s.substring(start_pos, n)
-    local q = rest.indexOf("\"")
-    if q < 0 { return null }
-    return rest.substring(0, q)
-  }
-  _local_stmt_start_before(s, type_pos) {
-    local k_decl = JsonFragBox.last_index_of_from(s, "{\"declared_type\"", type_pos)
-    local k_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", type_pos)
-    if k_decl >= 0 && k_decl > k_expr { return k_decl }
-    if k_expr >= 0 { return k_expr }
-    return type_pos
   }
 }

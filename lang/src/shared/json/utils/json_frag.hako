@@ -177,11 +177,27 @@ static box JsonFragBox {
     local s = "" + text
     local i = pos
     local n = s.length()
-    // Find opening quote
-    loop(i < n) { if s.substring(i,i+1) == "\"" { i = i + 1 break } if s.substring(i,i+1) != " " { break } i = i + 1 }
-    local j = i
-    loop(j < n) { if s.substring(j,j+1) == "\"" { break } j = j + 1 }
-    if j <= i { return null }
+    local quote_pos = -1
+    loop(i < n) {
+      if quote_pos >= 0 { break }
+      if s.substring(i, i+1) == "\"" {
+        quote_pos = i
+      } else {
+        if s.substring(i, i+1) != " " { break }
+        i = i + 1
+      }
+    }
+    if quote_pos >= 0 { i = quote_pos + 1 }
+    local j = -1
+    j = i
+    loop(j < n) {
+      local ch = s.substring(j, j+1)
+      if ch == "\"" { break }
+      if ch == "\\" { j = j + 1 }
+      j = j + 1
+    }
+    if j >= n { return null }
+    if j < i { return null }
     local raw = s.substring(i, j)
     if me._decode_unicode_on() == 1 { return me._decode_escapes(raw) }
     return raw
