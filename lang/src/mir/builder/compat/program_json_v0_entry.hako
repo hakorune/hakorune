@@ -1,0 +1,54 @@
+// program_json_v0_entry.hako
+// Canonical compat executable entry for Program(JSON v0) -> MIR(JSON v0).
+//
+// This file is intentionally thin:
+// - read Program(JSON v0) from HAKO_PROGRAM_JSON or HAKO_PROGRAM_JSON_FILE
+// - call the canonical MirBuilderBox authority
+// - print one MIR(JSON v0) line
+
+using lang.mir.builder.MirBuilderBox as MirBuilderBox
+
+static box Main {
+  main() {
+    local tag = "[freeze:contract][hako_mirbuilder]"
+    local program_json = me._read_program_json(tag)
+    if program_json == null { return 2 }
+
+    local mir_json = MirBuilderBox.emit_from_program_json_v0(program_json, null)
+    if mir_json == null || ("" + mir_json) == "" {
+      print(tag + " MirBuilderBox.emit_from_program_json_v0 returned null/empty")
+      return 2
+    }
+
+    print("" + mir_json)
+    return 0
+  }
+
+  method _read_program_json(tag) {
+    local program_json = env.get("HAKO_PROGRAM_JSON")
+    if program_json != null && ("" + program_json) != "" {
+      return "" + program_json
+    }
+
+    local path = env.get("HAKO_PROGRAM_JSON_FILE")
+    if path == null || ("" + path) == "" {
+      print(tag + " missing HAKO_PROGRAM_JSON (or HAKO_PROGRAM_JSON_FILE)")
+      return null
+    }
+
+    local fb = new FileBox()
+    local ok = fb.open("" + path, "r")
+    if ok != 1 {
+      print(tag + " failed to open HAKO_PROGRAM_JSON_FILE: " + path)
+      return null
+    }
+    program_json = fb.read()
+    fb.close()
+
+    if program_json == null || ("" + program_json) == "" {
+      print(tag + " empty HAKO_PROGRAM_JSON_FILE: " + path)
+      return null
+    }
+    return "" + program_json
+  }
+}

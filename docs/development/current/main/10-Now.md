@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-ENTRY-REDIRECT-001
+MIRBUILDER-CANONICAL-COMPAT-PRINT-CONTRACT-DECISION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -75,9 +75,11 @@ landed as a typed harness closeout, the MirBuilder home is now locked to
 explicit caller drain inventory. Stage-A bridge and active JoinIR smokes still
 use the old compiler-tree Program(JSON) entries. The planner-required route
 overlap between `loop_true_break_continue` and `generic_loop_v1` is now
-closed, so the next implementation owner is the canonical compat entry plus
-caller redirect. CoreContext stays next for the easy-tier converter lane after
-this cleanup boundary is documented.
+closed, and the canonical Program(JSON) compat executable entry exists under
+`lang/src/mir/builder/compat/`. Live caller redirect is stopped at the
+hand-crafted Print node contract gap: old compiler-tree entry accepts it,
+canonical `MirBuilderBox` currently rejects it. CoreContext stays next for the
+easy-tier converter lane after this cleanup boundary is documented.
 Crate linker work stays parked.
 
 Historical context follows.

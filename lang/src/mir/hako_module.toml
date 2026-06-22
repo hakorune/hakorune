@@ -10,6 +10,7 @@ builder.func_lowering.call_methodize_box = "builder/func_lowering/call_methodize
 builder.MirBuilderBox = "builder/MirBuilderBox.hako"
 builder.MirBuilderMinBox = "builder/MirBuilderMinBox.hako"
 builder.pattern_registry = "builder/pattern_registry.hako"
+builder.compat.program_json_v0_entry = "builder/compat/program_json_v0_entry.hako"
 builder.func_body.basic_lower_box = "builder/func_body/basic_lower_box.hako"
 builder.func_body.extern_call_box = "builder/func_body/extern_call_box.hako"
 builder.func_body.cli_entry_box = "builder/func_body/cli_entry_box.hako"

@@ -3,6 +3,8 @@
 Authority home
 - Canonical native `.hako` home: `lang/src/mir/builder/`.
 - Canonical public entry: `lang/src/mir/builder/MirBuilderBox.hako`.
+- Canonical Program(JSON v0) executable compat entry:
+  `lang/src/mir/builder/compat/program_json_v0_entry.hako`.
 - Canonical workspace namespace: `lang.mir.builder.*`.
 - Legacy `lang/src/compiler/mirbuilder/` entries may forward here during the
   compatibility drain. This directory must not import the legacy compiler-tree
