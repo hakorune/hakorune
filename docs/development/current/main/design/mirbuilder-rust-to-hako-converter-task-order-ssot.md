@@ -852,8 +852,11 @@ The next cleanup/implementation series is:
 `TypeContext.value_kinds`, `TypeContext.value_origin_newbox`,
 `MetadataContext scalar/source_file`, and `TypeContext.value_types` are closed.
 
+`TypeContext` aggregate snapshot/restore is green in the working tree, so the
+next direct slice is the structured-loop line.
+
 ```text
-1. Implement direct TypeContext aggregate snapshot/restore conversion
+1. Implement direct TypeContext aggregate snapshot/restore conversion (green in working tree)
 ```
 
 ### TypeContext aggregate snapshot/restore decision

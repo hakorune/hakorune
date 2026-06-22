@@ -1,6 +1,6 @@
 # 296x-1523 VARIABLE-CONTEXT-IMMUTABLE-BORROW-DERIVED-ROUTE-SELECTION-001
 
-Status: open
+Status: closed
 Date: 2026-06-20
 
 ## Purpose
@@ -60,8 +60,10 @@ backend_behavior_changed=0
 output_contract=rust-lifecycle-variable-context-immutable-borrow-derived-route-selection-v0
 family_id=hakorune_mir_builder::variable_context
 pilot_scope=VariableContext_immutable_borrow_only
-selected_route=derived_hako
-route_state=DerivedMainline
+selected_route=denied
+route_state=Denied
+deny_reason=ReturnedReadBorrow
+replacement_policy=OwnedReadSnapshotProjection
 route_seam_ssot_verified=1
 artifact_manifest_verified=1
 full_variable_context_claim=0

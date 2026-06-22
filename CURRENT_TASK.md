@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-CABI-GENERIC-METHOD-ROUTE-TUPLE-HARDCODE-CLEANUP-001
+STRUCTURED-LOOP-WITHOUT-CARRIED-STATE-001
 ```
 
 Next task:
 
 ```text
-Clean up c-abi generic_method route tuple hardcode.
+Implement structured loop without carried state.
 ```
 
 Purpose:
@@ -183,7 +183,7 @@ Done:
   optional copy/default map method ids parameterized
 
 Next:
-  Clean up c-abi generic_method route tuple hardcode.
+  Implement structured loop without carried state.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -204,7 +204,8 @@ Task sequence:
   12. Decide TypeContext.value_types MirType transport. (closed)
   13. Implement direct TypeContext value-type conversion. (closed)
   14. Decide TypeContext multi-field snapshot/restore transport. (closed)
-  15. Implement direct TypeContext aggregate snapshot/restore conversion. (next)
+  15. Implement direct TypeContext aggregate snapshot/restore conversion. (closed)
+  16. Implement structured loop without carried state. (next)
 ```
 
 Current cleanup slice:
@@ -239,7 +240,8 @@ Phase 2:
   Status: green in working tree.
 
 Phase 3:
-  move same-module method views to the same registry after Phase 2 is green.
+  same-module method views are already backed by the shared registry include.
+  Status: green in working tree.
 
 Parked:
   hako_llvmc_ffi_exact_seed_backend_route_registry.inc
@@ -254,8 +256,8 @@ Acceptance:
   existing generic_method route tests green
   converter matrix remains green
 
-Phase 2 is complete in the working tree; the next cleanup slice is Phase 3
-(`same_module_method_views`).
+Phase 3 is green in the working tree; the next task is the structured loop
+without carried state slice.
 ```
 
 Current task order:
