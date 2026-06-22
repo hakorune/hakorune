@@ -146,6 +146,7 @@ struct CandidateSuppression {
     loop_continue_only_candidate: bool,
     loop_cond_continue_only_candidate: bool,
     loop_true_early_exit_candidate: bool,
+    loop_true_break_continue_candidate: bool,
     array_join_candidate: bool,
 }
 
@@ -159,6 +160,7 @@ fn should_skip_candidate(name: &str, suppression: &CandidateSuppression) -> bool
         }
         entry_keys::LOOP_COND_CONTINUE_ONLY => suppression.loop_continue_only_candidate,
         entry_keys::LOOP_TRUE_BREAK_CONTINUE => suppression.loop_true_early_exit_candidate,
+        entry_keys::GENERIC_LOOP_V1 => suppression.loop_true_break_continue_candidate,
         _ => false,
     }
 }
@@ -173,6 +175,7 @@ pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'st
         loop_continue_only_candidate: pred_loop_continue_only(facts),
         loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
         loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
+        loop_true_break_continue_candidate: pred_loop_true_break_continue(facts),
         array_join_candidate: pred_loop_array_join(facts),
     };
     let char_map_candidate = pred_loop_char_map(facts);
@@ -208,6 +211,7 @@ pub(crate) fn try_route_recipe_first_with_success(
         loop_continue_only_candidate: pred_loop_continue_only(facts),
         loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
         loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
+        loop_true_break_continue_candidate: pred_loop_true_break_continue(facts),
         array_join_candidate: pred_loop_array_join(facts),
     };
     for entry in ENTRIES {
@@ -240,6 +244,7 @@ mod tests {
             loop_continue_only_candidate: true,
             loop_cond_continue_only_candidate: false,
             loop_true_early_exit_candidate: false,
+            loop_true_break_continue_candidate: false,
             array_join_candidate: false,
         }
     }
@@ -260,6 +265,27 @@ mod tests {
 
         assert!(should_skip_candidate(
             entry_keys::LOOP_COND_BREAK_CONTINUE,
+            &suppression
+        ));
+    }
+
+    #[test]
+    fn generic_loop_v1_is_suppressed_when_loop_true_break_continue_owns_shape() {
+        let suppression = CandidateSuppression {
+            if_phi_join_candidate: false,
+            loop_continue_only_candidate: false,
+            loop_cond_continue_only_candidate: false,
+            loop_true_early_exit_candidate: false,
+            loop_true_break_continue_candidate: true,
+            array_join_candidate: false,
+        };
+
+        assert!(should_skip_candidate(
+            entry_keys::GENERIC_LOOP_V1,
+            &suppression
+        ));
+        assert!(!should_skip_candidate(
+            entry_keys::LOOP_TRUE_BREAK_CONTINUE,
             &suppression
         ));
     }

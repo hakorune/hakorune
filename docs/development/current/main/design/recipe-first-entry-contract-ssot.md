@@ -59,7 +59,7 @@ AST
 | `loop_cond_continue_only` | `LoopContinueOnly` | facts present | excludes `loop_continue_only` |
 | `loop_cond_continue_with_return` | `LoopContinueWithReturn` | facts present | see bullet list |
 | `loop_cond_return_in_body` | `LoopReturnInBody` | facts present | excludes `loop_cond_break_continue` |
-| `loop_true_break_continue` | `LoopTrueBreakContinue` | facts present | excludes `loop_true_early_exit` |
+| `loop_true_break_continue` | `LoopTrueBreakContinue` | facts present | excludes `loop_true_early_exit`; excludes `generic_loop_v1` |
 | `loop_cond_break_continue` | `LoopExitIfBreakContinue` | exit-signal / conditional_update / nested-only | excluded by scan candidates and pattern-specific disjoints |
 | `scan_with_init` / `split_scan` / `bool_predicate_scan` / `accum_const_loop` | `ScanWithInit` / `SplitScan` / `BoolPredicateScan` / `AccumConstLoop` | facts present | excludes `loop_cond_break_continue` |
 | `generic_loop_v0` | `LoopGenericFallbackV0` | fallback facts | release-only routing |
@@ -77,6 +77,7 @@ Note: Candidate keys follow current semantic fact accessors where available; his
 - LoopContinueOnly（facts: `loop_continue_only`）が成立する場合、loop_cond_break_continue は候補にしない
 - LoopContinueOnly（facts: `loop_continue_only`）が成立する場合、loop_cond_continue_only は候補にしない
 - LoopTrueEarlyExit（facts: `loop_true_early_exit`）が成立する場合、loop_true_break_continue は候補にしない
+- LoopTrueBreakContinue（facts: `loop_true_break_continue`）が成立する場合、generic_loop_v1 は候補にしない
 - LoopArrayJoin（facts: `loop_array_join`）が成立する場合、loop_cond_break_continue は候補にしない
 - scan_methods_* が候補に入った場合のみ、loop_cond_break_continue を候補にしない
 - loop_cond_return_in_body が成立する場合、loop_cond_break_continue は候補にしない

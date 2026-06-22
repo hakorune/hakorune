@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001
+MIRBUILDER-CANONICAL-COMPAT-ENTRY-REDIRECT-001
 ```
 
 Next task:
 
 ```text
-Make loop_true_break_continue and generic_loop_v1 route candidates disjoint
+Implement canonical MirBuilder compat entry and redirect callers
 ```
 
 Purpose:
@@ -50,11 +50,9 @@ crate-level bundle. BindingContext and VariableContext simple-map are both
 landed as typed family artifacts, VariableContext snapshot/restore is now
 landed as a typed harness closeout, the MirBuilder home is locked to
 `lang/src/mir/builder/`, and the compiler-tree compatibility surface now has
-an explicit caller drain inventory. A reverted canonical compat entry probe
-failed before redirect logic ran because planner-required route selection saw
-both `loop_true_break_continue` and `generic_loop_v1`. The next implementation
-owner is candidate disjointness for that overlap, then the canonical compat
-entry and caller redirect can resume.
+an explicit caller drain inventory. The planner-required route overlap between
+`loop_true_break_continue` and `generic_loop_v1` is now closed, so the next
+implementation owner is the canonical compat entry plus caller redirect.
 ```
 
 Lifecycle converter boundary:
@@ -72,6 +70,7 @@ Latest landed card:
 ```text
 docs/development/current/main/phases/phase-296x/296x-1626-MIRBUILDER-COMPAT-CALLER-DRAIN-INVENTORY-001.md
 docs/development/current/main/phases/phase-296x/296x-1627-MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001.md
+docs/development/current/main/phases/phase-296x/296x-1628-MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001.md
 ```
 
 Short form:

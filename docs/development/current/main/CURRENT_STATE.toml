@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1627-MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001.md"
+latest_card = "MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1628-MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001.md"
 latest_card_summary = """The
-canonical MirBuilder compat entry probe is blocked by planner-required route
-ambiguity before redirect logic runs: `loop_true_break_continue` and
-`generic_loop_v1` can both appear as candidates. The next owner is route
-candidate disjointness, not compat redirect wiring or physical deletion."""
+planner-required route candidate overlap between `loop_true_break_continue`
+and `generic_loop_v1` is closed by suppressing `generic_loop_v1` when
+`loop_true_break_continue` owns the shape. The next owner is the canonical
+MirBuilder compat entry and caller redirect, not physical deletion."""
 
-current_blocker_token = "MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001"
+current_blocker_token = "MIRBUILDER-CANONICAL-COMPAT-ENTRY-REDIRECT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
