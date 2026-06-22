@@ -265,12 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1622-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-CLOSEOUT-001.md"
+latest_card = "MIRBUILDER-CLEANUP-SAFETY-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1623-MIRBUILDER-CLEANUP-SAFETY-INVENTORY-001.md"
 latest_card_summary = """The
-VariableContext snapshot/restore typed execution harness is now implemented
-and the native alias-proof smoke remains green, while the crate linker,
-nightly rustc adapter, and wider family selection all remain parked."""
+MirBuilder cleanup discussion is now phase-cut into a safe inventory row.
+Large deletion candidates remain parked because live references still exist,
+while current pointers now point to the cleanup boundary instead of the
+deletion lane."""
 
 current_blocker_token = "none"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

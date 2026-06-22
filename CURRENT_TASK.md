@@ -39,7 +39,7 @@ none
 Next task:
 
 ```text
-CoreContext readiness inventory
+MirBuilder cleanup safety inventory
 ```
 
 Purpose:
@@ -48,10 +48,11 @@ Purpose:
 The selected ordered-map harness family has landed its representative
 crate-level bundle. BindingContext and VariableContext simple-map are both
 landed as typed family artifacts, VariableContext snapshot/restore is now
-landed as a typed harness closeout, and CoreContext is the next easy-tier
-candidate. Its readiness inventory is green, but plan/oracle/derived artifact
-paths are still missing while crate linker and nightly rustc paths stay
-unopened.
+landed as a typed harness closeout, and the MirBuilder cleanup discussion has
+been phase-cut into a safe inventory row. The large deletion ideas are still
+parked because live references remain; cleanup now means classifying safe
+removals and keeping the risky surfaces retained. CoreContext stays next for
+the easy-tier converter lane after this cleanup boundary is documented.
 ```
 
 Lifecycle converter boundary:
@@ -67,7 +68,7 @@ docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.
 Latest landed card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1622-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-CLOSEOUT-001.md
+docs/development/current/main/phases/phase-296x/296x-1623-MIRBUILDER-CLEANUP-SAFETY-INVENTORY-001.md
 ```
 
 Short form:
