@@ -8,7 +8,7 @@
 
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
 
-static box Main {
+static box MirBuilderProgramJsonV0EntryBox {
   main() {
     local tag = "[freeze:contract][hako_mirbuilder]"
     local program_json = me._read_program_json(tag)
@@ -50,5 +50,11 @@ static box Main {
       return null
     }
     return "" + program_json
+  }
+}
+
+static box Main {
+  main() {
+    return MirBuilderProgramJsonV0EntryBox.main()
   }
 }
