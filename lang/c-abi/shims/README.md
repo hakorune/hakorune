@@ -150,6 +150,9 @@ Current partitions:
   - same-module generic-method route view predicates backed by route-rule
     rows; MIR JSON key acceptance is owned by MIR route facts, not C-side key
     allowlists
+- `hako_llvmc_ffi_same_module_method_view_registry.inc`
+  - same-module generic-method route-view registry rows and shared lookup
+    helper for stable route-rule predicates
 - `hako_llvmc_ffi_string_concat_lowering.inc`
   - thin wrapper for string concat lowering that now delegates emit details
 - `hako_llvmc_ffi_string_concat_emit.inc`

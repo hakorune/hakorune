@@ -278,6 +278,12 @@ Phase order:
    same-module route view predicates stop re-listing generic_method tuples.
    ```
 
+   Status:
+
+   ```text
+   working tree has the shared same-module method-view registry include.
+   ```
+
 Parked until the generic_method registry is green:
 
 ```text
