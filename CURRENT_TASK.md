@@ -39,7 +39,7 @@ none
 Next task:
 
 ```text
-MirBuilder home lock and compat redirect
+MirBuilder compat redirect drain plan
 ```
 
 Purpose:
@@ -48,12 +48,12 @@ Purpose:
 The selected ordered-map harness family has landed its representative
 crate-level bundle. BindingContext and VariableContext simple-map are both
 landed as typed family artifacts, VariableContext snapshot/restore is now
-landed as a typed harness closeout, and the MirBuilder home has now been
-locked to `lang/src/mir/builder/` while the legacy compiler-tree surface is
-kept compat / migration owned. The large deletion ideas are still parked
-because live references remain; cleanup now means classifying safe removals
-and keeping the risky surfaces retained. CoreContext stays next for the
-easy-tier converter lane after this home lock is documented.
+landed as a typed harness closeout, the MirBuilder home is locked to
+`lang/src/mir/builder/`, and the compiler-tree compatibility surface now has
+an explicit redirect / drain plan. The large deletion ideas are still parked
+because live references remain; cleanup now means moving callers and unique
+behavior toward the canonical home before deleting anything. CoreContext stays
+next for the easy-tier converter lane after this cleanup boundary is documented.
 ```
 
 Lifecycle converter boundary:
@@ -69,7 +69,7 @@ docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.
 Latest landed card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1624-MIRBUILDER-HOME-LOCK-AND-COMPAT-REDIRECT-001.md
+docs/development/current/main/phases/phase-296x/296x-1625-MIRBUILDER-COMPAT-REDIRECT-DRAIN-PLAN-001.md
 ```
 
 Short form:

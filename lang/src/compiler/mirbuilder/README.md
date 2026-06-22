@@ -1,5 +1,14 @@
 # `lang/src/compiler/mirbuilder/` (Phase-0)
 
+Compatibility status:
+- Canonical native MirBuilder home is now `lang/src/mir/builder/`.
+- This directory is retained as a compat / migration surface while old
+  Program(JSON v0) entry paths, Stage-A bridge callers, and active smokes are
+  drained.
+- New authority behavior belongs under `lang/src/mir/builder/`, not here.
+- Allowed redirect direction: this directory may forward to `lang/src/mir/builder/`.
+  The canonical home must not import this directory.
+
 Pointers:
 - repo-wide selfhost compiler ownership map:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`

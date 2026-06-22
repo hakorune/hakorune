@@ -70,11 +70,12 @@ implementation entry contract is landed, the initial patch sequence is
 landed, BoxCompilationContext was the next crate-level probe candidate, the
 typed BoxCompilationContext Main execution harness is implemented, the
 ordered-map crate bundle is landed, VariableContext snapshot/restore is now
-landed as a typed harness closeout, and the MirBuilder home is now locked to
-`lang/src/mir/builder/` while the legacy compiler-tree surface remains
-compat / migration owned. The large deletion ideas are still parked because
-live references remain. CoreContext stays next for the easy-tier converter
-lane after the home lock is documented. Crate linker work stays parked.
+landed as a typed harness closeout, the MirBuilder home is now locked to
+`lang/src/mir/builder/`, and the legacy compiler-tree surface now has an
+explicit redirect / drain plan. The large deletion ideas are still parked
+because live references remain. CoreContext stays next for the easy-tier
+converter lane after this cleanup boundary is documented. Crate linker work
+stays parked.
 
 Historical context follows.
 

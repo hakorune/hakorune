@@ -1,5 +1,13 @@
 # MirBuilderBox — Program(JSON v0) → MIR(JSON v0)
 
+Authority home
+- Canonical native `.hako` home: `lang/src/mir/builder/`.
+- Canonical public entry: `lang/src/mir/builder/MirBuilderBox.hako`.
+- Canonical workspace namespace: `lang.mir.builder.*`.
+- Legacy `lang/src/compiler/mirbuilder/` entries may forward here during the
+  compatibility drain. This directory must not import the legacy compiler-tree
+  mirbuilder.
+
 Pointers
 - repo-wide selfhost compiler ownership map:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`

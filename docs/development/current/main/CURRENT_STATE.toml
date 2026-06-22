@@ -265,12 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HOME-LOCK-AND-COMPAT-REDIRECT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1624-MIRBUILDER-HOME-LOCK-AND-COMPAT-REDIRECT-001.md"
+latest_card = "MIRBUILDER-COMPAT-REDIRECT-DRAIN-PLAN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1625-MIRBUILDER-COMPAT-REDIRECT-DRAIN-PLAN-001.md"
 latest_card_summary = """The
-MirBuilder canonical native home is now locked to lang/src/mir/builder/ while
-the legacy compiler-tree surface remains compat / migration owned. The bulk
-delete lane stays parked because live references still exist."""
+MirBuilder compat redirect plan is now explicit: the canonical authority is
+lang/src/mir/builder/**, the legacy compiler-tree surface may forward toward it,
+and the reverse import direction is forbidden while physical deletion stays
+parked."""
 
 current_blocker_token = "none"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
