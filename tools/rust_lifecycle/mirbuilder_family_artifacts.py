@@ -653,30 +653,22 @@ def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
-        box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer="OrderedMap.create()"),
-        main_lines=_lines("""
-            local ctx = new VariableContext()
-            local view = VariableContextApi.variable_map(ctx)
-            if VariableMapViewApi.is_empty(view) != 1 {
-                print("variable_context_borrow_view_empty=fail")
-                return 1
-            }
-            if VariableMapViewApi.len(view) != 0 {
-                print("variable_context_borrow_view_len=fail")
-                return 2
-            }
-            if VariableMapViewApi.contains(view, "x") != 0 {
-                print("variable_context_borrow_view_contains=fail")
-                return 3
-            }
-            if VariableMapViewApi.lookup(view, "x") != null {
-                print("variable_context_borrow_view_lookup=fail")
-                return 4
-            }
-
-            print("variable_context_immutable_borrow_derived_artifact=ok")
-            return 0
-        """),
+        box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="VariableContext"),
+            op("StaticCall", target="view", callee="VariableContextApi.variable_map", args=["ctx"]),
+            op("StaticCall", target="view_empty", callee="VariableMapViewApi.is_empty", args=["view"]),
+            op("AssertEq", left="view_empty", right=1, fail_message="variable_context_borrow_view_empty=fail", fail_code=1),
+            op("StaticCall", target="view_len", callee="VariableMapViewApi.len", args=["view"]),
+            op("AssertEq", left="view_len", right=0, fail_message="variable_context_borrow_view_len=fail", fail_code=2),
+            op("StaticCall", target="view_contains", callee="VariableMapViewApi.contains", args=["view", {"literal": "x"}]),
+            op("AssertEq", left="view_contains", right=0, fail_message="variable_context_borrow_view_contains=fail", fail_code=3),
+            op("StaticCall", target="view_lookup", callee="VariableMapViewApi.lookup", args=["view", {"literal": "x"}]),
+            op("AssertEq", left="view_lookup", right=None, fail_message="variable_context_borrow_view_lookup=fail", fail_code=4),
+            op("Print", text="variable_context_immutable_borrow_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id=VARIABLE_CONTEXT_FAMILY_ID,
         state="DerivedShadow",
         source_rust_file=VARIABLE_CONTEXT_SOURCE,
@@ -691,17 +683,17 @@ def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
                 methods=[
                     ApiMethodSpec(
                         signature="variable_map(ctx)",
-                        operations=[{"kind": "ReturnSource", "source": "ctx.variable_map"}],
+                        operations=[op("ReturnSource", source="ctx.variable_map").to_json()],
                     )
                 ],
             ),
             StaticBoxSpec(
                 name="VariableMapViewApi",
                 methods=[
-                    ApiMethodSpec(signature="is_empty(view): i64", operations=[{"kind": "MapIsEmpty", "source": "view"}]),
-                    ApiMethodSpec(signature="len(view): i64", operations=[{"kind": "MapLength", "source": "view"}]),
-                    ApiMethodSpec(signature="contains(view, name): i64", operations=[{"kind": "MapHas", "source": "view", "key": "name"}]),
-                    ApiMethodSpec(signature="lookup(view, name)", operations=[{"kind": "MapGet", "source": "view", "key": "name"}]),
+                    ApiMethodSpec(signature="is_empty(view): i64", operations=[op("MapIsEmpty", source="view").to_json()]),
+                    ApiMethodSpec(signature="len(view): i64", operations=[op("MapLength", source="view").to_json()]),
+                    ApiMethodSpec(signature="contains(view, name): i64", operations=[op("MapHas", source="view", key="name").to_json()]),
+                    ApiMethodSpec(signature="lookup(view, name)", operations=[op("MapGet", source="view", key="name").to_json()]),
                 ],
             ),
         ],

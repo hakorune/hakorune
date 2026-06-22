@@ -74,23 +74,26 @@ static box Main {
     main() {
         local ctx = new VariableContext()
         local view = VariableContextApi.variable_map(ctx)
-        if VariableMapViewApi.is_empty(view) != 1 {
+        local view_empty = VariableMapViewApi.is_empty(view)
+        if view_empty != 1 {
             print("variable_context_borrow_view_empty=fail")
             return 1
         }
-        if VariableMapViewApi.len(view) != 0 {
+        local view_len = VariableMapViewApi.len(view)
+        if view_len != 0 {
             print("variable_context_borrow_view_len=fail")
             return 2
         }
-        if VariableMapViewApi.contains(view, "x") != 0 {
+        local view_contains = VariableMapViewApi.contains(view, "x")
+        if view_contains != 0 {
             print("variable_context_borrow_view_contains=fail")
             return 3
         }
-        if VariableMapViewApi.lookup(view, "x") != null {
+        local view_lookup = VariableMapViewApi.lookup(view, "x")
+        if view_lookup != null {
             print("variable_context_borrow_view_lookup=fail")
             return 4
         }
-
         print("variable_context_immutable_borrow_derived_artifact=ok")
         return 0
     }
