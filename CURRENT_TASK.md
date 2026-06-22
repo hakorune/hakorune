@@ -76,29 +76,27 @@ docs/development/current/main/phases/phase-296x/296x-1631-MIRBUILDER-CANONICAL-L
 ```
 
 Short form:
-  yes, but the current easy tier uses lightweight signature facts ->
-  HakoLifecyclePlan -> verifier -> emitter.
-  CoreContext, TypeContext, MetadataContext, the returned mutable borrow
-  decision, the read-view decision, the carrier-sensitive alias proof, the PHI
-  and join_id lifecycle inventory, the loop/trim route lowering inventory, the
-  NonTrivialDrop inventory, the ConstructorLifecycleMismatch inventory, the
-  CoreContext pilot selection, the CoreContext scalar-counter facts pilot, the
-  CoreContext scalar-counter plan/oracle inventory, the TypeContext bounded
-  map slice pilot selection, the TypeContext bounded map slice facts pilot,
-  the BoxCompilationContext crate smoke readiness inventory, the
-  BoxCompilationContext crate smoke selection, the BoxCompilationContext crate
-  smoke harness owner selection, and the BoxCompilationContext crate smoke
-  harness design are currently consultation-only: their source shapes and
-  decision space are landed, while lifecycle facts, plan, recipe, oracle,
-  manifest, and route entry remain absent. The ordered-map crate bundle is the
-  next executable bridge slice.
+  yes, for MirBuilder easy tier, but the active rule is direct shape lowering:
+  lightweight body/signature facts -> DirectShapeLowerer ->
+  VerifiedHakoFamilyIR -> shared emitter.
+
+  Do not turn simple shapes into new route-selection, readiness, or lifecycle
+  consultation tasks. Ordered-map contexts, owned map snapshot/restore,
+  multi-map default/is_empty contexts, and scalar counters are mechanical
+  direct-translation work.
 
   Do not open the nightly rustc adapter path for BindingContext or
   VariableContext simple-map. Reserve nightly MIR/borrowck facts for a gated
   hard tier after an explicit design stop.
 
-  The converter/emitter renders verified plans. It does not choose ownership,
-  borrow, move, or Drop policy directly from Rust syntax.
+  HakoLifecyclePlan remains allowed as legacy guard/provenance input where a
+  family already uses it, but it is not the standard path for simple easy-tier
+  shapes.
+
+  Hard tier remains explicit Deny(reason) / design stop: returned read borrow,
+  returned mutable borrow, carrier-sensitive alias outside owned snapshots,
+  PHI, loop-carried state, Drop, unsafe/FFI, nullable map values,
+  non-ASCII ordered keys, and CoreContext generator-object transport.
 
 MirBuilder family migration wording:
   crate is inventory / transport / coverage sweep.
@@ -167,30 +165,23 @@ Done:
   Loop / trim route lowering
   NonTrivialDrop
   UnsafeOrFFI
+  NonAsciiOrderedKey
+  direct-shape lowerer boundary
 
 Next:
-  NonAsciiOrderedKey
+  Implement direct-shape rule table for easy-tier MirBuilder conversion.
 
 Task sequence:
-  1. Accept imported instance method route for native CarrierInfo APIs.
-  2. Accept typed output-argument mutation for generated bridge APIs. (closed)
-  3. Preserve OrderedMapBox.get result type origin for focused carrier-data maps. (closed)
-  4. Accept explicit carrier ArrayBox.get without key-name-specific type special casing. (closed)
-  5. Retire raw Hako method body strings from active MirBuilder family specs. (closed)
-  6. Close CarrierInfo easy-tier live facts conversion. (closed)
-  7. Accept explicit CarrierInfo same-module bridge call. (closed)
-  8. Repair MirBuilder converter matrix coverage. (closed)
-  9. Evaluate CoreContext scalar counter vocabulary. (closed)
-  10. Evaluate TypeContext bounded map slice. (closed)
-  11. ReturnedMutableBorrow replacement decision. (closed)
-  12. ReturnedReadBorrow / read-view decision. (closed)
-  13. CarrierSensitiveAlias proof. (closed)
-  14. PHI and join_id lifecycle. (closed)
-  15. Loop / trim route lowering. (closed)
-  16. NonTrivialDrop. (closed)
-  17. UnsafeOrFFI. (closed)
-  18. NullableMapValue. (closed)
-  19. NonAsciiOrderedKey. (closed)
+  1. Document direct-shape lowerer boundary. (closed by SSOT update)
+  2. Implement direct-shape rule table.
+  3. Move BindingContext and VariableContext simple-map to the shared
+     single_ordered_map_context rule.
+  4. Move BoxCompilationContext new/is_empty to the multi_ordered_map_context
+     rule.
+  5. Move CoreContext scalar counters to the scalar_counter_context rule.
+  6. Downgrade process-only inventories to legacy traceability and keep
+     `convert_mirbuilder_lightweight_facts.py --all --check` plus
+     `rust_mirbuilder_converter_matrix_guard.sh` as the active workflow.
 ```
 
 Current task order:

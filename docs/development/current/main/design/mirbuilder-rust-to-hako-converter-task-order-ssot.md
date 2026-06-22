@@ -12,7 +12,30 @@ Related:
 
 ## Goal
 
-Build a practical MirBuilder-only converter:
+Build a practical MirBuilder-only converter with two explicit lanes:
+
+```text
+easy tier:
+  Rust source
+    -> lightweight body/signature facts
+    -> DirectShapeLowerer
+    -> VerifiedHakoFamilyIR
+    -> shared emitter
+    -> runnable native-shaped .hako
+
+hard tier:
+  Rust source
+    -> lightweight facts
+    -> Deny(reason)
+    -> human design stop / later explicit plan
+```
+
+The easy tier is direct mechanical translation. Do not turn simple Rust shapes
+such as ordered-map contexts or scalar counters into route-selection,
+consultation, or lifecycle-design tasks.
+
+The older lifecycle wording remains valid only as a guard/provenance layer for
+families that already need it:
 
 ```text
 Rust source
@@ -34,6 +57,47 @@ BindingContext or VariableContext simple-map. Nightly rustc MIR/borrowck facts
 are reserved for a later gated hard tier, such as PHI, loop lowering, or
 non-trivial borrow/drop ownership.
 
+## Easy-Tier Direct Shape Rule
+
+Use direct shape lowering when all of these are true:
+
+```text
+source body has a bounded shape
+all calls are in the allowed vocabulary
+field ownership is local to the translated box
+no returned borrow or mutable alias escapes
+no Drop / unsafe / FFI / PHI / loop-carried state is required
+the generated operation IR is typed before emission
+```
+
+The direct lowerer is allowed to map these shapes without a new design card:
+
+| Shape | Rust surface | Hako operation family | Current users |
+| --- | --- | --- | --- |
+| `single_ordered_map_context` | one `BTreeMap` field with get/contains/len/is_empty/insert/remove/clear | `NewOrderedMap`, `MapGetCopied`, `MapHas`, `MapLength`, `MapIsEmpty`, `MapSet`, `MapRemove`, `MapClear` | BindingContext, VariableContext simple-map |
+| `owned_ordered_map_snapshot` | `BTreeMap::clone`, owned restore/replace | `CloneOwnedMap`, `ReplaceOwnedMap` | VariableContext snapshot/restore |
+| `multi_ordered_map_context` | multiple map fields, default construction, all-fields empty check | `NewOrderedMap`, `AllMapsEmpty` | BoxCompilationContext |
+| `scalar_counter_context` | integer fields with next/peek counter methods | `InitFieldConst`, `TakeThenSaturatingIncrementU32`, `ReturnI64` | CoreContext scalar counters |
+| `owned_map_carrier_projection` | known non-escaping bulk consumer over an owned snapshot | `CarrierSnapshotFromOwnedMap`, `ExplicitCarrierSnapshotFromOwnedMap` | CarrierInfo snapshot slices |
+
+These are design stops, not direct-lowering work:
+
+```text
+ReturnedReadBorrow
+ReturnedMutableBorrow
+CarrierSensitiveAlias outside the owned-snapshot projection
+PhiJoinRequired
+LoopCarriedState
+NonTrivialDrop
+UnsafeOrFFI
+NullableMapValue
+NonAsciiOrderedKey
+CoreContext generator-object transport
+```
+
+If a shape lands in the design-stop list, do not patch around it with
+by-name branches, raw Hako strings, or fallback `RuntimeDataBox` routes.
+
 ## Work Unit Rule
 
 Prefer implementation commits over process commits.
@@ -50,6 +114,79 @@ usable source
 Do not create a numbered row, route-selection card, or manifest-only commit for
 ordinary progress. Create a durable card only when a deny reason below requires
 human design judgment.
+
+## Current Direct-Lowering Task Order
+
+The next cleanup/implementation series is:
+
+1. `Document direct-shape lowerer boundary`
+
+   Status: this SSOT update.
+
+   Purpose:
+
+   ```text
+   easy tier = direct Rust-shape lowering
+   hard tier = explicit Deny(reason) / design stop
+   ```
+
+2. `Implement direct-shape rule table`
+
+   Move the easy-tier operation selection into a small rule table keyed by
+   source shape, not by family name.
+
+   Acceptance:
+
+   ```text
+   BindingContext and VariableContext simple-map compile through the same
+   single_ordered_map_context rule.
+
+   emitter has no BindingContext/VariableContext by-name branch.
+
+   generated artifacts remain deterministic.
+   ```
+
+3. `Move BoxCompilationContext to multi-map direct shape`
+
+   Treat `BoxCompilationContext::new` and `is_empty` as
+   `multi_ordered_map_context`, not a bespoke lifecycle consultation.
+
+   Acceptance:
+
+   ```text
+   DefaultConstruct + AllMapsEmpty are produced from live lightweight facts.
+   no ValueId-key set/get support is claimed.
+   ```
+
+4. `Move CoreContext scalar counters to scalar-counter direct shape`
+
+   Keep only scalar counter methods in the easy tier. Generator-object methods
+   stay parked.
+
+   Acceptance:
+
+   ```text
+   next/peek counter methods are emitted from scalar_counter_context.
+   next_value / next_block / peek_* generator-object methods deny explicitly.
+   ```
+
+5. `Downgrade process-only inventories to legacy traceability`
+
+   Keep old readiness/selection/probe documents as historical evidence, but do
+   not make them the active workflow.
+
+   Active workflow:
+
+   ```bash
+   python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --all --check
+   bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
+   ```
+
+6. `Re-evaluate partial crate bundle after direct lowerer cleanup`
+
+   Do not add another family or crate linker slice until the easy-tier direct
+   rule table owns the existing BindingContext, VariableContext,
+   BoxCompilationContext, and CoreContext scalar-counter paths.
 
 ## Current Completed Native Targets
 
