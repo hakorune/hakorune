@@ -2054,13 +2054,31 @@ the easy-tier converter into these areas.
    1-2 tasks
    ```
 
+99. `Record the VariableContext snapshot/restore typed Main execution harness implementation closeout`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The VariableContext snapshot/restore typed Main execution harness is now
+   implemented and the remaining raw-string debt no longer includes that
+   family.
+   ```
+
+   Rough size:
+
+   ```text
+   1 task
+   ```
+
 ## Rough Remaining Size
 
-Current estimate after task 98:
+Current estimate after task 99:
 
 ```text
 converter coverage hygiene:
-  3 tasks
+  2 tasks
 
 first representative easy-tier crate-level probe:
   0 tasks

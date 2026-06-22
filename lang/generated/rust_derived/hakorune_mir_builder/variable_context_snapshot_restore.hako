@@ -31,7 +31,11 @@ static box Main {
         local ctx = new VariableContext()
         local snapshot = VariableContextApi.snapshot(ctx)
         VariableContextApi.restore(ctx, snapshot)
-
+        local empty_after_restore = VariableContextApi.is_empty(ctx)
+        if empty_after_restore != 1 {
+            print("variable_context_snapshot_restore_empty=fail")
+            return 1
+        }
         print("variable_context_snapshot_restore_derived_artifact=ok")
         return 0
     }

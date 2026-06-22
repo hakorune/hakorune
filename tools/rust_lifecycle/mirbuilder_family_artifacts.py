@@ -805,14 +805,22 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
             field_type="OrderedMapBox",
             initializer_operation={"kind": "NewOrderedMap"},
         ),
-        main_lines=_lines("""
-            local ctx = new VariableContext()
-            local snapshot = VariableContextApi.snapshot(ctx)
-            VariableContextApi.restore(ctx, snapshot)
-
-            print("variable_context_snapshot_restore_derived_artifact=ok")
-            return 0
-        """),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="VariableContext"),
+            op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["ctx"]),
+            op("StaticCall", callee="VariableContextApi.restore", args=["ctx", "snapshot"]),
+            op("StaticCall", target="empty_after_restore", callee="VariableContextApi.is_empty", args=["ctx"]),
+            op(
+                "AssertEq",
+                left="empty_after_restore",
+                right=1,
+                fail_message="variable_context_snapshot_restore_empty=fail",
+                fail_code=1,
+            ),
+            op("Print", text="variable_context_snapshot_restore_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id=VARIABLE_CONTEXT_FAMILY_ID,
         state="DerivedShadow",
         source_rust_file=VARIABLE_CONTEXT_SOURCE,

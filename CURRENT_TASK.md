@@ -39,7 +39,7 @@ none
 Next task:
 
 ```text
-Implement typed VariableContext snapshot/restore harness
+NonAsciiOrderedKey
 ```
 
 Purpose:
@@ -47,9 +47,10 @@ Purpose:
 ```text
 The selected ordered-map harness family has landed its representative
 crate-level bundle. BindingContext and VariableContext simple-map are both
-landed as typed family artifacts, and the next slice moves to
-VariableContext snapshot/restore while keeping crate linker and nightly rustc
-paths unopened.
+landed as typed family artifacts, VariableContext snapshot/restore is now
+landed as a typed harness closeout, and the next parked consultation slice is
+NonAsciiOrderedKey while keeping crate linker and nightly rustc paths
+unopened.
 ```
 
 Lifecycle converter boundary:
@@ -65,7 +66,7 @@ docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.
 Latest landed card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1620-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-ORDERED-MAP-CRATE-BUNDLE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-IMPLEMENTATION-001.md
+docs/development/current/main/phases/phase-296x/296x-1622-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-VARIABLE-CONTEXT-SNAPSHOT-RESTORE-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-CLOSEOUT-001.md
 ```
 
 Short form:

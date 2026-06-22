@@ -68,10 +68,10 @@ VariableContext simple-map, the rewrite contract is landed, the emission
 contract is landed, the implementation boundary is landed, the
 implementation entry contract is landed, the initial patch sequence is
 landed, BoxCompilationContext was the next crate-level probe candidate, the
-typed BoxCompilationContext Main execution harness is implemented, and the
-ordered-map crate bundle is now landed. The next active easy-tier bridge
-slice is VariableContext snapshot/restore, while crate linker work stays
-parked.
+typed BoxCompilationContext Main execution harness is implemented, the
+ordered-map crate bundle is landed, VariableContext snapshot/restore is now
+landed as a typed harness closeout, and the next parked consultation slice is
+NonAsciiOrderedKey. Crate linker work stays parked.
 
 Historical context follows.
 
