@@ -4,30 +4,39 @@
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 from pathlib import Path
 
+from mirbuilder_carrier_snapshot_artifacts import (
+    run_variable_context_carrier_snapshot_artifact_generator,
+    run_variable_context_explicit_carrier_snapshot_artifact_generator,
+)
+from mirbuilder_family_artifacts import run_mirbuilder_family_artifact_generator
 
 ROOT = Path(__file__).resolve().parents[2]
-FAMILY_SCRIPTS = {
-    "binding-context": "tools/rust_lifecycle/generate_binding_context_artifact.py",
-    "box-compilation-context": "tools/rust_lifecycle/generate_box_compilation_context_artifact.py",
-    "variable-context-simple-map": "tools/rust_lifecycle/generate_variable_context_simple_map_artifact.py",
-    "variable-context-snapshot-restore": "tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
-    "variable-context-carrier-snapshot": "tools/rust_lifecycle/generate_variable_context_carrier_snapshot_artifact.py",
-    "variable-context-explicit-carrier-snapshot": "tools/rust_lifecycle/generate_variable_context_explicit_carrier_snapshot_artifact.py",
+FAMILY_GENERATORS = {
+    "binding-context": lambda *, check: run_mirbuilder_family_artifact_generator("binding_context", check=check),
+    "box-compilation-context": lambda *, check: run_mirbuilder_family_artifact_generator("box_compilation_context", check=check),
+    "variable-context-simple-map": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_simple_map", check=check),
+    "variable-context-snapshot-restore": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_snapshot_restore", check=check),
+    "variable-context-carrier-snapshot": run_variable_context_carrier_snapshot_artifact_generator,
+    "variable-context-explicit-carrier-snapshot": run_variable_context_explicit_carrier_snapshot_artifact_generator,
 }
-FAMILY_ORDER = tuple(FAMILY_SCRIPTS)
+FAMILY_ORDER = tuple(FAMILY_GENERATORS)
 
 
 def _run_family(name: str, *, check: bool) -> int:
-    script = ROOT / FAMILY_SCRIPTS[name]
-    cmd = [sys.executable, str(script)]
-    if check:
-        cmd.append("--check")
-    completed = subprocess.run(cmd, cwd=ROOT, check=False)
-    return completed.returncode
+    try:
+        FAMILY_GENERATORS[name](check=check)
+    except SystemExit as exc:
+        code = exc.code
+        if code is None:
+            return 0
+        if isinstance(code, int):
+            return code
+        print(code, file=sys.stderr)
+        return 1
+    return 0
 
 
 def main() -> int:
@@ -35,7 +44,7 @@ def main() -> int:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--family",
-        choices=sorted(FAMILY_SCRIPTS),
+        choices=sorted(FAMILY_GENERATORS),
         help="family to convert with lightweight facts",
     )
     group.add_argument("--all", action="store_true", help="run every lightweight converter family")

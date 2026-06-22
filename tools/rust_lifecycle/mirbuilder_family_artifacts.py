@@ -49,7 +49,6 @@ VARIABLE_CONTEXT_FAMILY_ID = "hakorune_mir_builder::variable_context"
 def _lines(text: str) -> list[str]:
     return dedent(text).strip("\n").splitlines()
 
-
 def _require_kinds(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any], *, facts_kind: str, subject: str) -> None:
     if facts.get("kind") != facts_kind:
         raise SystemExit("unexpected facts kind")
@@ -64,13 +63,11 @@ def _require_kinds(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str
 def _oracle_ops(oracle: dict[str, Any]) -> set[str]:
     return {op["op"] for vector in oracle["vectors"] for op in vector["operations"]}
 
-
 def _behavior_flags_false(plan: dict[str, Any], names: list[str]) -> None:
     behavior = plan.get("behavior", {})
     for name in names:
         if behavior.get(name) is not False:
             raise SystemExit(f"unexpected behavior flag: {name}")
-
 
 def validate_binding_context(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     subject = "hakorune_mir_builder::binding_context::BindingContext"
@@ -126,7 +123,6 @@ def validate_binding_context(facts: dict[str, Any], plan: dict[str, Any], oracle
         if op not in _oracle_ops(oracle):
             raise SystemExit(f"missing oracle op: {op}")
 
-
 def validate_box_compilation_context(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     subject = "hakorune_mir_builder::context::BoxCompilationContext"
     _require_kinds(facts, plan, oracle, facts_kind="RustLifecycleFacts", subject=subject)
@@ -178,7 +174,6 @@ def validate_box_compilation_context(facts: dict[str, Any], plan: dict[str, Any]
     for op in ["new", "is_empty"]:
         if op not in _oracle_ops(oracle):
             raise SystemExit(f"missing oracle op: {op}")
-
 
 def validate_variable_context_simple_map(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     subject = "hakorune_mir_builder::variable_context::VariableContext.simple_map"
@@ -237,7 +232,6 @@ def validate_variable_context_simple_map(facts: dict[str, Any], plan: dict[str, 
     for op in ["new", "is_empty", "len", "contains", "lookup", "insert", "remove"]:
         if op not in _oracle_ops(oracle):
             raise SystemExit(f"missing oracle op: {op}")
-
 
 def validate_variable_context_immutable_borrow(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     subject = "hakorune_mir_builder::variable_context::VariableContext.immutable_map_borrow"
@@ -312,7 +306,6 @@ def validate_variable_context_immutable_borrow(facts: dict[str, Any], plan: dict
     for name in ["carrier_phi_claim", "full_variable_context_claim", "mirbuilder_wide_claim"]:
         if scope.get(name) is not False:
             raise SystemExit(f"unexpected oracle scope flag: {name}")
-
 
 def validate_variable_context_snapshot_restore(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     subject = "hakorune_mir_builder::variable_context::VariableContext.snapshot_restore"
@@ -430,80 +423,42 @@ def binding_context_spec() -> FamilyArtifactSpec:
             field_type="OrderedMapBox",
             initializer_operation={"kind": "NewOrderedMap"},
         ),
-        main_lines=_lines("""
-            local ctx = new BindingContext()
-            if ctx.binding_map.keys_value.length() != 0 {
-                print("binding_context_new_empty=fail")
-                return 1
-            }
-            if ctx.binding_map.keys_value.length() != 0 {
-                print("binding_context_new_len=fail")
-                return 2
-            }
-
-            BindingContextApi.insert(ctx, "x", 1)
-            if BindingContextApi.lookup(ctx, "x") != 1 {
-                print("binding_context_lookup_x=fail")
-                return 3
-            }
-            if ctx.binding_map.keys_value.length() != 1 {
-                print("binding_context_len_after_insert=fail")
-                return 4
-            }
-            if ctx.binding_map.keys_value.length() != 1 {
-                print("binding_context_empty_after_insert=fail")
-                return 5
-            }
-            if BindingContextApi.remove(ctx, "x") != 1 {
-                print("binding_context_remove_x=fail")
-                return 6
-            }
-            if BindingContextApi.lookup(ctx, "x") != null {
-                print("binding_context_lookup_removed=fail")
-                return 7
-            }
-            if ctx.binding_map.keys_value.length() != 0 {
-                print("binding_context_empty_after_remove=fail")
-                return 8
-            }
-
-            local contains_ctx = new BindingContext()
-            if BindingContextApi.contains(contains_ctx, "x") != 0 {
-                print("binding_context_contains_empty=fail")
-                return 9
-            }
-            BindingContextApi.insert(contains_ctx, "x", 1)
-            if BindingContextApi.contains(contains_ctx, "x") != 1 {
-                print("binding_context_contains_x=fail")
-                return 10
-            }
-
-            local order_ctx = new BindingContext()
-            BindingContextApi.insert(order_ctx, "b", 2)
-            BindingContextApi.insert(order_ctx, "a", 1)
-            if order_ctx.binding_map.keys_value.length() != 2 {
-                print("binding_context_order_len=fail")
-                return 11
-            }
-            if BindingContextApi.lookup(order_ctx, "a") != 1 {
-                print("binding_context_lookup_a=fail")
-                return 12
-            }
-            if BindingContextApi.lookup(order_ctx, "b") != 2 {
-                print("binding_context_lookup_b=fail")
-                return 13
-            }
-            local clear_ctx = new BindingContext()
-            BindingContextApi.insert(clear_ctx, "a", 1)
-            BindingContextApi.clear_for_function_entry(clear_ctx)
-            if clear_ctx.binding_map.keys_value.length() != 0 {
-                print("binding_context_clear_empty=fail")
-                return 14
-            }
-
-            print("binding_context_derived_artifact=ok")
-            return 0
-        """),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="BindingContext"),
+            op("AssertEq", left="ctx.binding_map.keys_value.length()", right=0, fail_message="binding_context_new_empty=fail", fail_code=1),
+            op("AssertEq", left="ctx.binding_map.keys_value.length()", right=0, fail_message="binding_context_new_len=fail", fail_code=2),
+            op("StaticCall", callee="BindingContextApi.insert", args=["ctx", {"literal": "x"}, 1]),
+            op("StaticCall", target="lookup_x", callee="BindingContextApi.lookup", args=["ctx", {"literal": "x"}]),
+            op("AssertEq", left="lookup_x", right=1, fail_message="binding_context_lookup_x=fail", fail_code=3),
+            op("AssertEq", left="ctx.binding_map.keys_value.length()", right=1, fail_message="binding_context_len_after_insert=fail", fail_code=4),
+            op("AssertEq", left="ctx.binding_map.keys_value.length()", right=1, fail_message="binding_context_empty_after_insert=fail", fail_code=5),
+            op("StaticCall", target="remove_x", callee="BindingContextApi.remove", args=["ctx", {"literal": "x"}]),
+            op("AssertEq", left="remove_x", right=1, fail_message="binding_context_remove_x=fail", fail_code=6),
+            op("StaticCall", target="lookup_removed", callee="BindingContextApi.lookup", args=["ctx", {"literal": "x"}]),
+            op("AssertEq", left="lookup_removed", right=None, fail_message="binding_context_lookup_removed=fail", fail_code=7),
+            op("AssertEq", left="ctx.binding_map.keys_value.length()", right=0, fail_message="binding_context_empty_after_remove=fail", fail_code=8),
+            op("NewBox", target="contains_ctx", box="BindingContext"),
+            op("StaticCall", target="contains_empty", callee="BindingContextApi.contains", args=["contains_ctx", {"literal": "x"}]),
+            op("AssertEq", left="contains_empty", right=0, fail_message="binding_context_contains_empty=fail", fail_code=9),
+            op("StaticCall", callee="BindingContextApi.insert", args=["contains_ctx", {"literal": "x"}, 1]),
+            op("StaticCall", target="contains_x", callee="BindingContextApi.contains", args=["contains_ctx", {"literal": "x"}]),
+            op("AssertEq", left="contains_x", right=1, fail_message="binding_context_contains_x=fail", fail_code=10),
+            op("NewBox", target="order_ctx", box="BindingContext"),
+            op("StaticCall", callee="BindingContextApi.insert", args=["order_ctx", {"literal": "b"}, 2]),
+            op("StaticCall", callee="BindingContextApi.insert", args=["order_ctx", {"literal": "a"}, 1]),
+            op("AssertEq", left="order_ctx.binding_map.keys_value.length()", right=2, fail_message="binding_context_order_len=fail", fail_code=11),
+            op("StaticCall", target="lookup_a", callee="BindingContextApi.lookup", args=["order_ctx", {"literal": "a"}]),
+            op("AssertEq", left="lookup_a", right=1, fail_message="binding_context_lookup_a=fail", fail_code=12),
+            op("StaticCall", target="lookup_b", callee="BindingContextApi.lookup", args=["order_ctx", {"literal": "b"}]),
+            op("AssertEq", left="lookup_b", right=2, fail_message="binding_context_lookup_b=fail", fail_code=13),
+            op("NewBox", target="clear_ctx", box="BindingContext"),
+            op("StaticCall", callee="BindingContextApi.insert", args=["clear_ctx", {"literal": "a"}, 1]),
+            op("StaticCall", callee="BindingContextApi.clear_for_function_entry", args=["clear_ctx"]),
+            op("AssertEq", left="clear_ctx.binding_map.keys_value.length()", right=0, fail_message="binding_context_clear_empty=fail", fail_code=14),
+            op("Print", text="binding_context_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id="hakorune_mir_builder::binding_context",
         state="DerivedShadow",
         source_rust_file=ROOT / "crates/hakorune_mir_builder/src/binding_context.rs",
@@ -557,62 +512,39 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
             field_type="OrderedMapBox",
             initializer_operation={"kind": "NewOrderedMap"},
         ),
-        main_lines=_lines("""
-            local ctx = new VariableContext()
-            if VariableContextApi.is_empty(ctx) != 1 {
-                print("variable_context_new_empty=fail")
-                return 1
-            }
-            if VariableContextApi.len(ctx) != 0 {
-                print("variable_context_new_len=fail")
-                return 2
-            }
-
-            VariableContextApi.insert(ctx, "x", 42)
-            if VariableContextApi.lookup(ctx, "x") != 42 {
-                print("variable_context_lookup_x=fail")
-                return 3
-            }
-            if VariableContextApi.len(ctx) != 1 {
-                print("variable_context_len_after_insert=fail")
-                return 4
-            }
-            if VariableContextApi.is_empty(ctx) != 0 {
-                print("variable_context_empty_after_insert=fail")
-                return 5
-            }
-            if VariableContextApi.remove(ctx, "x") != 42 {
-                print("variable_context_remove_x=fail")
-                return 6
-            }
-            if VariableContextApi.lookup(ctx, "x") != null {
-                print("variable_context_lookup_removed=fail")
-                return 7
-            }
-
-            local contains_ctx = new VariableContext()
-            if VariableContextApi.contains(contains_ctx, "x") != 0 {
-                print("variable_context_contains_empty=fail")
-                return 8
-            }
-            VariableContextApi.insert(contains_ctx, "x", 1)
-            if VariableContextApi.contains(contains_ctx, "x") != 1 {
-                print("variable_context_contains_x=fail")
-                return 9
-            }
-
-            local ssa_ctx = new VariableContext()
-            VariableContextApi.insert(ssa_ctx, "x", 1)
-            VariableContextApi.insert(ssa_ctx, "x", 2)
-            VariableContextApi.insert(ssa_ctx, "x", 4)
-            if VariableContextApi.lookup(ssa_ctx, "x") != 4 {
-                print("variable_context_ssa_update=fail")
-                return 10
-            }
-
-            print("variable_context_simple_map_derived_artifact=ok")
-            return 0
-        """),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="VariableContext"),
+            op("StaticCall", target="new_empty", callee="VariableContextApi.is_empty", args=["ctx"]),
+            op("AssertEq", left="new_empty", right=1, fail_message="variable_context_new_empty=fail", fail_code=1),
+            op("StaticCall", target="new_len", callee="VariableContextApi.len", args=["ctx"]),
+            op("AssertEq", left="new_len", right=0, fail_message="variable_context_new_len=fail", fail_code=2),
+            op("StaticCall", callee="VariableContextApi.insert", args=["ctx", {"literal": "x"}, 42]),
+            op("StaticCall", target="lookup_x", callee="VariableContextApi.lookup", args=["ctx", {"literal": "x"}]),
+            op("AssertEq", left="lookup_x", right=42, fail_message="variable_context_lookup_x=fail", fail_code=3),
+            op("StaticCall", target="len_after_insert", callee="VariableContextApi.len", args=["ctx"]),
+            op("AssertEq", left="len_after_insert", right=1, fail_message="variable_context_len_after_insert=fail", fail_code=4),
+            op("StaticCall", target="empty_after_insert", callee="VariableContextApi.is_empty", args=["ctx"]),
+            op("AssertEq", left="empty_after_insert", right=0, fail_message="variable_context_empty_after_insert=fail", fail_code=5),
+            op("StaticCall", target="remove_x", callee="VariableContextApi.remove", args=["ctx", {"literal": "x"}]),
+            op("AssertEq", left="remove_x", right=42, fail_message="variable_context_remove_x=fail", fail_code=6),
+            op("StaticCall", target="lookup_removed", callee="VariableContextApi.lookup", args=["ctx", {"literal": "x"}]),
+            op("AssertEq", left="lookup_removed", right=None, fail_message="variable_context_lookup_removed=fail", fail_code=7),
+            op("NewBox", target="contains_ctx", box="VariableContext"),
+            op("StaticCall", target="contains_empty", callee="VariableContextApi.contains", args=["contains_ctx", {"literal": "x"}]),
+            op("AssertEq", left="contains_empty", right=0, fail_message="variable_context_contains_empty=fail", fail_code=8),
+            op("StaticCall", callee="VariableContextApi.insert", args=["contains_ctx", {"literal": "x"}, 1]),
+            op("StaticCall", target="contains_x", callee="VariableContextApi.contains", args=["contains_ctx", {"literal": "x"}]),
+            op("AssertEq", left="contains_x", right=1, fail_message="variable_context_contains_x=fail", fail_code=9),
+            op("NewBox", target="ssa_ctx", box="VariableContext"),
+            op("StaticCall", callee="VariableContextApi.insert", args=["ssa_ctx", {"literal": "x"}, 1]),
+            op("StaticCall", callee="VariableContextApi.insert", args=["ssa_ctx", {"literal": "x"}, 2]),
+            op("StaticCall", callee="VariableContextApi.insert", args=["ssa_ctx", {"literal": "x"}, 4]),
+            op("StaticCall", target="ssa_lookup_x", callee="VariableContextApi.lookup", args=["ssa_ctx", {"literal": "x"}]),
+            op("AssertEq", left="ssa_lookup_x", right=4, fail_message="variable_context_ssa_update=fail", fail_code=10),
+            op("Print", text="variable_context_simple_map_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id=VARIABLE_CONTEXT_FAMILY_ID,
         state="DerivedShadow",
         source_rust_file=VARIABLE_CONTEXT_SOURCE,
@@ -671,13 +603,7 @@ def box_compilation_context_spec() -> FamilyArtifactSpec:
         main_operations=[
             op("NewBox", target="ctx", box="BoxCompilationContext"),
             op("StaticCall", target="is_empty_result", callee="BoxCompilationContextApi.is_empty", args=["ctx"]),
-            op(
-                "AssertEq",
-                left="is_empty_result",
-                right=1,
-                fail_message="box_compilation_context_new_empty=fail",
-                fail_code=1,
-            ),
+            op("AssertEq", left="is_empty_result", right=1, fail_message="box_compilation_context_new_empty=fail", fail_code=1),
             op("Print", text="box_compilation_context_derived_artifact=ok"),
             op("ReturnI64", return_value=0),
         ],
@@ -811,13 +737,7 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
             op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["ctx"]),
             op("StaticCall", callee="VariableContextApi.restore", args=["ctx", "snapshot"]),
             op("StaticCall", target="empty_after_restore", callee="VariableContextApi.is_empty", args=["ctx"]),
-            op(
-                "AssertEq",
-                left="empty_after_restore",
-                right=1,
-                fail_message="variable_context_snapshot_restore_empty=fail",
-                fail_code=1,
-            ),
+            op("AssertEq", left="empty_after_restore", right=1, fail_message="variable_context_snapshot_restore_empty=fail", fail_code=1),
             op("Print", text="variable_context_snapshot_restore_derived_artifact=ok"),
             op("ReturnI64", return_value=0),
         ],

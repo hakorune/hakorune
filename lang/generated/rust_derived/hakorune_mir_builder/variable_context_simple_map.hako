@@ -106,57 +106,63 @@ static box VariableContextApi {
 static box Main {
     main() {
         local ctx = new VariableContext()
-        if VariableContextApi.is_empty(ctx) != 1 {
+        local new_empty = VariableContextApi.is_empty(ctx)
+        if new_empty != 1 {
             print("variable_context_new_empty=fail")
             return 1
         }
-        if VariableContextApi.len(ctx) != 0 {
+        local new_len = VariableContextApi.len(ctx)
+        if new_len != 0 {
             print("variable_context_new_len=fail")
             return 2
         }
-
         VariableContextApi.insert(ctx, "x", 42)
-        if VariableContextApi.lookup(ctx, "x") != 42 {
+        local lookup_x = VariableContextApi.lookup(ctx, "x")
+        if lookup_x != 42 {
             print("variable_context_lookup_x=fail")
             return 3
         }
-        if VariableContextApi.len(ctx) != 1 {
+        local len_after_insert = VariableContextApi.len(ctx)
+        if len_after_insert != 1 {
             print("variable_context_len_after_insert=fail")
             return 4
         }
-        if VariableContextApi.is_empty(ctx) != 0 {
+        local empty_after_insert = VariableContextApi.is_empty(ctx)
+        if empty_after_insert != 0 {
             print("variable_context_empty_after_insert=fail")
             return 5
         }
-        if VariableContextApi.remove(ctx, "x") != 42 {
+        local remove_x = VariableContextApi.remove(ctx, "x")
+        if remove_x != 42 {
             print("variable_context_remove_x=fail")
             return 6
         }
-        if VariableContextApi.lookup(ctx, "x") != null {
+        local lookup_removed = VariableContextApi.lookup(ctx, "x")
+        if lookup_removed != null {
             print("variable_context_lookup_removed=fail")
             return 7
         }
-
         local contains_ctx = new VariableContext()
-        if VariableContextApi.contains(contains_ctx, "x") != 0 {
+        local contains_empty = VariableContextApi.contains(contains_ctx, "x")
+        if contains_empty != 0 {
             print("variable_context_contains_empty=fail")
             return 8
         }
         VariableContextApi.insert(contains_ctx, "x", 1)
-        if VariableContextApi.contains(contains_ctx, "x") != 1 {
+        local contains_x = VariableContextApi.contains(contains_ctx, "x")
+        if contains_x != 1 {
             print("variable_context_contains_x=fail")
             return 9
         }
-
         local ssa_ctx = new VariableContext()
         VariableContextApi.insert(ssa_ctx, "x", 1)
         VariableContextApi.insert(ssa_ctx, "x", 2)
         VariableContextApi.insert(ssa_ctx, "x", 4)
-        if VariableContextApi.lookup(ssa_ctx, "x") != 4 {
+        local ssa_lookup_x = VariableContextApi.lookup(ssa_ctx, "x")
+        if ssa_lookup_x != 4 {
             print("variable_context_ssa_update=fail")
             return 10
         }
-
         print("variable_context_simple_map_derived_artifact=ok")
         return 0
     }

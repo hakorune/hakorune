@@ -76,18 +76,17 @@ static box Main {
         ctx.variable_map.set("i", 5)
         ctx.variable_map.set("sum", 10)
         ctx.variable_map.set("tmp", 12)
-
         local snapshot = VariableContextApi.snapshot(ctx)
         local requested_names = new ArrayBox()
         requested_names.push("sum")
         requested_names.push("count")
         local carrier_names = new ArrayBox()
         local carrier_host_ids = new ArrayBox()
-        if CarrierInfoApi.with_explicit_carriers_from_snapshot(5, requested_names, snapshot, carrier_names, carrier_host_ids) != 0 {
+        local explicit_status = CarrierInfoApi.with_explicit_carriers_from_snapshot(5, requested_names, snapshot, carrier_names, carrier_host_ids)
+        if explicit_status != 0 {
             print("explicit_carrier_snapshot_status=fail")
             return 1
         }
-
         ctx.variable_map.set("sum", 99)
         requested_names.push("late")
         snapshot.set("count", 77)
@@ -95,11 +94,19 @@ static box Main {
             print("explicit_carrier_snapshot_carrier_names_len=fail")
             return 2
         }
-        if BoxHelpers.array_get(carrier_names, 0) != "count" or BoxHelpers.array_get(carrier_names, 1) != "sum" {
+        if BoxHelpers.array_get(carrier_names, 0) != "count" {
             print("explicit_carrier_snapshot_carrier_names_order=fail")
             return 3
         }
-        if BoxHelpers.array_get(carrier_host_ids, 0) != 11 or BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
+        if BoxHelpers.array_get(carrier_names, 1) != "sum" {
+            print("explicit_carrier_snapshot_carrier_names_order=fail")
+            return 3
+        }
+        if BoxHelpers.array_get(carrier_host_ids, 0) != 11 {
+            print("explicit_carrier_snapshot_carrier_hosts=fail")
+            return 4
+        }
+        if BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
             print("explicit_carrier_snapshot_carrier_hosts=fail")
             return 4
         }
@@ -108,7 +115,6 @@ static box Main {
             print("explicit_carrier_snapshot_ctx_alias=fail")
             return 5
         }
-
         print("variable_context_explicit_carrier_snapshot_derived_artifact=ok")
         return 0
     }

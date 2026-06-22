@@ -26,14 +26,17 @@ from extract_variable_context_explicit_carrier_snapshot_facts import (
     SOURCE as EXPLICIT_CARRIER_SNAPSHOT_SOURCE,
     extract_facts as extract_variable_context_explicit_carrier_snapshot_facts,
 )
+from extract_variable_context_snapshot_restore_facts import extract_facts as extract_variable_context_snapshot_restore_facts
+from mirbuilder_ordered_map_converter import compile_variable_context_snapshot_restore_methods
 from shared_family_generator import read_json, run_validated_family_generator
-from verified_hako_family_ir import HakoMethodIR
+from verified_hako_family_ir import HakoMethodIR, op
 
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 OUT_DIR = ROOT / "lang/generated/rust_derived/hakorune_mir_builder"
 VARIABLE_CONTEXT_SOURCE = ROOT / "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs"
+HAKORUNE_MIR_BUILDER_VARIABLE_CONTEXT_SOURCE = ROOT / "crates/hakorune_mir_builder/src/variable_context.rs"
 
 
 def _lines(text: str) -> list[str]:
@@ -44,6 +47,25 @@ def _api_methods_from_compiled(methods: list[HakoMethodIR]) -> list[ApiMethodSpe
     return [
         ApiMethodSpec(signature=method.signature, operations=[operation.to_json() for operation in method.operations])
         for method in methods
+    ]
+
+
+def _variable_context_snapshot_api_methods() -> list[ApiMethodSpec]:
+    facts = extract_variable_context_snapshot_restore_facts(HAKORUNE_MIR_BUILDER_VARIABLE_CONTEXT_SOURCE)
+    plan = read_json(FIXTURES / "variable-context-snapshot-restore-plan-v0.json")
+    methods = [
+        method
+        for method in compile_variable_context_snapshot_restore_methods(facts, plan)
+        if method.signature == "snapshot(ctx)"
+    ]
+    if len(methods) != 1:
+        raise SystemExit("expected exactly one compiled VariableContextApi.snapshot method")
+    method = methods[0]
+    return [
+        ApiMethodSpec(
+            signature="snapshot(ctx): OrderedMapBox",
+            operations=[operation.to_json() for operation in method.operations],
+        )
     ]
 
 
@@ -186,42 +208,34 @@ def carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArt
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
         box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
-        main_lines=_lines("""
-            local ctx = new VariableContext()
-            ctx.variable_map.set("count", 11)
-            ctx.variable_map.set("i", 5)
-            ctx.variable_map.set("sum", 10)
-
-            local snapshot = VariableContextApi.snapshot(ctx)
-            local carrier_names = new ArrayBox()
-            local carrier_host_ids = new ArrayBox()
-            if CarrierInfoApi.from_snapshot("i", snapshot, carrier_names, carrier_host_ids) != 0 {
-                print("carrier_snapshot_status=fail")
-                return 1
-            }
-            ctx.variable_map.set("sum", 99)
-            snapshot.set("count", 77)
-            if carrier_names.length() != 2 {
-                print("carrier_snapshot_carrier_names_len=fail")
-                return 2
-            }
-            if BoxHelpers.array_get(carrier_names, 0) != "count" or BoxHelpers.array_get(carrier_names, 1) != "sum" {
-                print("carrier_snapshot_carrier_names_order=fail")
-                return 3
-            }
-            if BoxHelpers.array_get(carrier_host_ids, 0) != 11 or BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
-                print("carrier_snapshot_carrier_hosts=fail")
-                return 4
-            }
-            local count_values = ctx.variable_map.values()
-            if BoxHelpers.array_get(count_values, 0) != 11 {
-                print("carrier_snapshot_ctx_alias=fail")
-                return 5
-            }
-
-            print("variable_context_carrier_snapshot_derived_artifact=ok")
-            return 0
-        """),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="VariableContext"),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "count"}, 11]),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "i"}, 5]),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "sum"}, 10]),
+            op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["ctx"]),
+            op("NewArray", target="carrier_names"),
+            op("NewArray", target="carrier_host_ids"),
+            op(
+                "StaticCall",
+                target="carrier_status",
+                callee="CarrierInfoApi.from_snapshot",
+                args=[{"literal": "i"}, "snapshot", "carrier_names", "carrier_host_ids"],
+            ),
+            op("AssertEq", left="carrier_status", right=0, fail_message="carrier_snapshot_status=fail", fail_code=1),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "sum"}, 99]),
+            op("MethodCall", receiver="snapshot", method="set", args=[{"literal": "count"}, 77]),
+            op("AssertEq", left="carrier_names.length()", right=2, fail_message="carrier_snapshot_carrier_names_len=fail", fail_code=2),
+            op("AssertArrayValueEq", array="carrier_names", index=0, expected={"literal": "count"}, fail_message="carrier_snapshot_carrier_names_order=fail", fail_code=3),
+            op("AssertArrayValueEq", array="carrier_names", index=1, expected={"literal": "sum"}, fail_message="carrier_snapshot_carrier_names_order=fail", fail_code=3),
+            op("AssertArrayValueEq", array="carrier_host_ids", index=0, expected=11, fail_message="carrier_snapshot_carrier_hosts=fail", fail_code=4),
+            op("AssertArrayValueEq", array="carrier_host_ids", index=1, expected=10, fail_message="carrier_snapshot_carrier_hosts=fail", fail_code=4),
+            op("MethodCall", target="count_values", receiver="ctx.variable_map", method="values"),
+            op("AssertArrayValueEq", array="count_values", index=0, expected=11, fail_message="carrier_snapshot_ctx_alias=fail", fail_code=5),
+            op("Print", text="variable_context_carrier_snapshot_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id="hakorune_mir_builder::variable_context",
         state="DerivedShadow",
         source_rust_file=VARIABLE_CONTEXT_SOURCE,
@@ -235,9 +249,7 @@ def carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArt
         static_boxes=[
             StaticBoxSpec(
                 name="VariableContextApi",
-                methods=[
-                    ApiMethodSpec(signature="snapshot(ctx): OrderedMapBox", operations=[{"kind": "CloneOwnedMap", "field": "variable_map"}]),
-                ],
+                methods=_variable_context_snapshot_api_methods(),
             ),
             StaticBoxSpec(
                 name="CarrierInfoApi",
@@ -383,48 +395,39 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
         family_comment="hakorune_mir_builder::variable_context",
         using_module="apps.lib.collections.ordered_map",
         box=BoxSpec(name="VariableContext", field_name="variable_map", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
-        main_lines=_lines("""
-            local ctx = new VariableContext()
-            ctx.variable_map.set("count", 11)
-            ctx.variable_map.set("i", 5)
-            ctx.variable_map.set("sum", 10)
-            ctx.variable_map.set("tmp", 12)
-
-            local snapshot = VariableContextApi.snapshot(ctx)
-            local requested_names = new ArrayBox()
-            requested_names.push("sum")
-            requested_names.push("count")
-            local carrier_names = new ArrayBox()
-            local carrier_host_ids = new ArrayBox()
-            if CarrierInfoApi.with_explicit_carriers_from_snapshot(5, requested_names, snapshot, carrier_names, carrier_host_ids) != 0 {
-                print("explicit_carrier_snapshot_status=fail")
-                return 1
-            }
-
-            ctx.variable_map.set("sum", 99)
-            requested_names.push("late")
-            snapshot.set("count", 77)
-            if carrier_names.length() != 2 {
-                print("explicit_carrier_snapshot_carrier_names_len=fail")
-                return 2
-            }
-            if BoxHelpers.array_get(carrier_names, 0) != "count" or BoxHelpers.array_get(carrier_names, 1) != "sum" {
-                print("explicit_carrier_snapshot_carrier_names_order=fail")
-                return 3
-            }
-            if BoxHelpers.array_get(carrier_host_ids, 0) != 11 or BoxHelpers.array_get(carrier_host_ids, 1) != 10 {
-                print("explicit_carrier_snapshot_carrier_hosts=fail")
-                return 4
-            }
-            local count_values = ctx.variable_map.values()
-            if BoxHelpers.array_get(count_values, 0) != 11 {
-                print("explicit_carrier_snapshot_ctx_alias=fail")
-                return 5
-            }
-
-            print("variable_context_explicit_carrier_snapshot_derived_artifact=ok")
-            return 0
-        """),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="VariableContext"),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "count"}, 11]),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "i"}, 5]),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "sum"}, 10]),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "tmp"}, 12]),
+            op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["ctx"]),
+            op("NewArray", target="requested_names"),
+            op("ArrayPush", target="requested_names", value={"literal": "sum"}),
+            op("ArrayPush", target="requested_names", value={"literal": "count"}),
+            op("NewArray", target="carrier_names"),
+            op("NewArray", target="carrier_host_ids"),
+            op(
+                "StaticCall",
+                target="explicit_status",
+                callee="CarrierInfoApi.with_explicit_carriers_from_snapshot",
+                args=[5, "requested_names", "snapshot", "carrier_names", "carrier_host_ids"],
+            ),
+            op("AssertEq", left="explicit_status", right=0, fail_message="explicit_carrier_snapshot_status=fail", fail_code=1),
+            op("MethodCall", receiver="ctx.variable_map", method="set", args=[{"literal": "sum"}, 99]),
+            op("ArrayPush", target="requested_names", value={"literal": "late"}),
+            op("MethodCall", receiver="snapshot", method="set", args=[{"literal": "count"}, 77]),
+            op("AssertEq", left="carrier_names.length()", right=2, fail_message="explicit_carrier_snapshot_carrier_names_len=fail", fail_code=2),
+            op("AssertArrayValueEq", array="carrier_names", index=0, expected={"literal": "count"}, fail_message="explicit_carrier_snapshot_carrier_names_order=fail", fail_code=3),
+            op("AssertArrayValueEq", array="carrier_names", index=1, expected={"literal": "sum"}, fail_message="explicit_carrier_snapshot_carrier_names_order=fail", fail_code=3),
+            op("AssertArrayValueEq", array="carrier_host_ids", index=0, expected=11, fail_message="explicit_carrier_snapshot_carrier_hosts=fail", fail_code=4),
+            op("AssertArrayValueEq", array="carrier_host_ids", index=1, expected=10, fail_message="explicit_carrier_snapshot_carrier_hosts=fail", fail_code=4),
+            op("MethodCall", target="count_values", receiver="ctx.variable_map", method="values"),
+            op("AssertArrayValueEq", array="count_values", index=0, expected=11, fail_message="explicit_carrier_snapshot_ctx_alias=fail", fail_code=5),
+            op("Print", text="variable_context_explicit_carrier_snapshot_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id="hakorune_mir_builder::variable_context",
         state="DerivedShadow",
         source_rust_file=VARIABLE_CONTEXT_SOURCE,
@@ -438,12 +441,7 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
         static_boxes=[
             StaticBoxSpec(
                 name="VariableContextApi",
-                methods=[
-                    ApiMethodSpec(
-                        signature="snapshot(ctx): OrderedMapBox",
-                        operations=[{"kind": "CloneOwnedMap", "field": "variable_map"}],
-                    )
-                ],
+                methods=_variable_context_snapshot_api_methods(),
             ),
             StaticBoxSpec(
                 name="CarrierInfoApi",

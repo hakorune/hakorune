@@ -51,7 +51,7 @@ def _render_call_args(args: Any) -> str:
     if isinstance(args, str):
         return args
     if isinstance(args, Sequence):
-        return ", ".join(str(arg) for arg in args)
+        return ", ".join(_render_main_value(arg) for arg in args)
     return str(args)
 
 
@@ -59,6 +59,18 @@ def _render_string_literal(value: Any) -> str:
     text = str(value)
     escaped = text.replace("\\", "\\\\").replace('"', '\\"')
     return f'"{escaped}"'
+
+
+def _render_main_value(value: Any) -> str:
+    if isinstance(value, Mapping):
+        if "literal" in value:
+            return _render_string_literal(value["literal"])
+        if "expr" in value:
+            return str(value["expr"])
+        raise ValueError(f"unsupported Main value object: {value}")
+    if value is None:
+        return "null"
+    return str(value)
 
 
 def _render_main_operation(operation: Mapping[str, Any]) -> list[str]:
@@ -69,6 +81,11 @@ def _render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if target is None or box_name is None:
             raise ValueError("NewBox requires target and box")
         return [f"local {target} = new {box_name}()"]
+    if kind == "NewArray":
+        target = operation.get("target")
+        if target is None:
+            raise ValueError("NewArray requires target")
+        return [f"local {target} = new ArrayBox()"]
     if kind == "StaticCall":
         target = operation.get("target")
         callee = operation.get("callee")
@@ -79,15 +96,46 @@ def _render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if target is None:
             return [call]
         return [f"local {target} = {call}"]
+    if kind == "MethodCall":
+        target = operation.get("target")
+        receiver = operation.get("receiver")
+        method = operation.get("method")
+        if receiver is None or method is None:
+            raise ValueError("MethodCall requires receiver and method")
+        args = _render_call_args(operation.get("args"))
+        call = f"{receiver}.{method}({args})" if args else f"{receiver}.{method}()"
+        if target is None:
+            return [call]
+        return [f"local {target} = {call}"]
+    if kind == "ArrayPush":
+        target = operation.get("target")
+        value = operation.get("value")
+        if target is None or "value" not in operation:
+            raise ValueError("ArrayPush requires target and value")
+        return [f"{target}.push({_render_main_value(value)})"]
     if kind == "AssertEq":
         left = operation.get("left")
         right = operation.get("right")
         fail_message = operation.get("fail_message")
         fail_code = operation.get("fail_code", 1)
-        if left is None or right is None or fail_message is None:
+        if left is None or "right" not in operation or fail_message is None:
             raise ValueError("AssertEq requires left, right, and fail_message")
         return [
-            f"if {left} != {right} {{",
+            f"if {left} != {_render_main_value(right)} {{",
+            f"    print({_render_string_literal(fail_message)})",
+            f"    return {fail_code}",
+            "}",
+        ]
+    if kind == "AssertArrayValueEq":
+        array = operation.get("array")
+        index = operation.get("index")
+        expected = operation.get("expected")
+        fail_message = operation.get("fail_message")
+        fail_code = operation.get("fail_code", 1)
+        if array is None or index is None or "expected" not in operation or fail_message is None:
+            raise ValueError("AssertArrayValueEq requires array, index, expected, and fail_message")
+        return [
+            f"if BoxHelpers.array_get({array}, {index}) != {_render_main_value(expected)} {{",
             f"    print({_render_string_literal(fail_message)})",
             f"    return {fail_code}",
             "}",
