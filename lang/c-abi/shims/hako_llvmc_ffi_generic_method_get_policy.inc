@@ -57,6 +57,10 @@
           set_scan_origin(reg, ORG_MAP_BIRTH);
           return 1;
         }
+        if (!strncmp(box_name, "__hako_sum_", 11)) {
+          set_type(reg, T_I64);
+          return 1;
+        }
         if (!find_typed_object_plan_index(box_name, &typed_plan_index)) {
           return 0;
         }

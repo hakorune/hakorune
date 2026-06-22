@@ -11,6 +11,11 @@ bash tools/checks/rust_lifecycle_core_context_facts_guard.sh
 bash tools/checks/rust_mirbuilder_core_context_plan_oracle_guard.sh
 bash tools/checks/rust_lifecycle_core_context_derived_artifact_guard.sh
 
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family metadata-context-scalar-source-file --check
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type-context-value-kind --check
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type-context-origin-map --check
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type-context-value-type --check
+
 bash tools/checks/rust_lifecycle_variable_context_simple_map_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_variable_context_simple_map_derived_route_selection_guard.sh
 
@@ -35,6 +40,10 @@ cat <<'REPORT'
 matrix=rust-mirbuilder-converter-v0
 binding_context=green
 core_context_scalar_counters=green
+metadata_context_scalar_source_file=green
+type_context_value_kind=green
+type_context_origin_map=green
+type_context_value_type=green
 variable_context_simple_map=green
 returned_read_borrow=Deny(ReturnedReadBorrow)
 variable_context_snapshot_restore=green

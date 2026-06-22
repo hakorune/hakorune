@@ -1,0 +1,36 @@
+{
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "full_type_context_claim": false,
+    "mirbuilder_wide_claim": false
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_origin_newbox",
+  "vectors": [
+    {
+      "name": "origin_map_get_set_clear",
+      "operations": [
+        {
+          "op": "new"
+        },
+        {
+          "class_name": "ArrayBox",
+          "op": "set_origin_box",
+          "value_id": 7
+        },
+        {
+          "expected": "ArrayBox",
+          "op": "get_origin_box_some",
+          "value_id": 7
+        },
+        {
+          "op": "clear_origin_boxes"
+        },
+        {
+          "op": "get_origin_box_none",
+          "value_id": 7
+        }
+      ]
+    }
+  ]
+}

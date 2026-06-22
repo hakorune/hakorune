@@ -97,6 +97,8 @@ def _build_family_artifact_hako_object(spec: FamilyArtifactSpec) -> dict[str, An
         "family_comment": spec.family_comment,
         "pilot_scope": spec.pilot_scope,
         "using_module": spec.using_module,
+        "extra_using_modules": spec.extra_using_modules,
+        "enum_declarations": spec.enum_declarations,
         "box": {
             "name": spec.box.name,
         },

@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "direct_shape_rule": "map.optional_owned_recursive_enum",
+    "needs_semantic_capsule": 0,
+    "returned_aggregate_alias": 0,
+    "returned_borrow_projected_to_owned": 1,
+    "rust_facts_input": "verified",
+    "selected_body_count": "value_type_methods_only",
+    "unmapped_mir_side_effects": 0,
+    "unresolved_call_targets": 0
+  },
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "TypeContext_value_types_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "type-context-value-type-facts-v0.json",
+  "source_plan": "type-context-value-type-plan-v0.json",
+  "source_recipe": "type-context-value-type-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_types",
+  "transport_notes": {
+    "key_transport": "ValueIdAsI64",
+    "return_transport": "OptionMirTypeOwned",
+    "value_transport": "MirTypeOwnedRecursiveEnum"
+  },
+  "verified_operations": [
+    "NewMap",
+    "MapGetOption",
+    "MapSet"
+  ]
+}

@@ -285,7 +285,10 @@ pub(super) fn match_generic_get_route(
 
     if box_name == "RuntimeDataBox"
         && function.signature.name != "MirJsonEmitBox._expect_i64/2"
-        && matches!(const_string_value(function, def_map, args[0]).as_deref(), Some("value"))
+        && matches!(
+            const_string_value(function, def_map, args[0]).as_deref(),
+            Some("value")
+        )
     {
         return None;
     }

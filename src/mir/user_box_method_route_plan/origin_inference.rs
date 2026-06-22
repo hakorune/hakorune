@@ -8,9 +8,7 @@ use super::{
     BoxOriginInference, FieldBoxOriginKey, FieldBoxOriginMap, ParamBoxOriginKey, ParamBoxOriginMap,
 };
 use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::value_origin::{
-    build_value_def_map, ValueDefMap, ValueOriginQueryContext,
-};
+use crate::mir::value_origin::{build_value_def_map, ValueDefMap, ValueOriginQueryContext};
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
@@ -382,18 +380,20 @@ pub(crate) fn infer_user_box_field_box_origins(
                             args,
                             ..
                         } if method == "birth" => {
-                            let Some(route_box_name) = user_box_route_receiver_box_name_with_origin_context(
-                                function,
-                                def_map,
-                                route_result_lookup,
-                                &user_box_names,
-                                box_name,
-                                *certainty,
-                                *receiver,
-                                param_box_origins,
-                                &current,
-                                &mut value_origin_context,
-                            ) else {
+                            let Some(route_box_name) =
+                                user_box_route_receiver_box_name_with_origin_context(
+                                    function,
+                                    def_map,
+                                    route_result_lookup,
+                                    &user_box_names,
+                                    box_name,
+                                    *certainty,
+                                    *receiver,
+                                    param_box_origins,
+                                    &current,
+                                    &mut value_origin_context,
+                                )
+                            else {
                                 continue;
                             };
                             for ((birth_box, field), param_index) in &birth_field_params {
@@ -620,15 +620,13 @@ fn user_box_value_box_name_with_origin_context(
                 if let Some(box_name) = type_hint.as_ref().and_then(box_name_from_type) {
                     return Some(box_name.to_string());
                 }
-                if let Some(box_name) =
-                    phi_input_box_name(
-                        function,
-                        def_map,
-                        route_result_lookup,
-                        inputs,
-                        value_origin_context,
-                    )
-                {
+                if let Some(box_name) = phi_input_box_name(
+                    function,
+                    def_map,
+                    route_result_lookup,
+                    inputs,
+                    value_origin_context,
+                ) {
                     return Some(box_name);
                 }
             }

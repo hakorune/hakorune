@@ -28,7 +28,9 @@ impl DenseCopyOrigins {
         for block in function.blocks.values() {
             for inst in &block.instructions {
                 if let MirInstruction::Copy { dst, src } = inst {
-                    max_value = max_value.max(Some(dst.to_usize())).max(Some(src.to_usize()));
+                    max_value = max_value
+                        .max(Some(dst.to_usize()))
+                        .max(Some(src.to_usize()));
                 }
             }
         }

@@ -41,10 +41,7 @@ fn refresh_function_ordered_map_get_result_origins(function: &mut MirFunction) {
     for block in function.blocks.values() {
         for instruction in &block.instructions {
             let MirInstruction::Call {
-                dst,
-                callee,
-                args,
-                ..
+                dst, callee, args, ..
             } = instruction
             else {
                 continue;
@@ -69,13 +66,9 @@ fn refresh_function_ordered_map_get_result_origins(function: &mut MirFunction) {
             }
 
             match method.as_str() {
-                "set" => seed_ordered_map_set_schema(
-                    function,
-                    &def_map,
-                    &mut schema,
-                    *receiver,
-                    args,
-                ),
+                "set" => {
+                    seed_ordered_map_set_schema(function, &def_map, &mut schema, *receiver, args)
+                }
                 "get" => {
                     let Some(dst) = dst else {
                         continue;
@@ -159,7 +152,11 @@ fn seed_array_key(schema: &mut BTreeMap<MapKey, MirType>, receiver: ValueId, key
 }
 
 fn logical_method_arg(args: &[ValueId], receiver: ValueId, index: usize) -> Option<ValueId> {
-    let start = if args.first().copied() == Some(receiver) { 1 } else { 0 };
+    let start = if args.first().copied() == Some(receiver) {
+        1
+    } else {
+        0
+    };
     args.get(start + index).copied()
 }
 
@@ -176,7 +173,11 @@ fn const_string(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -
     }
 }
 
-fn value_box_type(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<MirType> {
+fn value_box_type(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<MirType> {
     let origin = resolve_value_origin(function, def_map, value);
     if let Some(MirType::Box(name)) = function.metadata.value_types.get(&origin) {
         return Some(MirType::Box(name.clone()));
@@ -612,10 +613,7 @@ mod tests {
                 } => {
                     assert_eq!(box_name, "ArrayBox");
                     assert_eq!(method, "get");
-                    assert!(matches!(
-                        receiver,
-                        ValueId(11) | ValueId(13) | ValueId(15)
-                    ));
+                    assert!(matches!(receiver, ValueId(11) | ValueId(13) | ValueId(15)));
                     assert_eq!(args.len(), 1);
                 }
                 _ => panic!("expected rewritten ArrayBox.get call"),

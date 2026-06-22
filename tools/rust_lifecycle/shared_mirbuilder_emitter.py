@@ -32,6 +32,8 @@ def _render_field_initializer(field: Mapping[str, Any]) -> str:
         return str(field["initializer"])
     if operation.get("kind") == "NewOrderedMap":
         return "OrderedMap.create()"
+    if operation.get("kind") == "NewMap":
+        return "new MapBox()"
     raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")
 
 
@@ -152,6 +154,31 @@ def _render_main_operation(operation: Mapping[str, Any]) -> list[str]:
 
 def _render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
+    if kind == "MapGetOption":
+        source = _render_source_expr(operation)
+        target = operation.get("target")
+        if target is None:
+            return [
+                f"if {source}.has({operation['key']}) {{",
+                f"    return Option::Some({source}.get({operation['key']}))",
+                "}",
+                "return Option::None()",
+            ]
+        return [
+            f"local {target}: Option<MirValueKind> = Option::None()",
+            f"if {source}.has({operation['key']}) {{",
+            f"    {target} = Option::Some({source}.get({operation['key']}))",
+            "}",
+        ]
+    if kind == "ReturnDefaultIfMissing":
+        source = operation["source"]
+        default = operation["default"]
+        return [
+            f"guard let Option::Some(value) = {source} else {{",
+            f"    return {default}",
+            "}",
+            "return value",
+        ]
     if kind == "MapGet":
         source = _render_source_expr(operation)
         return [
@@ -204,6 +231,11 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
         ]
     if kind == "MapSet":
         source = _render_source_expr(operation)
+        if operation.get("storage") == "MapBox":
+            return [
+                f"{source}.set({operation['key']}, {operation['value']})",
+                "return 1",
+            ]
         return [
             f"if {operation['key']} == null {{",
             "    return 0",
@@ -244,6 +276,16 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
         ]
     if kind == "MapClear":
         source = _render_source_expr(operation)
+        if operation.get("storage") == "MapBox":
+            if "field" in operation:
+                return [
+                    f"{source} = new MapBox()",
+                    "return 1",
+                ]
+            return [
+                f"{source}.clear()",
+                "return 1",
+            ]
         return [
             f"{source}.keys_value = new ArrayBox()",
             f"{source}.values_value = new ArrayBox()",
@@ -255,6 +297,39 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
     if kind == "ReplaceOwnedMap":
         source = _render_source_expr(operation)
         return [f"{source} = {operation['value']}.clone_owned()"]
+    if kind == "NewBoxWithFieldValues":
+        target = operation.get("target")
+        box_name = operation.get("box")
+        field_values = operation.get("field_values", {})
+        if target is None or box_name is None or not isinstance(field_values, Mapping):
+            raise ValueError("NewBoxWithFieldValues requires target, box, and field_values")
+        lines = [f"local {target} = new {box_name}()"]
+        for field, value in field_values.items():
+            lines.append(f"{target}.{field} = {_render_main_value(value)}")
+        lines.append(f"return {target}")
+        return lines
+    if kind == "FieldGet":
+        return [f"return {_render_source_expr(operation)}"]
+    if kind == "FieldSet":
+        source = _render_source_expr(operation)
+        return [
+            f"{source} = {operation['value']}",
+            "return 1",
+        ]
+    if kind == "SetSome":
+        source = _render_source_expr(operation)
+        return [
+            f"{source} = Option::Some({operation['value']})",
+            "return 1",
+        ]
+    if kind == "ClearOption":
+        source = _render_source_expr(operation)
+        return [
+            f"{source} = Option::None()",
+            "return 1",
+        ]
+    if kind == "CloneImmutableString":
+        return [f"return {_render_source_expr(operation)}"]
     if kind == "ReturnSource":
         return [f"return {_render_source_expr(operation)}"]
     if kind == "CarrierSnapshotFromOwnedMap":
@@ -400,8 +475,27 @@ def emit_verified_family_hako(verified_ir: Mapping[str, Any]) -> str:
     lines.extend(["// manual-edit: forbidden", ""])
 
     using_module = verified_ir["using_module"]
-    lines.extend([f"using {using_module} as OrderedMap", ""])
+    if using_module:
+        lines.extend([f"using {using_module} as OrderedMap", ""])
+    for extra_using in verified_ir.get("extra_using_modules", []):
+        lines.append(f"using {extra_using}")
+    if verified_ir.get("extra_using_modules"):
+        lines.append("")
     lines.extend(["using selfhost.shared.common.box_helpers as BoxHelpers", ""])
+
+    for enum_decl in verified_ir.get("enum_declarations", []):
+        lines.append(f"enum {enum_decl['name']} {{")
+        for variant in enum_decl["variants"]:
+            if isinstance(variant, str):
+                lines.append(f"    {variant}")
+            else:
+                payload = variant.get("payload")
+                if payload is None:
+                    lines.append(f"    {variant['name']}")
+                else:
+                    lines.append(f"    {variant['name']}({payload})")
+        lines.append("}")
+        lines.append("")
 
     box = verified_ir["box"]
     box_fields = box.get("fields")

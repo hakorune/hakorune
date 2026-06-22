@@ -57,15 +57,17 @@ fn route_flow_value_box_name(
     let result = value_box_name(function, origin)
         .or_else(|| route_result_box_name_cached(route_result_lookup, origin))
         .map(str::to_string)
-        .or_else(|| route_flow_origin_instruction_box_name(
-            function,
-            def_map,
-            route_result_lookup,
-            origin,
-            visiting,
-            memo,
-            value_origin_context,
-        ));
+        .or_else(|| {
+            route_flow_origin_instruction_box_name(
+                function,
+                def_map,
+                route_result_lookup,
+                origin,
+                visiting,
+                memo,
+                value_origin_context,
+            )
+        });
 
     visiting.remove(&origin);
     memo.insert(origin, result.clone());

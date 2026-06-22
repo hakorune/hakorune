@@ -10,8 +10,7 @@ use crate::mir::MirModule;
 
 use super::{json, runtime_route_contract, stage0_capture, stage0_capture_route, stage_a_policy};
 
-const MIR_BUILDER_PROGRAM_PATH: &str =
-    "lang/src/mir/builder/compat/program_json_v0_entry.hako";
+const MIR_BUILDER_PROGRAM_PATH: &str = "lang/src/mir/builder/compat/program_json_v0_entry.hako";
 const CHILD_ENV_REMOVE: &[&str] = &["NYASH_USE_NY_COMPILER", "NYASH_CLI_VERBOSE"];
 
 pub(crate) struct ProgramCompatMir {

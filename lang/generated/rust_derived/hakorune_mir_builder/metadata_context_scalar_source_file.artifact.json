@@ -1,0 +1,68 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_metadata_context_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "generic_metadata_context_claim": 0,
+    "mainline_selected": 0,
+    "mirbuilder_wide_claim": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [
+    "MetadataContext::hint_scope_enter",
+    "MetadataContext::hint_scope_leave",
+    "MetadataContext::hint_join_result",
+    "MetadataContext::push_region",
+    "MetadataContext::pop_region",
+    "MetadataContext::current_region_stack",
+    "MetadataContext::record_value_span",
+    "MetadataContext::value_span",
+    "MetadataContext::record_value_caller",
+    "MetadataContext::value_caller",
+    "MetadataContext::value_origin_callers"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_metadata_context_scalar_artifact.py",
+    "version": "metadata-context-scalar-source-file-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-scalar-source-file-facts-v0.json",
+      "sha256": "4d48356b248443ec5b68670db1448891ef0f1c706123e6361a589c5afedb9d42"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-scalar-source-file-oracle-v0.json",
+      "sha256": "b620a8c2d90fa783bcc3f608c21243feb9bf175859a065e82f6ef5510a22290b"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-scalar-source-file-plan-v0.json",
+      "sha256": "d756e2aa36a5b9940822527fe0cf668883d0b59e9a79867cbc92d08d0697a6bd"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-scalar-source-file-behavior-recipe-v0.json",
+      "sha256": "8d4de7aa2e5f84c61fbd57605de76308dc52685ce1fd954db36a523297c21f54"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-scalar-source-file-derived-artifact-verifier-result-v0.json",
+      "sha256": "416e1d2c487326f91b3d1141ba6924b37dcde48f7c6eea0a21b14946d19c0325"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_scalar_source_file.hako",
+    "hako_sha256": "ebb3854e0faf498b547fd8a3097de4aa81d2e318d6a0184177fdf6c17d22f125"
+  },
+  "pilot_scope": "MetadataContext_scalar_source_file_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+        "sha256": "28cbaaa00be8563db2b4dce70d393530b3c573f299120743e24112290e0303b2"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

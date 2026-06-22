@@ -1,0 +1,63 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_type_context_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "mirbuilder_wide_claim": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [
+    "TypeContext::get_type",
+    "TypeContext::set_type",
+    "TypeContext::get_origin_box",
+    "TypeContext::set_origin_box",
+    "TypeContext::clear_origin_boxes",
+    "TypeContext::take_snapshot",
+    "TypeContext::restore_snapshot"
+  ],
+  "family_id": "hakorune_mir_builder::type_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_type_context_value_kind_artifact.py",
+    "version": "type-context-value-kind-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-facts-v0.json",
+      "sha256": "877e9fc051e22c9b3e0e5ed7c06e08deaed4820ae9f53e9f8f597d6ce3270441"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-oracle-v0.json",
+      "sha256": "3913f0f6e240051f80ece6cc7d6fcd413185b4f953d565189a5240dc907322ac"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-plan-v0.json",
+      "sha256": "7300311961a6c97e24caabbc206f2740820195f2fa4517c33429ff8a7d60e611"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-behavior-recipe-v0.json",
+      "sha256": "37c2200a5c5db0fa4ed6fcd173835115434adab3bf450a33ddfda137192ff045"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-derived-artifact-verifier-result-v0.json",
+      "sha256": "ed99a560b98e4c4f944d68775cfaeb1a803158ccee4e9fabdd002cd2d937be92"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/type_context_value_kind.hako",
+    "hako_sha256": "6bb22f23f706e30f24a6d0c4406dccb425d4aacbe9a15a96583576df63cade7a"
+  },
+  "pilot_scope": "TypeContext_value_kinds_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/type_context.rs",
+        "sha256": "5629acdefc1580339a504f30fbb8266190d3c3c2f572b46b87cfbf5a0bafb424"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

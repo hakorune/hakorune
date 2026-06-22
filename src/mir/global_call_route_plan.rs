@@ -404,6 +404,9 @@ fn infer_same_module_static_helper_return_contract(
                         result_contracts.insert(*dst, contract);
                     }
                 }
+                MirInstruction::VariantMake { dst, .. } => {
+                    result_contracts.insert(*dst, GlobalCallReturnContract::ObjectHandle);
+                }
                 MirInstruction::Return { value } => {
                     let contract = match value {
                         Some(value) => same_module_static_helper_value_contract(
@@ -561,15 +564,12 @@ fn same_module_static_helper_contract_proof(contract: GlobalCallReturnContract) 
 fn same_module_static_helper_contract_allowed(
     function: &MirFunction,
     contract: GlobalCallReturnContract,
-    typed_plan_type_ids: &BTreeMap<String, u32>,
+    _typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> bool {
     match contract {
-        GlobalCallReturnContract::ObjectHandle => matches!(
-            function.signature.return_type,
-            MirType::Box(ref name)
-                if same_module_static_helper_builtin_handle_return(name)
-                    || typed_plan_type_ids.contains_key(name)
-        ),
+        GlobalCallReturnContract::ObjectHandle => {
+            matches!(function.signature.return_type, MirType::Box(_))
+        }
         GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
             matches!(
                 function.signature.return_type,

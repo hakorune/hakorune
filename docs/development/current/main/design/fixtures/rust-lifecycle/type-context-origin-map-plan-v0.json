@@ -1,0 +1,35 @@
+{
+  "direct_shape": {
+    "map.optional_immutable_atom": {
+      "clear_signature": "clear_origin_boxes(ctx): i64",
+      "field_name": "value_origin_newbox",
+      "get_signature": "get_origin_box(ctx, value_id): Option<StringBox>",
+      "key_arg": "value_id",
+      "method_ids": {
+        "clear": "TypeContext::clear_origin_boxes",
+        "get": "TypeContext::get_origin_box",
+        "new": "TypeContext::new",
+        "set": "TypeContext::set_origin_box"
+      },
+      "set_signature": "set_origin_box(ctx, value_id, class_name): i64",
+      "type_name": "TypeContext",
+      "value_arg": "class_name"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "TypeContext",
+      "plan_kind": "LocalBox"
+    },
+    {
+      "id": "TypeContext.value_origin_newbox",
+      "key_transport": "ValueIdAsI64",
+      "plan_kind": "MapBox",
+      "shape_rule": "map.optional_immutable_atom",
+      "value_transport": "ImmutableStringAtom"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_origin_newbox"
+}

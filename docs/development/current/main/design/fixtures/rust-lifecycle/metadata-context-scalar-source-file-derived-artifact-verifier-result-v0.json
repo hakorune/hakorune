@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "borrow_escape_analysis_claim": 0,
+    "direct_shape_rule": "metadata.scalar_option_atom",
+    "needs_semantic_capsule": 0,
+    "returned_aggregate_alias": 0,
+    "returned_slice_claim": 0,
+    "rust_facts_input": "verified",
+    "selected_body_count": "scalar_source_file_methods_only",
+    "unmapped_mir_side_effects": 0,
+    "unresolved_call_targets": 0
+  },
+  "family_id": "hakorune_mir_builder::metadata_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MetadataContext_scalar_source_file_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "metadata-context-scalar-source-file-facts-v0.json",
+  "source_plan": "metadata-context-scalar-source-file-plan-v0.json",
+  "source_recipe": "metadata-context-scalar-source-file-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.scalar_source_file",
+  "transport_notes": {
+    "generic_wide_claim": 0,
+    "region_transport": "i64",
+    "source_file_transport": "OptionStringBox",
+    "span_transport": "i64"
+  },
+  "verified_operations": [
+    "NewBoxWithFieldValues",
+    "FieldGet",
+    "FieldSet",
+    "SetSome",
+    "ClearOption",
+    "CloneImmutableString"
+  ]
+}

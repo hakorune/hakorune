@@ -1,0 +1,49 @@
+{
+  "direct_shape": {
+    "metadata.scalar_option_atom": {
+      "method_ids": {
+        "clear_option": "MetadataContext::clear_source_file",
+        "get_option": "MetadataContext::current_source_file",
+        "get_scalar": "MetadataContext::current_span",
+        "new": "MetadataContext::new",
+        "set_option": "MetadataContext::set_source_file",
+        "set_scalar": "MetadataContext::set_current_span"
+      },
+      "new_arg": "current_span",
+      "option_arg": "source",
+      "option_field": "source_file",
+      "signatures": {
+        "clear_option": "clear_source_file(ctx): i64",
+        "get_option": "current_source_file(ctx): Option<StringBox>",
+        "get_scalar": "current_span(ctx): i64",
+        "new": "create(current_span): MetadataContext",
+        "set_option": "set_source_file(ctx, source): i64",
+        "set_scalar": "set_current_span(ctx, span): i64"
+      },
+      "span_arg": "span",
+      "span_field": "current_span",
+      "type_name": "MetadataContext"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "concrete_instantiation": "MetadataContext<i64, i64>",
+      "id": "MetadataContext",
+      "plan_kind": "LocalBox",
+      "shape_rule": "metadata.scalar_option_atom"
+    },
+    {
+      "id": "MetadataContext.current_span",
+      "plan_kind": "Field",
+      "transport": "i64"
+    },
+    {
+      "id": "MetadataContext.source_file",
+      "plan_kind": "Field",
+      "transport": "OptionStringBox"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.scalar_source_file"
+}

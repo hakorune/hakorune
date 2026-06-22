@@ -83,3 +83,5 @@ class FamilyArtifactSpec:
     denied_boundaries: list[str] | None = None
     extra_manifest_fields: dict[str, Any] = field(default_factory=dict)
     main_operations: list[HakoOperation] = field(default_factory=list)
+    enum_declarations: list[dict[str, Any]] = field(default_factory=list)
+    extra_using_modules: list[str] = field(default_factory=list)

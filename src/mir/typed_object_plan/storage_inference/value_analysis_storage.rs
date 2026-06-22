@@ -98,11 +98,7 @@ pub(crate) fn storage_for_value(
         param_storages,
         collection_element_storages,
     );
-    context.storage_for_value(
-        function,
-        def_map,
-        value,
-    )
+    context.storage_for_value(function, def_map, value)
 }
 
 fn storage_for_value_inner(
@@ -533,7 +529,10 @@ fn storage_for_function_returns(
 ) -> Option<TypedObjectFieldStorage> {
     let function_name = function.signature.name.clone();
     if !return_def_map_memo.contains_key(&function_name) {
-        return_def_map_memo.insert(function_name.clone(), Rc::new(build_value_def_map(function)));
+        return_def_map_memo.insert(
+            function_name.clone(),
+            Rc::new(build_value_def_map(function)),
+        );
     }
     let def_map = return_def_map_memo
         .get(&function_name)

@@ -1,0 +1,82 @@
+{
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "full_type_context_claim": false,
+    "mirbuilder_wide_claim": false
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_kinds",
+  "vectors": [
+    {
+      "name": "value_kind_option_and_default",
+      "operations": [
+        {
+          "op": "new"
+        },
+        {
+          "kind": "Parameter",
+          "op": "set_kind",
+          "payload": 2,
+          "value_id": 7
+        },
+        {
+          "expected_kind": "Parameter",
+          "expected_payload": 2,
+          "op": "try_get_kind_some",
+          "value_id": 7
+        },
+        {
+          "expected_kind": "Parameter",
+          "expected_payload": 2,
+          "op": "get_kind",
+          "value_id": 7
+        },
+        {
+          "op": "try_get_kind_none",
+          "value_id": 99
+        },
+        {
+          "expected_kind": "Temporary",
+          "op": "get_kind",
+          "value_id": 99
+        }
+      ]
+    },
+    {
+      "name": "value_kind_variant_roundtrip",
+      "operations": [
+        {
+          "kind": "Local",
+          "op": "set_kind",
+          "payload": 3,
+          "value_id": 10
+        },
+        {
+          "kind": "Constant",
+          "op": "set_kind",
+          "value_id": 11
+        },
+        {
+          "kind": "Temporary",
+          "op": "set_kind",
+          "value_id": 12
+        },
+        {
+          "expected_kind": "Temporary",
+          "op": "get_kind",
+          "value_id": 12
+        },
+        {
+          "kind": "Pinned",
+          "op": "set_kind",
+          "value_id": 13
+        },
+        {
+          "kind": "LoopCarrier",
+          "op": "set_kind",
+          "value_id": 14
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "excluded_methods": [
+    "TypeContext::get_type",
+    "TypeContext::set_type",
+    "TypeContext::try_get_kind",
+    "TypeContext::get_kind",
+    "TypeContext::set_kind",
+    "TypeContext::take_snapshot",
+    "TypeContext::restore_snapshot"
+  ],
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "TypeContextApi.get_origin_box(ctx, value_id)",
+      "hako_operation": "MapGetOption",
+      "id": "TypeContext::get_origin_box",
+      "rust_operation": "BTreeMap::get map as_str"
+    },
+    {
+      "emits": "TypeContextApi.set_origin_box(ctx, value_id, class_name)",
+      "hako_operation": "MapSet",
+      "id": "TypeContext::set_origin_box",
+      "rust_operation": "BTreeMap::insert String"
+    },
+    {
+      "emits": "TypeContextApi.clear_origin_boxes(ctx)",
+      "hako_operation": "MapClear",
+      "id": "TypeContext::clear_origin_boxes",
+      "rust_operation": "BTreeMap::clear"
+    }
+  ],
+  "pilot_scope": "TypeContext_value_origin_newbox_only",
+  "schema_version": 0,
+  "selected_body_count": "origin_map_methods_only",
+  "source_oracle": "type-context-origin-map-oracle-v0.json",
+  "source_plan": "type-context-origin-map-plan-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_origin_newbox"
+}

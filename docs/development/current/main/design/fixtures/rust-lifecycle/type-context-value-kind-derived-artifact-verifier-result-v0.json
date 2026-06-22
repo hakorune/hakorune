@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "borrow_escape_analysis_claim": 0,
+    "direct_shape_rule": "map.optional_copy_default",
+    "needs_semantic_capsule": 0,
+    "rust_facts_input": "verified",
+    "selected_body_count": "value_kind_methods_only",
+    "unmapped_mir_side_effects": 0,
+    "unresolved_call_targets": 0
+  },
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "TypeContext_value_kinds_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "type-context-value-kind-facts-v0.json",
+  "source_plan": "type-context-value-kind-plan-v0.json",
+  "source_recipe": "type-context-value-kind-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_kinds",
+  "transport_notes": {
+    "key_transport": "ValueIdAsI64",
+    "u32_payload_transport": "checked_i64",
+    "value_transport": "MirValueKindDirectEnum"
+  },
+  "verified_operations": [
+    "NewMap",
+    "MapGetOption",
+    "MapSet",
+    "ReturnDefaultIfMissing"
+  ]
+}

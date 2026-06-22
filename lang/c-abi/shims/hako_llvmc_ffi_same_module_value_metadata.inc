@@ -30,6 +30,14 @@
         return 1;
       }
 
+      auto int same_module_function_publish_sum_handle_if_box(
+          long long reg,
+          const char* box_name) {
+        if (!box_name || strncmp(box_name, "__hako_sum_", 11) != 0) return 0;
+        set_type(reg, T_I64);
+        return 1;
+      }
+
       auto int same_module_function_publish_result_origin_box(
           long long reg,
           const char* box_name) {
@@ -46,6 +54,9 @@
         }
         if (!strcmp(box_name, "MapBox")) {
           same_module_function_publish_i64_origin(reg, ORG_MAP_BIRTH);
+          return 1;
+        }
+        if (same_module_function_publish_sum_handle_if_box(reg, box_name)) {
           return 1;
         }
         return same_module_function_publish_typed_object_if_plan(reg, box_name);
@@ -68,6 +79,9 @@
         }
         if (box_type && !strcmp(box_type, "MapBox")) {
           same_module_function_publish_i64_origin(reg, ORG_MAP_BIRTH);
+          return 1;
+        }
+        if (same_module_function_publish_sum_handle_if_box(reg, box_type)) {
           return 1;
         }
         if (same_module_function_publish_typed_object_if_plan(reg, box_type)) {

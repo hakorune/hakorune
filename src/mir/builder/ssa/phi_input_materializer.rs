@@ -278,14 +278,7 @@ pub(in crate::mir::builder) fn for_pred(
 ) -> Result<ValueId, String> {
     let analysis = PhiInputMaterializationAnalysis::new(func);
     let mut remat_ctx = PhiInputRematContext::new(pred);
-    rematerialize_for_pred(
-        func,
-        &analysis,
-        value,
-        context,
-        edge_kind,
-        &mut remat_ctx,
-    )
+    rematerialize_for_pred(func, &analysis, value, context, edge_kind, &mut remat_ctx)
 }
 
 pub(in crate::mir::builder) fn materialize_all_phi_inputs(
@@ -311,14 +304,8 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
         let remat_ctx = remat_contexts
             .entry(pred)
             .or_insert_with(|| PhiInputRematContext::new(pred));
-        let materialized = rematerialize_for_pred(
-            func,
-            &analysis,
-            incoming,
-            context,
-            "phi",
-            remat_ctx,
-        )?;
+        let materialized =
+            rematerialize_for_pred(func, &analysis, incoming, context, "phi", remat_ctx)?;
         if materialized == incoming {
             continue;
         }

@@ -48,6 +48,7 @@ mod jsonfrag_normalizer;
 mod mir_schema_map_constructor;
 mod pattern_util_local_value_probe;
 mod runtime_methods;
+mod same_module_sum_handles;
 mod shape_reasons;
 mod static_string_array;
 mod value_type_publish;

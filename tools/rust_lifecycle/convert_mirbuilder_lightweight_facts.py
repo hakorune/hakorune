@@ -12,12 +12,20 @@ from mirbuilder_carrier_snapshot_artifacts import (
     run_variable_context_explicit_carrier_snapshot_artifact_generator,
 )
 from mirbuilder_family_artifacts import run_mirbuilder_family_artifact_generator
+from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_scalar_artifact_generator
+from mirbuilder_type_context_origin_map_artifacts import run_type_context_origin_map_artifact_generator
+from mirbuilder_type_context_value_kind_artifacts import run_type_context_value_kind_artifact_generator
+from mirbuilder_type_context_value_type_artifacts import run_type_context_value_type_artifact_generator
 
 ROOT = Path(__file__).resolve().parents[2]
 FAMILY_GENERATORS = {
     "binding-context": lambda *, check: run_mirbuilder_family_artifact_generator("binding_context", check=check),
     "box-compilation-context": lambda *, check: run_mirbuilder_family_artifact_generator("box_compilation_context", check=check),
     "core-context": lambda *, check: run_mirbuilder_family_artifact_generator("core_context", check=check),
+    "metadata-context-scalar-source-file": run_metadata_context_scalar_artifact_generator,
+    "type-context-origin-map": run_type_context_origin_map_artifact_generator,
+    "type-context-value-kind": run_type_context_value_kind_artifact_generator,
+    "type-context-value-type": run_type_context_value_type_artifact_generator,
     "variable-context-simple-map": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_simple_map", check=check),
     "variable-context-snapshot-restore": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_snapshot_restore", check=check),
     "variable-context-carrier-snapshot": run_variable_context_carrier_snapshot_artifact_generator,

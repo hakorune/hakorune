@@ -287,8 +287,7 @@ fn infer_birth_param_storages(
                     continue;
                 }
                 for (arg_index, arg) in args.iter().enumerate() {
-                    let Some(storage) =
-                        storage_queries.storage_for_value(function, def_map, *arg)
+                    let Some(storage) = storage_queries.storage_for_value(function, def_map, *arg)
                     else {
                         continue;
                     };

@@ -1,0 +1,127 @@
+{
+  "body_facts": [
+    {
+      "id": "MetadataContext::new",
+      "operation": "ConstructScalarOptionContext"
+    },
+    {
+      "id": "MetadataContext::current_span",
+      "operation": "FieldGet",
+      "return": "SpanT",
+      "selected_field": "current_span"
+    },
+    {
+      "id": "MetadataContext::set_current_span",
+      "operation": "FieldSet",
+      "selected_field": "current_span"
+    },
+    {
+      "id": "MetadataContext::set_source_file",
+      "operation": "SetSome",
+      "selected_field": "source_file"
+    },
+    {
+      "id": "MetadataContext::clear_source_file",
+      "operation": "ClearOption",
+      "selected_field": "source_file"
+    },
+    {
+      "id": "MetadataContext::current_source_file",
+      "operation": "CloneImmutableString",
+      "return": "Option<String>",
+      "returned_aggregate_alias": false,
+      "selected_field": "source_file"
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::hint_scope_enter"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::hint_scope_leave"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::hint_join_result"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::push_region"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::pop_region"
+    },
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "id": "MetadataContext::current_region_stack"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::record_value_span"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "MetadataContext::value_span"
+    },
+    {
+      "deny_reason": "UnsupportedTypeTransport",
+      "id": "MetadataContext::record_value_caller"
+    },
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "id": "MetadataContext::value_caller"
+    },
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "id": "MetadataContext::value_origin_callers"
+    }
+  ],
+  "field_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "MetadataContext.current_span",
+      "rust_type": "SpanT",
+      "transport": "i64"
+    },
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "MetadataContext.source_file",
+      "returned_aggregate_alias": false,
+      "rust_type": "Option<String>",
+      "transport": "OptionStringBox"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "path": "crates/hakorune_mir_builder/src/metadata_context.rs"
+  },
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.scalar_source_file",
+  "type_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "generic_wide_claim": false,
+      "id": "MetadataContext",
+      "rust_type": "MetadataContext<SpanT, RegionIdT>",
+      "selected_concrete_instantiation": "MetadataContext<i64, i64>"
+    },
+    {
+      "id": "SpanT",
+      "rust_type": "SpanT",
+      "selected_transport": "i64"
+    },
+    {
+      "id": "RegionIdT",
+      "rust_type": "RegionIdT",
+      "selected_transport": "i64"
+    },
+    {
+      "id": "String",
+      "rust_type": "String",
+      "transport": "ImmutableStringAtom"
+    }
+  ]
+}

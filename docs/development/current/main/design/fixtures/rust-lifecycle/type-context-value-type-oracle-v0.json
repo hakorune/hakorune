@@ -1,0 +1,92 @@
+{
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "full_type_context_claim": false,
+    "mirbuilder_wide_claim": false
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_types",
+  "vectors": [
+    {
+      "name": "value_type_option_lookup",
+      "operations": [
+        {
+          "op": "new"
+        },
+        {
+          "mir_type": "Integer",
+          "op": "set_type",
+          "value_id": 7
+        },
+        {
+          "expected": "Integer",
+          "op": "get_type_some",
+          "value_id": 7
+        },
+        {
+          "op": "get_type_none",
+          "value_id": 99
+        }
+      ]
+    },
+    {
+      "name": "value_type_recursive_roundtrip",
+      "operations": [
+        {
+          "mir_type": "Box",
+          "op": "set_type",
+          "payload": "ArrayBox",
+          "value_id": 8
+        },
+        {
+          "mir_type": "Array<Integer>",
+          "op": "set_type",
+          "value_id": 9
+        },
+        {
+          "mir_type": "Future<Box<TaskBox>>",
+          "op": "set_type",
+          "value_id": 10
+        },
+        {
+          "op": "roundtrip_recursive_types"
+        }
+      ]
+    },
+    {
+      "name": "value_type_unit_variant_coverage",
+      "operations": [
+        {
+          "mir_type": "Float",
+          "op": "set_type",
+          "value_id": 11
+        },
+        {
+          "mir_type": "Bool",
+          "op": "set_type",
+          "value_id": 12
+        },
+        {
+          "mir_type": "String",
+          "op": "set_type",
+          "value_id": 13
+        },
+        {
+          "mir_type": "WeakRef",
+          "op": "set_type",
+          "value_id": 14
+        },
+        {
+          "mir_type": "Void",
+          "op": "set_type",
+          "value_id": 15
+        },
+        {
+          "mir_type": "Unknown",
+          "op": "set_type",
+          "value_id": 16
+        }
+      ]
+    }
+  ]
+}

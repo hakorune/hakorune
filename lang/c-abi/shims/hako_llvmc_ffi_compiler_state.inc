@@ -53,7 +53,6 @@
         for (int i = 0; i < pr->in_n; i++) {
           struct GenericPureVariantBinding binding;
           if (!get_variant_binding(pr->in[i].val_reg, &binding)) return 0;
-          if (!binding.has_payload) return 0;
         }
         return 1;
       }

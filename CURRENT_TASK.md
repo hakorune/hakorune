@@ -173,9 +173,13 @@ Done:
   scalar_counter_context lowering
   process-only inventory legacy downgrade
   ordered-map crate bundle v3 with CoreContext scalar counters and VariableContext restore
+  direct TypeContext value-kind conversion
+  direct TypeContext origin-map conversion
+  direct MetadataContext scalar/source-file conversion
+  direct TypeContext value-type conversion
 
 Next:
-  Select the next post-bundle direct-shape slice.
+  Decide TypeContext multi-field snapshot/restore transport before implementation.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -189,7 +193,38 @@ Task sequence:
      `convert_mirbuilder_lightweight_facts.py --all --check` plus
      `rust_mirbuilder_converter_matrix_guard.sh` as the active workflow. (closed)
   7. Re-evaluate partial crate bundle after direct-shape lowerer cleanup. (closed)
-  8. Select the next post-bundle direct-shape slice.
+  8. Select the next post-bundle direct-shape slice. (closed)
+  9. Implement direct TypeContext value-kind conversion. (closed)
+  10. Implement direct TypeContext origin-map conversion. (closed)
+  11. Implement direct MetadataContext scalar/source-file conversion. (closed)
+  12. Decide TypeContext.value_types MirType transport. (closed)
+  13. Implement direct TypeContext value-type conversion. (closed)
+  14. Decide TypeContext multi-field snapshot/restore transport. (design stop)
+```
+
+Design stop:
+
+```text
+Target:
+  TypeContext::take_snapshot
+  TypeContext::restore_snapshot
+
+Reason:
+  TypeContextSnapshot transfers six maps at once, including value_types,
+  value_kinds, value_origin_newbox, string_literals, map_value_types, and
+  map_literal_value_types. The selected direct slices do not yet define a
+  mixed-storage multi-field owned snapshot/restore transport.
+
+Status:
+  stop for design decision.
+
+Closed evidence for prior TypeContext.value_types decision:
+  owned recursive MirType enum transport accepted
+  TypeContext::get_type / set_type generated through map.optional_owned_recursive_enum
+  no raw returned MirType borrow
+  generated .hako MIR green
+  generated .hako EXE green
+  converter matrix green
 ```
 
 Current task order:

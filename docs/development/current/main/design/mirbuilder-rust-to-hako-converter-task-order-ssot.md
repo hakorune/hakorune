@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-20
+Date: 2026-06-23
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -26,13 +26,20 @@ easy tier:
 hard tier:
   Rust source
     -> lightweight facts
-    -> Deny(reason)
-    -> human design stop / later explicit plan
+    -> directability check
+    -> DirectTranslation or Deny(reason)
+    -> minimal semantic representation only after repeated concrete blockage
 ```
 
 The easy tier is direct mechanical translation. Do not turn simple Rust shapes
 such as ordered-map contexts or scalar counters into route-selection,
 consultation, or lifecycle-design tasks.
+
+The hard tier is also direct-first. The converter must try to prove a direct
+translation from facts before asking for a representation design. It must not
+default to a new design framework just because the source contains a harder
+type, `Option`, default semantics, or a non-String key. When directness cannot
+be proved, stop with a stable `Deny(reason)` instead of emitting a fallback.
 
 The older lifecycle wording remains valid only as a guard/provenance layer for
 families that already need it:
@@ -97,6 +104,83 @@ CoreContext generator-object transport
 
 If a shape lands in the design-stop list, do not patch around it with
 by-name branches, raw Hako strings, or fallback `RuntimeDataBox` routes.
+
+## Hard-Tier Direct-First Rule
+
+Hard-tier work follows the same directness discipline, but the allowed
+transport vocabulary is wider. A method is directly translatable only when all
+six checks pass:
+
+```text
+Call:
+  every call target is resolved and belongs to the direct operation vocabulary
+
+Transport:
+  every argument, field, and return value has a total, collision-free Hako
+  transport
+
+Alias:
+  Rust's borrow/mutation guarantees are not weakened by the Hako surface
+
+Control:
+  control flow is structured as written, or PHI inputs are already explicit
+
+Cleanup:
+  Drop is TrivialMemory, or identical cleanup can be placed on every exit
+
+Observation:
+  missing/default/error/order/identity behavior remains observable-equivalent
+```
+
+Classification must be semantic and fact-driven. Do not create a new hardcode
+table where a family name or method name maps directly to a result category.
+The rule name should describe the shape, not the family:
+
+```text
+OK:
+  map.optional_copy_default
+
+NG:
+  type_context.value_kind_map_context
+```
+
+Use only two outcomes for now:
+
+```text
+DirectTranslation:
+  all six checks pass
+
+Deny(reason):
+  any check fails or would require borrow/PHI/Drop reasoning not present in
+  the facts
+```
+
+Do not add `NeedsSemanticCapsule` in the next slice. That middle state is
+allowed only after the same stable Deny blocks two independent selected methods
+or blocks the selected family outright, and only if the capsule has typed ops
+and verifier coverage. Hand-written shim accumulation is forbidden.
+
+Stable Deny reasons use medium granularity:
+
+```text
+UnsupportedResolvedCallTarget
+UnsupportedDirectShape
+UnsupportedTypeTransport
+UnsupportedKeyTransport
+NullableMapValue
+DefaultSemanticMismatch
+UnstructuredControlFlow
+LoopCarriedStateRequired
+PhiJoinRequired
+ReturnedReadBorrow
+ReturnedMutableBorrow
+CarrierSensitiveAlias
+NonTrivialDrop
+UnsafeOrFFI
+ConstructorLifecycleMismatch
+```
+
+Do not encode family names in Deny reasons.
 
 ## Work Unit Rule
 
@@ -209,20 +293,474 @@ The next cleanup/implementation series is:
 
 7. `Select the next post-bundle direct-shape slice`
 
-   Status: next.
+   Status: closed.
 
-   Do not enter hard tier by accident. The next slice must be one of:
+   Decision:
 
    ```text
-   another direct-shape easy-tier family with bounded live facts
-   crate-bundle symbol/link verification over the current bundle
-   native adoption movement into lang/src/mir/builder/
+   next=TypeContext.value_kinds hard-direct slice
+   reason=Option/default + non-String key + enum transport without borrow/PHI/Drop
    ```
 
-   If the candidate requires returned borrow, mutable alias, PHI, loop-carried
-   state, Drop, unsafe/FFI, nullable map value, non-ASCII key ordering, or
-   CoreContext generator-object transport, stop with `Deny(reason)` instead of
-   adding a compatibility hack.
+8. `Implement direct TypeContext value-kind conversion`
+
+   Status: closed.
+
+   Translate only:
+
+   ```text
+   TypeContext::new
+   TypeContext::try_get_kind
+   TypeContext::get_kind
+   TypeContext::set_kind
+   ```
+
+   Generic rule:
+
+   ```text
+   map.optional_copy_default
+   ```
+
+   Direct operations:
+
+   ```text
+   NewMap
+   MapGetOption
+   MapSet
+   ReturnDefaultIfMissing
+   ```
+
+   Required transports:
+
+   ```text
+   ValueId -> i64 map key
+   MirValueKind -> direct enum transport
+   u32 enum payload -> checked i64 transport
+   missing value -> Option::None
+   get_kind missing default -> MirValueKind::Temporary
+   ```
+
+   Acceptance:
+
+   ```text
+   set Parameter(2)
+   try_get_kind -> Some(Parameter(2))
+   get_kind -> Parameter(2)
+
+   unknown id
+   try_get_kind -> None
+   get_kind -> Temporary
+
+   Local / Constant / Temporary / Pinned / LoopCarrier roundtrip
+   u32 range mismatch -> Deny(UnsupportedTypeTransport)
+   unsupported body/call drift -> Deny(UnsupportedResolvedCallTarget)
+   generated .hako MIR green
+   generated .hako EXE green
+   ```
+
+   Closure evidence:
+
+   ```text
+   generated artifact deterministic check green
+   same-module enum/sum handle return accepted by body evidence
+   Option PHI tag/project accepted for local sum transport
+   generated .hako MIR green
+   generated .hako EXE green
+   ```
+
+   Parked:
+
+   ```text
+   get_type / set_type
+   value_origin_newbox
+   string_literals
+   map_value_types
+   map_literal_value_types
+   take_snapshot / restore_snapshot
+   MetadataContext
+   PHI / loop / returned borrow / mutable borrow / Drop
+   ```
+
+   Guardrails:
+
+   ```text
+   no type_context.value_kind_map_context family-specific rule
+   no NeedsSemanticCapsule
+   no string or magic-int MirValueKind encoding
+   no borrow escape analysis in this slice
+   no route/card/manifest-only commit
+   ```
+
+9. `Implement direct TypeContext origin-map conversion`
+
+   Status: closed.
+
+   Translate only:
+
+   ```text
+   TypeContext::new
+   TypeContext::get_origin_box
+   TypeContext::set_origin_box
+   TypeContext::clear_origin_boxes
+   ```
+
+   Generic rule:
+
+   ```text
+   map.optional_immutable_atom
+   ```
+
+   The rule is selected from facts, not from the `TypeContext` family name:
+
+   ```text
+   field type = BTreeMap<ValueId, String>
+   key transport = ValueId -> i64
+   value transport = immutable owned String atom
+   return surface = Option<&str>
+   map identity escapes = false
+   iteration observed = false
+   ```
+
+   Direct operations:
+
+   ```text
+   NewMap
+   MapGetOption
+   MapSet
+   MapClear
+   ```
+
+   Required transports:
+
+   ```text
+   ValueId -> i64 map key
+   String -> StringBox / immutable atom transport
+   Option<&str> -> Option<StringBox> projection
+   missing value -> Option::None
+   ```
+
+   Acceptance:
+
+   ```text
+   set_origin_box(7, "ArrayBox")
+   get_origin_box(7) -> Some("ArrayBox")
+
+   clear_origin_boxes()
+   get_origin_box(7) -> None
+
+   returned aggregate map alias = 0
+   unsupported key transport drift -> Deny(UnsupportedKeyTransport)
+   unsupported value transport drift -> Deny(UnsupportedTypeTransport)
+   unsupported body/call drift -> Deny(UnsupportedResolvedCallTarget)
+   generated .hako MIR green
+   generated .hako EXE green
+   ```
+
+   Parked:
+
+   ```text
+   get_type / set_type
+   value_types
+   string_literals
+   map_value_types
+   map_literal_value_types
+   take_snapshot / restore_snapshot
+   MetadataContext
+   PHI / loop / returned aggregate borrow / mutable borrow / Drop
+   ```
+
+   Guardrails:
+
+   ```text
+   no type_context.value_origin_newbox family-specific rule
+   no NeedsSemanticCapsule
+   no hand-written shim for Option<&str>
+   no by-name requested type or method-name type hack
+   no returned OrderedMapBox/MapBox alias
+   no route/card/manifest-only commit
+   ```
+
+   Closure evidence:
+
+   ```text
+   generated artifact deterministic check green
+   convert_mirbuilder_lightweight_facts.py --all --check green
+   MapClear on non-escaping MapBox field lowers to field replacement, not a
+     runtime MapBox.clear fallback
+   generated .hako MIR green
+   generated .hako EXE green
+   ```
+
+10. `Implement direct MetadataContext scalar/source-file conversion`
+
+   Status: closed.
+
+   Translate only:
+
+   ```text
+   MetadataContext::new
+   MetadataContext::current_span
+   MetadataContext::set_current_span
+   MetadataContext::set_source_file
+   MetadataContext::clear_source_file
+   MetadataContext::current_source_file
+   ```
+
+   Generic rule:
+
+   ```text
+   metadata.scalar_option_atom
+   ```
+
+   The rule is selected from concrete facts, not from a wide generic claim:
+
+   ```text
+   concrete instantiation = MetadataContext<Span, RegionId>
+   current_span transport = selected scalar/atom transport
+   source_file transport = immutable owned String atom
+   returned aggregate alias = false
+   returned slice = false
+   map identity escapes = false
+   ```
+
+   Direct operations:
+
+   ```text
+   FieldGet
+   FieldSet
+   SetSome
+   ClearOption
+   CloneImmutableString
+   ```
+
+   Required transports:
+
+   ```text
+   Span -> selected concrete scalar/atom transport
+   String -> StringBox / immutable atom transport
+   Option<&str> -> Option<StringBox> projection
+   missing source_file -> Option::None
+   ```
+
+   Acceptance:
+
+   ```text
+   new(current_span)
+   current_span -> initial span
+
+   set_current_span(next)
+   current_span -> next
+
+   set_source_file("main.hako")
+   current_source_file -> Some("main.hako")
+
+   clear_source_file()
+   current_source_file -> None
+
+   concrete generic instantiation missing -> Deny(UnsupportedTypeTransport)
+   unsupported body/call drift -> Deny(UnsupportedResolvedCallTarget)
+   generated .hako MIR green
+   generated .hako EXE green
+   ```
+
+   Parked:
+
+   ```text
+   HintSink
+   push_region / pop_region
+   current_region_stack returned slice
+   value_origin_spans
+   value_origin_callers
+   panic::Location formatting
+   all returned map borrows
+   PHI / loop / returned aggregate borrow / mutable borrow / Drop
+   ```
+
+   Guardrails:
+
+   ```text
+   no metadata_context.scalar_source_file family-specific rule
+   no NeedsSemanticCapsule
+   no generic MetadataContext<T, U> wide claim
+   no hand-written shim for Option<&str>
+   no by-name type or method-name transport hack
+   no route/card/manifest-only commit
+   ```
+
+   Closure evidence:
+
+   ```text
+   generated artifact deterministic check green
+   convert_mirbuilder_lightweight_facts.py --all --check green
+   generated .hako MIR green
+   generated .hako EXE green
+   full_metadata_context_claim=0
+   generic_metadata_context_claim=0
+   ```
+
+11. `Decide TypeContext.value_types MirType transport`
+
+   Status: closed.
+
+   Candidate Rust methods:
+
+   ```text
+   TypeContext::get_type
+   TypeContext::set_type
+   ```
+
+   Stop reason:
+
+   ```text
+   MirType is not a simple atom:
+     Integer / Float / Bool / String / WeakRef / Void / Unknown
+     Box(String)
+     Array(Box<MirType>)
+     Future(Box<MirType>)
+
+   get_type returns Option<&MirType>.
+   A direct Hako emission would need an owned MirType transport before the map
+   lookup can return without weakening Rust's borrow semantics.
+   ```
+
+   Decision:
+
+   ```text
+   owned recursive MirType enum transport
+     -> accepted
+
+   TypeContext::get_type returns Option<MirType> as an owned projection.
+   It does not return the Rust `&MirType` borrow or expose the map identity.
+   ```
+
+   Local probe evidence:
+
+   ```text
+   /tmp/mirtype_transport_probe.hako:
+     enum payloads Boxed(StringBox), Array(MirTypeProbe), Future(MirTypeProbe)
+     MIR green
+     EXE green
+
+   /tmp/mirtype_box_variant_probe.hako:
+     enum variant Box(StringBox)
+     MIR green
+     EXE green
+   ```
+
+   Closed rationale:
+
+   ```text
+   Hako accepts recursive enum payloads and the `Box` variant name.
+   The shared emitter can emit enum declarations.
+   The fallback kind+payload box workaround is not needed for this slice.
+   This keeps the slice direct-first and avoids stringly type encoding.
+   ```
+
+   Closure evidence:
+
+   ```text
+   /tmp/mirtype_transport_probe.hako:
+     MIR green
+     EXE green
+
+   /tmp/mirtype_box_variant_probe.hako:
+     MIR green
+     EXE green
+   ```
+
+   Guardrails:
+
+   ```text
+   no raw returned MirType borrow
+   no stringly MirType encoding
+   no partial enum that silently drops Box/Array/Future variants
+   no NeedsSemanticCapsule without typed ops and verifier coverage
+   no hand-written shim accumulation
+   no route/card/manifest-only commit
+   ```
+
+12. `Implement direct TypeContext value-type conversion`
+
+   Status: closed.
+
+   Rust methods:
+
+   ```text
+   TypeContext::get_type
+   TypeContext::set_type
+   ```
+
+   Direct shape:
+
+   ```text
+   map.optional_owned_recursive_enum
+   ```
+
+   Transport:
+
+   ```text
+   key: ValueIdAsI64
+   value: MirTypeOwnedRecursiveEnum
+   return: OptionMirTypeOwned
+   ```
+
+   Accepted MirType Hako surface:
+
+   ```hako
+   enum MirType {
+       Integer
+       Float
+       Bool
+       String
+       Box(StringBox)
+       Array(MirType)
+       Future(MirType)
+       WeakRef
+       Void
+       Unknown
+   }
+   ```
+
+   Closure evidence:
+
+   ```text
+   generated artifact deterministic check green
+   convert_mirbuilder_lightweight_facts.py --family type-context-value-type --check green
+   convert_mirbuilder_lightweight_facts.py --all --check green
+   generated .hako MIR green
+   generated .hako EXE green
+   rust_mirbuilder_converter_matrix_guard.sh green
+   raw returned MirType borrow = 0
+   stringly MirType encoding = 0
+   full TypeContext claim = 0
+   ```
+
+## Next Hard-Direct Task Order
+
+`TypeContext.value_kinds`, `TypeContext.value_origin_newbox`,
+`MetadataContext scalar/source_file`, and `TypeContext.value_types` are closed.
+
+```text
+1. Decide TypeContext multi-field snapshot/restore
+```
+
+Then reassess control-flow slices:
+
+```text
+2. structured loop without carried state
+3. single scalar loop carrier
+4. canonical explicit PHI
+5. multi-carrier / break / continue / early-return PHI
+```
+
+Alias/lifecycle remains last:
+
+```text
+6. immutable leaf borrow projection
+7. aggregate returned read borrow
+8. returned mutable borrow
+9. nontrivial Drop
+```
 
 ## Current Completed Native Targets
 

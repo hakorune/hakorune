@@ -1,0 +1,91 @@
+{
+  "body_facts": [
+    {
+      "id": "TypeContext::new",
+      "operation": "NewMap",
+      "selected_field": "value_origin_newbox"
+    },
+    {
+      "id": "TypeContext::get_origin_box",
+      "operation": "MapGetOption",
+      "return": "Option<&str>",
+      "returned_aggregate_alias": false,
+      "selected_field": "value_origin_newbox",
+      "value_projection": "ImmutableStringAtom"
+    },
+    {
+      "id": "TypeContext::set_origin_box",
+      "operation": "MapSet",
+      "selected_field": "value_origin_newbox"
+    },
+    {
+      "id": "TypeContext::clear_origin_boxes",
+      "operation": "MapClear",
+      "selected_field": "value_origin_newbox"
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "id": "TypeContext::get_type"
+    },
+    {
+      "deny_reason": "UnsupportedTypeTransport",
+      "id": "TypeContext::set_type"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::try_get_kind"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::get_kind"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::set_kind"
+    },
+    {
+      "deny_reason": "MultiFieldSnapshotDeferred",
+      "id": "TypeContext::take_snapshot"
+    },
+    {
+      "deny_reason": "MultiFieldSnapshotDeferred",
+      "id": "TypeContext::restore_snapshot"
+    }
+  ],
+  "field_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext.value_origin_newbox",
+      "iteration_observed": false,
+      "key_transport": "ValueIdAsI64",
+      "map_identity_escapes": false,
+      "rust_type": "BTreeMap<ValueId, String>",
+      "value_transport": "ImmutableStringAtom"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "path": "crates/hakorune_mir_builder/src/type_context.rs"
+  },
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_origin_newbox",
+  "type_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext",
+      "rust_type": "TypeContext"
+    },
+    {
+      "id": "ValueId",
+      "rust_type": "ValueId",
+      "transport": "i64"
+    },
+    {
+      "id": "String",
+      "rust_type": "String",
+      "transport": "ImmutableStringAtom"
+    }
+  ]
+}

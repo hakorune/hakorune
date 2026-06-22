@@ -11,6 +11,12 @@ from mirbuilder_ordered_map_converter import (
     compile_ordered_map_family_methods,
     compile_variable_context_snapshot_restore_methods,
 )
+from mirbuilder_metadata_scalar_converter import compile_scalar_option_atom_methods
+from mirbuilder_optional_map_converter import (
+    compile_optional_copy_default_map_methods,
+    compile_optional_immutable_atom_map_methods,
+    compile_optional_owned_recursive_enum_map_methods,
+)
 from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
 from verified_hako_family_ir import HakoMethodIR
 
@@ -55,6 +61,42 @@ def _single_ordered_map_context(
 
 
 DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
+    "map.optional_copy_default": DirectShapeRule(
+        shape="map.optional_copy_default",
+        lower=lambda facts, plan: compile_optional_copy_default_map_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["map.optional_copy_default"],
+        ),
+        description="map get-option/get-default/set with copy enum values",
+    ),
+    "map.optional_immutable_atom": DirectShapeRule(
+        shape="map.optional_immutable_atom",
+        lower=lambda facts, plan: compile_optional_immutable_atom_map_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["map.optional_immutable_atom"],
+        ),
+        description="map get-option/set/clear with immutable atom values",
+    ),
+    "map.optional_owned_recursive_enum": DirectShapeRule(
+        shape="map.optional_owned_recursive_enum",
+        lower=lambda facts, plan: compile_optional_owned_recursive_enum_map_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["map.optional_owned_recursive_enum"],
+        ),
+        description="map get-option/set with owned recursive enum projection",
+    ),
+    "metadata.scalar_option_atom": DirectShapeRule(
+        shape="metadata.scalar_option_atom",
+        lower=lambda facts, plan: compile_scalar_option_atom_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["metadata.scalar_option_atom"],
+        ),
+        description="scalar field plus optional immutable atom metadata context",
+    ),
     "binding_context.single_ordered_map_context": DirectShapeRule(
         shape="single_ordered_map_context",
         lower=_single_ordered_map_context(

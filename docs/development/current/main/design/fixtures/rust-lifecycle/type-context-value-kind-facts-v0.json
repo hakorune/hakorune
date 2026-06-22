@@ -1,0 +1,112 @@
+{
+  "body_facts": [
+    {
+      "id": "TypeContext::new",
+      "operation": "NewMap",
+      "selected_field": "value_kinds"
+    },
+    {
+      "copy_value": true,
+      "id": "TypeContext::try_get_kind",
+      "operation": "MapGetOption",
+      "return": "Option<MirValueKind>",
+      "selected_field": "value_kinds"
+    },
+    {
+      "default": "MirValueKind::Temporary",
+      "id": "TypeContext::get_kind",
+      "operation": "MapGetDefault",
+      "selected_field": "value_kinds"
+    },
+    {
+      "id": "TypeContext::set_kind",
+      "operation": "MapSet",
+      "selected_field": "value_kinds"
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "id": "TypeContext::get_type"
+    },
+    {
+      "deny_reason": "UnsupportedTypeTransport",
+      "id": "TypeContext::set_type"
+    },
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "id": "TypeContext::get_origin_box"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::set_origin_box"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::clear_origin_boxes"
+    },
+    {
+      "deny_reason": "MultiFieldSnapshotDeferred",
+      "id": "TypeContext::take_snapshot"
+    },
+    {
+      "deny_reason": "MultiFieldSnapshotDeferred",
+      "id": "TypeContext::restore_snapshot"
+    }
+  ],
+  "field_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext.value_kinds",
+      "iteration_observed": false,
+      "key_transport": "ValueIdAsI64",
+      "rust_type": "HashMap<ValueId, MirValueKind>",
+      "value_transport": "DirectEnum"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "path": "crates/hakorune_mir_builder/src/type_context.rs"
+  },
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_kinds",
+  "type_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext",
+      "rust_type": "TypeContext"
+    },
+    {
+      "id": "MirValueKind",
+      "rust_type": "MirValueKind",
+      "transport": "DirectEnum",
+      "variants": [
+        {
+          "name": "Parameter",
+          "payload": "u32"
+        },
+        {
+          "name": "Local",
+          "payload": "u32"
+        },
+        {
+          "name": "Constant"
+        },
+        {
+          "name": "Temporary"
+        },
+        {
+          "name": "Pinned"
+        },
+        {
+          "name": "LoopCarrier"
+        }
+      ]
+    },
+    {
+      "id": "ValueId",
+      "rust_type": "ValueId",
+      "transport": "i64"
+    }
+  ]
+}

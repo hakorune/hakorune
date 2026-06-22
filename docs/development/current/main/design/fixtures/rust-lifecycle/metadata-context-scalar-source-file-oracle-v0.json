@@ -1,0 +1,47 @@
+{
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "full_metadata_context_claim": false,
+    "generic_metadata_context_claim": false,
+    "mirbuilder_wide_claim": false
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.scalar_source_file",
+  "vectors": [
+    {
+      "name": "metadata_scalar_source_file",
+      "operations": [
+        {
+          "current_span": 10,
+          "op": "new"
+        },
+        {
+          "expected": 10,
+          "op": "current_span"
+        },
+        {
+          "op": "set_current_span",
+          "span": 20
+        },
+        {
+          "expected": 20,
+          "op": "current_span"
+        },
+        {
+          "op": "set_source_file",
+          "source": "main.hako"
+        },
+        {
+          "expected": "main.hako",
+          "op": "current_source_file_some"
+        },
+        {
+          "op": "clear_source_file"
+        },
+        {
+          "op": "current_source_file_none"
+        }
+      ]
+    }
+  ]
+}

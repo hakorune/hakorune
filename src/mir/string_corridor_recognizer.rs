@@ -15,12 +15,12 @@
 use super::value_origin::{resolve_value_origin, ValueDefMap};
 use super::ValueId;
 use super::{BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction};
+use crate::mir::ssot::method_call::method_call_operand_view;
 use crate::mir::string_corridor_names::{
     is_len_method_name, is_lowered_len_global, is_runtime_concat3_export,
     is_runtime_len_handle_export, is_runtime_substring_concat3_export, is_runtime_substring_export,
     is_runtime_substring_len_export, is_slice_method_name,
 };
-use crate::mir::ssot::method_call::method_call_operand_view;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct AddShape {

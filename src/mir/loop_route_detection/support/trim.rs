@@ -439,16 +439,19 @@ mod tests {
 
         assert_eq!(
             decide_trim_route_lowering_readiness(&carrier_info, &condition_bindings),
-            TrimRouteLoweringReadinessDecision::Deny(
-                TrimRouteLoweringReadinessDeny::NoTrimHelper
-            )
+            TrimRouteLoweringReadinessDecision::Deny(TrimRouteLoweringReadinessDeny::NoTrimHelper)
         );
     }
 
     #[test]
     fn trim_route_lowering_readiness_denies_invalid_trim_metadata() {
         let mut carrier_info = readiness_carrier_info();
-        carrier_info.trim_helper.as_mut().unwrap().whitespace_chars.clear();
+        carrier_info
+            .trim_helper
+            .as_mut()
+            .unwrap()
+            .whitespace_chars
+            .clear();
         let condition_bindings = vec![ConditionBinding::new(
             "is_ch_match".to_string(),
             ValueId(20),

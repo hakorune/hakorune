@@ -1,0 +1,39 @@
+{
+  "excluded_methods": [
+    "TypeContext::get_type",
+    "TypeContext::set_type",
+    "TypeContext::get_origin_box",
+    "TypeContext::set_origin_box",
+    "TypeContext::clear_origin_boxes",
+    "TypeContext::take_snapshot",
+    "TypeContext::restore_snapshot"
+  ],
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "TypeContextApi.try_get_kind(ctx, value_id)",
+      "hako_operation": "MapGetOption",
+      "id": "TypeContext::try_get_kind",
+      "rust_operation": "HashMap::get copied"
+    },
+    {
+      "emits": "TypeContextApi.get_kind(ctx, value_id)",
+      "hako_operation": "ReturnDefaultIfMissing",
+      "id": "TypeContext::get_kind",
+      "rust_operation": "HashMap::get copied unwrap_or Temporary"
+    },
+    {
+      "emits": "TypeContextApi.set_kind(ctx, value_id, kind)",
+      "hako_operation": "MapSet",
+      "id": "TypeContext::set_kind",
+      "rust_operation": "HashMap::insert"
+    }
+  ],
+  "pilot_scope": "TypeContext_value_kinds_only",
+  "schema_version": 0,
+  "selected_body_count": "value_kind_methods_only",
+  "source_oracle": "type-context-value-kind-oracle-v0.json",
+  "source_plan": "type-context-value-kind-plan-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_kinds"
+}

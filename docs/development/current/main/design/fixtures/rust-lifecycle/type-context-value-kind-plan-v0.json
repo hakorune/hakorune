@@ -1,0 +1,32 @@
+{
+  "direct_shape": {
+    "map.optional_copy_default": {
+      "default_value": "MirValueKind::Temporary()",
+      "field_name": "value_kinds",
+      "key_arg": "value_id",
+      "type_name": "TypeContext",
+      "value_arg": "kind"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "TypeContext",
+      "plan_kind": "LocalBox"
+    },
+    {
+      "id": "TypeContext.value_kinds",
+      "key_transport": "ValueIdAsI64",
+      "plan_kind": "MapBox",
+      "shape_rule": "map.optional_copy_default",
+      "value_transport": "MirValueKindDirectEnum"
+    },
+    {
+      "id": "MirValueKind",
+      "plan_kind": "DirectEnum",
+      "payload_transport": "u32_checked_i64"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_kinds"
+}

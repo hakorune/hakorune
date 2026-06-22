@@ -1,0 +1,45 @@
+{
+  "direct_shape": {
+    "map.optional_owned_recursive_enum": {
+      "enum_type": "MirType",
+      "field_name": "value_types",
+      "get_signature": "get_type(ctx, value_id): Option<MirType>",
+      "key_arg": "value_id",
+      "method_ids": {
+        "get": "TypeContext::get_type",
+        "new": "TypeContext::new",
+        "set": "TypeContext::set_type"
+      },
+      "set_signature": "set_type(ctx, value_id, ty): i64",
+      "type_name": "TypeContext",
+      "value_arg": "ty"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "TypeContext",
+      "plan_kind": "LocalBox"
+    },
+    {
+      "id": "TypeContext.value_types",
+      "key_transport": "ValueIdAsI64",
+      "plan_kind": "MapBox",
+      "shape_rule": "map.optional_owned_recursive_enum",
+      "value_transport": "MirTypeOwnedRecursiveEnum"
+    },
+    {
+      "id": "MirType",
+      "plan_kind": "OwnedRecursiveEnum",
+      "recursive_payload_variants": [
+        "Array",
+        "Future"
+      ],
+      "string_payload_variants": [
+        "Box"
+      ]
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.value_types"
+}

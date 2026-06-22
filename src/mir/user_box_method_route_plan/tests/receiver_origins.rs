@@ -363,7 +363,8 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_resu
 
 #[test]
 fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_object_result() {
-    let mut module = MirModule::new("user_box_global_object_result_receiver_route_test".to_string());
+    let mut module =
+        MirModule::new("user_box_global_object_result_receiver_route_test".to_string());
     module
         .metadata
         .user_box_decls
