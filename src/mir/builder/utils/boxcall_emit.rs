@@ -8,6 +8,21 @@
 //! - Type inference: plugin_method_sigs -> CoreMethodId -> Unknown
 //! - LocalSSA: Ensures receiver and args have in-block definitions
 
+fn boxcall_callee_surface(
+    box_type: Option<&str>,
+) -> (String, crate::mir::definitions::call_unified::TypeCertainty) {
+    match box_type {
+        Some(box_name) => (
+            box_name.to_string(),
+            crate::mir::definitions::call_unified::TypeCertainty::Known,
+        ),
+        None => (
+            "RuntimeDataBox".to_string(),
+            crate::mir::definitions::call_unified::TypeCertainty::Union,
+        ),
+    }
+}
+
 impl super::super::MirBuilder {
     /// Phase 87: BoxCall のメソッド戻り値型を推論（CoreMethodId ベース）
     ///
@@ -181,14 +196,9 @@ impl super::super::MirBuilder {
         }
 
         // Canonical implementation (RCL-3-min3): emit Call(callee=Method)
-        let certainty = if box_type.is_some() {
-            crate::mir::definitions::call_unified::TypeCertainty::Known
-        } else {
-            crate::mir::definitions::call_unified::TypeCertainty::Union
-        };
-        let box_name_for_call = box_type
-            .clone()
-            .unwrap_or_else(|| "RuntimeDataBox".to_string());
+        // Unknown receivers are emitted through the RuntimeDataBox compatibility
+        // facade with Union certainty. This is not a recovered receiver type.
+        let (box_name_for_call, certainty) = boxcall_callee_surface(box_type.as_deref());
         let box_kind =
             crate::mir::builder::calls::call_unified::classify_box_kind(&box_name_for_call);
         self.emit_instruction(super::super::MirInstruction::Call {
@@ -242,5 +252,31 @@ impl super::super::MirBuilder {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::router::policy::{choose_route, Route};
+    use crate::mir::definitions::call_unified::TypeCertainty;
+
+    #[test]
+    fn unknown_receiver_uses_runtime_data_facade_with_union_certainty() {
+        assert_eq!(
+            choose_route("UnknownBox", "get", TypeCertainty::Union, 1),
+            Route::BoxCall
+        );
+
+        let (box_name, certainty) = boxcall_callee_surface(None);
+        assert_eq!(box_name, "RuntimeDataBox");
+        assert_eq!(certainty, TypeCertainty::Union);
+    }
+
+    #[test]
+    fn known_receiver_keeps_recovered_box_name_and_known_certainty() {
+        let (box_name, certainty) = boxcall_callee_surface(Some("ArrayBox"));
+        assert_eq!(box_name, "ArrayBox");
+        assert_eq!(certainty, TypeCertainty::Known);
     }
 }

@@ -72,11 +72,17 @@ impl TypeContext {
         self.value_types.insert(value_id, ty);
     }
 
-    /// Get the value kind for a ValueId, defaulting to Temporary if not registered
+    /// Get the value kind for a ValueId, if registered.
+    pub fn try_get_kind(&self, value_id: ValueId) -> Option<MirValueKind> {
+        self.value_kinds.get(&value_id).copied()
+    }
+
+    /// Get the value kind for a ValueId, defaulting to Temporary if not registered.
+    ///
+    /// Prefer `try_get_kind` in new code when an unknown ValueId must remain
+    /// observable instead of being treated as a temporary value.
     pub fn get_kind(&self, value_id: ValueId) -> MirValueKind {
-        self.value_kinds
-            .get(&value_id)
-            .copied()
+        self.try_get_kind(value_id)
             .unwrap_or(MirValueKind::Temporary)
     }
 
@@ -120,5 +126,30 @@ impl TypeContext {
         self.string_literals = snapshot.string_literals;
         self.map_value_types = snapshot.map_value_types;
         self.map_literal_value_types = snapshot.map_literal_value_types;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn try_get_kind_reports_registered_kind() {
+        let mut ctx = TypeContext::new();
+        let value_id = ValueId::new(7);
+
+        ctx.set_kind(value_id, MirValueKind::Parameter(2));
+
+        assert_eq!(ctx.try_get_kind(value_id), Some(MirValueKind::Parameter(2)));
+        assert_eq!(ctx.get_kind(value_id), MirValueKind::Parameter(2));
+    }
+
+    #[test]
+    fn try_get_kind_preserves_unknown_value_ids() {
+        let ctx = TypeContext::new();
+        let value_id = ValueId::new(99);
+
+        assert_eq!(ctx.try_get_kind(value_id), None);
+        assert_eq!(ctx.get_kind(value_id), MirValueKind::Temporary);
     }
 }
