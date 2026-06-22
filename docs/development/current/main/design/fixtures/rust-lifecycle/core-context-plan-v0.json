@@ -1,0 +1,79 @@
+{
+  "behavior": {
+    "converter_emission_added": true,
+    "general_resolver_implemented": false,
+    "mirbuilder_wide_claim": false,
+    "nightly_rustc_adapter": false,
+    "runtime_fallback": false
+  },
+  "denied": [
+    {
+      "deny_reason": "GeneratorObjectTransportDeferred",
+      "id": "CoreContext::next_value"
+    },
+    {
+      "deny_reason": "GeneratorObjectTransportDeferred",
+      "id": "CoreContext::next_block"
+    },
+    {
+      "deny_reason": "GeneratorObjectTransportDeferred",
+      "id": "CoreContext::peek_next_value"
+    },
+    {
+      "deny_reason": "GeneratorObjectTransportDeferred",
+      "id": "CoreContext::peek_next_block"
+    }
+  ],
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "cleanup_policy": "erase",
+      "id": "CoreContext",
+      "plan_kind": "LocalBox",
+      "publication_policy": "unpublished",
+      "required_facts": [
+        "CoreContext.escape_fact=LocalOnly",
+        "CoreContext.drop_fact=TrivialMemory"
+      ]
+    },
+    {
+      "field": "next_binding_id",
+      "id": "CoreContext::next_binding",
+      "plan_kind": "BindingIdNewAndIncrement",
+      "required_facts": [
+        "receiver_borrow.kind=UniqueWrite",
+        "receiver_borrow.escapes=false",
+        "returns.copy_class=ImmediateValue",
+        "returns.drop_class=TrivialMemory"
+      ],
+      "transport": "i64"
+    },
+    {
+      "field": "temp_slot_counter",
+      "id": "CoreContext::next_temp_slot",
+      "plan_kind": "CounterNext",
+      "required_facts": [
+        "receiver_borrow.kind=UniqueWrite",
+        "receiver_borrow.escapes=false",
+        "returns.copy_class=ImmediateValue",
+        "returns.drop_class=TrivialMemory"
+      ],
+      "transport": "i64"
+    },
+    {
+      "field": "debug_join_counter",
+      "id": "CoreContext::next_debug_join",
+      "plan_kind": "CounterNext",
+      "required_facts": [
+        "receiver_borrow.kind=UniqueWrite",
+        "receiver_borrow.escapes=false",
+        "returns.copy_class=ImmediateValue",
+        "returns.drop_class=TrivialMemory"
+      ],
+      "transport": "i64"
+    }
+  ],
+  "schema_version": 0,
+  "source_facts": "core-context-facts-v0.json",
+  "subject": "hakorune_mir_builder::core_context::CoreContext"
+}

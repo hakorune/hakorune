@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FAMILY_GENERATORS = {
     "binding-context": lambda *, check: run_mirbuilder_family_artifact_generator("binding_context", check=check),
     "box-compilation-context": lambda *, check: run_mirbuilder_family_artifact_generator("box_compilation_context", check=check),
+    "core-context": lambda *, check: run_mirbuilder_family_artifact_generator("core_context", check=check),
     "variable-context-simple-map": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_simple_map", check=check),
     "variable-context-snapshot-restore": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_snapshot_restore", check=check),
     "variable-context-carrier-snapshot": run_variable_context_carrier_snapshot_artifact_generator,

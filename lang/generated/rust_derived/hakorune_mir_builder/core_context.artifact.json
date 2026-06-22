@@ -1,0 +1,60 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "core_context_full_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "mirbuilder_wide_claim": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [
+    "CoreContext::next_value",
+    "CoreContext::next_block",
+    "CoreContext::peek_next_value",
+    "CoreContext::peek_next_block"
+  ],
+  "family_id": "hakorune_mir_builder::core_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_core_context_artifact.py",
+    "version": "core-context-scalar-counters-derived-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-facts-v0.json",
+      "sha256": "212bc522809a2f4ae0bd4331afa2b767b88baf13b79d87677852b47808e23881"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json",
+      "sha256": "4b95db93dacc46802c5461ca52f45632692de83fb0f57557d88d5eec7211a0d4"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json",
+      "sha256": "d1f790eee91f2fb2f9561a41369340827083b689dbe949fb9c737af2862633b8"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-behavior-recipe-v0.json",
+      "sha256": "235433b221a7539adf1a188de0f04dea64f5ec1c153c1fcdfd1d6c1abc522533"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-derived-artifact-verifier-result-v0.json",
+      "sha256": "30c1735a063afaa70a3519c55a8ee654270793fd7ec0e16630ccbf413d87e738"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.hako",
+    "hako_sha256": "3488a016d3e422d0b49f8d8921087b1436cbb56856519aa0f1650aa5ffc82900"
+  },
+  "pilot_scope": "CoreContext_scalar_counters_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/core_context.rs",
+        "sha256": "c3b2a7618f83b1bc07de87e698cb2440cbf98b469afde73acbcd8e8968c17c1d"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

@@ -35,6 +35,12 @@ from mirbuilder_ordered_map_converter import (
     compile_variable_context_simple_map_methods,
     compile_variable_context_snapshot_restore_methods,
 )
+from mirbuilder_core_context_artifacts import (
+    CORE_CONTEXT_SOURCE,
+    core_context_spec,
+    extract_core_context_facts,
+    validate_core_context,
+)
 from verified_hako_family_ir import op
 from shared_family_generator import read_json, run_validated_family_generator
 
@@ -746,6 +752,7 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
 _GENERATORS = {
     "binding_context": (binding_context_spec, validate_binding_context, lambda spec: extract_binding_context_facts(BINDING_CONTEXT_SOURCE), "generated_binding_context_artifact=unchanged"),
     "box_compilation_context": (box_compilation_context_spec, validate_box_compilation_context, lambda spec: extract_box_compilation_context_facts(BOX_COMPILATION_CONTEXT_SOURCE), "generated_box_compilation_context_artifact=unchanged"),
+    "core_context": (core_context_spec, validate_core_context, lambda spec: extract_core_context_facts(CORE_CONTEXT_SOURCE), "generated_core_context_artifact=unchanged"),
     "variable_context_simple_map": (variable_context_simple_map_spec, validate_variable_context_simple_map, lambda spec: extract_variable_context_simple_map_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE), "generated_variable_context_simple_map_artifact=unchanged"),
     "variable_context_immutable_borrow": (variable_context_immutable_borrow_spec, validate_variable_context_immutable_borrow, lambda spec: read_json(spec.facts_path), "generated_variable_context_immutable_borrow_artifact=unchanged"),
     "variable_context_snapshot_restore": (variable_context_snapshot_restore_spec, validate_variable_context_snapshot_restore, lambda spec: extract_variable_context_snapshot_restore_facts(VARIABLE_CONTEXT_SOURCE), "generated_variable_context_snapshot_restore_artifact=unchanged"),

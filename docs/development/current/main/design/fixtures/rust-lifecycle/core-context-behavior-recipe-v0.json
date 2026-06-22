@@ -1,0 +1,36 @@
+{
+  "excluded_methods": [
+    "CoreContext::next_value",
+    "CoreContext::next_block",
+    "CoreContext::peek_next_value",
+    "CoreContext::peek_next_block"
+  ],
+  "family_id": "hakorune_mir_builder::core_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "CoreContextApi.next_binding(ctx)",
+      "hako_operation": "TakeThenSaturatingIncrementU32",
+      "id": "CoreContext::next_binding",
+      "rust_operation": "BindingId::new + saturating_add"
+    },
+    {
+      "emits": "CoreContextApi.next_temp_slot(ctx)",
+      "hako_operation": "TakeThenSaturatingIncrementU32",
+      "id": "CoreContext::next_temp_slot",
+      "rust_operation": "saturating_add"
+    },
+    {
+      "emits": "CoreContextApi.next_debug_join(ctx)",
+      "hako_operation": "TakeThenSaturatingIncrementU32",
+      "id": "CoreContext::next_debug_join",
+      "rust_operation": "saturating_add"
+    }
+  ],
+  "pilot_scope": "CoreContext_scalar_counters_only",
+  "schema_version": 0,
+  "selected_body_count": "scalar_counter_methods_only",
+  "source_oracle": "core-context-oracle-v0.json",
+  "source_plan": "core-context-plan-v0.json",
+  "subject": "hakorune_mir_builder::core_context::CoreContext.scalar_counters"
+}

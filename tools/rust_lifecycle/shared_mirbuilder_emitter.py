@@ -346,6 +346,15 @@ def _render_operation(operation: Mapping[str, Any]) -> list[str]:
             "}",
             "return 0",
         ]
+    if kind == "TakeThenSaturatingIncrementU32":
+        source = _render_source_expr(operation)
+        return [
+            f"local id = {source}",
+            f"if {source} < 4294967295 {{",
+            f"    {source} = {source} + 1",
+            "}",
+            "return id",
+        ]
     raise ValueError(f"unsupported Hako operation: {kind}")
 
 

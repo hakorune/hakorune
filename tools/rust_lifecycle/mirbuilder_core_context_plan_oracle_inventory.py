@@ -14,20 +14,26 @@ from context_fact_extraction import require
 ROOT = Path(__file__).resolve().parents[2]
 READINESS = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-readiness-inventory-v0.json"
 VOCABULARY = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-scalar-counter-vocabulary-v0.json"
+PLAN = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json"
+ORACLE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json"
 REFERENCE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-oracle-inventory-v0.json"
 
 
 def inventory_core_context_plan_oracle() -> dict[str, Any]:
     readiness = json.loads(READINESS.read_text())
     vocabulary = json.loads(VOCABULARY.read_text())
+    plan = json.loads(PLAN.read_text())
+    oracle = json.loads(ORACLE.read_text())
 
     require(readiness.get("next_easy_tier_candidate") == "CoreContext", "readiness inventory does not name CoreContext")
-    require("docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json" in readiness.get("missing_paths", []), "missing CoreContext plan path not recorded")
-    require("docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json" in readiness.get("missing_paths", []), "missing CoreContext oracle path not recorded")
     require("scalar counter field initialization" in json.dumps(vocabulary, sort_keys=True), "scalar-counter vocabulary missing required stop")
     require("increment / saturating_add" in json.dumps(vocabulary, sort_keys=True), "scalar-counter vocabulary missing increment stop")
     require("ID constructor calls" in json.dumps(vocabulary, sort_keys=True), "scalar-counter vocabulary missing ID constructor stop")
     require("struct-return construction" in json.dumps(vocabulary, sort_keys=True), "scalar-counter vocabulary missing struct-return stop")
+    require(plan.get("subject") == "hakorune_mir_builder::core_context::CoreContext", "CoreContext plan subject mismatch")
+    require(oracle.get("subject") == "hakorune_mir_builder::core_context::CoreContext", "CoreContext oracle subject mismatch")
+    require(plan.get("behavior", {}).get("nightly_rustc_adapter") is False, "nightly rustc adapter must remain disabled")
+    require(oracle.get("promotion_scope", {}).get("mirbuilder_wide_claim") is False, "oracle must not claim MirBuilder-wide parity")
 
     return {
         "schema_version": 0,
@@ -36,25 +42,31 @@ def inventory_core_context_plan_oracle() -> dict[str, Any]:
         "source": {
             "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-readiness-inventory-v0.json",
             "scalar_counter_vocabulary": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-scalar-counter-vocabulary-v0.json",
+            "plan": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json",
+            "oracle": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json",
         },
-        "current_contract": "inventory_only",
+        "current_contract": "scalar_counter_plan_oracle_named",
         "decision": [
-            "keep CoreContext scalar-counter plan/oracle parked until bounded plan and oracle fixtures are named",
+            "name the CoreContext scalar-counter plan and oracle fixtures",
+            "emit only next_binding / next_temp_slot / next_debug_join",
+            "keep generator-object methods denied until transport is designed",
             "keep the plan/oracle question separate from route selection and nightly rustc adapter work",
             "do not select route or nightly rustc adapter",
         ],
         "supporting_evidence": [
-            "readiness inventory lists core-context-plan-v0.json as missing",
-            "readiness inventory lists core-context-oracle-v0.json as missing",
+            "core-context-plan-v0.json exists and selects scalar-counter methods only",
+            "core-context-oracle-v0.json exists and exercises scalar counters only",
             "scalar-counter vocabulary remains fixed in a machine-readable fixture",
         ],
-        "missing_paths": [
+        "named_paths": [
             "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json",
             "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json",
         ],
-        "open_questions": [
-            "What minimal HakoLifecyclePlan vocabulary should CoreContext use for scalar-counter initialization?",
-            "Which oracle vectors are required to keep next_value / next_block / next_binding bounded?",
+        "denied_methods": [
+            "CoreContext::next_value",
+            "CoreContext::next_block",
+            "CoreContext::peek_next_value",
+            "CoreContext::peek_next_block",
         ],
         "stop_line": [
             "do_not_select_route=1",
@@ -84,7 +96,7 @@ def main() -> int:
     print("subject=CoreContext")
     print("route_selection=0")
     print("nightly_rustc_adapter=0")
-    print("decision=inventory_only")
+    print("decision=scalar_counter_plan_oracle_named")
     print("summary=ok")
     return 0
 

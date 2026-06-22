@@ -1,0 +1,52 @@
+{
+  "denied_vectors": [
+    "next_value",
+    "next_block",
+    "peek_next_value",
+    "peek_next_block"
+  ],
+  "drop_oracle": {
+    "drop_observable": false,
+    "required_fact": "CoreContext.drop_fact=TrivialMemory"
+  },
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "core_context_claim": "scalar_counters_only",
+    "hako_authority": "CoreContext scalar counters only",
+    "mirbuilder_wide_claim": false
+  },
+  "schema_version": 0,
+  "source": "crates/hakorune_mir_builder/src/core_context.rs",
+  "subject": "hakorune_mir_builder::core_context::CoreContext",
+  "vectors": [
+    {
+      "id": "core_context_scalar_counters",
+      "operations": [
+        {
+          "expect": 0,
+          "op": "next_binding"
+        },
+        {
+          "expect": 1,
+          "op": "next_binding"
+        },
+        {
+          "expect": 0,
+          "op": "next_temp_slot"
+        },
+        {
+          "expect": 0,
+          "op": "next_debug_join"
+        },
+        {
+          "expect": 1,
+          "op": "next_temp_slot"
+        },
+        {
+          "expect": 1,
+          "op": "next_debug_join"
+        }
+      ]
+    }
+  ]
+}

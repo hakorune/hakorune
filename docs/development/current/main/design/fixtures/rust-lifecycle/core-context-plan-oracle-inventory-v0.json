@@ -1,34 +1,40 @@
 {
-  "schema_version": 0,
-  "kind": "MirBuilderCoreContextPlanOracleInventory",
-  "subject": "hakorune_mir_builder::core_context::CoreContext",
-  "source": {
-    "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-readiness-inventory-v0.json",
-    "scalar_counter_vocabulary": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-scalar-counter-vocabulary-v0.json"
-  },
-  "current_contract": "inventory_only",
+  "current_contract": "scalar_counter_plan_oracle_named",
   "decision": [
-    "keep CoreContext scalar-counter plan/oracle parked until bounded plan and oracle fixtures are named",
+    "name the CoreContext scalar-counter plan and oracle fixtures",
+    "emit only next_binding / next_temp_slot / next_debug_join",
+    "keep generator-object methods denied until transport is designed",
     "keep the plan/oracle question separate from route selection and nightly rustc adapter work",
     "do not select route or nightly rustc adapter"
   ],
-  "supporting_evidence": [
-    "readiness inventory lists core-context-plan-v0.json as missing",
-    "readiness inventory lists core-context-oracle-v0.json as missing",
-    "scalar-counter vocabulary remains fixed in a machine-readable fixture"
+  "denied_methods": [
+    "CoreContext::next_value",
+    "CoreContext::next_block",
+    "CoreContext::peek_next_value",
+    "CoreContext::peek_next_block"
   ],
-  "missing_paths": [
+  "kind": "MirBuilderCoreContextPlanOracleInventory",
+  "named_paths": [
     "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json",
     "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json"
   ],
-  "open_questions": [
-    "What minimal HakoLifecyclePlan vocabulary should CoreContext use for scalar-counter initialization?",
-    "Which oracle vectors are required to keep next_value / next_block / next_binding bounded?"
-  ],
+  "schema_version": 0,
+  "source": {
+    "oracle": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-oracle-v0.json",
+    "plan": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-plan-v0.json",
+    "readiness_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-readiness-inventory-v0.json",
+    "scalar_counter_vocabulary": "docs/development/current/main/design/fixtures/rust-lifecycle/core-context-scalar-counter-vocabulary-v0.json"
+  },
   "stop_line": [
     "do_not_select_route=1",
     "do_not_open_nightly_rustc_adapter=1",
     "do_not_claim_mirbuilder_wide_conversion=1",
     "do_not_add_runtime_fallback=1"
+  ],
+  "subject": "hakorune_mir_builder::core_context::CoreContext",
+  "supporting_evidence": [
+    "core-context-plan-v0.json exists and selects scalar-counter methods only",
+    "core-context-oracle-v0.json exists and exercises scalar counters only",
+    "scalar-counter vocabulary remains fixed in a machine-readable fixture"
   ]
 }
