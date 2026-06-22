@@ -21,6 +21,12 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 - Same-module `.inc` partitions may publish backend-local register type/origin
   facts from metadata, but MIRBuilder owns the semantic truth that produces
   those facts.
+- Generic-method route tuple facts must have one registry owner. The tuple
+  `route_id / core_op / route_kind / tier / route_proof / helper_symbol` must
+  not be re-listed independently in route policy, generic method match,
+  metadata-need rules, and same-module method views. The active cleanup order is
+  documented in
+  `../../../docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
 - Temporary exact matchers must be listed in the phase-137x Legacy Retirement Ledger or moved to explicit legacy fixtures before they can be kept.
 - Active seam closeout SSOT: `../../../docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`.
 

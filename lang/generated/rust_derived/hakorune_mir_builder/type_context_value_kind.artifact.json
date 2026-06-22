@@ -33,7 +33,7 @@
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-plan-v0.json",
-      "sha256": "7300311961a6c97e24caabbc206f2740820195f2fa4517c33429ff8a7d60e611"
+      "sha256": "cb8fa468a4909d9ae14aa18d4c0081cb47327236c43b19593ad6d5169d38991a"
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-behavior-recipe-v0.json",

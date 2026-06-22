@@ -37,6 +37,10 @@ def compile_optional_copy_default_map_methods(
     key_arg: str,
     value_arg: str,
     default_value: str,
+    method_ids: dict[str, str],
+    try_get_signature: str,
+    get_signature: str,
+    set_signature: str,
 ) -> list[HakoMethodIR]:
     """Compile the generic `map.optional_copy_default` shape.
 
@@ -46,12 +50,15 @@ def compile_optional_copy_default_map_methods(
     """
 
     body_facts = _body_facts_by_id(facts)
-    for method_id, operation in [
-        (f"{type_name}::new", "NewMap"),
-        (f"{type_name}::try_get_kind", "MapGetOption"),
-        (f"{type_name}::get_kind", "MapGetDefault"),
-        (f"{type_name}::set_kind", "MapSet"),
+    for method_key, operation in [
+        ("new", "NewMap"),
+        ("try_get", "MapGetOption"),
+        ("get_default", "MapGetDefault"),
+        ("set", "MapSet"),
     ]:
+        method_id = method_ids.get(method_key)
+        if method_id is None:
+            raise ValueError(f"Deny(UnsupportedDirectShape): missing method id {method_key}")
         _require_body(body_facts, method_id, operation=operation, field=field_name)
 
     plan_entries = {row["id"]: row for row in plan.get("plans", [])}
@@ -63,18 +70,18 @@ def compile_optional_copy_default_map_methods(
 
     return [
         HakoMethodIR(
-            signature="try_get_kind(ctx, value_id): Option<MirValueKind>",
+            signature=try_get_signature,
             operations=[op("MapGetOption", field=field_name, key=key_arg, storage="MapBox")],
         ),
         HakoMethodIR(
-            signature="get_kind(ctx, value_id): MirValueKind",
+            signature=get_signature,
             operations=[
                 op("MapGetOption", field=field_name, key=key_arg, target="kind", storage="MapBox"),
                 op("ReturnDefaultIfMissing", source="kind", default=default_value),
             ],
         ),
         HakoMethodIR(
-            signature="set_kind(ctx, value_id, kind): i64",
+            signature=set_signature,
             operations=[op("MapSet", field=field_name, key=key_arg, value=value_arg, storage="MapBox")],
         ),
     ]

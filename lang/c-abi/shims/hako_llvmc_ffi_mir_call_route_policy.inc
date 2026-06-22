@@ -14,6 +14,8 @@
         HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS,
       };
 
+#include "hako_llvmc_ffi_generic_method_route_registry.inc"
+
       struct GenericMethodRouteState {
         int recv_org;
         int runtime_array_len;
@@ -34,160 +36,22 @@
         struct DeferredArrayStringIndexofSelect* deferred_array_string_indexof;
       };
 
-      struct LoweringPlanRouteRule {
-        const char* route_id;
-        const char* core_op;
-        const char* route_kind;
-        enum LoweringPlanTierMetadata tier;
-        enum MirCallGenericMethodRouteKind result;
-      };
-
-      auto int lowering_plan_route_rule_matches(
-          const struct LoweringPlanGenericMethodView* view,
-          const struct LoweringPlanRouteRule* rule) {
-        if (!(view && rule)) return 0;
-        return lowering_plan_generic_method_view_matches_route_tuple(
-            view,
-            rule->route_id,
-            rule->core_op,
-            rule->route_kind,
-            rule->tier);
-      }
-
       auto enum MirCallGenericMethodRouteKind
       classify_mir_call_generic_method_route_kind_from_lowering_plan(
           yyjson_val* entry) {
-        static const struct LoweringPlanRouteRule rules[] = {
-          {
-            "generic_method.get",
-            "AnyGet",
-            "runtime_data_load_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
-          },
-          {
-            "generic_method.get",
-            "MapGet",
-            "runtime_data_load_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
-          },
-          {
-            "generic_method.get",
-            "MapGet",
-            "map_load_scalar_i64",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
-          },
-          {
-            "generic_method.get",
-            "MapGet",
-            "map_load_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET,
-          },
-          {
-            "generic_method.get",
-            "ArrayGet",
-            "array_slot_load_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET,
-          },
-          {
-            "generic_method.has",
-            "AnyHas",
-            "runtime_data_contains_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS,
-          },
-          {
-            "generic_method.has",
-            "MapHas",
-            "map_contains_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS,
-          },
-          {
-            "generic_method.has",
-            "MapHas",
-            "map_contains_i64",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS,
-          },
-          {
-            "generic_method.len",
-            "MapLen",
-            "map_entry_count",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_SIZE,
-          },
-          {
-            "generic_method.len",
-            "ArrayLen",
-            "array_slot_len",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_LEN,
-          },
-          {
-            "generic_method.push",
-            "ArrayPush",
-            "array_append_any",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH,
-          },
-          {
-            "generic_method.len",
-            "AnyLen",
-            "any_length",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ANY_LENGTH,
-          },
-          {
-            "generic_method.len",
-            "StringLen",
-            "string_len",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
-          },
-          {
-            "generic_method.substring",
-            "StringSubstring",
-            "string_substring",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING,
-          },
-          {
-            "generic_method.indexOf",
-            "StringIndexOf",
-            "string_indexof",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF,
-          },
-          {
-            "generic_method.lastIndexOf",
-            "StringLastIndexOf",
-            "string_last_indexof",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF,
-          },
-          {
-            "generic_method.contains",
-            "StringContains",
-            "string_contains",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
-            HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS,
-          },
-        };
         struct LoweringPlanGenericMethodView view;
-        size_t ri = 0;
+        const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
         if (!read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
-        for (ri = 0; ri < ARR_LEN(rules); ri++) {
-          if (lowering_plan_route_rule_matches(&view, &rules[ri])) {
-            trace_lowering_plan_entry_hit(entry, "mir_call_route");
-            return rules[ri].result;
-          }
+        row = hako_llvmc_generic_method_route_registry_find_by_tuple(
+            view.route_id,
+            view.core_op,
+            view.route_kind,
+            view.tier);
+        if (row && row->route_result != HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
+          trace_lowering_plan_entry_hit(entry, "mir_call_route");
+          return (enum MirCallGenericMethodRouteKind)row->route_result;
         }
         return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
       }
@@ -246,84 +110,13 @@
               !(op && route_id && route_kind)) {
             return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
           }
-          if (!strcmp(route_id, "generic_method.get") &&
-              !strcmp(op, "MapGet") &&
-              !strcmp(route_kind, "runtime_data_load_any") &&
-              core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
-          }
-          if (!strcmp(route_id, "generic_method.get") &&
-              !strcmp(op, "MapGet") &&
-              !strcmp(route_kind, "map_load_any") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
-          }
-          if (!strcmp(route_id, "generic_method.get") &&
-              !strcmp(op, "MapGet") &&
-              !strcmp(route_kind, "map_load_scalar_i64") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_GET;
-          }
-          if (!strcmp(route_id, "generic_method.get") &&
-              !strcmp(op, "ArrayGet") &&
-              !strcmp(route_kind, "array_slot_load_any") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_GET;
-          }
-          if (!strcmp(route_id, "generic_method.has") &&
-              !strcmp(op, "MapHas") &&
-              (!strcmp(route_kind, "map_contains_any") ||
-               !strcmp(route_kind, "map_contains_i64")) &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_HAS;
-          }
-          if (!strcmp(route_id, "generic_method.len") &&
-              !strcmp(op, "MapLen") &&
-              !strcmp(route_kind, "map_entry_count") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_MAP_SIZE;
-          }
-          if (!strcmp(route_id, "generic_method.len") &&
-              !strcmp(op, "ArrayLen") &&
-              !strcmp(route_kind, "array_slot_len") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_LEN;
-          }
-          if (!strcmp(route_id, "generic_method.push") &&
-              !strcmp(op, "ArrayPush") &&
-              !strcmp(route_kind, "array_append_any") &&
-              core_method_lowering_tier_is_cold_fallback(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_ARRAY_PUSH;
-          }
-          if (!strcmp(route_id, "generic_method.len") &&
-              !strcmp(op, "StringLen") &&
-              !strcmp(route_kind, "string_len") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
-          }
-          if (!strcmp(route_id, "generic_method.substring") &&
-              !strcmp(op, "StringSubstring") &&
-              !strcmp(route_kind, "string_substring") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING;
-          }
-          if (!strcmp(route_id, "generic_method.indexOf") &&
-              !strcmp(op, "StringIndexOf") &&
-              !strcmp(route_kind, "string_indexof") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_INDEXOF;
-          }
-          if (!strcmp(route_id, "generic_method.lastIndexOf") &&
-              !strcmp(op, "StringLastIndexOf") &&
-              !strcmp(route_kind, "string_last_indexof") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_LASTINDEXOF;
-          }
-          if (!strcmp(route_id, "generic_method.contains") &&
-              !strcmp(op, "StringContains") &&
-              !strcmp(route_kind, "string_contains") &&
-              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_RUNTIME_STRING_CONTAINS;
+          {
+            const struct HakoLlvmcGenericMethodRouteRegistryRow* row =
+                hako_llvmc_generic_method_route_registry_find_by_tuple(
+                    route_id, op, route_kind, lowering_tier);
+            if (row && row->route_result != HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
+              return (enum MirCallGenericMethodRouteKind)row->route_result;
+            }
           }
           return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }

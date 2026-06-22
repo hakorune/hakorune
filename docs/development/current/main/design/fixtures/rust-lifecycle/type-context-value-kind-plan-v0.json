@@ -3,7 +3,16 @@
     "map.optional_copy_default": {
       "default_value": "MirValueKind::Temporary()",
       "field_name": "value_kinds",
+      "get_signature": "get_kind(ctx, value_id): MirValueKind",
       "key_arg": "value_id",
+      "method_ids": {
+        "get_default": "TypeContext::get_kind",
+        "new": "TypeContext::new",
+        "set": "TypeContext::set_kind",
+        "try_get": "TypeContext::try_get_kind"
+      },
+      "set_signature": "set_kind(ctx, value_id, kind): i64",
+      "try_get_signature": "try_get_kind(ctx, value_id): Option<MirValueKind>",
       "type_name": "TypeContext",
       "value_arg": "kind"
     }

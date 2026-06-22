@@ -183,6 +183,110 @@ ConstructorLifecycleMismatch
 
 Do not encode family names in Deny reasons.
 
+## C ABI Shim Route Registry Cleanup
+
+The MirBuilder converter path is shape-driven after the direct-lowering
+cleanup, but the C ABI shim side still has route tuple semantics duplicated
+across hand-written `.inc` partitions. Treat this as backend cleanup, not as a
+new Rust-to-Hako converter design task.
+
+Current inventory:
+
+```text
+lang/c-abi/shims/*.inc count = 106
+seed-related .inc count = 27
+route_id appears in 17 shim files
+```
+
+The first cleanup target is the `generic_method` route tuple:
+
+```text
+route_id
+core_op
+route_kind
+tier
+route_proof
+helper_symbol
+```
+
+Known duplicate consumers:
+
+```text
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc
+lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc
+lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_metadata_rules.inc
+lang/c-abi/shims/hako_llvmc_ffi_same_module_method_views.inc
+```
+
+Representative duplicate tuples:
+
+```text
+generic_method.get / MapGet / map_load_any
+generic_method.has / has_surface_policy
+generic_method.set / map_store_i64 / nyash.map.slot_store_hih
+```
+
+Phase order:
+
+1. `Parameterize map.optional_copy_default method ids`
+
+   Status: current small fix.
+
+   Purpose:
+
+   ```text
+   remove the remaining TypeContext method-name leak from the direct converter
+   before touching C shim route registries.
+   ```
+
+2. `Inventory generic_method route tuple duplication`
+
+   Status: current worker inventory.
+
+   Purpose:
+
+   ```text
+   freeze which .inc files own duplicated route tuple semantics and which files
+   are legacy/exact-seed consumers that must not be widened.
+   ```
+
+3. `Introduce generic_method route tuple registry`
+
+   Scope:
+
+   ```text
+   one data table for route_id/core_op/route_kind/tier/route_proof/helper_symbol
+   route policy consumes the registry
+   generic_method_match consumes the registry
+   mir_call_need_metadata_rules consumes the registry
+   ```
+
+   Acceptance:
+
+   ```text
+   no new fallback route
+   unknown route stays fail-closed
+   MapStoreI64 and map_store_any remain distinct
+   existing generic_method route tests green
+   ```
+
+4. `Move same-module method views to generic_method route tuple registry`
+
+   Scope:
+
+   ```text
+   same-module route view predicates stop re-listing generic_method tuples.
+   ```
+
+Parked until the generic_method registry is green:
+
+```text
+hako_llvmc_ffi_pure_compile.inc exact seed tag/source_route/proof table
+hako_llvmc_ffi_user_box_micro_seed*.inc
+exact seed individual consumers
+broad .inc physical retirement
+```
+
 ## Work Unit Rule
 
 Prefer implementation commits over process commits.

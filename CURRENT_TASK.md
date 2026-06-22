@@ -39,7 +39,7 @@ MIRBUILDER-CANONICAL-COMPAT-AST-PHASE0-DRAIN-001
 Next task:
 
 ```text
-Drain the remaining AST JSON phase0 old compiler-tree entry to the canonical MirBuilder path
+Move same-module method views to the generic_method route tuple registry.
 ```
 
 Purpose:
@@ -177,9 +177,12 @@ Done:
   direct TypeContext origin-map conversion
   direct MetadataContext scalar/source-file conversion
   direct TypeContext value-type conversion
+  direct TypeContext aggregate snapshot/restore conversion
+  shared MirBuilder emitter split
+  optional copy/default map method ids parameterized
 
 Next:
-  Implement direct TypeContext aggregate snapshot/restore conversion.
+  Clean up c-abi generic_method route tuple hardcode.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -203,33 +206,55 @@ Task sequence:
   15. Implement direct TypeContext aggregate snapshot/restore conversion. (next)
 ```
 
-Current implementation slice:
+Current cleanup slice:
 
 ```text
 Target:
-  TypeContext::take_snapshot
-  TypeContext::restore_snapshot
+  lang/c-abi/shims generic_method route tuple tables
 
 Decision:
-  convert all six fields as opaque container ownership transfer.
-  This slice does not read entries, compare keys, iterate maps, or claim
-  `(ValueId, String)` key transport.
+  first registry target is generic_method route tuples only.
+  Do not start exact seed registry or legacy seed consumer cleanup in the same
+  slice.
 
-Direct shape:
-  aggregate.take_restore_with_defaults
+Phase 0:
+  parameterize the small converter leak in map.optional_copy_default.
+  Status: done in working tree; matrix green.
 
-Required operations:
-  MoveFieldAndResetSource
-  AssertNotConsumed
-  MarkConsumed
+Phase 1:
+  inventory route_id / core_op / route_kind / tier / route_proof /
+  helper_symbol duplication in:
+    lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc
+    lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc
+    lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_metadata_rules.inc
+    lang/c-abi/shims/hako_llvmc_ffi_same_module_method_views.inc
 
-Closed evidence for prior TypeContext.value_types decision:
-  owned recursive MirType enum transport accepted
-  TypeContext::get_type / set_type generated through map.optional_owned_recursive_enum
-  no raw returned MirType borrow
-  generated .hako MIR green
-  generated .hako EXE green
-  converter matrix green
+Phase 2:
+  introduce one generic_method route tuple registry and move only the first
+  three consumers to it:
+    route policy
+    generic method match
+    metadata need rules
+  Status: green in working tree.
+
+Phase 3:
+  move same-module method views to the same registry after Phase 2 is green.
+
+Parked:
+  hako_llvmc_ffi_pure_compile.inc exact seed tag registry
+  hako_llvmc_ffi_user_box_micro_seed*.inc
+  exact seed individual consumers
+  broad .inc physical retirement
+
+Acceptance:
+  no duplicated generic_method route tuple changes across Phase 2 files
+  no new by-name fallback
+  route unknowns still fail closed
+  existing generic_method route tests green
+  converter matrix remains green
+
+Phase 2 is complete in the working tree; the next cleanup slice is Phase 3
+(`same_module_method_views`).
 ```
 
 Current task order:
