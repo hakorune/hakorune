@@ -21,18 +21,31 @@ from pathlib import Path
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.artifact.json").read_text())
 assert manifest["kind"] == "RustDerivedHakoArtifact"
 assert manifest["family_id"] == "hakorune_mir_builder::ordered_map_bundle"
-assert manifest["pilot_scope"] == "BindingContext_and_VariableContext_simple_map"
+assert manifest["pilot_scope"] == "MirBuilder_easy_v0_ordered_map_bundle"
 assert manifest["claims"]["generated_hako_manual_edit"] == 0
 assert manifest["claims"]["mainline_selected"] == 0
 assert manifest["claims"]["rust_bootstrap_retained"] == 1
 assert manifest["claims"]["backend_behavior_changed"] == 0
-assert manifest["bundle_kind"] == "ordered_map_crate_bundle_v0"
+assert manifest["generator"]["version"] == "mirbuilder-easy-v0-ordered-map-bundle-v1"
+assert manifest["bundle_kind"] == "mirbuilder_easy_v0_ordered_map_bundle"
 assert manifest["bundle_members"] == [
     "hakorune_mir_builder::binding_context",
-    "hakorune_mir_builder::variable_context",
+    "hakorune_mir_builder::context",
+    "hakorune_mir_builder::variable_context.simple_map",
+    "hakorune_mir_builder::variable_context.snapshot_restore",
 ]
-assert len(manifest["source"]["rust_files"]) == 2
-assert len(manifest["inputs"]["bundle_members"]) == 2
+assert manifest["exercised_capabilities"] == [
+    "BindingContext.insert_lookup",
+    "BoxCompilationContext.new_is_empty",
+    "VariableContext.simple_map.insert_lookup",
+    "VariableContext.snapshot_owned_projection_call",
+]
+assert [entry["name"] for entry in manifest["deferred_capabilities"]] == [
+    "VariableContext.restore_exe_call",
+    "VariableContext.snapshot_mutation_alias_proof_in_bundle",
+]
+assert len(manifest["source"]["rust_files"]) == 3
+assert len(manifest["inputs"]["bundle_members"]) == 4
 PY
 
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
@@ -49,7 +62,7 @@ EOF_EXPECTED
 diff -u "$EXPECTED" "$OUT"
 
 cat <<'REPORT'
-output_contract=rust-lifecycle-ordered-map-crate-bundle-v0
+output_contract=rust-lifecycle-mirbuilder-easy-v0-ordered-map-bundle-v1
 family_id=hakorune_mir_builder::ordered_map_bundle
 generated_hako_checked_in=1
 artifact_manifest_checked_in=1

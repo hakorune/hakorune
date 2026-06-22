@@ -1,8 +1,10 @@
 {
-  "bundle_kind": "ordered_map_crate_bundle_v0",
+  "bundle_kind": "mirbuilder_easy_v0_ordered_map_bundle",
   "bundle_members": [
     "hakorune_mir_builder::binding_context",
-    "hakorune_mir_builder::variable_context"
+    "hakorune_mir_builder::context",
+    "hakorune_mir_builder::variable_context.simple_map",
+    "hakorune_mir_builder::variable_context.snapshot_restore"
   ],
   "claims": {
     "backend_behavior_changed": 0,
@@ -11,13 +13,29 @@
     "rust_bootstrap_retained": 1,
     "source_selfhost_claim": 0
   },
+  "deferred_capabilities": [
+    {
+      "name": "VariableContext.restore_exe_call",
+      "reason": "backend currently denies void static call shape for VariableContextApi.restore/2"
+    },
+    {
+      "name": "VariableContext.snapshot_mutation_alias_proof_in_bundle",
+      "reason": "backend currently cannot route OrderedMapBox.set from snapshot-return receiver origin in Main"
+    }
+  ],
+  "exercised_capabilities": [
+    "BindingContext.insert_lookup",
+    "BoxCompilationContext.new_is_empty",
+    "VariableContext.simple_map.insert_lookup",
+    "VariableContext.snapshot_owned_projection_call"
+  ],
   "family_id": "hakorune_mir_builder::ordered_map_bundle",
   "generator": {
     "tool": "tools/rust_lifecycle/generate_mirbuilder_ordered_map_crate_bundle.py",
-    "version": "ordered-map-crate-bundle-v0"
+    "version": "mirbuilder-easy-v0-ordered-map-bundle-v1"
   },
   "inputs": {
-    "bundle_kind": "ordered_map_crate_bundle_v0",
+    "bundle_kind": "mirbuilder_easy_v0_ordered_map_bundle",
     "bundle_members": [
       {
         "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
@@ -26,25 +44,41 @@
         "name": "binding_context"
       },
       {
+        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json",
+        "family_id": "hakorune_mir_builder::context",
+        "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.hako",
+        "name": "box_compilation_context"
+      },
+      {
         "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
         "family_id": "hakorune_mir_builder::variable_context",
         "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.hako",
         "name": "variable_context_simple_map"
+      },
+      {
+        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json",
+        "family_id": "hakorune_mir_builder::variable_context",
+        "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.hako",
+        "name": "variable_context_snapshot_restore"
       }
     ]
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.hako",
-    "hako_sha256": "ef0324d74471aba9cda24680216cc3c3367208ae9fa2c9b56c648355ce8816ba"
+    "hako_sha256": "69ff0b971e277fd89b620b46063688908c7d7b24d98bcf8e91fcc314542b679e"
   },
-  "pilot_scope": "BindingContext_and_VariableContext_simple_map",
+  "pilot_scope": "MirBuilder_easy_v0_ordered_map_bundle",
   "schema_version": 0,
   "source": {
     "rust_files": [
       {
         "path": "crates/hakorune_mir_builder/src/binding_context.rs",
         "sha256": "2fbd91df99adcea0900ce1b596805e1c8d2be84d4d83046530b0b414729ee8b2"
+      },
+      {
+        "path": "crates/hakorune_mir_builder/src/context.rs",
+        "sha256": "8378ef6ee1f5670ef3493b5226e5313e75f98ba98b832d4e187bfbccaaf834d3"
       },
       {
         "path": "crates/hakorune_mir_builder/src/variable_context.rs",
