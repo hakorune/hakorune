@@ -19,7 +19,7 @@ export_vm_route_pin
 export HAKO_JOINIR_PLANNER_REQUIRED=1
 
 FIXTURE="$NYASH_ROOT/apps/tests/phase29bq_hako_mirbuilder_phase1_literal_return_min.hako"
-ENTRY="$NYASH_ROOT/lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako"
+ENTRY="$NYASH_ROOT/lang/src/mir/builder/compat/program_json_v0_entry.hako"
 
 TMP_DIR="${PHASE29BQ_FAST_LOG_DIR:-/tmp}"
 RUN_ID="phase29bq_hako_mirbuilder_phase1_min_${$}"

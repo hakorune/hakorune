@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-PRINT-CONTRACT-DECISION-001
+MIRBUILDER-CANONICAL-COMPAT-LOOP-CONTRACT-ACCEPTANCE-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
@@ -72,15 +72,19 @@ typed BoxCompilationContext Main execution harness is implemented, the
 ordered-map crate bundle is landed, VariableContext snapshot/restore is now
 landed as a typed harness closeout, the MirBuilder home is now locked to
 `lang/src/mir/builder/`, and the legacy compiler-tree surface now has an
-explicit caller drain inventory. Stage-A bridge and active JoinIR smokes still
-use the old compiler-tree Program(JSON) entries. The planner-required route
-overlap between `loop_true_break_continue` and `generic_loop_v1` is now
-closed, and the canonical Program(JSON) compat executable entry exists under
-`lang/src/mir/builder/compat/`. Live caller redirect is stopped at the
-hand-crafted Print node contract gap: old compiler-tree entry accepts it,
-canonical `MirBuilderBox` currently rejects it. CoreContext stays next for the
-easy-tier converter lane after this cleanup boundary is documented.
-Crate linker work stays parked.
+explicit caller drain inventory. The planner-required route overlap between
+`loop_true_break_continue` and `generic_loop_v1` is now closed, and Stage-A
+bridge plus active JoinIR MirBuilder Program(JSON) smokes now target the canonical
+Program(JSON) compat executable entry under `lang/src/mir/builder/compat/`.
+Print, Expr(Call env.console.log Var), and fallthrough If Program(JSON)
+contracts are green through MIR/EXE execution. Stage-0 Loop Program(JSON)
+remains the active blocker after a small canonical loop lowerer attempt exposed
+`[freeze:contract][ssa/phi_input/without_def]` in
+`BuildProgramFragmentBox.inject_json_fragment/2`; this is an acceptance /
+compiler-shape blocker, not an old compiler-tree fallback. The AST JSON
+phase0 pin and phase21 Loop Program(JSON) pin remain separate old-entry drain
+targets. CoreContext stays next for the easy-tier converter lane after this
+cleanup boundary is documented. Crate linker work stays parked.
 
 Historical context follows.
 

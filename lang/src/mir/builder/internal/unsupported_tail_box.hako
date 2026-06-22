@@ -3,7 +3,7 @@ using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
 static box BuilderUnsupportedTailBox {
   method fail(program_json, func_defs_mir) {
     local has_ternary = me._program_json_has_ternary(program_json)
-    print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Expr(Call env.console.log Int)+Return(Int), If-nested, and probe nested-ternary")
+    print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Print(Var)+Return(Int), Expr(Call env.console.log Var)+Return(Int), If(Var==Int){Return}+Return, If-nested, and probe nested-ternary")
     return me._log_fail_reason(func_defs_mir, has_ternary)
   }
 

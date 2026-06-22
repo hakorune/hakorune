@@ -33,31 +33,29 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MIRBUILDER-CANONICAL-COMPAT-PRINT-CONTRACT-DECISION-001
+MIRBUILDER-CANONICAL-COMPAT-LOOP-CONTRACT-ACCEPTANCE-001
 ```
 
 Next task:
 
 ```text
-Decide canonical MirBuilder Print-node Program(JSON) compat coverage
+Accept canonical MirBuilder Stage-0 Loop Program(JSON) contract without old-tree fallback
 ```
 
 Purpose:
 
 ```text
-The selected ordered-map harness family has landed its representative
-crate-level bundle. BindingContext and VariableContext simple-map are both
-landed as typed family artifacts, VariableContext snapshot/restore is now
-landed as a typed harness closeout, the MirBuilder home is locked to
-`lang/src/mir/builder/`, and the compiler-tree compatibility surface now has
-an explicit caller drain inventory. The planner-required route overlap between
-`loop_true_break_continue` and `generic_loop_v1` is now closed, and the
-canonical Program(JSON) compat executable entry now exists under
-`lang/src/mir/builder/compat/`. Live caller redirect is stopped because the old
-compiler-tree entry still accepts the hand-crafted Print node contract that
-canonical `MirBuilderBox` currently rejects. Decide whether to teach canonical
-MirBuilderBox that contract or keep the old entry as explicit contract-pin
-owner for now.
+The canonical Program(JSON) compat executable entry under
+`lang/src/mir/builder/compat/` is now the active Stage-A / JoinIR Program(JSON)
+smoke target for Print, Expr(Call env.console.log Var), and fallthrough If
+contracts. The old compiler-tree Program(JSON) entry remains present but is
+not used as runtime fallback for those redirected non-loop contracts. The AST
+JSON phase0 pin and phase21 Loop Program(JSON) pin remain separate old-entry
+drain targets. The remaining blocker is Stage-0 Loop Program(JSON): attempts
+to add a small canonical loop lowerer exposed
+`[freeze:contract][ssa/phi_input/without_def]` in
+`BuildProgramFragmentBox.inject_json_fragment/2`. Fix the acceptance /
+compiler-shape issue before re-enabling the Loop contract pin.
 ```
 
 Lifecycle converter boundary:
@@ -77,6 +75,7 @@ docs/development/current/main/phases/phase-296x/296x-1626-MIRBUILDER-COMPAT-CALL
 docs/development/current/main/phases/phase-296x/296x-1627-MIRBUILDER-COMPAT-ENTRY-PLANNER-AMBIGUITY-INVENTORY-001.md
 docs/development/current/main/phases/phase-296x/296x-1628-MIRBUILDER-COMPAT-ENTRY-LOOP-TRUE-GENERIC-DISJOINT-001.md
 docs/development/current/main/phases/phase-296x/296x-1629-MIRBUILDER-CANONICAL-COMPAT-ENTRY-COVERAGE-STOP-001.md
+docs/development/current/main/phases/phase-296x/296x-1630-MIRBUILDER-CANONICAL-PROGRAM-JSON-COMPAT-REDIRECT-001.md
 ```
 
 Short form:

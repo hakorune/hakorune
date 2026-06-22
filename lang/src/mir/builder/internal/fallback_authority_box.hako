@@ -17,6 +17,8 @@ using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIf
 using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
 using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
+using "hako.mir.builder.internal.lower_print_var_return_int" as LowerPrintVarReturnIntBox
+using "hako.mir.builder.internal.lower_if_var_eq_int_fallthrough" as LowerIfVarEqIntFallthroughBox
 using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
 using "hako.mir.builder.internal.lower_return_float" as LowerReturnFloatBox
 using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
@@ -75,6 +77,8 @@ static box BuilderFallbackAuthorityBox {
     }
     { local out_toc = LowerTypeOpCheckBox.try_lower(s); if out_toc != null { return out_toc } }
     { local out_tca = LowerTypeOpCastBox.try_lower(s); if out_tca != null { return out_tca } }
+    { local out_print = LowerPrintVarReturnIntBox.try_lower(s); if out_print != null { return out_print } }
+    { local out_if_fall = LowerIfVarEqIntFallthroughBox.try_lower(s); if out_if_fall != null { return out_if_fall } }
     { local out_var = LowerReturnVarLocalBox.try_lower(s); if out_var != null { return out_var } }
     { local out_str = LowerReturnStringBox.try_lower(s); if out_str != null { return out_str } }
     { local out_f = LowerReturnFloatBox.try_lower(s); if out_f != null { return out_f } }

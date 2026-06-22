@@ -1,0 +1,94 @@
+// lower_if_var_eq_int_fallthrough_box.hako
+// Pattern: [ Local name=Int, If(Var(name) == Int){Return Int}, Return Int ].
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
+
+static box LowerIfVarEqIntFallthroughBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+
+    local k_local_expr = JsonFragBox.index_of_from(s, "\"expr\":{", 0)
+    if k_local_expr < 0 { return null }
+    local k_loc = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_local_expr)
+    if k_loc < 0 { return null }
+    local k_cond = JsonFragBox.index_of_from(s, "\"cond\":{", k_loc)
+    if k_cond < 0 { return null }
+    local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", k_cond)
+    if k_if < 0 { return null }
+    local k_fall_ret_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_if + 1)
+    if k_fall_ret_expr < 0 { return null }
+    local k_fall_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_fall_ret_expr)
+    if k_fall_ret < 0 { return null }
+    if k_fall_ret_expr > k_fall_ret { return null }
+
+    local k_local_name = JsonFragBox.index_of_from(s, "\"name\":", 0)
+    if k_local_name < 0 || k_local_name > k_loc { return null }
+    local local_name = me._read_string_field(s, k_local_name + 7)
+    if local_name == "" { return null }
+
+    local k_local_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_local_expr)
+    if k_local_int < 0 || k_local_int > k_loc { return null }
+    local k_local_val = JsonFragBox.index_of_from(s, "\"value\":", k_local_expr)
+    if k_local_val < 0 || k_local_val > k_loc { return null }
+    local local_init = me._read_int_field(s, k_local_val + 8)
+    if local_init == "" { return null }
+
+    local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_cond)
+    if k_cmp < 0 || k_cmp > k_if { return null }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cond)
+    if k_op < 0 || k_op > k_if { return null }
+    local op = me._read_string_field(s, k_op + 5)
+    if op != "==" { return null }
+
+    local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_cond)
+    if k_lhs < 0 || k_lhs > k_if { return null }
+    local k_lhs_name = JsonFragBox.index_of_from(s, "\"name\":", k_lhs)
+    local k_lhs_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_lhs)
+    if k_lhs_name < 0 || k_lhs_var < 0 || k_lhs_name > k_lhs_var || k_lhs_var > k_if { return null }
+    local lhs_name = me._read_string_field(s, k_lhs_name + 7)
+    if lhs_name != local_name { return null }
+
+    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_cond)
+    if k_rhs < 0 || k_rhs > k_if { return null }
+    local k_rhs_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
+    if k_rhs_int < 0 || k_rhs_int > k_if { return null }
+    local k_rhs_val = JsonFragBox.index_of_from(s, "\"value\":", k_rhs)
+    if k_rhs_val < 0 || k_rhs_val > k_if { return null }
+    local cond_rhs = me._read_int_field(s, k_rhs_val + 8)
+    if cond_rhs == "" { return null }
+
+    local k_then = JsonFragBox.index_of_from(s, "\"then\":[", k_cond)
+    if k_then < 0 || k_then > k_if { return null }
+    local k_then_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_then)
+    if k_then_ret < 0 || k_then_ret > k_if { return null }
+    local k_then_val = JsonFragBox.index_of_from(s, "\"value\":", k_then)
+    if k_then_val < 0 || k_then_val > k_if { return null }
+    local then_value = me._read_int_field(s, k_then_val + 8)
+    if then_value == "" { return null }
+
+    local k_fall_val = JsonFragBox.index_of_from(s, "\"value\":", k_fall_ret_expr)
+    if k_fall_val < 0 || k_fall_val > k_fall_ret { return null }
+    local else_value = me._read_int_field(s, k_fall_val + 8)
+    if else_value == "" { return null }
+
+    return CompatMirEmitBox.emit_compare_ret2_text(local_init, cond_rhs, "==", then_value, else_value)
+  }
+
+  _read_string_field(s, pos) {
+    local q1 = JsonFragBox.index_of_from(s, "\"", pos)
+    if q1 < 0 || q1 > pos + 4 { return "" }
+    local q2 = JsonFragBox.index_of_from(s, "\"", q1 + 1)
+    if q2 < 0 || q2 > q1 + 128 { return "" }
+    return s.substring(q1 + 1, q2)
+  }
+
+  _read_int_field(s, pos) {
+    local comma = JsonFragBox.index_of_from(s, ",", pos)
+    local brace = JsonFragBox.index_of_from(s, "}", pos)
+    local end = comma
+    if end < 0 || (brace >= 0 && brace < end) { end = brace }
+    if end < 0 || end > pos + 32 { return "" }
+    return s.substring(pos, end)
+  }
+}

@@ -50,38 +50,40 @@ static box JsonFragNormalizerBox {
       local ob_end = JsonCursorBox.seek_obj_end(s, ob)
       if ob_end < 0 { break }
       local obj = s.substring(ob, ob_end + 1)
-      // advance index to after this object (skip trailing comma via next search)
-      i = ob_end + 1
+      local next_i = ob_end + 1
+      local done = false
+      local keep = true
       // classify by op
       local op = JsonFragBox.get_str(obj, "op")
       if purify {
         // Drop builder-side allocations and side-effect calls for JsonFrag purify
-        if op == "newbox" { continue }
-        if op == "boxcall" { continue }
-        if op == "externcall" { continue }
-        if op == "mir_call" { continue }
+        if op == "newbox" { keep = false }
+        if op == "boxcall" { keep = false }
+        if op == "externcall" { keep = false }
+        if op == "mir_call" { keep = false }
       }
-      if op == "phi" {
-        phi_list.push(obj)
-        continue
+      if keep {
+        if op == "phi" {
+          phi_list.push(obj)
+        } else if op == "const" {
+          // Canonicalize const representation (e.g., f64 value formatting) before dedupe/signature
+          local obj_c = me._const_canonicalize(obj)
+          // Build dedupe signature: dst + value-signature (type-aware: i64/f64/String/raw)
+          local dst = JsonFragBox.get_int(obj_c, "dst")
+          local dstr = (dst == null) ? "?" : StringHelpers.int_to_str(dst)
+          local sig_val = me._const_value_sig(obj_c)
+          local sig = "d:" + dstr + ";val:" + sig_val
+          if seen.get(sig) == null { const_list.push(obj_c)  seen.set(sig, 1) }
+        } else if op == "ret" {
+          others_list.push(me._ret_ensure_value(obj))
+          // cut: do not allow any instruction after ret in this block
+          done = true
+        } else {
+          others_list.push(obj)
+        }
       }
-      if op == "const" {
-        // Canonicalize const representation (e.g., f64 value formatting) before dedupe/signature
-        local obj_c = me._const_canonicalize(obj)
-        // Build dedupe signature: dst + value-signature (type-aware: i64/f64/String/raw)
-        local dst = JsonFragBox.get_int(obj_c, "dst")
-        local dstr = (dst == null) ? "?" : StringHelpers.int_to_str(dst)
-        local sig_val = me._const_value_sig(obj_c)
-        local sig = "d:" + dstr + ";val:" + sig_val
-        if seen.get(sig) == null { const_list.push(obj_c)  seen.set(sig, 1) }
-        continue
-      }
-      if op == "ret" {
-        others_list.push(me._ret_ensure_value(obj))
-        // cut: do not allow any instruction after ret in this block
-        break
-      }
-      others_list.push(obj)
+      if done { break }
+      i = next_i
     }
     // Rebuild in normalized order: phi* (as-is order) → const* (stable) → others*
     local out = ""

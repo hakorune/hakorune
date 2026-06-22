@@ -18,7 +18,7 @@ require_env || exit 2
 export HAKO_JOINIR_PLANNER_REQUIRED=1
 
 BASE_FIXTURE="$NYASH_ROOT/apps/tests/phase29bq_selfhost_cleanup_only_min.hako"
-ENTRY="$NYASH_ROOT/lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako"
+ENTRY="$NYASH_ROOT/lang/src/mir/builder/compat/program_json_v0_entry.hako"
 
 TMP_DIR="${PHASE29BQ_FAST_LOG_DIR:-/tmp}"
 RUN_ID="phase29bq_hako_mirbuilder_cleanup_try_finally_local_min_${$}"

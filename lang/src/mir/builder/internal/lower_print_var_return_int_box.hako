@@ -1,0 +1,86 @@
+// lower_print_var_return_int_box.hako
+// Pattern: [ Local name=Int, Print/console.log Var(name), Return Int ].
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
+
+static box LowerPrintVarReturnIntBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+
+    local k_local_expr = JsonFragBox.index_of_from(s, "\"expr\":{", 0)
+    if k_local_expr < 0 { return null }
+    local k_loc = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_local_expr)
+    if k_loc < 0 { return null }
+    local k_print_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_loc + 1)
+    if k_print_expr < 0 { return null }
+    local k_print = JsonFragBox.index_of_from(s, "\"type\":\"Print\"", k_print_expr)
+    local k_expr_stmt = JsonFragBox.index_of_from(s, "\"type\":\"Expr\"", k_print_expr)
+    local k_output_end = -1
+    if k_print >= 0 && k_print < k_print_expr + 192 {
+      k_output_end = k_print
+    } else {
+      if k_expr_stmt < 0 || k_expr_stmt > k_print_expr + 192 { return null }
+      local k_call = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", k_print_expr)
+      if k_call < 0 || k_call > k_expr_stmt { return null }
+      local k_call_name = JsonFragBox.index_of_from(s, "\"name\":\"env.console.log\"", k_print_expr)
+      if k_call_name < 0 || k_call_name > k_expr_stmt { return null }
+      k_output_end = k_expr_stmt
+    }
+    local k_ret_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_output_end + 1)
+    if k_ret_expr < 0 { return null }
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_ret_expr)
+    if k_ret < 0 { return null }
+    if k_ret_expr > k_ret { return null }
+
+    local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", k_loc)
+    if k_if >= 0 && k_if < k_ret { return null }
+    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", k_loc)
+    if k_loop >= 0 && k_loop < k_ret { return null }
+
+    local k_local_name = JsonFragBox.index_of_from(s, "\"name\":", 0)
+    if k_local_name < 0 || k_local_name > k_loc { return null }
+    local local_name = me._read_string_field(s, k_local_name + 7)
+    if local_name == "" { return null }
+
+    local k_local_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_local_expr)
+    if k_local_int < 0 || k_local_int > k_loc { return null }
+    local k_local_val = JsonFragBox.index_of_from(s, "\"value\":", k_local_expr)
+    if k_local_val < 0 || k_local_val > k_loc { return null }
+    local local_init = me._read_int_field(s, k_local_val + 8)
+    if local_init == "" { return null }
+
+    local k_output_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_print_expr)
+    if k_output_var < 0 || k_output_var > k_output_end { return null }
+    local k_output_name = JsonFragBox.index_of_from(s, "\"name\":", k_print_expr)
+    if k_output_name < 0 || k_output_name > k_output_var { return null }
+    local output_name = me._read_string_field(s, k_output_name + 7)
+    if output_name == "" || output_name != local_name { return null }
+
+    local k_ret_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_ret_expr)
+    if k_ret_int < 0 || k_ret_int > k_ret_expr + 64 { return null }
+    local k_ret_val = JsonFragBox.index_of_from(s, "\"value\":", k_ret_expr)
+    if k_ret_val < 0 || k_ret_val > k_ret { return null }
+    local ret_value = me._read_int_field(s, k_ret_val + 8)
+    if ret_value == "" { return null }
+
+    return CompatMirEmitBox.emit_local_print_var_return_int(local_init, ret_value)
+  }
+
+  _read_string_field(s, pos) {
+    local q1 = JsonFragBox.index_of_from(s, "\"", pos)
+    if q1 < 0 || q1 > pos + 4 { return "" }
+    local q2 = JsonFragBox.index_of_from(s, "\"", q1 + 1)
+    if q2 < 0 || q2 > q1 + 128 { return "" }
+    return s.substring(q1 + 1, q2)
+  }
+
+  _read_int_field(s, pos) {
+    local comma = JsonFragBox.index_of_from(s, ",", pos)
+    local brace = JsonFragBox.index_of_from(s, "}", pos)
+    local end = comma
+    if end < 0 || (brace >= 0 && brace < end) { end = brace }
+    if end < 0 || end > pos + 32 { return "" }
+    return s.substring(pos, end)
+  }
+}

@@ -17,7 +17,7 @@ require_env || exit 2
 # Phase-29bq selfhost pins run in planner-required mode to exercise JoinIR plan boxes (no legacy fallback).
 export HAKO_JOINIR_PLANNER_REQUIRED=1
 
-ENTRY="$NYASH_ROOT/lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako"
+ENTRY="$NYASH_ROOT/lang/src/mir/builder/compat/program_json_v0_entry.hako"
 
 TMP_DIR="${PHASE29BQ_FAST_LOG_DIR:-/tmp}"
 RUN_ID="phase29bq_hako_mirbuilder_phase2_min_${$}"
