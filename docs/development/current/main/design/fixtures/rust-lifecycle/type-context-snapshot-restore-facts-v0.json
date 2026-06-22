@@ -1,0 +1,137 @@
+{
+  "body_facts": [
+    {
+      "default_replacement": "NewMap",
+      "entry_access_required": false,
+      "fields": [
+        "value_types",
+        "value_kinds",
+        "value_origin_newbox",
+        "string_literals",
+        "map_value_types",
+        "map_literal_value_types"
+      ],
+      "id": "TypeContext::take_snapshot",
+      "operation": "AggregateTakeWithDefaults",
+      "source_key_transport_required": false
+    },
+    {
+      "default_replacement": "NewMap",
+      "entry_access_required": false,
+      "fields": [
+        "value_types",
+        "value_kinds",
+        "value_origin_newbox",
+        "string_literals",
+        "map_value_types",
+        "map_literal_value_types"
+      ],
+      "id": "TypeContext::restore_snapshot",
+      "operation": "AggregateRestoreWithDefaults",
+      "snapshot_parameter": "by_value",
+      "source_key_transport_required": false
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::get_type"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::set_type"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::try_get_kind"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::get_kind"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::set_kind"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::get_origin_box"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::set_origin_box"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::clear_origin_boxes"
+    }
+  ],
+  "field_facts": [
+    {
+      "default_replacement": "NewMap",
+      "entry_access_claim": "none",
+      "id": "TypeContext.value_types",
+      "ordering_claim": "none",
+      "rust_type": "BTreeMap<ValueId, MirType>",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "default_replacement": "NewMap",
+      "entry_access_claim": "none",
+      "id": "TypeContext.value_kinds",
+      "ordering_claim": "none",
+      "rust_type": "HashMap<ValueId, MirValueKind>",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "default_replacement": "NewMap",
+      "entry_access_claim": "none",
+      "id": "TypeContext.value_origin_newbox",
+      "ordering_claim": "none",
+      "rust_type": "BTreeMap<ValueId, String>",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "default_replacement": "NewMap",
+      "entry_access_claim": "none",
+      "id": "TypeContext.string_literals",
+      "ordering_claim": "none",
+      "rust_type": "BTreeMap<ValueId, String>",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "default_replacement": "NewMap",
+      "entry_access_claim": "none",
+      "id": "TypeContext.map_value_types",
+      "ordering_claim": "none",
+      "rust_type": "BTreeMap<ValueId, MirType>",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "default_replacement": "NewMap",
+      "entry_access_claim": "none",
+      "id": "TypeContext.map_literal_value_types",
+      "ordering_claim": "none",
+      "rust_type": "BTreeMap<(ValueId, String), MirType>",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "path": "crates/hakorune_mir_builder/src/type_context.rs"
+  },
+  "subject": "hakorune_mir_builder::type_context::TypeContext.snapshot_restore",
+  "type_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext",
+      "rust_type": "TypeContext"
+    },
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContextSnapshot",
+      "rust_type": "TypeContextSnapshot"
+    }
+  ]
+}

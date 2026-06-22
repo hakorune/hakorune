@@ -113,10 +113,10 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(scalar_get_route["method"], "get");
     assert_eq!(scalar_get_route["receiver_origin_box"], "MapBox");
     assert_eq!(scalar_get_route["key_route"], "i64_const");
-    assert_eq!(scalar_get_route["route_kind"], "runtime_data_load_any");
+    assert_eq!(scalar_get_route["route_kind"], "map_load_scalar_i64");
     assert_eq!(
         scalar_get_route["helper_symbol"],
-        "nyash.runtime_data.get_hh"
+        "nyash.map.scalar_load_hi"
     );
     assert_eq!(
         scalar_get_route["proof"],
@@ -125,7 +125,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(scalar_get_route["core_method"]["op"], "MapGet");
     assert_eq!(
         scalar_get_route["core_method"]["lowering_tier"],
-        "cold_fallback"
+        "warm_direct_abi"
     );
     assert_eq!(
         scalar_get_route["return_shape"],

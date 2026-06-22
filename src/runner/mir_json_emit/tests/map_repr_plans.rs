@@ -112,8 +112,8 @@ fn build_mir_json_root_emits_map_repr_plans() {
     assert_eq!(plan["route_id"], "map_repr.generic_hash_runtime");
     assert_eq!(plan["repr_kind"], "generic_hash_runtime");
     assert_eq!(plan["source_route_id"], "generic_method.set");
-    assert_eq!(plan["source_route_kind"], "map_store_any");
-    assert_eq!(plan["source_helper_symbol"], "nyash.map.slot_store_hhh");
+    assert_eq!(plan["source_route_kind"], "map_store_i64");
+    assert_eq!(plan["source_helper_symbol"], "nyash.map.slot_store_hih");
     assert_eq!(plan["block"], 0);
     assert_eq!(plan["instruction_index"], 3);
     assert_eq!(plan["surface_box_name"], "MapBox");

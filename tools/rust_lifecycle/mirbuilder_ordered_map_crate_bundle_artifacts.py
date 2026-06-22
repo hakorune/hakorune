@@ -15,7 +15,8 @@ from mirbuilder_family_artifacts import (
 )
 from mirbuilder_core_context_artifacts import core_context_spec
 from shared_family_generator import build_rust_derived_hako_manifest, rust_manifest_file_entry, sha256_text, stable_json
-from shared_mirbuilder_emitter import _indent, _render_main_operation
+from shared_mirbuilder_emitter import render_main_operation
+from shared_mirbuilder_emitter_common import indent
 from verified_hako_family_ir import op
 
 
@@ -167,7 +168,7 @@ def build_ordered_map_crate_bundle_hako_text() -> str:
     lines.append("")
     lines.append("static box Main {")
     lines.append("    main() {")
-    lines.extend(_indent([line for operation in _bundle_main_operations() for line in _render_main_operation(operation)], 8))
+    lines.extend(indent([line for operation in _bundle_main_operations() for line in render_main_operation(operation)], 8))
     lines.append("    }")
     lines.append("}")
     lines.append("")

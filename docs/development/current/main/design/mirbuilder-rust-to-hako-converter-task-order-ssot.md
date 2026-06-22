@@ -86,6 +86,7 @@ The direct lowerer is allowed to map these shapes without a new design card:
 | `multi_ordered_map_context` | multiple map fields, default construction, all-fields empty check | `NewOrderedMap`, `AllMapsEmpty` | BoxCompilationContext |
 | `scalar_counter_context` | integer fields with next/peek counter methods | `InitFieldConst`, `TakeThenSaturatingIncrementU32`, `ReturnI64` | CoreContext scalar counters |
 | `owned_map_carrier_projection` | known non-escaping bulk consumer over an owned snapshot | `CarrierSnapshotFromOwnedMap`, `ExplicitCarrierSnapshotFromOwnedMap` | CarrierInfo snapshot slices |
+| `aggregate.take_restore_with_defaults` | `std::mem::take` per field and owned restore assignment | `MoveFieldAndResetSource`, `AssertNotConsumed`, `MarkConsumed` | TypeContext snapshot/restore |
 
 These are design stops, not direct-lowering work:
 
@@ -741,7 +742,76 @@ The next cleanup/implementation series is:
 `MetadataContext scalar/source_file`, and `TypeContext.value_types` are closed.
 
 ```text
-1. Decide TypeContext multi-field snapshot/restore
+1. Implement direct TypeContext aggregate snapshot/restore conversion
+```
+
+### TypeContext aggregate snapshot/restore decision
+
+Status: accepted.
+
+Decision:
+
+```text
+TypeContext::take_snapshot / restore_snapshot are direct conversion work.
+Treat all six fields as opaque container ownership transfer.
+Do not require key/value entry transport for fields whose entries are not
+observed by the selected Rust methods.
+```
+
+Required capability:
+
+```text
+OpaqueContainerMove = required
+DefaultReplacement = required
+
+MapEntryRead = not required
+MapEntryWrite = not required
+OrderedIteration = not required
+KeyComparison = not required
+```
+
+Composite key boundary:
+
+```text
+map_literal_value_types: BTreeMap<(ValueId, String), MirType>
+snapshot slice transport: OpaqueOwnedMapStorage
+entry access claim: none
+ordering claim: none
+key encoding claim: none
+```
+
+Direct operation vocabulary:
+
+```text
+MoveFieldAndResetSource {
+  source_owner
+  source_field
+  target_owner
+  target_field
+  replacement
+}
+
+AssertNotConsumed
+MarkConsumed
+```
+
+Fail-fast conditions:
+
+```text
+UnsupportedOwnedTransferShape
+UnsupportedDefaultConstruction
+CarrierSensitiveAlias
+NonTrivialDrop
+UnsupportedFieldTransport
+```
+
+Do not emit:
+
+```text
+string-concatenated composite keys
+TypeContextLiteralKey as a MapBox key
+partial 5-field snapshot
+clone_owned for this Rust move slice
 ```
 
 Then reassess control-flow slices:

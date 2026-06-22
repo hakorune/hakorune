@@ -606,6 +606,8 @@
       if (needs.map_birth || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
       if (needs.map_set || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.map.slot_store_hih\"(i64, i64, i64)\n");
+      if (needs.map_set || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
       if (needs.map_get || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);

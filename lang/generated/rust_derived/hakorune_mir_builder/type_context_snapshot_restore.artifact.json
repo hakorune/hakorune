@@ -1,0 +1,64 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_type_context_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "mirbuilder_wide_claim": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [
+    "TypeContext::get_type",
+    "TypeContext::set_type",
+    "TypeContext::try_get_kind",
+    "TypeContext::get_kind",
+    "TypeContext::set_kind",
+    "TypeContext::get_origin_box",
+    "TypeContext::set_origin_box",
+    "TypeContext::clear_origin_boxes"
+  ],
+  "family_id": "hakorune_mir_builder::type_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_type_context_snapshot_restore_artifact.py",
+    "version": "type-context-snapshot-restore-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-facts-v0.json",
+      "sha256": "b1be449301e71e01e2cc6fb1b9083e15be9806931bc99b13d3e241ecfe52c37a"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-oracle-v0.json",
+      "sha256": "f095039a8e28ca87a60ad9abd8d7c4b27273dba624da82fae9300cbb11be406d"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-plan-v0.json",
+      "sha256": "f6fbcf535eaa059b7cd14bfaf96447e7023b119db9350694bd4dac21c2cab16f"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-behavior-recipe-v0.json",
+      "sha256": "70faeaa07b383b93e3dafc46cd0319c2107fcac97b307fa3af83a276e17ec6b3"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-derived-artifact-verifier-result-v0.json",
+      "sha256": "827d17bb54e9ba2a5a3ee98ef8d71bfe9d4af08917b084e711ebf26bc127fd58"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/type_context_snapshot_restore.hako",
+    "hako_sha256": "8a081f1f853f3201f16dbf3e0935842e11317ce7e6987f0cd5ed78244d1f6740"
+  },
+  "pilot_scope": "TypeContext_snapshot_restore_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/type_context.rs",
+        "sha256": "5629acdefc1580339a504f30fbb8266190d3c3c2f572b46b87cfbf5a0bafb424"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

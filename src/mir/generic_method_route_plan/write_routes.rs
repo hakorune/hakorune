@@ -122,6 +122,7 @@ pub(super) fn match_generic_set_route(
             matches!(box_name.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
                 .then(|| box_name.clone())
         });
+    let key_route = classify_key_route(function, def_map, args[0]);
     let (route_kind, core_op) = match (box_name.as_str(), receiver_origin_box.as_deref()) {
         ("ArrayBox", _)
         | ("DirectArrayI64", Some("DirectArrayI64"))
@@ -129,12 +130,17 @@ pub(super) fn match_generic_set_route(
             GenericMethodRouteKind::ArrayStoreAny,
             CoreMethodOp::ArraySet,
         ),
-        ("MapBox", _) | ("Box", _) | ("RuntimeDataBox", Some("MapBox")) => {
-            (GenericMethodRouteKind::MapStoreAny, CoreMethodOp::MapSet)
-        }
+        ("MapBox", _) | ("Box", _) | ("RuntimeDataBox", Some("MapBox")) => (
+            if key_route == crate::mir::generic_method_route_facts::GenericMethodKeyRoute::I64Const
+            {
+                GenericMethodRouteKind::MapStoreI64
+            } else {
+                GenericMethodRouteKind::MapStoreAny
+            },
+            CoreMethodOp::MapSet,
+        ),
         _ => return None,
     };
-    let key_route = classify_key_route(function, def_map, args[0]);
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),

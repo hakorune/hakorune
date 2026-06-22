@@ -1,0 +1,25 @@
+{
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "full_type_context_claim": false,
+    "mirbuilder_wide_claim": false
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.snapshot_restore",
+  "vectors": [
+    {
+      "name": "opaque_container_take_restore",
+      "operations": [
+        {
+          "op": "take_snapshot"
+        },
+        {
+          "op": "restore_snapshot"
+        },
+        {
+          "op": "double_restore_fail_fast"
+        }
+      ]
+    }
+  ]
+}

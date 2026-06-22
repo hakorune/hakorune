@@ -179,7 +179,7 @@ Done:
   direct TypeContext value-type conversion
 
 Next:
-  Decide TypeContext multi-field snapshot/restore transport before implementation.
+  Implement direct TypeContext aggregate snapshot/restore conversion.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -199,24 +199,29 @@ Task sequence:
   11. Implement direct MetadataContext scalar/source-file conversion. (closed)
   12. Decide TypeContext.value_types MirType transport. (closed)
   13. Implement direct TypeContext value-type conversion. (closed)
-  14. Decide TypeContext multi-field snapshot/restore transport. (design stop)
+  14. Decide TypeContext multi-field snapshot/restore transport. (closed)
+  15. Implement direct TypeContext aggregate snapshot/restore conversion. (next)
 ```
 
-Design stop:
+Current implementation slice:
 
 ```text
 Target:
   TypeContext::take_snapshot
   TypeContext::restore_snapshot
 
-Reason:
-  TypeContextSnapshot transfers six maps at once, including value_types,
-  value_kinds, value_origin_newbox, string_literals, map_value_types, and
-  map_literal_value_types. The selected direct slices do not yet define a
-  mixed-storage multi-field owned snapshot/restore transport.
+Decision:
+  convert all six fields as opaque container ownership transfer.
+  This slice does not read entries, compare keys, iterate maps, or claim
+  `(ValueId, String)` key transport.
 
-Status:
-  stop for design decision.
+Direct shape:
+  aggregate.take_restore_with_defaults
+
+Required operations:
+  MoveFieldAndResetSource
+  AssertNotConsumed
+  MarkConsumed
 
 Closed evidence for prior TypeContext.value_types decision:
   owned recursive MirType enum transport accepted

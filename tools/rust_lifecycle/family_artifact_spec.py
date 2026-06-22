@@ -85,3 +85,4 @@ class FamilyArtifactSpec:
     main_operations: list[HakoOperation] = field(default_factory=list)
     enum_declarations: list[dict[str, Any]] = field(default_factory=list)
     extra_using_modules: list[str] = field(default_factory=list)
+    additional_boxes: list[BoxSpec] = field(default_factory=list)

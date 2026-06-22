@@ -293,7 +293,11 @@ fn records_direct_array_and_map_set_core_method_routes() {
     assert_eq!(map_route.box_name(), "MapBox");
     assert_eq!(map_route.receiver_origin_box(), Some("MapBox"));
     assert_eq!(map_route.key_route(), Some(GenericMethodKeyRoute::I64Const));
-    assert_eq!(map_route.route_kind(), GenericMethodRouteKind::MapStoreAny);
+    assert_eq!(map_route.route_kind(), GenericMethodRouteKind::MapStoreI64);
+    assert_eq!(
+        map_route.route_kind().helper_symbol(),
+        "nyash.map.slot_store_hih"
+    );
     let map_core = map_route.core_method().expect("MapSet carrier");
     assert_eq!(map_core.op, CoreMethodOp::MapSet);
     assert_eq!(map_core.lowering_tier, CoreMethodLoweringTier::ColdFallback);
@@ -321,6 +325,10 @@ fn records_box_set_as_dynamic_map_store_route() {
     assert_eq!(route.arity(), 2);
     assert_eq!(route.receiver_origin_box(), None);
     assert_eq!(route.route_kind(), GenericMethodRouteKind::MapStoreAny);
+    assert_eq!(
+        route.route_kind().helper_symbol(),
+        "nyash.map.slot_store_hhh"
+    );
     assert_eq!(route.proof(), GenericMethodRouteProof::SetSurfacePolicy);
     let core_method = route.core_method().expect("Box MapSet carrier");
     assert_eq!(core_method.op, CoreMethodOp::MapSet);

@@ -138,6 +138,13 @@
           {
             "generic_method.set",
             "MapSet",
+            "map_store_i64",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_SET,
+          },
+          {
+            "generic_method.set",
+            "MapSet",
             "map_store_any",
             HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
             HAKO_LLVMC_GENERIC_METHOD_EMIT_SET,
@@ -336,6 +343,10 @@
           int value_is_i64,
           int value_is_string_handle) {
         if (op && !strcmp(op, "MapSet") &&
+            route_kind && !strcmp(route_kind, "map_store_i64")) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64;
+        }
+        if (op && !strcmp(op, "MapSet") &&
             route_kind && !strcmp(route_kind, "map_store_any")) {
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
         }
@@ -421,6 +432,16 @@
           int value_is_i64,
           int value_is_string_handle) {
         static const struct LoweringPlanSetRouteRule rules[] = {
+          {
+            "generic_method.set",
+            "MapSet",
+            "map_store_i64",
+            "nyash.map.slot_store_hih",
+            "set_surface_policy",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY,
+            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64,
+          },
           {
             "generic_method.set",
             "MapSet",

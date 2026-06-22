@@ -1,0 +1,34 @@
+{
+  "excluded_methods": [
+    "TypeContext::get_type",
+    "TypeContext::set_type",
+    "TypeContext::try_get_kind",
+    "TypeContext::get_kind",
+    "TypeContext::set_kind",
+    "TypeContext::get_origin_box",
+    "TypeContext::set_origin_box",
+    "TypeContext::clear_origin_boxes"
+  ],
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "TypeContextApi.take_snapshot(ctx)",
+      "hako_operation": "MoveFieldAndResetSource",
+      "id": "TypeContext::take_snapshot",
+      "rust_operation": "std::mem::take six fields"
+    },
+    {
+      "emits": "TypeContextApi.restore_snapshot(ctx, snapshot)",
+      "hako_operation": "MoveFieldAndResetSource",
+      "id": "TypeContext::restore_snapshot",
+      "rust_operation": "owned snapshot field restore"
+    }
+  ],
+  "pilot_scope": "TypeContext_snapshot_restore_only",
+  "schema_version": 0,
+  "selected_body_count": "snapshot_restore_methods_only",
+  "source_oracle": "type-context-snapshot-restore-oracle-v0.json",
+  "source_plan": "type-context-snapshot-restore-plan-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.snapshot_restore"
+}

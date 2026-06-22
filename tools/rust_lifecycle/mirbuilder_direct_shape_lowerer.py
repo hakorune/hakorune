@@ -11,6 +11,7 @@ from mirbuilder_ordered_map_converter import (
     compile_ordered_map_family_methods,
     compile_variable_context_snapshot_restore_methods,
 )
+from mirbuilder_aggregate_snapshot_converter import compile_aggregate_take_restore_methods
 from mirbuilder_metadata_scalar_converter import compile_scalar_option_atom_methods
 from mirbuilder_optional_map_converter import (
     compile_optional_copy_default_map_methods,
@@ -96,6 +97,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["metadata.scalar_option_atom"],
         ),
         description="scalar field plus optional immutable atom metadata context",
+    ),
+    "aggregate.take_restore_with_defaults": DirectShapeRule(
+        shape="aggregate.take_restore_with_defaults",
+        lower=lambda facts, plan: compile_aggregate_take_restore_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["aggregate.take_restore_with_defaults"],
+        ),
+        description="aggregate field ownership transfer with default replacement",
     ),
     "binding_context.single_ordered_map_context": DirectShapeRule(
         shape="single_ordered_map_context",

@@ -46,7 +46,7 @@ pub(super) fn local_i64_key_map_shadow_receivers(
 
 pub(super) fn is_i64_map_set_route(route: &GenericMethodRoute) -> bool {
     route.route_id() == "generic_method.set"
-        && route.route_kind_tag() == "map_store_any"
+        && matches!(route.route_kind_tag(), "map_store_i64" | "map_store_any")
         && route.key_route() == Some(GenericMethodKeyRoute::I64Const)
 }
 

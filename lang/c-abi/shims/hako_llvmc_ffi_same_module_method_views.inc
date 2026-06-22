@@ -603,6 +603,20 @@
 
       auto int same_module_method_view_is_direct_map_set(
           const struct LoweringPlanGenericMethodView* view) {
+        if (same_module_method_view_is_direct_receiver_with(
+                view,
+                "generic_method.set",
+                "MapSet",
+                "map_store_i64",
+                "nyash.map.slot_store_hih",
+                "set_surface_policy",
+                "MapBox",
+                NULL,
+                "write_any",
+                NULL,
+                HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME)) {
+          return 1;
+        }
         return same_module_method_view_is_direct_receiver_with(
             view,
             "generic_method.set",
@@ -619,6 +633,22 @@
 
       auto int same_module_method_view_is_direct_any_map_set(
           const struct LoweringPlanGenericMethodView* view) {
+        static const struct SameModuleMethodViewRouteRule i64_rule = {
+          "generic_method.set",
+          "MapSet",
+          "map_store_i64",
+          "nyash.map.slot_store_hih",
+          "set_surface_policy",
+          NULL,
+          SAME_MODULE_METHOD_VIEW_RECEIVER_ANY,
+          NULL,
+          SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
+          "write_any",
+          SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+          NULL,
+          SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
+          HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
+        };
         static const struct SameModuleMethodViewRouteRule rule = {
           "generic_method.set",
           "MapSet",
@@ -635,7 +665,8 @@
           SAME_MODULE_METHOD_VIEW_STRING_IGNORED,
           HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
         };
-        return same_module_method_view_matches_route_rule(view, &rule);
+        return same_module_method_view_matches_route_rule(view, &i64_rule) ||
+               same_module_method_view_matches_route_rule(view, &rule);
       }
 
       auto int same_module_method_view_is_direct_array_set(

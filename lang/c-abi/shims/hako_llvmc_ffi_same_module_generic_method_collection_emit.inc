@@ -493,7 +493,7 @@
             hako_llvmc_emit_array_slot_store(f, dst, ab, demand);
           }
         } else {
-          same_module_function_emit_i64_call(dst, "nyash.map.slot_store_hhh", ab);
+          same_module_function_emit_i64_call(dst, method_view->symbol, ab);
         }
         return 1;
       }

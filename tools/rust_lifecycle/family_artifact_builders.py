@@ -25,6 +25,32 @@ def _build_api_method_ir(method: Any) -> dict[str, Any]:
     return data
 
 
+def _build_box_ir(box: Any) -> dict[str, Any]:
+    data: dict[str, Any] = {"name": box.name}
+    if box.fields:
+        data["fields"] = [
+            {
+                "name": field.name,
+                "field_type": field.field_type,
+                **({"initializer": field.initializer} if field.initializer is not None else {}),
+                **(
+                    {"initializer_operation": field.initializer_operation}
+                    if field.initializer_operation is not None
+                    else {}
+                ),
+            }
+            for field in box.fields
+        ]
+        return data
+    data["field_name"] = box.field_name
+    data["field_type"] = box.field_type
+    if box.initializer_operation is not None:
+        data["initializer_operation"] = box.initializer_operation
+    else:
+        data["initializer"] = box.initializer
+    return data
+
+
 def _build_method_payloads(spec: FamilyArtifactSpec) -> list[dict[str, Any]]:
     return [
         {
@@ -99,32 +125,10 @@ def _build_family_artifact_hako_object(spec: FamilyArtifactSpec) -> dict[str, An
         "using_module": spec.using_module,
         "extra_using_modules": spec.extra_using_modules,
         "enum_declarations": spec.enum_declarations,
-        "box": {
-            "name": spec.box.name,
-        },
+        "box": _build_box_ir(spec.box),
+        "additional_boxes": [_build_box_ir(box) for box in spec.additional_boxes],
         "main": {"operations": [operation.to_json() for operation in spec.main_operations]},
     }
-    if spec.box.fields:
-        verified_ir["box"]["fields"] = [
-            {
-                "name": field.name,
-                "field_type": field.field_type,
-                **({"initializer": field.initializer} if field.initializer is not None else {}),
-                **(
-                    {"initializer_operation": field.initializer_operation}
-                    if field.initializer_operation is not None
-                    else {}
-                ),
-            }
-            for field in spec.box.fields
-        ]
-    else:
-        verified_ir["box"]["field_name"] = spec.box.field_name
-        verified_ir["box"]["field_type"] = spec.box.field_type
-        if spec.box.initializer_operation is not None:
-            verified_ir["box"]["initializer_operation"] = spec.box.initializer_operation
-        else:
-            verified_ir["box"]["initializer"] = spec.box.initializer
     if spec.api_name is not None:
         verified_ir["api"] = {
             "name": spec.api_name,

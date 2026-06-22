@@ -1,0 +1,61 @@
+{
+  "direct_shape": {
+    "aggregate.take_restore_with_defaults": {
+      "fields": [
+        "value_types",
+        "value_kinds",
+        "value_origin_newbox",
+        "string_literals",
+        "map_value_types",
+        "map_literal_value_types"
+      ],
+      "method_ids": {
+        "restore": "TypeContext::restore_snapshot",
+        "take": "TypeContext::take_snapshot"
+      },
+      "snapshot_type": "TypeContextSnapshot",
+      "type_name": "TypeContext"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "TypeContext",
+      "plan_kind": "LocalBox"
+    },
+    {
+      "default_replacement": "NewMap",
+      "id": "TypeContext.TypeContextSnapshot",
+      "opaque_container_move": true,
+      "plan_kind": "OwnedAggregateSnapshot",
+      "shape_rule": "aggregate.take_restore_with_defaults"
+    },
+    {
+      "id": "TypeContext.value_types",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "id": "TypeContext.value_kinds",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "id": "TypeContext.value_origin_newbox",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "id": "TypeContext.string_literals",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "id": "TypeContext.map_value_types",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    },
+    {
+      "id": "TypeContext.map_literal_value_types",
+      "key_transport_claim": "none",
+      "snapshot_transport": "OpaqueOwnedMapStorage"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.snapshot_restore"
+}
