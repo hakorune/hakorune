@@ -45,6 +45,63 @@ def _render_source_expr(operation: Mapping[str, Any]) -> str:
     raise ValueError(f"operation is missing source/field: {operation.get('kind')}")
 
 
+def _render_call_args(args: Any) -> str:
+    if args is None:
+        return ""
+    if isinstance(args, str):
+        return args
+    if isinstance(args, Sequence):
+        return ", ".join(str(arg) for arg in args)
+    return str(args)
+
+
+def _render_string_literal(value: Any) -> str:
+    text = str(value)
+    escaped = text.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
+def _render_main_operation(operation: Mapping[str, Any]) -> list[str]:
+    kind = operation["kind"]
+    if kind == "NewBox":
+        target = operation.get("target")
+        box_name = operation.get("box")
+        if target is None or box_name is None:
+            raise ValueError("NewBox requires target and box")
+        return [f"local {target} = new {box_name}()"]
+    if kind == "StaticCall":
+        target = operation.get("target")
+        callee = operation.get("callee")
+        if callee is None:
+            raise ValueError("StaticCall requires callee")
+        args = _render_call_args(operation.get("args"))
+        call = f"{callee}({args})" if args else f"{callee}()"
+        if target is None:
+            return [call]
+        return [f"local {target} = {call}"]
+    if kind == "AssertEq":
+        left = operation.get("left")
+        right = operation.get("right")
+        fail_message = operation.get("fail_message")
+        fail_code = operation.get("fail_code", 1)
+        if left is None or right is None or fail_message is None:
+            raise ValueError("AssertEq requires left, right, and fail_message")
+        return [
+            f"if {left} != {right} {{",
+            f"    print({_render_string_literal(fail_message)})",
+            f"    return {fail_code}",
+            "}",
+        ]
+    if kind == "Print":
+        text = operation.get("text")
+        if text is None:
+            raise ValueError("Print requires text")
+        return [f"print({_render_string_literal(text)})"]
+    if kind == "ReturnI64":
+        return [f"return {operation['return_value']}"]
+    raise ValueError(f"unsupported Main operation: {kind}")
+
+
 def _render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
     if kind == "MapGet":
@@ -253,6 +310,17 @@ def _render_method_body(method: Mapping[str, Any]) -> list[str]:
     return lines
 
 
+def _render_main_body(main: Mapping[str, Any]) -> list[str]:
+    if "operations" in main:
+        lines: list[str] = []
+        for operation in main["operations"]:
+            lines.extend(_render_main_operation(operation))
+        return lines
+    if "lines" in main:
+        return list(main["lines"])
+    raise ValueError("main has no operations or lines")
+
+
 def _render_static_box(name: str, methods: Sequence[Mapping[str, Any]], trailing_blank_line: bool) -> list[str]:
     lines = [f"static box {name} {{"]
     for index, method in enumerate(methods):
@@ -336,7 +404,7 @@ def emit_verified_family_hako(verified_ir: Mapping[str, Any]) -> str:
         [
             "static box Main {",
             "    main() {",
-            *_indent(main["lines"], 8),
+            *_indent(_render_main_body(main), 8),
             "    }",
             "}",
             "",

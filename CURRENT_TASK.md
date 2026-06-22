@@ -498,17 +498,15 @@ docs/development/current/main/design/rust-lifecycle-projection-ssot.md
 Current card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1466-RUST-LIFECYCLE-FACTS-ADAPTER-CONTEXT-INVENTORY-001.md
+docs/development/current/main/phases/phase-296x/296x-1618-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-001.md
 ```
 
 Task sequence:
 
 ```text
-1. POST-LIFECYCLE-FIXTURE-VERIFIER-SKELETON-OWNER-SELECTION-001
-2. choose one of:
-   A. return to trim route fixture selection
-   B. VariableContext returned mutable borrow API replacement design
-   C. lifecycle-aware emitter pilot design
+1. Record the BoxCompilationContext typed Main execution harness implementation closeout
+2. keep partial crate bundle parked
+3. keep crate linker parked
 ```
 
 ## Pointers

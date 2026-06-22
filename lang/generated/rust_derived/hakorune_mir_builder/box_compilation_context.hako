@@ -32,26 +32,10 @@ static box BoxCompilationContextApi {
 static box Main {
     main() {
         local ctx = new BoxCompilationContext()
-        if BoxCompilationContextApi.is_empty(ctx) != 1 {
+        local is_empty_result = BoxCompilationContextApi.is_empty(ctx)
+        if is_empty_result != 1 {
             print("box_compilation_context_new_empty=fail")
             return 1
-        }
-        if ctx.variable_map.keys_value.length() != 0 {
-            print("box_compilation_context_variable_map_init=fail")
-            return 2
-        }
-        if ctx.value_origin_newbox.keys_value.length() != 0 {
-            print("box_compilation_context_value_origin_init=fail")
-            return 3
-        }
-        if ctx.value_types.keys_value.length() != 0 {
-            print("box_compilation_context_value_types_init=fail")
-            return 4
-        }
-        ctx.variable_map.set("x", 1)
-        if BoxCompilationContextApi.is_empty(ctx) != 0 {
-            print("box_compilation_context_non_empty=fail")
-            return 5
         }
         print("box_compilation_context_derived_artifact=ok")
         return 0

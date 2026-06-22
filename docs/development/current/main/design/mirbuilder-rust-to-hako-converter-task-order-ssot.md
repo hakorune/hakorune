@@ -1983,26 +1983,79 @@ the easy-tier converter into these areas.
    1-2 tasks
    ```
 
+95. `Select typed BoxCompilationContext execution harness as the next implementation slice`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The review consensus now selects the typed BoxCompilationContext
+   execution harness as the next implementation slice, while partial crate
+   bundle and crate linker work remain parked.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
+96. `Define the BoxCompilationContext typed Main operations design`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The remaining BoxCompilationContext gap is now narrowed to a typed Main
+   payload design with a minimal shared vocabulary, while main_lines remains
+   parked as the current raw surface until implementation.
+   ```
+
+   Rough size:
+
+   ```text
+   1 task
+   ```
+
+97. `Record the BoxCompilationContext typed Main execution harness implementation closeout`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The BoxCompilationContext typed Main execution harness is now implemented
+   and the remaining raw-string debt no longer includes that family.
+   ```
+
+   Rough size:
+
+   ```text
+   1 task
+   ```
+
 ## Rough Remaining Size
 
-Current estimate after task 94:
+Current estimate after task 97:
 
 ```text
 converter coverage hygiene:
-  5 tasks
+  4 tasks
 
 first representative easy-tier crate-level probe:
   1-2 tasks after the remaining coverage inventory and the now-landed
   harness wrapper rows
 
 all inventoried easy-tier candidates:
-  19-34 tasks
+  18-33 tasks
 
 hard-tier design-stop work:
-  35-58 tasks
+  34-57 tasks
 
 MirBuilder-wide selfhost remaining:
-  roughly 59-94 tasks if all parked hard-tier areas are included
+  roughly 58-93 tasks if all parked hard-tier areas are included
 ```
 
 ## Parked Work

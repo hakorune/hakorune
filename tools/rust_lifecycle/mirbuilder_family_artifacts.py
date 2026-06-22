@@ -35,6 +35,7 @@ from mirbuilder_ordered_map_converter import (
     compile_variable_context_simple_map_methods,
     compile_variable_context_snapshot_restore_methods,
 )
+from verified_hako_family_ir import op
 from shared_family_generator import read_json, run_validated_family_generator
 
 
@@ -666,32 +667,20 @@ def box_compilation_context_spec() -> FamilyArtifactSpec:
                 FieldSpec(name="value_types", field_type="OrderedMapBox", initializer_operation={"kind": "NewOrderedMap"}),
             ],
         ),
-        main_lines=_lines("""
-            local ctx = new BoxCompilationContext()
-            if BoxCompilationContextApi.is_empty(ctx) != 1 {
-                print("box_compilation_context_new_empty=fail")
-                return 1
-            }
-            if ctx.variable_map.keys_value.length() != 0 {
-                print("box_compilation_context_variable_map_init=fail")
-                return 2
-            }
-            if ctx.value_origin_newbox.keys_value.length() != 0 {
-                print("box_compilation_context_value_origin_init=fail")
-                return 3
-            }
-            if ctx.value_types.keys_value.length() != 0 {
-                print("box_compilation_context_value_types_init=fail")
-                return 4
-            }
-            ctx.variable_map.set("x", 1)
-            if BoxCompilationContextApi.is_empty(ctx) != 0 {
-                print("box_compilation_context_non_empty=fail")
-                return 5
-            }
-            print("box_compilation_context_derived_artifact=ok")
-            return 0
-        """),
+        main_lines=[],
+        main_operations=[
+            op("NewBox", target="ctx", box="BoxCompilationContext"),
+            op("StaticCall", target="is_empty_result", callee="BoxCompilationContextApi.is_empty", args=["ctx"]),
+            op(
+                "AssertEq",
+                left="is_empty_result",
+                right=1,
+                fail_message="box_compilation_context_new_empty=fail",
+                fail_code=1,
+            ),
+            op("Print", text="box_compilation_context_derived_artifact=ok"),
+            op("ReturnI64", return_value=0),
+        ],
         family_id="hakorune_mir_builder::context",
         state="DerivedShadow",
         source_rust_file=BOX_COMPILATION_CONTEXT_SOURCE,

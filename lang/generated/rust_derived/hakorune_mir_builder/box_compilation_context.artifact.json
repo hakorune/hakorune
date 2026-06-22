@@ -39,7 +39,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.hako",
-    "hako_sha256": "af2fb14fe4671d9db20aa70df6ac78224823262f6106191a274ee40720199ba6"
+    "hako_sha256": "2997bb0934a58d377fcb0d55a8ce4b95d21e935102b42ea35a03c79d90e2ae4b"
   },
   "pilot_scope": "BoxCompilationContext_ctor_is_empty_only",
   "schema_version": 0,

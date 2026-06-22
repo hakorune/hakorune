@@ -67,9 +67,9 @@ The first typed harness rewrite slice is selected as BindingContext and
 VariableContext simple-map, the rewrite contract is landed, the emission
 contract is landed, the implementation boundary is landed, the
 implementation entry contract is landed, the initial patch sequence is
-landed, BoxCompilationContext is the next crate-level probe candidate, and
-the next consultation step is to move the remaining easy-tier inventory
-toward the BoxCompilationContext crate-level probe contract.
+landed, BoxCompilationContext was the next crate-level probe candidate, and
+the typed BoxCompilationContext Main execution harness is now implemented
+while partial crate bundle and crate linker work stay parked.
 
 Historical context follows.
 

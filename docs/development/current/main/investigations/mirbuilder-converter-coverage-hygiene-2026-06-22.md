@@ -26,6 +26,35 @@ selection, nightly rustc adapter usage, or any generated artifact authority.
 - `tools/rust_lifecycle/mirbuilder_negative_converter_fixtures.py` is already
   fixture-first and is not the current raw-Hako problem.
 
+## Review Consensus
+
+Two external reviews converged on the next step:
+
+- `glm` called out two structural risks:
+  - converter authority is split between `apps/rust-subset-to-hako/` and
+    `tools/rust_lifecycle/`
+  - per-family generator growth leaves special-case soil for hardcode to
+    hide in
+- `pro` narrowed the next slice and kept it small:
+  - do not open partial crate bundle or crate linker work yet
+  - do not add new family selection, route selection, or guard files
+  - select the typed `BoxCompilationContext` execution harness as the next
+    implementation slice
+
+The shared conclusion is that the next move should be narrow and
+BoxCompilationContext-only, with `main_lines` as the remaining raw surface for
+that family and every larger integration step parked.
+
+The next design follow-up after that selection is the BoxCompilationContext
+typed `Main` payload itself:
+
+- `main_lines` should move to `main_operations` for BoxCompilationContext only
+- the typed `Main` vocabulary should stay minimal
+- no crate bundle or crate linker work should open yet
+
+BoxCompilationContext typed `Main` is now implemented and no longer belongs to
+the remaining raw-string debt surface.
+
 ## Remaining Raw-String Surfaces
 
 ### 1. `tools/rust_lifecycle/mirbuilder_family_artifacts.py`
@@ -34,7 +63,6 @@ Current raw harness locations:
 
 - `binding_context_spec()` has one `main_lines` block.
 - `variable_context_simple_map_spec()` has one `main_lines` block.
-- `box_compilation_context_spec()` has one `main_lines` block.
 - `variable_context_immutable_borrow_spec()` has one `main_lines` block.
 - `variable_context_snapshot_restore_spec()` has one `main_lines` block.
 
@@ -56,9 +84,9 @@ Why this is debt:
 Suggested next task labels:
 
 - `Convert BindingContext and VariableContext simple-map harnesses to typed execution harness IR`
-- `Convert BoxCompilationContext harness to typed execution harness IR`
 - `Convert VariableContext snapshot/restore harness to typed execution harness IR`
 - `Replace VariableContext immutable borrow ReturnSource with owned snapshot contract`
+- `Record the BoxCompilationContext typed Main execution harness implementation closeout`
 
 ### 2. `tools/rust_lifecycle/mirbuilder_carrier_snapshot_artifacts.py`
 
@@ -88,13 +116,12 @@ Suggested next task labels:
 
 ## Current Remaining Slice Count
 
-The remaining raw-string debt is still roughly five slices:
+The remaining raw-string debt is still roughly four slices:
 
 1. BindingContext and VariableContext simple-map harness family
-2. BoxCompilationContext harness
-3. VariableContext snapshot/restore harness
-4. CarrierInfo snapshot harnesses
-5. VariableContext immutable-borrow ReturnSource contract decision
+2. VariableContext snapshot/restore harness
+3. CarrierInfo snapshot harnesses
+4. VariableContext immutable-borrow ReturnSource contract decision
 
 That count matches the existing task-order estimate that still leaves about
 five converter-coverage-hygiene tasks after the representative consultation
@@ -102,7 +129,7 @@ bundle work.
 
 ## Consultation Coverage Map
 
-The five slices above are now each anchored by a consultation-only card:
+The remaining raw-string slices above are now each anchored by a consultation-only card:
 
 - BindingContext and VariableContext simple-map harness family
   - [296x-1583](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1583-MIRBUILDER-TYPED-HARNESS-REWRITE-INITIAL-PATCH-SEQUENCE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-001.md)
@@ -123,6 +150,15 @@ The five slices above are now each anchored by a consultation-only card:
   - [296x-1603](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1603-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-HARNESS-CONTRACT-001.md)
 - First representative easy-tier crate-level probe contract
   - [296x-1604](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1604-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-FIRST-REPRESENTATIVE-CRATE-LEVEL-PROBE-CONTRACT-001.md)
+
+## BoxCompilationContext Implementation Closeout
+
+The BoxCompilationContext typed Main implementation is now recorded as a
+landed implementation closeout and no longer belongs to the raw-string debt
+surface:
+
+- typed Main implementation closeout
+  - [296x-1618](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1618-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-001.md)
 
 ## BoxCompilationContext Consultation Chain
 
@@ -145,6 +181,15 @@ before implementation:
   - [296x-1609](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1609-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-HARNESS-ARTIFACT-MANIFEST-CONTRACT-001.md)
 - consultation closeout contract
   - [296x-1611](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1611-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-HARNESS-CONSULTATION-CLOSEOUT-CONTRACT-001.md)
+
+## BoxCompilationContext Implementation Closeout
+
+The BoxCompilationContext typed Main implementation is now recorded as a
+landed implementation closeout and no longer belongs to the raw-string debt
+surface:
+
+- typed Main implementation closeout
+  - [296x-1618](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-296x/296x-1618-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-001.md)
 
 ## VariableContext Consultation Chain
 

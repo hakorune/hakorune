@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from verified_hako_family_ir import HakoOperation
+
 
 @dataclass(frozen=True)
 class FieldSpec:
@@ -81,3 +83,4 @@ class FamilyArtifactSpec:
     transport_notes: dict[str, Any] | None = None
     denied_boundaries: list[str] | None = None
     extra_manifest_fields: dict[str, Any] = field(default_factory=dict)
+    main_operations: list[HakoOperation] | None = None
