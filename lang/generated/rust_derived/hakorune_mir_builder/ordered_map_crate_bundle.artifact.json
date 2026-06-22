@@ -1,0 +1,56 @@
+{
+  "bundle_kind": "ordered_map_crate_bundle_v0",
+  "bundle_members": [
+    "hakorune_mir_builder::binding_context",
+    "hakorune_mir_builder::variable_context"
+  ],
+  "claims": {
+    "backend_behavior_changed": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "family_id": "hakorune_mir_builder::ordered_map_bundle",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_mirbuilder_ordered_map_crate_bundle.py",
+    "version": "ordered-map-crate-bundle-v0"
+  },
+  "inputs": {
+    "bundle_kind": "ordered_map_crate_bundle_v0",
+    "bundle_members": [
+      {
+        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
+        "family_id": "hakorune_mir_builder::binding_context",
+        "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.hako",
+        "name": "binding_context"
+      },
+      {
+        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
+        "family_id": "hakorune_mir_builder::variable_context",
+        "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.hako",
+        "name": "variable_context_simple_map"
+      }
+    ]
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.hako",
+    "hako_sha256": "ef0324d74471aba9cda24680216cc3c3367208ae9fa2c9b56c648355ce8816ba"
+  },
+  "pilot_scope": "BindingContext_and_VariableContext_simple_map",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/binding_context.rs",
+        "sha256": "2fbd91df99adcea0900ce1b596805e1c8d2be84d4d83046530b0b414729ee8b2"
+      },
+      {
+        "path": "crates/hakorune_mir_builder/src/variable_context.rs",
+        "sha256": "16c005b2e722539c40ebd8a14a955efae9c50e0426031bc87759a9de7ddf8123"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

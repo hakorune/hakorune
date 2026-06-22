@@ -265,12 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1618-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-BOX-COMPILATION-CONTEXT-TYPED-EXECUTION-HARNESS-IMPLEMENTATION-001.md"
+latest_card = "MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-ORDERED-MAP-CRATE-BUNDLE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1620-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-ORDERED-MAP-CRATE-BUNDLE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-IMPLEMENTATION-001.md"
 latest_card_summary = """The
-BoxCompilationContext typed Main execution harness is now implemented and the
-remaining raw-string debt no longer includes that family, while partial crate
-bundle / crate linker / new family selection all remain parked."""
+ordered-map crate-level bundle slice is now implemented as the first
+representative easy-tier bundle for BindingContext and VariableContext
+simple-map, while the crate linker, nightly rustc adapter, and wider family
+selection all remain parked."""
 
 current_blocker_token = "none"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

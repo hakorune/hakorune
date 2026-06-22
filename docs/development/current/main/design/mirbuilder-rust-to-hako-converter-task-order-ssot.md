@@ -2036,26 +2036,43 @@ the easy-tier converter into these areas.
    1 task
    ```
 
+98. `Implement the first representative easy-tier crate-level bundle for BindingContext and VariableContext simple-map`
+
+   Status: landed.
+
+   Result:
+
+   ```text
+   The ordered-map crate-level bundle is now implemented as the first
+   representative easy-tier executable bridge for BindingContext and
+   VariableContext simple-map.
+   ```
+
+   Rough size:
+
+   ```text
+   1-2 tasks
+   ```
+
 ## Rough Remaining Size
 
-Current estimate after task 97:
+Current estimate after task 98:
 
 ```text
 converter coverage hygiene:
-  4 tasks
+  3 tasks
 
 first representative easy-tier crate-level probe:
-  1-2 tasks after the remaining coverage inventory and the now-landed
-  harness wrapper rows
+  0 tasks
 
 all inventoried easy-tier candidates:
-  18-33 tasks
+  17-32 tasks
 
 hard-tier design-stop work:
-  34-57 tasks
+  33-56 tasks
 
 MirBuilder-wide selfhost remaining:
-  roughly 58-93 tasks if all parked hard-tier areas are included
+  roughly 53-88 tasks if all parked hard-tier areas are included
 ```
 
 ## Parked Work

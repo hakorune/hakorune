@@ -39,26 +39,17 @@ none
 Next task:
 
 ```text
-Define the CarrierInfo snapshot harness consultation closeout contract
+Implement typed VariableContext snapshot/restore harness
 ```
 
 Purpose:
 
 ```text
-CoreContext, TypeContext, MetadataContext, returned mutable borrow,
-returned read borrow, carrier-sensitive alias, PHI and join_id, loop/trim
-route lowering, NonTrivialDrop, UnsafeOrFFI, NullableMapValue, and
-NonAsciiOrderedKey consultation slices are landed. The
-ConstructorLifecycleMismatch decision is now landed as a consultation-only
-inventory slice. The CoreContext pilot selection is now landed as a
-consultation-only selection. The CoreContext scalar-counter facts pilot is
-now landed as a consultation-only inventory slice. The CoreContext
-scalar-counter plan/oracle inventory is now landed as a consultation-only
-inventory slice. The TypeContext bounded map slice pilot selection is now
-landed as a consultation-only selection. The next step is the bounded
-TypeContext map-slice facts pilot without opening route selection or the
-nightly rustc adapter path. The TypeContext bounded map slice facts pilot is
-  now landed as a consultation-only inventory slice. BoxCompilationContext is now landed, the remaining easy-tier smoke readiness is inventoried, the first crate-level probe candidate is selected, the minimal crate smoke harness owner is selected, the minimal crate smoke harness is defined, the minimal crate smoke harness command contract is defined, the representative crate smoke probe surface is inventoried, the representative crate smoke probe output contract is defined, the representative crate smoke probe result contract is defined, the representative crate smoke probe closeout contract is defined, the representative crate smoke consultation bundle is verified, the representative crate smoke consultation bundle has been executed in a single guarded run, and the summary has been recorded. Keep route selection unopened and do not open the nightly rustc adapter path. The remaining converter coverage hygiene slices are inventoried in `docs/development/current/main/investigations/mirbuilder-converter-coverage-hygiene-2026-06-22.md`, the first typed harness rewrite slice is selected as the BindingContext and VariableContext simple-map harness family, the rewrite contract, emission contract, implementation boundary, and implementation entry contract are landed, the initial patch sequence is landed, and the next move is to define the initial patch sequence for the selected BoxCompilationContext typed execution harness IR.
+The selected ordered-map harness family has landed its representative
+crate-level bundle. BindingContext and VariableContext simple-map are both
+landed as typed family artifacts, and the next slice moves to
+VariableContext snapshot/restore while keeping crate linker and nightly rustc
+paths unopened.
 ```
 
 Lifecycle converter boundary:
@@ -74,7 +65,7 @@ docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.
 Latest landed card:
 
 ```text
-docs/development/current/main/phases/phase-296x/296x-1583-MIRBUILDER-TYPED-HARNESS-REWRITE-INITIAL-PATCH-SEQUENCE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-001.md
+docs/development/current/main/phases/phase-296x/296x-1620-MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-ORDERED-MAP-CRATE-BUNDLE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-IMPLEMENTATION-001.md
 ```
 
 Short form:
@@ -92,7 +83,8 @@ Short form:
   smoke harness owner selection, and the BoxCompilationContext crate smoke
   harness design are currently consultation-only: their source shapes and
   decision space are landed, while lifecycle facts, plan, recipe, oracle,
-  manifest, and route entry remain absent.
+  manifest, and route entry remain absent. The ordered-map crate bundle is the
+  next executable bridge slice.
 
   Do not open the nightly rustc adapter path for BindingContext or
   VariableContext simple-map. Reserve nightly MIR/borrowck facts for a gated
