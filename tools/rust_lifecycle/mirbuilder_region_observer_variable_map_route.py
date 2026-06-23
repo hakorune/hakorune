@@ -25,10 +25,11 @@ PLAN = {
     "destination": "slots",
     "comparator_capabilities": {
         RUST_STRING_ORD_V1: {
-            "proof": "Denied",
+            "proof": "VmExeAotAccepted",
             "required_tiers": ["VM", "EXE", "AOT"],
         },
     },
+    "output_capabilities": {},
 }
 
 
@@ -42,6 +43,9 @@ def _deny_reason(exc: BaseException) -> dict[str, str]:
         value = re.search(rf"{key}=([^ ]+)", message)
         if value:
             deny[key] = value.group(1)
+    value = re.search(r"output=([^ ]+)", message)
+    if value:
+        deny["output"] = value.group(1)
     return deny
 
 
@@ -65,9 +69,11 @@ def route_report() -> dict[str, Any]:
             "do not generate RegionObserver variable_map read-fold artifact",
             "do not substitute insertion order for Rust BTreeMap<String> order",
             "do not add RegionObserver key-name special cases",
+            "do not invent SlotMetadata / RefSlotKind transport without design acceptance",
         ],
         "stop_line": [
             "source_ordered_read_fold_claim=0",
+            "slot_metadata_output_transport_claim=0",
             "runtime_fallback=0",
             "generated_hako=0",
         ],

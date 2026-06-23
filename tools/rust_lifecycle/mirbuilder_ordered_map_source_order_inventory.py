@@ -19,9 +19,9 @@ REFERENCE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle
 def inventory_ordered_map_source_order() -> dict[str, Any]:
     task_order = TASK_ORDER.read_text()
 
-    require("USE-TOTAL-TEXT-ORDERING-IN-ORDEREDMAPBOX-001" in task_order, "active blocker missing")
+    require("Use total text ordering in OrderedMapBox" in task_order, "landed ordering task missing")
     require("KeyAscending(RustStringOrdV1)" in task_order, "structured order fact missing")
-    require("UnsupportedOrderCapability" in task_order, "order capability deny missing")
+    require("VmExeAotAccepted" in task_order, "comparator proof missing")
 
     return {
         "schema_version": 0,
@@ -30,9 +30,10 @@ def inventory_ordered_map_source_order() -> dict[str, Any]:
         "source": {
             "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
         },
-        "current_contract": "deny_source_ordered_read_fold",
+        "current_contract": "comparator_capability_landed",
         "decision": [
-            "do not claim SourceOrdered read-fold until RustStringOrdV1 is VM/EXE/AOT accepted",
+            "RustStringOrdV1 is VM/EXE/AOT accepted",
+            "OrderedMapBox uses TextOrder.compare_rust_string_v1",
             "do not silently downgrade SourceOrdered to insertion order",
             "do not add RegionObserver-specific key-order special cases",
         ],
@@ -41,15 +42,14 @@ def inventory_ordered_map_source_order() -> dict[str, Any]:
             "AOT implementation attempt using .hako string content comparison failed at OrderedMapBox.set/2 backend acceptance.",
             "MIR-only success is insufficient for the converter acceptance target.",
         ],
-        "deny": {
-            "reason": "UnsupportedOrderCapability",
-            "detail": "ComparatorUnavailable",
+        "proof": {
             "comparator": "RustStringOrdV1",
-            "required_tiers": "VM,EXE,AOT",
+            "status": "VmExeAotAccepted",
         },
-        "next_task": "define converter-side total text ordering capability",
+        "next_task": "decide SlotMetadata / RefSlotKind owned output transport",
         "stop_line": [
             "source_ordered_read_fold_claim=0",
+            "slot_metadata_output_transport_claim=0",
             "runtime_fallback=0",
             "insertion_order_substitution=0",
             "region_observer_key_name_special_case=0",
@@ -73,9 +73,9 @@ def main() -> int:
 
     print("output_contract=rust-mirbuilder-ordered-map-source-order-v0")
     print("source_ordered_read_fold_claim=0")
-    print("deny_reason=UnsupportedOrderCapability")
-    print("deny_detail=ComparatorUnavailable")
-    print("deny_comparator=RustStringOrdV1")
+    print("comparator=RustStringOrdV1")
+    print("comparator_proof=VmExeAotAccepted")
+    print("slot_metadata_output_transport_claim=0")
     print("runtime_fallback=0")
     print("summary=ok")
     return 0

@@ -39,11 +39,21 @@ LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 Next task:
 
 ```text
-Use KeyAscending(RustStringOrdV1) plus comparator proof to lower the
-RegionObserver variable_map().iter() read-fold.
+Decide the owned output transport for RegionObserver
+`Vec<SlotMetadata>` before lowering the `variable_map().iter()` read-fold.
+
+The comparator side is already proven:
+  order=KeyAscending(RustStringOrdV1)
+  comparator_proof=VmExeAotAccepted
+
+The current fail-fast boundary is:
+  Deny(UnsupportedOutputTransport)
+  detail=OutputTransportUndecided
+  output=Vec<SlotMetadata>
 
 Do not add OrderedMapBox / RegionObserver backend special cases.
 Do not substitute insertion order for Rust BTreeMap ordering.
+Do not invent SlotMetadata / RefSlotKind transport inside the route.
 ```
 
 Purpose:

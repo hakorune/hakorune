@@ -1,32 +1,32 @@
 {
-  "schema_version": 0,
-  "kind": "MirBuilderOrderedMapSourceOrderInventory",
-  "subject": "OrderedMapBox SourceOrdered String-key blocker",
-  "source": {
-    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
-  },
-  "current_contract": "deny_source_ordered_read_fold",
+  "current_contract": "comparator_capability_landed",
   "decision": [
-    "do not claim SourceOrdered read-fold until RustStringOrdV1 is VM/EXE/AOT accepted",
+    "RustStringOrdV1 is VM/EXE/AOT accepted",
+    "OrderedMapBox uses TextOrder.compare_rust_string_v1",
     "do not silently downgrade SourceOrdered to insertion order",
     "do not add RegionObserver-specific key-order special cases"
   ],
+  "kind": "MirBuilderOrderedMapSourceOrderInventory",
+  "next_task": "decide SlotMetadata / RefSlotKind owned output transport",
+  "proof": {
+    "comparator": "RustStringOrdV1",
+    "status": "VmExeAotAccepted"
+  },
+  "schema_version": 0,
+  "source": {
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "stop_line": [
+    "source_ordered_read_fold_claim=0",
+    "slot_metadata_output_transport_claim=0",
+    "runtime_fallback=0",
+    "insertion_order_substitution=0",
+    "region_observer_key_name_special_case=0"
+  ],
+  "subject": "OrderedMapBox SourceOrdered String-key blocker",
   "supporting_evidence": [
     "RegionObserver prototype inserted b, a, args and observed insertion order.",
     "AOT implementation attempt using .hako string content comparison failed at OrderedMapBox.set/2 backend acceptance.",
     "MIR-only success is insufficient for the converter acceptance target."
-  ],
-  "deny": {
-    "reason": "UnsupportedOrderCapability",
-    "detail": "ComparatorUnavailable",
-    "comparator": "RustStringOrdV1",
-    "required_tiers": "VM,EXE,AOT"
-  },
-  "next_task": "define converter-side total text ordering capability",
-  "stop_line": [
-    "source_ordered_read_fold_claim=0",
-    "runtime_fallback=0",
-    "insertion_order_substitution=0",
-    "region_observer_key_name_special_case=0"
   ]
 }

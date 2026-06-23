@@ -28,6 +28,14 @@ def compile_ordered_read_fold(facts: dict[str, Any], plan: dict[str, Any]) -> li
     order = borrow.get("order")
     require_order_capability(order, plan)
 
+    output = borrow.get("output")
+    output_capability = plan.get("output_capabilities", {}).get(output, {})
+    if output_capability.get("proof") != "Accepted":
+        raise ValueError(
+            "Deny(UnsupportedOutputTransport): "
+            f"detail=OutputTransportUndecided output={output}"
+        )
+
     return [
         {
             "kind": "ReadFoldOwnedOutput",

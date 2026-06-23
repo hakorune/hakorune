@@ -225,15 +225,25 @@ new Hako pointer or borrow syntax
    insertion-order substitution = 0
    ```
 
-   Status: current.
+   Status: blocked on output transport design.
+
+   Current fail-fast boundary:
+
+   ```text
+   Deny(UnsupportedOutputTransport)
+   detail=OutputTransportUndecided
+   output=Vec<SlotMetadata>
+   ```
 
 ## Current Stop Line
 
 Comparator execution is proven and OrderedMapBox consumes it, but source-ordered
-read-fold generation remains closed until RegionObserver lowering is verified:
+read-fold generation remains closed until owned RegionObserver output transport
+is designed and verified:
 
 ```text
 source_ordered_read_fold_claim=0
+slot_metadata_output_transport_claim=0
 generated_region_observer_artifact=0
 runtime_fallback=0
 ```

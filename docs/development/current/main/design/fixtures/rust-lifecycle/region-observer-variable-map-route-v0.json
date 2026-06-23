@@ -9,18 +9,19 @@
   },
   "route": "Deny",
   "deny": {
-    "reason": "UnsupportedOrderCapability",
-    "detail": "ComparatorUnavailable",
-    "comparator": "RustStringOrdV1",
-    "required_tiers": "VM,EXE,AOT"
+    "reason": "UnsupportedOutputTransport",
+    "detail": "OutputTransportUndecided",
+    "output": "Vec<SlotMetadata>"
   },
   "decision": [
     "do not generate RegionObserver variable_map read-fold artifact",
     "do not substitute insertion order for Rust BTreeMap<String> order",
-    "do not add RegionObserver key-name special cases"
+    "do not add RegionObserver key-name special cases",
+    "do not invent SlotMetadata / RefSlotKind transport without design acceptance"
   ],
   "stop_line": [
     "source_ordered_read_fold_claim=0",
+    "slot_metadata_output_transport_claim=0",
     "runtime_fallback=0",
     "generated_hako=0"
   ]

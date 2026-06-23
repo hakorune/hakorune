@@ -43,8 +43,8 @@ blocker evidence:
 
 current decision:
   ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001 is closed as fail-closed.
-  SourceOrdered read-fold is denied until a total-order comparator is proved
-  across VM/EXE/AOT.
+  The total-order comparator is now proved across VM/EXE/AOT and consumed by
+  OrderedMapBox.
 
   SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001 is closed as Option 1:
   implement backend-accepted StringBox lexical comparison as a generic
@@ -52,10 +52,16 @@ current decision:
 
 implemented route-selection guardrail:
   `tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py`
-  extracts the live source line and denies artifact generation with:
-    Deny(UnsupportedOrderCapability)
-    detail=ComparatorUnavailable
-    comparator=RustStringOrdV1
+  extracts the live source line, accepts the comparator proof, and now denies
+  artifact generation at the next precise boundary:
+    Deny(UnsupportedOutputTransport)
+    detail=OutputTransportUndecided
+    output=Vec<SlotMetadata>
+
+current design stop:
+  Do not invent SlotMetadata / RefSlotKind transport inside the RegionObserver
+  route. The next design decision must fix the owned output representation
+  before generated Hako can be claimed.
 
 forbidden:
   raw aggregate map return
@@ -85,9 +91,11 @@ rust_mirbuilder_converter_matrix_guard green
 Current mechanical status:
 
 ```text
-region-observer variable_map read-fold route = Deny
+region-observer variable_map read-fold route = Deny(UnsupportedOutputTransport)
+comparator proof = VmExeAotAccepted
+slot_metadata_output_transport_claim = 0
 generated_hako = 0
-next step = lower RegionObserver read-fold with KeyAscending(RustStringOrdV1)
+next step = decide SlotMetadata / RefSlotKind owned output transport
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -150,7 +158,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.7. `Lower RegionObserver through verified source-ordered read-fold`
 
-   Status: current.
+   Status: design stop.
 
    Scope:
 
@@ -160,6 +168,15 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    output = owned SlotMetadata sequence
    raw aggregate borrow = 0
    insertion-order substitution = 0
+   ```
+
+   Current blocker:
+
+   ```text
+   Vec<SlotMetadata> output transport is undecided.
+   RefSlotKind representation is undecided.
+   classify_slot(builder, vid, name) lowering must not be special-cased by
+   RegionObserver name.
    ```
 
 1. `Generalize access capabilities through value-caller clone elimination`
