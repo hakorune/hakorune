@@ -31,6 +31,14 @@
       "status": "green"
     },
     {
+      "id": "canonical_explicit_phi_inferred_denied",
+      "status": "green"
+    },
+    {
+      "id": "canonical_explicit_phi_multi_predecessor_denied",
+      "status": "green"
+    },
+    {
       "id": "returned_read_borrow",
       "status": "green"
     },

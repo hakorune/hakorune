@@ -82,6 +82,21 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
             lines.extend("    " + line if line else "" for line in _render_statement_operation(item))
         lines.append("}")
         return lines
+    if kind == "ExplicitPhiI64":
+        target = operation.get("target")
+        condition = operation.get("condition")
+        true_value = operation.get("true_value")
+        false_value = operation.get("false_value")
+        if not isinstance(target, str) or condition is None or true_value is None or false_value is None:
+            raise ValueError("ExplicitPhiI64 requires target, condition, true_value, and false_value")
+        return [
+            f"local {target} = 0",
+            f"if {_render_expr(condition)} {{",
+            f"    {target} = {_render_expr(true_value)}",
+            "} else {",
+            f"    {target} = {_render_expr(false_value)}",
+            "}",
+        ]
     raise ValueError(f"unsupported statement operation: {kind}")
 
 
@@ -239,7 +254,7 @@ def _render_explicit_carrier_snapshot(operation: Mapping[str, Any]) -> list[str]
 
 def render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
-    if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop"}:
+    if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop", "ExplicitPhiI64"}:
         return _render_statement_operation(operation)
     if kind == "MapGetOption":
         source = render_source_expr(operation)

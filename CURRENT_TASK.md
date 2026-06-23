@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-CANONICAL-EXPLICIT-PHI-001
+MULTI-CARRIER-BREAK-CONTINUE-EARLY-RETURN-PHI-001
 ```
 
 Next task:
 
 ```text
-Implement canonical explicit PHI.
+Implement multi-carrier / break / continue / early-return PHI.
 ```
 
 Purpose:
@@ -183,9 +183,10 @@ Done:
   optional copy/default map method ids parameterized
   structured loop without carried state direct conversion
   single scalar loop carrier direct conversion
+  canonical explicit PHI direct conversion
 
 Next:
-  Implement canonical explicit PHI.
+  Implement multi-carrier / break / continue / early-return PHI.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -209,7 +210,8 @@ Task sequence:
   15. Implement direct TypeContext aggregate snapshot/restore conversion. (closed)
   16. Implement structured loop without carried state. (closed)
   17. Implement single scalar loop carrier. (closed)
-  18. Implement canonical explicit PHI. (next)
+  18. Implement canonical explicit PHI. (closed)
+  19. Implement multi-carrier / break / continue / early-return PHI. (next)
 ```
 
 Current cleanup slice:

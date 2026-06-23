@@ -1,0 +1,33 @@
+{
+  "body_facts": [
+    {
+      "condition": {
+        "kind": "EqI64",
+        "left": {
+          "kind": "Var",
+          "name": "flag"
+        },
+        "right": {
+          "kind": "I64",
+          "value": 1
+        }
+      },
+      "false_value": {
+        "kind": "I64",
+        "value": 20
+      },
+      "id": "CanonicalExplicitPhiPilot::choose_value",
+      "operation": "CanonicalExplicitPhi",
+      "phi_kind": "explicit",
+      "predecessor_count": 2,
+      "target": "value",
+      "true_value": {
+        "kind": "I64",
+        "value": 10
+      },
+      "value_type": "i64"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::canonical_explicit_phi"
+}

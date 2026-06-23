@@ -12,6 +12,7 @@ from mirbuilder_ordered_map_converter import (
     compile_variable_context_snapshot_restore_methods,
 )
 from mirbuilder_aggregate_snapshot_converter import compile_aggregate_take_restore_methods
+from mirbuilder_explicit_phi_converter import compile_canonical_explicit_phi_methods
 from mirbuilder_metadata_scalar_converter import compile_scalar_option_atom_methods
 from mirbuilder_optional_map_converter import (
     compile_optional_copy_default_map_methods,
@@ -128,6 +129,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["control.single_scalar_loop_carrier"],
         ),
         description="structured loop with exactly one local i64 carrier",
+    ),
+    "control.canonical_explicit_phi": DirectShapeRule(
+        shape="control.canonical_explicit_phi",
+        lower=lambda facts, plan: compile_canonical_explicit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.canonical_explicit_phi"],
+        ),
+        description="two-input explicit scalar PHI with typed predecessor values",
     ),
     "binding_context.single_ordered_map_context": DirectShapeRule(
         shape="single_ordered_map_context",

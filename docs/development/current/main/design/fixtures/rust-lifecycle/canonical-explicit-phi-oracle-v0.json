@@ -1,0 +1,18 @@
+{
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::canonical_explicit_phi",
+  "vectors": [
+    {
+      "expect": 10,
+      "id": "then_predecessor",
+      "op": "choose_value",
+      "value": 1
+    },
+    {
+      "expect": 20,
+      "id": "else_predecessor",
+      "op": "choose_value",
+      "value": 0
+    }
+  ]
+}

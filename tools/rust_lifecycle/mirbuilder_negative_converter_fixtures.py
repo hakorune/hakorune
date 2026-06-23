@@ -229,6 +229,40 @@ def _single_scalar_loop_carrier_escape_case() -> tuple[str, str]:
     return "single_scalar_loop_carrier_escape", "CarrierSensitiveAlias"
 
 
+def _explicit_phi_inferred_case() -> tuple[str, str]:
+    from mirbuilder_explicit_phi_converter import compile_canonical_explicit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "canonical-explicit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "canonical-explicit-phi-plan-v0.json"))
+    _replace_row(facts["body_facts"], "CanonicalExplicitPhiPilot::choose_value", "phi_kind", "inferred")
+    _expect_deny(
+        "PhiJoinRequired",
+        lambda: compile_canonical_explicit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.canonical_explicit_phi"],
+        ),
+    )
+    return "canonical_explicit_phi_inferred_denied", "PhiJoinRequired"
+
+
+def _explicit_phi_multi_predecessor_case() -> tuple[str, str]:
+    from mirbuilder_explicit_phi_converter import compile_canonical_explicit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "canonical-explicit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "canonical-explicit-phi-plan-v0.json"))
+    _replace_row(facts["body_facts"], "CanonicalExplicitPhiPilot::choose_value", "predecessor_count", 3)
+    _expect_deny(
+        "PhiJoinRequired",
+        lambda: compile_canonical_explicit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.canonical_explicit_phi"],
+        ),
+    )
+    return "canonical_explicit_phi_multi_predecessor_denied", "PhiJoinRequired"
+
+
 def _returned_read_borrow_case() -> tuple[str, str]:
     for facts_name, subject in [
         ("variable-context-carrier-snapshot-facts-v0.json", "CarrierInfo.from_variable_map"),
@@ -287,6 +321,7 @@ def _todo_null_placeholder_case() -> tuple[str, str]:
         GENERATED / "variable_context_explicit_carrier_snapshot.hako",
         GENERATED / "structured_loop_without_carried_state.hako",
         GENERATED / "single_scalar_loop_carrier.hako",
+        GENERATED / "canonical_explicit_phi.hako",
         ROOT / "apps/lib/hakorune_mir_builder/carrier_info.hako",
         ROOT / "tools/rust_lifecycle/shared_mirbuilder_emitter.py",
     ]:
@@ -304,6 +339,8 @@ CASE_RUNNERS: dict[str, Callable[[], tuple[str, str]]] = {
     "structured_loop_unstructured_control_flow": _structured_loop_unstructured_control_case,
     "single_scalar_loop_phi_required": _single_scalar_loop_phi_case,
     "single_scalar_loop_carrier_escape": _single_scalar_loop_carrier_escape_case,
+    "canonical_explicit_phi_inferred_denied": _explicit_phi_inferred_case,
+    "canonical_explicit_phi_multi_predecessor_denied": _explicit_phi_multi_predecessor_case,
     "returned_read_borrow": _returned_read_borrow_case,
     "returned_mutable_borrow": _returned_mutable_borrow_case,
     "carrier_sensitive_alias": _carrier_sensitive_alias_case,

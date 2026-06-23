@@ -11,6 +11,7 @@ from mirbuilder_carrier_snapshot_artifacts import (
     run_variable_context_carrier_snapshot_artifact_generator,
     run_variable_context_explicit_carrier_snapshot_artifact_generator,
 )
+from mirbuilder_explicit_phi_artifacts import run_explicit_phi_artifact_generator
 from mirbuilder_family_artifacts import run_mirbuilder_family_artifact_generator
 from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_scalar_artifact_generator
 from mirbuilder_single_scalar_loop_carrier_artifacts import run_single_scalar_loop_carrier_artifact_generator
@@ -24,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FAMILY_GENERATORS = {
     "binding-context": lambda *, check: run_mirbuilder_family_artifact_generator("binding_context", check=check),
     "box-compilation-context": lambda *, check: run_mirbuilder_family_artifact_generator("box_compilation_context", check=check),
+    "canonical-explicit-phi": run_explicit_phi_artifact_generator,
     "core-context": lambda *, check: run_mirbuilder_family_artifact_generator("core_context", check=check),
     "metadata-context-scalar-source-file": run_metadata_context_scalar_artifact_generator,
     "single-scalar-loop-carrier": run_single_scalar_loop_carrier_artifact_generator,

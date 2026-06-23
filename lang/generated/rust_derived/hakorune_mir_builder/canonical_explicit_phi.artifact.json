@@ -1,0 +1,53 @@
+{
+  "claims": {
+    "full_mirbuilder_crate_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "inferred_phi_claim": 0,
+    "mainline_selected": 0,
+    "multi_predecessor_phi_claim": 0,
+    "runtime_fallback": 0
+  },
+  "family_id": "hakorune_mir_builder::canonical_explicit_phi",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_explicit_phi_artifact.py",
+    "version": "canonical-explicit-phi-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/canonical-explicit-phi-facts-v0.json",
+      "sha256": "60c0c2d6b31a1b56c7ddd629f4174a8f554acc613de55171ce9c1ce66c076b92"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/canonical-explicit-phi-oracle-v0.json",
+      "sha256": "982d5a37a1d9985f7f36be319d81012704a0a70e1c8920c55440d7684a2e17cb"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/canonical-explicit-phi-plan-v0.json",
+      "sha256": "74dd40df76c2692be8d8dfc4faa3b48c027fd2447ebf2c79402392f906abfb24"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/canonical-explicit-phi-behavior-recipe-v0.json",
+      "sha256": "864d6221d6d7b40645cd77d2083d0d28981133a1bdf8a16d8360691f4ac46787"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/canonical-explicit-phi-derived-artifact-verifier-result-v0.json",
+      "sha256": "4a519808627dd947a8322ba1400d08e6db73ee131c1e36dcba64ac9c7cf24d31"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/canonical_explicit_phi.hako",
+    "hako_sha256": "6e34e34ac006112a3ae5d395cc58d9ee0f50395fa724bfbab1246e7d1ad861d0"
+  },
+  "pilot_scope": "CanonicalExplicitPhi_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "docs/development/current/main/design/fixtures/rust-lifecycle/canonical-explicit-phi-source.rs",
+        "sha256": "f1efba84bb05ff95ca8b602b606d0632d5b8af0b86719d0b651251936c62ef5b"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

@@ -1,0 +1,17 @@
+{
+  "direct_shape": {
+    "control.canonical_explicit_phi": {
+      "method_id": "CanonicalExplicitPhiPilot::choose_value",
+      "signature": "choose_value(flag: i64): i64"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "CanonicalExplicitPhiPilot::choose_value",
+      "raw_hako_body": false,
+      "shape_rule": "control.canonical_explicit_phi"
+    }
+  ],
+  "subject": "hakorune_mir_builder::canonical_explicit_phi"
+}
