@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/rust-lifecycle-projection-ssot.md
   - docs/reference/architecture/rust-to-hako-lifecycle-projection.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
+  - docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ---
 
 # MirBuilder Rust-to-Hako Converter Task Order
@@ -18,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001
+  DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001
 
 current implementation task:
-  Choose how to unblock SourceOrdered RegionObserver lowering
+  Define ComparatorCapability / IterationOrder IR without backend behavior change
 
 selected source slice:
   variable_map().iter() observer fold
@@ -46,10 +47,9 @@ current decision:
     Deny(UnsupportedKeyTransport)
     detail=SourceOrderedStringKeyCompareUnavailable
 
-next route choices:
-  1. Add a backend-accepted StringBox lexical comparison route for OrderedMapBox.
-  2. Change the selected observer lowering so it does not require SourceOrdered
-     map iteration.
+  SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001 is closed as Option 1:
+  implement backend-accepted StringBox lexical comparison as a generic
+  ComparatorCapability, not as an OrderedMapBox / RegionObserver special case.
 
 implemented route-selection guardrail:
   `tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py`
@@ -87,10 +87,27 @@ Current mechanical status:
 ```text
 region-observer variable_map read-fold route = Deny
 generated_hako = 0
-next step = design selection between backend String compare route and non-SourceOrdered observer lowering
+next step = define total text ordering capability in converter IR
+ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
 ## Active Task Order
+
+0. `Define total text ordering capability`
+
+   Status: current.
+
+   Scope:
+
+   ```text
+   IterationOrder::KeyAscending(RustStringOrdV1)
+   CompareTotal(comparator=RustStringOrdV1)
+   Deny(UnsupportedOrderCapability)
+   detail=ComparatorUnavailable
+   ```
+
+   This is converter IR / capability work under `tools/rust_lifecycle`. Do not
+   put the intermediate order model in `crates/hakorune_mir_builder`.
 
 1. `Generalize access capabilities through value-caller clone elimination`
 

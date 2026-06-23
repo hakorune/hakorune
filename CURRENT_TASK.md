@@ -33,16 +33,18 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001
+DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001
 ```
 
 Next task:
 
 ```text
-Design-select how to unblock RegionObserver lowering after the live
-variable_map().iter() route was mechanically denied:
-  1. backend-accepted StringBox lexical comparison for OrderedMapBox
-  2. non-SourceOrdered RegionObserver lowering
+Define the converter-side ordering capability:
+  IterationOrder::KeyAscending(RustStringOrdV1)
+  CompareTotal(RustStringOrdV1)
+  Deny(UnsupportedOrderCapability)
+
+Do not change backend behavior in this first slice.
 ```
 
 Purpose:
