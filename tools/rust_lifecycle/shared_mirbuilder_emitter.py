@@ -124,6 +124,9 @@ def _render_box(box: Mapping[str, Any]) -> list[str]:
     box_fields = box.get("fields")
     if box_fields is not None:
         lines = [f"box {box['name']} {{"]
+        if not box_fields:
+            lines.append("}")
+            return lines
         for field in box_fields:
             lines.append(f"    {field['name']}: {field['field_type']}")
         lines.append("")

@@ -1,0 +1,17 @@
+{
+  "direct_shape": {
+    "control.structured_loop_without_carried_state": {
+      "method_id": "StructuredLoopPilot::copy_values",
+      "signature": "copy_values(values: ArrayBox, out: ArrayBox): i64"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "StructuredLoopPilot::copy_values",
+      "raw_hako_body": false,
+      "shape_rule": "control.structured_loop_without_carried_state"
+    }
+  ],
+  "subject": "hakorune_mir_builder::structured_loop_without_carried_state"
+}

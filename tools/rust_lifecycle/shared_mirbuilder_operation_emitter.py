@@ -14,6 +14,77 @@ from shared_mirbuilder_emitter_common import (
 )
 
 
+def _render_expr(expr: Any) -> str:
+    if isinstance(expr, str):
+        return expr
+    if not isinstance(expr, Mapping):
+        return render_main_value(expr)
+    kind = expr.get("kind")
+    if kind == "Var":
+        name = expr.get("name")
+        if not isinstance(name, str):
+            raise ValueError("Var expression requires name")
+        return name
+    if kind == "I64":
+        value = expr.get("value")
+        if not isinstance(value, int):
+            raise ValueError("I64 expression requires integer value")
+        return str(value)
+    if kind == "ArrayLength":
+        source = expr.get("source")
+        if not isinstance(source, str):
+            raise ValueError("ArrayLength expression requires source")
+        return f"{source}.length()"
+    if kind == "ArrayGet":
+        source = expr.get("source")
+        index = expr.get("index")
+        if not isinstance(source, str) or index is None:
+            raise ValueError("ArrayGet expression requires source and index")
+        return f"BoxHelpers.array_get({source}, {_render_expr(index)})"
+    if kind in {"AddI64", "LtI64", "EqI64"}:
+        left = expr.get("left")
+        right = expr.get("right")
+        if left is None or right is None:
+            raise ValueError(f"{kind} expression requires left and right")
+        op = {"AddI64": "+", "LtI64": "<", "EqI64": "=="}[kind]
+        return f"{_render_expr(left)} {op} {_render_expr(right)}"
+    raise ValueError(f"unsupported Hako expression: {kind}")
+
+
+def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
+    kind = operation["kind"]
+    if kind == "LocalI64":
+        target = operation.get("target")
+        if not isinstance(target, str):
+            raise ValueError("LocalI64 requires target")
+        return [f"local {target} = {_render_expr(operation.get('value', {'kind': 'I64', 'value': 0}))}"]
+    if kind == "Assign":
+        target = operation.get("target")
+        value = operation.get("value")
+        if not isinstance(target, str) or value is None:
+            raise ValueError("Assign requires target and value")
+        return [f"{target} = {_render_expr(value)}"]
+    if kind == "ArrayPush":
+        target = operation.get("target")
+        value = operation.get("value")
+        if not isinstance(target, str) or value is None:
+            raise ValueError("ArrayPush requires target and value")
+        return [f"{target}.push({_render_expr(value)})"]
+    if kind == "StructuredLoop":
+        condition = operation.get("condition")
+        body = operation.get("body")
+        if condition is None or not isinstance(body, list):
+            raise ValueError("StructuredLoop requires condition and body")
+        lines = [f"loop({_render_expr(condition)}) {{"]
+        for item in body:
+            if not isinstance(item, Mapping):
+                raise ValueError("StructuredLoop body entries must be operations")
+            lines.extend("    " + line if line else "" for line in _render_statement_operation(item))
+        lines.append("}")
+        return lines
+    raise ValueError(f"unsupported statement operation: {kind}")
+
+
 def _render_map_lookup(kind: str, operation: Mapping[str, Any]) -> list[str]:
     source = render_source_expr(operation)
     if kind == "MapGet":
@@ -168,6 +239,8 @@ def _render_explicit_carrier_snapshot(operation: Mapping[str, Any]) -> list[str]
 
 def render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
+    if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop"}:
+        return _render_statement_operation(operation)
     if kind == "MapGetOption":
         source = render_source_expr(operation)
         target = operation.get("target")

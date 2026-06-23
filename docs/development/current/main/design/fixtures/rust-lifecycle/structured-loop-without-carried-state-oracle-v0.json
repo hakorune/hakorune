@@ -1,0 +1,14 @@
+{
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::structured_loop_without_carried_state",
+  "vectors": [
+    {
+      "id": "copy_three_values",
+      "operations": [
+        {
+          "op": "copy_values"
+        }
+      ]
+    }
+  ]
+}

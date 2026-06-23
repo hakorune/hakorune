@@ -1,0 +1,56 @@
+{
+  "body_facts": [
+    {
+      "body": [
+        {
+          "kind": "ArrayPush",
+          "target": "out",
+          "value": {
+            "index": {
+              "kind": "Var",
+              "name": "i"
+            },
+            "kind": "ArrayGet",
+            "source": "values"
+          }
+        },
+        {
+          "kind": "Assign",
+          "target": "i",
+          "value": {
+            "kind": "AddI64",
+            "left": {
+              "kind": "Var",
+              "name": "i"
+            },
+            "right": {
+              "kind": "I64",
+              "value": 1
+            }
+          }
+        }
+      ],
+      "break_count": 0,
+      "condition": {
+        "kind": "LtI64",
+        "left": {
+          "kind": "Var",
+          "name": "i"
+        },
+        "right": {
+          "kind": "ArrayLength",
+          "source": "values"
+        }
+      },
+      "continue_count": 0,
+      "early_return_count": 0,
+      "id": "StructuredLoopPilot::copy_values",
+      "index_var": "i",
+      "loop_carried_state": false,
+      "operation": "StructuredLoopWithoutCarriedState",
+      "phi_required": false
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::structured_loop_without_carried_state"
+}

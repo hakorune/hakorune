@@ -1,0 +1,32 @@
+{
+  "checks": {
+    "break_continue": 0,
+    "direct_shape_rule": "control.structured_loop_without_carried_state",
+    "early_return": 0,
+    "loop_carried_state": 0,
+    "phi_required": 0,
+    "raw_hako_body": 0,
+    "rust_facts_input": "fixture_verified"
+  },
+  "denied_boundaries": [
+    "UnstructuredControlFlow",
+    "LoopCarriedStateRequired",
+    "PhiJoinRequired"
+  ],
+  "family_id": "hakorune_mir_builder::structured_loop_without_carried_state",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "StructuredLoop_without_carried_state_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "structured-loop-without-carried-state-facts-v0.json",
+  "source_plan": "structured-loop-without-carried-state-plan-v0.json",
+  "source_recipe": "structured-loop-without-carried-state-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::structured_loop_without_carried_state",
+  "verified_operations": [
+    "LocalI64",
+    "StructuredLoop",
+    "ArrayPush",
+    "Assign",
+    "ReturnI64"
+  ]
+}

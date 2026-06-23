@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-STRUCTURED-LOOP-WITHOUT-CARRIED-STATE-001
+SINGLE-SCALAR-LOOP-CARRIER-001
 ```
 
 Next task:
 
 ```text
-Implement structured loop without carried state.
+Implement single scalar loop carrier.
 ```
 
 Purpose:
@@ -181,9 +181,10 @@ Done:
   direct TypeContext aggregate snapshot/restore conversion
   shared MirBuilder emitter split
   optional copy/default map method ids parameterized
+  structured loop without carried state direct conversion
 
 Next:
-  Implement structured loop without carried state.
+  Implement single scalar loop carrier.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -205,7 +206,8 @@ Task sequence:
   13. Implement direct TypeContext value-type conversion. (closed)
   14. Decide TypeContext multi-field snapshot/restore transport. (closed)
   15. Implement direct TypeContext aggregate snapshot/restore conversion. (closed)
-  16. Implement structured loop without carried state. (next)
+  16. Implement structured loop without carried state. (closed)
+  17. Implement single scalar loop carrier. (next)
 ```
 
 Current cleanup slice:

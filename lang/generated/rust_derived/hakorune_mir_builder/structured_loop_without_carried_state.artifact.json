@@ -1,0 +1,53 @@
+{
+  "claims": {
+    "full_mirbuilder_crate_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "loop_carried_state_claim": 0,
+    "mainline_selected": 0,
+    "phi_claim": 0,
+    "runtime_fallback": 0
+  },
+  "family_id": "hakorune_mir_builder::structured_loop_without_carried_state",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_structured_loop_artifact.py",
+    "version": "structured-loop-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/structured-loop-without-carried-state-facts-v0.json",
+      "sha256": "42b08679990ece64d4e79ffea7de72f0dd5cb0ceb295f387240da89926eb2fae"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/structured-loop-without-carried-state-oracle-v0.json",
+      "sha256": "74d6d7bf4f5745babd6f68bb095818c0cb7fd2395a2738a07d4a9956b05846b5"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/structured-loop-without-carried-state-plan-v0.json",
+      "sha256": "cef2a524f006423b52eca8836ff1cd1da9fcb70b1b69f70a59589dd9a6e6cd4a"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/structured-loop-without-carried-state-behavior-recipe-v0.json",
+      "sha256": "7e0cfacca45baf8e2707d9d1505a3221ca5d190df1eba1f1ad4f0c42e9e4434d"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/structured-loop-without-carried-state-derived-artifact-verifier-result-v0.json",
+      "sha256": "5cdb9e766b7b55f02f213a142aa4c85c3160e1cafc96ee28e6db26474511ed7b"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/structured_loop_without_carried_state.hako",
+    "hako_sha256": "e769eb6669ba7ab6d6d40f35529905f556bab103e915557b59219b8413bf403c"
+  },
+  "pilot_scope": "StructuredLoop_without_carried_state_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "docs/development/current/main/design/fixtures/rust-lifecycle/structured-loop-without-carried-state-source.rs",
+        "sha256": "500e439d88aa4429f200e42843929b66649a0309f9fb0e0e0427c49a684e6da6"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

@@ -87,6 +87,7 @@ The direct lowerer is allowed to map these shapes without a new design card:
 | `scalar_counter_context` | integer fields with next/peek counter methods | `InitFieldConst`, `TakeThenSaturatingIncrementU32`, `ReturnI64` | CoreContext scalar counters |
 | `owned_map_carrier_projection` | known non-escaping bulk consumer over an owned snapshot | `CarrierSnapshotFromOwnedMap`, `ExplicitCarrierSnapshotFromOwnedMap` | CarrierInfo snapshot slices |
 | `aggregate.take_restore_with_defaults` | `std::mem::take` per field and owned restore assignment | `MoveFieldAndResetSource`, `AssertNotConsumed`, `MarkConsumed` | TypeContext snapshot/restore |
+| `control.structured_loop_without_carried_state` | bounded `while` with typed condition/body and no break/continue/early-return/PHI/carried semantic state | `LocalI64`, `StructuredLoop`, `ArrayPush`, `Assign`, `ReturnI64` | StructuredLoop pilot artifact |
 
 These are design stops, not direct-lowering work:
 
@@ -931,7 +932,7 @@ clone_owned for this Rust move slice
 Then reassess control-flow slices:
 
 ```text
-2. structured loop without carried state
+2. structured loop without carried state (closed)
 3. single scalar loop carrier
 4. canonical explicit PHI
 5. multi-carrier / break / continue / early-return PHI

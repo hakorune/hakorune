@@ -27,6 +27,9 @@ def _build_api_method_ir(method: Any) -> dict[str, Any]:
 
 def _build_box_ir(box: Any) -> dict[str, Any]:
     data: dict[str, Any] = {"name": box.name}
+    if not box.fields and box.field_name is None and box.field_type is None:
+        data["fields"] = []
+        return data
     if box.fields:
         data["fields"] = [
             {

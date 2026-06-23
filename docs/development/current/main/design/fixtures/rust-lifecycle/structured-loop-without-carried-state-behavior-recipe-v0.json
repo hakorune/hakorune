@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::structured_loop_without_carried_state",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "StructuredLoopPilotApi.copy_values(values, out)",
+      "hako_operation": "StructuredLoop",
+      "id": "StructuredLoopPilot::copy_values",
+      "rust_operation": "while over slice without break/continue/PHI"
+    }
+  ],
+  "pilot_scope": "StructuredLoop_without_carried_state_only",
+  "schema_version": 0,
+  "selected_body_count": "structured_loop_without_carried_state_only",
+  "source_oracle": "structured-loop-without-carried-state-oracle-v0.json",
+  "source_plan": "structured-loop-without-carried-state-plan-v0.json",
+  "subject": "hakorune_mir_builder::structured_loop_without_carried_state"
+}

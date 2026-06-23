@@ -19,6 +19,7 @@ from mirbuilder_optional_map_converter import (
     compile_optional_owned_recursive_enum_map_methods,
 )
 from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
+from mirbuilder_structured_loop_converter import compile_structured_loop_without_carried_state_methods
 from verified_hako_family_ir import HakoMethodIR
 
 
@@ -106,6 +107,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["aggregate.take_restore_with_defaults"],
         ),
         description="aggregate field ownership transfer with default replacement",
+    ),
+    "control.structured_loop_without_carried_state": DirectShapeRule(
+        shape="control.structured_loop_without_carried_state",
+        lower=lambda facts, plan: compile_structured_loop_without_carried_state_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.structured_loop_without_carried_state"],
+        ),
+        description="structured loop with typed condition/body and no semantic carried state",
     ),
     "binding_context.single_ordered_map_context": DirectShapeRule(
         shape="single_ordered_map_context",

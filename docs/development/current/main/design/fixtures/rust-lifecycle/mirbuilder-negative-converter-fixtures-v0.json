@@ -15,6 +15,14 @@
       "status": "green"
     },
     {
+      "id": "structured_loop_carried_state_required",
+      "status": "green"
+    },
+    {
+      "id": "structured_loop_unstructured_control_flow",
+      "status": "green"
+    },
+    {
       "id": "returned_read_borrow",
       "status": "green"
     },
