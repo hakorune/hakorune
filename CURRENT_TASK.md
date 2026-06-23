@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-06-23
+Date: 2026-06-24
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -39,7 +39,7 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Next task:
 
 ```text
-Design consultation: select the next post-RegionObserver converter slice.
+Generate generic method route descriptors.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -55,17 +55,39 @@ RegionObserver SlotMetadata artifact is now green:
   Result: 0
 
 The closed transport bug was generic:
-  MapBox i64-key raw load must preserve mixed runtime values, including
-  negative typed-object / boxed enum handles.
+  MapBox / ArrayBox raw collection loads now preserve mixed runtime values,
+  including negative typed-object / boxed enum handles, without sign-based
+  value-kind inference.
 
-The current fail-fast boundary is:
-  RegionObserver read-fold and SlotClassifier policy extraction are green.
-  Do not start the next converter slice until the next owner is selected.
+The next contract owner is route descriptor SSOT:
+  Rust, C, and Python route contract tables must be generated from one neutral
+  manifest instead of maintained as independent tuple registries.
+
+Completed collection transport slice:
+  RuntimeValueCarrierI64 contract
+  RuntimeValueCarrierMode
+  RuntimeValueCarrierSite
+  MapBox / ArrayBox common encode path
+  mixed collection transport matrix
+
+Completed NyRT freshness slice:
+  --no-build LLVM harness rejects stale libnyash_kernel.a before execution.
+
+The selected next slice is:
+  spec/mir/generic_method_routes.toml
+  generated Rust / C / Python generic method route descriptors
+  handwritten route descriptor duplication = 0
 
 Boxed enum ABI is already the selected representation authority:
   SumValueRepresentation::BoxedRuntime(abi_plan_id)
   BoxedSumAbiPlanV1
 
+Do not infer value kind from raw i64 sign.
+Do not treat negative typed-object / boxed enum handles as scalar i64 merely
+because the carrier is an i64.
+Do not add a second runtime value concept beyond existing return_shape /
+value_demand; carry those contracts through runtime encode/decode.
+Do not leave ArrayBox out of the mixed value transport contract.
 Do not add OrderedMapBox / RegionObserver backend special cases.
 Do not substitute insertion order for Rust BTreeMap ordering.
 Do not switch native enums to manual i64 tags as a workaround.
@@ -271,7 +293,21 @@ Task sequence:
       value transport preserves typed-object / boxed enum handles)
   30. Move SlotClassifier policy from emitter hardcode to verified operation
       data. (closed)
-  31. Select the next post-RegionObserver converter slice. (design stop)
+  31. Select the next post-RegionObserver converter slice. (closed:
+      collection value transport contract first)
+  32. Define mixed runtime value carrier contract. (closed)
+      - RuntimeValueCarrierI64 preserves bit patterns only.
+      - RuntimeValueClassFact, return_shape, and value_demand decide how the
+        carrier is consumed.
+      - raw i64 sign inference is forbidden.
+      - MapBox and ArrayBox share the same mixed value carrier contract.
+  33. Reject stale NyRT harness artifacts before AOT acceptance. (closed)
+  34. Generate generic method route descriptors from one neutral manifest.
+  35. Report generic method route contract mismatches with stable fields.
+  36. Lower owned read folds through generic operations.
+      - Replace ReadFoldSlotMetadata with ForEachOrderedMapEntry,
+        MapLookupOption, CallStatic, ConstructOwnedProduct, and SequencePush.
+      - Move oracle assertions into the harness, not production API methods.
 ```
 
 Current cleanup slice:

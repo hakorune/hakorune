@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-23
+Date: 2026-06-24
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -22,7 +22,7 @@ active blocker:
   LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 
 current implementation task:
-  Design consultation: select the next post-RegionObserver converter slice
+  Generate generic method route descriptors
 
 producer responsibility stack:
   Source preparation
@@ -44,8 +44,27 @@ selected lowering:
 
 blocker evidence:
   RegionObserver SlotMetadata generated artifact is LLVM/AOT green. The final
-  transport blocker was generic MapBox mixed runtime value publication: i64-key
-  raw loads must preserve negative typed-object / boxed enum handles.
+  transport blocker was generic mixed runtime value publication. MapBox and
+  ArrayBox now share an explicit RuntimeValueCarrierI64 encode contract, and
+  stale NyRT AOT artifacts fail before execution.
+
+selected next owner:
+  generic method route descriptor SSOT
+
+  spec/mir/generic_method_routes.toml owns:
+    route_kind
+    route_id
+    core_op
+    helper_symbol
+    tier
+    return_shape
+    value_demand
+    publication_policy
+    effects
+
+  Generated descriptor tables feed Rust, C, and Python consumers. Planners
+  choose route_kind; backends consume selected descriptors and do not infer
+  route contracts from helper names or tuple shape.
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -56,20 +75,28 @@ selected transport:
 
 current fail-fast boundary:
   RegionObserver read-fold and SlotClassifier policy extraction are green.
-  Do not start the next converter slice until the next owner is selected.
+  Route contract truth must now move from hand-maintained Rust/C/Python tuple
+  tables to one neutral manifest.
 
 forbidden:
   raw aggregate map return; read-view / lease framework; new Hako pointer
   syntax; source-name hardcode; runtime fallback
   generated-Hako source-shape workaround for runner MIR drift
+  i64 sign-based value classification
+  MapBox-only transport fixes that leave ArrayBox ambiguous
+  backend-local route descriptor copies
 ```
 
 Acceptance for the current task:
 
 ```text
-next slice has one selected owner
-no implementation starts before selection
-no docs-only process loop unless the decision is ambiguous
+spec/mir/generic_method_routes.toml is the route descriptor SSOT
+Rust/C/Python route descriptor tables are generated from that manifest
+handwritten route descriptor tuple duplication = 0
+planner still owns route selection only
+backend consumes route_id/core_op/return_shape/value_demand/publication_policy
+generator --check catches stale outputs
+RegionObserver generated artifact remains LLVM/AOT green
 ```
 
 Current mechanical status:
@@ -82,7 +109,9 @@ generated_hako = RegionObserver LLVM/AOT green
   boxed_runtime_v1 make/tag/project = landed
   boxed enum MapBox/Option round trip = landed
 slot_classifier_policy = verified operation data
-next step = design consultation for the next converter slice
+collection_runtime_value_carrier = landed for MapBox and ArrayBox
+nyrt_freshness_fail_fast = landed for --no-build AOT harness
+next step = generic method route descriptor SSOT
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -179,126 +208,19 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.8. `Implement boxed native enum make/tag ABI`
 
-   Status: landed.
-
-   Scope:
-
-   ```text
-   Keep canonical MIR unchanged:
-
-   - VariantMake
-   - VariantTag
-   - VariantProject
-
-   Add representation selection and ABI planning:
-
-   SumValueRepresentation =
-     LocalAggregate(layout)
-     BoxedRuntime(abi_plan_id)
-
-   BoxedSumAbiPlanV1 =
-     plan_id
-     enum_name
-     runtime_type_id
-     runtime_box_name
-     tag_storage
-     variants[]
-   ```
-
-   First vertical slice:
-
-   ```text
-   payload-less native enum
-   boxed VariantMake
-   cross-function parameter transport
-   boxed VariantTag
-   ```
-
-   Acceptance:
-
-   ```text
-   no RegionObserver-name backend branch
-   no MirType-name backend branch
-   no manual i64 enum-tag transport for the converter artifact
-   same-function local enum route still green
-   cross-function unit enum route VM/EXE/AOT green
-   runtime enum identity check present
-   tag range check present
-   unknown enum ABI -> Deny(UnsupportedEnumValueTransport)
-   runtime fallback = 0
-   ```
-
-   Landed evidence: `apps/tests/phase296x_boxed_unit_enum_cross_function_min.hako`
-   passes `bash tools/run_llvm_harness.sh --no-build ...` with
-   `boxed_unit_enum_cross_function=ok` and `Result: 0`.
+   Status: landed. `VariantMake` / `VariantTag` keep canonical MIR and use
+   `SumValueRepresentation::BoxedRuntime(abi_plan_id)` plus
+   `BoxedSumAbiPlanV1`. Unit enum cross-function probe is VM/EXE/AOT green.
 
 0.9. `Implement boxed native enum handle projection`
 
-   Status: landed.
-
-   Scope:
-
-   ```text
-   handle-payload enum
-   boxed VariantProject
-   nested enum tag after projection
-   ```
-
-   Probe shape:
-
-   ```text
-   enum Inner { A, B }
-   enum Outer { None, Some(Inner) }
-
-   Outer parameter
-     -> VariantTag
-     -> VariantProject(handle)
-     -> Inner VariantTag
-   ```
-
-   Acceptance:
-
-   ```text
-   Outer::Some(Inner::B) cross-function VM/EXE/AOT green
-   Some payload project green
-   wrong expected tag -> trap
-   wrong runtime enum identity -> trap
-   unsupported payload storage -> Deny(UnsupportedEnumValueTransport)
-   Option/MirType-name backend branch = 0
-   ```
-
-   Landed evidence: `apps/tests/phase296x_boxed_handle_enum_cross_function_min.hako`
-   passes LLVM harness with `boxed_handle_enum_cross_function=ok`.
+   Status: landed. Handle-payload `VariantProject` and nested enum tag probe
+   are VM/EXE/AOT green without Option/MirType-name backend branches.
 
 0.10. `Close boxed enum container round trip`
 
-   Status: landed.
-
-   Scope:
-
-   ```text
-   MirType enum
-     -> MapBox.set
-     -> MapBox.get
-     -> Option::Some(MirType)
-     -> SlotClassifierApi.classify
-     -> RefSlotKind
-     -> SlotMetadataBox field
-     -> ArrayBox
-   ```
-
-   Acceptance:
-
-   ```text
-   MapBox-returned enum green
-   enum nested in Option green
-   native enum function parameter green
-   native enum return green
-   enum stored in typed object field green
-   focused enum container probes VM/MIR/EXE/AOT green
-   ```
-
-   Evidence: map and option-map round-trip probes pass LLVM harness.
+   Status: landed. MapBox/Option enum round trip, native enum parameter/return,
+   and enum stored in typed-object field are VM/MIR/EXE/AOT green.
 
 0.11. `Retain failed ny-llvmc input MIR`
 
@@ -314,6 +236,66 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
    Status: landed. Emitter renders
    `ClassifyEnumVariants`; facts own variant groups and fallback names.
+
+0.14. `Define mixed runtime value carrier contract`
+
+   Status: landed.
+
+   ```text
+   RuntimeValueCarrierI64 / Mode / Site
+   MapBox and ArrayBox common mixed-value encode path
+   i64 sign inference = 0
+   negative scalar / handle collision covered by route class facts
+   typed-object load -> type_id green for MapBox and ArrayBox
+   boxed enum load -> VariantTag green for MapBox and ArrayBox
+   ```
+
+0.15. `Reject stale NyRT harness artifacts`
+
+   Status: landed.
+
+   ```text
+   --no-build AOT harness fails when libnyash_kernel.a is older than
+   crates/nyash_kernel sources, Cargo.toml, or Cargo.lock
+   stale report includes artifact path and newer source path
+   hint includes cargo build -p nyash_kernel --release
+   ```
+
+0.16. `Generate generic method route descriptors`
+
+   Status: active next.
+
+   ```text
+   spec/mir/generic_method_routes.toml
+     -> src/mir/generated/generic_method_route_descriptors.rs
+     -> lang/c-abi/shims/generated/generic_method_route_registry.inc
+     -> src/llvm_py/generated/generic_method_route_registry.py
+   handwritten route descriptor duplication = 0
+   Rust planner chooses route_kind; descriptor owns ABI/backend contract
+   ```
+
+0.17. `Report generic method route contract mismatches`
+
+   Status: pending after 0.16.
+
+   ```text
+   route_id / core_op / route_kind / tier / helper / proof
+   return_shape / value_demand / publication_policy
+   first mismatched field
+   diagnostics consume generated descriptors; they do not classify routes
+   ```
+
+0.18. `Lower owned read folds through generic operations`
+
+   Status: pending after route contract work.
+
+   ```text
+   Replace ReadFoldSlotMetadata with:
+   ForEachOrderedMapEntry / MapLookupOption / CallStatic /
+   ConstructOwnedProduct / SequencePush
+   oracle assertions move from production API methods to harness
+   shared emitter owns rendering only
+   ```
 
 1. `Generalize access capabilities through value-caller clone elimination`
 

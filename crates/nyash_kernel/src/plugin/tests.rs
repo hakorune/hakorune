@@ -1,5 +1,8 @@
 use super::*;
 use crate::c_string::cstring;
+use crate::exports::typed_object::{
+    nyash_object_new_typed_hi, nyash_object_register_typed_layout_hi, nyash_object_type_id_h,
+};
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::boxes::array::ArrayBox;
 use nyash_rust::runtime::host_handles as handles;
@@ -20,6 +23,57 @@ fn array_compat_push_and_get_roundtrip() {
     let handle = new_array_handle();
     assert_eq!(nyash_array_push_h(handle, 7), 1);
     assert_eq!(nyash_array_get_hi_alias(handle, 0), 7);
+}
+
+#[test]
+fn array_slot_load_preserves_typed_object_carrier_bits() {
+    let handle = new_array_handle();
+    let type_id = 710_250_001;
+    assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+    let object = nyash_object_new_typed_hi(type_id, 1);
+    assert!(object < 0);
+    assert_eq!(nyash_object_type_id_h(object), type_id);
+
+    assert_eq!(nyash_array_set_hih_alias(handle, 0, object), 1);
+    let loaded = nyash_array_get_hi_alias(handle, 0);
+    assert_eq!(loaded, object);
+    assert_eq!(nyash_object_type_id_h(loaded), type_id);
+}
+
+#[test]
+fn array_slot_load_keeps_negative_carrier_bits_without_sign_inference() {
+    let handle = new_array_handle();
+    let type_id = 710_250_002;
+    assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+    let object = nyash_object_new_typed_hi(type_id, 1);
+    assert!(object < 0);
+
+    assert_eq!(nyash_array_set_hih_alias(handle, 0, object), 1);
+    assert_eq!(nyash_array_set_hii_alias(handle, 1, object), 1);
+
+    let object_carrier = nyash_array_get_hi_alias(handle, 0);
+    let scalar_carrier = nyash_array_get_hi_alias(handle, 1);
+    assert_eq!(object_carrier, scalar_carrier);
+    assert_eq!(nyash_object_type_id_h(object_carrier), type_id);
+}
+
+#[test]
+fn array_slot_load_materializes_borrowed_string_after_source_drop() {
+    let _guard = crate::test_support::handle_registry_test_lock();
+    let handle = new_array_handle();
+    let value_handle = new_string_handle("borrowed-array-slot");
+
+    assert_eq!(nyash_array_set_hih_alias(handle, 0, value_handle), 1);
+    handles::drop_handle(value_handle as u64);
+
+    let loaded = nyash_array_get_hi_alias(handle, 0);
+    assert!(loaded > 0);
+    let object = handles::get(loaded as u64).expect("array loaded string handle");
+    let string_box = object
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("array load should materialize StringBox");
+    assert_eq!(string_box.value, "borrowed-array-slot");
 }
 
 #[test]

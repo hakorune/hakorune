@@ -22,10 +22,11 @@ pub(crate) use decode::{
 };
 #[cfg(test)]
 pub(crate) use encode::runtime_i64_from_box_ref;
-pub(crate) use encode::runtime_i64_from_box_ref_caller;
 pub(crate) use encode::{
-    runtime_i64_from_scalar_checked_box_ref_caller, BorrowedAliasEncodeCaller,
+    encode_runtime_value_carrier, RuntimeValueCarrierMode, RuntimeValueCarrierSite,
 };
+#[cfg(test)]
+pub(crate) use encode::BorrowedAliasEncodeCaller;
 pub(crate) use string_classify::{
     with_array_store_str_source, ArrayStoreStrSource, StringHandleSourceKind, StringLikeProof,
 };

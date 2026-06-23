@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT_DIR/tools/lib/nyrt_contract.sh"
+
 if [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]]; then
   set -x
 fi
@@ -208,7 +211,16 @@ else
   NYRT_LIB_PRIMARY="$CARGO_TARGET_DIR_EFFECTIVE/release/libnyash_kernel.a"
   NYRT_LIB_ALT="crates/nyash_kernel/target/release/libnyash_kernel.a"
   if [[ ( -f "$NYRT_LIB_PRIMARY" || -f "$NYRT_LIB_ALT" ) && "${NYASH_LLVM_FORCE_NYRT_BUILD:-0}" != "1" ]]; then
-    echo "    Using cached Nyash Kernel runtime (set NYASH_LLVM_FORCE_NYRT_BUILD=1 to rebuild)"
+    NYRT_LIB_CACHED="$NYRT_LIB_PRIMARY"
+    if [[ ! -f "$NYRT_LIB_CACHED" ]]; then
+      NYRT_LIB_CACHED="$NYRT_LIB_ALT"
+    fi
+    if nyrt_contract_artifact_is_fresh "$ROOT_DIR" "$NYRT_LIB_CACHED"; then
+      echo "    Using cached Nyash Kernel runtime (set NYASH_LLVM_FORCE_NYRT_BUILD=1 to rebuild)"
+    else
+      echo "    Rebuilding stale Nyash Kernel runtime"
+      ( cd crates/nyash_kernel && cargo build --release -j 24 >/dev/null )
+    fi
   else
   # Use 24 threads for parallel build
   ( cd crates/nyash_kernel && cargo build --release -j 24 >/dev/null )

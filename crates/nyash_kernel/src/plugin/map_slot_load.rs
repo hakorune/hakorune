@@ -1,5 +1,7 @@
 use super::handle_cache::with_map_box;
-use super::value_codec::{runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller};
+use super::value_codec::{
+    encode_runtime_value_carrier, RuntimeValueCarrierMode, RuntimeValueCarrierSite,
+};
 use super::value_demand::MAP_VALUE_LOAD_MATERIALIZE;
 use nyash_rust::box_trait::NyashBox;
 
@@ -7,7 +9,11 @@ use nyash_rust::box_trait::NyashBox;
 pub(super) fn map_slot_load_str(handle: i64, key_str: &str) -> i64 {
     let _value_demand = MAP_VALUE_LOAD_MATERIALIZE;
     map_slot_load_str_with(handle, key_str, |value| {
-        runtime_i64_from_box_ref_caller(value.as_ref(), BorrowedAliasEncodeCaller::MapSlotLoad)
+        encode_runtime_value_carrier(
+            value.as_ref(),
+            RuntimeValueCarrierMode::MixedI64OrHandle,
+            RuntimeValueCarrierSite::MapSlotLoad,
+        )
     })
 }
 

@@ -2,7 +2,9 @@ use super::map_key_codec::{map_key_string_from_any, map_key_string_from_i64};
 use super::map_probe::map_probe_contains_str;
 use super::map_slot_load::map_slot_load_str_with;
 use super::map_slot_store::map_slot_store_str_any;
-use super::value_codec::{runtime_i64_from_box_ref_caller, BorrowedAliasEncodeCaller};
+use super::value_codec::{
+    encode_runtime_value_carrier, RuntimeValueCarrierMode, RuntimeValueCarrierSite,
+};
 
 #[inline(never)]
 pub(super) fn map_runtime_data_get_any_key(handle: i64, key_any: i64) -> i64 {
@@ -14,9 +16,10 @@ pub(super) fn map_runtime_data_get_any_key(handle: i64, key_any: i64) -> i64 {
     };
     let _value_demand = super::value_demand::MAP_VALUE_LOAD_ENCODE_WITH_CALLER;
     map_slot_load_str_with(handle, &key_str, |value| {
-        runtime_i64_from_box_ref_caller(
+        encode_runtime_value_carrier(
             value.as_ref(),
-            BorrowedAliasEncodeCaller::MapRuntimeDataGetAnyKey,
+            RuntimeValueCarrierMode::MixedI64OrHandle,
+            RuntimeValueCarrierSite::MapRuntimeDataGetAnyKey,
         )
     })
 }

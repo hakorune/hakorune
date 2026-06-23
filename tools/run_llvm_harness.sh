@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 source "$ROOT_DIR/tools/lib/ffi_contract.sh"
+source "$ROOT_DIR/tools/lib/nyrt_contract.sh"
 
 usage() {
   cat << USAGE
@@ -67,6 +68,7 @@ else
     echo "hint: run without --no-build once to build LLVM harness prerequisites" >&2
     exit 1
   fi
+  nyrt_contract_require_fresh_artifact "$ROOT_DIR" "$CARGO_TARGET_DIR_EFFECTIVE/release/libnyash_kernel.a"
 fi
 
 echo "[4/5] Ensuring libhako_llvmc_ffi freshness..."

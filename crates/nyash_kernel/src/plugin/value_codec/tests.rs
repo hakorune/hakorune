@@ -45,8 +45,32 @@ fn borrowed_alias_encode_caller_maps_to_runtime_private_demand_set() {
         BORROWED_ALIAS_ENCODE
     );
     assert_eq!(
+        BorrowedAliasEncodeCaller::MapSlotLoad.demand(),
+        BORROWED_ALIAS_ENCODE
+    );
+    assert_eq!(
         BorrowedAliasEncodeCaller::MapRuntimeDataGetAnyKey.demand(),
         BORROWED_ALIAS_ENCODE
+    );
+}
+
+#[test]
+fn runtime_value_carrier_contract_is_mixed_i64_or_handle() {
+    assert_eq!(
+        RuntimeValueCarrierMode::MixedI64OrHandle,
+        RuntimeValueCarrierMode::MixedI64OrHandle
+    );
+    assert_eq!(
+        RuntimeValueCarrierSite::ArraySlotLoad,
+        RuntimeValueCarrierSite::ArraySlotLoad
+    );
+    assert_eq!(
+        RuntimeValueCarrierSite::MapSlotLoad,
+        RuntimeValueCarrierSite::MapSlotLoad
+    );
+    assert_eq!(
+        RuntimeValueCarrierSite::MapRuntimeDataGetAnyKey,
+        RuntimeValueCarrierSite::MapRuntimeDataGetAnyKey
     );
 }
 

@@ -274,9 +274,12 @@ for cross-function unit enums, handle-payload projection, MapBox-returned
 enums, and Option-wrapped map results. The full generated RegionObserver
 SlotMetadata artifact is now LLVM/AOT green after fixing generic MapBox
 mixed-runtime value publication for typed-object / boxed enum handles. The
-SlotClassifier policy is now verified operation data instead of emitter-owned
-logic. The next blocker is selecting the next post-RegionObserver converter
-slice."""
+RuntimeValueCarrierI64 collection transport contract is now shared by MapBox
+and ArrayBox, and --no-build AOT harnesses fail fast on stale NyRT artifacts.
+The SlotClassifier policy is now verified operation data instead of
+emitter-owned logic. The next blocker is generic method route descriptor SSOT:
+Rust, C, and Python route contract tables must be generated from one neutral
+manifest instead of maintained as independent tuple registries."""
 
 current_blocker_token = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

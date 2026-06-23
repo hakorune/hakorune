@@ -7,7 +7,7 @@ mod tests {
         nyash_object_new_typed_hi, nyash_object_register_typed_layout_hi, nyash_object_type_id_h,
     };
     use crate::nyash_runtime_data_has_hh;
-    use nyash_rust::box_trait::{NyashBox, StringBox};
+    use nyash_rust::box_trait::{IntegerBox, NyashBox, StringBox};
     use nyash_rust::boxes::map_box::MapBox;
     use nyash_rust::runtime::host_handles as handles;
     use std::sync::Arc;
@@ -106,6 +106,47 @@ mod tests {
         let loaded = nyash_map_slot_load_hi_alias(handle, -72001);
         assert_eq!(loaded, object);
         assert_eq!(nyash_object_type_id_h(loaded), type_id);
+    }
+
+    #[test]
+    fn slot_load_hi_keeps_negative_carrier_bits_without_sign_inference() {
+        let handle = new_map_handle();
+        let type_id = 710_240_002;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+        let object = nyash_object_new_typed_hi(type_id, 1);
+        assert!(object < 0);
+
+        assert_eq!(nyash_map_slot_store_hih_alias(handle, -72011, object), 1);
+        handles::with_handle(handle as u64, |map| {
+            let map = map
+                .expect("map handle")
+                .as_any()
+                .downcast_ref::<MapBox>()
+                .expect("MapBox");
+            map.insert_key_str("-72012".to_string(), Box::new(IntegerBox::new(object)));
+        });
+
+        let object_carrier = nyash_map_slot_load_hi_alias(handle, -72011);
+        let scalar_carrier = nyash_map_slot_load_hi_alias(handle, -72012);
+        assert_eq!(object_carrier, scalar_carrier);
+        assert_eq!(nyash_object_type_id_h(object_carrier), type_id);
+    }
+
+    #[test]
+    fn slot_load_hi_materializes_borrowed_string_after_source_drop() {
+        let _guard = crate::test_support::handle_registry_test_lock();
+        let handle = new_map_handle();
+        let value_handle = string_handle("borrowed-map-slot");
+
+        assert_eq!(
+            nyash_map_slot_store_hih_alias(handle, -72021, value_handle),
+            1
+        );
+        handles::drop_handle(value_handle as u64);
+
+        let loaded = nyash_map_slot_load_hi_alias(handle, -72021);
+        assert!(loaded > 0);
+        assert_eq!(decode_string_from_handle(loaded), "borrowed-map-slot");
     }
 
     #[test]

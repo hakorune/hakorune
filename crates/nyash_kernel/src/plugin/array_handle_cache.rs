@@ -1,6 +1,6 @@
 use super::handle_cache::{cache_store, with_cache_entry};
 use super::value_codec::{
-    runtime_i64_from_scalar_checked_box_ref_caller, BorrowedAliasEncodeCaller,
+    encode_runtime_value_carrier, RuntimeValueCarrierMode, RuntimeValueCarrierSite,
 };
 use super::value_demand::ARRAY_GENERIC_GET_ENCODED;
 use nyash_rust::{box_trait::NyashBox, boxes::array::ArrayBox, runtime::host_handles as handles};
@@ -56,18 +56,10 @@ impl<'a> ArrayTextSession<'a> {
 #[inline(always)]
 fn encode_array_item_to_i64(item: &dyn NyashBox) -> i64 {
     let _demand = ARRAY_GENERIC_GET_ENCODED;
-    // Keep scalar/bool before borrowed-handle reuse so immediate classes stay canonical.
-    if let Some(iv) = item.as_i64_fast() {
-        return iv;
-    }
-    if let Some(bv) = item.as_bool_fast() {
-        return if bv { 1 } else { 0 };
-    }
-    // Borrowed alias reuse policy lives in value_codec so array/string/map reads
-    // share the same live-source vs cached-handle boundary.
-    runtime_i64_from_scalar_checked_box_ref_caller(
+    encode_runtime_value_carrier(
         item,
-        BorrowedAliasEncodeCaller::ArrayGetIndexEncoded,
+        RuntimeValueCarrierMode::MixedI64OrHandle,
+        RuntimeValueCarrierSite::ArraySlotLoad,
     )
 }
 
