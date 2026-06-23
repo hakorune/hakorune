@@ -1,6 +1,6 @@
 # 296x-1648: Boxed Runtime Native Enum ABI
 
-Status: Active
+Status: Landed
 Date: 2026-06-23
 Token: BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 

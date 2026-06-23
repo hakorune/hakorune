@@ -21,6 +21,7 @@ lowering:
     -> order=Unobserved
     -> ElideToLeafProjection
     -> MapGetOption
+    -> OptionStringBox output
 ```
 
 This slice reuses the existing immutable leaf projection rule. It must not add
@@ -57,6 +58,9 @@ full_map_value_publication_claim = 0
 map_value_types_claim = 0
 map_literal_value_types_claim = 0
 BTreeMap_iteration_order_claim = 0
+general_option_payload_claim = 0
+boxed_i64_payload_claim = 0
+producer_side_emit_string_conversion = 0
 ```
 
 ## Acceptance
@@ -65,6 +69,8 @@ BTreeMap_iteration_order_claim = 0
 type_context_string_literal.hako regenerates deterministically
 MapGetOption is reused
 new production operation kind = 0
+focused guard:
+  bash tools/checks/rust_lifecycle_type_context_string_literal_derived_artifact_guard.sh
 focused MIR/EXE/LLVM-AOT harness green
 converter matrix green
 no silent hardcode guard green

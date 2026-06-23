@@ -46,6 +46,7 @@ artifact_manifest_checked_in=1
 deterministic_regeneration=green
 generated_hako_parse=green
 generated_hako_mir_emit=green
+generated_hako_exe_aot_claim=0
 generated_hako_exe_aot=skipped_pending_boxed_i64_payload
 borrow_lowering_decision=ElideToLeafProjection
 raw_aggregate_return=0

@@ -509,13 +509,14 @@ The active rule table uses shape names, not family names.
 | `scalar_counter_context` | `InitFieldConst`, `TakeThenSaturatingIncrementU32`, `ReturnI64` | landed |
 | `owned_map_carrier_projection` | `CarrierSnapshotFromOwnedMap`, `ExplicitCarrierSnapshotFromOwnedMap` | landed |
 | `map.optional_copy_default` | `NewMap`, `MapGetOption`, `MapSet`, `ReturnDefaultIfMissing` | landed |
-| `map.optional_owned_atom` | `MapGetOption`, `MapSet`, `MapClear` | landed |
+| `map.optional_immutable_atom` | `MapGetOption`, `MapSet`, `MapClear` | landed |
 | `aggregate.take_restore_with_defaults` | `MoveFieldAndResetSource`, `AssertNotConsumed`, `MarkConsumed` | landed |
 | `control.structured_loop_without_carried_state` | `StructuredLoop`, `ArrayPush`, `Assign`, `ReturnI64` | landed |
 | `control.single_scalar_loop_carrier` | `StructuredLoop`, `Assign`, `ReturnSource` | landed |
 | `control.canonical_explicit_phi` | `ExplicitPhiI64`, `ReturnSource` | landed |
 | `control.multi_carrier_exit_phi` | `ExplicitMultiExitPhiI64Array`, `ReturnSource` | landed |
-| `borrow.leaf_projection` | `MapGetOption`, `SequenceLastOption` | active |
+| `map.immutable_leaf_projection` | `MapGetOption` | active |
+| `borrow_use.sequence_last_copy` | `SequenceLastOption` | landed |
 | `borrow.read_fold` | map/sequence fold into owned output | queued |
 
 Do not create rules like `type_context.value_kind_map_context`; that is a
@@ -683,6 +684,9 @@ crate-wide generated-to-native authority cutover
 variable_map_mut raw alias
 live read-view / lease framework
 general Drop / RAII lowering
+Option<i64> / boxed scalar payload ABI
+general Option payload support
+InlineRecord / packed / SoA SlotMetadata transport
 nightly rustc adapter for easy-tier families
 runtime try-Hako-then-Rust fallback
 new Hako pointer syntax
@@ -772,21 +776,8 @@ Parked task order when perf/backend work reopens:
 Do not block MirBuilder migration on this backlog. Do not add Hako syntax for
 fast paths. Backend facts must be consumed by lowering before claiming speed.
 
-## Completion Estimate
+## Completion Boundary
 
-Short-term active read-borrow sequence:
-
-```text
-value-caller clone elimination:
-  1 commit
-
-metadata caller owned read-fold:
-  1-2 commits
-
-variable-map ordered observer fold:
-  2-4 commits, because TypeContext cross-read facts must be verified
-```
-
-Remaining MirBuilder-wide selfhost work still includes mutable alias, Drop,
-unsafe/FFI, and broader native adoption. Treat those as separate design stops,
-not hidden work inside the current aggregate-borrow lane.
+MirBuilder-wide selfhost still has mutable alias, Drop, unsafe/FFI, boxed scalar
+payloads, and broader native adoption parked as explicit design stops. Do not
+hide them inside the current leaf-projection lane.

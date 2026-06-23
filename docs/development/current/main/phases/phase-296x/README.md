@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-06-09
+Date: 2026-06-24
 Scope: phase-296x current docs pointers and mimalloc history index.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -39,9 +39,8 @@ docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
 docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
 ```
 
-The active lane is named by `CURRENT_STATE.toml`. As of the current pointer,
-the phase is back in the userbox/counter-heavy exact-front optimization lane
-selected by `296x-649`.
+The active lane, latest workstream card, latest implementation card, and
+current blocker are named by `CURRENT_STATE.toml`.
 
 Historical note: `MIM-PORT-FMEM-005` and `MIM-PORT-FMEM-006` are already Done.
 They are not the next active implementation row. They remain useful as narrow
