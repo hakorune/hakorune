@@ -189,6 +189,14 @@ new Hako pointer or borrow syntax
    no OrderedMapBox / RegionObserver special cases
    ```
 
+   Status: landed.
+
+   Evidence:
+
+   ```bash
+   bash tools/checks/rust_lifecycle_text_order_rust_string_ord_v1_guard.sh
+   ```
+
 3. `Use total text ordering in OrderedMapBox`
 
    ```text
@@ -198,6 +206,8 @@ new Hako pointer or borrow syntax
    clone_owned
    clear
    ```
+
+   Status: current.
 
 4. `Lower RegionObserver through verified source-ordered read-fold`
 
@@ -211,7 +221,9 @@ new Hako pointer or borrow syntax
 
 ## Current Stop Line
 
-Until task 2 proves comparator execution:
+Comparator execution is proven, but source-ordered read-fold generation remains
+closed until OrderedMapBox consumes the capability and RegionObserver lowering
+is verified:
 
 ```text
 source_ordered_read_fold_claim=0

@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001
+  USE-TOTAL-TEXT-ORDERING-IN-ORDEREDMAPBOX-001
 
 current implementation task:
-  Implement CompareTotal(RustStringOrdV1) with VM / EXE / AOT acceptance
+  Use total text ordering in OrderedMapBox
 
 selected source slice:
   variable_map().iter() observer fold
@@ -87,7 +87,7 @@ Current mechanical status:
 ```text
 region-observer variable_map read-fold route = Deny
 generated_hako = 0
-next step = implement backend-accepted total text ordering capability
+next step = use TextOrder.compare_rust_string_v1 in OrderedMapBox
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -111,7 +111,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.5. `Implement backend-accepted total text ordering capability`
 
-   Status: current.
+   Status: landed.
 
    Scope:
 
@@ -129,6 +129,24 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    runtime fallback
    locale-dependent compare
    ```
+
+0.6. `Use total text ordering in OrderedMapBox`
+
+   Status: current.
+
+   Scope:
+
+   ```text
+   OrderedMapBox.set uses TextOrder.compare_rust_string_v1
+   b, a, args -> a, args, b
+   update existing key
+   remove
+   clone_owned
+   clear
+   ```
+
+   This consumes the generic comparator capability from `apps/lib/collections`
+   without adding backend branches or RegionObserver-specific policy.
 
 1. `Generalize access capabilities through value-caller clone elimination`
 

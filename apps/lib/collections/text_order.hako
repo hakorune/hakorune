@@ -1,0 +1,16 @@
+// TextOrder -- explicit total text ordering capability owner.
+//
+// This is generic collection/order support. It must not depend on specific
+// collection boxes, observers, or Rust-to-Hako family names.
+
+static box TextOrder {
+    compare_rust_string_v1(a: StringBox, b: StringBox) {
+        if a == b {
+            return 0
+        }
+        if a < b {
+            return -1
+        }
+        return 1
+    }
+}

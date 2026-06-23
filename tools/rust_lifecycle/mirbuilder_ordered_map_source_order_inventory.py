@@ -19,7 +19,7 @@ REFERENCE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle
 def inventory_ordered_map_source_order() -> dict[str, Any]:
     task_order = TASK_ORDER.read_text()
 
-    require("IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001" in task_order, "active blocker missing")
+    require("USE-TOTAL-TEXT-ORDERING-IN-ORDEREDMAPBOX-001" in task_order, "active blocker missing")
     require("KeyAscending(RustStringOrdV1)" in task_order, "structured order fact missing")
     require("UnsupportedOrderCapability" in task_order, "order capability deny missing")
 

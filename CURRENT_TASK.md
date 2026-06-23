@@ -33,13 +33,14 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001
+USE-TOTAL-TEXT-ORDERING-IN-ORDEREDMAPBOX-001
 ```
 
 Next task:
 
 ```text
-Implement CompareTotal(RustStringOrdV1) with VM / EXE / AOT acceptance.
+Replace OrderedMapBox local string comparison with TextOrder.compare_rust_string_v1
+and keep ordered-map behavior green.
 
 Do not add OrderedMapBox / RegionObserver backend special cases.
 Do not generate the RegionObserver artifact until comparator proof is green.

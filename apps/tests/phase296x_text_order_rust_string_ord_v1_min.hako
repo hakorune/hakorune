@@ -1,0 +1,33 @@
+using apps.lib.collections.text_order as TextOrder
+
+static box Main {
+    main() {
+        if TextOrder.compare_rust_string_v1("a", "a") != 0 {
+            print("text_order_eq=fail")
+            return 1
+        }
+        if TextOrder.compare_rust_string_v1("a", "b") != -1 {
+            print("text_order_lt=fail")
+            return 2
+        }
+        if TextOrder.compare_rust_string_v1("b", "a") != 1 {
+            print("text_order_gt=fail")
+            return 3
+        }
+        if TextOrder.compare_rust_string_v1("a", "args") != -1 {
+            print("text_order_prefix_short=fail")
+            return 4
+        }
+        if TextOrder.compare_rust_string_v1("args", "a") != 1 {
+            print("text_order_prefix_long=fail")
+            return 5
+        }
+        if TextOrder.compare_rust_string_v1("z", "é") != -1 {
+            print("text_order_non_ascii=fail")
+            return 6
+        }
+
+        print("text_order_rust_string_ord_v1=ok")
+        return 0
+    }
+}
