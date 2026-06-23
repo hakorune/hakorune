@@ -944,8 +944,8 @@ Then reassess control-flow slices:
 Alias/lifecycle remains last:
 
 ```text
-6. immutable leaf borrow projection
-7. aggregate returned read borrow
+6. immutable leaf borrow projection (closed)
+7. aggregate returned read borrow (next)
 8. returned mutable borrow
 9. nontrivial Drop
 ```

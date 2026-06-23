@@ -1,0 +1,23 @@
+{
+  "excluded_methods": [
+    "MetadataContext::record_value_caller",
+    "MetadataContext::value_origin_callers",
+    "MetadataContext::current_region_stack"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "MetadataContextApi.value_caller(ctx, value_id)",
+      "hako_operation": "MapGetOption",
+      "id": "MetadataContext::value_caller",
+      "rust_operation": "HashMap::get map as_str"
+    }
+  ],
+  "pilot_scope": "MetadataContext_value_caller_only",
+  "schema_version": 0,
+  "selected_body_count": "value_caller_method_only",
+  "source_oracle": "metadata-context-value-caller-oracle-v0.json",
+  "source_plan": "metadata-context-value-caller-plan-v0.json",
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.value_caller"
+}

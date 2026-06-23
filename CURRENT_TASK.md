@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-IMMUTABLE-LEAF-BORROW-PROJECTION-001
+AGGREGATE-RETURNED-READ-BORROW-001
 ```
 
 Next task:
 
 ```text
-Implement immutable leaf borrow projection.
+Decide aggregate returned read borrow handling.
 ```
 
 Purpose:
@@ -185,9 +185,10 @@ Done:
   single scalar loop carrier direct conversion
   canonical explicit PHI direct conversion
   multi-carrier exit PHI direct conversion
+  immutable leaf borrow projection
 
 Next:
-  Implement immutable leaf borrow projection.
+  Decide aggregate returned read borrow handling.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -213,7 +214,8 @@ Task sequence:
   17. Implement single scalar loop carrier. (closed)
   18. Implement canonical explicit PHI. (closed)
   19. Implement multi-carrier / break / continue / early-return PHI. (closed)
-  20. Implement immutable leaf borrow projection. (next)
+  20. Implement immutable leaf borrow projection. (closed)
+  21. Decide aggregate returned read borrow handling. (next)
 ```
 
 Current cleanup slice:

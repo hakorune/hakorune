@@ -16,6 +16,7 @@ from mirbuilder_explicit_phi_converter import compile_canonical_explicit_phi_met
 from mirbuilder_metadata_scalar_converter import compile_scalar_option_atom_methods
 from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
 from mirbuilder_optional_map_converter import (
+    compile_immutable_leaf_projection_map_methods,
     compile_optional_copy_default_map_methods,
     compile_optional_immutable_atom_map_methods,
     compile_optional_owned_recursive_enum_map_methods,
@@ -94,6 +95,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["map.optional_owned_recursive_enum"],
         ),
         description="map get-option/set with owned recursive enum projection",
+    ),
+    "map.immutable_leaf_projection": DirectShapeRule(
+        shape="map.immutable_leaf_projection",
+        lower=lambda facts, plan: compile_immutable_leaf_projection_map_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["map.immutable_leaf_projection"],
+        ),
+        description="get-only map projection from immutable leaf borrow to owned atom",
     ),
     "metadata.scalar_option_atom": DirectShapeRule(
         shape="metadata.scalar_option_atom",

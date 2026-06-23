@@ -1,0 +1,32 @@
+{
+  "direct_shape": {
+    "map.immutable_leaf_projection": {
+      "field_name": "value_origin_callers",
+      "get_signature": "value_caller(ctx, value_id): Option<StringBox>",
+      "key_arg": "value_id",
+      "method_ids": {
+        "get": "MetadataContext::value_caller",
+        "new": "MetadataContext::new"
+      },
+      "type_name": "MetadataContext"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "concrete_instantiation": "MetadataContext<i64, i64>",
+      "id": "MetadataContext",
+      "plan_kind": "LocalBox",
+      "shape_rule": "map.immutable_leaf_projection"
+    },
+    {
+      "id": "MetadataContext.value_origin_callers",
+      "key_transport": "ValueIdAsI64",
+      "plan_kind": "MapBox",
+      "shape_rule": "map.immutable_leaf_projection",
+      "value_transport": "ImmutableStringAtom"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.value_caller"
+}

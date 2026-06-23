@@ -1,0 +1,26 @@
+{
+  "kind": "RustOracleVectors",
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.value_caller",
+  "vectors": [
+    {
+      "name": "value_caller_leaf_projection",
+      "operations": [
+        {
+          "op": "prefill_value_caller",
+          "value_id": 7,
+          "caller": "main.hako:1:2"
+        },
+        {
+          "expected": "main.hako:1:2",
+          "op": "value_caller_some",
+          "value_id": 7
+        },
+        {
+          "op": "value_caller_none",
+          "value_id": 99
+        }
+      ]
+    }
+  ]
+}

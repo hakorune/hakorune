@@ -220,3 +220,64 @@ def compile_optional_owned_recursive_enum_map_methods(
             operations=[op("MapSet", field=field_name, key=key_arg, value=value_arg, storage="MapBox")],
         ),
     ]
+
+
+def compile_immutable_leaf_projection_map_methods(
+    facts: dict[str, Any],
+    plan: dict[str, Any],
+    *,
+    type_name: str,
+    field_name: str,
+    key_arg: str,
+    method_ids: dict[str, str],
+    get_signature: str,
+) -> list[HakoMethodIR]:
+    """Compile a get-only immutable leaf borrow projection.
+
+    This rule is for Rust `Option<&str>`-style reads where the returned leaf is
+    projected to an owned/immutable Hako atom and the containing map never
+    escapes. Mutating or formatting producers stay outside this rule.
+    """
+
+    body_facts = _body_facts_by_id(facts)
+    for method_key, operation in [
+        ("new", "NewMap"),
+        ("get", "MapGetOption"),
+    ]:
+        method_id = method_ids.get(method_key)
+        if method_id is None:
+            raise ValueError(f"Deny(UnsupportedDirectShape): missing method id {method_key}")
+        _require_body(body_facts, method_id, operation=operation, field=field_name)
+
+    get_fact = body_facts[method_ids["get"]]
+    if get_fact.get("value_projection") != "ImmutableStringAtom":
+        raise ValueError("Deny(UnsupportedTypeTransport): expected immutable string projection")
+    if get_fact.get("returned_aggregate_alias") is not False:
+        raise ValueError("Deny(ReturnedReadBorrow): aggregate alias must not escape")
+
+    field_facts = {row["id"]: row for row in facts.get("field_facts", [])}
+    field_fact = field_facts.get(f"{type_name}.{field_name}")
+    if field_fact is None:
+        raise ValueError("Deny(UnsupportedDirectShape): missing field fact")
+    if field_fact.get("key_transport") != "ValueIdAsI64":
+        raise ValueError("Deny(UnsupportedKeyTransport): expected ValueIdAsI64")
+    if field_fact.get("value_transport") != "ImmutableStringAtom":
+        raise ValueError("Deny(UnsupportedTypeTransport): expected ImmutableStringAtom")
+    if field_fact.get("map_identity_escapes") is not False:
+        raise ValueError("Deny(ReturnedReadBorrow): map identity must not escape")
+
+    plan_entries = {row["id"]: row for row in plan.get("plans", [])}
+    field_plan = plan_entries.get(f"{type_name}.{field_name}")
+    if field_plan is None or field_plan.get("plan_kind") != "MapBox":
+        raise ValueError("Deny(UnsupportedTypeTransport): expected MapBox field plan")
+    if field_plan.get("shape_rule") != "map.immutable_leaf_projection":
+        raise ValueError("Deny(UnsupportedDirectShape): expected map.immutable_leaf_projection")
+    if field_plan.get("value_transport") != "ImmutableStringAtom":
+        raise ValueError("Deny(UnsupportedTypeTransport): expected ImmutableStringAtom plan")
+
+    return [
+        HakoMethodIR(
+            signature=get_signature,
+            operations=[op("MapGetOption", field=field_name, key=key_arg, storage="MapBox")],
+        ),
+    ]

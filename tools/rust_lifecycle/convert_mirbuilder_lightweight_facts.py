@@ -14,6 +14,7 @@ from mirbuilder_carrier_snapshot_artifacts import (
 from mirbuilder_explicit_phi_artifacts import run_explicit_phi_artifact_generator
 from mirbuilder_family_artifacts import run_mirbuilder_family_artifact_generator
 from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_scalar_artifact_generator
+from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
 from mirbuilder_multi_exit_phi_artifacts import run_multi_exit_phi_artifact_generator
 from mirbuilder_single_scalar_loop_carrier_artifacts import run_single_scalar_loop_carrier_artifact_generator
 from mirbuilder_structured_loop_artifacts import run_structured_loop_artifact_generator
@@ -29,6 +30,7 @@ FAMILY_GENERATORS = {
     "canonical-explicit-phi": run_explicit_phi_artifact_generator,
     "core-context": lambda *, check: run_mirbuilder_family_artifact_generator("core_context", check=check),
     "metadata-context-scalar-source-file": run_metadata_context_scalar_artifact_generator,
+    "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
     "multi-carrier-exit-phi": run_multi_exit_phi_artifact_generator,
     "single-scalar-loop-carrier": run_single_scalar_loop_carrier_artifact_generator,
     "structured-loop-without-carried-state": run_structured_loop_artifact_generator,

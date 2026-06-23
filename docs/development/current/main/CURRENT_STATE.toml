@@ -265,15 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MULTI-CARRIER-EXIT-PHI-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1635-MIRBUILDER-MULTI-CARRIER-EXIT-PHI-001.md"
+latest_card = "MIRBUILDER-IMMUTABLE-LEAF-BORROW-PROJECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1636-MIRBUILDER-IMMUTABLE-LEAF-BORROW-PROJECTION-001.md"
 latest_card_summary = """The MirBuilder Rust-to-Hako converter now has a
-typed direct-shape pilot for explicit break/continue/early-return exits with
-two i64 carriers. The generated artifact is deterministic and passes MIR/EXE
-execution. Missing exits, carrier arity drift, and carrier escape remain
-fail-fast boundaries."""
+generic immutable leaf borrow projection rule. MetadataContext::value_caller
+is converted as Option<&str> to Option<StringBox> without returning the
+aggregate caller map. The generated artifact is deterministic and passes
+MIR/EXE execution while record_value_caller and aggregate returned borrows
+remain out of scope."""
 
-current_blocker_token = "IMMUTABLE-LEAF-BORROW-PROJECTION-001"
+current_blocker_token = "AGGREGATE-RETURNED-READ-BORROW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
