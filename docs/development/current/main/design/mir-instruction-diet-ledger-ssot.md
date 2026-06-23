@@ -2,10 +2,12 @@
 Status: SSOT
 Scope: MirInstruction の kept / lowered-away / removed 台帳（C7b）と lowered-away 実体0化フロー
 Decision: accepted (ledger + zero-state)
-Updated: 2026-02-12
+Updated: 2026-06-23
 Related:
 - src/mir/instruction.rs
 - src/mir/contracts/backend_core_ops.rs
+- docs/reference/mir/INSTRUCTION_SET.md
+- docs/reference/mir/json_v0.schema.json
 - src/mir/verification/legacy.rs
 - docs/development/current/main/design/mir-vm-llvm-instruction-contract-fix-ssot.md
 ---
@@ -24,22 +26,27 @@ Related:
 分類根拠は以下3点のみを使う。
 
 1. Enum実体
-   `src/mir/instruction.rs`（28 variants）
+   `src/mir/instruction.rs`（35 kept variants）
 2. Backend contract allowlist
    `src/mir/contracts/backend_core_ops.rs`
 3. Legacy rewrite / reject policy
    `src/mir/verification/legacy.rs` (`check_no_legacy_ops`)
+4. Human-facing instruction SSOT
+   `docs/reference/mir/INSTRUCTION_SET.md`
+5. MIR JSON validator schema
+   `docs/reference/mir/json_v0.schema.json`
 
-## Current Contract Snapshot (2026-02-12)
+## Current Contract Snapshot (2026-06-23)
 
-`backend_core_ops` から機械抽出した現状の受理集合。
+`backend_core_ops` と `INSTRUCTION_SET.md` の機械可読countが現状の
+同期対象。
 
-| Cohort | Count | Members |
-|---|---:|---|
-| JSON ∩ VM（両方で受理） | 14 | `BinOp, Branch, Call, Compare, Const, Copy, Jump, KeepAlive, NewBox, ReleaseStrong, Return, TypeOp, UnaryOp, WeakRef` |
-| JSON only | 1 | `Phi` |
-| VM only | 9 | `Await, Barrier, Debug, FutureNew, FutureSet, Load, Safepoint, Select, Store` |
-| JSON/VMとも未受理 | 4 | `Catch, NewClosure, RefNew, Throw` |
+| Cohort | Count |
+|---|---:|
+| kept | 35 |
+| lowered-away | 0 |
+| removed | 16 |
+| vocabulary | 51 |
 
 運用注記（2026-03）:
 - `Catch/Throw` は語彙としては kept だが、selfhost/mainline の日常 lane では `NYASH_TRY_RESULT_MODE=1` に pin して legacy MIR `Catch/Throw` 実行を使わない。
@@ -47,9 +54,10 @@ Related:
 
 ## Ledger Decision (accepted)
 
-### kept (28)
+### kept (35)
 
-`Await, Barrier, BinOp, Branch, Call, Catch, Compare, Const, Copy, Debug, FutureNew, FutureSet, Jump, KeepAlive, Load, NewBox, NewClosure, Phi, RefNew, ReleaseStrong, Return, Safepoint, Select, Store, Throw, TypeOp, UnaryOp, WeakRef`
+The authoritative list is
+`src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
 
 ### lowered-away (0)
 
@@ -71,6 +79,49 @@ Related:
 - C7c（cohort drift check / SSOT参照化）: Done
 - C7d1..C7d12（1語彙ずつ移送）: Done
 - C7z（enum remove + 参照除去）: Done
+
+## Follow-up Task Order (2026-06)
+
+GLM review finding is accepted:
+
+```text
+doc <-> backend_core_ops ledger sync is covered
+JSON schema <-> ledger sync is not covered
+backend_core_ops.rs mixes tag/cohort, backend policy, ledger, and tests
+doc/schema are manually maintained rather than derived from enum truth
+```
+
+Task order:
+
+1. `MIR-INSTRUCTION-SCHEMA-SYNC-P1`
+
+   Add `docs/reference/mir/json_v0.schema.json` to the existing sync test loop.
+   The first slice should only prove `doc <-> ledger <-> schema` cannot drift.
+   If the schema remains permissive (`kind: string`) for compatibility, the
+   test must fail-fast with an explicit `schema_op_enum_missing` diagnostic
+   rather than silently treating the schema as synchronized.
+
+2. `MIR-INSTRUCTION-DERIVED-DOC-SCHEMA-P2`
+
+   Only if MIR instruction vocabulary keeps changing, introduce a generator
+   that derives the machine-readable part of `INSTRUCTION_SET.md` and
+   `json_v0.schema.json` from enum/ledger truth. Do not add this before P1.
+
+3. `MIR-BACKEND-CORE-OPS-OWNER-SPLIT-P3`
+
+   Split `backend_core_ops.rs` only after P1 is green or the file becomes
+   hard to extend. Target ownership:
+   - instruction tag/cohort near enum/introspection truth
+   - backend allowlist policy in a policy box
+   - tests outside the policy owner
+
+Non-goal:
+
+```text
+Do not add a generator just to satisfy a one-time sync gap.
+Do not make JSON schema a new independent instruction source.
+Do not split backend_core_ops.rs in the same commit as schema sync.
+```
 
 ## Lowered-away 実体0化フロー（SSOT）
 
@@ -128,9 +179,9 @@ git diff --check
 
 ## Acceptance Criteria
 
-1. `MirInstruction` 28語彙 + `removed` 16語彙が `kept/lowered-away/removed` のいずれか1つに属する。
+1. `MirInstruction` 35語彙 + `removed` 16語彙が `kept/lowered-away/removed` のいずれか1つに属する。
 2. `MIR_INSTRUCTION_LOWERED_AWAY_TAGS` は空配列である。
-3. `instruction_diet_ledger_counts_match_ssot` が `kept=28/lowered-away=0/removed=16/vocabulary=44` を固定する。
+3. `instruction_diet_ledger_counts_match_ssot` が `kept=35/lowered-away=0/removed=16/vocabulary=51` を固定する。
 4. `check_no_legacy_ops` が独自matchを持たず `lowered_away_tag` を参照する。
 5. `src`/`tests` に `MirInstruction::ArrayGet|ArraySet|RefGet|RefSet` 参照が存在しない。
 6. `mir_no_lowered_away_emitters.sh` が PASS する。
