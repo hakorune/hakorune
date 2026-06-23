@@ -43,13 +43,9 @@ selected lowering:
     -> OptionStringBox output
 
 landed evidence:
-  RegionObserver SlotMetadata generated artifact is LLVM/AOT green. The final
-  transport blocker was generic mixed runtime value publication. MapBox and
-  ArrayBox now share an explicit RuntimeValueCarrierI64 encode contract, and
-  stale NyRT AOT artifacts fail before execution. Generic method route
-  descriptors are generated from `spec/mir/generic_method_routes.toml` for
-  Rust, C, and Python consumers. Descriptor-backed mismatch helpers now report
-  the first mismatched route tuple field.
+  RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
+  stale NyRT fail-fast, generated route descriptors, route mismatch
+  diagnostics, and generic read-fold decomposition are landed.
 
 selected next owner:
   TypeContext.string_literals: BTreeMap<ValueId, String>
@@ -101,12 +97,10 @@ MIR/EXE/LLVM-AOT focused guard green
 Current mechanical status:
 
 ```text
-region-observer variable_map read-fold route = native enum / boxed product WIP
 comparator proof = VmExeAotAccepted
-slot_metadata_output_transport_claim = selected
-generated_hako = RegionObserver LLVM/AOT green
-  boxed_runtime_v1 make/tag/project = landed
-  boxed enum MapBox/Option round trip = landed
+region_observer_slot_metadata = LLVM/AOT green
+boxed_runtime_v1_make_tag_project = landed
+boxed_enum_mapbox_option_roundtrip = landed
 slot_classifier_policy = verified operation data
 collection_runtime_value_carrier = landed for MapBox and ArrayBox
 nyrt_freshness_fail_fast = landed for --no-build AOT harness
@@ -690,6 +684,20 @@ InlineRecord / packed / SoA SlotMetadata transport
 nightly rustc adapter for easy-tier families
 runtime try-Hako-then-Rust fallback
 new Hako pointer syntax
+```
+
+## Task Hygiene Backlog
+
+Keep this lane separate from semantic converter slices:
+
+```text
+landed: guard表示の false-green 修正
+landed: current docs を thin pointer 化
+queued: task-order SSOT を active next 3 + parked index へ圧縮
+queued: mirbuilder_family_artifacts.py 分割
+  boundary=behavior_preserving_split_only
+queued: leaf projection validator 二重化を整理
+  boundary=one validator owns map.immutable_leaf_projection acceptance
 ```
 
 ## MIR Instruction SSOT Cleanup Backlog
