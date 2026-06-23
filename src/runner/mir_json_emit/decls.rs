@@ -147,7 +147,7 @@ mod boxed_sum_abi_tests {
             crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1 {
                 plan_id: 0,
                 enum_name: "ProbeKind".to_string(),
-                runtime_type_id: 0,
+                runtime_type_id: crate::mir::boxed_sum_abi_plan::BOXED_SUM_RUNTIME_TYPE_ID_BASE,
                 runtime_box_name: "__NyVariant_ProbeKind".to_string(),
                 tag_storage: crate::mir::boxed_sum_abi_plan::BOXED_SUM_TAG_STORAGE_I64,
                 variants: vec![crate::mir::boxed_sum_abi_plan::BoxedSumAbiVariantPlan {

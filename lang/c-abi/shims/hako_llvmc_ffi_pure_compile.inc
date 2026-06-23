@@ -546,6 +546,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       #include "hako_llvmc_ffi_compiler_state.inc"
       #include "hako_llvmc_ffi_typed_object_plan.inc"
+      #include "hako_llvmc_ffi_boxed_sum_abi_plan.inc"
       #include "hako_llvmc_ffi_object_storage_plan.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<ARR_LEN(phis)){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } note_generic_capacity_overflow("generic_phi_block_inventory_full"); return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }

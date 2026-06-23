@@ -608,6 +608,17 @@
             yyjson_doc_free(d);
             goto GEN_ABORT;
           }
+          if (!emit_boxed_sum_abi_layout_registrations(f)) {
+            note_pure_unsupported_shape(
+                -1,
+                0,
+                "boxed_sum_abi_layout",
+                "boxed_sum_abi_layout_registration_failed",
+                NULL);
+            fclose(f);
+            yyjson_doc_free(d);
+            goto GEN_ABORT;
+          }
           emit_hoisted_string_const_defs(f);
         }
         yyjson_val* insts = block.instructions;

@@ -11,6 +11,7 @@ use crate::mir::{MirEnumDecl, MirModule};
 
 pub const BOXED_SUM_ABI_VERSION_V1: &str = "boxed_runtime_v1";
 pub const BOXED_SUM_TAG_STORAGE_I64: &str = "i64";
+pub const BOXED_SUM_RUNTIME_TYPE_ID_BASE: u32 = 700_000;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BoxedSumPayloadStorage {
@@ -58,7 +59,7 @@ pub fn build_boxed_sum_abi_plans(module: &MirModule) -> Vec<BoxedSumAbiPlanV1> {
         .map(|(index, mut plan)| {
             let plan_id = index as u32;
             plan.plan_id = plan_id;
-            plan.runtime_type_id = plan_id;
+            plan.runtime_type_id = BOXED_SUM_RUNTIME_TYPE_ID_BASE + plan_id;
             plan
         })
         .collect()
@@ -124,7 +125,7 @@ mod tests {
         let plans = build_boxed_sum_abi_plans(&module);
         assert_eq!(plans.len(), 1);
         assert_eq!(plans[0].plan_id, 0);
-        assert_eq!(plans[0].runtime_type_id, 0);
+        assert_eq!(plans[0].runtime_type_id, BOXED_SUM_RUNTIME_TYPE_ID_BASE);
         assert_eq!(plans[0].enum_name, "ProbeKind");
         assert_eq!(plans[0].runtime_box_name, "__NyVariant_ProbeKind");
         assert_eq!(plans[0].tag_storage, BOXED_SUM_TAG_STORAGE_I64);
