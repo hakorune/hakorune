@@ -265,20 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-AGGREGATE-BORROW-USE-ELIMINATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1637-MIRBUILDER-AGGREGATE-BORROW-USE-ELIMINATION-001.md"
-latest_card_summary = """The MirBuilder Rust-to-Hako converter now uses the
-Option A+ aggregate-borrow contract: standalone aggregate returned borrows
-remain Deny(ReturnedReadBorrow), while known call-local consumers can eliminate
-the borrow. MetadataContext current_region_stack().last().copied() is lowered
-to current_parent_region(ctx): Option<i64> without returning ArrayBox or adding
-read-view / lease semantics. The next slice keeps this as source-language
-normalization into StorageAccessFacts, not new Hako pointer syntax.
-MetadataContext value_origin_callers get/cloned now normalizes
-BorrowUseFacts through StorageAccessFacts before ElideToLeafProjection. The
-next slice is value_origin_callers iter owned-copy read fold."""
+latest_card = "MIRBUILDER-MAPBOX-KEY-DOMAIN-READ-FOLD-ACCEPTANCE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1638-MIRBUILDER-MAPBOX-KEY-DOMAIN-READ-FOLD-ACCEPTANCE-001.md"
+latest_card_summary = """The MirBuilder Rust-to-Hako converter keeps the
+Option A+ aggregate-borrow contract. MetadataContext value_origin_callers
+get/cloned is closed through StorageAccessFacts and ElideToLeafProjection.
+The next read-fold slice is stopped on key-domain acceptance: MapBox.keys()
+exposes public text keys, and a naive fold would copy ValueId key 7 as string
+"7", breaking ValueIdAsI64 destination lookup. Do not paper over this by
+testing destination.get("7")."""
 
-current_blocker_token = "AGGREGATE-RETURNED-READ-BORROW-001"
+current_blocker_token = "MAPBOX-KEY-DOMAIN-READ-FOLD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

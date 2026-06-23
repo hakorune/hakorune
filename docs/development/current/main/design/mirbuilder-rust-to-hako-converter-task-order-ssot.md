@@ -18,10 +18,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  AGGREGATE-RETURNED-READ-BORROW-001
+  MAPBOX-KEY-DOMAIN-READ-FOLD-001
 
 current implementation task:
-  Implement owned read-fold for metadata caller copies
+  Resolve key-domain preserving read-fold for metadata caller copies
 
 selected source slice:
   value_origin_callers().iter() owned copy
@@ -30,6 +30,7 @@ required lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
+    -> preserve ValueId key domain while iterating
     -> ElideToReadFold
     -> owned output insert
 
@@ -45,7 +46,8 @@ Acceptance for the current task:
 
 ```text
 standalone value_origin_callers() conversion -> Deny(ReturnedReadBorrow)
-known iter owned-copy consumer -> ElideToReadFold
+known iter owned-copy consumer -> ElideToReadFold only after key domain is preserved
+ValueId key copied as i64, not public text
 raw aggregate alias = 0
 element reference escape = 0
 unknown consumer -> Deny(ReturnedReadBorrow)
@@ -76,7 +78,7 @@ rust_mirbuilder_converter_matrix_guard green
 
 2. `Implement owned read-fold for metadata caller copies`
 
-   Status: next.
+   Status: blocked by key-domain acceptance.
 
    Scope:
 
@@ -90,6 +92,22 @@ rust_mirbuilder_converter_matrix_guard green
    ```
 
    Do not expose a map view or public snapshot API for this slice.
+
+   Stop line:
+
+   ```text
+   MapBox.keys() exposes public text keys. A naive fold copies "7" as a
+   string key, so destination.get(7) misses and ValueIdAsI64 transport is
+   broken. Do not paper over this by looking up destination with "7".
+   ```
+
+   Required preceding decision:
+
+   ```text
+   Provide a key-domain preserving fold surface, choose a different storage
+   representation that preserves key equality, or Deny(UnsupportedKeyTransport)
+   for ValueId-key MapBox read-folds.
+   ```
 
 3. `Implement ordered observer fold for VariableContext`
 

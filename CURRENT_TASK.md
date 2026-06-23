@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-AGGREGATE-RETURNED-READ-BORROW-001
+MAPBOX-KEY-DOMAIN-READ-FOLD-001
 ```
 
 Next task:
 
 ```text
-Implement value_origin_callers iter owned-copy read fold.
+Resolve key-domain preserving read-fold acceptance for value_origin_callers().iter().
 ```
 
 Purpose:
@@ -190,7 +190,7 @@ Done:
   value_origin_callers get/cloned borrow-use elimination through StorageAccessFacts
 
 Next:
-  Implement value_origin_callers iter owned-copy read fold.
+  Resolve MapBox key-domain preserving read-fold acceptance.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -221,8 +221,9 @@ Task sequence:
   22. Implement current_region_stack last.copied borrow-use elimination. (closed)
   23. Implement value_origin_callers get/cloned borrow-use elimination and
       introduce the small StorageAccessFacts normalization seam. (closed)
-  24. Implement value_origin_callers iter owned-copy read fold. (next)
-  25. Implement variable_map iter observer read fold with source-ordered facts.
+  24. Resolve MapBox key-domain preserving read-fold acceptance. (next)
+  25. Implement value_origin_callers iter owned-copy read fold.
+  26. Implement variable_map iter observer read fold with source-ordered facts.
 ```
 
 Current cleanup slice:
