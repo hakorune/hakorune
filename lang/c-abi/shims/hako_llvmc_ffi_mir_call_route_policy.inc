@@ -70,6 +70,30 @@
         return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
       }
 
+      auto int lowering_plan_generic_method_receiver_origin_kind(
+          const struct LoweringPlanGenericMethodView* view) {
+        if (!(view && view->receiver_origin_box)) return ORG_NONE;
+        if (!strcmp(view->receiver_origin_box, "StringBox")) return ORG_STRING;
+        if (!strcmp(view->receiver_origin_box, "ArrayBox") ||
+            !strcmp(view->receiver_origin_box, "DirectArrayI64")) {
+          return ORG_ARRAY_BIRTH;
+        }
+        if (!strcmp(view->receiver_origin_box, "MapBox")) return ORG_MAP_BIRTH;
+        return ORG_NONE;
+      }
+
+      auto int classify_mir_call_generic_method_receiver_origin_from_lowering_plan_site(
+          long long bid,
+          size_t ii) {
+        yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanGenericMethodView view;
+        if (!plan_entry) return ORG_NONE;
+        if (!read_lowering_plan_generic_method_view(plan_entry, &view)) {
+          return ORG_NONE;
+        }
+        return lowering_plan_generic_method_receiver_origin_kind(&view);
+      }
+
       auto void apply_mir_call_generic_method_route_kind(
           enum MirCallGenericMethodRouteKind route_kind,
           struct GenericMethodRouteState* route) {
@@ -129,13 +153,12 @@
           long long recv) {
         struct GenericMethodRouteState route;
         enum MirCallGenericMethodRouteKind route_kind;
-        (void)bid;
-        (void)ii;
+        (void)recv;
         memset(&route, 0, sizeof(route));
-        route.recv_org = recv ? get_origin(recv) : ORG_NONE;
-        if (route.recv_org == ORG_NONE && recv) {
-          route.recv_org = get_scan_origin(recv);
-        }
+        route.recv_org =
+            classify_mir_call_generic_method_receiver_origin_from_lowering_plan_site(
+                bid,
+                ii);
         route_kind =
             classify_mir_call_generic_method_route_kind_from_lowering_plan_site(
                 bid,

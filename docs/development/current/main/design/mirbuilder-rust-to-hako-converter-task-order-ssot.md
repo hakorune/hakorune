@@ -120,6 +120,7 @@ mir_call_constructor_birth_fact_drain = landed
 mir_call_constructor_name_fallback_retired = landed
 mir_call_array_text_observer_need_drain = landed
 mir_call_generic_method_result_origin_drain = landed
+mir_call_generic_method_receiver_origin_drain = landed
 mir_call_array_string_birth_promotion_helper = landed
 mir_call_runtime_map_has_need_fallback_drain = landed
 mir_call_extern_result_origin_plan_drain = landed
