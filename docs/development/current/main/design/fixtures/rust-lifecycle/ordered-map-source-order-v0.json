@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderOrderedMapSourceOrderInventory",
+  "subject": "OrderedMapBox SourceOrdered String-key blocker",
+  "source": {
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "current_contract": "deny_source_ordered_read_fold",
+  "decision": [
+    "do not claim SourceOrdered read-fold until OrderedMapBox proves Rust BTreeMap<String> ordering",
+    "do not silently downgrade SourceOrdered to insertion order",
+    "do not add RegionObserver-specific key-order special cases"
+  ],
+  "supporting_evidence": [
+    "RegionObserver prototype inserted b, a, args and observed insertion order.",
+    "AOT implementation attempt using .hako string content comparison failed at OrderedMapBox.set/2 backend acceptance.",
+    "MIR-only success is insufficient for the converter acceptance target."
+  ],
+  "deny": {
+    "reason": "UnsupportedKeyTransport",
+    "detail": "SourceOrderedStringKeyCompareUnavailable"
+  },
+  "next_options": [
+    "add a backend-accepted StringBox lexical comparison route for OrderedMapBox",
+    "change the selected observer lowering so it does not require SourceOrdered map iteration"
+  ],
+  "stop_line": [
+    "source_ordered_read_fold_claim=0",
+    "runtime_fallback=0",
+    "insertion_order_substitution=0",
+    "region_observer_key_name_special_case=0"
+  ]
+}

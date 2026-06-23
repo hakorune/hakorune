@@ -33,15 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001
+SOURCE-ORDERED-READ-FOLD-ROUTE-SELECTION-001
 ```
 
 Next task:
 
 ```text
-Make OrderedMapBox String-key ordering match Rust BTreeMap<String> for selected
-ASCII names, or deny SourceOrdered read-fold conversion until that ordering is
-available.
+Choose the next route after SourceOrdered OrderedMapBox iteration was denied:
+either add a backend-accepted StringBox lexical comparison route, or change the
+selected observer lowering so it does not require SourceOrdered map iteration.
 ```
 
 Purpose:

@@ -265,17 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-VALUE-ENUM-CONSTRUCTOR-ACCEPTANCE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1641-MIRBUILDER-LOOP-VALUE-ENUM-CONSTRUCTOR-ACCEPTANCE-001.md"
-latest_card_summary = """The MirBuilder loop normalizer now accepts known enum
-constructor values through generic CoreEffectPlan::VariantMake and emits
-MirInstruction::VariantMake. This unblocks `ty == MirType::Box(...)` value
-lowering inside normalized loop bodies without RegionObserver/MirType-specific
-generator hardcoding. The RegionObserver ordered read-fold probe now stops at
-the next semantic blocker: OrderedMapBox must prove Rust BTreeMap<String>
-source ordering before SourceOrdered read-fold conversion can be claimed."""
+latest_card = "ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1642-ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001.md"
+latest_card_summary = """SourceOrdered OrderedMapBox iteration is denied
+until Rust BTreeMap<String> ordering can be proven through an EXE/AOT-accepted
+route. The RegionObserver probe must not silently substitute insertion order
+or add key-name special cases."""
 
-current_blocker_token = "ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001"
+current_blocker_token = "SOURCE-ORDERED-READ-FOLD-ROUTE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

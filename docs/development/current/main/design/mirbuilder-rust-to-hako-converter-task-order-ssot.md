@@ -18,10 +18,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001
+  SOURCE-ORDERED-READ-FOLD-ROUTE-SELECTION-001
 
 current implementation task:
-  Fix or deny SourceOrdered String-key OrderedMapBox iteration
+  Select the next route after SourceOrdered OrderedMapBox iteration was denied
 
 selected source slice:
   variable_map().iter() observer fold
@@ -40,6 +40,17 @@ blocker evidence:
   not prove Rust BTreeMap<String> ordering. SourceOrdered conversion must not
   silently downgrade to insertion order.
 
+current decision:
+  ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001 is closed as fail-closed.
+  SourceOrdered read-fold is denied with:
+    Deny(UnsupportedKeyTransport)
+    detail=SourceOrderedStringKeyCompareUnavailable
+
+next route choices:
+  1. Add a backend-accepted StringBox lexical comparison route for OrderedMapBox.
+  2. Change the selected observer lowering so it does not require SourceOrdered
+     map iteration.
+
 forbidden:
   raw aggregate map return
   read-view / lease framework
@@ -51,8 +62,7 @@ forbidden:
 Acceptance for the current task:
 
 ```text
-OrderedMapBox String keys match Rust BTreeMap<String> order for selected ASCII names
-or SourceOrdered read-fold conversion is denied before artifact generation
+SourceOrdered read-fold conversion is denied before artifact generation
 standalone value_origin_callers() conversion -> Deny(ReturnedReadBorrow)
 variable_map().iter() source has exact file:line evidence
 known ordered observer consumer -> ElideToReadFold only for live source
