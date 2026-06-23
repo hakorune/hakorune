@@ -686,6 +686,49 @@ runtime try-Hako-then-Rust fallback
 new Hako pointer syntax
 ```
 
+## MIR Instruction SSOT Cleanup Backlog
+
+This is a cleanup lane, not the active boxed enum ABI blocker.
+
+Current finding:
+
+```text
+instruction enum / backend ledger / INSTRUCTION_SET.md counts are partially
+sync-tested, but docs/reference/mir/json_v0.schema.json is not part of that
+sync contract.
+
+src/mir/contracts/backend_core_ops.rs also mixes:
+  instruction tag/cohort classification
+  per-backend support policy
+  ledger constants
+  sync tests
+```
+
+Task order:
+
+```text
+P1. Add JSON schema to MIR instruction SSOT sync coverage
+    - doc <-> ledger <-> json_v0.schema.json sync test
+    - no generator
+    - no backend behavior change
+
+P2. Generate doc machine-readable rows and JSON schema from enum metadata
+    - only if instruction vocabulary starts changing frequently
+    - doc / JSON become derived outputs, not independent sources
+
+P3. Split backend_core_ops.rs owners
+    - structural instruction classification near the enum/introspection layer
+    - per-backend support policy in a policy module
+    - tests outside the mixed owner file where practical
+```
+
+Immediate recommendation:
+
+```text
+implement P1 when the current boxed enum ABI slice has a clean stopping point.
+park P2/P3 until churn justifies the extra generator/refactor machinery.
+```
+
 ## Fast-Path Lowering Reminder
 
 Fast-path lowering is important for the long-term speed goal, but it is a
