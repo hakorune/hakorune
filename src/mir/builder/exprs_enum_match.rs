@@ -58,7 +58,7 @@ impl super::MirBuilder {
             ));
         }
         let tag = resolved.tag;
-        let payload_type = payload_mir_type(resolved.decl.payload_type_name.as_deref());
+        let declared_payload_type = payload_mir_type(resolved.decl.payload_type_name.as_deref());
         let expected_arity = resolved.decl.payload_arity();
         if arguments.len() != expected_arity {
             return Err(format!(
@@ -88,6 +88,28 @@ impl super::MirBuilder {
                 ))
             }
         };
+        let payload_type = declared_payload_type
+            .or_else(|| payload.and_then(|value| self.type_ctx.value_types.get(&value).cloned()))
+            .or_else(|| {
+                self.scope_ctx
+                    .current_function
+                    .as_ref()
+                    .and_then(|function| {
+                        function
+                            .metadata
+                            .declared_return_type_name
+                            .as_deref()
+                            .and_then(|raw| concrete_enum_payload_type_name(enum_name, raw))
+                    })
+            })
+            .or_else(|| {
+                self.scope_ctx
+                    .current_function
+                    .as_ref()
+                    .and_then(|function| {
+                        concrete_enum_payload_type(enum_name, &function.signature.return_type)
+                    })
+            });
         let dst = self.next_value_id();
         self.emit_instruction(MirInstruction::VariantMake {
             dst,
@@ -195,15 +217,21 @@ impl super::MirBuilder {
             ));
         }
         let tag = resolved.tag;
-        let payload_type = payload_mir_type(resolved.decl.payload_type_name.as_deref());
-
+        let variant_name = target_arm.variant_name.clone();
+        let declared_payload_type_name = resolved.decl.payload_type_name.clone();
         let scrutinee_value = self.build_expression_impl(scrutinee.clone())?;
+        let payload_type = payload_mir_type(declared_payload_type_name.as_deref()).or_else(|| {
+            self.type_ctx
+                .value_types
+                .get(&scrutinee_value)
+                .and_then(|ty| concrete_enum_payload_type(enum_name, ty))
+        });
         let dst = self.next_value_id();
         self.emit_instruction(MirInstruction::VariantProject {
             dst,
             value: scrutinee_value,
             enum_name: enum_name.to_string(),
-            variant: target_arm.variant_name.clone(),
+            variant: variant_name,
             tag,
             payload_type: payload_type.clone(),
         })?;
@@ -369,6 +397,22 @@ fn payload_mir_type(raw: Option<&str>) -> Option<MirType> {
         return None;
     }
     Some(super::MirBuilder::parse_type_name_to_mir(raw))
+}
+
+fn concrete_enum_payload_type(enum_name: &str, ty: &MirType) -> Option<MirType> {
+    let MirType::Box(box_name) = ty else {
+        return None;
+    };
+    concrete_enum_payload_type_name(enum_name, box_name)
+}
+
+fn concrete_enum_payload_type_name(enum_name: &str, raw: &str) -> Option<MirType> {
+    let prefix = format!("{}<", enum_name);
+    let payload = raw.strip_prefix(&prefix)?.strip_suffix('>')?.trim();
+    if payload.is_empty() {
+        return None;
+    }
+    payload_mir_type(Some(payload))
 }
 
 fn looks_like_generic_type_param(raw: &str) -> bool {

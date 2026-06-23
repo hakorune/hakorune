@@ -123,6 +123,26 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
             f"    return {fail_code}",
             "}",
         ]
+    if kind == "AssertOptionSomeI64Eq":
+        source = operation.get("source")
+        expected = operation.get("expected")
+        fail_message = operation.get("fail_message")
+        fail_code = operation.get("fail_code", 1)
+        if not isinstance(source, str) or "expected" not in operation or fail_message is None:
+            raise ValueError("AssertOptionSomeI64Eq requires source, expected, and fail_message")
+        value_name = operation.get("value_name", f"{source}_some_value")
+        if not isinstance(value_name, str):
+            raise ValueError("AssertOptionSomeI64Eq value_name must be a string")
+        return [
+            f"guard let Option::Some({value_name}) = {source} else {{",
+            f"    print({render_string_literal(fail_message)})",
+            f"    return {fail_code}",
+            "}",
+            f"if {value_name} != {render_main_value(expected)} {{",
+            f"    print({render_string_literal(fail_message)})",
+            f"    return {fail_code}",
+            "}",
+        ]
     if kind == "AssertOwnedProductSequence":
         array = operation.get("array")
         expected = operation.get("expected")

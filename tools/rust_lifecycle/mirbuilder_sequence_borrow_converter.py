@@ -77,7 +77,7 @@ def compile_sequence_last_copy_methods(
     source_operand = {"source": source_arg} if source_arg is not None else {"field": field_name}
     methods = [
         HakoMethodIR(signature=push_signature, operations=[op("SequencePush", **source_operand, value=value_arg)]),
-        HakoMethodIR(signature=last_signature, operations=[op("SequenceLastOption", **source_operand)]),
+        HakoMethodIR(signature=last_signature, operations=[op("SequenceLastOption", **source_operand, element_transport="i64")]),
     ]
     if pop_signature is not None:
         methods.insert(1, HakoMethodIR(signature=pop_signature, operations=[op("SequencePopOption", **source_operand)]))

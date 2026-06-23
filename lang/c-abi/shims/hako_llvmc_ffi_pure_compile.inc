@@ -386,6 +386,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         GENERIC_PURE_STRING_CONST_CAP = 1024,
         GENERIC_PURE_KNOWN_STRING_LEN_CAP = 4096,
         GENERIC_PURE_REG_MARKER_CAP = GENERIC_PURE_STRING_CONST_CAP,
+        GENERIC_PURE_I64_CONST_BY_REG_CAP = 8192,
         GENERIC_PURE_TYPE_BINDING_CAP = 8192,
         GENERIC_PURE_COPY_ALIAS_CAP = 2048,
         GENERIC_PURE_RECEIVER_FORWARD_ALIAS_CAP = 256,
@@ -399,6 +400,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct GenericPureFunctionLoweringState {
         struct GenericPureI64Const consts[GENERIC_PURE_I64_CONST_CAP];
         size_t consts_n;
+        long long const_by_reg[GENERIC_PURE_I64_CONST_BY_REG_CAP];
+        unsigned char const_by_reg_present[GENERIC_PURE_I64_CONST_BY_REG_CAP];
         struct GenericPureStringConst str_consts[GENERIC_PURE_STRING_CONST_CAP];
         size_t str_consts_n;
         struct GenericPureKnownStringLen known_string_lens[GENERIC_PURE_KNOWN_STRING_LEN_CAP];
@@ -447,6 +450,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       reset_generic_pure_function_lowering_state(&lowering_state);
       #define consts lowering_state.consts
       #define consts_n lowering_state.consts_n
+      #define const_by_reg lowering_state.const_by_reg
+      #define const_by_reg_present lowering_state.const_by_reg_present
       #define str_consts lowering_state.str_consts
       #define str_consts_n lowering_state.str_consts_n
       #define known_string_lens lowering_state.known_string_lens
@@ -637,6 +642,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_pure_compile_generic_lowering.inc"
       #undef consts
       #undef consts_n
+      #undef const_by_reg
+      #undef const_by_reg_present
       #undef str_consts
       #undef str_consts_n
       #undef known_string_lens

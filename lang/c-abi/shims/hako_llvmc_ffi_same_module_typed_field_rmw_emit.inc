@@ -52,200 +52,182 @@
         return 1;
       }
 
-      auto int same_module_function_match_result_capsule_reset_batch_plan(
-          yyjson_val* insts,
+      auto int same_module_function_read_result_capsule_reset_batch_plan_row(
+          yyjson_val* row,
+          long long bid,
           size_t ilen,
           unsigned char* skip_inst,
           struct SameModuleResultCapsuleResetBatchPlan* plan) {
-        static const char* const expected_fields[4] = {
-            "last_page_id",
-            "last_block_id",
-            "last_reason",
-            "last_ok",
-        };
+        const char* kind = row ? read_str(row, "kind") : NULL;
+        const char* helper = row ? read_str(row, "helper_symbol") : NULL;
+        const char* storage = row ? read_str(row, "storage") : NULL;
+        yyjson_val* set_indices = row ? yyjson_obj_get(row, "set_instruction_indices") : NULL;
+        yyjson_val* skip_vals = row ? yyjson_obj_get(row, "skip_instruction_indices") : NULL;
+        yyjson_val* slots = row ? yyjson_obj_get(row, "slots") : NULL;
+        yyjson_val* values = row ? yyjson_obj_get(row, "values") : NULL;
+        long long block = 0;
+        long long first_set_index = -1;
+        long long box_reg = 0;
         static const long long expected_slots[4] = {0, 1, 2, 3};
         static const long long expected_values[4] = {-1, -1, 0, 0};
-        size_t search_from = 0;
-        long long box_reg = 0;
-        if (!(insts && skip_inst && plan)) return 0;
+        if (!(row && skip_inst && plan)) return 0;
         memset(plan, 0, sizeof(*plan));
-        if (!same_module_function_is_selected_result_capsule_reset_batch_target()) return 0;
+        if (!(kind && !strcmp(kind, "same_module_result_capsule_reset_batch_i64") &&
+              helper && !strcmp(helper, "nyash.object.exact_slot_set4_i64_hiiiii") &&
+              storage && !strcmp(storage, "exact_slot_i64") &&
+              set_indices && yyjson_is_arr(set_indices) && yyjson_arr_size(set_indices) == 4 &&
+              skip_vals && yyjson_is_arr(skip_vals) &&
+              slots && yyjson_is_arr(slots) && yyjson_arr_size(slots) == 4 &&
+              values && yyjson_is_arr(values) && yyjson_arr_size(values) == 4)) {
+          return 0;
+        }
+        if (!hako_llvmc_json_read_i64_field(row, "block", &block) ||
+            !hako_llvmc_json_read_i64_field(row, "first_set_instruction_index", &first_set_index) ||
+            !hako_llvmc_json_read_i64_field(row, "box_reg", &box_reg)) {
+          return 0;
+        }
+        if (block != bid || first_set_index < 0 || (size_t)first_set_index >= ilen) return 0;
         for (size_t k = 0; k < 4; k++) {
-          int found = 0;
-          for (size_t ii = search_from; ii < ilen; ii++) {
-            yyjson_val* ins = yyjson_arr_get(insts, ii);
-            const char* field = NULL;
-            long long set_box = 0;
-            long long slot = -1;
-            long long value_reg = 0;
-            long long value_base = 0;
-            long long value_const = 0;
-            if (!same_module_function_instruction_is_field_access(
-                    ins,
-                    "field_set",
-                    &set_box,
-                    &field)) {
-              continue;
-            }
-            if (!(field && !strcmp(field, expected_fields[k]))) continue;
-            if (k == 0) {
-              box_reg = set_box;
-            } else if (resolve_copy_source_reg(set_box) != resolve_copy_source_reg(box_reg)) {
-              return 0;
-            }
-            if (!same_module_function_typed_field_slot_i64(set_box, field, &slot)) return 0;
-            if (slot != expected_slots[k]) return 0;
-            value_reg = read_int(ins, "value");
-            value_base = resolve_copy_source_reg(value_reg);
-            if (!has_const(value_base, &value_const)) return 0;
-            if (value_const != expected_values[k]) return 0;
-            plan->set_indices[k] = ii;
-            search_from = ii + 1;
-            found = 1;
-            break;
-          }
-          if (!found) {
-            memset(plan, 0, sizeof(*plan));
-            return 0;
-          }
+          yyjson_val* set_index_val = yyjson_arr_get(set_indices, k);
+          yyjson_val* slot_val = yyjson_arr_get(slots, k);
+          yyjson_val* value_val = yyjson_arr_get(values, k);
+          long long set_index = -1;
+          if (!(set_index_val && yyjson_is_num(set_index_val) &&
+                slot_val && yyjson_is_num(slot_val) &&
+                value_val && yyjson_is_num(value_val))) return 0;
+          set_index = (long long)yyjson_get_sint(set_index_val);
+          if (set_index < 0 || (size_t)set_index >= ilen) return 0;
+          if ((long long)yyjson_get_sint(slot_val) != expected_slots[k]) return 0;
+          if ((long long)yyjson_get_sint(value_val) != expected_values[k]) return 0;
+          plan->set_indices[k] = (size_t)set_index;
+        }
+        for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
+          yyjson_val* skip_val = yyjson_arr_get(skip_vals, si);
+          long long skip_index = -1;
+          if (!(skip_val && yyjson_is_num(skip_val))) return 0;
+          skip_index = (long long)yyjson_get_sint(skip_val);
+          if (skip_index < 0 || (size_t)skip_index >= ilen) return 0;
+          skip_inst[skip_index] = 1;
         }
         plan->active = 1;
-        plan->first_set_index = plan->set_indices[0];
+        plan->first_set_index = (size_t)first_set_index;
         plan->box_reg = box_reg;
-        for (size_t k = 1; k < 4; k++) {
-          skip_inst[plan->set_indices[k]] = 1;
-        }
         return 1;
       }
 
-      auto int same_module_function_register_direct_use_count(
-          yyjson_val* insts,
+      auto int same_module_function_read_result_capsule_reset_batch_plan(
+          long long bid,
           size_t ilen,
-          long long reg) {
-        int count = 0;
-        if (!(insts && reg)) return 0;
-        for (size_t ii = 0; ii < ilen; ii++) {
-          yyjson_val* ins = yyjson_arr_get(insts, ii);
-          const char* op = read_str(ins, "op");
-          if (!op) continue;
-          if (!strcmp(op, "binop") || !strcmp(op, "compare")) {
-            if (read_int(ins, "lhs") == reg) count++;
-            if (read_int(ins, "rhs") == reg) count++;
-          } else if (!strcmp(op, "copy")) {
-            if (read_int(ins, "src") == reg) count++;
-          } else if (!strcmp(op, "field_set")) {
-            if (read_int(ins, "value") == reg) count++;
-          } else if (!strcmp(op, "branch")) {
-            if (read_int(ins, "cond") == reg) count++;
-          } else if (!strcmp(op, "ret")) {
-            if (read_int(ins, "value") == reg) count++;
-          }
-        }
-        return count;
-      }
-
-      auto int same_module_function_match_typed_field_rmw_fusion_plan_at(
-          yyjson_val* insts,
-          size_t ilen,
-          size_t gi,
-          struct SameModuleTypedFieldRmwFusionPlan* plan) {
-        yyjson_val* get_ins = NULL;
-        const char* get_field = NULL;
-        long long get_box = 0;
-        long long get_dst = 0;
-        long long slot = -1;
-        if (!(insts && plan && gi < ilen)) return 0;
-        memset(plan, 0, sizeof(*plan));
-        if (!same_module_function_is_selected_typed_field_rmw_target()) return 0;
-        get_ins = yyjson_arr_get(insts, gi);
-        get_dst = read_int(get_ins, "dst");
-        if (!get_dst) return 0;
-        if (!same_module_function_instruction_is_field_access(
-                get_ins,
-                "field_get",
-                &get_box,
-                &get_field)) {
-          return 0;
-        }
-        if (!same_module_function_typed_field_slot_u64(get_box, get_field, &slot)) return 0;
-        if (same_module_function_register_direct_use_count(insts, ilen, get_dst) != 1) {
-          return 0;
-        }
-        for (size_t bi = gi + 1; bi < ilen; bi++) {
-          yyjson_val* binop = yyjson_arr_get(insts, bi);
-          const char* op = read_str(binop, "op");
-          const char* kind = read_str(binop, "op_kind");
-          long long binop_dst = 0;
-          long long lhs = 0;
-          long long rhs = 0;
-          long long lhs_base = 0;
-          long long rhs_base = 0;
-          long long delta_reg = 0;
-          if (!(op && !strcmp(op, "binop"))) continue;
-          if (!kind) kind = read_str(binop, "operation");
-          if (!(kind && (!strcmp(kind, "+") || !strcmp(kind, "Add")))) continue;
-          binop_dst = read_int(binop, "dst");
-          lhs = read_int(binop, "lhs");
-          rhs = read_int(binop, "rhs");
-          lhs_base = resolve_copy_source_reg(lhs);
-          rhs_base = resolve_copy_source_reg(rhs);
-          if (lhs_base == get_dst) delta_reg = rhs;
-          else if (rhs_base == get_dst) delta_reg = lhs;
-          else continue;
-          for (size_t si = bi + 1; si < ilen; si++) {
-            yyjson_val* set_ins = yyjson_arr_get(insts, si);
-            const char* set_field = NULL;
-            long long set_box = 0;
-            long long set_value = 0;
-            if (!same_module_function_instruction_is_field_access(
-                    set_ins,
-                    "field_set",
-                    &set_box,
-                    &set_field)) {
-              continue;
-            }
-            set_value = resolve_copy_source_reg(read_int(set_ins, "value"));
-            if (set_value != binop_dst) continue;
-            if (resolve_copy_source_reg(set_box) != resolve_copy_source_reg(get_box)) continue;
-            if (!(set_field && get_field && !strcmp(set_field, get_field))) continue;
-            plan->active = 1;
-            plan->get_index = gi;
-            plan->binop_index = bi;
-            plan->set_index = si;
-            plan->get_dst = get_dst;
-            plan->binop_dst = binop_dst;
-            plan->box_reg = get_box;
-            plan->slot = slot;
-            plan->delta_reg = delta_reg;
+          unsigned char* skip_inst,
+          struct SameModuleResultCapsuleResetBatchPlan* plan) {
+        yyjson_val* rows = NULL;
+        if (!(fn_metadata && skip_inst && plan)) return 0;
+        rows = yyjson_obj_get(fn_metadata, "same_module_fusion_plans");
+        if (!(rows && yyjson_is_arr(rows))) return 0;
+        for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
+          if (same_module_function_read_result_capsule_reset_batch_plan_row(
+                  yyjson_arr_get(rows, ri),
+                  bid,
+                  ilen,
+                  skip_inst,
+                  plan)) {
             return 1;
           }
         }
-        memset(plan, 0, sizeof(*plan));
         return 0;
       }
 
-      auto size_t same_module_function_match_typed_field_rmw_fusion_plans(
-          yyjson_val* insts,
+      auto int same_module_function_read_typed_field_rmw_plan_row(
+          yyjson_val* row,
+          long long bid,
+          size_t ilen,
+          unsigned char* skip_inst,
+          struct SameModuleTypedFieldRmwFusionPlan* plan) {
+        const char* kind = row ? read_str(row, "kind") : NULL;
+        const char* helper = row ? read_str(row, "helper_symbol") : NULL;
+        const char* storage = row ? read_str(row, "storage") : NULL;
+        const char* field = row ? read_str(row, "field") : NULL;
+        yyjson_val* skip_vals = row ? yyjson_obj_get(row, "skip_instruction_indices") : NULL;
+        long long block = 0;
+        long long get_index = -1;
+        long long binop_index = -1;
+        long long set_index = -1;
+        long long direct_use_count = 0;
+        long long slot = -1;
+        long long get_dst = 0;
+        long long binop_dst = 0;
+        long long box_reg = 0;
+        long long delta_reg = 0;
+        if (!(row && skip_inst && plan)) return 0;
+        memset(plan, 0, sizeof(*plan));
+        if (!(kind && !strcmp(kind, "same_module_typed_field_rmw_add_u64") &&
+              helper && !strcmp(helper, "nyash.object.exact_slot_rmw_add_u64_hiii") &&
+              storage && !strcmp(storage, "exact_slot_u64") &&
+              field && skip_vals && yyjson_is_arr(skip_vals))) {
+          return 0;
+        }
+        if (!hako_llvmc_json_read_i64_field(row, "block", &block) ||
+            !hako_llvmc_json_read_i64_field(row, "get_instruction_index", &get_index) ||
+            !hako_llvmc_json_read_i64_field(row, "binop_instruction_index", &binop_index) ||
+            !hako_llvmc_json_read_i64_field(row, "set_instruction_index", &set_index) ||
+            !hako_llvmc_json_read_i64_field(row, "direct_use_count", &direct_use_count) ||
+            !hako_llvmc_json_read_i64_field(row, "slot", &slot) ||
+            !hako_llvmc_json_read_i64_field(row, "get_dst", &get_dst) ||
+            !hako_llvmc_json_read_i64_field(row, "binop_dst", &binop_dst) ||
+            !hako_llvmc_json_read_i64_field(row, "box_reg", &box_reg) ||
+            !hako_llvmc_json_read_i64_field(row, "delta_reg", &delta_reg)) {
+          return 0;
+        }
+        if (block != bid) return 0;
+        if (direct_use_count != 1) return 0;
+        if (get_index < 0 || binop_index < 0 || set_index < 0 ||
+            (size_t)get_index >= ilen ||
+            (size_t)binop_index >= ilen ||
+            (size_t)set_index >= ilen) {
+          return 0;
+        }
+        for (size_t si = 0; si < yyjson_arr_size(skip_vals); si++) {
+          yyjson_val* skip_val = yyjson_arr_get(skip_vals, si);
+          long long skip_index = -1;
+          if (!(skip_val && yyjson_is_num(skip_val))) return 0;
+          skip_index = (long long)yyjson_get_sint(skip_val);
+          if (skip_index < 0 || (size_t)skip_index >= ilen) return 0;
+          skip_inst[skip_index] = 1;
+        }
+        plan->active = 1;
+        plan->get_index = (size_t)get_index;
+        plan->binop_index = (size_t)binop_index;
+        plan->set_index = (size_t)set_index;
+        plan->get_dst = get_dst;
+        plan->binop_dst = binop_dst;
+        plan->box_reg = box_reg;
+        plan->slot = slot;
+        plan->delta_reg = delta_reg;
+        return 1;
+      }
+
+      auto size_t same_module_function_read_typed_field_rmw_fusion_plans(
+          long long bid,
           size_t ilen,
           unsigned char* skip_inst,
           struct SameModuleTypedFieldRmwFusionPlan* plans,
           size_t plans_cap) {
+        yyjson_val* rows = NULL;
         size_t count = 0;
-        if (!(insts && skip_inst && plans && plans_cap)) return 0;
-        if (!same_module_function_is_selected_typed_field_rmw_target()) return 0;
-        for (size_t gi = 0; gi < ilen && count < plans_cap; gi++) {
+        if (!(fn_metadata && skip_inst && plans && plans_cap)) return 0;
+        rows = yyjson_obj_get(fn_metadata, "same_module_fusion_plans");
+        if (!(rows && yyjson_is_arr(rows))) return 0;
+        for (size_t ri = 0; ri < yyjson_arr_size(rows) && count < plans_cap; ri++) {
           struct SameModuleTypedFieldRmwFusionPlan plan;
-          if (skip_inst[gi]) continue;
           memset(&plan, 0, sizeof(plan));
-          if (!same_module_function_match_typed_field_rmw_fusion_plan_at(
-                  insts,
+          if (!same_module_function_read_typed_field_rmw_plan_row(
+                  yyjson_arr_get(rows, ri),
+                  bid,
                   ilen,
-                  gi,
+                  skip_inst,
                   &plan)) {
             continue;
           }
-          skip_inst[plan.get_index] = 1;
-          skip_inst[plan.binop_index] = 1;
           plans[count++] = plan;
         }
         return count;
@@ -393,9 +375,11 @@
           long long payload = read_int(ins, "payload");
           long long tag = read_int(ins, "tag");
           const char* enum_name = read_str(ins, "enum");
-          int boxed_emit = payload
-              ? emit_boxed_sum_handle_variant_make(bid, ii, op, dst, tag, payload, enum_name)
-              : emit_boxed_sum_unit_variant_make(bid, ii, op, dst, tag, enum_name);
+          const char* payload_storage = read_str(ins, "boxed_sum_payload_storage");
+          int boxed_plan_index = -1;
+          boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+          int boxed_emit = emit_boxed_sum_variant_make_lowering(
+              bid, ii, op, dst, tag, payload, enum_name, payload_storage, boxed_plan_index);
           if (boxed_emit != 0) return boxed_emit > 0;
           return 1;
         }
@@ -403,32 +387,43 @@
           long long dst = read_int(ins, "dst");
           long long value = read_int(ins, "value");
           const char* enum_name = read_str(ins, "enum");
-          struct GenericPureVariantBinding binding;
-          memset(&binding, 0, sizeof(binding));
-          if (!get_variant_binding(value, &binding)) {
-            return emit_boxed_sum_tag_read(bid, ii, op, dst, value, enum_name) > 0;
-          }
-          if (binding.tag_reg) {
-            EMIT("  %%r%lld = add i64 %%r%lld_tag, 0\n", dst, binding.tag_reg);
-          } else {
-            put_const(dst, binding.tag_const);
-          }
-          set_type(dst, T_I64);
-          return 1;
+          int boxed_plan_index = -1;
+          boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+          int boxed_emit = emit_boxed_sum_variant_tag_lowering(
+              bid,
+              ii,
+              op,
+              dst,
+              value,
+              enum_name,
+              boxed_plan_index,
+              "boxed_sum_abi_variant_tag_emit_unavailable",
+              0);
+          if (boxed_emit != 0) return boxed_emit > 0 ? 1 : -1;
+          return 0;
         }
         if (!strcmp(op, "variant_project")) {
           long long dst = read_int(ins, "dst");
           long long value = read_int(ins, "value");
           long long tag = read_int(ins, "tag");
           const char* enum_name = read_str(ins, "enum");
-          struct GenericPureVariantBinding binding;
-          memset(&binding, 0, sizeof(binding));
-          if (!get_variant_binding(value, &binding) || !binding.has_payload) {
-            return emit_boxed_sum_project_handle(bid, ii, op, dst, value, tag, enum_name) > 0;
-          }
-          set_copy_alias(dst, resolve_copy_source_reg(binding.payload_reg));
-          set_type(dst, T_I64);
-          return 1;
+          const char* payload_storage = read_str(ins, "boxed_sum_payload_storage");
+          int boxed_plan_index = -1;
+          boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+          int boxed_emit = emit_boxed_sum_variant_project_lowering(
+              bid,
+              ii,
+              op,
+              dst,
+              value,
+              tag,
+              enum_name,
+              payload_storage,
+              boxed_plan_index,
+              NULL,
+              0);
+          if (boxed_emit != 0) return boxed_emit > 0 ? 1 : -1;
+          return 0;
         }
         if (!strcmp(op, "newbox")) {
           return same_module_function_emit_newbox(ins);

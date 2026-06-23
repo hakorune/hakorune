@@ -1,7 +1,16 @@
           if (strcmp(op, "const")==0) {
             long long dst = read_int(ins, "dst");
             const char* sval = get_str_const(dst);
-            if (!sval) continue; // numeric const stays inlined
+            if (!sval) {
+              yyjson_val* vobj = yyjson_obj_get(ins, "value");
+              const char* ty_s = vobj ? read_str(vobj, "type") : NULL;
+              yyjson_val* literal = vobj ? yyjson_obj_get(vobj, "value") : NULL;
+              if (dst && ty_s && !strcmp(ty_s, "i64") && literal) {
+                put_const(dst, (long long)yyjson_get_sint(literal));
+                set_type(dst, T_I64);
+              }
+              continue; // numeric const stays inlined
+            }
             if (should_skip_string_const_box_for_concat_suffix(ii, ilen, insts, dst)) continue;
             if (should_skip_hoisted_string_const_box(dst)) {
               set_type(dst, T_I64);

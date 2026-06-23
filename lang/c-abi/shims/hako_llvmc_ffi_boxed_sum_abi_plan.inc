@@ -1,5 +1,5 @@
       /*
-       * BoxedSumAbiPlanV1 reader.
+       * BoxedSumAbiPlanV2 reader.
        *
        * Backends consume MIR-owned enum ABI rows. They must not infer runtime
        * enum layout from enum names, variant names, or payload spellings.
@@ -32,7 +32,7 @@
           const char* version = plan ? read_str(plan, "version") : NULL;
           if (plan_enum &&
               version &&
-              strcmp(version, "boxed_runtime_v1") == 0 &&
+              strcmp(version, "boxed_runtime_v2") == 0 &&
               strcmp(plan_enum, enum_name) == 0) {
             if (out_plan_index) *out_plan_index = (int)i;
             return 1;
@@ -80,12 +80,56 @@
         return storage && strcmp(storage, "handle") == 0;
       }
 
+      auto int boxed_sum_abi_variant_payload_storage_is_i64(
+          int plan_index,
+          long long tag) {
+        yyjson_val* plan = boxed_sum_abi_plan_at_index(plan_index);
+        yyjson_val* variants = plan ? yyjson_obj_get(plan, "variants") : NULL;
+        yyjson_val* variant = NULL;
+        const char* storage = NULL;
+        if (!(variants && yyjson_is_arr(variants) && tag >= 0)) return 0;
+        variant = yyjson_arr_get(variants, (size_t)tag);
+        storage = variant ? read_str(variant, "payload_storage") : NULL;
+        return storage && strcmp(storage, "i64") == 0;
+      }
+
+      auto int boxed_sum_abi_plan_index_from_site(
+          yyjson_val* ins,
+          int* out_plan_index) {
+        yyjson_val* value = ins ? yyjson_obj_get(ins, "boxed_sum_abi_plan_id") : NULL;
+        long long plan_index = 0;
+        if (!(value && yyjson_is_num(value))) return 0;
+        plan_index = (long long)yyjson_get_sint(value);
+        if (!boxed_sum_abi_plan_at_index((int)plan_index)) return 0;
+        if (out_plan_index) *out_plan_index = (int)plan_index;
+        return 1;
+      }
+
+      auto long long boxed_sum_abi_payload_slot_storage_code(int plan_index) {
+        yyjson_val* plan = boxed_sum_abi_plan_at_index(plan_index);
+        yyjson_val* variants = plan ? yyjson_obj_get(plan, "variants") : NULL;
+        long long code = 0;
+        if (!(variants && yyjson_is_arr(variants))) return 0;
+        size_t count = yyjson_arr_size(variants);
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* variant = yyjson_arr_get(variants, i);
+          const char* storage = variant ? read_str(variant, "payload_storage") : NULL;
+          if (!storage || !strcmp(storage, "none")) continue;
+          long long next = !strcmp(storage, "i64") ? 1 : (!strcmp(storage, "handle") ? 2 : 0);
+          if (!next) return 0;
+          if (code != 0 && code != next) return 0;
+          code = next;
+        }
+        return code ? code : 2;
+      }
+
       auto int emit_boxed_sum_abi_layout_registrations(FILE* f) {
         size_t count = boxed_sum_abi_plan_count();
         for (size_t pi = 0; pi < count; pi++) {
           long long type_id = boxed_sum_abi_runtime_type_id((int)pi);
           long long variant_count = boxed_sum_abi_variant_count((int)pi);
-          if (!(type_id > 0 && variant_count > 0)) return 0;
+          long long payload_slot_storage = boxed_sum_abi_payload_slot_storage_code((int)pi);
+          if (!(type_id > 0 && variant_count > 0 && payload_slot_storage > 0)) return 0;
           fprintf(
               f,
               "  %%boxed_sum_layout_%lld = call i64 @\"nyash.object.register_typed_layout_hi\"(i64 %lld, i64 2)\n",
@@ -98,9 +142,10 @@
               type_id);
           fprintf(
               f,
-              "  %%boxed_sum_layout_%lld_payload = call i64 @\"nyash.object.register_typed_layout_slot_iii\"(i64 %lld, i64 1, i64 2)\n",
+              "  %%boxed_sum_layout_%lld_payload = call i64 @\"nyash.object.register_typed_layout_slot_iii\"(i64 %lld, i64 1, i64 %lld)\n",
               type_id,
-              type_id);
+              type_id,
+              payload_slot_storage);
         }
         return 1;
       }

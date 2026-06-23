@@ -329,27 +329,11 @@
           return 1;
         }
         if (!strcmp(op, "variant_make")) {
-          long long dst = read_int(ins, "dst");
-          long long payload = read_int(ins, "payload");
-          long long tag = read_int(ins, "tag");
-          const char* enum_name = read_str(ins, "enum");
-          int boxed_plan_index = -1;
-          if (payload) {
-            long long payload_base = resolve_copy_source_reg(payload);
-            if (!(enum_name &&
-                  find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index) &&
-                  boxed_sum_abi_variant_payload_storage_is_handle(boxed_plan_index, tag))) {
-              set_copy_alias(dst, payload_base);
-            }
-            set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
-          } else {
-            if (!(enum_name &&
-                  find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index))) {
-              put_const(dst, 0);
-            }
-            set_variant_binding_with_enum(dst, tag, 0, 0, 0, enum_name);
+          if (!publish_variant_binding_from_instruction(ins)) {
+            note_pure_unsupported_shape(
+                bid, ii, op, "variant_binding_fact_missing", read_str(ins, "enum"));
+            return 0;
           }
-          set_type(dst, T_I64);
           return 1;
         }
         if (!strcmp(op, "variant_tag")) {

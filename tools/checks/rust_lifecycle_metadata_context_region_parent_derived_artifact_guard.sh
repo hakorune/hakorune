@@ -36,6 +36,15 @@ PY
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
 
 ./target/release/hakorune --emit-mir-json /tmp/hako_metadata_context_region_parent_artifact.mir.json "$ARTIFACT" >/tmp/hako_metadata_context_region_parent_artifact.mir.log 2>&1
+./target/release/hakorune --emit-exe "$EXE" "$ARTIFACT" >/tmp/hako_metadata_context_region_parent_artifact.build.log 2>&1
+"$EXE" >"$RAW" 2>/tmp/hako_metadata_context_region_parent_artifact.err
+sed '/^Result: /d' "$RAW" >"$OUT"
+
+cat >"$EXPECTED" <<'EOF_EXPECTED'
+metadata_context_region_parent_direct_artifact=ok
+EOF_EXPECTED
+
+diff -u "$EXPECTED" "$OUT"
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-metadata-context-region-parent-derived-artifact-v0
@@ -46,12 +55,12 @@ artifact_manifest_checked_in=1
 deterministic_regeneration=green
 generated_hako_parse=green
 generated_hako_mir_emit=green
-generated_hako_exe_aot_claim=0
-generated_hako_exe_aot=skipped_pending_boxed_i64_payload
+generated_hako_exe_aot_claim=1
+generated_hako_exe_aot=green
 borrow_lowering_decision=ElideToLeafProjection
 raw_aggregate_return=0
 read_lease_claim=0
-boxed_i64_payload_claim=0
+boxed_i64_payload_claim=1
 runtime_try_hako_then_rust_fallback=0
 summary=ok
 REPORT

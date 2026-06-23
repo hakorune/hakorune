@@ -452,12 +452,15 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         ]
     if kind == "SequenceLastOption":
         source = render_source_expr(operation)
+        value_expr = f"BoxHelpers.array_get({source}, n - 1)"
+        if operation.get("element_transport") == "i64":
+            value_expr = f"({value_expr} + 0)"
         return [
             f"local n = {source}.length()",
             "if n == 0 {",
             "    return Option::None()",
             "}",
-            f"return Option::Some(BoxHelpers.array_get({source}, n - 1))",
+            f"return Option::Some({value_expr})",
         ]
     if kind == "ClassifyEnumVariants":
         type_source = operation.get("type_source")

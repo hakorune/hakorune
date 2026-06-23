@@ -19,10 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
+  SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001
 
 current implementation task:
-  Select the next semantic converter slice after hygiene cleanup.
+  Decide the MIR-owned proof for boxed-sum handle value metadata before
+  removing `__hako_sum_` prefix inference from same-module C shims.
 
 producer responsibility stack:
   Source preparation
@@ -32,18 +33,24 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  none selected after hygiene closeout
+  boxed-sum VariantMake I64 const payloads
 
 selected lowering:
-  design stop before adding converter behavior
+  VariantMake / VariantTag / VariantProject
+    -> BoxedRuntime(abi_plan_id)
+    -> payload_storage=None|I64|Handle
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
   stale NyRT fail-fast, generated route descriptors, route mismatch
-  diagnostics, and generic read-fold decomposition are landed.
+  diagnostics, generic read-fold decomposition, boxed-sum I64 payload ABI,
+  MetadataContext region-parent EXE/AOT acceptance, boxed-sum site metadata,
+  C shim payload_type fallback removal, boxed-sum const payload definition
+  indexing, boxed-sum lowering facade, and variant binding fact owner drain are
+  landed.
 
 selected next owner:
-  not selected; choose next semantic slice before implementation
+  same-module boxed-sum handle fact owner design stop
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -53,7 +60,10 @@ selected transport:
     InlineRecord / packed / SoA without changing read-fold semantics.
 
 current fail-fast boundary:
-  no new converter capability until the next slice is selected.
+  no Option-name, MetadataContext-name, payload_type spelling, or raw i64
+  sign inference fallback. C shims may emit selected same-module helpers, but
+  must not discover selected fusion windows from neighboring instructions.
+  `__hako_sum_` box-name prefix may not be used as a new proof source.
 
 latest design decision:
   Collection values must use the existing MIR route contracts end-to-end:
@@ -85,7 +95,9 @@ MapGetOption is reused; new operation kind = 0
 producer-side emit_string is harness-only prefill, not converted
 full map-value publication claim = 0
 MIR/EXE/LLVM-AOT focused guard green
-task-order cleanup guard=current_state_pointer_guard
+boxed I64 payload focused probe EXE/AOT green
+unit enum and handle-payload regressions green
+metadata_context_region_parent EXE/AOT focused guard green
 ```
 
 Current mechanical status:
@@ -95,14 +107,19 @@ comparator proof = VmExeAotAccepted
 region_observer_slot_metadata = LLVM/AOT green
 boxed_runtime_v1_make_tag_project = landed
 boxed_enum_mapbox_option_roundtrip = landed
+boxed_sum_i64_payload_abi = landed
+metadata_context_region_parent_backend = landed
+same_module_typed_field_rmw_fusion_plan = landed
+same_module_result_capsule_reset_batch_plan = landed
+same_module_sum_handle_fact_owner = design_stop
 slot_classifier_policy = verified operation data
 collection_runtime_value_carrier = landed for MapBox and ArrayBox
 nyrt_freshness_fail_fast = landed for --no-build AOT harness
 generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
 generic_method_route_mismatch_diagnostics = landed for first descriptor field
 generic_read_fold_operation_decomposition = landed
-type_context_string_literal_leaf_projection = selected
-task_hygiene_next3 = closed
+type_context_string_literal_leaf_projection = landed
+task_hygiene_next3 = landed
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -112,20 +129,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. task-order SSOT compression
+1. Same-module typed-field RMW fusion plan SSOT
    status=landed
-   goal=active next 3 + parked index
-   guard=current_state_pointer_guard
+   card=docs/development/current/main/phases/phase-296x/296x-1657-SAME-MODULE-FUSION-PLAN-SSOT-001.md
+   boundary=move one same-module fusion window discovery to a named plan row
+   selected_first_window=typed_field_rmw get/binop/set -> exact_slot_rmw_add_u64
 
-2. mirbuilder_family_artifacts.py split
+2. Same-module reset-batch fusion plan SSOT
    status=landed
-   boundary=behavior-preserving split only
-   fail-fast=no generator behavior change
+   card=docs/development/current/main/phases/phase-296x/296x-1658-SAME-MODULE-RESET-BATCH-FUSION-PLAN-SSOT-001.md
+   boundary=move the ordered result-capsule reset window to a named plan row
+   selected_window=result_capsule_reset_batch -> exact_slot_set4_i64
 
-3. leaf projection validator dedupe
-   status=landed
-   boundary=one validator owns map.immutable_leaf_projection acceptance
-   fail-fast=no family-specific shortcut
+3. Same-module boxed-sum handle fact owner design stop
+   status=active
+   card=docs/development/current/main/phases/phase-296x/296x-1659-SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001.md
+   boundary=choose the proof owner before removing `__hako_sum_` prefix inference
+   decision_needed=variant_binding vs explicit value metadata vs propagated boxed_sum_abi_plan_id
 ```
 
 ## Landed Converter Capability Summary
@@ -133,7 +153,8 @@ history, not in this task-order SSOT.
 ```text
 ordered-map contexts, snapshots, carrier projection, scalar counters
 TypeContext value-kind / origin-map / value-type / snapshot-restore
-MetadataContext scalar/source-file, region-parent MIR-only, value-caller
+MetadataContext scalar/source-file, value-caller
+MetadataContext region-parent EXE/AOT
 structured loop, scalar loop carrier, explicit PHI, multi-exit PHI
 RegionObserver source-ordered read-fold and SlotMetadata output
 boxed native enum ABI and boxed enum container round trip
@@ -141,6 +162,12 @@ mixed runtime value carrier for MapBox and ArrayBox
 generic method route descriptor SSOT and mismatch diagnostics
 generic read-fold operation decomposition
 TypeContext string literal leaf projection
+boxed-sum const payload definition index
+boxed-sum lowering facade
+C shim variant binding fact owner drain
+same-module typed-field RMW fusion plan
+same-module result-capsule reset batch fusion plan
+same-module boxed-sum handle fact owner selected = pending
 ```
 
 ## Direct-Lowering Policy
@@ -363,7 +390,6 @@ crate-wide generated-to-native authority cutover
 variable_map_mut raw alias
 live read-view / lease framework
 general Drop / RAII lowering
-Option<i64> / boxed scalar payload ABI
 general Option payload support
 InlineRecord / packed / SoA SlotMetadata transport
 nightly rustc adapter for easy-tier families
@@ -383,6 +409,259 @@ queued: mirbuilder_family_artifacts.py 分割
   boundary=behavior_preserving_split_only
 queued: leaf projection validator 二重化を整理
   boundary=one validator owns map.immutable_leaf_projection acceptance
+```
+
+## C ABI Shim Responsibility Cleanup Backlog
+
+This is a BoxShape cleanup lane. It does not change the current converter
+semantic claim, and it must not be used to add backend-local special cases.
+
+Accepted finding:
+
+```text
+lang/c-abi/shims/*.inc is still accumulating responsibilities beyond
+"consume selected MIR/lowering facts and emit C/LLVM glue".
+
+The current boxed-sum I64 slice is behaviorally valid, but several shims now
+derive or rediscover facts that should be owned upstream:
+
+  - boxed sum payload storage is inferred from payload_type spelling
+  - boxed sum I64 const payloads are recovered by scanning earlier MIR
+  - boxed sum variant lowering is duplicated across generic and same-module
+    emit paths
+  - same-module RMW/window fusion is matched in C shims
+  - generic route truth is duplicated across generated and hand-written tables
+  - prepasses derive value/origin/variant/phi facts instead of only verifying
+```
+
+Initial inventory:
+
+| Priority | File | Finding | Category | Intended owner |
+| --- | --- | --- | --- | --- |
+| P0 | `hako_llvmc_ffi_pure_compile_variant_dispatch.inc` | variant make/project still falls back from missing site metadata to `payload_type` spelling | `spelling_inference` | MIR JSON site fact |
+| P0 | `hako_llvmc_ffi_same_module_typed_field_rmw_emit.inc` | same-module variant make/project repeats the same payload spelling fallback | `spelling_inference` | MIR JSON site fact |
+| P0 | `hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc` | I64 payload make scans prior instructions to recover the defining const | `definition_discovery` | ValueId definition fact |
+| P0 | `hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc` | boxed-sum make/tag/project selection is duplicated behind generic and same-module dispatch | `route_policy` | boxed-sum lowering facade |
+| P0 | `hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc` | variant binding / origin facts are derived in C before lowering | `value_class_derivation` | SemanticRefresh / LoweringPlan facts |
+| P0 | `hako_llvmc_ffi_same_module_prepass.inc` | same-module path derives similar variant/origin facts separately | `value_class_derivation` | SemanticRefresh / LoweringPlan facts |
+| P1 | `hako_llvmc_ffi_same_module_typed_field_rmw_emit.inc` | get/binop/set fusion is rediscovered from neighboring ops | `fusion_window_discovery` | same-module fusion plan |
+| P1 | `hako_llvmc_ffi_mir_call_prepass.inc` | call route need/origin facts are still assembled in C | `route_policy` | generated route descriptor / LoweringPlan row |
+| P1 | `hako_llvmc_ffi_mir_call_surface_policy.inc` | call surfaces are classified from constructor/global/extern string names | `route_policy` | call surface normalization / LoweringPlan row |
+| P1 | `hako_llvmc_ffi_mir_call_need_name_fallback.inc` | compatibility callee-name fallback remains a route input | `route_policy` | generated route descriptor, then retire |
+| P1 | `hako_llvmc_ffi_generic_method_policy.inc` | collection route policy still uses receiver origin and value class checks | `route_policy` | generic method route planner |
+| P1 | `hako_llvmc_ffi_generic_method_match.inc` | route matching still depends on local value-shape flags | `value_class_derivation` | LoweringPlan route value-class row |
+| P1 | `hako_llvmc_ffi_string_concat_window.inc` | string corridor discovers single-use / definition windows locally | `definition_discovery` | string corridor/window planner |
+| P1 | `hako_llvmc_ffi_string_concat_match.inc` | string concat windows are discovered from neighboring MIR ops | `fusion_window_discovery` | string kernel lowering window routes |
+| P1 | `hako_llvmc_ffi_string_chain_policy.inc` | concat chain route is classified from consumers and const suffix shape | `route_policy` | string route planner / value consumer facts |
+| P1 | `hako_llvmc_ffi_object_storage_plan.inc` | object storage names are still used as interpretation inputs | `object_storage_inference` | object storage plan |
+| P1 | `hako_llvmc_ffi_same_module_value_metadata.inc` | `__hako_sum_` prefix publishes sum handles | `value_class_derivation` | boxed-sum site/value fact |
+| P2 | `hako_llvmc_ffi_pure_compile.inc` and seed emitters | exact seed tags dispatch legacy routes by string | `exact_seed_fallback` | exact-route rows or retirement |
+| P2 | `hako_llvmc_ffi_generic_method_len_policy.inc` | length route uses known string length / placement windows before runtime len | `value_class_derivation` | string corridor facts / lowering route facts |
+
+Pure glue / generated outputs:
+
+```text
+hako_llvmc_ffi_generic_method_route_registry.inc
+  generated from spec/mir/generic_method_routes.toml; keep as generated output.
+
+hako_llvmc_ffi_common.inc
+  shared helpers and env parsing; not part of semantic route ownership unless
+  a helper starts choosing backend policy.
+
+hako_llvmc_ffi_lowering_plan_metadata.inc
+  structured reader for published lowering plan rows.
+
+hako_llvmc_ffi_mir_call_need_metadata_rules.inc
+  consumes route metadata / registry rows and explicitly excludes name fallback.
+
+hako_llvmc_ffi_typed_object_plan.inc
+  typed object plan reader and storage tag mapper.
+
+hako_llvmc_ffi_map_lookup_fusion_metadata.inc
+  consumes published map_lookup_fusion_routes; it does not discover windows.
+
+hako_llvmc_ffi_string_candidate_plan_readers.inc
+  reader for value consumer / string corridor / kernel plans.
+```
+
+Cleanup task order:
+
+```text
+P0. BOXED-SUM-SITE-ABI-PLAN-ID-001
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_boxed_sum_abi_plan.inc
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc
+      lang/c-abi/shims/hako_llvmc_ffi_same_module_prepass.inc
+    - MIR / LoweringPlan site facts carry resolved abi_plan_id and
+      payload_storage=None|I64|Handle
+    - C shims consume explicit plan rows only
+    - remove boxed_sum_payload_storage_from_type_name()
+    - no Option-name / MetadataContext-name / payload_type spelling inference
+    - variant_make / tag / project plan lookup uses abi_plan_id, not
+      enum_name + payload_storage search
+    - VariantTag may only receive a single abi_plan_id when MIR-owned site
+      facts prove the value resolves to a unique boxed sum shape; enum_name
+      alone is not enough
+    acceptance:
+      backend-local payload class decision = 0
+      enum-name-only boxed sum plan lookup = 0
+      payload_type spelling fallback = 0
+      unit / handle / I64 boxed-sum probes stay EXE/AOT green
+
+P0. C-ABI-SHIM-RESPONSIBILITY-INVENTORY-001
+    current files:
+      lang/c-abi/shims/*.inc
+    - audit every .inc that does more than consume selected MIR/lowering facts
+      and emit C/LLVM glue
+    - classify each finding as one of:
+        spelling_inference
+        definition_discovery
+        route_policy
+        value_class_derivation
+        object_storage_inference
+        fusion_window_discovery
+        exact_seed_fallback
+    - for each finding, name the intended upstream owner:
+        MIR JSON site fact
+        LoweringPlan row
+        SemanticRefresh fact
+        generated route descriptor
+        backend helper facade
+        retired legacy path
+    - do not edit C behavior in this inventory task
+    acceptance:
+      each non-glue .inc responsibility has an owner or retire task
+      boxed-sum emit O(n) definition scan is tracked as definition_discovery
+      boxed-sum generic/same-module duplication is tracked as helper_facade work
+      no new guard/card/route is created only to describe the inventory
+
+P0. BOXED-SUM-CONST-PAYLOAD-DEF-INDEX-001
+    card:
+      docs/development/current/main/phases/phase-296x/296x-1654-BOXED-SUM-CONST-PAYLOAD-DEF-INDEX-001.md
+    current file:
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc
+    - replace boxed_sum_emit prior-instruction linear scans with
+      ValueId -> const/definition lookup
+    - owner may be MIR JSON value facts, lowering plan, or compiler-state
+      prepass, but emit code must not scan for defining instructions
+    - preserve Some(-1) vs handle(-1) ambiguity protection through value-class
+      facts, not sign inference
+    acceptance:
+      emit_boxed_sum_i64_variant_make contains no for-k < ii definition scan
+      const payload lookup is O(1) from a named owner
+      missing class/const fact fails closed with a stable rejection reason
+
+P0. BOXED-SUM-LOWERING-FACADE-001
+    card:
+      docs/development/current/main/phases/phase-296x/296x-1655-BOXED-SUM-LOWERING-FACADE-001.md
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_variant_dispatch.inc
+      lang/c-abi/shims/hako_llvmc_ffi_same_module_typed_field_rmw_emit.inc
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc
+    - generic and same-module variant_make / variant_tag / variant_project
+      dispatch use one boxed-sum lowering facade
+    - boxed-sum plan lookup, local variant binding propagation, and
+      make/tag/project selection are not repeated in each emitter
+    - same-module typed-field / RMW emitter does not own boxed-sum ABI policy
+    acceptance:
+      one boxed-sum opcode-lowering entry per opcode surface
+      same-module and generic paths share the same payload_storage behavior
+      no duplicate payload_type inference or local-binding fallback branches
+
+P1. SAME-MODULE-FUSION-PLAN-SSOT-001
+    card:
+      docs/development/current/main/phases/phase-296x/296x-1657-SAME-MODULE-FUSION-PLAN-SSOT-001.md
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_same_module_prepass.inc
+      lang/c-abi/shims/hako_llvmc_ffi_same_module_typed_field_rmw_emit.inc
+    selected first window:
+      typed_field_rmw get/binop/set -> exact_slot_rmw_add_u64 helper
+    second window:
+      result_capsule_reset_batch four-field reset helper = landed
+    - upstream emits same_module_fusion_plan rows:
+      selected sites, skipped instruction ids, helper symbol, slots, guards
+    - C shims consume that plan only
+    - remove get/binop/set window matching and function-name allowlists from
+      same-module emit files
+    drain_now:
+      same_module_function_register_direct_use_count
+      same_module_function_match_typed_field_rmw_fusion_plan_at
+      same_module_function_match_typed_field_rmw_fusion_plans
+      same_module_function_name_is_selected_facade_get_set_fusion_target
+    drained:
+      same_module_function_match_result_capsule_reset_batch_plan
+      same_module_function_is_selected_result_capsule_reset_batch_target
+    not_window_discovery:
+      record-success helper bodies
+    acceptance:
+      same-module C shims do not discover fusion windows from neighboring ops
+      helper/function allowlists live in plan generation, not emit code
+
+P1. GENERIC-ROUTE-DESCRIPTOR-FULL-GENERATION-001
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc
+    - generate same-module views, need-kind mapping, emit-kind mapping, and
+      extern need mapping from the neutral route manifest
+    - handwritten route/proof tuple copies become generated output checks only
+    - backends switch on generated route ids / descriptor fields
+
+P1. C-SHIM-PREPASS-FACT-OWNER-DRAIN-001
+    card:
+      docs/development/current/main/phases/phase-296x/296x-1656-C-SHIM-PREPASS-FACT-OWNER-DRAIN-001.md
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc
+      lang/c-abi/shims/hako_llvmc_ffi_same_module_prepass.inc
+      lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc
+    - upstream SemanticRefresh / LoweringPlan publishes ValueClass,
+      OriginKind, NeedFlags, PhiType, and VariantBinding facts
+    - C-side prepasses verify required facts exist
+    - C-side prepasses stop being the semantic owner that derives those facts
+    acceptance:
+      prepass code verifies required published facts
+      prepass code does not infer value class from box name or payload spelling
+
+P1. MIR-CALL-ROUTE-POLICY-DRAIN-001
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc
+      lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc
+      lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_name_fallback.inc
+    - route classification, declaration needs, result facts, receiver-origin
+      mutation, and compatibility name fallback are separated
+    - legacy generic_method_routes metadata scan is retired after rows are
+      migrated to lowering_plan
+    - name fallback remains temporary compatibility only, with removal criteria
+    acceptance:
+      primary route policy comes from lowering_plan / generated descriptors
+      C shim does not choose route by callee string when descriptor exists
+      compatibility fallback is explicitly counted and fail-fast audited
+
+P2. OBJECT-STORAGE-PLAN-NAME-INFERENCE-DRAIN-001
+    - object_storage_plans carry explicit flattened-field keys,
+      method/property mappings, and static key symbols
+    - C shims do not infer object storage from HakoAlloc names
+
+P2. SAME-MODULE-DEFINITION-EDGE-PLAN-001
+    current file:
+      lang/c-abi/shims/hako_llvmc_ffi_same_module_function_plan.inc
+    - MIR finalize / lowering plan producer emits explicit same-module
+      definition list and definition edges
+    - C shim validates and emits listed definitions only
+    - recursive function-list discovery is removed from C shim
+
+P2. EXACT-SEED-ROUTE-QUARANTINE-001
+    - legacy exact seed emitters require explicit exact route rows
+    - blind fallback attempts are removed
+    - benchmark/userbox seed paths are either quarantined or retired
+```
+
+Immediate recommendation:
+
+```text
+do not block BOXED-SUM-I64-PAYLOAD-ABI-001 closeout on this cleanup lane.
+if boxed-sum ABI work continues after region-parent reopen, do P0 before adding
+new boxed payload classes.
 ```
 
 ## MIR Instruction SSOT Cleanup Backlog

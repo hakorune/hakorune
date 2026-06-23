@@ -28,13 +28,25 @@ pub(crate) fn emit_phi_instructions(
 pub(crate) fn emit_non_phi_instructions(
     func: &crate::mir::MirFunction,
     block: &crate::mir::BasicBlock,
+    boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
+    boxed_sum_site_plans: &std::collections::BTreeMap<
+        (crate::mir::BasicBlockId, usize),
+        crate::mir::boxed_sum_abi_plan::BoxedSumSitePlan,
+    >,
     insts: &mut Vec<serde_json::Value>,
 ) -> Result<(), String> {
     for (instruction_index, inst) in block.instructions.iter().enumerate() {
         if let I::Phi { .. } = inst {
             continue;
         }
-        let value = emit_instruction(func, block.id, instruction_index, inst)?;
+        let value = emit_instruction(
+            func,
+            block.id,
+            instruction_index,
+            inst,
+            boxed_sum_abi_plans,
+            boxed_sum_site_plans,
+        )?;
         insts.push(value);
     }
     Ok(())
@@ -54,6 +66,11 @@ fn emit_instruction(
     block: crate::mir::BasicBlockId,
     instruction_index: usize,
     inst: &crate::mir::MirInstruction,
+    boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
+    boxed_sum_site_plans: &std::collections::BTreeMap<
+        (crate::mir::BasicBlockId, usize),
+        crate::mir::boxed_sum_abi_plan::BoxedSumSitePlan,
+    >,
 ) -> Result<serde_json::Value, String> {
     if let Some(code) = crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(inst) {
         return Err(format!(
@@ -137,6 +154,7 @@ fn emit_instruction(
             payload,
             payload_type,
         } => Ok(sum::emit_variant_make(
+            boxed_sum_abi_plans,
             dst,
             enum_name,
             variant,
@@ -148,7 +166,12 @@ fn emit_instruction(
             dst,
             value,
             enum_name,
-        } => Ok(sum::emit_variant_tag(dst, value, enum_name)),
+        } => Ok(sum::emit_variant_tag(
+            dst,
+            value,
+            enum_name,
+            boxed_sum_site_plans.get(&(block, instruction_index)),
+        )),
         I::VariantProject {
             dst,
             value,
@@ -157,6 +180,7 @@ fn emit_instruction(
             tag,
             payload_type,
         } => Ok(sum::emit_variant_project(
+            boxed_sum_abi_plans,
             dst,
             value,
             enum_name,

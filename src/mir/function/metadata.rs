@@ -49,6 +49,7 @@ use crate::mir::{
     placement_effect::PlacementEffectRoute,
     receiver_snapshot_publication_plan::ReceiverSnapshotPublicationPlan,
     route_decision::RouteDecision,
+    same_module_fusion_plan::SameModuleFusionPlan,
     storage_class::StorageClass,
     string_corridor::StringCorridorFact,
     string_corridor_placement::StringCorridorCandidate,
@@ -373,6 +374,12 @@ pub struct FunctionMetadata {
     /// These are derived from `generic_method_routes` and do not change
     /// lowering; they only pin the exact pair a future plan may consume.
     pub map_lookup_fusion_routes: Vec<MapLookupFusionRoute>,
+
+    /// Backend-consumable same-module helper fusion plans.
+    ///
+    /// These rows own selected instruction windows so same-module C shims can
+    /// emit helpers without rediscovering neighboring MIR JSON instructions.
+    pub same_module_fusion_plans: Vec<SameModuleFusionPlan>,
 
     /// Metadata-only MapBox representation plans.
     ///

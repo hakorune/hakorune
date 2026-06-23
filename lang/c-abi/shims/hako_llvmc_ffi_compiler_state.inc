@@ -59,6 +59,51 @@
           int has_payload) {
         set_variant_binding_with_enum(r, tag_const, tag_reg, payload_reg, has_payload, NULL);
       }
+      auto int publish_variant_binding_from_instruction(yyjson_val* ins) {
+        yyjson_val* row = ins ? yyjson_obj_get(ins, "variant_binding") : NULL;
+        yyjson_val* has_payload_value = NULL;
+        yyjson_val* copy_alias_value = NULL;
+        yyjson_val* const_zero_value = NULL;
+        long long dst = 0;
+        long long tag_const = 0;
+        long long tag_reg = 0;
+        long long payload_reg = 0;
+        int has_payload = 0;
+        int copy_alias_payload = 0;
+        int const_zero_result = 0;
+        const char* enum_name = NULL;
+        if (!(row && yyjson_is_obj(row))) return 0;
+        dst = read_int(row, "dst");
+        tag_const = read_int(row, "tag_const");
+        tag_reg = read_int(row, "tag_reg");
+        payload_reg = read_int(row, "payload_reg");
+        enum_name = read_str(row, "enum_name");
+        has_payload_value = yyjson_obj_get(row, "has_payload");
+        copy_alias_value = yyjson_obj_get(row, "copy_alias_payload");
+        const_zero_value = yyjson_obj_get(row, "const_zero_result");
+        has_payload = has_payload_value && yyjson_is_bool(has_payload_value) &&
+            yyjson_get_bool(has_payload_value);
+        copy_alias_payload = copy_alias_value && yyjson_is_bool(copy_alias_value) &&
+            yyjson_get_bool(copy_alias_value);
+        const_zero_result = const_zero_value && yyjson_is_bool(const_zero_value) &&
+            yyjson_get_bool(const_zero_value);
+        if (!(dst && enum_name)) return 0;
+        if (copy_alias_payload && payload_reg) {
+          set_copy_alias(dst, resolve_copy_source_reg(payload_reg));
+        }
+        if (const_zero_result) {
+          put_const(dst, 0);
+        }
+        set_variant_binding_with_enum(
+            dst,
+            tag_const,
+            tag_reg,
+            payload_reg ? resolve_copy_source_reg(payload_reg) : 0,
+            has_payload,
+            enum_name);
+        set_type(dst, T_I64);
+        return 1;
+      }
       auto int all_phi_inputs_are_local_variants(struct PhiRec* pr) {
         if (!(pr && pr->in_n > 0)) return 0;
         for (int i = 0; i < pr->in_n; i++) {
@@ -93,9 +138,19 @@
       }
       auto void set_type(long long r, int t) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r){ types[i].ty=t; return; } } if (types_n<ARR_LEN(types)){ types[types_n].reg=r; types[types_n].ty=t; types_n++; } else { note_generic_capacity_overflow("generic_type_inventory_full"); } }
       auto int has_const(long long r, long long* out){
+        if (r > 0 && r < (long long)ARR_LEN(const_by_reg) &&
+            const_by_reg_present[r]) {
+          if(out) *out=const_by_reg[r];
+          return 1;
+        }
         for (size_t i=0;i<consts_n;i++){ if (consts[i].reg==r){ if(out) *out=consts[i].val; return 1; } }
         long long base = resolve_copy_source_reg(r);
         if (base != r) {
+          if (base > 0 && base < (long long)ARR_LEN(const_by_reg) &&
+              const_by_reg_present[base]) {
+            if(out) *out=const_by_reg[base];
+            return 1;
+          }
           for (size_t i=0;i<consts_n;i++){ if (consts[i].reg==base){ if(out) *out=consts[i].val; return 1; } }
         }
         return 0;
@@ -112,7 +167,19 @@
         if (!r) return 0;
         return get_type(r) == T_I1 || has_bool_const(r, &bool_const);
       }
-      auto void put_const(long long r, long long v){ if (consts_n<ARR_LEN(consts)){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } else { note_generic_capacity_overflow("generic_i64_const_inventory_full"); } }
+      auto void put_const(long long r, long long v){
+        if (r > 0 && r < (long long)ARR_LEN(const_by_reg)) {
+          const_by_reg[r] = v;
+          const_by_reg_present[r] = 1;
+        }
+        for (size_t i=0;i<consts_n;i++){
+          if (consts[i].reg==r){
+            consts[i].val=v;
+            return;
+          }
+        }
+        if (consts_n<ARR_LEN(consts)){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } else { note_generic_capacity_overflow("generic_i64_const_inventory_full"); }
+      }
       auto const char* get_str_const(long long r){
         for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; }
         long long base = resolve_copy_source_reg(r);

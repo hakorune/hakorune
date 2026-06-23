@@ -38,10 +38,7 @@ pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
 
 #[inline(always)]
 #[cfg(test)]
-fn runtime_i64_from_box_ref_caller(
-    value: &dyn NyashBox,
-    caller: BorrowedAliasEncodeCaller,
-) -> i64 {
+fn runtime_i64_from_box_ref_caller(value: &dyn NyashBox, caller: BorrowedAliasEncodeCaller) -> i64 {
     runtime_i64_from_box_ref_impl(value, caller, true)
 }
 

@@ -20,7 +20,7 @@ static box MetadataContextApi {
         if n == 0 {
             return Option::None()
         }
-        return Option::Some(BoxHelpers.array_get(current_region_stack, n - 1))
+        return Option::Some((BoxHelpers.array_get(current_region_stack, n - 1) + 0))
     }
 }
 
@@ -34,13 +34,21 @@ static box Main {
         }
         MetadataContextApi.push_region(current_region_stack, 10)
         local first_parent = MetadataContextApi.current_parent_region(current_region_stack)
-        if first_parent != Option::Some(10) {
+        guard let Option::Some(first_parent_some_value) = first_parent else {
+            print("metadata_region_parent_first=fail")
+            return 2
+        }
+        if first_parent_some_value != 10 {
             print("metadata_region_parent_first=fail")
             return 2
         }
         MetadataContextApi.push_region(current_region_stack, 20)
         local second_parent = MetadataContextApi.current_parent_region(current_region_stack)
-        if second_parent != Option::Some(20) {
+        guard let Option::Some(second_parent_some_value) = second_parent else {
+            print("metadata_region_parent_second=fail")
+            return 3
+        }
+        if second_parent_some_value != 20 {
             print("metadata_region_parent_second=fail")
             return 3
         }

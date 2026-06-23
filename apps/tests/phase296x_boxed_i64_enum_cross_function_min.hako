@@ -1,0 +1,87 @@
+enum InnerKind {
+    A
+    B
+}
+
+enum MaybeI64 {
+    None
+    Some(i64)
+}
+
+static box I64OptionApi {
+    tag(value: MaybeI64): i64 {
+        guard let MaybeI64::Some(x) = value else {
+            return 0
+        }
+        return 1
+    }
+
+    project(value: MaybeI64): i64 {
+        guard let MaybeI64::Some(x) = value else {
+            return 99
+        }
+        return x
+    }
+}
+
+static box HandleOptionApi {
+    is_b(value: Option<InnerKind>): i64 {
+        guard let Option::Some(inner) = value else {
+            return 0
+        }
+        if inner == InnerKind::B() {
+            return 1
+        }
+        return 0
+    }
+}
+
+static box GenericOptionI64Api {
+    project(value: Option<i64>): i64 {
+        guard let Option::Some(x) = value else {
+            return 99
+        }
+        return x
+    }
+}
+
+static box Main {
+    main() {
+        local no_value = MaybeI64::None()
+        if I64OptionApi.tag(no_value) != 0 {
+            print("boxed_i64_enum_none_tag=fail")
+            return 1
+        }
+
+        local zero = MaybeI64::Some(0)
+        if I64OptionApi.tag(zero) != 1 {
+            print("boxed_i64_enum_zero_tag=fail")
+            return 2
+        }
+        if I64OptionApi.project(zero) != 0 {
+            print("boxed_i64_enum_zero_project=fail")
+            return 3
+        }
+
+        local neg = MaybeI64::Some(-1)
+        if I64OptionApi.project(neg) != -1 {
+            print("boxed_i64_enum_neg_project=fail")
+            return 4
+        }
+
+        local handle = Option::Some(InnerKind::B())
+        if HandleOptionApi.is_b(handle) != 1 {
+            print("boxed_i64_enum_handle_shape=fail")
+            return 5
+        }
+
+        local option_i64 = Option::Some(20)
+        if GenericOptionI64Api.project(option_i64) != 20 {
+            print("boxed_i64_enum_option_i64_shape=fail")
+            return 6
+        }
+
+        print("boxed_i64_enum_cross_function=ok")
+        return 0
+    }
+}

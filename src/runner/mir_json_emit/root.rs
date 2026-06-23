@@ -47,9 +47,15 @@ fn export_surfaces_from_object(value: &Value) -> Vec<mir_json_export_model::MirJ
 pub(super) fn build_mir_json_root(
     module: &crate::mir::MirModule,
 ) -> Result<serde_json::Value, String> {
+    let boxed_sum_abi_plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
     let mut funs = Vec::new();
     let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
+        let boxed_sum_site_plans =
+            crate::mir::boxed_sum_abi_plan::build_function_boxed_sum_site_plan_map(
+                f,
+                &boxed_sum_abi_plans,
+            );
         let mut blocks = Vec::new();
         let mut export_blocks = Vec::new();
         let mut instruction_count = 0usize;
@@ -65,7 +71,13 @@ pub(super) fn build_mir_json_root(
                 insts.extend(emitters::emit_phi_instructions(f, bb));
 
                 // Step 2: Emit all non-PHI instructions in MIR order (no reordering!)
-                emitters::emit_non_phi_instructions(f, bb, &mut insts)?;
+                emitters::emit_non_phi_instructions(
+                    f,
+                    bb,
+                    &boxed_sum_abi_plans,
+                    &boxed_sum_site_plans,
+                    &mut insts,
+                )?;
 
                 // Phase 131-13: Terminator emitted inline (no delayed copies)
                 if let Some(term) = emitters::emit_terminator(&bb.terminator)? {

@@ -119,8 +119,9 @@ pub(super) fn collect_boxed_sum_abi_plan_values(
         .iter()
         .map(|plan| {
             json!({
-                "version": crate::mir::boxed_sum_abi_plan::BOXED_SUM_ABI_VERSION_V1,
+                "version": crate::mir::boxed_sum_abi_plan::BOXED_SUM_ABI_VERSION_V2,
                 "plan_id": plan.plan_id,
+                "shape_key": plan.shape_key,
                 "enum_name": plan.enum_name,
                 "runtime_type_id": plan.runtime_type_id,
                 "runtime_box_name": plan.runtime_box_name,
@@ -154,7 +155,8 @@ mod boxed_sum_abi_tests {
         );
 
         let plans = collect_boxed_sum_abi_plan_values(&module);
-        assert_eq!(plans[0]["version"], "boxed_runtime_v1");
+        assert_eq!(plans[0]["version"], "boxed_runtime_v2");
+        assert_eq!(plans[0]["shape_key"], "ProbeKind|0:none");
         assert_eq!(plans[0]["enum_name"], "ProbeKind");
         assert_eq!(plans[0]["runtime_box_name"], "__NyVariant_ProbeKind");
         assert_eq!(plans[0]["variants"][0]["payload_storage"], "none");

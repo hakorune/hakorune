@@ -842,50 +842,6 @@
         long long box_reg;
       };
 
-      auto int same_module_function_name_is_in_list(
-          const char* name,
-          const char* const* names,
-          size_t names_n) {
-        if (!(name && names)) return 0;
-        for (size_t i = 0; i < names_n; i++) {
-          if (!strcmp(name, names[i])) return 1;
-        }
-        return 0;
-      }
-
-      auto int same_module_function_name_is_selected_facade_get_set_fusion_target(
-          const char* name) {
-        static const char* const selected_facade_get_set_fusion_targets[] = {
-            "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseDirectCachedPage/2",
-            "HakoAllocObjectLifecycleFacade.objectLifecycleReleaseKnownPageIndex/1",
-            "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1",
-            "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAllocAligned/2",
-        };
-        return same_module_function_name_is_in_list(
-            name,
-            selected_facade_get_set_fusion_targets,
-            ARR_LEN(selected_facade_get_set_fusion_targets));
-      }
-
-      auto int same_module_function_is_selected_typed_field_rmw_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        return name &&
-               (!strcmp(name, "HakoAllocPageModel.acquire_usize/1") ||
-                same_module_function_name_is_selected_facade_get_set_fusion_target(name));
-      }
-
-      auto int same_module_function_is_selected_result_capsule_reset_batch_target(void) {
-        const char* name = fn0 ? read_str(fn0, "name") : NULL;
-        static const char* const selected_result_capsule_reset_targets[] = {
-            "HakoAllocObjectLifecycleAllocResult.reset/0",
-            "HakoAllocObjectLifecycleReleaseResult.reset/0",
-        };
-        return same_module_function_name_is_in_list(
-            name,
-            selected_result_capsule_reset_targets,
-            ARR_LEN(selected_result_capsule_reset_targets));
-      }
-
       auto int same_module_function_selected_record_success_helper_kind(void) {
         const char* name = fn0 ? read_str(fn0, "name") : NULL;
         if (!typed_object_exact_slot_helper_enabled()) return 0;
@@ -932,14 +888,14 @@
               block.instruction_count,
               skip_inst,
               &array_direct_plan);
-          same_module_function_match_result_capsule_reset_batch_plan(
-              block.instructions,
+          same_module_function_read_result_capsule_reset_batch_plan(
+              block.id,
               block.instruction_count,
               skip_inst,
               &result_capsule_reset_batch_plan);
           typed_field_rmw_plans_n =
-              same_module_function_match_typed_field_rmw_fusion_plans(
-                  block.instructions,
+              same_module_function_read_typed_field_rmw_fusion_plans(
+                  block.id,
                   block.instruction_count,
                   skip_inst,
                   typed_field_rmw_plans,

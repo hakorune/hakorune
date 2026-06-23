@@ -119,7 +119,10 @@ pub(super) fn verify_effect(
                 return Err(primitives::err(
                     "V6",
                     "variant_make_empty_name",
-                    format!("VariantMake at depth {} has empty enum or variant name", depth),
+                    format!(
+                        "VariantMake at depth {} has empty enum or variant name",
+                        depth
+                    ),
                 ));
             }
             if let Some(payload) = payload {

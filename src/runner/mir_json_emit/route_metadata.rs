@@ -5,6 +5,7 @@ use super::route_json::{
     build_userbox_loop_micro_seed_route_json,
 };
 use crate::mir::function::FunctionMetadata;
+use crate::mir::same_module_fusion_plan::SameModuleFusionPlan;
 use crate::mir::MirFunction;
 use serde_json::json;
 
@@ -81,4 +82,51 @@ pub(super) fn insert_route_metadata_json(
                 .collect(),
         ),
     );
+    obj.insert(
+        "same_module_fusion_plans".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .same_module_fusion_plans
+                .iter()
+                .map(build_same_module_fusion_plan_json)
+                .collect(),
+        ),
+    );
+}
+
+fn build_same_module_fusion_plan_json(plan: &SameModuleFusionPlan) -> serde_json::Value {
+    match plan {
+        SameModuleFusionPlan::TypedFieldRmw(plan) => json!({
+            "kind": plan.kind,
+            "function": plan.function.as_str(),
+            "block": plan.block.as_u32(),
+            "get_instruction_index": plan.get_instruction_index,
+            "binop_instruction_index": plan.binop_instruction_index,
+            "set_instruction_index": plan.set_instruction_index,
+            "skip_instruction_indices": plan.skip_instruction_indices.as_slice(),
+            "get_dst": plan.get_dst.as_u32(),
+            "binop_dst": plan.binop_dst.as_u32(),
+            "box_reg": plan.box_reg.as_u32(),
+            "field": plan.field.as_str(),
+            "slot": plan.slot,
+            "delta_reg": plan.delta_reg.as_u32(),
+            "helper_symbol": plan.helper_symbol,
+            "storage": plan.storage,
+            "direct_use_count": plan.direct_use_count,
+        }),
+        SameModuleFusionPlan::ResultCapsuleResetBatch(plan) => json!({
+            "kind": plan.kind,
+            "function": plan.function.as_str(),
+            "block": plan.block.as_u32(),
+            "first_set_instruction_index": plan.first_set_instruction_index,
+            "set_instruction_indices": plan.set_instruction_indices,
+            "skip_instruction_indices": plan.skip_instruction_indices.as_slice(),
+            "box_reg": plan.box_reg.as_u32(),
+            "fields": plan.fields,
+            "slots": plan.slots,
+            "values": plan.values,
+            "helper_symbol": plan.helper_symbol,
+            "storage": plan.storage,
+        }),
+    }
 }

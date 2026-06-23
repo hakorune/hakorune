@@ -80,6 +80,7 @@ use super::{
     },
     route_fixpoint::refresh_module_route_fixpoint,
     rune_plan_refresh::refresh_function_rune_plans,
+    same_module_fusion_plan::refresh_module_same_module_fusion_plans,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
     span_access_plan::refresh_function_span_access_plans,
@@ -328,6 +329,7 @@ fn refresh_function_post_fixpoint_consumers(
         refresh_function_hotcore_method_summaries(function);
         refresh_function_local_fastpath_facts(function);
     }
+    refresh_module_same_module_fusion_plans(module);
 }
 
 fn refresh_module_contracts_and_exact_numeric(module: &mut MirModule) {
