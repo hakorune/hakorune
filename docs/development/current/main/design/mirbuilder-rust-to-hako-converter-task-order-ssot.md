@@ -68,17 +68,14 @@ current decision:
     changing the read-fold semantics.
 
 current fail-fast boundary:
-  The generated RegionObserver artifact reaches MIR with native enum
-  classification, and boxed enum make/tag/project now works across a function
-  boundary for payload-less and handle-payload variants. EXE/AOT still needs
-  the container round trip before `MapBox.get(... MirType ...)` can feed
-  `Option<MirType>` into the classifier.
+  Focused boxed enum probes are green. The remaining boundary is the full
+  RegionObserver artifact, not a generic boxed enum transport gap.
 
-  Deny(UnsupportedEnumValueTransport)
-  detail=BoxedRuntimeEnumContainerRoundTripUnavailable
+  Deny(UnsupportedRegionObserverReadFold)
+  detail=FullArtifactNotYetClosed
   first_callee=SlotClassifierApi.classify/2
-  first_op=map_get_enum_option
-  required_shape=MapBox-returned enum nested in Option
+  first_op=region_observer_fold
+  required_shape=SlotMetadata artifact VM/MIR/EXE/AOT green
 
 forbidden:
   raw aggregate map return
@@ -111,9 +108,10 @@ Current mechanical status:
 region-observer variable_map read-fold route = native enum / boxed product WIP
 comparator proof = VmExeAotAccepted
 slot_metadata_output_transport_claim = selected
-generated_hako = MIR green, EXE/AOT blocked on boxed enum container round trip
-  boxed_runtime_v1 make/tag/project = landed for cross-function enum values
-next step = close boxed enum container round trip
+generated_hako = MIR green, EXE/AOT ready for RegionObserver closeout probe
+  boxed_runtime_v1 make/tag/project = landed
+  boxed enum MapBox/Option round trip = landed
+next step = close RegionObserver SlotMetadata artifact
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -307,7 +305,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.10. `Close boxed enum container round trip`
 
-   Status: active.
+   Status: landed.
 
    Scope:
 
@@ -332,6 +330,8 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    enum stored in typed object field green
    RegionObserver SlotMetadata artifact VM/MIR/EXE/AOT green
    ```
+
+   Evidence: map and option-map round-trip probes pass LLVM harness.
 
 1. `Generalize access capabilities through value-caller clone elimination`
 

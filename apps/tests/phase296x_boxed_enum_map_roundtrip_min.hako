@@ -1,0 +1,27 @@
+enum InnerKind {
+    A
+    B
+}
+
+static box ProbeApi {
+    is_b(value: InnerKind): i64 {
+        if value == InnerKind::B() {
+            return 1
+        }
+        return 0
+    }
+}
+
+static box Main {
+    main() {
+        local map = new MapBox()
+        map.set("k", InnerKind::B())
+        local value = map.get("k")
+        if ProbeApi.is_b(value) != 1 {
+            print("boxed_enum_map_roundtrip=fail")
+            return 1
+        }
+        print("boxed_enum_map_roundtrip=ok")
+        return 0
+    }
+}
