@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  USE-TOTAL-TEXT-ORDERING-IN-ORDEREDMAPBOX-001
+  LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 
 current implementation task:
-  Use total text ordering in OrderedMapBox
+  Lower RegionObserver through verified source-ordered read-fold
 
 selected source slice:
   variable_map().iter() observer fold
@@ -87,7 +87,7 @@ Current mechanical status:
 ```text
 region-observer variable_map read-fold route = Deny
 generated_hako = 0
-next step = use TextOrder.compare_rust_string_v1 in OrderedMapBox
+next step = lower RegionObserver read-fold with KeyAscending(RustStringOrdV1)
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -132,7 +132,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.6. `Use total text ordering in OrderedMapBox`
 
-   Status: current.
+   Status: landed.
 
    Scope:
 
@@ -147,6 +147,20 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
    This consumes the generic comparator capability from `apps/lib/collections`
    without adding backend branches or RegionObserver-specific policy.
+
+0.7. `Lower RegionObserver through verified source-ordered read-fold`
+
+   Status: current.
+
+   Scope:
+
+   ```text
+   order = KeyAscending(RustStringOrdV1)
+   comparator proof = VM/EXE/AOT accepted
+   output = owned SlotMetadata sequence
+   raw aggregate borrow = 0
+   insertion-order substitution = 0
+   ```
 
 1. `Generalize access capabilities through value-caller clone elimination`
 

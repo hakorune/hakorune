@@ -7,14 +7,15 @@ static box Main {
         m.set("b", 20)
         m.set("a", 10)
         m.set("c", 30)
+        m.set("args", 15)
 
-        if m.length() != 3 {
+        if m.length() != 4 {
             print("length_after_insert=fail")
             return 1
         }
 
         local keys = m.keys()
-        if keys.length() != 3 {
+        if keys.length() != 4 {
             print("keys_length=fail")
             return 13
         }
@@ -23,17 +24,21 @@ static box Main {
             print("key0=fail:" + m.key_at(0))
             return 2
         }
-        if m.key_at(1) != "b" {
+        if m.key_at(1) != "args" {
             print("key1=fail:" + m.key_at(1))
             return 3
         }
-        if m.key_at(2) != "c" {
+        if m.key_at(2) != "b" {
             print("key2=fail:" + m.key_at(2))
             return 4
         }
+        if m.key_at(3) != "c" {
+            print("key3=fail:" + m.key_at(3))
+            return 33
+        }
 
         m.set("b", 21)
-        if m.length() != 3 {
+        if m.length() != 4 {
             print("update_duplicate=fail")
             return 5
         }
@@ -59,20 +64,24 @@ static box Main {
             print("value0=fail")
             return 10
         }
-        if values.get(1) != 21 {
+        if values.get(1) != 15 {
             print("value1=fail")
             return 11
         }
-        if values.get(2) != 30 {
+        if values.get(2) != 21 {
             print("value2=fail")
             return 12
+        }
+        if values.get(3) != 30 {
+            print("value3=fail")
+            return 34
         }
 
         if m.remove("b") != 21 {
             print("remove_existing=fail")
             return 18
         }
-        if m.length() != 2 {
+        if m.length() != 3 {
             print("remove_length=fail")
             return 19
         }
@@ -80,9 +89,13 @@ static box Main {
             print("remove_key0=fail:" + m.key_at(0))
             return 20
         }
-        if m.key_at(1) != "c" {
+        if m.key_at(1) != "args" {
             print("remove_key1=fail:" + m.key_at(1))
             return 21
+        }
+        if m.key_at(2) != "c" {
+            print("remove_key2=fail:" + m.key_at(2))
+            return 35
         }
         if m.get("b") != null {
             print("remove_get_deleted=fail")
@@ -100,7 +113,7 @@ static box Main {
             print("remove_null=fail")
             return 25
         }
-        if m.length() != 2 {
+        if m.length() != 3 {
             print("remove_missing_length=fail")
             return 26
         }

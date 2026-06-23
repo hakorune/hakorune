@@ -33,17 +33,17 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-USE-TOTAL-TEXT-ORDERING-IN-ORDEREDMAPBOX-001
+LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 ```
 
 Next task:
 
 ```text
-Replace OrderedMapBox local string comparison with TextOrder.compare_rust_string_v1
-and keep ordered-map behavior green.
+Use KeyAscending(RustStringOrdV1) plus comparator proof to lower the
+RegionObserver variable_map().iter() read-fold.
 
 Do not add OrderedMapBox / RegionObserver backend special cases.
-Do not generate the RegionObserver artifact until comparator proof is green.
+Do not substitute insertion order for Rust BTreeMap ordering.
 ```
 
 Purpose:

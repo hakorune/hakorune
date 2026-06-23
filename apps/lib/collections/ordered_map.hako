@@ -3,6 +3,8 @@
 // v0 is intentionally small: ArrayBox-backed storage, String keys only,
 // deterministic lexical order, and no MapBox/ring substrate ownership.
 
+using apps.lib.collections.text_order as TextOrder
+
 static box OrderedMap {
     create() {
         local map = new OrderedMapBox()
@@ -53,7 +55,7 @@ box OrderedMapBox {
             local prev = pos - 1
             local a = me.keys_value.get(prev)
             local b = me.keys_value.get(pos)
-            if a < b or a == b {
+            if TextOrder.compare_rust_string_v1(a, b) <= 0 {
                 return 1
             }
 

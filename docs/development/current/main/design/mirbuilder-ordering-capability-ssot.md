@@ -207,7 +207,13 @@ new Hako pointer or borrow syntax
    clear
    ```
 
-   Status: current.
+   Status: landed.
+
+   Evidence:
+
+   ```bash
+   bash tools/checks/rust_lifecycle_ordered_map_text_order_guard.sh
+   ```
 
 4. `Lower RegionObserver through verified source-ordered read-fold`
 
@@ -219,11 +225,12 @@ new Hako pointer or borrow syntax
    insertion-order substitution = 0
    ```
 
+   Status: current.
+
 ## Current Stop Line
 
-Comparator execution is proven, but source-ordered read-fold generation remains
-closed until OrderedMapBox consumes the capability and RegionObserver lowering
-is verified:
+Comparator execution is proven and OrderedMapBox consumes it, but source-ordered
+read-fold generation remains closed until RegionObserver lowering is verified:
 
 ```text
 source_ordered_read_fold_claim=0
