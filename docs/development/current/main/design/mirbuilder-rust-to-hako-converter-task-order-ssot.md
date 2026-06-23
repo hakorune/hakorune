@@ -58,10 +58,25 @@ implemented route-selection guardrail:
     detail=OutputTransportUndecided
     output=Vec<SlotMetadata>
 
-current design stop:
-  Do not invent SlotMetadata / RefSlotKind transport inside the RegionObserver
-  route. The next design decision must fix the owned output representation
-  before generated Hako can be claimed.
+current decision:
+  SlotMetadata / RefSlotKind output transport is selected:
+
+  - RefSlotKind is a native enum.
+  - SlotMetadata is semantic OwnedProduct.
+  - Current execution transport is ArrayBox<SlotMetadataBox>.
+  - Future optimized transport may become InlineRecord / packed / SoA without
+    changing the read-fold semantics.
+
+current fail-fast boundary:
+  The generated RegionObserver artifact reaches MIR with native enum
+  classification, but EXE/AOT stops at variant_tag on an enum value that is not
+  a same-function variant_make local aggregate.
+
+  Deny(UnsupportedEnumValueTransport)
+  detail=ExternalBoxedEnumTagUnavailable
+  first_callee=SlotClassifierApi.classify/2
+  first_op=variant_tag
+  required_shape=enum function parameter and container-returned enum values
 
 forbidden:
   raw aggregate map return
@@ -91,11 +106,11 @@ rust_mirbuilder_converter_matrix_guard green
 Current mechanical status:
 
 ```text
-region-observer variable_map read-fold route = Deny(UnsupportedOutputTransport)
+region-observer variable_map read-fold route = native enum / boxed product WIP
 comparator proof = VmExeAotAccepted
-slot_metadata_output_transport_claim = 0
-generated_hako = 0
-next step = decide SlotMetadata / RefSlotKind owned output transport
+slot_metadata_output_transport_claim = selected
+generated_hako = MIR green, EXE/AOT blocked on external enum tag transport
+next step = implement generic external/boxed enum value backend acceptance
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -158,7 +173,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.7. `Lower RegionObserver through verified source-ordered read-fold`
 
-   Status: design stop.
+   Status: blocked on generic backend enum transport.
 
    Scope:
 
@@ -170,13 +185,62 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    insertion-order substitution = 0
    ```
 
+   Output transport decision:
+
+   ```text
+   RefSlotKind = native enum
+   SlotMetadata = semantic OwnedProduct
+   current physical transport = ArrayBox<SlotMetadataBox>
+   record-in-ArrayBox claim = 0
+   ```
+
    Current blocker:
 
    ```text
-   Vec<SlotMetadata> output transport is undecided.
-   RefSlotKind representation is undecided.
-   classify_slot(builder, vid, name) lowering must not be special-cased by
-   RegionObserver name.
+   native enum values crossing function/container boundaries cannot be tagged
+   by AOT generic lowering yet.
+
+   The supported backend shape is still local variant_make -> variant_tag.
+   The RegionObserver classifier needs:
+     Option<MirType> parameter -> variant_tag / variant_project
+     MapBox.get(... MirType ...) -> Option::Some(MirType) -> classifier
+
+   Do not switch RefSlotKind or MirType to manual i64 tags as a workaround.
+   Do not add RegionObserver / MirType backend branches.
+   ```
+
+0.8. `Accept external boxed native enum value tags`
+
+   Status: next.
+
+   Scope:
+
+   ```text
+   Define a generic backend contract for native enum values that are not
+   same-function local variant_make aggregates:
+
+   - enum function parameters
+   - enum values returned from MapBox / ArrayBox / typed object fields
+   - Option<T> payload projection followed by T variant_tag
+   ```
+
+   Required route facts:
+
+   ```text
+   variant_tag.external_boxed
+   variant_project.external_boxed
+   ```
+
+   Acceptance:
+
+   ```text
+   no RegionObserver-name backend branch
+   no MirType-name backend branch
+   no manual i64 enum-tag transport for the converter artifact
+   Option<MirType> parameter guard-let EXE/AOT green
+   MapBox-returned MirType classifier EXE/AOT green
+   unknown enum ABI -> Deny(UnsupportedEnumValueTransport)
+   runtime fallback = 0
    ```
 
 1. `Generalize access capabilities through value-caller clone elimination`

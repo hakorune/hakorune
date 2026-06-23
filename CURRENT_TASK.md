@@ -33,27 +33,34 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
+EXTERNAL-BOXED-NATIVE-ENUM-TAG-ACCEPTANCE-001
 ```
 
 Next task:
 
 ```text
-Decide the owned output transport for RegionObserver
-`Vec<SlotMetadata>` before lowering the `variable_map().iter()` read-fold.
+Accept native enum values that cross function/container boundaries before
+claiming the RegionObserver `variable_map().iter()` read-fold.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
   comparator_proof=VmExeAotAccepted
 
+The owned output transport is now selected:
+  RefSlotKind = native enum
+  SlotMetadata = semantic OwnedProduct
+  current execution transport = ArrayBox<SlotMetadataBox>
+
 The current fail-fast boundary is:
-  Deny(UnsupportedOutputTransport)
-  detail=OutputTransportUndecided
-  output=Vec<SlotMetadata>
+  Deny(UnsupportedEnumValueTransport)
+  detail=ExternalBoxedEnumTagUnavailable
+  first_callee=SlotClassifierApi.classify/2
+  first_op=variant_tag
 
 Do not add OrderedMapBox / RegionObserver backend special cases.
 Do not substitute insertion order for Rust BTreeMap ordering.
-Do not invent SlotMetadata / RefSlotKind transport inside the route.
+Do not switch native enums to manual i64 tags as a workaround.
+Do not add MirType-name backend special cases.
 ```
 
 Purpose:
