@@ -265,17 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1649-TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001.md"
-latest_card_summary = """The next direct converter slice is the live
-TypeContext.string_literals owned leaf projection:
-map_value.rs::string_literal lowers get(&value).cloned() through
-StorageAccessFacts -> ElideToLeafProjection -> MapGetOption. This slice reuses
-existing immutable leaf projection machinery, adds no production operation kind,
-adds no backend route, and keeps emit_string plus map-value publication outside
-the claim."""
+latest_card = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md"
+latest_card_summary = """The MirBuilder converter hygiene lane closed the
+false-green display, thin current pointers, task-order compression,
+mirbuilder_family_artifacts.py validator split, and leaf-projection validator
+dedupe. The next step is selecting the next semantic converter slice before
+adding behavior."""
 
-current_blocker_token = "TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001"
+current_blocker_token = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

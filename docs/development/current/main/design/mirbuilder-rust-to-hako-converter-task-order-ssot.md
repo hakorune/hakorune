@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001
+  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
 
 current implementation task:
-  Implement TypeContext.string_literals owned leaf projection.
+  Select the next semantic converter slice after hygiene cleanup.
 
 producer responsibility stack:
   Source preparation
@@ -32,15 +32,10 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  map_value.rs::string_literal get(&value).cloned()
+  none selected after hygiene closeout
 
 selected lowering:
-  Rust facts
-    -> BorrowUseFacts
-    -> StorageAccessFacts
-    -> order=Unobserved
-    -> ElideToLeafProjection
-    -> OptionStringBox output
+  design stop before adding converter behavior
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -48,8 +43,7 @@ landed evidence:
   diagnostics, and generic read-fold decomposition are landed.
 
 selected next owner:
-  TypeContext.string_literals: BTreeMap<ValueId, String>
-  Only the live helper `string_literal(builder, value)` is selected.
+  not selected; choose next semantic slice before implementation
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -59,8 +53,7 @@ selected transport:
     InlineRecord / packed / SoA without changing read-fold semantics.
 
 current fail-fast boundary:
-  Allow only get(&ValueId).cloned(), no map identity escape, no element
-  reference escape, order=Unobserved, and ImmutableStringAtom values.
+  no new converter capability until the next slice is selected.
 
 latest design decision:
   Collection values must use the existing MIR route contracts end-to-end:
@@ -84,7 +77,7 @@ forbidden:
   `ReadFoldSlotMetadata` compatibility renderer reintroduction
 ```
 
-Acceptance for the current task:
+Recent acceptance evidence:
 
 ```text
 TypeContext string literal artifact regenerates deterministically
@@ -92,6 +85,7 @@ MapGetOption is reused; new operation kind = 0
 producer-side emit_string is harness-only prefill, not converted
 full map-value publication claim = 0
 MIR/EXE/LLVM-AOT focused guard green
+task-order cleanup guard=current_state_pointer_guard
 ```
 
 Current mechanical status:
@@ -108,355 +102,46 @@ generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
 generic_method_route_mismatch_diagnostics = landed for first descriptor field
 generic_read_fold_operation_decomposition = landed
 type_context_string_literal_leaf_projection = selected
+task_hygiene_next3 = closed
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
-## Active Task Order
-
-0. `Define total text ordering capability`
-
-   Status: landed.
-
-   Scope:
-
-   ```text
-   IterationOrder::KeyAscending(RustStringOrdV1)
-   CompareTotal(comparator=RustStringOrdV1)
-   Deny(UnsupportedOrderCapability)
-   detail=ComparatorUnavailable
-   ```
-
-   This is converter IR / capability work under `tools/rust_lifecycle`. Do not
-   put the intermediate order model in `crates/hakorune_mir_builder`.
-
-0.5. `Implement backend-accepted total text ordering capability`
-
-   Status: landed.
-
-   Scope:
-
-   ```text
-   CompareTotal(RustStringOrdV1)
-   VM / EXE / AOT acceptance
-   equal / less / greater / prefix / non-ASCII oracle cases
-   ```
-
-   Forbidden:
-
-   ```text
-   OrderedMapBox-name backend branch
-   RegionObserver-name backend branch
-   runtime fallback
-   locale-dependent compare
-   ```
-
-0.6. `Use total text ordering in OrderedMapBox`
-
-   Status: landed.
-
-   Scope:
-
-   ```text
-   OrderedMapBox.set uses TextOrder.compare_rust_string_v1
-   b, a, args -> a, args, b
-   update existing key
-   remove
-   clone_owned
-   clear
-   ```
-
-   This consumes the generic comparator capability from `apps/lib/collections`
-   without adding backend branches or RegionObserver-specific policy.
-
-0.7. `Lower RegionObserver through verified source-ordered read-fold`
-
-   Status: green through generated artifact LLVM/AOT.
-
-   Scope:
-
-   ```text
-   order = KeyAscending(RustStringOrdV1)
-   comparator proof = VM/EXE/AOT accepted
-   output = owned SlotMetadata sequence
-   raw aggregate borrow = 0
-   insertion-order substitution = 0
-   ```
-
-   Output transport decision:
-
-   ```text
-   RefSlotKind = native enum
-   SlotMetadata = semantic OwnedProduct
-   current physical transport = ArrayBox<SlotMetadataBox>
-   record-in-ArrayBox claim = 0
-   ```
-
-   Closed blocker:
-
-   ```text
-   MapBox i64-key raw load now preserves mixed runtime values, including
-   negative typed-object / boxed enum handles. The fix is generic transport,
-   not RegionObserver / MirType / RefSlotKind special casing.
-
-   Do not switch RefSlotKind or MirType to manual i64 tags as a workaround.
-   Do not add RegionObserver / MirType backend branches.
-   ```
-
-0.8. `Implement boxed native enum make/tag ABI`
-
-   Status: landed. `VariantMake` / `VariantTag` keep canonical MIR and use
-   `SumValueRepresentation::BoxedRuntime(abi_plan_id)` plus
-   `BoxedSumAbiPlanV1`. Unit enum cross-function probe is VM/EXE/AOT green.
-
-0.9. `Implement boxed native enum handle projection`
-
-   Status: landed. Handle-payload `VariantProject` and nested enum tag probe
-   are VM/EXE/AOT green without Option/MirType-name backend branches.
-
-0.10. `Close boxed enum container round trip`
-
-   Status: landed. MapBox/Option enum round trip, native enum parameter/return,
-   and enum stored in typed-object field are VM/MIR/EXE/AOT green.
-
-0.11. `Retain failed ny-llvmc input MIR`
-
-   Status: landed in working tree. Failure keeps temp MIR and prints
-   `retained_mir=<path>`; success deletes it.
-
-0.12. `Fix retained-MIR backend-ready blocker`
-
-   Status: green. The retained evidence selected generic MapBox mixed runtime
-   value transport rather than a producer/finalizer or source-shape fix.
-
-0.13. `Move slot classification policy into verified operation data`
-
-   Status: landed. Emitter renders
-   `ClassifyEnumVariants`; facts own variant groups and fallback names.
-
-0.14. `Define mixed runtime value carrier contract`
-
-   Status: landed.
-
-   ```text
-   StoredBoxValue = collection-internal semantic value
-   RuntimeValueCarrierI64 = ABI i64 bit carrier
-   RuntimeValueClassFact = ScalarI64 / BoolI64 / Handle /
-                           BoxedEnumHandle / TypedObjectHandle
-
-   RuntimeValueCarrierI64 / Mode / Site are live.
-   MapBox and ArrayBox use a common mixed-value encode path.
-   i64 sign inference = 0.
-   negative scalar / handle collision is covered by route class facts.
-   typed-object load -> type_id is green for MapBox and ArrayBox.
-   boxed enum load -> VariantTag is green for MapBox and ArrayBox.
-   missing class fact -> Deny(UnsupportedValueTransport)
-     detail=AmbiguousRuntimeI64OrHandle
-   ```
-
-0.15. `Reject stale NyRT harness artifacts`
-
-   Status: landed.
-
-   ```text
-   --no-build AOT harness fails when libnyash_kernel.a is older than
-   crates/nyash_kernel sources, Cargo.toml, or Cargo.lock
-   stale report includes artifact path and newer source path
-   hint includes cargo build -p nyash_kernel --release
-   ```
-
-0.16. `Generate generic method route descriptors`
-
-   Status: landed.
-
-   ```text
-   spec/mir/generic_method_routes.toml
-     -> src/mir/generated/generic_method_route_descriptors.rs
-     -> lang/c-abi/shims/hako_llvmc_ffi_generic_method_route_registry.inc
-     -> src/llvm_py/generated/generic_method_route_registry.py
-   handwritten route descriptor duplication = 0
-   Rust planner chooses route_kind; descriptor owns ABI/backend contract
-   ```
-
-0.17. `Report generic method route contract mismatches`
-
-   Status: landed.
-
-   ```text
-   route_id / core_op / route_kind / tier / helper / proof
-   return_shape / value_demand / publication_policy
-   first mismatched field
-   diagnostics consume generated descriptors; they do not classify routes
-   ```
-
-0.18. `Lower owned read folds through generic operations`
-
-   Status: landed.
-
-   ```text
-   Replace ReadFoldSlotMetadata with generic operation vocabulary:
-     ForEachOrderedMapEntry
-     MapLookupOption
-     CallStatic
-     ConstructOwnedProduct
-     SequencePush
-
-   Production method operations:
-     own iteration, lookup, classifier call, product construction, append
-
-   Harness-only operations:
-     AssertOwnedProductSequence
-
-   Oracle assertions must not remain embedded in production API methods.
-   Shared emitter owns rendering only; policy stays in verified operation data.
-
-   RegionObserver generated artifact remains LLVM/AOT green.
-   ```
-
-1. `Generalize access capabilities through value-caller clone elimination`
-
-   Status: landed.
-
-   Scope:
-
-   ```text
-   value_origin_callers().get(&id).cloned()
-     -> StorageAccessFacts
-     -> ElideToLeafProjection
-     -> MapGetOption
-   ```
-
-   This is the first slice that makes `StorageAccessFacts` live. Keep
-   `BorrowUseFacts` as the Rust adapter input, then normalize into the
-   language-neutral access facts before lowering.
-
-2. `Inventory real live read-fold consumers`
-
-   Status: landed.
-
-   Scope:
-
-   ```text
-   Find actual Rust source shapes, not planned/docs examples, where an
-   aggregate borrow is consumed by an owned read fold.
-   ```
-
-   Evidence note:
-
-   ```text
-   Current source has value_origin_callers().get(&dst).cloned(), which is
-   already covered by ElideToLeafProjection. The previously listed
-   value_origin_callers().iter() owned-copy shape is not present in the current
-   src/mir/builder/emission/phi_lifecycle.rs source.
-
-   The inventory found the actual read-fold shape in:
-     src/mir/builder/module_lifecycle.rs
-     src/mir/builder/calls/lowering.rs
-   ```
-
-   Do not add generated methods or emitter operations for a source shape that
-   is not present.
-
-3. `Resolve MapBox key-domain preserving read-fold acceptance`
-
-   Status: landed for the MetadataContext.value_origin_callers slice.
-
-   Scope:
-
-   ```text
-   Required only if the selected live read-fold source uses MapBox key
-   iteration with ValueIdAsI64 transport.
-   ```
-
-   Current evidence:
-
-   ```text
-   MapKeyDomain::from_text("7") normalizes to CanonicalI64(7), so canonical
-   numeric public text round-trips to the i64 key domain. Keep this as an
-   explicit verifier condition if MapBox.keys() is used for ValueId-key folds.
-   ```
-
-4. `Implement selected live read-fold slice`
-
-   Status: landed for MetadataContext.value_origin_callers.
-
-   Scope:
-
-   ```text
-   source-specific borrow facts
-     -> StorageAccessFacts
-     -> ElideToReadFold
-     -> typed Hako operation
-     -> MIR/EXE behavior green
-   ```
-
-   Do not expose a map view or public snapshot API for this slice.
-
-5. `Accept enum constructors in loop value lowering`
-
-   Status: landed.
-
-   Scope:
-
-   ```text
-   ASTNode::FromCall for known enum constructors
-     -> CoreEffectPlan::VariantMake
-     -> MirInstruction::VariantMake
-   ```
-
-   This is generic compiler acceptance. It does not add RegionObserver,
-   MirType, or ArrayBox-specific lowering.
-
-6. `Fix OrderedMapBox source-ordered String compare`
-
-   Status: landed through the RegionObserver source-ordered read-fold closeout.
-
-   Scope:
-
-   ```text
-   variable_map().iter()
-     -> ElideToReadFold
-     -> order=SourceOrdered
-     -> cross-context TypeContext reads verified
-     -> owned SlotMetadata output
-   ```
-
-   This slice must distinguish BTreeMap source ordering from unordered map
-   folds. Do not use a generic unordered iteration rule here.
-
-7. `Implement ordered observer fold for VariableContext`
-
-   Status: landed through the RegionObserver source-ordered read-fold closeout.
-
-   Scope:
-
-   ```text
-   variable_map().iter()
-     -> ElideToReadFold
-     -> order=SourceOrdered
-     -> cross-context TypeContext reads verified
-     -> owned SlotMetadata output
-   ```
-
-8. `Select TypeContext string-literal leaf projection`
-
-   Status: selected; implementation_started=0.
-
-   Shape: `string_literals.get(&value).cloned()` lowers through
-   `map.immutable_leaf_projection` to `MapGetOption`.
-
-9. `Reassess returned mutable borrow`
-
-   Status: parked behind the three read-borrow elimination slices.
-
-   Standalone returned mutable aliases remain `Deny(ReturnedMutableBorrow)`.
-   Only explicit mutation APIs or bounded with-map operations may reopen this.
-
-10. `Reassess NonTrivialDrop / unsafe capability boundaries`
-
-   Status: parked.
-
-   Do not add cleanup, lease, or unsafe syntax while the selected MirBuilder
-   slices are still solvable by value projection, read fold, or owned transfer.
+## Active Next 3
+
+Keep this section short. Detailed landed rows belong in phase cards and git
+history, not in this task-order SSOT.
+
+```text
+1. task-order SSOT compression
+   status=landed
+   goal=active next 3 + parked index
+   guard=current_state_pointer_guard
+
+2. mirbuilder_family_artifacts.py split
+   status=landed
+   boundary=behavior-preserving split only
+   fail-fast=no generator behavior change
+
+3. leaf projection validator dedupe
+   status=landed
+   boundary=one validator owns map.immutable_leaf_projection acceptance
+   fail-fast=no family-specific shortcut
+```
+
+## Landed Converter Capability Summary
+
+```text
+ordered-map contexts, snapshots, carrier projection, scalar counters
+TypeContext value-kind / origin-map / value-type / snapshot-restore
+MetadataContext scalar/source-file, region-parent MIR-only, value-caller
+structured loop, scalar loop carrier, explicit PHI, multi-exit PHI
+RegionObserver source-ordered read-fold and SlotMetadata output
+boxed native enum ABI and boxed enum container round trip
+mixed runtime value carrier for MapBox and ArrayBox
+generic method route descriptor SSOT and mismatch diagnostics
+generic read-fold operation decomposition
+TypeContext string literal leaf projection
+```
 
 ## Direct-Lowering Policy
 

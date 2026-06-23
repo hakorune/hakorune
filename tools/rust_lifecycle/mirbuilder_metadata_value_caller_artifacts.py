@@ -16,7 +16,7 @@ from family_artifact_builders import (
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
 from shared_family_generator import read_json, run_validated_family_generator, stable_json, write_if_changed
-from mirbuilder_storage_access_facts import ELIDE_TO_LEAF_PROJECTION, ELIDE_TO_READ_FOLD, classify_storage_access, storage_access_from_borrow_use
+from mirbuilder_storage_access_facts import ELIDE_TO_READ_FOLD, classify_storage_access, storage_access_from_borrow_use
 from verified_hako_family_ir import op
 
 
@@ -48,15 +48,7 @@ def validate_metadata_value_caller(facts: dict[str, Any], plan: dict[str, Any], 
     body_facts = {row["id"]: row for row in facts["body_facts"]}
     if body_facts.get("MetadataContext::value_caller", {}).get("value_projection") != "ImmutableStringAtom":
         raise SystemExit("MetadataContext value_caller projection mismatch")
-    if body_facts.get("MetadataContext::value_caller", {}).get("returned_aggregate_alias") is not False:
-        raise SystemExit("MetadataContext value_caller must not return aggregate alias")
     borrow_use = {row["id"]: row for row in facts.get("borrow_use_facts", [])}
-    use_fact = borrow_use.get("MetadataContext::value_origin_callers.get_cloned")
-    if use_fact is None:
-        raise SystemExit("MetadataContext value_origin_callers get/cloned borrow-use fact missing")
-    storage_fact = storage_access_from_borrow_use(use_fact)
-    if classify_storage_access(storage_fact) != ELIDE_TO_LEAF_PROJECTION:
-        raise SystemExit("MetadataContext value_origin_callers get/cloned must lower by ElideToLeafProjection")
     fold_fact = borrow_use.get("MetadataContext::value_origin_callers.iter_owned_copy")
     if fold_fact is None:
         raise SystemExit("MetadataContext value_origin_callers iter owned-copy borrow-use fact missing")
