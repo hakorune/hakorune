@@ -56,6 +56,21 @@
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }
 
+      auto enum MirCallNeedKind
+      mir_call_constructor_need_kind_from_lowering_plan_entry(yyjson_val* entry) {
+        struct LoweringPlanConstructorCallView view;
+        if (!read_lowering_plan_constructor_call_view(entry, &view)) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        if (view.need_kind && !strcmp(view.need_kind, "map_birth")) {
+          return HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH;
+        }
+        if (view.need_kind && !strcmp(view.need_kind, "array_birth")) {
+          return HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
       struct LoweringPlanExternNeedRule {
         const char* route_id;
         const char* core_op;
@@ -100,6 +115,55 @@
             "extern.env.now_ms",
             "nyash.env.now_ms",
             HAKO_LLVMC_MIR_CALL_NEED_ENV_NOW_MS,
+          },
+          {
+            "extern.string.concat_hh",
+            "StringConcat",
+            "extern.string.concat_hh",
+            "nyash.string.concat_hh",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
+          },
+          {
+            "extern.string.concat3_hhh",
+            "StringConcat3",
+            "extern.string.concat3_hhh",
+            "nyash.string.concat3_hhh",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
+          },
+          {
+            "extern.string.insert_hsi",
+            "StringInsert",
+            "extern.string.insert_hsi",
+            "nyash.string.insert_hsi",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
+          },
+          {
+            "extern.string.substring_hii",
+            "StringSubstring",
+            "extern.string.substring_hii",
+            "nyash.string.substring_hii",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
+          },
+          {
+            "extern.string.substring_concat_hhii",
+            "StringSubstringConcat",
+            "extern.string.substring_concat_hhii",
+            "nyash.string.substring_concat_hhii",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
+          },
+          {
+            "extern.string.substring_concat3_hhhii",
+            "StringSubstringConcat3",
+            "extern.string.substring_concat3_hhhii",
+            "nyash.string.substring_concat3_hhhii",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING,
+          },
+          {
+            "extern.string.substring_len_hii",
+            "StringSubstringLen",
+            "extern.string.substring_len_hii",
+            "nyash.string.substring_len_hii",
+            HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING_LEN,
           },
           {
             "extern.any.handle_live",

@@ -38,10 +38,16 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     });
     module.add_function(caller);
     module.add_function(callee);
-    refresh_module_global_call_routes(&mut module);
+    crate::mir::refresh_module_semantic_metadata(&mut module);
 
     let root = build_mir_json_root(&module).expect("mir json root");
-    let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
+    let main = root["functions"]
+        .as_array()
+        .expect("functions")
+        .iter()
+        .find(|function| function["name"] == "main")
+        .expect("main function");
+    let route = &main["metadata"]["global_call_routes"][0];
     assert_eq!(route["target_symbol"], "Helper.add/2");
     assert_eq!(route["target_return_type"], "i64");
     assert_eq!(route["target_shape"], "numeric_i64_leaf");
@@ -63,7 +69,7 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(route["emit_trace_consumer"], "mir_call_global_leaf_emit");
     assert_eq!(route["reason"], serde_json::Value::Null);
 
-    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    let plan = &main["metadata"]["lowering_plan"][0];
     assert_eq!(plan["source"], "global_call_routes");
     assert_eq!(plan["source_route_id"], "global.user_call");
     assert_eq!(plan["core_op"], "UserGlobalCall");
@@ -83,6 +89,15 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     assert_eq!(plan["definition_owner"], "leaf_i64");
     assert_eq!(plan["emit_trace_consumer"], "mir_call_global_leaf_emit");
     assert_eq!(plan["reason"], serde_json::Value::Null);
+
+    let definitions = main["metadata"]["same_module_function_definitions"]
+        .as_array()
+        .expect("same_module_function_definitions");
+    assert_eq!(definitions.len(), 1);
+    assert_eq!(definitions[0]["target_symbol"], "Helper.add/2");
+    assert_eq!(definitions[0]["definition_kind"], "leaf_i64_function");
+    assert_eq!(definitions[0]["definition_owner"], "leaf_i64");
+    assert_eq!(definitions[0]["source"], "global_call_routes");
 }
 
 #[test]

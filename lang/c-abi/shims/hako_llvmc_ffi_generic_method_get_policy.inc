@@ -60,10 +60,6 @@
           set_scan_origin(reg, ORG_MAP_BIRTH);
           return 1;
         }
-        if (!strncmp(box_name, "__hako_sum_", 11)) {
-          set_type(reg, T_I64);
-          return 1;
-        }
         if (!find_typed_object_plan_index(box_name, &typed_plan_index)) {
           return 0;
         }
@@ -72,6 +68,13 @@
         set_scan_origin(reg, ORG_TYPED_OBJECT);
         set_typed_object_binding(reg, typed_plan_index);
         return 1;
+      }
+
+      auto int generic_method_get_publish_result_metadata(
+          long long reg,
+          const char* box_name) {
+        if (publish_value_representation_fact(reg)) return 1;
+        return generic_method_get_publish_result_origin_box(reg, box_name);
       }
 
       auto enum GenericMethodGetRouteKind generic_method_get_route_kind_from_metadata(
@@ -634,7 +637,7 @@
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.runtime_data.get_hh\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
-              if (!generic_method_get_publish_result_origin_box(
+              if (!generic_method_get_publish_result_metadata(
                       dst,
                       metadata.result_origin_box)) {
                 return -1;
@@ -656,7 +659,7 @@
               fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_load_hi\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
               if (metadata.result_origin_box) {
-                if (!generic_method_get_publish_result_origin_box(
+                if (!generic_method_get_publish_result_metadata(
                         dst,
                         metadata.result_origin_box)) {
                   return -1;
@@ -673,7 +676,7 @@
               fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
               if (metadata.result_origin_box) {
-                if (!generic_method_get_publish_result_origin_box(
+                if (!generic_method_get_publish_result_metadata(
                         dst,
                         metadata.result_origin_box)) {
                   return -1;
@@ -696,7 +699,7 @@
                      hako_llvmc_emit_direct_array_i64_get(f, bid, ii, dst, recv, a0)))) {
                 hako_llvmc_emit_array_slot_load(f, dst, ab, demand);
               }
-              if (!generic_method_get_publish_result_origin_box(
+              if (!generic_method_get_publish_result_metadata(
                       dst,
                       metadata.result_origin_box)) {
                 return -1;

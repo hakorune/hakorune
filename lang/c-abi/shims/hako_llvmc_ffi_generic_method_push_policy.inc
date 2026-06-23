@@ -44,12 +44,7 @@
             }
             if (should_promote_array_string_birth_after_push(
                     plan, value && get_origin(value) == ORG_STRING)) {
-              promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-              promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-              if (recv) {
-                set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
-              }
+              hako_llvmc_promote_array_birth_origin_to_string(recv);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE:

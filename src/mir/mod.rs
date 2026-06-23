@@ -37,6 +37,7 @@ pub mod boxed_sum_abi_plan; // boxed runtime ABI plans for native enum transport
 pub mod builder;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
+pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
 pub(crate) mod declared_type_storage; // shared declared type-name -> storage classification
@@ -87,6 +88,7 @@ pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publ
 pub mod policies; // shared routing policies (SSOT)
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub mod route_decision; // planner-owned fastpath-preferred selected route outcomes
+pub mod same_module_definition_plan; // MIR-owned same-module definition closure for C AOT
 pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
 pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
 pub mod span_access_plan; // MIR-owned Span no-escape access plans
@@ -157,6 +159,7 @@ pub mod value_consumer; // generic consumer capability facts for backend emitter
 pub mod value_id;
 pub mod value_kind; // Phase 26-A: ValueId型安全化
 pub mod value_origin; // generic copy-root / alias-root owner (SSOT)
+pub mod value_representation_fact; // per-value runtime representation facts
 pub mod verification;
 pub mod verification_types; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
 

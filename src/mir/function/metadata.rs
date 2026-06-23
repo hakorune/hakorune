@@ -24,6 +24,7 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
+    constructor_call_route_plan::ConstructorCallRoute,
     direct_array_access_plan::DirectArrayAccessPlan,
     direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
@@ -49,6 +50,7 @@ use crate::mir::{
     placement_effect::PlacementEffectRoute,
     receiver_snapshot_publication_plan::ReceiverSnapshotPublicationPlan,
     route_decision::RouteDecision,
+    same_module_definition_plan::SameModuleDefinitionPlan,
     same_module_fusion_plan::SameModuleFusionPlan,
     storage_class::StorageClass,
     string_corridor::StringCorridorFact,
@@ -71,6 +73,7 @@ use crate::mir::{
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
     userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute,
     value_consumer::ValueConsumerFacts,
+    value_representation_fact::ValueRepresentationFact,
     MirType, ValueId,
 };
 use crate::object_storage_plan::LocalFastPathFact;
@@ -109,6 +112,16 @@ pub struct FunctionMetadata {
     /// Backend emitters may consume these facts, but must not re-own consumer
     /// legality by scanning MIR JSON for semantic shape matches.
     pub value_consumer_facts: BTreeMap<ValueId, ValueConsumerFacts>,
+
+    /// Explicit per-value runtime representation facts derived from selected
+    /// MIR representation plans. Backends consume this lane instead of
+    /// inferring boxedness from source spelling, box names, or raw i64 values.
+    pub value_representations: BTreeMap<ValueId, ValueRepresentationFact>,
+
+    /// Explicit transitive same-module function definitions required by this
+    /// function's selected direct-call lowering rows. C shims consume this list
+    /// instead of recursively discovering definition edges from MIR JSON.
+    pub same_module_definition_plans: Vec<SameModuleDefinitionPlan>,
 
     /// Stage1 LoopRange facts derived by the executable range-loop route.
     /// This metadata owns the index/bound/step contract for later verifier rows.
@@ -334,6 +347,11 @@ pub struct FunctionMetadata {
     /// These own narrow method-surface policy decisions in MIR so backend
     /// shims can emit selected helpers without reclassifying method strings.
     pub generic_method_routes: Vec<GenericMethodRoute>,
+
+    /// Backend-consumable collection constructor call route plans.
+    /// These own narrow constructor declaration/origin facts in MIR so backend
+    /// prepass code does not reclassify constructor callee spelling.
+    pub constructor_call_routes: Vec<ConstructorCallRoute>,
 
     /// Metadata-only DirectArray access plans derived from Array get/set
     /// method routes.  The first slice records checked DirectArrayI64

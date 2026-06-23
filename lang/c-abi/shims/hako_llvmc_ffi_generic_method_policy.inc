@@ -52,20 +52,6 @@
         return set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
       }
 
-      auto enum GenericMethodEmitKind classify_generic_method_emit_kind(
-          const char* bname,
-          const char* mname,
-          const struct GenericMethodRouteState* route,
-          long long a0,
-          long long a1) {
-        (void)bname;
-        (void)mname;
-        (void)a0;
-        (void)a1;
-        if (route && route->runtime_map_has) return HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS;
-        return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
-      }
-
       auto enum GenericMethodSetRouteKind classify_generic_method_set_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan,

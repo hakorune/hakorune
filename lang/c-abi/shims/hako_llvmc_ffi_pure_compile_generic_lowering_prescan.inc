@@ -67,6 +67,7 @@
         char key[32];
         yyjson_val* value_types = fn_metadata ? yyjson_obj_get(fn_metadata, "value_types") : NULL;
         yyjson_val* value_type = NULL;
+        if (publish_value_representation_fact(reg)) return 1;
         if (!reg || !(value_types && yyjson_is_obj(value_types))) return 0;
         snprintf(key, sizeof(key), "%lld", reg);
         value_type = yyjson_obj_get(value_types, key);
@@ -201,6 +202,12 @@
                 set_typed_object_binding(dst, typed_plan_index);
               }
               {
+                int boxed_sum_plan_index = -1;
+                if (get_boxed_sum_binding(src, &boxed_sum_plan_index)) {
+                  set_boxed_sum_binding(dst, boxed_sum_plan_index);
+                }
+              }
+              {
                 struct GenericPureVariantBinding variant_binding;
                 memset(&variant_binding, 0, sizeof(variant_binding));
                 if (get_variant_binding(src, &variant_binding)) {
@@ -227,6 +234,7 @@
                   bid, ii, op, "variant_binding_fact_missing", read_str(ins, "enum"));
               return;
             }
+            (void)publish_value_representation_fact(read_int(ins, "dst"));
           } else if (strcmp(op, "variant_tag")==0) {
             set_type(read_int(ins, "dst"), T_I64);
           } else if (strcmp(op, "variant_project")==0) {

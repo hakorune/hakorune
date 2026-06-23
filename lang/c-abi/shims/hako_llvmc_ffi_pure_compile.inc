@@ -298,39 +298,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
   }
 
-  if (hako_llvmc_consume_substring_views_only_micro_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_concat_const_suffix_micro_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_array_string_store_micro_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_array_rmw_add1_leaf_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_sum_variant_tag_seed_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_sum_variant_project_seed_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_userbox_point_local_scalar_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_userbox_flag_pointf_local_scalar_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_userbox_loop_micro_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_userbox_known_receiver_method_seed_route(json_in, obj_out) == 0) {
-    return 0;
-  }
-  if (hako_llvmc_consume_array_getset_micro_route(json_in, obj_out) == 0) {
-    return 0;
-  }
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
     // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal, Global print)
     do {
@@ -362,6 +329,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct GenericPureReceiverForwardAlias { long long reg; long long src; };
       struct GenericPureOriginBinding { long long reg; int kind; };
       struct GenericPureTypedObjectBinding { long long reg; int plan_index; };
+      struct GenericPureBoxedSumBinding { long long reg; int plan_index; };
       struct GenericPureFlattenedNestedBinding {
         long long reg;
         long long owner_reg;
@@ -392,6 +360,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         GENERIC_PURE_RECEIVER_FORWARD_ALIAS_CAP = 256,
         GENERIC_PURE_ORIGIN_BINDING_CAP = 2048,
         GENERIC_PURE_TYPED_OBJECT_BINDING_CAP = 2048,
+        GENERIC_PURE_BOXED_SUM_BINDING_CAP = 2048,
         GENERIC_PURE_FLATTENED_NESTED_BINDING_CAP = 512,
         GENERIC_PURE_VARIANT_BINDING_CAP = 2048,
         GENERIC_PURE_BLOCK_TAIL_LABEL_CAP = 1024,
@@ -424,6 +393,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         size_t origin_n;
         struct GenericPureTypedObjectBinding typed_object_bindings[GENERIC_PURE_TYPED_OBJECT_BINDING_CAP];
         size_t typed_object_bindings_n;
+        struct GenericPureBoxedSumBinding boxed_sum_bindings[GENERIC_PURE_BOXED_SUM_BINDING_CAP];
+        size_t boxed_sum_bindings_n;
         struct GenericPureFlattenedNestedBinding flattened_nested_bindings[GENERIC_PURE_FLATTENED_NESTED_BINDING_CAP];
         size_t flattened_nested_bindings_n;
         struct GenericPureVariantBinding variant_bindings[GENERIC_PURE_VARIANT_BINDING_CAP];
@@ -474,6 +445,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define origin_n lowering_state.origin_n
       #define typed_object_bindings lowering_state.typed_object_bindings
       #define typed_object_bindings_n lowering_state.typed_object_bindings_n
+      #define boxed_sum_bindings lowering_state.boxed_sum_bindings
+      #define boxed_sum_bindings_n lowering_state.boxed_sum_bindings_n
       #define flattened_nested_bindings lowering_state.flattened_nested_bindings
       #define flattened_nested_bindings_n lowering_state.flattened_nested_bindings_n
       #define variant_bindings lowering_state.variant_bindings
@@ -553,6 +526,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_compiler_state.inc"
       #include "hako_llvmc_ffi_typed_object_plan.inc"
       #include "hako_llvmc_ffi_boxed_sum_abi_plan.inc"
+      #include "hako_llvmc_ffi_value_representation_metadata.inc"
       #include "hako_llvmc_ffi_object_storage_plan.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<ARR_LEN(phis)){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } note_generic_capacity_overflow("generic_phi_block_inventory_full"); return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
@@ -601,6 +575,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
         owned_str_consts_n = 0;
       }
+      #include "hako_llvmc_ffi_array_string_origin_promotion.inc"
       #include "hako_llvmc_ffi_indexof_observer_state.inc"
       #include "hako_llvmc_ffi_array_string_window_policy.inc"
       #include "hako_llvmc_ffi_array_slot_emit.inc"
@@ -618,6 +593,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_const_string_hoist.inc"
       #include "hako_llvmc_ffi_core_method_metadata.inc"
       #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
+      #include "hako_llvmc_ffi_constructor_call_route_metadata.inc"
+      #include "hako_llvmc_ffi_generic_method_result_metadata.inc"
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_plan.inc"
       auto void emit_module_function_declarations(FILE* f) {
@@ -666,6 +643,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #undef origin_n
       #undef typed_object_bindings
       #undef typed_object_bindings_n
+      #undef boxed_sum_bindings
+      #undef boxed_sum_bindings_n
       #undef flattened_nested_bindings
       #undef flattened_nested_bindings_n
       #undef phis

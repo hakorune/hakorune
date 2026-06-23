@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted
 Date: 2026-06-24
 Token: SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001
 Scope: C ABI shim responsibility cleanup / boxed-sum handle proof owner
@@ -7,7 +7,7 @@ Scope: C ABI shim responsibility cleanup / boxed-sum handle proof owner
 
 # 296x-1659 SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001
 
-## Decision Needed
+## Decision
 
 The next C ABI shim cleanup target is the remaining boxed-sum handle inference
 in:
@@ -22,8 +22,24 @@ The current path publishes a sum handle from a runtime box-name prefix:
 __hako_sum_*
 ```
 
-That is a name-spelling proof. Before implementation, choose the MIR-owned fact
-that proves a value/register is a boxed-sum handle.
+That is a name-spelling proof. The selected design is:
+
+```text
+semantic authority:
+  ValueRepresentationFact::BoxedSumHandle { abi_plan_id }
+
+implementation split:
+  variant_binding remains a site-local tag/payload tracking helper
+
+forbidden proof:
+  __hako_sum_ prefix
+  enum_name
+  box_type spelling
+  raw i64 sign
+```
+
+C is the semantic authority. D is only the implementation layering. Do not treat
+`variant_binding` and value metadata as independent proof sources.
 
 ## Current Evidence
 
@@ -54,47 +70,55 @@ Related prefix use also exists outside same-module metadata:
 lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_policy.inc
 ```
 
-## Design Question
-
-Which fact is the SSOT for "this value/register is a boxed-sum handle"?
+## Authority Chain
 
 ```text
-A. variant_binding row/table only
-   Use the existing VariantMake binding proof as the only boxed-sum handle
-   source. Non-VariantMake metadata without a binding is not a sum handle.
-
-B. explicit value metadata only
-   Extend value_types / value metadata with an explicit boxed-sum field such as
-   boxed_sum_abi_plan_id or sum_handle=true. C consumes that field and never
-   reads the __hako_sum_ spelling.
-
-C. boxed_sum_abi_plan_id site facts propagated into value metadata
-   Keep boxed-sum ABI plan identity as the owner and require semantic refresh /
-   MIR JSON emission to thread it to all metadata consumers.
-
-D. split responsibility
-   Variant-producing sites use variant_binding. Generic value metadata uses an
-   explicit boxed-sum value fact. The prefix is never a proof in either path.
+BoxedSumAbiPlan
+  plan_id / layout / runtime_type_id
+        ↓
+BoxedSumSitePlan
+  VariantMake / Tag / Project site selected plan
+        ↓
+ValueRepresentationFact
+  dst = BoxedSumHandle(plan_id)
+        ↓
+Copy / Phi / selected result propagation
+        ↓
+MIR JSON
+        ↓
+C shim local register cache
 ```
 
-## Recommendation To Validate
+`variant_binding` proves only local tag/payload/enum tracking. It does not prove
+runtime boxed-sum handle representation.
 
-Prefer D if the current MIR model needs both site-local and propagated metadata:
+## Selected Next Slice
 
 ```text
-VariantMake / copy / phi values:
-  variant_binding is the proof.
-
-generic value metadata / result-origin publication:
-  explicit boxed-sum value fact is the proof.
-
-box_name prefix:
-  diagnostic string only, never proof.
+EXPLICIT-BOXED-SUM-VALUE-FACT-SAME-MODULE-001
 ```
 
-## Acceptance After Decision
+Include:
 
-Implementation may start only after the proof owner is selected.
+```text
+ValueRepresentationFact::BoxedSumHandle { abi_plan_id }
+semantic refresh / MIR JSON publication for selected same-module values
+common C value-representation metadata reader/cache
+same_module_value_metadata prefix inference removal
+focused same-module call gate
+```
+
+Do not include:
+
+```text
+generic_method_get_policy prefix removal
+all handle classes
+boxed-sum ABI redesign
+new canonical MIR instruction
+Option-specific backend behavior
+```
+
+## Acceptance
 
 Required acceptance for the follow-up implementation:
 
@@ -104,8 +128,34 @@ C shim does not infer sum handles from box names
 missing explicit proof fails closed or remains non-sum by documented contract
 existing boxed-sum I64/handle/unit probes stay green
 metadata_context_region_parent AOT stays green
-generic_method_get_policy prefix use is either parked with a card or drained
+generic_method_get_policy __hako_sum_ prefix inference = 0
 runtime fallback = 0
+```
+
+Closeout evidence:
+
+```text
+EXPLICIT-BOXED-SUM-VALUE-FACT-SAME-MODULE-001 = landed
+value_representations JSON fact = present
+same_module_value_metadata __hako_sum_ prefix inference = 0
+generic_method_get_policy __hako_sum_ prefix inference = 0
+metadata_context_region_parent AOT = green
+mir_call_route_policy legacy generic_method_routes fallback = 0
+mir_call_need_name_fallback = compatibility-audited
+object_storage_plan_name_inference = drained
+exact_seed_route_quarantine = drained
+same_module_definition_edge_plan = drained
+next = MIR-CALL-PREPASS-FACT-OWNER-DRAIN-001
+```
+
+Focused negative acceptance:
+
+```text
+variant_binding without boxed_sum_abi_plan_id is not a boxed handle
+box_type="__hako_sum_fake" is not a boxed handle
+invalid abi_plan_id fails closed
+Phi with mixed boxed-sum abi_plan_id values fails closed
+payload_storage=Handle alone is not boxed-sum proof
 ```
 
 ## Non-Claims

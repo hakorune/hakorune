@@ -116,60 +116,34 @@
         return same_module_function_find_with_index(name, out_index) != NULL;
       }
 
-      auto int plan_function_global_call_definition_edges(yyjson_val* fn) {
-        int planned = 0;
+      auto int plan_explicit_same_module_function_definition_rows(yyjson_val* fn) {
         yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
-        yyjson_val* entries = metadata ? yyjson_obj_get(metadata, "lowering_plan") : NULL;
-        if (!(entries && yyjson_is_arr(entries))) return 0;
-        for (size_t pi = 0; pi < yyjson_arr_size(entries); pi++) {
-          yyjson_val* entry = yyjson_arr_get(entries, pi);
-          struct LoweringPlanGlobalCallView view;
-          struct LoweringPlanUserBoxMethodView user_box_method_view;
-          if (read_lowering_plan_user_box_method_view(entry, &user_box_method_view)) {
-            if (!lowering_plan_user_box_method_view_requires_same_module_function_definition(
-                    &user_box_method_view)) {
-              continue;
-            }
-            if (!remember_planned_same_module_function_symbol(
-                    user_box_method_view.target_symbol)) {
-              return -1;
-            }
+        yyjson_val* rows =
+            metadata ? yyjson_obj_get(metadata, "same_module_function_definitions") : NULL;
+        int planned = 0;
+        if (!rows || yyjson_is_null(rows)) return -1;
+        if (!yyjson_is_arr(rows)) return -1;
+        for (size_t i = 0; i < yyjson_arr_size(rows); i++) {
+          yyjson_val* row = yyjson_arr_get(rows, i);
+          const char* target_symbol = row ? read_str(row, "target_symbol") : NULL;
+          const char* definition_kind = row ? read_str(row, "definition_kind") : NULL;
+          if (!(target_symbol && definition_kind)) return -1;
+          if (!llvm_quoted_symbol_name_is_safe(target_symbol)) return -1;
+          if (!strcmp(definition_kind, "leaf_i64_function")) {
+            if (!remember_planned_module_leaf_symbol(target_symbol)) return -1;
             planned++;
             continue;
           }
-          if (!read_lowering_plan_global_call_view(entry, &view)) continue;
-          if (lowering_plan_global_call_view_uses_leaf_i64_definition(&view)) {
-            if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
+          if (!strcmp(definition_kind, "same_module_function")) {
+            if (!remember_planned_same_module_function_symbol(target_symbol)) return -1;
             planned++;
             continue;
           }
-          if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(&view)) {
-            yyjson_val* target_fn = same_module_function_find(view.target_symbol);
-            if (module_function_is_numeric_i64_leaf(target_fn)) {
-              if (!remember_planned_module_leaf_symbol(view.target_symbol)) return -1;
-              planned++;
-              continue;
-            }
-          }
-          if (!lowering_plan_global_call_view_requires_same_module_function_definition(&view)) {
-            continue;
-          }
-          if (!remember_planned_same_module_function_symbol(view.target_symbol)) return -1;
-          planned++;
+          return -1;
         }
         return planned;
       }
 
       auto int plan_same_module_function_definitions(void) {
-        int planned = plan_function_global_call_definition_edges(program.entry.fn);
-        size_t cursor = 0;
-        if (planned < 0) return -1;
-        while (cursor < planned_same_module_function_symbols_n) {
-          const char* symbol = planned_same_module_function_symbols[cursor++];
-          yyjson_val* fn = same_module_function_find(symbol);
-          int rc = plan_function_global_call_definition_edges(fn);
-          if (rc < 0) return -1;
-          planned += rc;
-        }
-        return planned;
+        return plan_explicit_same_module_function_definition_rows(program.entry.fn);
       }

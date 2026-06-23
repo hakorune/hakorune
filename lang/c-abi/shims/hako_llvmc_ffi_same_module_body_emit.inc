@@ -97,6 +97,12 @@
           if (get_typed_object_binding(src, &typed_plan_index)) {
             set_typed_object_binding(dst, typed_plan_index);
           }
+          {
+            int boxed_sum_plan_index = -1;
+            if (get_boxed_sum_binding(src, &boxed_sum_plan_index)) {
+              set_boxed_sum_binding(dst, boxed_sum_plan_index);
+            }
+          }
         }
         return 1;
       }
@@ -170,6 +176,12 @@
         if (src_scan != ORG_NONE) set_scan_origin(dst, src_scan);
         if (get_typed_object_binding(src, &typed_plan_index)) {
           set_typed_object_binding(dst, typed_plan_index);
+        }
+        {
+          int boxed_sum_plan_index = -1;
+          if (get_boxed_sum_binding(src, &boxed_sum_plan_index)) {
+            set_boxed_sum_binding(dst, boxed_sum_plan_index);
+          }
         }
         return 1;
       }

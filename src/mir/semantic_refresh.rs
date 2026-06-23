@@ -29,6 +29,7 @@ use super::{
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     boxed_sum_abi_plan::refresh_module_boxed_sum_abi_plans,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
+    constructor_call_route_plan::refresh_function_constructor_call_routes,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
     direct_array_extent_fact::refresh_function_direct_array_extent_facts_with_def_map,
     direct_exact_hotcore_call_plan::refresh_module_direct_exact_hotcore_call_plans,
@@ -80,6 +81,7 @@ use super::{
     },
     route_fixpoint::refresh_module_route_fixpoint,
     rune_plan_refresh::refresh_function_rune_plans,
+    same_module_definition_plan::refresh_module_same_module_definition_plans,
     same_module_fusion_plan::refresh_module_same_module_fusion_plans,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
@@ -94,6 +96,7 @@ use super::{
     user_box_method_route_plan::refresh_function_user_box_method_routes,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     value_origin::build_value_def_map,
+    value_representation_fact::refresh_module_value_representation_facts,
     MirFunction, MirInstruction, MirModule,
 };
 
@@ -141,6 +144,7 @@ fn refresh_function_pre_fixpoint_routes(
     let def_map = build_value_def_map(function);
     refresh_function_string_dead_text_region_plans_with_def_map(function, &def_map);
     refresh_function_generic_method_routes(function);
+    refresh_function_constructor_call_routes(function);
     refresh_function_map_repr_plans(function);
     refresh_function_range_index_facts_with_def_map(function, &def_map);
     refresh_function_direct_array_extent_facts_with_def_map(function, &def_map);
@@ -249,6 +253,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_carrier_api_ordered_map_get_result_origins(module);
     refresh_module_ordered_map_get_result_origins(module);
     refresh_module_contracts_and_exact_numeric(module);
+    refresh_module_value_representation_facts(module);
 }
 
 /// Refresh declaration-derived record/packed layout rows.
@@ -330,6 +335,7 @@ fn refresh_function_post_fixpoint_consumers(
         refresh_function_local_fastpath_facts(function);
     }
     refresh_module_same_module_fusion_plans(module);
+    refresh_module_same_module_definition_plans(module);
 }
 
 fn refresh_module_contracts_and_exact_numeric(module: &mut MirModule) {

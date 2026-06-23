@@ -110,10 +110,7 @@
       }
       fprintf(f, "@.hako_type_FileBox = private unnamed_addr constant [8 x i8] c\"FileBox\\00\", align 1\n");
       if (object_storage_plan_selected_alignment_result_ready()) {
-        fprintf(f, "@.objstore_alignment_result_last_requested = private unnamed_addr constant [32 x i8] c\"alignment_result.last_requested\\00\", align 1\n");
-        fprintf(f, "@.objstore_alignment_result_last_normalized = private unnamed_addr constant [33 x i8] c\"alignment_result.last_normalized\\00\", align 1\n");
-        fprintf(f, "@.objstore_alignment_result_last_reason = private unnamed_addr constant [29 x i8] c\"alignment_result.last_reason\\00\", align 1\n");
-        fprintf(f, "@.objstore_alignment_result_last_supported = private unnamed_addr constant [32 x i8] c\"alignment_result.last_supported\\00\", align 1\n");
+        if (emit_object_storage_plan_key_globals(f) < 0) return -1;
       }
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.env.box.new\"(ptr)\n");

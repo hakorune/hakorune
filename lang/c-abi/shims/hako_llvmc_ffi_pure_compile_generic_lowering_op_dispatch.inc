@@ -374,6 +374,12 @@
                 set_typed_object_binding(dst, typed_plan_index);
               }
               {
+                int boxed_sum_plan_index = -1;
+                if (get_boxed_sum_binding(src, &boxed_sum_plan_index)) {
+                  set_boxed_sum_binding(dst, boxed_sum_plan_index);
+                }
+              }
+              {
                 long long flattened_owner_reg = 0;
                 if (get_flattened_nested_binding(src, &flattened_owner_reg)) {
                   set_flattened_nested_binding(dst, flattened_owner_reg);

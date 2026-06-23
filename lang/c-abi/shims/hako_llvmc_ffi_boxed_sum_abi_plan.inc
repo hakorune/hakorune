@@ -105,6 +105,22 @@
         return 1;
       }
 
+      auto int boxed_sum_abi_plan_index_from_plan_id(
+          long long plan_id,
+          int* out_plan_index) {
+        yyjson_val* plans = boxed_sum_abi_plans_array();
+        size_t count = boxed_sum_abi_plan_count();
+        if (!(plans && plan_id >= 0)) return 0;
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* plan = yyjson_arr_get(plans, i);
+          if (read_int(plan, "plan_id") == plan_id) {
+            if (out_plan_index) *out_plan_index = (int)i;
+            return 1;
+          }
+        }
+        return 0;
+      }
+
       auto long long boxed_sum_abi_payload_slot_storage_code(int plan_index) {
         yyjson_val* plan = boxed_sum_abi_plan_at_index(plan_index);
         yyjson_val* variants = plan ? yyjson_obj_get(plan, "variants") : NULL;

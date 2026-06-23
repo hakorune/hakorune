@@ -92,6 +92,27 @@ pub(super) fn insert_route_metadata_json(
                 .collect(),
         ),
     );
+    obj.insert(
+        "same_module_function_definitions".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .same_module_definition_plans
+                .iter()
+                .map(build_same_module_definition_plan_json)
+                .collect(),
+        ),
+    );
+}
+
+fn build_same_module_definition_plan_json(
+    plan: &crate::mir::same_module_definition_plan::SameModuleDefinitionPlan,
+) -> serde_json::Value {
+    json!({
+        "target_symbol": plan.target_symbol.as_str(),
+        "definition_kind": plan.definition_kind.as_json_name(),
+        "definition_owner": plan.definition_owner.as_str(),
+        "source": plan.source.as_str(),
+    })
 }
 
 fn build_same_module_fusion_plan_json(plan: &SameModuleFusionPlan) -> serde_json::Value {

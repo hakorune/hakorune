@@ -313,6 +313,12 @@
               set_typed_object_binding(dst, typed_plan_index);
             }
             {
+              int boxed_sum_plan_index = -1;
+              if (get_boxed_sum_binding(src, &boxed_sum_plan_index)) {
+                set_boxed_sum_binding(dst, boxed_sum_plan_index);
+              }
+            }
+            {
               struct GenericPureVariantBinding variant_binding;
               memset(&variant_binding, 0, sizeof(variant_binding));
               if (get_variant_binding(src, &variant_binding)) {
@@ -334,6 +340,7 @@
                 bid, ii, op, "variant_binding_fact_missing", read_str(ins, "enum"));
             return 0;
           }
+          (void)publish_value_representation_fact(read_int(ins, "dst"));
           return 1;
         }
         if (!strcmp(op, "variant_tag")) {

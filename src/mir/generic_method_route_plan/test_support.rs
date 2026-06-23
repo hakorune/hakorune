@@ -254,7 +254,7 @@ pub(crate) fn string_substring(
     receiver: u32,
     result: u32,
 ) -> GenericMethodRoute {
-    route(FixtureSpec {
+    let mut route = route(FixtureSpec {
         block,
         instruction_index,
         box_name: "StringBox",
@@ -272,7 +272,9 @@ pub(crate) fn string_substring(
         return_shape: None,
         value_demand: GenericMethodValueDemand::ReadRef,
         publication_policy: None,
-    })
+    });
+    route.override_result_origin_box("StringBox".to_string());
+    route
 }
 
 pub(crate) fn map_len(

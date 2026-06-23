@@ -206,7 +206,7 @@
           }
 
           struct GenericMethodRouteState route =
-              classify_generic_method_route(bid, ii, bname, mname, recv);
+              classify_generic_method_route(bid, ii, recv);
           yyjson_val* generic_method_entry = find_lowering_plan_entry_for_site(bid, ii);
           long long generic_a0 = a0;
           long long generic_a1 = a1;
@@ -219,11 +219,7 @@
           trace_generic_method_route_state(
               ii, dst, recv, ctype, bname, mname, generic_a0, generic_a1, &route);
           enum GenericMethodEmitKind emit_kind =
-              classify_generic_method_emit_kind_from_core_method_metadata(bid, ii);
-          if (emit_kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE) {
-            emit_kind = classify_generic_method_emit_kind(
-                bname, mname, &route, generic_a0, generic_a1);
-          }
+              classify_generic_method_emit_kind_from_site_lowering_plan(bid, ii);
           append_array_string_indexof_method_receiver_args(
               route.deferred_array_string_indexof,
               recv,

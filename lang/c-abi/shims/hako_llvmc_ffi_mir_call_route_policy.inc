@@ -55,11 +55,9 @@
       }
 
       auto enum MirCallGenericMethodRouteKind
-      classify_mir_call_generic_method_route_kind_from_core_method_metadata(
+      classify_mir_call_generic_method_route_kind_from_lowering_plan_site(
           long long bid,
           size_t ii) {
-        yyjson_val* routes = NULL;
-        size_t ri = 0;
         yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
         if (plan_entry) {
           enum MirCallGenericMethodRouteKind plan_route =
@@ -68,55 +66,6 @@
           if (plan_route != HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
             return plan_route;
           }
-        }
-        if (!fn_metadata) return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-        routes = yyjson_obj_get(fn_metadata, "generic_method_routes");
-        if (!(routes && yyjson_is_arr(routes))) {
-          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-        }
-        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
-          yyjson_val* route = yyjson_arr_get(routes, ri);
-          yyjson_val* core_method = NULL;
-          const char* route_id = route ? read_str(route, "route_id") : NULL;
-          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
-          const char* op = NULL;
-          long long block = 0;
-          long long inst = 0;
-          int invalid = 0;
-          enum CoreMethodMetadataProof proof =
-              HAKO_LLVMC_CORE_METHOD_METADATA_PROOF_NONE;
-          enum CoreMethodLoweringTierMetadata lowering_tier =
-              HAKO_LLVMC_CORE_METHOD_LOWERING_TIER_NONE;
-          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
-              !hako_llvmc_json_read_i64_field(
-                  route,
-                  "instruction_index",
-                  &inst) ||
-              block != bid ||
-              (size_t)inst != ii) {
-            continue;
-          }
-          core_method = yyjson_obj_get(route, "core_method");
-          if (!(core_method && yyjson_is_obj(core_method))) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-          }
-          op = read_str(core_method, "op");
-          proof = read_core_method_proof_metadata(core_method, &invalid);
-          lowering_tier = read_core_method_lowering_tier_metadata(core_method, &invalid);
-          if (invalid ||
-              !core_method_metadata_proof_is_contract_manifest(proof) ||
-              !(op && route_id && route_kind)) {
-            return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
-          }
-          {
-            const struct HakoLlvmcGenericMethodRouteRegistryRow* row =
-                hako_llvmc_generic_method_route_registry_find_by_tuple(
-                    route_id, op, route_kind, lowering_tier);
-            if (row && row->route_result != HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
-              return (enum MirCallGenericMethodRouteKind)row->route_result;
-            }
-          }
-          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
         }
         return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
       }
@@ -177,8 +126,6 @@
       auto struct GenericMethodRouteState classify_generic_method_route(
           long long bid,
           size_t ii,
-          const char* bname,
-          const char* mname,
           long long recv) {
         struct GenericMethodRouteState route;
         enum MirCallGenericMethodRouteKind route_kind;
@@ -190,11 +137,9 @@
           route.recv_org = get_scan_origin(recv);
         }
         route_kind =
-            classify_mir_call_generic_method_route_kind_from_core_method_metadata(
+            classify_mir_call_generic_method_route_kind_from_lowering_plan_site(
                 bid,
                 ii);
-        (void)bname;
-        (void)mname;
         apply_mir_call_generic_method_route_kind(route_kind, &route);
         route.deferred_array_string_indexof =
             find_deferred_array_string_indexof_select(bid, ii);

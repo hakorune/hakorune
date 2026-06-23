@@ -87,6 +87,33 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
         })
     }));
 
+    entries.extend(f.metadata.constructor_call_routes.iter().map(|route| {
+        json!({
+            "site": format!("b{}.i{}", route.block.as_u32(), route.instruction_index),
+            "block": route.block.as_u32(),
+            "instruction_index": route.instruction_index,
+            "source": "constructor_call_routes",
+            "source_route_id": route.route_id(),
+            "box_type": route.box_type.as_str(),
+            "core_op": route.core_op(),
+            "tier": "ColdRuntime",
+            "emit_kind": "runtime_call",
+            "symbol": route.symbol(),
+            "proof": route.route_id(),
+            "route_proof": route.route_id(),
+            "route_kind": route.route_kind(),
+            "perf_proof": false,
+            "arity": 0,
+            "result_value": route.result_value.as_u32(),
+            "return_shape": "mixed_runtime_i64_or_handle",
+            "value_demand": "runtime_i64_or_handle",
+            "publication_policy": serde_json::Value::Null,
+            "result_origin": route.result_origin(),
+            "need_kind": route.need_kind(),
+            "effects": ["alloc", "constructor.birth"],
+        })
+    }));
+
     entries.extend(f.metadata.global_call_routes.iter().map(|route| {
         json!({
             "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),

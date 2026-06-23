@@ -277,6 +277,10 @@ fn collect_hako_alloc_alignment_result_flattened_nested_plan(
             "owner_field": OWNER_FIELD,
             "nested_field": nested_field.name,
             "flattened_field": format!("{}.{}", OWNER_FIELD, nested_field.name),
+            "key_global": format!(
+                "@.objstore_{}",
+                format!("{}.{}", OWNER_FIELD, nested_field.name).replace('.', "_")
+            ),
             "owner_field_slot": owner_field.slot,
             "nested_field_slot": nested_field.slot,
             "owner_layout_id": owner_plan.type_id,
@@ -295,6 +299,58 @@ fn collect_hako_alloc_alignment_result_flattened_nested_plan(
         "nested_layout_id": nested_plan.type_id,
         "flattened_field_count": flattened_fields.len(),
         "fields": flattened_fields,
+        "methods": [
+            {
+                "method": "requested",
+                "kind": "read_i64",
+                "field": "alignment_result.last_requested",
+            },
+            {
+                "method": "normalized",
+                "kind": "read_i64",
+                "field": "alignment_result.last_normalized",
+            },
+            {
+                "method": "reason",
+                "kind": "read_i64",
+                "field": "alignment_result.last_reason",
+            },
+            {
+                "method": "supported",
+                "kind": "read_i64",
+                "field": "alignment_result.last_supported",
+            },
+            {
+                "method": "reset",
+                "kind": "reset_all_i64_zero",
+                "fields": [
+                    "alignment_result.last_requested",
+                    "alignment_result.last_normalized",
+                    "alignment_result.last_reason",
+                    "alignment_result.last_supported",
+                ],
+            },
+            {
+                "method": "recordFailure",
+                "kind": "record_pair_with_const_fields",
+                "arg0_field": "alignment_result.last_requested",
+                "arg1_field": "alignment_result.last_normalized",
+                "const_fields": [
+                    {"field": "alignment_result.last_reason", "value": 1},
+                    {"field": "alignment_result.last_supported", "value": 0},
+                ],
+            },
+            {
+                "method": "recordSuccess",
+                "kind": "record_pair_with_const_fields",
+                "arg0_field": "alignment_result.last_requested",
+                "arg1_field": "alignment_result.last_normalized",
+                "const_fields": [
+                    {"field": "alignment_result.last_reason", "value": 0},
+                    {"field": "alignment_result.last_supported", "value": 1},
+                ],
+            },
+        ],
         "fallback_policy": "generic_box_when_proof_missing",
         "backend_lowering_enabled": false,
         "boundary_driver_flattened_nested_consumer": false,

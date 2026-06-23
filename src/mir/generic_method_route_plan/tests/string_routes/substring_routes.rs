@@ -66,6 +66,7 @@ fn records_runtime_data_substring_from_generic_global_call_phi_origin() {
     assert_eq!(route.method(), "substring");
     assert_eq!(route.arity(), 2);
     assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(route.result_origin_box(), Some("StringBox"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);
     let core_method = route
         .core_method()
@@ -150,6 +151,7 @@ fn records_direct_substring_core_method_route() {
     assert_eq!(route.method(), "substring");
     assert_eq!(route.arity(), 2);
     assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+    assert_eq!(route.result_origin_box(), Some("StringBox"));
     assert_eq!(route.key_route(), None);
     assert_eq!(route.key_value(), None);
     assert_eq!(route.route_kind(), GenericMethodRouteKind::StringSubstring);

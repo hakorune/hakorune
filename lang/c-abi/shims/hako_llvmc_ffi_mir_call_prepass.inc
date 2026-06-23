@@ -1,39 +1,3 @@
-      auto void mark_array_string_indexof_need_flags(
-          yyjson_val* blocks,
-          long long bid,
-          size_t ii,
-          size_t ilen,
-          yyjson_val* insts,
-          const char* bname,
-          const char* mname,
-          long long recv,
-          long long a0,
-          long long dst,
-          int scan_org,
-          struct MirCallNeedFlags* needs) {
-        struct ArrayTextObserverRouteMetadata observer_route;
-
-        (void)blocks;
-        (void)ilen;
-        (void)insts;
-        (void)bname;
-        (void)mname;
-        (void)recv;
-        (void)a0;
-        (void)scan_org;
-        if (!needs) return;
-        if (match_array_text_observer_route_metadata(bid, ii, &observer_route)) {
-          if (observer_route.observer_arg0_const_utf8) {
-            needs->arr_string_indexof_const_utf8 = 1;
-          } else {
-            needs->arr_string_indexof = 1;
-          }
-        }
-        needs->arr_get = 1;
-        needs->arr_slot_load = 1;
-        if (dst) set_scan_origin(dst, ORG_STRING);
-      }
-
       auto void mark_global_call_result_origin_from_view(
           const struct LoweringPlanGlobalCallView* view,
           long long dst) {
@@ -89,6 +53,41 @@
         }
       }
 
+      auto int mark_constructor_call_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst,
+          struct MirCallNeedFlags* needs) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanConstructorCallView view;
+        enum MirCallNeedKind need_kind;
+        int origin_kind;
+        if (!entry) return 0;
+        if (!read_lowering_plan_constructor_call_view(entry, &view)) return 0;
+        need_kind = mir_call_constructor_need_kind_from_lowering_plan_entry(entry);
+        apply_mir_call_need_kind(needs, need_kind);
+        origin_kind = lowering_plan_constructor_call_view_result_origin_kind(&view);
+        if (dst && origin_kind != ORG_NONE) {
+          set_scan_origin(dst, origin_kind);
+        }
+        return 1;
+      }
+
+      auto void mark_extern_call_result_origin_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst) {
+        yyjson_val* entry = NULL;
+        struct LoweringPlanExternCallView view;
+        int origin_kind = ORG_NONE;
+        if (!dst) return;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!read_lowering_plan_extern_call_view(entry, &view)) return;
+        origin_kind = lowering_plan_extern_call_view_result_origin_kind(&view);
+        if (origin_kind == ORG_NONE) return;
+        set_scan_origin(dst, origin_kind);
+      }
+
       auto void scan_mir_call_need_flags(
           yyjson_val* blocks,
           long long bid,
@@ -102,32 +101,28 @@
         const char* ctype = cal ? read_str(cal, "type") : NULL;
         const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
         const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
+        yyjson_val* site_plan_entry = find_lowering_plan_entry_for_site(bid, ii);
 
+        (void)blocks;
+        (void)ilen;
+        (void)insts;
         if (!needs) return;
         {
           enum MirCallNeedKind plan_extern_need =
               classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
           if (plan_extern_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
             apply_mir_call_need_kind(needs, plan_extern_need);
-            if ((plan_extern_need == HAKO_LLVMC_MIR_CALL_NEED_ENV_GET ||
-                 plan_extern_need == HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP) &&
-                read_int(ins, "dst")) {
-              set_scan_origin(read_int(ins, "dst"), ORG_STRING);
-            }
+            mark_extern_call_result_origin_from_lowering_plan(
+                bid, ii, read_int(ins, "dst"));
             return;
           }
         }
         if (ctype && !strcmp(ctype, "Constructor")) {
           long long dst = read_int(ins, "dst");
-          enum MirCallNeedKind need_kind =
-              classify_mir_call_constructor_need_kind(bname);
-          apply_mir_call_need_kind(needs, need_kind);
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH) {
-            if (dst) set_scan_origin(dst, ORG_MAP_BIRTH);
+          if (mark_constructor_call_from_lowering_plan(bid, ii, dst, needs)) {
+            return;
           }
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH) {
-            if (dst) set_scan_origin(dst, ORG_ARRAY_BIRTH);
-          }
+          (void)bname;
           return;
         }
 
@@ -143,38 +138,33 @@
             if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
           }
           mark_user_box_method_result_from_lowering_plan(bid, ii, read_int(ins, "dst"));
+          mark_generic_method_result_origin_from_lowering_plan(
+              bid, ii, read_int(ins, "dst"));
           if (match_array_text_observer_route_metadata(bid, ii, NULL)) {
-            mark_array_string_indexof_need_flags(
-                blocks, bid, ii, ilen, insts, bname, mname, recv, a0,
-                read_int(ins, "dst"), ORG_STRING, needs);
+            mark_array_text_observer_need_flags_from_metadata(
+                bid, ii, read_int(ins, "dst"), needs);
             return;
           }
-          route = classify_generic_method_route(bid, ii, bname, mname, recv);
+          route = classify_generic_method_route(bid, ii, recv);
           need_kind =
-              classify_mir_call_method_need_kind_from_core_method_metadata(bid, ii);
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE &&
-              route.runtime_map_has) {
-            need_kind = HAKO_LLVMC_MIR_CALL_NEED_RUNTIME_DATA_HAS;
-          }
+              classify_mir_call_method_need_kind_from_site_lowering_plan(bid, ii);
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF) {
-            mark_array_string_indexof_need_flags(
-                blocks, bid, ii, ilen, insts, bname, mname, recv, a0,
-                read_int(ins, "dst"), route.recv_org, needs);
+            mark_array_text_observer_need_flags_from_metadata(
+                bid, ii, read_int(ins, "dst"), needs);
             return;
           }
           apply_mir_call_need_kind(needs, need_kind);
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH &&
               route.recv_org == ORG_ARRAY_BIRTH &&
               a0 && get_scan_origin(a0) == ORG_STRING) {
-            promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+            hako_llvmc_promote_array_string_birth_if_value_is_string(
+                recv, a0, 1);
           }
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET &&
               route.recv_org == ORG_ARRAY_BIRTH &&
               a1 && get_scan_origin(a1) == ORG_STRING) {
-            promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-          }
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING) {
-            if (read_int(ins, "dst")) set_scan_origin(read_int(ins, "dst"), ORG_STRING);
+            hako_llvmc_promote_array_string_birth_if_value_is_string(
+                recv, a1, 1);
           }
           return;
         }
@@ -188,16 +178,25 @@
             apply_mir_call_need_kind(needs, plan_need);
             return;
           }
-          apply_mir_call_need_kind(needs, classify_mir_call_global_need_kind(mname));
+          {
+            enum MirCallNeedKind fallback_need =
+                site_plan_entry ? HAKO_LLVMC_MIR_CALL_NEED_NONE
+                                : classify_mir_call_global_need_kind(mname);
+            record_mir_call_need_name_fallback(
+                needs,
+                HAKO_LLVMC_MIR_CALL_NEED_NAME_FALLBACK_GLOBAL,
+                mname,
+                fallback_need,
+                bid,
+                ii);
+            apply_mir_call_need_kind(needs, fallback_need);
+          }
           return;
         }
 
         if (ctype && !strcmp(ctype, "Extern") && mname) {
           enum MirCallNeedKind need_kind =
               classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_NONE) {
-            need_kind = classify_mir_call_extern_need_kind(mname);
-          }
           apply_mir_call_need_kind(needs, need_kind);
           if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT &&
               read_int(ins, "dst")) {

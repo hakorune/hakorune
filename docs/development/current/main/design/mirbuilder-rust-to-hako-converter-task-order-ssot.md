@@ -19,11 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001
+  MIR-CALL-PREPASS-FACT-OWNER-DRAIN-001
 
 current implementation task:
-  Decide the MIR-owned proof for boxed-sum handle value metadata before
-  removing `__hako_sum_` prefix inference from same-module C shims.
+  Drain call need/origin fact assembly from `hako_llvmc_ffi_mir_call_prepass.inc`
+  into generated descriptors / LoweringPlan rows.
 
 producer responsibility stack:
   Source preparation
@@ -46,11 +46,15 @@ landed evidence:
   diagnostics, generic read-fold decomposition, boxed-sum I64 payload ABI,
   MetadataContext region-parent EXE/AOT acceptance, boxed-sum site metadata,
   C shim payload_type fallback removal, boxed-sum const payload definition
-  indexing, boxed-sum lowering facade, and variant binding fact owner drain are
-  landed.
+  indexing, boxed-sum lowering facade, variant binding fact owner drain, and
+  explicit boxed-sum value facts for same-module and generic-method results
+  plus MIR-call route policy legacy generic_method_routes fallback removal,
+  MIR-call need-name fallback auditing, object-storage plan name-inference
+  drain, exact-seed route quarantine, same-module definition edge plans, and
+  constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  same-module boxed-sum handle fact owner design stop
+  MIR-call prepass fact owner drain
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -66,15 +70,12 @@ current fail-fast boundary:
   `__hako_sum_` box-name prefix may not be used as a new proof source.
 
 latest design decision:
-  Collection values must use the existing MIR route contracts end-to-end:
+  Boxed-sum handle proof is explicit per-value representation metadata:
 
-  - `RuntimeValueCarrierI64` is an ABI carrier only; it preserves bits.
-  - raw i64 sign never identifies scalar vs typed-object / boxed-enum handle.
-  - consumers require `return_shape`, `value_demand`, and value-class facts.
-  - MapBox and ArrayBox share the same mixed-value encode/decode contract.
-  - route descriptors are generated from one neutral manifest.
-  - diagnostics consume descriptors; they do not choose routes.
-  - generic read-fold operations come after transport and route truth are fixed.
+  - semantic authority is ValueRepresentationFact::BoxedSumHandle { abi_plan_id }.
+  - variant_binding remains local tag/payload tracking only.
+  - `__hako_sum_` prefix, enum_name, box_type spelling, and raw i64 sign are
+    forbidden proofs.
 
 forbidden:
   raw aggregate map return; read-view / lease framework; new Hako pointer
@@ -111,7 +112,27 @@ boxed_sum_i64_payload_abi = landed
 metadata_context_region_parent_backend = landed
 same_module_typed_field_rmw_fusion_plan = landed
 same_module_result_capsule_reset_batch_plan = landed
-same_module_sum_handle_fact_owner = design_stop
+same_module_sum_handle_fact_owner = accepted
+explicit_boxed_sum_value_fact_same_module = landed
+generic_method_boxed_sum_result_fact = landed
+c_abi_shim_responsibility_inventory = landed
+mir_call_constructor_birth_fact_drain = landed
+mir_call_constructor_name_fallback_retired = landed
+mir_call_array_text_observer_need_drain = landed
+mir_call_generic_method_result_origin_drain = landed
+mir_call_array_string_birth_promotion_helper = landed
+mir_call_runtime_map_has_need_fallback_drain = landed
+mir_call_extern_result_origin_plan_drain = landed
+mir_call_extern_string_route_specs = landed
+mir_call_extern_string_name_fallback_retired = landed
+mir_call_generic_method_emit_fallback_drain = landed
+generic_method_match_emit_fallback_drain = landed
+generic_method_legacy_route_scan_drain = landed
+mir_call_route_policy_drain = landed
+mir_call_need_name_fallback_audit = landed
+object_storage_plan_name_inference_drain = landed
+exact_seed_route_quarantine = landed
+same_module_definition_edge_plan = landed
 slot_classifier_policy = verified operation data
 collection_runtime_value_carrier = landed for MapBox and ArrayBox
 nyrt_freshness_fail_fast = landed for --no-build AOT harness
@@ -129,23 +150,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Same-module typed-field RMW fusion plan SSOT
+1. Same-module definition edge plan
    status=landed
-   card=docs/development/current/main/phases/phase-296x/296x-1657-SAME-MODULE-FUSION-PLAN-SSOT-001.md
-   boundary=move one same-module fusion window discovery to a named plan row
-   selected_first_window=typed_field_rmw get/binop/set -> exact_slot_rmw_add_u64
+   boundary=C shim validates and emits explicit definition rows only
+   semantic_authority=MIR finalize / lowering plan producer
+   non_authority=recursive function-list discovery in C shim
 
-2. Same-module reset-batch fusion plan SSOT
-   status=landed
-   card=docs/development/current/main/phases/phase-296x/296x-1658-SAME-MODULE-RESET-BATCH-FUSION-PLAN-SSOT-001.md
-   boundary=move the ordered result-capsule reset window to a named plan row
-   selected_window=result_capsule_reset_batch -> exact_slot_set4_i64
+2. MIR-call prepass fact owner drain
+   status=active; constructor, observer, method-origin, map-has, extern-origin lanes landed
+   boundary=remaining call need/origin facts come from descriptors/lowering rows
+   semantic_authority=descriptor/lowering fact rows
+   non_authority=C prepass reconstruction from callee spelling
 
-3. Same-module boxed-sum handle fact owner design stop
-   status=active
-   card=docs/development/current/main/phases/phase-296x/296x-1659-SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001.md
-   boundary=choose the proof owner before removing `__hako_sum_` prefix inference
-   decision_needed=variant_binding vs explicit value metadata vs propagated boxed_sum_abi_plan_id
+3. Slot classifier policy
+   status=parked
+   boundary=classification table comes from verified operation data
+   semantic_authority=live Rust facts -> structured operation
+   non_authority=emitter-owned MirType/name policy
 ```
 
 ## Landed Converter Capability Summary
@@ -167,7 +188,9 @@ boxed-sum lowering facade
 C shim variant binding fact owner drain
 same-module typed-field RMW fusion plan
 same-module result-capsule reset batch fusion plan
-same-module boxed-sum handle fact owner selected = pending
+same-module boxed-sum handle fact owner selected
+same-module explicit boxed-sum value fact
+generic-method explicit boxed-sum result fact
 ```
 
 ## Direct-Lowering Policy
@@ -512,29 +535,28 @@ P0. BOXED-SUM-SITE-ABI-PLAN-ID-001
 P0. C-ABI-SHIM-RESPONSIBILITY-INVENTORY-001
     current files:
       lang/c-abi/shims/*.inc
-    - audit every .inc that does more than consume selected MIR/lowering facts
-      and emit C/LLVM glue
-    - classify each finding as one of:
-        spelling_inference
-        definition_discovery
-        route_policy
-        value_class_derivation
-        object_storage_inference
-        fusion_window_discovery
-        exact_seed_fallback
-    - for each finding, name the intended upstream owner:
-        MIR JSON site fact
-        LoweringPlan row
-        SemanticRefresh fact
-        generated route descriptor
-        backend helper facade
-        retired legacy path
-    - do not edit C behavior in this inventory task
-    acceptance:
-      each non-glue .inc responsibility has an owner or retire task
-      boxed-sum emit O(n) definition scan is tracked as definition_discovery
-      boxed-sum generic/same-module duplication is tracked as helper_facade work
-      no new guard/card/route is created only to describe the inventory
+    status=landed
+    inventory result:
+      route_policy:
+        hako_llvmc_ffi_mir_call_route_policy.inc legacy generic_method_routes fallback
+        hako_llvmc_ffi_generic_method_get_policy.inc / has_policy.inc emit-layer validation
+      object_storage_inference:
+        hako_llvmc_ffi_object_storage_plan.inc HakoAlloc alignment-result method/key mapping
+      exact_seed_fallback:
+        hako_llvmc_ffi_pure_compile.inc exact_seed_backend_route tag dispatch
+        hako_llvmc_ffi_user_box_micro_seed_*.inc benchmark/userbox shape policy
+      remaining boxed-sum local lookup:
+        hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc boxed_sum_unit_binding_plan_index enum-name lookup
+      already drained:
+        boxed-sum const payload definition scan
+        boxed-sum lowering facade duplication
+        prepass variant binding owner
+        same-module typed-field/result-capsule fusion window discovery
+        same-module/generic-method __hako_sum_ prefix proof
+    selected next cleanup:
+      EXACT-SEED-ROUTE-QUARANTINE-001
+      owner=explicit exact route rows
+      boundary=remove blind exact seed fallback attempts from C shim
 
 P0. BOXED-SUM-CONST-PAYLOAD-DEF-INDEX-001
     card:
@@ -629,20 +651,39 @@ P1. MIR-CALL-ROUTE-POLICY-DRAIN-001
       lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_name_fallback.inc
     - route classification, declaration needs, result facts, receiver-origin
       mutation, and compatibility name fallback are separated
-    - legacy generic_method_routes metadata scan is retired after rows are
-      migrated to lowering_plan
+    status=landed
+    - legacy generic_method_routes metadata scan is retired; route policy now
+      consumes lowering_plan rows and generated route descriptors only
     - name fallback remains temporary compatibility only, with removal criteria
     acceptance:
       primary route policy comes from lowering_plan / generated descriptors
       C shim does not choose route by callee string when descriptor exists
       compatibility fallback is explicitly counted and fail-fast audited
 
+P1. MIR-CALL-NEED-NAME-FALLBACK-AUDIT-001
+    current files:
+      lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc
+      lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_name_fallback.inc
+    status=landed
+    - constructor/global/extern need-name fallback remains compatibility only
+    - fallback hits are counted or diagnosable, not silent route proof
+    - if a generated descriptor / explicit need row exists for the site, the
+      name fallback must not override it
+    acceptance:
+      route classification by callee spelling = 0
+      temporary fallback sites are explicit and auditable
+      missing required descriptor fails closed instead of choosing a route name
+
 P2. OBJECT-STORAGE-PLAN-NAME-INFERENCE-DRAIN-001
+    status=landed
+    current file:
+      lang/c-abi/shims/hako_llvmc_ffi_object_storage_plan.inc
     - object_storage_plans carry explicit flattened-field keys,
       method/property mappings, and static key symbols
     - C shims do not infer object storage from HakoAlloc names
 
 P2. SAME-MODULE-DEFINITION-EDGE-PLAN-001
+    status=landed
     current file:
       lang/c-abi/shims/hako_llvmc_ffi_same_module_function_plan.inc
     - MIR finalize / lowering plan producer emits explicit same-module
@@ -651,6 +692,7 @@ P2. SAME-MODULE-DEFINITION-EDGE-PLAN-001
     - recursive function-list discovery is removed from C shim
 
 P2. EXACT-SEED-ROUTE-QUARANTINE-001
+    status=landed
     - legacy exact seed emitters require explicit exact route rows
     - blind fallback attempts are removed
     - benchmark/userbox seed paths are either quarantined or retired

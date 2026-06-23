@@ -42,18 +42,32 @@
         return NULL;
       }
 
-      auto int object_storage_plan_field_has_flattened_name(
+      auto yyjson_val* object_storage_plan_field_row(
           yyjson_val* plan,
           const char* flattened_field) {
         yyjson_val* fields = plan ? yyjson_obj_get(plan, "fields") : NULL;
         size_t count = (fields && yyjson_is_arr(fields)) ? yyjson_arr_size(fields) : 0;
-        if (!(fields && flattened_field)) return 0;
+        if (!(fields && flattened_field)) return NULL;
         for (size_t i = 0; i < count; i++) {
           yyjson_val* field = yyjson_arr_get(fields, i);
           const char* name = field ? read_str(field, "flattened_field") : NULL;
-          if (object_storage_plan_str_eq(name, flattened_field)) return 1;
+          if (object_storage_plan_str_eq(name, flattened_field)) return field;
         }
-        return 0;
+        return NULL;
+      }
+
+      auto yyjson_val* object_storage_plan_method_row(
+          yyjson_val* plan,
+          const char* method_name) {
+        yyjson_val* methods = plan ? yyjson_obj_get(plan, "methods") : NULL;
+        size_t count = (methods && yyjson_is_arr(methods)) ? yyjson_arr_size(methods) : 0;
+        if (!(methods && method_name)) return NULL;
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* method = yyjson_arr_get(methods, i);
+          const char* name = method ? read_str(method, "method") : NULL;
+          if (object_storage_plan_str_eq(name, method_name)) return method;
+        }
+        return NULL;
       }
 
       auto int object_storage_plan_selected_alignment_result_ready(void) {
@@ -61,76 +75,34 @@
             "HakoAllocObjectLifecycleFacade",
             "alignment_result",
             "HakoAllocObjectLifecycleAlignmentResult");
+        yyjson_val* fields = plan ? yyjson_obj_get(plan, "fields") : NULL;
+        yyjson_val* methods = plan ? yyjson_obj_get(plan, "methods") : NULL;
+        size_t field_count = (fields && yyjson_is_arr(fields)) ? yyjson_arr_size(fields) : 0;
         if (!plan) return 0;
-        return object_storage_plan_field_has_flattened_name(
-                   plan,
-                   "alignment_result.last_requested") &&
-               object_storage_plan_field_has_flattened_name(
-                   plan,
-                   "alignment_result.last_normalized") &&
-               object_storage_plan_field_has_flattened_name(
-                   plan,
-                   "alignment_result.last_reason") &&
-               object_storage_plan_field_has_flattened_name(
-                   plan,
-                   "alignment_result.last_supported");
+        if (!(field_count > 0 && methods && yyjson_is_arr(methods))) return 0;
+        for (size_t i = 0; i < field_count; i++) {
+          yyjson_val* field = yyjson_arr_get(fields, i);
+          if (!(read_str(field, "flattened_field") &&
+                read_str(field, "key_global") &&
+                object_storage_plan_str_eq(read_str(field, "scalar_type"), "i64"))) {
+            return 0;
+          }
+        }
+        return 1;
       }
 
       auto int object_storage_plan_alignment_result_owner_receiver_ready(
           long long owner_reg) {
         int bound_plan_index = -1;
-        int facade_plan_index = -1;
+        yyjson_val* plan = find_flattened_nested_object_storage_plan(
+            "HakoAllocObjectLifecycleFacade",
+            "alignment_result",
+            "HakoAllocObjectLifecycleAlignmentResult");
+        long long owner_layout_id = plan ? read_int(plan, "owner_layout_id") : 0;
         if (!object_storage_plan_selected_alignment_result_ready()) return 0;
         if (!get_typed_object_binding(owner_reg, &bound_plan_index)) return 0;
-        if (!find_typed_object_plan_index(
-                "HakoAllocObjectLifecycleFacade",
-                &facade_plan_index)) {
-          return 0;
-        }
-        return bound_plan_index == facade_plan_index;
-      }
-
-      auto const char* object_storage_plan_alignment_result_field_for_method(
-          const char* method_name) {
-        if (!method_name) return NULL;
-        if (object_storage_plan_str_eq(method_name, "requested")) {
-          return "alignment_result.last_requested";
-        }
-        if (object_storage_plan_str_eq(method_name, "normalized")) {
-          return "alignment_result.last_normalized";
-        }
-        if (object_storage_plan_str_eq(method_name, "reason")) {
-          return "alignment_result.last_reason";
-        }
-        if (object_storage_plan_str_eq(method_name, "supported")) {
-          return "alignment_result.last_supported";
-        }
-        return NULL;
-      }
-
-      auto const char* object_storage_plan_alignment_result_key_global(
-          const char* flattened_field) {
-        if (object_storage_plan_str_eq(
-                flattened_field,
-                "alignment_result.last_requested")) {
-          return "@.objstore_alignment_result_last_requested";
-        }
-        if (object_storage_plan_str_eq(
-                flattened_field,
-                "alignment_result.last_normalized")) {
-          return "@.objstore_alignment_result_last_normalized";
-        }
-        if (object_storage_plan_str_eq(
-                flattened_field,
-                "alignment_result.last_reason")) {
-          return "@.objstore_alignment_result_last_reason";
-        }
-        if (object_storage_plan_str_eq(
-                flattened_field,
-                "alignment_result.last_supported")) {
-          return "@.objstore_alignment_result_last_supported";
-        }
-        return NULL;
+        return owner_layout_id > 0 &&
+               typed_object_plan_type_id(bound_plan_index) == owner_layout_id;
       }
 
       auto size_t object_storage_plan_alignment_result_key_len(
@@ -142,8 +114,12 @@
           FILE* f,
           const char* local_name,
           const char* flattened_field) {
-        const char* global_name =
-            object_storage_plan_alignment_result_key_global(flattened_field);
+        yyjson_val* plan = find_flattened_nested_object_storage_plan(
+            "HakoAllocObjectLifecycleFacade",
+            "alignment_result",
+            "HakoAllocObjectLifecycleAlignmentResult");
+        yyjson_val* field = object_storage_plan_field_row(plan, flattened_field);
+        const char* global_name = field ? read_str(field, "key_global") : NULL;
         size_t key_len =
             object_storage_plan_alignment_result_key_len(flattened_field);
         if (!(f && local_name && global_name && key_len > 0)) return 0;
@@ -153,6 +129,30 @@
             local_name,
             key_len,
             global_name);
+        return 1;
+      }
+
+      auto int emit_object_storage_plan_key_globals(FILE* f) {
+        yyjson_val* plan = find_flattened_nested_object_storage_plan(
+            "HakoAllocObjectLifecycleFacade",
+            "alignment_result",
+            "HakoAllocObjectLifecycleAlignmentResult");
+        yyjson_val* fields = plan ? yyjson_obj_get(plan, "fields") : NULL;
+        size_t count = (fields && yyjson_is_arr(fields)) ? yyjson_arr_size(fields) : 0;
+        if (!object_storage_plan_selected_alignment_result_ready()) return 0;
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* field = yyjson_arr_get(fields, i);
+          const char* flattened_field = field ? read_str(field, "flattened_field") : NULL;
+          const char* global_name = field ? read_str(field, "key_global") : NULL;
+          size_t key_len = object_storage_plan_alignment_result_key_len(flattened_field);
+          if (!(flattened_field && global_name && key_len > 0)) return -1;
+          fprintf(
+              f,
+              "%s = private unnamed_addr constant [%zu x i8] c\"%s\\00\", align 1\n",
+              global_name,
+              key_len,
+              flattened_field);
+        }
         return 1;
       }
 
@@ -296,39 +296,26 @@
           FILE* f,
           long long bid,
           size_t ii,
-          long long owner_reg) {
-        return emit_flattened_nested_field_store_const(
-                   f,
-                   bid,
-                   ii,
-                   owner_reg,
-                   "alignment_result.last_requested",
-                   0,
-                   0) &&
-               emit_flattened_nested_field_store_const(
-                   f,
-                   bid,
-                   ii,
-                   owner_reg,
-                   "alignment_result.last_normalized",
-                   0,
-                   1) &&
-               emit_flattened_nested_field_store_const(
-                   f,
-                   bid,
-                   ii,
-                   owner_reg,
-                   "alignment_result.last_reason",
-                   0,
-                   2) &&
-               emit_flattened_nested_field_store_const(
-                   f,
-                   bid,
-                   ii,
-                   owner_reg,
-                   "alignment_result.last_supported",
-                   0,
-                   3);
+          long long owner_reg,
+          yyjson_val* method_row) {
+        yyjson_val* fields = method_row ? yyjson_obj_get(method_row, "fields") : NULL;
+        size_t count = (fields && yyjson_is_arr(fields)) ? yyjson_arr_size(fields) : 0;
+        if (count == 0) return 0;
+        for (size_t i = 0; i < count; i++) {
+          yyjson_val* field = yyjson_arr_get(fields, i);
+          const char* flattened_field = field && yyjson_is_str(field) ? yyjson_get_str(field) : NULL;
+          if (!emit_flattened_nested_field_store_const(
+                  f,
+                  bid,
+                  ii,
+                  owner_reg,
+                  flattened_field,
+                  0,
+                  (int)i)) {
+            return 0;
+          }
+        }
+        return 1;
       }
 
       auto int emit_flattened_nested_alignment_result_method_call(
@@ -340,12 +327,17 @@
           const char* method_name,
           yyjson_val* args) {
         long long owner_reg = 0;
-        const char* read_field =
-            object_storage_plan_alignment_result_field_for_method(method_name);
+        yyjson_val* plan = find_flattened_nested_object_storage_plan(
+            "HakoAllocObjectLifecycleFacade",
+            "alignment_result",
+            "HakoAllocObjectLifecycleAlignmentResult");
+        yyjson_val* method_row = object_storage_plan_method_row(plan, method_name);
+        const char* method_kind = method_row ? read_str(method_row, "kind") : NULL;
         size_t argc = (args && yyjson_is_arr(args)) ? yyjson_arr_size(args) : 0;
         if (!get_flattened_nested_binding(recv, &owner_reg)) return 0;
         if (!object_storage_plan_alignment_result_owner_receiver_ready(owner_reg)) return 0;
-        if (read_field) {
+        if (object_storage_plan_str_eq(method_kind, "read_i64")) {
+          const char* read_field = read_str(method_row, "field");
           if (argc != 0) return -1;
           return emit_flattened_nested_field_load(
               f,
@@ -357,9 +349,14 @@
               ? 1
               : -1;
         }
-        if (object_storage_plan_str_eq(method_name, "reset")) {
+        if (object_storage_plan_str_eq(method_kind, "reset_all_i64_zero")) {
           if (argc != 0) return -1;
-          if (!emit_flattened_nested_alignment_result_reset(f, bid, ii, owner_reg)) {
+          if (!emit_flattened_nested_alignment_result_reset(
+                  f,
+                  bid,
+                  ii,
+                  owner_reg,
+                  method_row)) {
             return -1;
           }
           if (dst) {
@@ -368,14 +365,16 @@
           }
           return 1;
         }
-        if (object_storage_plan_str_eq(method_name, "recordFailure") ||
-            object_storage_plan_str_eq(method_name, "recordSuccess")) {
+        if (object_storage_plan_str_eq(method_kind, "record_pair_with_const_fields")) {
           yyjson_val* arg0 = NULL;
           yyjson_val* arg1 = NULL;
+          yyjson_val* const_fields = yyjson_obj_get(method_row, "const_fields");
           long long requested_reg = 0;
           long long normalized_reg = 0;
-          long long reason = object_storage_plan_str_eq(method_name, "recordFailure") ? 1 : 0;
-          long long supported = object_storage_plan_str_eq(method_name, "recordSuccess") ? 1 : 0;
+          const char* arg0_field = read_str(method_row, "arg0_field");
+          const char* arg1_field = read_str(method_row, "arg1_field");
+          size_t const_count =
+              (const_fields && yyjson_is_arr(const_fields)) ? yyjson_arr_size(const_fields) : 0;
           if (argc != 2) return -1;
           arg0 = yyjson_arr_get(args, 0);
           arg1 = yyjson_arr_get(args, 1);
@@ -387,7 +386,7 @@
                   bid,
                   ii,
                   owner_reg,
-                  "alignment_result.last_requested",
+                  arg0_field,
                   requested_reg,
                   0) ||
               !emit_flattened_nested_field_store_reg(
@@ -395,26 +394,25 @@
                   bid,
                   ii,
                   owner_reg,
-                  "alignment_result.last_normalized",
+                  arg1_field,
                   normalized_reg,
-                  1) ||
-              !emit_flattened_nested_field_store_const(
-                  f,
-                  bid,
-                  ii,
-                  owner_reg,
-                  "alignment_result.last_reason",
-                  reason,
-                  2) ||
-              !emit_flattened_nested_field_store_const(
-                  f,
-                  bid,
-                  ii,
-                  owner_reg,
-                  "alignment_result.last_supported",
-                  supported,
-                  3)) {
+                  1)) {
             return -1;
+          }
+          for (size_t ci = 0; ci < const_count; ci++) {
+            yyjson_val* const_row = yyjson_arr_get(const_fields, ci);
+            const char* const_field = read_str(const_row, "field");
+            long long const_value = read_int(const_row, "value");
+            if (!emit_flattened_nested_field_store_const(
+                    f,
+                    bid,
+                    ii,
+                    owner_reg,
+                    const_field,
+                    const_value,
+                    (int)(ci + 2))) {
+              return -1;
+            }
           }
           if (dst) {
             fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);

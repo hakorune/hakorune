@@ -150,6 +150,26 @@
         }
         return 0;
       }
+      auto int mark_array_text_observer_need_flags_from_metadata(
+          long long bid,
+          size_t ii,
+          long long dst,
+          struct MirCallNeedFlags* needs) {
+        struct ArrayTextObserverRouteMetadata observer_route;
+        if (!needs) return 0;
+        if (!match_array_text_observer_route_metadata(bid, ii, &observer_route)) {
+          return 0;
+        }
+        if (observer_route.observer_arg0_const_utf8) {
+          needs->arr_string_indexof_const_utf8 = 1;
+        } else {
+          needs->arr_string_indexof = 1;
+        }
+        needs->arr_get = 1;
+        needs->arr_slot_load = 1;
+        if (dst) set_scan_origin(dst, ORG_STRING);
+        return 1;
+      }
       auto int try_defer_array_string_indexof_get_window(
           FILE* f,
           yyjson_val* blocks,

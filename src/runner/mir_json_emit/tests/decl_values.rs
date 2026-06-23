@@ -345,9 +345,39 @@ fn collect_object_storage_plan_values_exports_flattened_nested_alignment_result(
             "alignment_result.last_supported",
         ]
     );
+    let key_globals: Vec<_> = fields
+        .iter()
+        .map(|field| field["key_global"].as_str().unwrap_or(""))
+        .collect();
+    assert_eq!(
+        key_globals,
+        vec![
+            "@.objstore_alignment_result_last_requested",
+            "@.objstore_alignment_result_last_normalized",
+            "@.objstore_alignment_result_last_reason",
+            "@.objstore_alignment_result_last_supported",
+        ]
+    );
     assert!(fields
         .iter()
         .all(|field| field["scalar_type"].as_str() == Some("i64")));
+    let methods = plans[0]["methods"].as_array().expect("methods");
+    let method_names: Vec<_> = methods
+        .iter()
+        .map(|method| method["method"].as_str().unwrap_or(""))
+        .collect();
+    assert_eq!(
+        method_names,
+        vec![
+            "requested",
+            "normalized",
+            "reason",
+            "supported",
+            "reset",
+            "recordFailure",
+            "recordSuccess",
+        ]
+    );
 }
 
 #[test]

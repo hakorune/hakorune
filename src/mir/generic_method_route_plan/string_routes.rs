@@ -76,7 +76,8 @@ pub(super) fn match_generic_substring_route(
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), substring_args.len()),
-        GenericMethodRouteEvidence::new(receiver_origin_box, None),
+        GenericMethodRouteEvidence::new(receiver_origin_box, None)
+            .with_result_origin_box(Some("StringBox".to_string())),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::StringSubstring,

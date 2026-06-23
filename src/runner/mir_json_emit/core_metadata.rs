@@ -1,4 +1,6 @@
-use crate::mir::{function::FunctionMetadata, MirType};
+use crate::mir::{
+    function::FunctionMetadata, value_representation_fact::ValueRepresentationFact, MirType,
+};
 use serde_json::json;
 
 pub(super) fn insert_core_metadata_json(
@@ -37,6 +39,22 @@ pub(super) fn insert_core_metadata_json(
                         "direct_set_consumer": facts.direct_set_consumer,
                     }),
                 )
+            })
+            .collect::<serde_json::Map<String, serde_json::Value>>()),
+    );
+    obj.insert(
+        "value_representations".to_string(),
+        json!(metadata
+            .value_representations
+            .iter()
+            .map(|(k, fact)| {
+                let row = match fact {
+                    ValueRepresentationFact::BoxedSumHandle { abi_plan_id } => json!({
+                        "kind": "boxed_sum_handle",
+                        "abi_plan_id": abi_plan_id,
+                    }),
+                };
+                (k.as_u32().to_string(), row)
             })
             .collect::<serde_json::Map<String, serde_json::Value>>()),
     );

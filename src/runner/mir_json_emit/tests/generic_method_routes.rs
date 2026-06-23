@@ -165,6 +165,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(substring_route["box_name"], "StringBox");
     assert_eq!(substring_route["method"], "substring");
     assert_eq!(substring_route["receiver_origin_box"], "StringBox");
+    assert_eq!(substring_route["result_origin_box"], "StringBox");
     assert_eq!(substring_route["key_route"], serde_json::Value::Null);
     assert_eq!(substring_route["arity"], 2);
     assert_eq!(substring_route["receiver_value"], 21);

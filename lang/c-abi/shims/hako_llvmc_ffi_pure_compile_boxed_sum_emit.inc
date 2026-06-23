@@ -33,6 +33,7 @@
              dst,
              tag);
         set_type(dst, T_I64);
+        set_boxed_sum_binding(dst, boxed_plan_index);
         return 1;
       }
 
@@ -77,6 +78,7 @@
              payload_base);
         set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
         set_type(dst, T_I64);
+        set_boxed_sum_binding(dst, boxed_plan_index);
         return 1;
       }
 
@@ -136,6 +138,7 @@
              ii);
         set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
         set_type(dst, T_I64);
+        set_boxed_sum_binding(dst, boxed_plan_index);
         return 1;
       }
 

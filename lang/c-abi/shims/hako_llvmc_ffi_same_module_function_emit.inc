@@ -364,23 +364,36 @@
         } else if (pr.dst && pr.in_n > 0) {
           int all_typed_object = 1;
           int typed_plan_index = -1;
+          int all_boxed_sum = 1;
+          int boxed_sum_plan_index = -1;
           for (int ii = 0; ii < pr.in_n; ii++) {
             int in_typed_plan_index = -1;
+            int in_boxed_sum_plan_index = -1;
             if (!get_typed_object_binding(
                     pr.in[ii].val_reg, &in_typed_plan_index)) {
               all_typed_object = 0;
-              break;
             }
-            if (typed_plan_index < 0) {
+            if (!get_boxed_sum_binding(
+                    pr.in[ii].val_reg, &in_boxed_sum_plan_index)) {
+              all_boxed_sum = 0;
+            }
+            if (all_typed_object && typed_plan_index < 0) {
               typed_plan_index = in_typed_plan_index;
             } else if (typed_plan_index != in_typed_plan_index) {
               all_typed_object = 0;
-              break;
+            }
+            if (all_boxed_sum && boxed_sum_plan_index < 0) {
+              boxed_sum_plan_index = in_boxed_sum_plan_index;
+            } else if (boxed_sum_plan_index != in_boxed_sum_plan_index) {
+              all_boxed_sum = 0;
             }
           }
           if (all_typed_object && typed_plan_index >= 0) {
             same_module_function_publish_i64_origin(pr.dst, ORG_TYPED_OBJECT);
             set_typed_object_binding(pr.dst, typed_plan_index);
+          } else if (all_boxed_sum && boxed_sum_plan_index >= 0) {
+            set_type(pr.dst, T_I64);
+            set_boxed_sum_binding(pr.dst, boxed_sum_plan_index);
           }
         }
         if (all_phi_inputs_are_local_variants(&pr)) {
@@ -401,7 +414,9 @@
               int all_string = pr->in_n > 0;
               int all_bool = pr->in_n > 0;
               int all_typed_object = pr->in_n > 0;
+              int all_boxed_sum = pr->in_n > 0;
               int typed_plan_index = -1;
+              int boxed_sum_plan_index = -1;
               int saw_known = 0;
               if (!pr->dst) continue;
               for (int ii = 0; ii < pr->in_n; ii++) {
@@ -409,8 +424,11 @@
                 int ty = get_type(in_reg);
                 int is_string = same_module_function_value_is_string(in_reg);
                 int in_typed_plan_index = -1;
+                int in_boxed_sum_plan_index = -1;
                 int is_typed_object =
                     get_typed_object_binding(in_reg, &in_typed_plan_index);
+                int is_boxed_sum =
+                    get_boxed_sum_binding(in_reg, &in_boxed_sum_plan_index);
                 all_string = all_string && is_string;
                 all_bool = all_bool && is_bool_like_phi_input(in_reg);
                 all_typed_object =
@@ -421,6 +439,14 @@
                 if (is_typed_object && typed_plan_index < 0) {
                   typed_plan_index = in_typed_plan_index;
                 }
+                all_boxed_sum =
+                    all_boxed_sum &&
+                    is_boxed_sum &&
+                    (boxed_sum_plan_index < 0 ||
+                     boxed_sum_plan_index == in_boxed_sum_plan_index);
+                if (is_boxed_sum && boxed_sum_plan_index < 0) {
+                  boxed_sum_plan_index = in_boxed_sum_plan_index;
+                }
                 if (is_string || ty != T_NONE) saw_known = 1;
               }
               if (all_typed_object && typed_plan_index >= 0) {
@@ -429,6 +455,14 @@
                     current_plan_index != typed_plan_index) {
                   same_module_function_publish_i64_origin(pr->dst, ORG_TYPED_OBJECT);
                   set_typed_object_binding(pr->dst, typed_plan_index);
+                  changed = 1;
+                }
+              } else if (all_boxed_sum && boxed_sum_plan_index >= 0) {
+                int current_plan_index = -1;
+                if (!get_boxed_sum_binding(pr->dst, &current_plan_index) ||
+                    current_plan_index != boxed_sum_plan_index) {
+                  set_type(pr->dst, T_I64);
+                  set_boxed_sum_binding(pr->dst, boxed_sum_plan_index);
                   changed = 1;
                 }
               } else if (all_string) {
