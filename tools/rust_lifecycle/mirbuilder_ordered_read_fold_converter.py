@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from mirbuilder_ordering_capability import require_order_capability
+
 
 def _rows_by_id(facts: dict[str, Any], key: str) -> dict[str, dict[str, Any]]:
     return {row["id"]: row for row in facts.get(key, [])}
@@ -24,10 +26,7 @@ def compile_ordered_read_fold(facts: dict[str, Any], plan: dict[str, Any]) -> li
         raise ValueError("Deny(ReturnedReadBorrow): detail=OwnerMutationDuringBorrow")
 
     order = borrow.get("order")
-    if order == "SourceOrdered" and plan.get("source_order_proof") != "ExeAotAccepted":
-        raise ValueError("Deny(UnsupportedKeyTransport): detail=SourceOrderedStringKeyCompareUnavailable")
-    if order not in {"Unobserved", "Unspecified", "SourceOrdered"}:
-        raise ValueError("Deny(UnsupportedDirectShape): unsupported order fact")
+    require_order_capability(order, plan)
 
     return [
         {

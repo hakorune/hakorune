@@ -7,7 +7,7 @@
   },
   "current_contract": "deny_source_ordered_read_fold",
   "decision": [
-    "do not claim SourceOrdered read-fold until OrderedMapBox proves Rust BTreeMap<String> ordering",
+    "do not claim SourceOrdered read-fold until RustStringOrdV1 is VM/EXE/AOT accepted",
     "do not silently downgrade SourceOrdered to insertion order",
     "do not add RegionObserver-specific key-order special cases"
   ],
@@ -17,13 +17,12 @@
     "MIR-only success is insufficient for the converter acceptance target."
   ],
   "deny": {
-    "reason": "UnsupportedKeyTransport",
-    "detail": "SourceOrderedStringKeyCompareUnavailable"
+    "reason": "UnsupportedOrderCapability",
+    "detail": "ComparatorUnavailable",
+    "comparator": "RustStringOrdV1",
+    "required_tiers": "VM,EXE,AOT"
   },
-  "next_options": [
-    "add a backend-accepted StringBox lexical comparison route for OrderedMapBox",
-    "change the selected observer lowering so it does not require SourceOrdered map iteration"
-  ],
+  "next_task": "define converter-side total text ordering capability",
   "stop_line": [
     "source_ordered_read_fold_claim=0",
     "runtime_fallback=0",

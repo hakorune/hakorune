@@ -33,18 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001
+IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001
 ```
 
 Next task:
 
 ```text
-Define the converter-side ordering capability:
-  IterationOrder::KeyAscending(RustStringOrdV1)
-  CompareTotal(RustStringOrdV1)
-  Deny(UnsupportedOrderCapability)
+Implement CompareTotal(RustStringOrdV1) with VM / EXE / AOT acceptance.
 
-Do not change backend behavior in this first slice.
+Do not add OrderedMapBox / RegionObserver backend special cases.
+Do not generate the RegionObserver artifact until comparator proof is green.
 ```
 
 Purpose:

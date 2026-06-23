@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001
+  IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001
 
 current implementation task:
-  Define ComparatorCapability / IterationOrder IR without backend behavior change
+  Implement CompareTotal(RustStringOrdV1) with VM / EXE / AOT acceptance
 
 selected source slice:
   variable_map().iter() observer fold
@@ -31,7 +31,7 @@ blocked lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
-    -> order=SourceOrdered
+    -> order=KeyAscending(RustStringOrdV1)
     -> ElideToReadFold
     -> owned SlotMetadata output
 
@@ -43,9 +43,8 @@ blocker evidence:
 
 current decision:
   ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001 is closed as fail-closed.
-  SourceOrdered read-fold is denied with:
-    Deny(UnsupportedKeyTransport)
-    detail=SourceOrderedStringKeyCompareUnavailable
+  SourceOrdered read-fold is denied until a total-order comparator is proved
+  across VM/EXE/AOT.
 
   SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001 is closed as Option 1:
   implement backend-accepted StringBox lexical comparison as a generic
@@ -54,8 +53,9 @@ current decision:
 implemented route-selection guardrail:
   `tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py`
   extracts the live source line and denies artifact generation with:
-    Deny(UnsupportedKeyTransport)
-    detail=SourceOrderedStringKeyCompareUnavailable
+    Deny(UnsupportedOrderCapability)
+    detail=ComparatorUnavailable
+    comparator=RustStringOrdV1
 
 forbidden:
   raw aggregate map return
@@ -87,7 +87,7 @@ Current mechanical status:
 ```text
 region-observer variable_map read-fold route = Deny
 generated_hako = 0
-next step = define total text ordering capability in converter IR
+next step = implement backend-accepted total text ordering capability
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -95,7 +95,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0. `Define total text ordering capability`
 
-   Status: current.
+   Status: landed.
 
    Scope:
 
@@ -108,6 +108,27 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
    This is converter IR / capability work under `tools/rust_lifecycle`. Do not
    put the intermediate order model in `crates/hakorune_mir_builder`.
+
+0.5. `Implement backend-accepted total text ordering capability`
+
+   Status: current.
+
+   Scope:
+
+   ```text
+   CompareTotal(RustStringOrdV1)
+   VM / EXE / AOT acceptance
+   equal / less / greater / prefix / non-ASCII oracle cases
+   ```
+
+   Forbidden:
+
+   ```text
+   OrderedMapBox-name backend branch
+   RegionObserver-name backend branch
+   runtime fallback
+   locale-dependent compare
+   ```
 
 1. `Generalize access capabilities through value-caller clone elimination`
 
@@ -441,6 +462,7 @@ UnsupportedResolvedCallTarget
 UnsupportedDirectShape
 UnsupportedTypeTransport
 UnsupportedKeyTransport
+UnsupportedOrderCapability
 NullableMapValue
 DefaultSemanticMismatch
 UnstructuredControlFlow

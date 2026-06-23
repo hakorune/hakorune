@@ -9,8 +9,10 @@
   },
   "route": "Deny",
   "deny": {
-    "reason": "UnsupportedKeyTransport",
-    "detail": "SourceOrderedStringKeyCompareUnavailable"
+    "reason": "UnsupportedOrderCapability",
+    "detail": "ComparatorUnavailable",
+    "comparator": "RustStringOrdV1",
+    "required_tiers": "VM,EXE,AOT"
   },
   "decision": [
     "do not generate RegionObserver variable_map read-fold artifact",

@@ -19,9 +19,9 @@ REFERENCE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle
 def inventory_ordered_map_source_order() -> dict[str, Any]:
     task_order = TASK_ORDER.read_text()
 
-    require("ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001" in task_order, "active blocker missing")
-    require("SourceOrdered conversion must not" in task_order, "source-order stop line missing")
-    require("order=SourceOrdered is preserved or the slice is denied" in task_order, "deny acceptance missing")
+    require("IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001" in task_order, "active blocker missing")
+    require("KeyAscending(RustStringOrdV1)" in task_order, "structured order fact missing")
+    require("UnsupportedOrderCapability" in task_order, "order capability deny missing")
 
     return {
         "schema_version": 0,
@@ -32,7 +32,7 @@ def inventory_ordered_map_source_order() -> dict[str, Any]:
         },
         "current_contract": "deny_source_ordered_read_fold",
         "decision": [
-            "do not claim SourceOrdered read-fold until OrderedMapBox proves Rust BTreeMap<String> ordering",
+            "do not claim SourceOrdered read-fold until RustStringOrdV1 is VM/EXE/AOT accepted",
             "do not silently downgrade SourceOrdered to insertion order",
             "do not add RegionObserver-specific key-order special cases",
         ],
@@ -42,13 +42,12 @@ def inventory_ordered_map_source_order() -> dict[str, Any]:
             "MIR-only success is insufficient for the converter acceptance target.",
         ],
         "deny": {
-            "reason": "UnsupportedKeyTransport",
-            "detail": "SourceOrderedStringKeyCompareUnavailable",
+            "reason": "UnsupportedOrderCapability",
+            "detail": "ComparatorUnavailable",
+            "comparator": "RustStringOrdV1",
+            "required_tiers": "VM,EXE,AOT",
         },
-        "next_options": [
-            "add a backend-accepted StringBox lexical comparison route for OrderedMapBox",
-            "change the selected observer lowering so it does not require SourceOrdered map iteration",
-        ],
+        "next_task": "define converter-side total text ordering capability",
         "stop_line": [
             "source_ordered_read_fold_claim=0",
             "runtime_fallback=0",
@@ -74,8 +73,9 @@ def main() -> int:
 
     print("output_contract=rust-mirbuilder-ordered-map-source-order-v0")
     print("source_ordered_read_fold_claim=0")
-    print("deny_reason=UnsupportedKeyTransport")
-    print("deny_detail=SourceOrderedStringKeyCompareUnavailable")
+    print("deny_reason=UnsupportedOrderCapability")
+    print("deny_detail=ComparatorUnavailable")
+    print("deny_comparator=RustStringOrdV1")
     print("runtime_fallback=0")
     print("summary=ok")
     return 0

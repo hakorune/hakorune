@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from mirbuilder_ordering_capability import RUST_STRING_ORD_V1, key_ascending
+
 
 ROOT = Path(__file__).resolve().parents[2]
 VARIABLE_CONTEXT = ROOT / "crates/hakorune_mir_builder/src/variable_context.rs"
@@ -63,7 +65,7 @@ def extract_facts(
                 "rust_type": "BTreeMap<String, ValueId>",
                 "key_transport": "String",
                 "value_transport": "ValueIdAsI64",
-                "iteration_order": "SourceOrdered",
+                "iteration_order": key_ascending(RUST_STRING_ORD_V1),
                 "map_identity_escapes": False,
                 "drop_fact": "TrivialMemory",
             }
@@ -79,7 +81,7 @@ def extract_facts(
                 "identity_observed": False,
                 "element_reference_escapes": False,
                 "owned_projection_available": True,
-                "order": "SourceOrdered",
+                "order": key_ascending(RUST_STRING_ORD_V1),
                 "output": "Vec<SlotMetadata>",
             }
         ],

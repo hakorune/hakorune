@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ORDERING-CAPABILITY-DESIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1644-MIRBUILDER-ORDERING-CAPABILITY-DESIGN-001.md"
-latest_card_summary = """The source-order unblock decision is Option 1:
-implement StringBox lexical comparison as a generic comparator capability.
-The intermediate ordering model lives in tools/rust_lifecycle converter IR,
-not in the Rust MirBuilder crate or OrderedMapBox-specific backend branches."""
+latest_card = "DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1645-DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001.md"
+latest_card_summary = """The converter-side ordering capability is now
+structured as KeyAscending(RustStringOrdV1), and the RegionObserver route
+fails as Deny(UnsupportedOrderCapability), detail=ComparatorUnavailable. No
+backend behavior changed in this slice."""
 
-current_blocker_token = "DEFINE-TOTAL-TEXT-ORDERING-CAPABILITY-001"
+current_blocker_token = "IMPLEMENT-BACKEND-ACCEPTED-TOTAL-TEXT-ORDERING-CAPABILITY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

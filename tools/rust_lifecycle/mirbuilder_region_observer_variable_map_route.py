@@ -12,6 +12,7 @@ from typing import Any
 from context_fact_extraction import require
 from extract_region_observer_variable_map_facts import extract_facts
 from mirbuilder_ordered_read_fold_converter import compile_ordered_read_fold
+from mirbuilder_ordering_capability import RUST_STRING_ORD_V1
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,15 +23,26 @@ PLAN = {
     "borrow_use_id": "RegionObserver::classify_slots_from_variable_map",
     "source": "builder.variable_ctx.variable_map",
     "destination": "slots",
-    "source_order_proof": "Denied",
+    "comparator_capabilities": {
+        RUST_STRING_ORD_V1: {
+            "proof": "Denied",
+            "required_tiers": ["VM", "EXE", "AOT"],
+        },
+    },
 }
 
 
-def _deny_reason(exc: BaseException) -> tuple[str, str]:
-    match = re.search(r"Deny\(([^)]+)\)(?:: detail=([A-Za-z0-9_]+))?", str(exc))
+def _deny_reason(exc: BaseException) -> dict[str, str]:
+    message = str(exc)
+    match = re.search(r"Deny\(([^)]+)\)(?:: detail=([A-Za-z0-9_]+))?", message)
     if not match:
         raise SystemExit(f"unable to read deny reason from: {exc!r}")
-    return match.group(1), match.group(2) or ""
+    deny = {"reason": match.group(1), "detail": match.group(2) or ""}
+    for key in ("comparator", "required_tiers"):
+        value = re.search(rf"{key}=([^ ]+)", message)
+        if value:
+            deny[key] = value.group(1)
+    return deny
 
 
 def route_report() -> dict[str, Any]:
@@ -38,7 +50,7 @@ def route_report() -> dict[str, Any]:
     try:
         compile_ordered_read_fold(facts, PLAN)
     except ValueError as exc:
-        reason, detail = _deny_reason(exc)
+        deny = _deny_reason(exc)
     else:
         raise SystemExit("expected SourceOrdered read-fold to deny")
 
@@ -48,10 +60,7 @@ def route_report() -> dict[str, Any]:
         "subject": "mir::region::observer::classify_slots_from_variable_map",
         "source": facts["source"],
         "route": "Deny",
-        "deny": {
-            "reason": reason,
-            "detail": detail,
-        },
+        "deny": deny,
         "decision": [
             "do not generate RegionObserver variable_map read-fold artifact",
             "do not substitute insertion order for Rust BTreeMap<String> order",
