@@ -89,7 +89,7 @@ forbidden:
   MapBox-only transport fixes that leave ArrayBox ambiguous
   backend-local route descriptor copies
   diagnostics that become a second route classifier
-  `ReadFoldSlotMetadata` as a long-lived family-specific operation
+  `ReadFoldSlotMetadata` compatibility renderer reintroduction
 ```
 
 Acceptance for the current task:

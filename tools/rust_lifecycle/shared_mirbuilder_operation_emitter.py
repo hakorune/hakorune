@@ -530,29 +530,6 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         ] + render_cases(0)
     if kind == "ForEachOrderedMapEntry":
         return _render_for_each_ordered_map_entry(operation)
-    if kind == "ReadFoldSlotMetadata":
-        source = operation.get("source")
-        type_map = operation.get("type_map")
-        destination = operation.get("destination")
-        classifier = operation.get("classifier")
-        if not all(isinstance(value, str) for value in (source, type_map, destination, classifier)):
-            raise ValueError("ReadFoldSlotMetadata requires source, type_map, destination, and classifier")
-        if operation.get("oracle_slots"):
-            raise ValueError("ReadFoldSlotMetadata no longer accepts production oracle checks")
-        return _render_for_each_ordered_map_entry(
-            {
-                "kind": "ForEachOrderedMapEntry",
-                "source": source,
-                "key_binding": "name",
-                "value_binding": "value_id",
-                "body": [
-                    {"kind": "MapLookupOption", "source": type_map, "key": "value_id", "raw_target": "raw_type", "target": "type_opt"},
-                    {"kind": "CallStatic", "target": "ref_kind", "callee": classifier, "args": ["type_opt", "name"]},
-                    {"kind": "ConstructOwnedProduct", "target": "slot", "box": "SlotMetadataBox", "fields": {"name": "name", "ref_kind": "ref_kind"}},
-                    {"kind": "SequencePush", "target": destination, "value": "slot"},
-                ],
-            }
-        )
     if kind == "ArrayElementFieldGet":
         source = operation.get("array")
         index = operation.get("index")
