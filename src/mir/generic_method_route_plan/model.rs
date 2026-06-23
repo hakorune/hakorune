@@ -1,4 +1,5 @@
 use crate::mir::core_method_op::{CoreMethodOpCarrier, LoweringPlanEmitKind, LoweringPlanTier};
+use crate::mir::generated::generic_method_route_descriptors::descriptor_for_route_kind;
 use crate::mir::generic_method_route_facts::{
     GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
     GenericMethodValueDemand,
@@ -34,132 +35,23 @@ pub(crate) enum GenericMethodRouteKind {
 
 impl GenericMethodRouteKind {
     fn route_id(self) -> &'static str {
-        match self {
-            Self::RuntimeDataLoadAny
-            | Self::MapLoadScalarI64
-            | Self::MapLoadI64Any
-            | Self::MapLoadAny
-            | Self::ArraySlotLoadAny => "generic_method.get",
-            Self::RuntimeDataContainsAny
-            | Self::ArrayContainsAny
-            | Self::MapContainsAny
-            | Self::MapContainsI64 => "generic_method.has",
-            Self::MapEntryCount | Self::AnyLength | Self::ArraySlotLen | Self::StringLen => {
-                "generic_method.len"
-            }
-            Self::MapKeysArray => "generic_method.keys",
-            Self::ArrayAppendAny => "generic_method.push",
-            Self::ArrayStoreAny | Self::MapStoreI64 | Self::MapStoreAny => "generic_method.set",
-            Self::MapDeleteAny => "generic_method.delete",
-            Self::StringSubstring => "generic_method.substring",
-            Self::StringIndexOf => "generic_method.indexOf",
-            Self::StringLastIndexOf => "generic_method.lastIndexOf",
-            Self::StringContains => "generic_method.contains",
-        }
+        descriptor_for_route_kind(self).route_id
     }
 
     fn emit_kind(self) -> &'static str {
-        match self {
-            Self::RuntimeDataLoadAny
-            | Self::MapLoadScalarI64
-            | Self::MapLoadI64Any
-            | Self::MapLoadAny
-            | Self::ArraySlotLoadAny => "get",
-            Self::RuntimeDataContainsAny
-            | Self::ArrayContainsAny
-            | Self::MapContainsAny
-            | Self::MapContainsI64 => "has",
-            Self::MapEntryCount | Self::AnyLength | Self::ArraySlotLen | Self::StringLen => "len",
-            Self::MapKeysArray => "keys",
-            Self::ArrayAppendAny => "push",
-            Self::ArrayStoreAny | Self::MapStoreI64 | Self::MapStoreAny => "set",
-            Self::MapDeleteAny => "delete",
-            Self::StringSubstring => "substring",
-            Self::StringIndexOf => "indexOf",
-            Self::StringLastIndexOf => "lastIndexOf",
-            Self::StringContains => "contains",
-        }
+        descriptor_for_route_kind(self).emit_kind
     }
 
     pub(crate) fn helper_symbol(self) -> &'static str {
-        match self {
-            Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
-            Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
-            Self::MapLoadScalarI64 => "nyash.map.scalar_load_hi",
-            Self::MapLoadI64Any => "nyash.map.slot_load_hi",
-            Self::MapLoadAny => "nyash.map.slot_load_hh",
-            Self::MapEntryCount => "nyash.map.entry_count_i64",
-            Self::MapKeysArray => "nyash.map.keys_h",
-            Self::AnyLength => "nyash.any.length_h",
-            Self::ArraySlotLoadAny => "nyash.array.slot_load_hi",
-            Self::ArrayContainsAny => "nyash.array.has_hh",
-            Self::ArraySlotLen => "nyash.array.slot_len_h",
-            Self::ArrayAppendAny => "nyash.array.slot_append_hh",
-            Self::ArrayStoreAny => "nyash.array.slot_store_*",
-            Self::MapStoreI64 => "nyash.map.slot_store_hih",
-            Self::MapStoreAny => "nyash.map.slot_store_hhh",
-            Self::MapDeleteAny => "nyash.map.delete_hh",
-            Self::StringLen => "nyash.string.len_fast_h",
-            Self::StringSubstring => "nyash.string.substring_hii",
-            Self::StringIndexOf => "nyash.string.indexOf_hh",
-            Self::StringLastIndexOf => "nyash.string.lastIndexOf_hh",
-            Self::StringContains => "nyash.string.contains_hh",
-            Self::MapContainsAny => "nyash.map.probe_hh",
-            Self::MapContainsI64 => "nyash.map.probe_hi",
-        }
+        descriptor_for_route_kind(self).helper_symbol
     }
 
     fn effect_tags(self) -> &'static [&'static str] {
-        match self {
-            Self::RuntimeDataLoadAny
-            | Self::MapLoadScalarI64
-            | Self::MapLoadI64Any
-            | Self::MapLoadAny
-            | Self::ArraySlotLoadAny => &["read.key"],
-            Self::RuntimeDataContainsAny
-            | Self::ArrayContainsAny
-            | Self::MapContainsAny
-            | Self::MapContainsI64 => &["probe.key"],
-            Self::MapEntryCount | Self::AnyLength | Self::ArraySlotLen | Self::StringLen => {
-                &["observe.len"]
-            }
-            Self::MapKeysArray => &["observe.keys"],
-            Self::ArrayAppendAny => &["mutate.shape"],
-            Self::ArrayStoreAny | Self::MapStoreI64 | Self::MapStoreAny => &["mutate.slot"],
-            Self::MapDeleteAny => &["mutate.shape"],
-            Self::StringSubstring => &["observe.substring"],
-            Self::StringIndexOf => &["observe.indexof"],
-            Self::StringLastIndexOf => &["observe.last_indexof"],
-            Self::StringContains => &["observe.contains"],
-        }
+        descriptor_for_route_kind(self).effects
     }
 
     fn tag(self) -> &'static str {
-        match self {
-            Self::RuntimeDataLoadAny => "runtime_data_load_any",
-            Self::RuntimeDataContainsAny => "runtime_data_contains_any",
-            Self::MapLoadScalarI64 => "map_load_scalar_i64",
-            Self::MapLoadI64Any => "map_load_i64_any",
-            Self::MapLoadAny => "map_load_any",
-            Self::MapEntryCount => "map_entry_count",
-            Self::MapKeysArray => "map_keys_array",
-            Self::AnyLength => "any_length",
-            Self::ArraySlotLoadAny => "array_slot_load_any",
-            Self::ArrayContainsAny => "array_contains_any",
-            Self::ArraySlotLen => "array_slot_len",
-            Self::ArrayAppendAny => "array_append_any",
-            Self::ArrayStoreAny => "array_store_any",
-            Self::MapStoreI64 => "map_store_i64",
-            Self::MapStoreAny => "map_store_any",
-            Self::MapDeleteAny => "map_delete_any",
-            Self::StringLen => "string_len",
-            Self::StringSubstring => "string_substring",
-            Self::StringIndexOf => "string_indexof",
-            Self::StringLastIndexOf => "string_last_indexof",
-            Self::StringContains => "string_contains",
-            Self::MapContainsAny => "map_contains_any",
-            Self::MapContainsI64 => "map_contains_i64",
-        }
+        descriptor_for_route_kind(self).tag
     }
 }
 

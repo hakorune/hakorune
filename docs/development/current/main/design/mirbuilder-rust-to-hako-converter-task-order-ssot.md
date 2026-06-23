@@ -22,7 +22,7 @@ active blocker:
   LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 
 current implementation task:
-  Generate generic method route descriptors
+  Report generic method route contract mismatches
 
 producer responsibility stack:
   Source preparation
@@ -42,29 +42,29 @@ selected lowering:
     -> ElideToReadFold
     -> owned SlotMetadata output
 
-blocker evidence:
+landed evidence:
   RegionObserver SlotMetadata generated artifact is LLVM/AOT green. The final
   transport blocker was generic mixed runtime value publication. MapBox and
   ArrayBox now share an explicit RuntimeValueCarrierI64 encode contract, and
-  stale NyRT AOT artifacts fail before execution.
+  stale NyRT AOT artifacts fail before execution. Generic method route
+  descriptors are generated from `spec/mir/generic_method_routes.toml` for
+  Rust, C, and Python consumers.
 
 selected next owner:
-  generic method route descriptor SSOT
+  generic method route rejection diagnostics
 
-  spec/mir/generic_method_routes.toml owns:
-    route_kind
+  Diagnostics consume generated descriptors and report:
     route_id
     core_op
-    helper_symbol
+    route_kind
     tier
+    helper_symbol
     return_shape
     value_demand
     publication_policy
-    effects
+    first mismatched field
 
-  Generated descriptor tables feed Rust, C, and Python consumers. Planners
-  choose route_kind; backends consume selected descriptors and do not infer
-  route contracts from helper names or tuple shape.
+  Diagnostics must not classify routes or recreate descriptor policy.
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -75,8 +75,9 @@ selected transport:
 
 current fail-fast boundary:
   RegionObserver read-fold and SlotClassifier policy extraction are green.
-  Route contract truth must now move from hand-maintained Rust/C/Python tuple
-  tables to one neutral manifest.
+  Route contract truth is generated from one neutral manifest. Rejection output
+  must now explain the first descriptor mismatch instead of falling back to
+  broad `unsupported pure shape` messages.
 
 forbidden:
   raw aggregate map return; read-view / lease framework; new Hako pointer
@@ -85,17 +86,17 @@ forbidden:
   i64 sign-based value classification
   MapBox-only transport fixes that leave ArrayBox ambiguous
   backend-local route descriptor copies
+  diagnostics that become a second route classifier
 ```
 
 Acceptance for the current task:
 
 ```text
-spec/mir/generic_method_routes.toml is the route descriptor SSOT
-Rust/C/Python route descriptor tables are generated from that manifest
-handwritten route descriptor tuple duplication = 0
-planner still owns route selection only
-backend consumes route_id/core_op/return_shape/value_demand/publication_policy
-generator --check catches stale outputs
+generic method route rejection prints stable reason fields
+route_id / core_op / route_kind / tier / helper / proof are visible
+return_shape / value_demand / publication_policy are visible when mismatched
+first mismatched descriptor field is reported
+diagnostics consume generated descriptors; they do not classify routes
 RegionObserver generated artifact remains LLVM/AOT green
 ```
 
@@ -111,7 +112,8 @@ generated_hako = RegionObserver LLVM/AOT green
 slot_classifier_policy = verified operation data
 collection_runtime_value_carrier = landed for MapBox and ArrayBox
 nyrt_freshness_fail_fast = landed for --no-build AOT harness
-next step = generic method route descriptor SSOT
+generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
+next step = generic method route mismatch diagnostics
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -263,12 +265,12 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.16. `Generate generic method route descriptors`
 
-   Status: active next.
+   Status: landed.
 
    ```text
    spec/mir/generic_method_routes.toml
      -> src/mir/generated/generic_method_route_descriptors.rs
-     -> lang/c-abi/shims/generated/generic_method_route_registry.inc
+     -> lang/c-abi/shims/hako_llvmc_ffi_generic_method_route_registry.inc
      -> src/llvm_py/generated/generic_method_route_registry.py
    handwritten route descriptor duplication = 0
    Rust planner chooses route_kind; descriptor owns ABI/backend contract
@@ -276,7 +278,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.17. `Report generic method route contract mismatches`
 
-   Status: pending after 0.16.
+   Status: active next.
 
    ```text
    route_id / core_op / route_kind / tier / helper / proof

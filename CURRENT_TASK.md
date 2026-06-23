@@ -39,7 +39,7 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Next task:
 
 ```text
-Generate generic method route descriptors.
+Report generic method route contract mismatches.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -59,9 +59,15 @@ The closed transport bug was generic:
   including negative typed-object / boxed enum handles, without sign-based
   value-kind inference.
 
-The next contract owner is route descriptor SSOT:
-  Rust, C, and Python route contract tables must be generated from one neutral
-  manifest instead of maintained as independent tuple registries.
+Completed route descriptor SSOT slice:
+  spec/mir/generic_method_routes.toml
+    -> Rust descriptor table
+    -> C route registry include
+    -> Python readonly registry
+
+The next contract owner is route rejection diagnostics:
+  ny-llvmc should report route_id/core_op/route_kind/tier/helper/proof and the
+  first mismatched descriptor field instead of broad unsupported-shape output.
 
 Completed collection transport slice:
   RuntimeValueCarrierI64 contract
@@ -303,6 +309,7 @@ Task sequence:
       - MapBox and ArrayBox share the same mixed value carrier contract.
   33. Reject stale NyRT harness artifacts before AOT acceptance. (closed)
   34. Generate generic method route descriptors from one neutral manifest.
+      (closed)
   35. Report generic method route contract mismatches with stable fields.
   36. Lower owned read folds through generic operations.
       - Replace ReadFoldSlotMetadata with ForEachOrderedMapEntry,

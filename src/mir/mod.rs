@@ -61,6 +61,7 @@ pub mod fastmem_layout_contract; // memory-profile FastMemory layout/table contr
 pub mod fastmem_table_length_fact; // FastMemory-owned table length facts
 pub mod fastpath_required_diagnostic; // source-syntax-free required FastPath diagnostics
 pub mod function;
+pub(crate) mod generated; // checked-in generated MIR descriptor tables
 pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners
 pub mod generic_method_route_plan; // MIR-owned generic method route policy plans
 pub mod global_call_route_plan; // MIR-owned unsupported global user-call route inventory

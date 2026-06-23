@@ -276,10 +276,12 @@ SlotMetadata artifact is now LLVM/AOT green after fixing generic MapBox
 mixed-runtime value publication for typed-object / boxed enum handles. The
 RuntimeValueCarrierI64 collection transport contract is now shared by MapBox
 and ArrayBox, and --no-build AOT harnesses fail fast on stale NyRT artifacts.
-The SlotClassifier policy is now verified operation data instead of
-emitter-owned logic. The next blocker is generic method route descriptor SSOT:
-Rust, C, and Python route contract tables must be generated from one neutral
-manifest instead of maintained as independent tuple registries."""
+Generic method route descriptors are now generated from
+spec/mir/generic_method_routes.toml for Rust, C, and Python consumers. The
+SlotClassifier policy is now verified operation data instead of emitter-owned
+logic. The next blocker is generic method route rejection diagnostics:
+ny-llvmc should report the selected route tuple and first mismatched descriptor
+field instead of broad unsupported-shape output."""
 
 current_blocker_token = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
