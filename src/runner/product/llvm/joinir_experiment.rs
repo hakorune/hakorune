@@ -17,7 +17,7 @@ impl JoinIrExperimentBox {
     /// Phase 32 L-4.3a: When NYASH_JOINIR_EXPERIMENT=1 and NYASH_JOINIR_LLVM_EXPERIMENT=1,
     /// try to lower MIR → JoinIR → MIR' for Main.skip/1 to fix PHI issues.
     /// JoinIR-converted functions are merged back into the original module.
-    #[cfg(feature = "llvm-harness")]
+    #[cfg(all(feature = "llvm-harness", feature = "vm-reference"))]
     pub fn apply(module: MirModule) -> MirModule {
         if !crate::config::env::joinir_experiment_enabled()
             || !crate::config::env::joinir_llvm_experiment_enabled()
@@ -110,6 +110,11 @@ impl JoinIrExperimentBox {
                 .debug("[joinir/llvm] Main.skip/1 not found, using original MIR");
             module
         }
+    }
+
+    #[cfg(all(feature = "llvm-harness", not(feature = "vm-reference")))]
+    pub fn apply(module: MirModule) -> MirModule {
+        module
     }
 
     #[cfg(not(feature = "llvm-harness"))]

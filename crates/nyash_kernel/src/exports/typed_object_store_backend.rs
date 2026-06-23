@@ -8,7 +8,7 @@ use std::sync::{Mutex, OnceLock};
 
 use super::typed_object::{handle_to_index, TypedSlot, TypedSlotObject, TypedSlotStorage};
 use super::typed_object_direct_slot_backend::{
-    new_direct_slot_object, with_direct_slot_materialized_view,
+    direct_slot_object_type_id, new_direct_slot_object, with_direct_slot_materialized_view,
     with_direct_slot_materialized_view_mut, with_direct_slot_object_mut,
 };
 use super::typed_object_pinned_arena::PinnedTypedObjectArena;
@@ -128,6 +128,16 @@ pub(super) fn with_field_mut<R>(
                 let field = objects.get_mut(idx)?.fields.get_mut(slot)?;
                 Some(f(field))
             })?
+        }
+    }
+}
+
+pub(super) fn typed_object_type_id(handle: i64) -> Option<i64> {
+    match selected_backend() {
+        TypedObjectStoreBackend::DirectSlotExact => direct_slot_object_type_id(handle),
+        _ => {
+            let idx = handle_to_index(handle)?;
+            with_objects(|objects| Some(objects.get(idx)?.type_id))?
         }
     }
 }

@@ -8,6 +8,7 @@ fn typed_object_helpers_store_and_load_i64_slots() {
     let object = nyash_object_new_typed_hi(7, 2);
     assert!(object < 0);
 
+    assert_eq!(nyash_object_type_id_h(object), 7);
     nyash_object_field_set_hii(object, 0, 10);
     nyash_object_field_set_hii(object, 1, 20);
 
@@ -121,6 +122,7 @@ fn pinned_arena_exact_slot_helpers_roundtrip_when_selected() {
     assert_eq!(nyash_object_exact_slot_get_u64_hii(object, 1), 23);
     assert_eq!(nyash_object_exact_slot_set_handle_hii(object, 2, -9), 1);
     assert_eq!(nyash_object_exact_slot_get_handle_hii(object, 2), -9);
+    assert_eq!(nyash_object_type_id_h(object), type_id);
 }
 
 #[test]

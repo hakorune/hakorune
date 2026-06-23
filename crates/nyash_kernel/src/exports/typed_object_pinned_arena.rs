@@ -108,6 +108,10 @@ impl DirectSlotObjectV0Box {
             .unwrap_or(false)
     }
 
+    pub(crate) fn type_id(&self) -> i64 {
+        unsafe { self.ptr.as_ref().type_id }
+    }
+
     pub(crate) fn cell_ptr(&self, slot: usize) -> Option<*const DirectSlotCellV0> {
         if slot >= self.field_count {
             return None;

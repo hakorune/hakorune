@@ -422,14 +422,50 @@
             continue;
           }
           if (strcmp(op, "variant_make")==0) {
+            long long dst = read_int(ins, "dst");
+            long long payload = read_int(ins, "payload");
+            long long tag = read_int(ins, "tag");
+            const char* enum_name = read_str(ins, "enum");
+            int boxed_emit = 0;
+            if (!payload) {
+              boxed_emit = emit_boxed_sum_unit_variant_make(
+                  bid,
+                  ii,
+                  op,
+                  dst,
+                  tag,
+                  enum_name);
+              if (boxed_emit < 0) {
+                yyjson_doc_free(d);
+                goto GEN_ABORT;
+              }
+            }
+            if (boxed_emit > 0) {
+              continue;
+            }
             continue;
           }
           if (strcmp(op, "variant_tag")==0) {
             long long dst = read_int(ins, "dst");
             long long value = read_int(ins, "value");
+            const char* enum_name = read_str(ins, "enum");
             struct GenericPureVariantBinding binding;
             memset(&binding, 0, sizeof(binding));
             if (!get_variant_binding(value, &binding)) {
+              int boxed_emit = emit_boxed_sum_tag_read(
+                  bid,
+                  ii,
+                  op,
+                  dst,
+                  value,
+                  enum_name);
+              if (boxed_emit < 0) {
+                yyjson_doc_free(d);
+                goto GEN_ABORT;
+              }
+              if (boxed_emit > 0) {
+                continue;
+              }
               note_pure_unsupported_shape(
                   bid,
                   ii,
@@ -489,6 +525,20 @@
             }
             if (should_emit_string_compare(ins, lhs, rhs)) {
               emit_string_compare(dst, p2, lhs, rhs);
+              continue;
+            }
+            int boxed_sum_compare_emit = emit_boxed_sum_unit_compare(
+                bid,
+                ii,
+                op,
+                dst,
+                p2,
+                lhs,
+                rhs);
+            if (boxed_sum_compare_emit < 0) {
+              yyjson_doc_free(d); goto GEN_ABORT;
+            }
+            if (boxed_sum_compare_emit > 0) {
               continue;
             }
             // emit icmp

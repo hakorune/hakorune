@@ -102,3 +102,12 @@ pub(crate) fn with_direct_slot_object_mut<R>(
         Some(f(object))
     })
 }
+
+pub(super) fn direct_slot_object_type_id(handle: i64) -> Option<i64> {
+    with_direct_slot_objects(|objects| {
+        objects
+            .iter()
+            .find(|object| object.matches_handle(handle))
+            .map(DirectSlotObjectV0Box::type_id)
+    })
+}

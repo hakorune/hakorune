@@ -428,7 +428,7 @@
           return same_module_function_emit_map_field_get(f, fn_index, ins, bid, ii);
         }
         if (!strcmp(op, "compare")) {
-          return same_module_function_emit_compare(ins);
+          return same_module_function_emit_compare(ins, bid, ii);
         }
         if (!strcmp(op, "unop")) {
           return same_module_function_emit_unop(ins);

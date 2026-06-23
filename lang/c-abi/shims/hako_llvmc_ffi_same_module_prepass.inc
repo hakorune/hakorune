@@ -316,12 +316,13 @@
               struct GenericPureVariantBinding variant_binding;
               memset(&variant_binding, 0, sizeof(variant_binding));
               if (get_variant_binding(src, &variant_binding)) {
-                set_variant_binding(
+                set_variant_binding_with_enum(
                     dst,
                     variant_binding.tag_const,
                     variant_binding.tag_reg,
                     variant_binding.payload_reg,
-                    variant_binding.has_payload);
+                    variant_binding.has_payload,
+                    variant_binding.enum_name);
               }
             }
           }
@@ -331,13 +332,18 @@
           long long dst = read_int(ins, "dst");
           long long payload = read_int(ins, "payload");
           long long tag = read_int(ins, "tag");
+          const char* enum_name = read_str(ins, "enum");
+          int boxed_plan_index = -1;
           if (payload) {
             long long payload_base = resolve_copy_source_reg(payload);
             set_copy_alias(dst, payload_base);
-            set_variant_binding(dst, tag, 0, payload_base, 1);
+            set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
           } else {
-            put_const(dst, 0);
-            set_variant_binding(dst, tag, 0, 0, 0);
+            if (!(enum_name &&
+                  find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index))) {
+              put_const(dst, 0);
+            }
+            set_variant_binding_with_enum(dst, tag, 0, 0, 0, enum_name);
           }
           set_type(dst, T_I64);
           return 1;

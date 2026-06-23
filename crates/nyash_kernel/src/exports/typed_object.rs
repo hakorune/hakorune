@@ -14,7 +14,8 @@ use super::typed_object_pinned_arena::read_direct_slot_compat_i64;
 use super::typed_object_pinned_arena::{read_direct_slot_i64, write_direct_slot_i64};
 use super::typed_object_store_backend::{
     exact_slot_record_alloc_success, exact_slot_record_release_success, exact_slot_rmw_add_u64,
-    exact_slot_set4_i64, new_typed_object as backend_new_typed_object, with_field, with_field_mut,
+    exact_slot_set4_i64, new_typed_object as backend_new_typed_object, typed_object_type_id,
+    with_field, with_field_mut,
 };
 
 #[export_name = "nyash.object.register_typed_layout_hi"]
@@ -93,6 +94,11 @@ pub extern "C" fn nyash_object_new_typed_hi(type_id: i64, field_count: i64) -> i
 #[export_name = "nyash.object.new_typed_h"]
 pub extern "C" fn nyash_object_new_typed_h(type_id: i64) -> i64 {
     nyash_object_new_typed_hi(type_id, 0)
+}
+
+#[export_name = "nyash.object.type_id_h"]
+pub extern "C" fn nyash_object_type_id_h(handle: i64) -> i64 {
+    typed_object_type_id(handle).unwrap_or(0)
 }
 
 #[export_name = "nyash.object.field_get_hii"]

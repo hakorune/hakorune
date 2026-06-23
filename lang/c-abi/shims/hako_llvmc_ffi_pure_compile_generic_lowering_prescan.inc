@@ -204,12 +204,13 @@
                 struct GenericPureVariantBinding variant_binding;
                 memset(&variant_binding, 0, sizeof(variant_binding));
                 if (get_variant_binding(src, &variant_binding)) {
-                  set_variant_binding(
+                  set_variant_binding_with_enum(
                       dst,
                       variant_binding.tag_const,
                       variant_binding.tag_reg,
                       variant_binding.payload_reg,
-                      variant_binding.has_payload);
+                      variant_binding.has_payload,
+                      variant_binding.enum_name);
                 }
               }
               generic_pure_publish_reg_metadata(dst);
@@ -224,13 +225,18 @@
             long long dst = read_int(ins, "dst");
             long long payload = read_int(ins, "payload");
             long long tag = read_int(ins, "tag");
+            const char* enum_name = read_str(ins, "enum");
+            int boxed_plan_index = -1;
             if (payload) {
               long long payload_base = resolve_copy_source_reg(payload);
               set_copy_alias(dst, payload_base);
-              set_variant_binding(dst, tag, 0, payload_base, 1);
+              set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
             } else {
-              put_const(dst, 0);
-              set_variant_binding(dst, tag, 0, 0, 0);
+              if (!(enum_name &&
+                    find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index))) {
+                put_const(dst, 0);
+              }
+              set_variant_binding_with_enum(dst, tag, 0, 0, 0, enum_name);
             }
             set_type(dst, T_I64);
           } else if (strcmp(op, "variant_tag")==0) {
@@ -694,7 +700,8 @@
         fprintf(f, "declare i64 @\"nyash.array.slot_load_store_i64_hihi\"(i64, i64, i64, i64)\n");
       if (needs.typed_object ||
           module_has_planned_same_module_function_definition() ||
-          typed_object_plan_count() > 0) {
+          typed_object_plan_count() > 0 ||
+          boxed_sum_abi_plan_count() > 0) {
         fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_hi\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_slot_iii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.new_typed_hi\"(i64, i64)\n");
@@ -704,6 +711,7 @@
         fprintf(f, "declare i64 @\"nyash.object.field_get_u64_hii\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_set_i64_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_get_i64_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.type_id_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_i64_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set4_i64_hiiiii\"(i64, i64, i64, i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_record_alloc_success_hii\"(i64, i64)\n");

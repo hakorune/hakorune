@@ -1,0 +1,29 @@
+enum ProbeKind {
+    Alpha
+    Beta
+}
+
+static box ProbeApi {
+    read_tag(value: ProbeKind): i64 {
+        if value == ProbeKind::Alpha() {
+            return 0
+        }
+        if value == ProbeKind::Beta() {
+            return 1
+        }
+        return 9
+    }
+}
+
+static box Main {
+    main() {
+        local value = ProbeKind::Beta()
+        local tag = ProbeApi.read_tag(value)
+        if tag != 1 {
+            print("boxed_unit_enum_cross_function=fail")
+            return 1
+        }
+        print("boxed_unit_enum_cross_function=ok")
+        return 0
+    }
+}

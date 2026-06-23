@@ -114,9 +114,8 @@ pub(super) fn collect_sorted_enum_decl_values(
 pub(super) fn collect_boxed_sum_abi_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {
-    module
-        .metadata
-        .boxed_sum_abi_plans
+    let plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
+    plans
         .iter()
         .map(|plan| {
             json!({
@@ -143,17 +142,13 @@ mod boxed_sum_abi_tests {
     #[test]
     fn collect_boxed_sum_abi_plan_values_preserves_unit_enum_runtime_plan() {
         let mut module = crate::mir::MirModule::new("test".to_string());
-        module.metadata.boxed_sum_abi_plans.push(
-            crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1 {
-                plan_id: 0,
-                enum_name: "ProbeKind".to_string(),
-                runtime_type_id: crate::mir::boxed_sum_abi_plan::BOXED_SUM_RUNTIME_TYPE_ID_BASE,
-                runtime_box_name: "__NyVariant_ProbeKind".to_string(),
-                tag_storage: crate::mir::boxed_sum_abi_plan::BOXED_SUM_TAG_STORAGE_I64,
-                variants: vec![crate::mir::boxed_sum_abi_plan::BoxedSumAbiVariantPlan {
+        module.metadata.enum_decls.insert(
+            "ProbeKind".to_string(),
+            crate::mir::MirEnumDecl {
+                type_parameters: vec![],
+                variants: vec![crate::mir::MirEnumVariantDecl {
                     name: "Beta".to_string(),
-                    tag: 1,
-                    payload_storage: crate::mir::boxed_sum_abi_plan::BoxedSumPayloadStorage::None,
+                    payload_type_name: None,
                 }],
             },
         );

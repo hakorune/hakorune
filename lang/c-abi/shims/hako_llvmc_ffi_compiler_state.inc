@@ -21,12 +21,13 @@
         }
         return 0;
       }
-      auto void set_variant_binding(
+      auto void set_variant_binding_with_enum(
           long long r,
           long long tag_const,
           long long tag_reg,
           long long payload_reg,
-          int has_payload) {
+          int has_payload,
+          const char* enum_name) {
         if (!r) return;
         for (size_t i = 0; i < variant_bindings_n; i++) {
           if (variant_bindings[i].reg == r) {
@@ -34,6 +35,7 @@
             variant_bindings[i].tag_reg = tag_reg;
             variant_bindings[i].payload_reg = payload_reg;
             variant_bindings[i].has_payload = has_payload;
+            variant_bindings[i].enum_name = enum_name;
             return;
           }
         }
@@ -43,10 +45,19 @@
           variant_bindings[variant_bindings_n].tag_reg = tag_reg;
           variant_bindings[variant_bindings_n].payload_reg = payload_reg;
           variant_bindings[variant_bindings_n].has_payload = has_payload;
+          variant_bindings[variant_bindings_n].enum_name = enum_name;
           variant_bindings_n++;
         } else {
           note_generic_capacity_overflow("generic_variant_binding_inventory_full");
         }
+      }
+      auto void set_variant_binding(
+          long long r,
+          long long tag_const,
+          long long tag_reg,
+          long long payload_reg,
+          int has_payload) {
+        set_variant_binding_with_enum(r, tag_const, tag_reg, payload_reg, has_payload, NULL);
       }
       auto int all_phi_inputs_are_local_variants(struct PhiRec* pr) {
         if (!(pr && pr->in_n > 0)) return 0;

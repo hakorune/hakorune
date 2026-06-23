@@ -238,7 +238,7 @@
         return 1;
       }
 
-      auto int same_module_function_emit_compare(yyjson_val* ins) {
+      auto int same_module_function_emit_compare(yyjson_val* ins, long long bid, size_t ii) {
         const char* pred = read_str(ins, "cmp");
         const char* p2 = NULL;
         long long dst = read_int(ins, "dst");
@@ -259,6 +259,16 @@
         if (should_emit_string_compare(ins, lhs, rhs)) {
           emit_string_compare(dst, p2, lhs, rhs);
         } else {
+          int boxed_sum_compare_emit = emit_boxed_sum_unit_compare(
+              bid,
+              ii,
+              "compare",
+              dst,
+              p2,
+              lhs,
+              rhs);
+          if (boxed_sum_compare_emit < 0) return 0;
+          if (boxed_sum_compare_emit > 0) return 1;
           emit_icmp(dst, p2, lhs, rhs);
         }
         return 1;

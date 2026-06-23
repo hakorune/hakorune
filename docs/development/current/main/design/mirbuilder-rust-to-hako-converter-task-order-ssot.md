@@ -690,7 +690,7 @@ new Hako pointer syntax
 
 This is a cleanup lane, not the active boxed enum ABI blocker.
 
-Current finding:
+Accepted finding:
 
 ```text
 instruction enum / backend ledger / INSTRUCTION_SET.md counts are partially
@@ -702,13 +702,20 @@ src/mir/contracts/backend_core_ops.rs also mixes:
   per-backend support policy
   ledger constants
   sync tests
+
+docs/reference/mir/INSTRUCTION_SET.md and docs/reference/mir/json_v0.schema.json
+are independently maintained outputs today. They are not generated from
+src/mir/instruction.rs.
 ```
 
 Task order:
 
 ```text
 P1. Add JSON schema to MIR instruction SSOT sync coverage
-    - doc <-> ledger <-> json_v0.schema.json sync test
+    - extend the existing backend_core_ops doc-sync tests or add a small
+      adjacent test module
+    - assert doc <-> ledger <-> json_v0.schema.json agree on kept JSON ops
+    - ensure VariantMake/VariantTag/VariantProject and MemOp stay schema-visible
     - no generator
     - no backend behavior change
 
@@ -727,6 +734,7 @@ Immediate recommendation:
 ```text
 implement P1 when the current boxed enum ABI slice has a clean stopping point.
 park P2/P3 until churn justifies the extra generator/refactor machinery.
+do not block boxed enum ABI work on this cleanup backlog.
 ```
 
 ## Fast-Path Lowering Reminder

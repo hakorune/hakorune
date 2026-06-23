@@ -410,6 +410,7 @@
         }
         set_type(dst, T_I1);
       }
+      #include "hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_emit.inc"
       if (hako_llvmc_emit_static_data_globals_for_root(f, root) < 0) {
         note_pure_unsupported_shape(
