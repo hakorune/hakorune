@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MULTI-CARRIER-BREAK-CONTINUE-EARLY-RETURN-PHI-001
+IMMUTABLE-LEAF-BORROW-PROJECTION-001
 ```
 
 Next task:
 
 ```text
-Implement multi-carrier / break / continue / early-return PHI.
+Implement immutable leaf borrow projection.
 ```
 
 Purpose:
@@ -184,9 +184,10 @@ Done:
   structured loop without carried state direct conversion
   single scalar loop carrier direct conversion
   canonical explicit PHI direct conversion
+  multi-carrier exit PHI direct conversion
 
 Next:
-  Implement multi-carrier / break / continue / early-return PHI.
+  Implement immutable leaf borrow projection.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -211,7 +212,8 @@ Task sequence:
   16. Implement structured loop without carried state. (closed)
   17. Implement single scalar loop carrier. (closed)
   18. Implement canonical explicit PHI. (closed)
-  19. Implement multi-carrier / break / continue / early-return PHI. (next)
+  19. Implement multi-carrier / break / continue / early-return PHI. (closed)
+  20. Implement immutable leaf borrow projection. (next)
 ```
 
 Current cleanup slice:

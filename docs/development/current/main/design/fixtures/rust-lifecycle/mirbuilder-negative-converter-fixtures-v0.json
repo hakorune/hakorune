@@ -39,6 +39,18 @@
       "status": "green"
     },
     {
+      "id": "multi_exit_phi_missing_exit_denied",
+      "status": "green"
+    },
+    {
+      "id": "multi_exit_phi_carrier_arity_denied",
+      "status": "green"
+    },
+    {
+      "id": "multi_exit_phi_carrier_escape_denied",
+      "status": "green"
+    },
+    {
       "id": "returned_read_borrow",
       "status": "green"
     },

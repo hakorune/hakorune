@@ -1,0 +1,30 @@
+{
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::multi_carrier_exit_phi",
+  "vectors": [
+    {
+      "exit_kind": 0,
+      "expect": [
+        1,
+        10
+      ],
+      "id": "break_exit"
+    },
+    {
+      "exit_kind": 1,
+      "expect": [
+        2,
+        20
+      ],
+      "id": "continue_exit"
+    },
+    {
+      "exit_kind": 2,
+      "expect": [
+        3,
+        30
+      ],
+      "id": "early_return_exit"
+    }
+  ]
+}

@@ -8,6 +8,7 @@ bash tools/checks/rust_lifecycle_binding_context_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_binding_context_derived_route_selection_guard.sh
 
 python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family canonical-explicit-phi --check
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family multi-carrier-exit-phi --check
 
 bash tools/checks/rust_lifecycle_core_context_facts_guard.sh
 bash tools/checks/rust_mirbuilder_core_context_plan_oracle_guard.sh
@@ -38,6 +39,7 @@ bash tools/checks/rust_lifecycle_variable_context_explicit_carrier_snapshot_deri
 
 bash tools/checks/rust_lifecycle_ordered_map_crate_bundle_guard.sh
 bash tools/checks/rust_lifecycle_explicit_phi_derived_artifact_guard.sh
+bash tools/checks/rust_lifecycle_multi_carrier_exit_phi_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_single_scalar_loop_carrier_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_structured_loop_derived_artifact_guard.sh
 
@@ -50,6 +52,7 @@ binding_context=green
 canonical_explicit_phi=green
 core_context_scalar_counters=green
 metadata_context_scalar_source_file=green
+multi_carrier_exit_phi=green
 single_scalar_loop_carrier=green
 structured_loop_without_carried_state=green
 type_context_value_kind=green

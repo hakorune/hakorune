@@ -1,0 +1,99 @@
+{
+  "body_facts": [
+    {
+      "carriers": [
+        {
+          "escapes": false,
+          "name": "i",
+          "type": "i64"
+        },
+        {
+          "escapes": false,
+          "name": "sum",
+          "type": "i64"
+        }
+      ],
+      "exits": [
+        {
+          "condition": {
+            "kind": "EqI64",
+            "left": {
+              "kind": "Var",
+              "name": "exit_kind"
+            },
+            "right": {
+              "kind": "I64",
+              "value": 0
+            }
+          },
+          "kind": "break",
+          "values": [
+            {
+              "kind": "I64",
+              "value": 1
+            },
+            {
+              "kind": "I64",
+              "value": 10
+            }
+          ]
+        },
+        {
+          "condition": {
+            "kind": "EqI64",
+            "left": {
+              "kind": "Var",
+              "name": "exit_kind"
+            },
+            "right": {
+              "kind": "I64",
+              "value": 1
+            }
+          },
+          "kind": "continue",
+          "values": [
+            {
+              "kind": "I64",
+              "value": 2
+            },
+            {
+              "kind": "I64",
+              "value": 20
+            }
+          ]
+        },
+        {
+          "condition": {
+            "kind": "EqI64",
+            "left": {
+              "kind": "Var",
+              "name": "exit_kind"
+            },
+            "right": {
+              "kind": "I64",
+              "value": 2
+            }
+          },
+          "kind": "early_return",
+          "values": [
+            {
+              "kind": "I64",
+              "value": 3
+            },
+            {
+              "kind": "I64",
+              "value": 30
+            }
+          ]
+        }
+      ],
+      "id": "MultiCarrierExitPhiPilot::project_exit_carriers",
+      "operation": "MultiCarrierExitPhi",
+      "phi_kind": "explicit",
+      "selector": "exit_kind",
+      "target": "carriers"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::multi_carrier_exit_phi"
+}

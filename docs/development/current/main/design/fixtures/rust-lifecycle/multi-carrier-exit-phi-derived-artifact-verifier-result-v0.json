@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "carrier_count": 2,
+    "direct_shape_rule": "control.multi_carrier_exit_phi",
+    "exit_kinds": [
+      "break",
+      "continue",
+      "early_return"
+    ],
+    "raw_hako_body": 0,
+    "rust_facts_input": "fixture_verified"
+  },
+  "denied_boundaries": [
+    "UnstructuredControlFlow",
+    "PhiJoinRequired",
+    "CarrierSensitiveAlias"
+  ],
+  "family_id": "hakorune_mir_builder::multi_carrier_exit_phi",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MultiCarrierExitPhi_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "multi-carrier-exit-phi-facts-v0.json",
+  "source_plan": "multi-carrier-exit-phi-plan-v0.json",
+  "source_recipe": "multi-carrier-exit-phi-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::multi_carrier_exit_phi",
+  "verified_operations": [
+    "ExplicitMultiExitPhiI64Array",
+    "ReturnSource"
+  ]
+}

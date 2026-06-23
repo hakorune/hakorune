@@ -1,0 +1,17 @@
+{
+  "direct_shape": {
+    "control.multi_carrier_exit_phi": {
+      "method_id": "MultiCarrierExitPhiPilot::project_exit_carriers",
+      "signature": "project_exit_carriers(exit_kind: i64): ArrayBox"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "MultiCarrierExitPhiPilot::project_exit_carriers",
+      "raw_hako_body": false,
+      "shape_rule": "control.multi_carrier_exit_phi"
+    }
+  ],
+  "subject": "hakorune_mir_builder::multi_carrier_exit_phi"
+}

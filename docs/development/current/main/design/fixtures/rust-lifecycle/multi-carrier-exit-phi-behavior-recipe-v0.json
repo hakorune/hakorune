@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::multi_carrier_exit_phi",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "MultiCarrierExitPhiPilotApi.project_exit_carriers(exit_kind)",
+      "hako_operation": "ExplicitMultiExitPhiI64Array",
+      "id": "MultiCarrierExitPhiPilot::project_exit_carriers",
+      "rust_operation": "explicit break/continue/early-return carrier table"
+    }
+  ],
+  "pilot_scope": "MultiCarrierExitPhi_only",
+  "schema_version": 0,
+  "selected_body_count": "multi_carrier_exit_phi_only",
+  "source_oracle": "multi-carrier-exit-phi-oracle-v0.json",
+  "source_plan": "multi-carrier-exit-phi-plan-v0.json",
+  "subject": "hakorune_mir_builder::multi_carrier_exit_phi"
+}

@@ -263,6 +263,57 @@ def _explicit_phi_multi_predecessor_case() -> tuple[str, str]:
     return "canonical_explicit_phi_multi_predecessor_denied", "PhiJoinRequired"
 
 
+def _multi_exit_phi_missing_exit_case() -> tuple[str, str]:
+    from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-plan-v0.json"))
+    facts["body_facts"][0]["exits"] = facts["body_facts"][0]["exits"][:2]
+    _expect_deny(
+        "UnstructuredControlFlow",
+        lambda: compile_multi_carrier_exit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.multi_carrier_exit_phi"],
+        ),
+    )
+    return "multi_exit_phi_missing_exit_denied", "UnstructuredControlFlow"
+
+
+def _multi_exit_phi_carrier_arity_case() -> tuple[str, str]:
+    from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-plan-v0.json"))
+    facts["body_facts"][0]["exits"][0]["values"] = facts["body_facts"][0]["exits"][0]["values"][:1]
+    _expect_deny(
+        "PhiJoinRequired",
+        lambda: compile_multi_carrier_exit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.multi_carrier_exit_phi"],
+        ),
+    )
+    return "multi_exit_phi_carrier_arity_denied", "PhiJoinRequired"
+
+
+def _multi_exit_phi_carrier_escape_case() -> tuple[str, str]:
+    from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-plan-v0.json"))
+    facts["body_facts"][0]["carriers"][0]["escapes"] = True
+    _expect_deny(
+        "CarrierSensitiveAlias",
+        lambda: compile_multi_carrier_exit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.multi_carrier_exit_phi"],
+        ),
+    )
+    return "multi_exit_phi_carrier_escape_denied", "CarrierSensitiveAlias"
+
+
 def _returned_read_borrow_case() -> tuple[str, str]:
     for facts_name, subject in [
         ("variable-context-carrier-snapshot-facts-v0.json", "CarrierInfo.from_variable_map"),
@@ -322,6 +373,7 @@ def _todo_null_placeholder_case() -> tuple[str, str]:
         GENERATED / "structured_loop_without_carried_state.hako",
         GENERATED / "single_scalar_loop_carrier.hako",
         GENERATED / "canonical_explicit_phi.hako",
+        GENERATED / "multi_carrier_exit_phi.hako",
         ROOT / "apps/lib/hakorune_mir_builder/carrier_info.hako",
         ROOT / "tools/rust_lifecycle/shared_mirbuilder_emitter.py",
     ]:
@@ -341,6 +393,9 @@ CASE_RUNNERS: dict[str, Callable[[], tuple[str, str]]] = {
     "single_scalar_loop_carrier_escape": _single_scalar_loop_carrier_escape_case,
     "canonical_explicit_phi_inferred_denied": _explicit_phi_inferred_case,
     "canonical_explicit_phi_multi_predecessor_denied": _explicit_phi_multi_predecessor_case,
+    "multi_exit_phi_missing_exit_denied": _multi_exit_phi_missing_exit_case,
+    "multi_exit_phi_carrier_arity_denied": _multi_exit_phi_carrier_arity_case,
+    "multi_exit_phi_carrier_escape_denied": _multi_exit_phi_carrier_escape_case,
     "returned_read_borrow": _returned_read_borrow_case,
     "returned_mutable_borrow": _returned_mutable_borrow_case,
     "carrier_sensitive_alias": _carrier_sensitive_alias_case,

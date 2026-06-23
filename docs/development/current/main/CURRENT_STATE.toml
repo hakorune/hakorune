@@ -265,14 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CANONICAL-EXPLICIT-PHI-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1634-MIRBUILDER-CANONICAL-EXPLICIT-PHI-001.md"
+latest_card = "MIRBUILDER-MULTI-CARRIER-EXIT-PHI-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1635-MIRBUILDER-MULTI-CARRIER-EXIT-PHI-001.md"
 latest_card_summary = """The MirBuilder Rust-to-Hako converter now has a
-typed direct-shape pilot for two explicit i64 PHI predecessor values. The
-generated artifact is deterministic and passes MIR/EXE execution. Inferred and
-multi-predecessor PHI remain fail-fast boundaries."""
+typed direct-shape pilot for explicit break/continue/early-return exits with
+two i64 carriers. The generated artifact is deterministic and passes MIR/EXE
+execution. Missing exits, carrier arity drift, and carrier escape remain
+fail-fast boundaries."""
 
-current_blocker_token = "MULTI-CARRIER-BREAK-CONTINUE-EARLY-RETURN-PHI-001"
+current_blocker_token = "IMMUTABLE-LEAF-BORROW-PROJECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -97,6 +97,29 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
             f"    {target} = {_render_expr(false_value)}",
             "}",
         ]
+    if kind == "ExplicitMultiExitPhiI64Array":
+        target = operation.get("target")
+        selector = operation.get("selector")
+        exits = operation.get("exits")
+        if not isinstance(target, str) or selector is None or not isinstance(exits, list) or not exits:
+            raise ValueError("ExplicitMultiExitPhiI64Array requires target, selector, and exits")
+        lines = [f"local {target} = new ArrayBox()"]
+        for index, exit_case in enumerate(exits):
+            if not isinstance(exit_case, Mapping):
+                raise ValueError("ExplicitMultiExitPhiI64Array exits must be mappings")
+            condition = exit_case.get("condition")
+            values = exit_case.get("values")
+            if condition is None or not isinstance(values, list):
+                raise ValueError("ExplicitMultiExitPhiI64Array exit requires condition and values")
+            prefix = "if" if index == 0 else "} else if"
+            lines.append(f"{prefix} {_render_expr(condition)} {{")
+            for value in values:
+                lines.append(f"    {target}.push({_render_expr(value)})")
+        lines.append("} else {")
+        lines.append(f"    print({render_string_literal(operation.get('fail_message', 'multi_exit_phi_unknown_exit=fail'))})")
+        lines.append(f"    return {operation.get('fail_code', 1)}")
+        lines.append("}")
+        return lines
     raise ValueError(f"unsupported statement operation: {kind}")
 
 
@@ -254,7 +277,7 @@ def _render_explicit_carrier_snapshot(operation: Mapping[str, Any]) -> list[str]
 
 def render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
-    if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop", "ExplicitPhiI64"}:
+    if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop", "ExplicitPhiI64", "ExplicitMultiExitPhiI64Array"}:
         return _render_statement_operation(operation)
     if kind == "MapGetOption":
         source = render_source_expr(operation)

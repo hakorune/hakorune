@@ -90,6 +90,7 @@ The direct lowerer is allowed to map these shapes without a new design card:
 | `control.structured_loop_without_carried_state` | bounded `while` with typed condition/body and no break/continue/early-return/PHI/carried semantic state | `LocalI64`, `StructuredLoop`, `ArrayPush`, `Assign`, `ReturnI64` | StructuredLoop pilot artifact |
 | `control.single_scalar_loop_carrier` | bounded `while` with exactly one local `i64` carrier and no PHI/escape | `LocalI64`, `StructuredLoop`, `Assign`, `ReturnSource` | SingleScalarLoopCarrier pilot artifact |
 | `control.canonical_explicit_phi` | two explicit scalar predecessor values with no inference | `ExplicitPhiI64`, `ReturnSource` | CanonicalExplicitPhi pilot artifact |
+| `control.multi_carrier_exit_phi` | explicit break/continue/early-return exit facts with i64 carrier vectors | `ExplicitMultiExitPhiI64Array`, `ReturnSource` | MultiCarrierExitPhi pilot artifact |
 
 These are design stops, not direct-lowering work:
 
@@ -937,7 +938,7 @@ Then reassess control-flow slices:
 2. structured loop without carried state (closed)
 3. single scalar loop carrier (closed)
 4. canonical explicit PHI (closed)
-5. multi-carrier / break / continue / early-return PHI
+5. multi-carrier / break / continue / early-return PHI (closed)
 ```
 
 Alias/lifecycle remains last:

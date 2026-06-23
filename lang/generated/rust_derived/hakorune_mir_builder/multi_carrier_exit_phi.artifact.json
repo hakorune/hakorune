@@ -1,0 +1,52 @@
+{
+  "claims": {
+    "full_mirbuilder_crate_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "inferred_phi_claim": 0,
+    "mainline_selected": 0,
+    "runtime_fallback": 0
+  },
+  "family_id": "hakorune_mir_builder::multi_carrier_exit_phi",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_multi_exit_phi_artifact.py",
+    "version": "multi-carrier-exit-phi-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-facts-v0.json",
+      "sha256": "fa45fc3117c22553a4892fe54f62793d7235fe3c906ae4233ca2f737dc93412a"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-oracle-v0.json",
+      "sha256": "6b5acf2a71e643cd6754c20679127c9794ee7a408e5cdaf354d05f03673d3500"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-plan-v0.json",
+      "sha256": "0cd4e5ba9e4659a8bfbe8a0ecd8d6f1f37c5d08237059d1d30bfce59dc32d9a6"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-behavior-recipe-v0.json",
+      "sha256": "a5019b0690cc325ad9b35297cea579d142c69ec4ab3510ebb9c4cfb6886bd238"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-derived-artifact-verifier-result-v0.json",
+      "sha256": "485428f2b4e830ffd0113a4a0772ac386b4152ab9e5f53262af75589a439e361"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/multi_carrier_exit_phi.hako",
+    "hako_sha256": "9597a435837f69daed54f62db9139440654cc7873524970b14f56ef888a47e57"
+  },
+  "pilot_scope": "MultiCarrierExitPhi_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-source.rs",
+        "sha256": "0ca95d52a975d389201b0268dbca25606e5cbb6e55be9103ef8abda4987559cb"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}
