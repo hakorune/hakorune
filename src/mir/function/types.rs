@@ -202,6 +202,10 @@ pub struct ModuleMetadata {
     /// Declared enum inventory for canonical sum lowering and runtime/codegen handoff.
     pub enum_decls: BTreeMap<String, MirEnumDecl>,
 
+    /// Backend-readable boxed runtime ABI rows for enum values that cross
+    /// function/container boundaries.
+    pub boxed_sum_abi_plans: Vec<crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1>,
+
     /// NCL-1: Externalized closure bodies (`body_id -> AST body`).
     /// NewClosure keeps only a small descriptor and references this table.
     pub closure_bodies: BTreeMap<ClosureBodyId, Vec<crate::ast::ASTNode>>,

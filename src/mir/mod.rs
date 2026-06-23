@@ -33,6 +33,7 @@ pub mod array_text_residence_session_plan; // MIR-owned residence session route 
 pub mod array_text_state_residence_plan; // MIR-owned route plan for generic array/text state residence
 pub(crate) mod backend_capability; // shared MIR backend capability gate
 pub mod basic_block;
+pub mod boxed_sum_abi_plan; // boxed runtime ABI plans for native enum transport
 pub mod builder;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge

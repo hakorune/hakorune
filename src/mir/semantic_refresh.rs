@@ -27,6 +27,7 @@ use super::{
     array_text_observer_plan::refresh_function_array_text_observer_routes,
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
+    boxed_sum_abi_plan::refresh_module_boxed_sum_abi_plans,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
     direct_array_extent_fact::refresh_function_direct_array_extent_facts_with_def_map,
@@ -284,6 +285,7 @@ pub fn refresh_module_json_v0_post_canonicalize_metadata(module: &mut MirModule)
 }
 
 fn refresh_module_layout_and_decl_plans(module: &mut MirModule) {
+    refresh_module_boxed_sum_abi_plans(module);
     refresh_module_record_and_packed_layout_plans(module);
     refresh_module_typed_object_plans(module);
     refresh_module_direct_state_plans(module);

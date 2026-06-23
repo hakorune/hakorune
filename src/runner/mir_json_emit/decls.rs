@@ -111,6 +111,61 @@ pub(super) fn collect_sorted_enum_decl_values(
         .collect()
 }
 
+pub(super) fn collect_boxed_sum_abi_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .boxed_sum_abi_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "version": crate::mir::boxed_sum_abi_plan::BOXED_SUM_ABI_VERSION_V1,
+                "plan_id": plan.plan_id,
+                "enum_name": plan.enum_name,
+                "runtime_type_id": plan.runtime_type_id,
+                "runtime_box_name": plan.runtime_box_name,
+                "tag_storage": plan.tag_storage,
+                "variants": plan.variants.iter().map(|variant| json!({
+                    "name": variant.name,
+                    "tag": variant.tag,
+                    "payload_storage": variant.payload_storage.as_str(),
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod boxed_sum_abi_tests {
+    use super::*;
+
+    #[test]
+    fn collect_boxed_sum_abi_plan_values_preserves_unit_enum_runtime_plan() {
+        let mut module = crate::mir::MirModule::new("test".to_string());
+        module.metadata.boxed_sum_abi_plans.push(
+            crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1 {
+                plan_id: 0,
+                enum_name: "ProbeKind".to_string(),
+                runtime_type_id: 0,
+                runtime_box_name: "__NyVariant_ProbeKind".to_string(),
+                tag_storage: crate::mir::boxed_sum_abi_plan::BOXED_SUM_TAG_STORAGE_I64,
+                variants: vec![crate::mir::boxed_sum_abi_plan::BoxedSumAbiVariantPlan {
+                    name: "Beta".to_string(),
+                    tag: 1,
+                    payload_storage: crate::mir::boxed_sum_abi_plan::BoxedSumPayloadStorage::None,
+                }],
+            },
+        );
+
+        let plans = collect_boxed_sum_abi_plan_values(&module);
+        assert_eq!(plans[0]["version"], "boxed_runtime_v1");
+        assert_eq!(plans[0]["enum_name"], "ProbeKind");
+        assert_eq!(plans[0]["runtime_box_name"], "__NyVariant_ProbeKind");
+        assert_eq!(plans[0]["variants"][0]["payload_storage"], "none");
+    }
+}
+
 pub(super) fn collect_typed_object_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

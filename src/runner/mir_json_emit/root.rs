@@ -2,7 +2,8 @@ use super::decls::{
     collect_array_record_autouse_eligibility_plan_values,
     collect_array_record_materialization_boundary_plan_values,
     collect_array_record_packed_autouse_pilot_plan_values,
-    collect_array_record_storage_plan_values, collect_direct_state_plan_values,
+    collect_array_record_storage_plan_values, collect_boxed_sum_abi_plan_values,
+    collect_direct_state_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
     collect_hako_alloc_huge_page_packed_store_pilot_plan_values,
     collect_object_storage_plan_values, collect_record_layout_plan_values,
@@ -220,6 +221,10 @@ pub(super) fn build_mir_json_root(
             json!(collect_static_data_plan_values(module)),
         ),
         ("enum_decls", json!(collect_sorted_enum_decl_values(module))),
+        (
+            "boxed_sum_abi_plans",
+            json!(collect_boxed_sum_abi_plan_values(module)),
+        ),
     ];
     let export_summary =
         mir_json_export_model::summarize_root(use_v1_schema, funs.len(), root_metadata.len());
