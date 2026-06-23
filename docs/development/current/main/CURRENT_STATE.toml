@@ -265,16 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "EXTERNAL-BOXED-NATIVE-ENUM-TAG-ACCEPTANCE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1648-EXTERNAL-BOXED-NATIVE-ENUM-TAG-ACCEPTANCE-001.md"
+latest_card = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1648-BOXED-RUNTIME-NATIVE-ENUM-ABI-001.md"
 latest_card_summary = """RegionObserver SlotMetadata output transport is
 selected as native RefSlotKind plus semantic OwnedProduct with current
 ArrayBox<SlotMetadataBox> transport. The generated artifact reaches MIR but
 EXE/AOT stops at variant_tag on enum values that cross function/container
-boundaries, so the next blocker is generic external/boxed native enum tag
-acceptance."""
+boundaries, so the next blocker is generic BoxedSumAbiPlanV1 / boxed runtime
+native enum ABI acceptance."""
 
-current_blocker_token = "EXTERNAL-BOXED-NATIVE-ENUM-TAG-ACCEPTANCE-001"
+current_blocker_token = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

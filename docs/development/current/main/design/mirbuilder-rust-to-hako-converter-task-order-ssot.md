@@ -73,7 +73,7 @@ current fail-fast boundary:
   a same-function variant_make local aggregate.
 
   Deny(UnsupportedEnumValueTransport)
-  detail=ExternalBoxedEnumTagUnavailable
+  detail=BoxedRuntimeEnumAbiUnavailable
   first_callee=SlotClassifierApi.classify/2
   first_op=variant_tag
   required_shape=enum function parameter and container-returned enum values
@@ -109,8 +109,8 @@ Current mechanical status:
 region-observer variable_map read-fold route = native enum / boxed product WIP
 comparator proof = VmExeAotAccepted
 slot_metadata_output_transport_claim = selected
-generated_hako = MIR green, EXE/AOT blocked on external enum tag transport
-next step = implement generic external/boxed enum value backend acceptance
+generated_hako = MIR green, EXE/AOT blocked on boxed runtime enum ABI
+next step = implement BoxedSumAbiPlanV1 plus boxed_runtime_v1 make/tag
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -209,26 +209,41 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    Do not add RegionObserver / MirType backend branches.
    ```
 
-0.8. `Accept external boxed native enum value tags`
+0.8. `Implement boxed native enum make/tag ABI`
 
    Status: next.
 
    Scope:
 
    ```text
-   Define a generic backend contract for native enum values that are not
-   same-function local variant_make aggregates:
+   Keep canonical MIR unchanged:
 
-   - enum function parameters
-   - enum values returned from MapBox / ArrayBox / typed object fields
-   - Option<T> payload projection followed by T variant_tag
+   - VariantMake
+   - VariantTag
+   - VariantProject
+
+   Add representation selection and ABI planning:
+
+   SumValueRepresentation =
+     LocalAggregate(layout)
+     BoxedRuntime(abi_plan_id)
+
+   BoxedSumAbiPlanV1 =
+     plan_id
+     enum_name
+     runtime_type_id
+     runtime_box_name
+     tag_storage
+     variants[]
    ```
 
-   Required route facts:
+   First vertical slice:
 
    ```text
-   variant_tag.external_boxed
-   variant_project.external_boxed
+   payload-less native enum
+   boxed VariantMake
+   cross-function parameter transport
+   boxed VariantTag
    ```
 
    Acceptance:
@@ -237,10 +252,75 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    no RegionObserver-name backend branch
    no MirType-name backend branch
    no manual i64 enum-tag transport for the converter artifact
-   Option<MirType> parameter guard-let EXE/AOT green
-   MapBox-returned MirType classifier EXE/AOT green
+   same-function local enum route still green
+   cross-function unit enum route VM/EXE/AOT green
+   runtime enum identity check present
+   tag range check present
    unknown enum ABI -> Deny(UnsupportedEnumValueTransport)
    runtime fallback = 0
+   ```
+
+0.9. `Implement boxed native enum handle projection`
+
+   Status: pending after 0.8.
+
+   Scope:
+
+   ```text
+   handle-payload enum
+   boxed VariantProject
+   nested enum tag after projection
+   ```
+
+   Probe shape:
+
+   ```text
+   enum Inner { A, B }
+   enum Outer { None, Some(Inner) }
+
+   Outer parameter
+     -> VariantTag
+     -> VariantProject(handle)
+     -> Inner VariantTag
+   ```
+
+   Acceptance:
+
+   ```text
+   Outer::Some(Inner::B) cross-function VM/EXE/AOT green
+   Some payload project green
+   wrong expected tag -> trap
+   wrong runtime enum identity -> trap
+   unsupported payload storage -> Deny(UnsupportedEnumValueTransport)
+   Option/MirType-name backend branch = 0
+   ```
+
+0.10. `Close boxed enum container round trip`
+
+   Status: pending after 0.9.
+
+   Scope:
+
+   ```text
+   MirType enum
+     -> MapBox.set
+     -> MapBox.get
+     -> Option::Some(MirType)
+     -> SlotClassifierApi.classify
+     -> RefSlotKind
+     -> SlotMetadataBox field
+     -> ArrayBox
+   ```
+
+   Acceptance:
+
+   ```text
+   MapBox-returned enum green
+   enum nested in Option green
+   native enum function parameter green
+   native enum return green
+   enum stored in typed object field green
+   RegionObserver SlotMetadata artifact VM/MIR/EXE/AOT green
    ```
 
 1. `Generalize access capabilities through value-caller clone elimination`

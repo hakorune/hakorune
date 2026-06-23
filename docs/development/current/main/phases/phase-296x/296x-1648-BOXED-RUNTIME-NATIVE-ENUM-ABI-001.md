@@ -1,8 +1,8 @@
-# 296x-1648: External Boxed Native Enum Tag Acceptance
+# 296x-1648: Boxed Runtime Native Enum ABI
 
 Status: Active
 Date: 2026-06-23
-Token: EXTERNAL-BOXED-NATIVE-ENUM-TAG-ACCEPTANCE-001
+Token: BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 
 ## Decision
 
@@ -46,21 +46,85 @@ Option::Some payload -> MirType variant_tag / variant_project
 
 ## Required Contract
 
-Add a generic backend contract for external/boxed native enum values:
+Do not add new canonical MIR instructions. These stay canonical:
 
 ```text
-variant_tag.external_boxed
-variant_project.external_boxed
+VariantMake
+VariantTag
+VariantProject
 ```
 
-The contract must be route/fact driven. It must not infer enum layout from
-family names or from the RegionObserver source path.
+Add representation selection and an ABI plan:
+
+```text
+SumValueRepresentation =
+  LocalAggregate(layout)
+  BoxedRuntime(abi_plan_id)
+
+BoxedSumAbiPlanV1 =
+  plan_id
+  enum_name
+  runtime_type_id
+  runtime_box_name
+  tag_storage
+  variants[]
+```
+
+Selected route names:
+
+```text
+variant_make.boxed_runtime_v1
+variant_tag.boxed_runtime_v1
+variant_project.boxed_runtime_v1
+```
+
+The backend consumes the plan and site route facts. It must not infer enum
+layout from family names, `MirType`, `Option`, or the RegionObserver source
+path.
+
+## Task Order
+
+1. `Implement boxed native enum make/tag ABI`
+
+   Scope:
+
+   ```text
+   payload-less native enum
+   boxed VariantMake
+   cross-function parameter transport
+   boxed VariantTag
+   ```
+
+2. `Implement boxed native enum handle projection`
+
+   Scope:
+
+   ```text
+   handle-payload enum
+   boxed VariantProject
+   nested enum tag after projection
+   ```
+
+3. `Close boxed enum container round trip`
+
+   Scope:
+
+   ```text
+   MapBox-returned enum
+   enum nested in Option
+   native enum function parameter
+   native enum return
+   enum stored in typed object field
+   RegionObserver SlotMetadata artifact
+   ```
 
 ## Acceptance
 
 ```text
-Option<MirType> parameter guard-let EXE/AOT green
-MapBox-returned MirType classifier EXE/AOT green
+same-function local enum route still green
+cross-function unit enum route EXE/AOT green
+handle-payload projection EXE/AOT green
+MapBox-returned enum classifier EXE/AOT green
 RegionObserver SlotMetadata artifact EXE/AOT green
 raw aggregate variable_map return = 0
 manual i64 enum-tag workaround = 0

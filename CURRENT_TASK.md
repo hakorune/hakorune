@@ -33,14 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-EXTERNAL-BOXED-NATIVE-ENUM-TAG-ACCEPTANCE-001
+BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 ```
 
 Next task:
 
 ```text
-Accept native enum values that cross function/container boundaries before
-claiming the RegionObserver `variable_map().iter()` read-fold.
+Implement a generic boxed runtime ABI for native enum values that cross
+function/container boundaries before claiming the RegionObserver
+`variable_map().iter()` read-fold.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -53,9 +54,18 @@ The owned output transport is now selected:
 
 The current fail-fast boundary is:
   Deny(UnsupportedEnumValueTransport)
-  detail=ExternalBoxedEnumTagUnavailable
+  detail=BoxedRuntimeEnumAbiUnavailable
   first_callee=SlotClassifierApi.classify/2
   first_op=variant_tag
+
+Canonical MIR stays unchanged:
+  VariantMake
+  VariantTag
+  VariantProject
+
+The new authority is representation selection:
+  SumValueRepresentation::BoxedRuntime(abi_plan_id)
+  BoxedSumAbiPlanV1
 
 Do not add OrderedMapBox / RegionObserver backend special cases.
 Do not substitute insertion order for Rust BTreeMap ordering.
