@@ -39,6 +39,16 @@ pub(super) fn insert_route_metadata_json(
         ),
     );
     obj.insert(
+        "builtin_global_call_routes".to_string(),
+        serde_json::Value::Array(
+            metadata
+                .builtin_global_call_routes
+                .iter()
+                .map(build_global_call_route_json)
+                .collect(),
+        ),
+    );
+    obj.insert(
         "user_box_method_routes".to_string(),
         serde_json::Value::Array(
             metadata

@@ -618,6 +618,7 @@ fn refresh_function_global_call_routes_with_targets(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) {
     let mut routes = Vec::new();
+    let mut builtin_routes = Vec::new();
     let const_null_sentinels = collect_const_null_sentinels(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
@@ -636,27 +637,34 @@ fn refresh_function_global_call_routes_with_targets(
             else {
                 continue;
             };
+            let lowering_override =
+                classify_global_call_lowering_override(name, args, &const_null_sentinels);
+            let route = GlobalCallRoute::new(
+                GlobalCallRouteSite::new(block_id, instruction_index),
+                name,
+                args.len(),
+                *dst,
+                lookup_global_call_target(name, targets)
+                    .cloned()
+                    .unwrap_or_else(GlobalCallTargetFacts::missing),
+            )
+            .with_optional_lowering_override(lowering_override);
             if supported_backend_global(name) {
+                if route.is_builtin_print() {
+                    builtin_routes.push(route);
+                }
                 continue;
             }
-            routes.push(
-                GlobalCallRoute::new(
-                    GlobalCallRouteSite::new(block_id, instruction_index),
-                    name,
-                    args.len(),
-                    *dst,
-                    lookup_global_call_target(name, targets)
-                        .cloned()
-                        .unwrap_or_else(GlobalCallTargetFacts::missing),
-                )
-                .with_optional_lowering_override(
-                    classify_global_call_lowering_override(name, args, &const_null_sentinels),
-                ),
-            );
+            if route.is_builtin_print() {
+                builtin_routes.push(route);
+            } else {
+                routes.push(route);
+            }
         }
     }
 
     function.metadata.global_call_routes = routes;
+    function.metadata.builtin_global_call_routes = builtin_routes;
 }
 
 fn collect_const_null_sentinels(function: &MirFunction) -> BTreeSet<ValueId> {
@@ -681,6 +689,7 @@ fn classify_global_call_lowering_override(
     const_null_sentinels: &BTreeSet<ValueId>,
 ) -> Option<GlobalCallLoweringOverride> {
     match name {
+        "print" if args.len() == 1 => Some(GlobalCallLoweringOverride::BuiltinPrint),
         "BuildBox.emit_program_json_v0/2"
             if args.len() == 2 && const_null_sentinels.contains(&args[1]) =>
         {

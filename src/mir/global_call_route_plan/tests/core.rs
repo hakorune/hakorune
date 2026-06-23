@@ -36,10 +36,16 @@ fn refresh_function_global_call_routes_records_unsupported_global_call() {
 }
 
 #[test]
-fn refresh_function_global_call_routes_skips_print_surface() {
-    let mut function = make_function_with_global_call("print", None);
+fn refresh_function_global_call_routes_records_builtin_print_need_route() {
+    let mut function = make_function_with_global_call_args("print", None, vec![ValueId::new(1)]);
     refresh_function_global_call_routes(&mut function);
     assert!(function.metadata.global_call_routes.is_empty());
+    assert_eq!(function.metadata.builtin_global_call_routes.len(), 1);
+    let route = &function.metadata.builtin_global_call_routes[0];
+    assert_eq!(route.callee_name(), "print");
+    assert_eq!(route.route_kind(), "global.print");
+    assert_eq!(route.need_kind(), Some("printf"));
+    assert_eq!(route.reason(), None);
 }
 
 #[test]

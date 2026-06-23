@@ -248,6 +248,9 @@
         if (!entry) return 0;
         if (!(source && !strcmp(source, "global_call_routes"))) return 0;
         if (!read_lowering_plan_global_call_view(entry, &view)) return -1;
+        if (view.route_kind && !strcmp(view.route_kind, "global.print")) {
+          return 0;
+        }
         is_void_sentinel_i64_zero =
             lowering_plan_global_call_view_is_direct_void_sentinel_i64_zero(&view);
         if (is_void_sentinel_i64_zero && !dst && !view.has_result_value) {

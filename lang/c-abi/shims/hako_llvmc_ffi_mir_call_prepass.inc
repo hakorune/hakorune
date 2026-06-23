@@ -176,20 +176,6 @@
               bid, ii, read_int(ins, "dst"));
           if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
             apply_mir_call_need_kind(needs, plan_need);
-            return;
-          }
-          {
-            enum MirCallNeedKind fallback_need =
-                site_plan_entry ? HAKO_LLVMC_MIR_CALL_NEED_NONE
-                                : classify_mir_call_global_need_kind(mname);
-            record_mir_call_need_name_fallback(
-                needs,
-                HAKO_LLVMC_MIR_CALL_NEED_NAME_FALLBACK_GLOBAL,
-                mname,
-                fallback_need,
-                bid,
-                ii);
-            apply_mir_call_need_kind(needs, fallback_need);
           }
           return;
         }

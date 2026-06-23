@@ -376,6 +376,10 @@ pub struct FunctionMetadata {
     /// LoweringPlan metadata so backend shims can fail from a typed plan.
     pub global_call_routes: Vec<GlobalCallRoute>,
 
+    /// Backend-owned global builtin call routes that need runtime declarations
+    /// but must not participate in same-module target-shape proof.
+    pub builtin_global_call_routes: Vec<GlobalCallRoute>,
+
     /// Backend-consumable typed user-box method route plans.
     /// The first accepted route is `birth` as a same-module uniform ABI
     /// function call; backends must consume this metadata instead of

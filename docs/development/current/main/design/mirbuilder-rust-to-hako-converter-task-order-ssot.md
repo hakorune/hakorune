@@ -470,7 +470,7 @@ Initial inventory:
 | P1 | `hako_llvmc_ffi_same_module_typed_field_rmw_emit.inc` | get/binop/set fusion is rediscovered from neighboring ops | `fusion_window_discovery` | same-module fusion plan |
 | P1 | `hako_llvmc_ffi_mir_call_prepass.inc` | call route need/origin facts are still assembled in C | `route_policy` | generated route descriptor / LoweringPlan row |
 | P1 | `hako_llvmc_ffi_mir_call_surface_policy.inc` | call surfaces are classified from constructor/global/extern string names | `route_policy` | call surface normalization / LoweringPlan row |
-| P1 | `hako_llvmc_ffi_mir_call_need_name_fallback.inc` | compatibility callee-name fallback remains a route input | `route_policy` | generated route descriptor, then retire |
+| P1 | `hako_llvmc_ffi_mir_call_need_name_fallback.inc` | retired; builtin print need now comes from lowering_plan metadata | `route_policy` | keep deleted |
 | P1 | `hako_llvmc_ffi_generic_method_policy.inc` | collection route policy still uses receiver origin and value class checks | `route_policy` | generic method route planner |
 | P1 | `hako_llvmc_ffi_generic_method_match.inc` | route matching still depends on local value-shape flags | `value_class_derivation` | LoweringPlan route value-class row |
 | P1 | `hako_llvmc_ffi_string_concat_window.inc` | string corridor discovers single-use / definition windows locally | `definition_discovery` | string corridor/window planner |
@@ -648,30 +648,28 @@ P1. MIR-CALL-ROUTE-POLICY-DRAIN-001
     current files:
       lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc
       lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc
-      lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_name_fallback.inc
     - route classification, declaration needs, result facts, receiver-origin
-      mutation, and compatibility name fallback are separated
+      mutation, and builtin declaration needs are separated
     status=landed
     - legacy generic_method_routes metadata scan is retired; route policy now
       consumes lowering_plan rows and generated route descriptors only
-    - name fallback remains temporary compatibility only, with removal criteria
+    - global print need fallback is retired; `builtin_global_call_routes` feeds
+      lowering_plan `need_kind=printf` without joining target-shape routes
     acceptance:
       primary route policy comes from lowering_plan / generated descriptors
       C shim does not choose route by callee string when descriptor exists
-      compatibility fallback is explicitly counted and fail-fast audited
+      global print declaration need comes from lowering_plan, not callee name
 
 P1. MIR-CALL-NEED-NAME-FALLBACK-AUDIT-001
     current files:
       lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc
-      lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_name_fallback.inc
     status=landed
-    - constructor/global/extern need-name fallback remains compatibility only
-    - fallback hits are counted or diagnosable, not silent route proof
-    - if a generated descriptor / explicit need row exists for the site, the
-      name fallback must not override it
+    - global `print` need-name fallback is deleted
+    - declaration need is supplied by lowering_plan metadata
+    - no C-side callee-name table remains for global print
     acceptance:
       route classification by callee spelling = 0
-      temporary fallback sites are explicit and auditable
+      global print fallback table = 0
       missing required descriptor fails closed instead of choosing a route name
 
 P2. OBJECT-STORAGE-PLAN-NAME-INFERENCE-DRAIN-001

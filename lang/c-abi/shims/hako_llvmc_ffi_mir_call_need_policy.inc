@@ -1,5 +1,4 @@
       #include "hako_llvmc_ffi_mir_call_need_vocab.inc"
-      #include "hako_llvmc_ffi_mir_call_need_name_fallback.inc"
       #include "hako_llvmc_ffi_mir_call_need_metadata_rules.inc"
       #include "hako_llvmc_ffi_mir_call_need_apply.inc"
 
@@ -32,6 +31,13 @@
         if (lowering_plan_global_call_view_is_stage1_emit_program_json(&view)) {
           trace_lowering_plan_entry_hit(plan_entry, "mir_call_global_need");
           return HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_PROGRAM_JSON;
+        }
+        {
+          const char* need_kind = read_str(plan_entry, "need_kind");
+          if (need_kind && !strcmp(need_kind, "printf")) {
+            trace_lowering_plan_entry_hit(plan_entry, "mir_call_global_need");
+            return HAKO_LLVMC_MIR_CALL_NEED_PRINTF;
+          }
         }
         return HAKO_LLVMC_MIR_CALL_NEED_NONE;
       }

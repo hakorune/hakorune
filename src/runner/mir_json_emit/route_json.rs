@@ -114,49 +114,19 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
         })
     }));
 
-    entries.extend(f.metadata.global_call_routes.iter().map(|route| {
-        json!({
-            "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),
-            "block": route.block().as_u32(),
-            "instruction_index": route.instruction_index(),
-            "source": "global_call_routes",
-            "source_route_id": route.route_id(),
-            "callee_name": route.callee_name(),
-            "target_symbol": route.target_symbol(),
-            "core_op": route.core_op(),
-            "tier": route.lowering_tier().as_json_name(),
-            "emit_kind": route.lowering_emit_kind().as_json_name(),
-            "symbol": route
-                .target_symbol()
-                .map(serde_json::Value::from)
-                .unwrap_or(serde_json::Value::Null),
-            "proof": route.proof(),
-            "route_proof": route.proof(),
-            "route_kind": route.route_kind(),
-            "perf_proof": false,
-            "arity": route.arity(),
-            "target_exists": route.target_exists(),
-            "target_arity": route.target_arity(),
-            "target_return_type": route.target_return_type(),
-            "target_result_box_name": route.target_result_box_name(),
-            "target_shape": route.target_shape(),
-            "target_shape_reason": route.target_shape_reason(),
-            "target_shape_blocker_symbol": route.target_shape_blocker_symbol(),
-            "target_shape_blocker_reason": route.target_shape_blocker_reason(),
-            "arity_matches": route.arity_matches(),
-            "result_value": route.result_value().map(|value| value.as_u32()),
-            "return_shape": route.return_shape(),
-            "value_demand": route.value_demand(),
-            "result_origin": route.result_origin(),
-            "definition_owner": route.definition_owner(),
-            "emit_trace_consumer": route.emit_trace_consumer(),
-            "publication_policy": serde_json::Value::Null,
-            "reason": route.reason(),
-            "reason_detail": route.reason_detail(),
-            "reason_hint": route.reason_hint(),
-            "effects": route.effect_tags(),
-        })
-    }));
+    entries.extend(
+        f.metadata
+            .global_call_routes
+            .iter()
+            .map(|route| build_global_call_lowering_plan_entry(route)),
+    );
+
+    entries.extend(
+        f.metadata
+            .builtin_global_call_routes
+            .iter()
+            .map(|route| build_global_call_lowering_plan_entry(route)),
+    );
 
     entries.extend(f.metadata.user_box_method_routes.iter().map(|route| {
         json!({
@@ -198,6 +168,53 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
     }));
 
     entries
+}
+
+fn build_global_call_lowering_plan_entry(
+    route: &crate::mir::global_call_route_plan::GlobalCallRoute,
+) -> serde_json::Value {
+    json!({
+        "site": format!("b{}.i{}", route.block().as_u32(), route.instruction_index()),
+        "block": route.block().as_u32(),
+        "instruction_index": route.instruction_index(),
+        "source": "global_call_routes",
+        "source_route_id": route.route_id(),
+        "callee_name": route.callee_name(),
+        "target_symbol": route.target_symbol(),
+        "core_op": route.core_op(),
+        "tier": route.lowering_tier().as_json_name(),
+        "emit_kind": route.lowering_emit_kind().as_json_name(),
+        "symbol": route
+            .target_symbol()
+            .map(serde_json::Value::from)
+            .unwrap_or(serde_json::Value::Null),
+        "proof": route.proof(),
+        "route_proof": route.proof(),
+        "route_kind": route.route_kind(),
+        "perf_proof": false,
+        "arity": route.arity(),
+        "target_exists": route.target_exists(),
+        "target_arity": route.target_arity(),
+        "target_return_type": route.target_return_type(),
+        "target_result_box_name": route.target_result_box_name(),
+        "target_shape": route.target_shape(),
+        "target_shape_reason": route.target_shape_reason(),
+        "target_shape_blocker_symbol": route.target_shape_blocker_symbol(),
+        "target_shape_blocker_reason": route.target_shape_blocker_reason(),
+        "arity_matches": route.arity_matches(),
+        "result_value": route.result_value().map(|value| value.as_u32()),
+        "return_shape": route.return_shape(),
+        "value_demand": route.value_demand(),
+        "result_origin": route.result_origin(),
+        "need_kind": route.need_kind(),
+        "definition_owner": route.definition_owner(),
+        "emit_trace_consumer": route.emit_trace_consumer(),
+        "publication_policy": serde_json::Value::Null,
+        "reason": route.reason(),
+        "reason_detail": route.reason_detail(),
+        "reason_hint": route.reason_hint(),
+        "effects": route.effect_tags(),
+    })
 }
 
 pub(super) fn build_extern_call_route_json(
@@ -251,6 +268,7 @@ pub(super) fn build_global_call_route_json(
         "return_shape": route.return_shape(),
         "value_demand": route.value_demand(),
         "result_origin": route.result_origin(),
+        "need_kind": route.need_kind(),
         "definition_owner": route.definition_owner(),
         "emit_trace_consumer": route.emit_trace_consumer(),
         "reason": route.reason(),

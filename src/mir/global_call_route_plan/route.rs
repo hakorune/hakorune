@@ -32,18 +32,21 @@ pub struct GlobalCallRoute {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GlobalCallLoweringOverride {
+    BuiltinPrint,
     Stage1EmitProgramJson,
 }
 
 impl GlobalCallLoweringOverride {
     fn route_kind(self) -> &'static str {
         match self {
+            Self::BuiltinPrint => "global.print",
             Self::Stage1EmitProgramJson => "stage1.emit_program_json_v0",
         }
     }
 
     fn target_symbol(self) -> &'static str {
         match self {
+            Self::BuiltinPrint => "print",
             Self::Stage1EmitProgramJson => "nyash.stage1.emit_program_json_v0_h",
         }
     }
@@ -58,18 +61,21 @@ impl GlobalCallLoweringOverride {
 
     fn proof(self) -> GlobalCallProof {
         match self {
+            Self::BuiltinPrint => GlobalCallProof::VoidSideEffect,
             Self::Stage1EmitProgramJson => GlobalCallProof::Stage1EmitProgramJson,
         }
     }
 
     fn return_contract(self) -> GlobalCallReturnContract {
         match self {
+            Self::BuiltinPrint => GlobalCallReturnContract::VoidSentinelI64Zero,
             Self::Stage1EmitProgramJson => GlobalCallReturnContract::StringHandle,
         }
     }
 
     fn effect_tags(self) -> &'static [&'static str] {
         match self {
+            Self::BuiltinPrint => &["print"],
             Self::Stage1EmitProgramJson => &["stage1.emit_program_json"],
         }
     }
@@ -163,6 +169,13 @@ impl GlobalCallRoute {
         }
     }
 
+    pub fn is_builtin_print(&self) -> bool {
+        matches!(
+            self.lowering_override,
+            Some(GlobalCallLoweringOverride::BuiltinPrint)
+        )
+    }
+
     pub fn callee_name(&self) -> &str {
         &self.callee_name
     }
@@ -250,6 +263,13 @@ impl GlobalCallRoute {
         self.effective_return_contract()
             .map(GlobalCallReturnContract::value_demand)
             .unwrap_or("typed_global_call_contract_missing")
+    }
+
+    pub fn need_kind(&self) -> Option<&'static str> {
+        match self.lowering_override {
+            Some(GlobalCallLoweringOverride::BuiltinPrint) => Some("printf"),
+            _ => None,
+        }
     }
 
     pub fn return_shape(&self) -> Option<&'static str> {

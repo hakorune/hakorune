@@ -57,8 +57,6 @@
         int stage1_emit_mir_from_program_json;
         int printf;
         int typed_object;
-        int name_fallback_constructor_hits;
-        int name_fallback_global_hits;
       };
 
       enum MirCallNeedKind {

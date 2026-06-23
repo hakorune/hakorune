@@ -177,9 +177,6 @@ Current partitions:
     `hako_llvmc_ffi_mir_call_need_policy.inc`
 - `hako_llvmc_ffi_mir_call_need_apply.inc`
   - route-agnostic mapping from `MirCallNeedKind` to declaration need flags
-- `hako_llvmc_ffi_mir_call_need_name_fallback.inc`
-  - compatibility name-based declaration need classifiers kept separate from
-    metadata-first LoweringPlan route consumption
 - `hako_llvmc_ffi_mir_call_need_metadata_rules.inc`
   - metadata-first declaration need rule tables for generic-method and extern
     LoweringPlan/core-method route rows

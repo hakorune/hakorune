@@ -51,6 +51,7 @@ fn generic_pure_string_global_route_value_class(
         route.block() == block
             && route.instruction_index() == instruction_index
             && route.reason().is_none()
+            && !route.is_builtin_print()
     })?;
     match route.target_result_box_name()? {
         "StringBox" => Some(GenericPureValueClass::String),

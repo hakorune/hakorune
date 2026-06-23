@@ -114,6 +114,45 @@ fn refresh_function_global_call_routes_is_available_to_json_emit_tests() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_publishes_print_need_kind() {
+    let mut module = crate::mir::MirModule::new("json_global_print_route_test".to_string());
+    let mut function = make_function("main", true);
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("print".to_string())),
+            args: vec![ValueId::new(7)],
+            effects: EffectMask::IO,
+        });
+    module.add_function(function);
+    refresh_module_global_call_routes(&mut module);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    assert!(root["functions"][0]["metadata"]["global_call_routes"]
+        .as_array()
+        .unwrap()
+        .is_empty());
+    let route = &root["functions"][0]["metadata"]["builtin_global_call_routes"][0];
+    assert_eq!(route["callee_name"], "print");
+    assert_eq!(route["route_kind"], "global.print");
+    assert_eq!(route["proof"], "typed_global_call_void_side_effect");
+    assert_eq!(route["return_shape"], "void_sentinel_i64_zero");
+    assert_eq!(route["value_demand"], "scalar_i64");
+    assert_eq!(route["need_kind"], "printf");
+
+    let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(plan["source"], "global_call_routes");
+    assert_eq!(plan["callee_name"], "print");
+    assert_eq!(plan["route_kind"], "global.print");
+    assert_eq!(plan["need_kind"], "printf");
+}
+
+#[test]
 fn build_mir_json_root_emits_target_shape_reason_for_existing_unsupported_target() {
     let mut module = crate::mir::MirModule::new("json_global_call_target_reason_test".to_string());
     let mut caller = make_function("main", true);
