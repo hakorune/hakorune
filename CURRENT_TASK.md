@@ -39,9 +39,8 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Next task:
 
 ```text
-Implement a generic boxed runtime ABI for native enum values that cross
-function/container boundaries before claiming the RegionObserver
-`variable_map().iter()` read-fold.
+Close the generated RegionObserver SlotMetadata artifact now that focused
+boxed enum ABI probes are green.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -53,17 +52,12 @@ The owned output transport is now selected:
   current execution transport = ArrayBox<SlotMetadataBox>
 
 The current fail-fast boundary is:
-  Deny(UnsupportedEnumValueTransport)
-  detail=BoxedRuntimeEnumAbiUnavailable
+  Deny(UnsupportedRegionObserverReadFold)
+  detail=FullArtifactNotYetClosed
   first_callee=SlotClassifierApi.classify/2
-  first_op=variant_tag
+  first_op=region_observer_fold
 
-Canonical MIR stays unchanged:
-  VariantMake
-  VariantTag
-  VariantProject
-
-The new authority is representation selection:
+Boxed enum ABI is already the selected representation authority:
   SumValueRepresentation::BoxedRuntime(abi_plan_id)
   BoxedSumAbiPlanV1
 

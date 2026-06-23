@@ -27,16 +27,17 @@ transport with manual i64 tags just to make the current AOT backend pass.
 
 ## Blocker
 
-The generated RegionObserver SlotMetadata artifact reaches MIR, but EXE/AOT
-stops at the first `variant_tag` in:
+Focused boxed enum probes are green for cross-function unit enums,
+handle-payload projection, MapBox-returned enums, and Option-wrapped map
+results. The remaining blocker is the full generated RegionObserver
+SlotMetadata artifact:
 
 ```text
 SlotClassifierApi.classify/2
 ```
 
-Current backend support covers native enum values that are local aggregates
-created by same-function `variant_make`. The RegionObserver classifier needs
-native enum values that cross function/container boundaries:
+The RegionObserver classifier needs the same boxed enum ABI through its
+complete read-fold/output path:
 
 ```text
 Option<MirType> parameter
@@ -86,6 +87,8 @@ path.
 
 1. `Implement boxed native enum make/tag ABI`
 
+   Status: landed.
+
    Scope:
 
    ```text
@@ -97,6 +100,8 @@ path.
 
 2. `Implement boxed native enum handle projection`
 
+   Status: landed.
+
    Scope:
 
    ```text
@@ -107,6 +112,8 @@ path.
 
 3. `Close boxed enum container round trip`
 
+   Status: focused probes landed; full RegionObserver artifact remains active.
+
    Scope:
 
    ```text
@@ -116,6 +123,17 @@ path.
    native enum return
    enum stored in typed object field
    RegionObserver SlotMetadata artifact
+   ```
+
+4. `Close RegionObserver SlotMetadata artifact`
+
+   Scope:
+
+   ```text
+   verified source-ordered read-fold
+   SlotClassifierApi.classify/2
+   ArrayBox<SlotMetadataBox> output
+   VM/MIR/EXE/AOT green
    ```
 
 ## Acceptance
