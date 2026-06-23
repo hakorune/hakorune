@@ -1,6 +1,6 @@
 # 296x-1638 MIRBUILDER-MAPBOX-KEY-DOMAIN-READ-FOLD-ACCEPTANCE-001
 
-Status: Open
+Status: Superseded by 296x-1639 and 296x-1640
 Date: 2026-06-23
 
 ## Blocker
@@ -19,8 +19,8 @@ Target lowering:
 BorrowUseFacts -> StorageAccessFacts -> ElideToReadFold -> owned output insert
 ```
 
-A naive Hako lowering using `MapBox.keys()` is not semantics-preserving for
-`HashMap<ValueId, String>`:
+Initial concern was that a naive Hako lowering using `MapBox.keys()` might not
+be semantics-preserving for `HashMap<ValueId, String>`:
 
 ```text
 source key transport:
@@ -35,6 +35,16 @@ bad result:
 ```
 
 Do not make the test pass by looking up `"7"` as a string.
+
+Follow-up evidence:
+
+```text
+MapKeyDomain::from_text("7") == MapKeyDomain::from_i64(7)
+```
+
+The accepted path is not a string-key workaround. It requires an explicit
+`CanonicalI64Text` roundtrip verifier condition and proves the fold with
+`destination.get(7)`.
 
 ## Required Decision
 

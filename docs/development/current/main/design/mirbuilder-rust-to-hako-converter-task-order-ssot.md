@@ -18,21 +18,21 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MAPBOX-KEY-DOMAIN-READ-FOLD-001
+  VARIABLE-MAP-ORDERED-OBSERVER-READ-FOLD-001
 
 current implementation task:
-  Resolve key-domain preserving read-fold for metadata caller copies
+  Implement ordered observer fold for VariableContext
 
 selected source slice:
-  value_origin_callers().iter() owned copy
+  variable_map().iter() observer fold
 
 required lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
-    -> preserve ValueId key domain while iterating
+    -> order=SourceOrdered
     -> ElideToReadFold
-    -> owned output insert
+    -> owned SlotMetadata output
 
 forbidden:
   raw aggregate map return
@@ -46,8 +46,9 @@ Acceptance for the current task:
 
 ```text
 standalone value_origin_callers() conversion -> Deny(ReturnedReadBorrow)
-known iter owned-copy consumer -> ElideToReadFold only after key domain is preserved
-ValueId key copied as i64, not public text
+variable_map().iter() source has exact file:line evidence
+known ordered observer consumer -> ElideToReadFold only for live source
+order=SourceOrdered is preserved or the slice is denied
 raw aggregate alias = 0
 element reference escape = 0
 unknown consumer -> Deny(ReturnedReadBorrow)
@@ -76,42 +77,71 @@ rust_mirbuilder_converter_matrix_guard green
    `BorrowUseFacts` as the Rust adapter input, then normalize into the
    language-neutral access facts before lowering.
 
-2. `Implement owned read-fold for metadata caller copies`
+2. `Inventory real live read-fold consumers`
 
-   Status: blocked by key-domain acceptance.
+   Status: landed.
 
    Scope:
 
    ```text
-   for (k, v) in value_origin_callers().iter() {
-       destination.insert(*k, v.clone());
-   }
+   Find actual Rust source shapes, not planned/docs examples, where an
+   aggregate borrow is consumed by an owned read fold.
+   ```
+
+   Evidence note:
+
+   ```text
+   Current source has value_origin_callers().get(&dst).cloned(), which is
+   already covered by ElideToLeafProjection. The previously listed
+   value_origin_callers().iter() owned-copy shape is not present in the current
+   src/mir/builder/emission/phi_lifecycle.rs source.
+
+   The inventory found the actual read-fold shape in:
+     src/mir/builder/module_lifecycle.rs
+     src/mir/builder/calls/lowering.rs
+   ```
+
+   Do not add generated methods or emitter operations for a source shape that
+   is not present.
+
+3. `Resolve MapBox key-domain preserving read-fold acceptance`
+
+   Status: landed for the MetadataContext.value_origin_callers slice.
+
+   Scope:
+
+   ```text
+   Required only if the selected live read-fold source uses MapBox key
+   iteration with ValueIdAsI64 transport.
+   ```
+
+   Current evidence:
+
+   ```text
+   MapKeyDomain::from_text("7") normalizes to CanonicalI64(7), so canonical
+   numeric public text round-trips to the i64 key domain. Keep this as an
+   explicit verifier condition if MapBox.keys() is used for ValueId-key folds.
+   ```
+
+4. `Implement selected live read-fold slice`
+
+   Status: landed for MetadataContext.value_origin_callers.
+
+   Scope:
+
+   ```text
+   source-specific borrow facts
+     -> StorageAccessFacts
      -> ElideToReadFold
-     -> order=Unobserved
-     -> output owns key/value
+     -> typed Hako operation
+     -> MIR/EXE behavior green
    ```
 
    Do not expose a map view or public snapshot API for this slice.
 
-   Stop line:
+5. `Implement ordered observer fold for VariableContext`
 
-   ```text
-   MapBox.keys() exposes public text keys. A naive fold copies "7" as a
-   string key, so destination.get(7) misses and ValueIdAsI64 transport is
-   broken. Do not paper over this by looking up destination with "7".
-   ```
-
-   Required preceding decision:
-
-   ```text
-   Provide a key-domain preserving fold surface, choose a different storage
-   representation that preserves key equality, or Deny(UnsupportedKeyTransport)
-   for ValueId-key MapBox read-folds.
-   ```
-
-3. `Implement ordered observer fold for VariableContext`
-
-   Status: queued.
+   Status: next.
 
    Scope:
 
@@ -126,14 +156,14 @@ rust_mirbuilder_converter_matrix_guard green
    This slice must distinguish BTreeMap source ordering from unordered map
    folds. Do not use a generic unordered iteration rule here.
 
-4. `Reassess returned mutable borrow`
+6. `Reassess returned mutable borrow`
 
    Status: parked behind the three read-borrow elimination slices.
 
    Standalone returned mutable aliases remain `Deny(ReturnedMutableBorrow)`.
    Only explicit mutation APIs or bounded with-map operations may reopen this.
 
-5. `Reassess NonTrivialDrop / unsafe capability boundaries`
+7. `Reassess NonTrivialDrop / unsafe capability boundaries`
 
    Status: parked.
 

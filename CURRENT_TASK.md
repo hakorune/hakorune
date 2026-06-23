@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-MAPBOX-KEY-DOMAIN-READ-FOLD-001
+VARIABLE-MAP-ORDERED-OBSERVER-READ-FOLD-001
 ```
 
 Next task:
 
 ```text
-Resolve key-domain preserving read-fold acceptance for value_origin_callers().iter().
+Implement variable_map iter observer read fold with source-ordered facts.
 ```
 
 Purpose:
@@ -188,9 +188,10 @@ Done:
   immutable leaf borrow projection
   aggregate borrow-use sequence last-copy elimination
   value_origin_callers get/cloned borrow-use elimination through StorageAccessFacts
+  value_origin_callers iter owned-copy read fold through StorageAccessFacts
 
 Next:
-  Resolve MapBox key-domain preserving read-fold acceptance.
+  Implement variable_map iter observer read fold with source-ordered facts.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -221,9 +222,13 @@ Task sequence:
   22. Implement current_region_stack last.copied borrow-use elimination. (closed)
   23. Implement value_origin_callers get/cloned borrow-use elimination and
       introduce the small StorageAccessFacts normalization seam. (closed)
-  24. Resolve MapBox key-domain preserving read-fold acceptance. (next)
-  25. Implement value_origin_callers iter owned-copy read fold.
-  26. Implement variable_map iter observer read fold with source-ordered facts.
+  24. Inventory real live read-fold consumers before adding ElideToReadFold
+      lowering. (closed)
+  25. Resolve MapBox key-domain preserving read-fold acceptance for the
+      selected live read-fold source. (closed)
+  26. Implement the selected live read-fold slice. (closed)
+  27. Implement variable_map iter observer read fold with source-ordered facts.
+      (next)
 ```
 
 Current cleanup slice:

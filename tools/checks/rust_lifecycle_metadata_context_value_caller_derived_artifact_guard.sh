@@ -24,16 +24,21 @@ hako = Path("lang/generated/rust_derived/hakorune_mir_builder/metadata_context_v
 
 assert manifest["kind"] == "RustDerivedHakoArtifact"
 assert manifest["family_id"] == "hakorune_mir_builder::metadata_context"
-assert manifest["pilot_scope"] == "MetadataContext_value_caller_only"
+assert manifest["pilot_scope"] == "MetadataContext_value_caller_and_origin_fold_only"
 assert manifest["claims"]["generated_hako_manual_edit"] == 0
 assert manifest["claims"]["mainline_selected"] == 0
 assert manifest["claims"]["full_metadata_context_claim"] == 0
 assert verifier["checks"]["storage_access_normalized"] == 1
 assert verifier["checks"]["borrow_lowering_decision"] == "ElideToLeafProjection"
+assert verifier["checks"]["read_fold_lowering_decision"] == "ElideToReadFold"
+assert verifier["checks"]["key_domain_roundtrip"] == "CanonicalI64Text"
 borrow_use = {row["id"]: row for row in facts["borrow_use_facts"]}
 assert borrow_use["MetadataContext::value_origin_callers.get_cloned"]["consumer_kind"] == "GetClone"
 assert borrow_use["MetadataContext::value_origin_callers.get_cloned"]["escapes"] is False
+assert borrow_use["MetadataContext::value_origin_callers.iter_owned_copy"]["consumer_kind"] == "ReadOnlyFold"
+assert borrow_use["MetadataContext::value_origin_callers.iter_owned_copy"]["escapes"] is False
 assert "value_caller(ctx, value_id): Option<StringBox>" in hako
+assert "local keys = ctx.value_origin_callers.keys()" in hako
 assert "return ctx.value_origin_callers" not in hako
 assert "value_origin_callers(ctx)" not in hako
 assert "TODO" not in hako
@@ -55,7 +60,7 @@ diff -u "$EXPECTED" "$OUT"
 cat <<'REPORT'
 output_contract=rust-lifecycle-metadata-context-value-caller-derived-artifact-v0
 family_id=hakorune_mir_builder::metadata_context
-pilot_scope=MetadataContext_value_caller_only
+pilot_scope=MetadataContext_value_caller_and_origin_fold_only
 generated_hako_checked_in=1
 artifact_manifest_checked_in=1
 deterministic_regeneration=green
@@ -65,6 +70,8 @@ generated_hako_exe_aot=green
 raw_aggregate_return=0
 storage_access_normalized=1
 borrow_lowering_decision=ElideToLeafProjection
+read_fold_lowering_decision=ElideToReadFold
+key_domain_roundtrip=CanonicalI64Text
 record_value_caller_claim=0
 runtime_try_hako_then_rust_fallback=0
 summary=ok

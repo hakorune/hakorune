@@ -11,6 +11,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "crates/hakorune_mir_builder/src/metadata_context.rs"
 PHI_LIFECYCLE_SOURCE = ROOT / "src/mir/builder/emission/phi_lifecycle.rs"
+MODULE_LIFECYCLE_SOURCE = ROOT / "src/mir/builder/module_lifecycle.rs"
+CALL_LOWERING_SOURCE = ROOT / "src/mir/builder/calls/lowering.rs"
 
 
 def _require(source: str, needle: str, label: str) -> None:
@@ -21,6 +23,8 @@ def _require(source: str, needle: str, label: str) -> None:
 def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
     source = source_path.read_text()
     consumer_source = PHI_LIFECYCLE_SOURCE.read_text()
+    module_lifecycle_source = MODULE_LIFECYCLE_SOURCE.read_text()
+    call_lowering_source = CALL_LOWERING_SOURCE.read_text()
     for needle, label in [
         ("pub(super) value_origin_callers: HashMap<ValueId, String>", "value_origin_callers field"),
         ("pub fn new(current_span: SpanT) -> Self", "new"),
@@ -32,6 +36,12 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
     _require(consumer_source, ".value_origin_callers()", "value_origin_callers aggregate borrow consumer")
     _require(consumer_source, ".get(&dst)", "value_origin_callers get dst consumer")
     _require(consumer_source, ".cloned()", "value_origin_callers cloned consumer")
+    for fold_source, label in [
+        (module_lifecycle_source, "module lifecycle value_origin_callers read fold"),
+        (call_lowering_source, "call lowering value_origin_callers read fold"),
+    ]:
+        _require(fold_source, "for (k, v) in self.metadata_ctx.value_origin_callers().iter()", label)
+        _require(fold_source, "origin_callers.insert(*k, v.clone())", label)
 
     return {
         "schema_version": 0,
@@ -56,6 +66,7 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
                 "key_transport": "ValueIdAsI64",
                 "value_transport": "ImmutableStringAtom",
                 "iteration_observed": False,
+                "key_domain_roundtrip": "CanonicalI64Text",
                 "map_identity_escapes": False,
                 "drop_fact": "TrivialMemory",
             },
@@ -81,6 +92,18 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
                 "source": "src/mir/builder/emission/phi_lifecycle.rs",
                 "borrowed_kind": "Aggregate",
                 "consumer_kind": "GetClone",
+                "escapes": False,
+                "owner_mutated_during_use": False,
+                "identity_observed": False,
+                "element_reference_escapes": False,
+                "owned_projection_available": True,
+                "order": "Unobserved",
+            },
+            {
+                "id": "MetadataContext::value_origin_callers.iter_owned_copy",
+                "source": "src/mir/builder/module_lifecycle.rs;src/mir/builder/calls/lowering.rs",
+                "borrowed_kind": "Aggregate",
+                "consumer_kind": "ReadOnlyFold",
                 "escapes": False,
                 "owner_mutated_during_use": False,
                 "identity_observed": False,

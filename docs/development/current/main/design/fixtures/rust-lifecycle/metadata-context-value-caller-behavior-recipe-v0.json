@@ -14,7 +14,7 @@
       "rust_operation": "HashMap::get map as_str"
     }
   ],
-  "pilot_scope": "MetadataContext_value_caller_only",
+  "pilot_scope": "MetadataContext_value_caller_and_origin_fold_only",
   "schema_version": 0,
   "selected_body_count": "value_caller_method_only",
   "source_oracle": "metadata-context-value-caller-oracle-v0.json",

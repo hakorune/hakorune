@@ -2,17 +2,19 @@
   "checks": {
     "borrow_lowering_decision": "ElideToLeafProjection",
     "direct_shape_rule": "map.immutable_leaf_projection",
+    "key_domain_roundtrip": "CanonicalI64Text",
     "needs_semantic_capsule": 0,
+    "read_fold_lowering_decision": "ElideToReadFold",
     "returned_aggregate_alias": 0,
     "rust_facts_input": "verified",
-    "selected_body_count": "value_caller_method_only",
+    "selected_body_count": "value_caller_method_plus_read_fold_consumer",
     "storage_access_normalized": 1,
     "unmapped_mir_side_effects": 0,
     "unresolved_call_targets": 0
   },
   "family_id": "hakorune_mir_builder::metadata_context",
   "kind": "DerivedHakoArtifactVerifierResult",
-  "pilot_scope": "MetadataContext_value_caller_only",
+  "pilot_scope": "MetadataContext_value_caller_and_origin_fold_only",
   "result": "VerifiedHakoFamilyIR",
   "schema_version": 0,
   "source_facts": "metadata-context-value-caller-facts-v0.json",
@@ -20,12 +22,14 @@
   "source_recipe": "metadata-context-value-caller-behavior-recipe-v0.json",
   "subject": "hakorune_mir_builder::metadata_context::MetadataContext.value_caller",
   "transport_notes": {
+    "key_domain_roundtrip": "CanonicalI64Text",
     "key_transport": "ValueIdAsI64",
     "return_transport": "OptionStringBox",
     "source_access_order": "Unobserved",
     "value_transport": "ImmutableStringAtom"
   },
   "verified_operations": [
-    "MapGetOption"
+    "MapGetOption",
+    "MapReadFoldOwnedCopy"
   ]
 }

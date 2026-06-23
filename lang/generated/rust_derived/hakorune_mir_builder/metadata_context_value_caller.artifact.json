@@ -20,7 +20,7 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-facts-v0.json",
-      "sha256": "54d86ece973a26c81e2c311387c60bba0c18074aea8cb95ed34bad5904336328"
+      "sha256": "d6acb269da6afdb31af38dec7d151972ab61727b115cde3f13a07ae8a672e0e3"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-oracle-v0.json",
@@ -32,19 +32,19 @@
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-behavior-recipe-v0.json",
-      "sha256": "a5c7b844c3bf719711e952d4fd0927543e578ca48431727b1cbc843962bf26dc"
+      "sha256": "d3fbcdd9daddbba16baaef3260bb51378c177dcfd518ae63ac192de3968c76b9"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-derived-artifact-verifier-result-v0.json",
-      "sha256": "423346cd8ffb471d2e47e25f46c9ba7c985142ac4062058594ccab7d844bdc78"
+      "sha256": "144f439e602ba5f26282ebfc514a76192bb9391bbf0c09ad9fcddf54b5413e37"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_value_caller.hako",
-    "hako_sha256": "4cf562c04f53a026bb2be7b7b1be0f1d12031d80dfe39cc245de570f11ba1143"
+    "hako_sha256": "8401e0e46da069e9d147346093d812cd0b4438f2aa324b4affb62e2642cb8659"
   },
-  "pilot_scope": "MetadataContext_value_caller_only",
+  "pilot_scope": "MetadataContext_value_caller_and_origin_fold_only",
   "schema_version": 0,
   "source": {
     "rust_files": [

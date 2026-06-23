@@ -16,7 +16,7 @@ from family_artifact_builders import (
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
 from shared_family_generator import read_json, run_validated_family_generator, stable_json, write_if_changed
-from mirbuilder_storage_access_facts import ELIDE_TO_LEAF_PROJECTION, classify_storage_access, storage_access_from_borrow_use
+from mirbuilder_storage_access_facts import ELIDE_TO_LEAF_PROJECTION, ELIDE_TO_READ_FOLD, classify_storage_access, storage_access_from_borrow_use
 from verified_hako_family_ir import op
 
 
@@ -38,6 +38,8 @@ def validate_metadata_value_caller(facts: dict[str, Any], plan: dict[str, Any], 
     field = {row["id"]: row for row in facts["field_facts"]}.get("MetadataContext.value_origin_callers")
     if field is None or field.get("value_transport") != "ImmutableStringAtom":
         raise SystemExit("MetadataContext value_origin_callers transport mismatch")
+    if field.get("key_transport") != "ValueIdAsI64" or field.get("key_domain_roundtrip") != "CanonicalI64Text":
+        raise SystemExit("MetadataContext value_origin_callers key-domain transport mismatch")
     if field.get("map_identity_escapes") is not False:
         raise SystemExit("MetadataContext value_origin_callers map identity must not escape")
     plans = {row["id"]: row for row in plan["plans"]}
@@ -55,6 +57,12 @@ def validate_metadata_value_caller(facts: dict[str, Any], plan: dict[str, Any], 
     storage_fact = storage_access_from_borrow_use(use_fact)
     if classify_storage_access(storage_fact) != ELIDE_TO_LEAF_PROJECTION:
         raise SystemExit("MetadataContext value_origin_callers get/cloned must lower by ElideToLeafProjection")
+    fold_fact = borrow_use.get("MetadataContext::value_origin_callers.iter_owned_copy")
+    if fold_fact is None:
+        raise SystemExit("MetadataContext value_origin_callers iter owned-copy borrow-use fact missing")
+    fold_storage_fact = storage_access_from_borrow_use(fold_fact)
+    if classify_storage_access(fold_storage_fact) != ELIDE_TO_READ_FOLD:
+        raise SystemExit("MetadataContext value_origin_callers iter owned-copy must lower by ElideToReadFold")
     for op_name in ["prefill_value_caller", "value_caller_some", "value_caller_none"]:
         if op_name not in _oracle_ops(oracle):
             raise SystemExit(f"missing MetadataContext value-caller oracle op: {op_name}")
@@ -99,6 +107,11 @@ def metadata_value_caller_spec() -> FamilyArtifactSpec:
             op("AssertEq", left="caller", right={"expr": "Option::Some(\"main.hako:1:2\")"}, fail_message="metadata_context_value_caller_some=fail", fail_code=1),
             op("StaticCall", target="missing", callee="MetadataContextApi.value_caller", args=["ctx", "99"]),
             op("AssertEq", left="missing", right={"expr": "Option::None()"}, fail_message="metadata_context_value_caller_none=fail", fail_code=2),
+            op("NewBox", target="destination", box="MapBox"),
+            op("StaticCall", callee="MetadataContextHarnessApi.prefill_value_caller", args=["ctx", "11", {"literal": "other.hako:3:4"}]),
+            op("MapReadFoldOwnedCopy", source="ctx.value_origin_callers", destination="destination", storage="MapBox"),
+            op("AssertEq", left="destination.get(7)", right={"literal": "main.hako:1:2"}, fail_message="metadata_context_value_caller_fold_copy_first=fail", fail_code=3),
+            op("AssertEq", left="destination.get(11)", right={"literal": "other.hako:3:4"}, fail_message="metadata_context_value_caller_fold_copy_second=fail", fail_code=4),
             op("Print", text="metadata_context_value_caller_direct_artifact=ok"),
             op("ReturnI64", return_value=0),
         ],
@@ -111,15 +124,15 @@ def metadata_value_caller_spec() -> FamilyArtifactSpec:
         oracle_path=FIXTURES / "metadata-context-value-caller-oracle-v0.json",
         recipe_path=FIXTURES / "metadata-context-value-caller-behavior-recipe-v0.json",
         verifier_path=FIXTURES / "metadata-context-value-caller-derived-artifact-verifier-result-v0.json",
-        pilot_scope="MetadataContext_value_caller_only",
+        pilot_scope="MetadataContext_value_caller_and_origin_fold_only",
         recipe_subject="hakorune_mir_builder::metadata_context::MetadataContext.value_caller",
         selected_body_count="value_caller_method_only",
         methods=[BehaviorMethodSpec(id="MetadataContext::value_caller", rust_operation="HashMap::get map as_str", hako_operation="MapGetOption", emits="MetadataContextApi.value_caller(ctx, value_id)")],
         excluded_methods=excluded,
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_metadata_context_claim": 0, "generic_metadata_context_claim": 0, "rust_bootstrap_retained": 1, "backend_behavior_changed": 0},
-        verifier_checks={"rust_facts_input": "verified", "direct_shape_rule": "map.immutable_leaf_projection", "storage_access_normalized": 1, "borrow_lowering_decision": "ElideToLeafProjection", "selected_body_count": "value_caller_method_only", "returned_aggregate_alias": 0, "unresolved_call_targets": 0, "unmapped_mir_side_effects": 0, "needs_semantic_capsule": 0},
-        verified_operations=["MapGetOption"],
-        transport_notes={"key_transport": "ValueIdAsI64", "value_transport": "ImmutableStringAtom", "return_transport": "OptionStringBox", "source_access_order": "Unobserved"},
+        verifier_checks={"rust_facts_input": "verified", "direct_shape_rule": "map.immutable_leaf_projection", "storage_access_normalized": 1, "borrow_lowering_decision": "ElideToLeafProjection", "read_fold_lowering_decision": "ElideToReadFold", "key_domain_roundtrip": "CanonicalI64Text", "selected_body_count": "value_caller_method_plus_read_fold_consumer", "returned_aggregate_alias": 0, "unresolved_call_targets": 0, "unmapped_mir_side_effects": 0, "needs_semantic_capsule": 0},
+        verified_operations=["MapGetOption", "MapReadFoldOwnedCopy"],
+        transport_notes={"key_transport": "ValueIdAsI64", "key_domain_roundtrip": "CanonicalI64Text", "value_transport": "ImmutableStringAtom", "return_transport": "OptionStringBox", "source_access_order": "Unobserved"},
         extra_manifest_fields={"excluded_methods": excluded},
     )
 

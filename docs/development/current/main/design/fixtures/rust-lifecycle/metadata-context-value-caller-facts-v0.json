@@ -26,6 +26,18 @@
       "owned_projection_available": true,
       "owner_mutated_during_use": false,
       "source": "src/mir/builder/emission/phi_lifecycle.rs"
+    },
+    {
+      "borrowed_kind": "Aggregate",
+      "consumer_kind": "ReadOnlyFold",
+      "element_reference_escapes": false,
+      "escapes": false,
+      "id": "MetadataContext::value_origin_callers.iter_owned_copy",
+      "identity_observed": false,
+      "order": "Unobserved",
+      "owned_projection_available": true,
+      "owner_mutated_during_use": false,
+      "source": "src/mir/builder/module_lifecycle.rs;src/mir/builder/calls/lowering.rs"
     }
   ],
   "excluded_methods": [
@@ -61,6 +73,7 @@
       "drop_fact": "TrivialMemory",
       "id": "MetadataContext.value_origin_callers",
       "iteration_observed": false,
+      "key_domain_roundtrip": "CanonicalI64Text",
       "key_transport": "ValueIdAsI64",
       "map_identity_escapes": false,
       "rust_type": "HashMap<ValueId, String>",
