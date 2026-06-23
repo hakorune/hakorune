@@ -1,0 +1,57 @@
+{
+  "claims": {
+    "full_metadata_context_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "generic_metadata_context_claim": 0,
+    "mainline_selected": 0,
+    "runtime_fallback": 0,
+    "rust_bootstrap_retained": 1
+  },
+  "excluded_methods": [
+    "MetadataContext::current_region_stack",
+    "MetadataContext::value_origin_callers"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_context",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_metadata_region_parent_artifact.py",
+    "version": "metadata-context-region-parent-direct-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-facts-v0.json",
+      "sha256": "eef76ea7203be3f838c42e8e9732c215a29ea5aeea6bca7563a2ea80c5234d51"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-oracle-v0.json",
+      "sha256": "b13d74ea62b39ae64e0608bdac3fc9edb2c1b6b81cf7e7dccd6c10dcb67e7862"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-plan-v0.json",
+      "sha256": "3bee366ddc0e9efc4c63798336fa200cd791bafdd840483c384646a3f1e1ccc9"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-behavior-recipe-v0.json",
+      "sha256": "ca7963bf903dbcd538c34f63b29e0947aed11a206d9da5bdae3a3d278b657f88"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-derived-artifact-verifier-result-v0.json",
+      "sha256": "c7adcd408c5fd67ed52fe2e36e19f0281c4fd0484bece3a5563bfe81405d6691"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_region_parent.hako",
+    "hako_sha256": "d808dc65f0b30fc6eff61b401d7aa85391dc247d708142f2c4ea1b131bf4b0e3"
+  },
+  "pilot_scope": "MetadataContext_region_parent_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+        "sha256": "28cbaaa00be8563db2b4dce70d393530b3c573f299120743e24112290e0303b2"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

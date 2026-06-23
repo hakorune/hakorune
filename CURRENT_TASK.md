@@ -39,7 +39,7 @@ AGGREGATE-RETURNED-READ-BORROW-001
 Next task:
 
 ```text
-Decide aggregate returned read borrow handling.
+Implement value_origin_callers get/cloned borrow-use elimination.
 ```
 
 Purpose:
@@ -186,9 +186,10 @@ Done:
   canonical explicit PHI direct conversion
   multi-carrier exit PHI direct conversion
   immutable leaf borrow projection
+  aggregate borrow-use sequence last-copy elimination
 
 Next:
-  Decide aggregate returned read borrow handling.
+  Implement value_origin_callers get/cloned borrow-use elimination.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -215,7 +216,9 @@ Task sequence:
   18. Implement canonical explicit PHI. (closed)
   19. Implement multi-carrier / break / continue / early-return PHI. (closed)
   20. Implement immutable leaf borrow projection. (closed)
-  21. Decide aggregate returned read borrow handling. (next)
+  21. Decide aggregate returned read borrow handling. (A+ selected)
+  22. Implement current_region_stack last.copied borrow-use elimination. (closed)
+  23. Implement value_origin_callers get/cloned borrow-use elimination. (next)
 ```
 
 Current cleanup slice:

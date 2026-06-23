@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-IMMUTABLE-LEAF-BORROW-PROJECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1636-MIRBUILDER-IMMUTABLE-LEAF-BORROW-PROJECTION-001.md"
-latest_card_summary = """The MirBuilder Rust-to-Hako converter now has a
-generic immutable leaf borrow projection rule. MetadataContext::value_caller
-is converted as Option<&str> to Option<StringBox> without returning the
-aggregate caller map. The generated artifact is deterministic and passes
-MIR/EXE execution while record_value_caller and aggregate returned borrows
-remain out of scope."""
+latest_card = "MIRBUILDER-AGGREGATE-BORROW-USE-ELIMINATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1637-MIRBUILDER-AGGREGATE-BORROW-USE-ELIMINATION-001.md"
+latest_card_summary = """The MirBuilder Rust-to-Hako converter now uses the
+Option A+ aggregate-borrow contract: standalone aggregate returned borrows
+remain Deny(ReturnedReadBorrow), while known call-local consumers can eliminate
+the borrow. MetadataContext current_region_stack().last().copied() is lowered
+to current_parent_region(ctx): Option<i64> without returning ArrayBox or adding
+read-view / lease semantics."""
 
 current_blocker_token = "AGGREGATE-RETURNED-READ-BORROW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

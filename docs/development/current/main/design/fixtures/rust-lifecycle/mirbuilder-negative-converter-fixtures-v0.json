@@ -55,6 +55,14 @@
       "status": "green"
     },
     {
+      "id": "aggregate_borrow_unknown_consumer_denied",
+      "status": "green"
+    },
+    {
+      "id": "aggregate_borrow_owner_mutation_denied",
+      "status": "green"
+    },
+    {
       "id": "returned_mutable_borrow",
       "status": "green"
     },

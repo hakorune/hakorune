@@ -333,6 +333,40 @@ def _returned_read_borrow_case() -> tuple[str, str]:
     return "returned_read_borrow", "ReturnedReadBorrow"
 
 
+def _aggregate_borrow_unknown_consumer_case() -> tuple[str, str]:
+    from mirbuilder_sequence_borrow_converter import compile_sequence_last_copy_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "metadata-context-region-parent-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "metadata-context-region-parent-plan-v0.json"))
+    _replace_row(facts["borrow_use_facts"], "RegionObserver::parent_region", "consumer_kind", "Unknown")
+    _expect_deny(
+        "ReturnedReadBorrow",
+        lambda: compile_sequence_last_copy_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["borrow_use.sequence_last_copy"],
+        ),
+    )
+    return "aggregate_borrow_unknown_consumer_denied", "ReturnedReadBorrow"
+
+
+def _aggregate_borrow_owner_mutation_case() -> tuple[str, str]:
+    from mirbuilder_sequence_borrow_converter import compile_sequence_last_copy_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "metadata-context-region-parent-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "metadata-context-region-parent-plan-v0.json"))
+    _replace_row(facts["borrow_use_facts"], "RegionObserver::parent_region", "owner_mutated_during_use", True)
+    _expect_deny(
+        "ReturnedReadBorrow",
+        lambda: compile_sequence_last_copy_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["borrow_use.sequence_last_copy"],
+        ),
+    )
+    return "aggregate_borrow_owner_mutation_denied", "ReturnedReadBorrow"
+
+
 def _returned_mutable_borrow_case() -> tuple[str, str]:
     snapshot_restore = _load_json(FIXTURES / "variable-context-snapshot-restore-facts-v0.json")
     immutable_borrow = _load_json(FIXTURES / "variable-context-immutable-borrow-facts-v0.json")
@@ -374,6 +408,8 @@ def _todo_null_placeholder_case() -> tuple[str, str]:
         GENERATED / "single_scalar_loop_carrier.hako",
         GENERATED / "canonical_explicit_phi.hako",
         GENERATED / "multi_carrier_exit_phi.hako",
+        GENERATED / "metadata_context_region_parent.hako",
+        GENERATED / "metadata_context_value_caller.hako",
         ROOT / "apps/lib/hakorune_mir_builder/carrier_info.hako",
         ROOT / "tools/rust_lifecycle/shared_mirbuilder_emitter.py",
     ]:
@@ -397,6 +433,8 @@ CASE_RUNNERS: dict[str, Callable[[], tuple[str, str]]] = {
     "multi_exit_phi_carrier_arity_denied": _multi_exit_phi_carrier_arity_case,
     "multi_exit_phi_carrier_escape_denied": _multi_exit_phi_carrier_escape_case,
     "returned_read_borrow": _returned_read_borrow_case,
+    "aggregate_borrow_unknown_consumer_denied": _aggregate_borrow_unknown_consumer_case,
+    "aggregate_borrow_owner_mutation_denied": _aggregate_borrow_owner_mutation_case,
     "returned_mutable_borrow": _returned_mutable_borrow_case,
     "carrier_sensitive_alias": _carrier_sensitive_alias_case,
     "missing_requested_carrier_fail_fast": _missing_requested_carrier_case,

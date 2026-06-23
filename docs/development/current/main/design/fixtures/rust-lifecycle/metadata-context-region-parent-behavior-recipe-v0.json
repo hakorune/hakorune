@@ -1,0 +1,34 @@
+{
+  "excluded_methods": [
+    "MetadataContext::current_region_stack",
+    "MetadataContext::value_origin_callers"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "MetadataContextApi.push_region(ctx, region_id)",
+      "hako_operation": "SequencePush",
+      "id": "MetadataContext::push_region",
+      "rust_operation": "Vec::push"
+    },
+    {
+      "emits": "MetadataContextApi.pop_region(ctx)",
+      "hako_operation": "SequencePopOption",
+      "id": "MetadataContext::pop_region",
+      "rust_operation": "Vec::pop"
+    },
+    {
+      "emits": "MetadataContextApi.current_parent_region(ctx)",
+      "hako_operation": "SequenceLastOption",
+      "id": "RegionObserver::parent_region",
+      "rust_operation": "current_region_stack().last().copied()"
+    }
+  ],
+  "pilot_scope": "MetadataContext_region_parent_only",
+  "schema_version": 0,
+  "selected_body_count": "region_parent_methods_only",
+  "source_oracle": "metadata-context-region-parent-oracle-v0.json",
+  "source_plan": "metadata-context-region-parent-plan-v0.json",
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.region_parent"
+}

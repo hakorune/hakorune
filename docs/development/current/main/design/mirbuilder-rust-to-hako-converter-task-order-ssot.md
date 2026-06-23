@@ -945,7 +945,12 @@ Alias/lifecycle remains last:
 
 ```text
 6. immutable leaf borrow projection (closed)
-7. aggregate returned read borrow (next)
+7. aggregate returned read borrow
+   - Option A+ selected:
+     standalone aggregate borrow -> Deny(ReturnedReadBorrow)
+     known call-local consumer -> BorrowUseFacts + BorrowLoweringDecision
+   - current_region_stack().last().copied() -> ElideToLeafProjection (closed)
+   - value_origin_callers().get(...).cloned() -> ElideToLeafProjection (next)
 8. returned mutable borrow
 9. nontrivial Drop
 ```

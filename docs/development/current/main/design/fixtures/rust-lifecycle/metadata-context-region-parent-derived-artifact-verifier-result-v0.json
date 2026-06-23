@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "borrow_lowering_decision": "ElideToLeafProjection",
+    "direct_shape_rule": "borrow_use.sequence_last_copy",
+    "needs_semantic_capsule": 0,
+    "raw_aggregate_return": 0,
+    "read_lease_claim": 0,
+    "rust_facts_input": "verified",
+    "unresolved_call_targets": 0
+  },
+  "denied_boundaries": [
+    "MetadataContext::current_region_stack"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MetadataContext_region_parent_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "metadata-context-region-parent-facts-v0.json",
+  "source_plan": "metadata-context-region-parent-plan-v0.json",
+  "source_recipe": "metadata-context-region-parent-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.region_parent",
+  "transport_notes": {
+    "element_transport": "i64",
+    "field_transport": "ArrayBox",
+    "standalone_current_region_stack": "Deny(ReturnedReadBorrow)"
+  },
+  "verified_operations": [
+    "SequencePush",
+    "SequencePopOption",
+    "SequenceLastOption"
+  ]
+}
