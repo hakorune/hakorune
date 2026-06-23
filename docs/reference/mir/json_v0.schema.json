@@ -87,10 +87,44 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "barrier",
+            "binop",
+            "boxcall",
+            "branch",
+            "call",
+            "compare",
+            "const",
+            "copy",
+            "externcall",
+            "field_get",
+            "field_set",
+            "jump",
+            "keepalive",
+            "memop",
+            "mir_call",
+            "newbox",
+            "phi",
+            "release_strong",
+            "ret",
+            "safepoint",
+            "select",
+            "static_data_load",
+            "typeop",
+            "unop",
+            "weak_load",
+            "weak_new",
+            "while"
+          ]
+        },
         "kind": { "type": "string" }
       },
-      "required": ["kind"]
+      "anyOf": [
+        { "required": ["op"] },
+        { "required": ["kind"] }
+      ]
     }
   }
 }
-

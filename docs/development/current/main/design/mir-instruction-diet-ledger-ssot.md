@@ -95,11 +95,12 @@ Task order:
 
 1. `MIR-INSTRUCTION-SCHEMA-SYNC-P1`
 
-   Add `docs/reference/mir/json_v0.schema.json` to the existing sync test loop.
-   The first slice should only prove `doc <-> ledger <-> schema` cannot drift.
-   If the schema remains permissive (`kind: string`) for compatibility, the
-   test must fail-fast with an explicit `schema_op_enum_missing` diagnostic
-   rather than silently treating the schema as synchronized.
+   Status: landed.
+
+   `docs/reference/mir/json_v0.schema.json` now carries an explicit `op` enum
+   and `mir_json_schema_op_enum_matches_backend_opcode_allowlist` keeps it
+   synced with `LLVM_SUPPORTED_JSON_OPS`. The legacy `kind` shape remains
+   accepted for compatibility, but it is no longer the only schema path.
 
 2. `MIR-INSTRUCTION-DERIVED-DOC-SCHEMA-P2`
 

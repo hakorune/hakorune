@@ -385,6 +385,39 @@ mod tests {
         })
     }
 
+    const MIR_JSON_SCHEMA_PATH: &str = "docs/reference/mir/json_v0.schema.json";
+
+    fn read_json_schema() -> serde_json::Value {
+        let text = fs::read_to_string(MIR_JSON_SCHEMA_PATH).unwrap_or_else(|err| {
+            panic!(
+                "failed to read MIR JSON schema '{}': {}",
+                MIR_JSON_SCHEMA_PATH, err
+            )
+        });
+        serde_json::from_str(&text).unwrap_or_else(|err| {
+            panic!(
+                "failed to parse MIR JSON schema '{}': {}",
+                MIR_JSON_SCHEMA_PATH, err
+            )
+        })
+    }
+
+    fn schema_instruction_op_enum(schema: &serde_json::Value) -> BTreeSet<&str> {
+        let op_enum = schema
+            .pointer("/definitions/instruction/properties/op/enum")
+            .unwrap_or_else(|| panic!("schema_op_enum_missing: {}", MIR_JSON_SCHEMA_PATH))
+            .as_array()
+            .unwrap_or_else(|| panic!("schema_op_enum_not_array: {}", MIR_JSON_SCHEMA_PATH));
+        op_enum
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .unwrap_or_else(|| panic!("schema_op_enum_non_string: {}", value))
+            })
+            .collect()
+    }
+
     fn parse_doc_sync_count(doc: &str, key: &str) -> usize {
         let prefix = format!("{}=", key);
         let raw = doc
@@ -644,6 +677,17 @@ mod tests {
             mir14
         );
         assert_eq!(core26, 26, "Core-26 profile contract changed");
+    }
+
+    #[test]
+    fn mir_json_schema_op_enum_matches_backend_opcode_allowlist() {
+        let schema = read_json_schema();
+        let schema_ops = schema_instruction_op_enum(&schema);
+        let backend_ops: BTreeSet<_> = LLVM_SUPPORTED_JSON_OPS.iter().copied().collect();
+        assert_eq!(
+            schema_ops, backend_ops,
+            "MIR JSON schema op enum must stay synced with LLVM_SUPPORTED_JSON_OPS"
+        );
     }
 
     #[test]
