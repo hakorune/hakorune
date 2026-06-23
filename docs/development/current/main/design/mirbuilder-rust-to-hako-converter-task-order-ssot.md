@@ -421,7 +421,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 6. `Fix OrderedMapBox source-ordered String compare`
 
-   Status: next.
+   Status: landed through the RegionObserver source-ordered read-fold closeout.
 
    Scope:
 
@@ -438,7 +438,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 7. `Implement ordered observer fold for VariableContext`
 
-   Status: parked behind OrderedMapBox source-order proof.
+   Status: landed through the RegionObserver source-ordered read-fold closeout.
 
    Scope:
 
@@ -450,14 +450,22 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
      -> owned SlotMetadata output
    ```
 
-8. `Reassess returned mutable borrow`
+8. `Select the next post-RegionObserver converter slice`
+
+   Status: design consultation point.
+
+   Candidate directions: direct coverage, ownership cleanup, fast-path
+   consumer, or hard-tier boundary work. Require concrete source shape,
+   fail-fast boundary, focused gate, and `implementation_started=0`.
+
+9. `Reassess returned mutable borrow`
 
    Status: parked behind the three read-borrow elimination slices.
 
    Standalone returned mutable aliases remain `Deny(ReturnedMutableBorrow)`.
    Only explicit mutation APIs or bounded with-map operations may reopen this.
 
-9. `Reassess NonTrivialDrop / unsafe capability boundaries`
+10. `Reassess NonTrivialDrop / unsafe capability boundaries`
 
    Status: parked.
 
