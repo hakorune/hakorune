@@ -23,6 +23,14 @@
       "status": "green"
     },
     {
+      "id": "single_scalar_loop_phi_required",
+      "status": "green"
+    },
+    {
+      "id": "single_scalar_loop_carrier_escape",
+      "status": "green"
+    },
+    {
       "id": "returned_read_borrow",
       "status": "green"
     },

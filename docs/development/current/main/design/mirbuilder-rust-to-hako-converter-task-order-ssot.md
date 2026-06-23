@@ -88,6 +88,7 @@ The direct lowerer is allowed to map these shapes without a new design card:
 | `owned_map_carrier_projection` | known non-escaping bulk consumer over an owned snapshot | `CarrierSnapshotFromOwnedMap`, `ExplicitCarrierSnapshotFromOwnedMap` | CarrierInfo snapshot slices |
 | `aggregate.take_restore_with_defaults` | `std::mem::take` per field and owned restore assignment | `MoveFieldAndResetSource`, `AssertNotConsumed`, `MarkConsumed` | TypeContext snapshot/restore |
 | `control.structured_loop_without_carried_state` | bounded `while` with typed condition/body and no break/continue/early-return/PHI/carried semantic state | `LocalI64`, `StructuredLoop`, `ArrayPush`, `Assign`, `ReturnI64` | StructuredLoop pilot artifact |
+| `control.single_scalar_loop_carrier` | bounded `while` with exactly one local `i64` carrier and no PHI/escape | `LocalI64`, `StructuredLoop`, `Assign`, `ReturnSource` | SingleScalarLoopCarrier pilot artifact |
 
 These are design stops, not direct-lowering work:
 
@@ -933,7 +934,7 @@ Then reassess control-flow slices:
 
 ```text
 2. structured loop without carried state (closed)
-3. single scalar loop carrier
+3. single scalar loop carrier (closed)
 4. canonical explicit PHI
 5. multi-carrier / break / continue / early-return PHI
 ```

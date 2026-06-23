@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "break_continue": 0,
+    "direct_shape_rule": "control.single_scalar_loop_carrier",
+    "early_return": 0,
+    "phi_required": 0,
+    "raw_hako_body": 0,
+    "rust_facts_input": "fixture_verified",
+    "single_scalar_carrier": 1
+  },
+  "denied_boundaries": [
+    "UnstructuredControlFlow",
+    "PhiJoinRequired",
+    "CarrierSensitiveAlias"
+  ],
+  "family_id": "hakorune_mir_builder::single_scalar_loop_carrier",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "SingleScalarLoopCarrier_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "single-scalar-loop-carrier-facts-v0.json",
+  "source_plan": "single-scalar-loop-carrier-plan-v0.json",
+  "source_recipe": "single-scalar-loop-carrier-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::single_scalar_loop_carrier",
+  "verified_operations": [
+    "LocalI64",
+    "StructuredLoop",
+    "Assign",
+    "ReturnSource"
+  ]
+}

@@ -195,6 +195,40 @@ def _structured_loop_unstructured_control_case() -> tuple[str, str]:
     return "structured_loop_unstructured_control_flow", "UnstructuredControlFlow"
 
 
+def _single_scalar_loop_phi_case() -> tuple[str, str]:
+    from mirbuilder_structured_loop_converter import compile_single_scalar_loop_carrier_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "single-scalar-loop-carrier-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "single-scalar-loop-carrier-plan-v0.json"))
+    _replace_row(facts["body_facts"], "SingleScalarLoopCarrierPilot::sum_values", "phi_required", True)
+    _expect_deny(
+        "PhiJoinRequired",
+        lambda: compile_single_scalar_loop_carrier_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.single_scalar_loop_carrier"],
+        ),
+    )
+    return "single_scalar_loop_phi_required", "PhiJoinRequired"
+
+
+def _single_scalar_loop_carrier_escape_case() -> tuple[str, str]:
+    from mirbuilder_structured_loop_converter import compile_single_scalar_loop_carrier_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "single-scalar-loop-carrier-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "single-scalar-loop-carrier-plan-v0.json"))
+    facts["body_facts"][0]["carrier"]["escapes"] = True
+    _expect_deny(
+        "CarrierSensitiveAlias",
+        lambda: compile_single_scalar_loop_carrier_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.single_scalar_loop_carrier"],
+        ),
+    )
+    return "single_scalar_loop_carrier_escape", "CarrierSensitiveAlias"
+
+
 def _returned_read_borrow_case() -> tuple[str, str]:
     for facts_name, subject in [
         ("variable-context-carrier-snapshot-facts-v0.json", "CarrierInfo.from_variable_map"),
@@ -252,6 +286,7 @@ def _todo_null_placeholder_case() -> tuple[str, str]:
         GENERATED / "variable_context_carrier_snapshot.hako",
         GENERATED / "variable_context_explicit_carrier_snapshot.hako",
         GENERATED / "structured_loop_without_carried_state.hako",
+        GENERATED / "single_scalar_loop_carrier.hako",
         ROOT / "apps/lib/hakorune_mir_builder/carrier_info.hako",
         ROOT / "tools/rust_lifecycle/shared_mirbuilder_emitter.py",
     ]:
@@ -267,6 +302,8 @@ CASE_RUNNERS: dict[str, Callable[[], tuple[str, str]]] = {
     "variable_context_snapshot_restore_unsupported_resolved_call_target": _snapshot_restore_case,
     "structured_loop_carried_state_required": _structured_loop_carried_state_case,
     "structured_loop_unstructured_control_flow": _structured_loop_unstructured_control_case,
+    "single_scalar_loop_phi_required": _single_scalar_loop_phi_case,
+    "single_scalar_loop_carrier_escape": _single_scalar_loop_carrier_escape_case,
     "returned_read_borrow": _returned_read_borrow_case,
     "returned_mutable_borrow": _returned_mutable_borrow_case,
     "carrier_sensitive_alias": _carrier_sensitive_alias_case,

@@ -265,15 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRUCTURED-LOOP-DIRECT-CONVERSION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1632-MIRBUILDER-STRUCTURED-LOOP-DIRECT-CONVERSION-001.md"
+latest_card = "MIRBUILDER-SINGLE-SCALAR-LOOP-CARRIER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1633-MIRBUILDER-SINGLE-SCALAR-LOOP-CARRIER-001.md"
 latest_card_summary = """The MirBuilder Rust-to-Hako converter now has a
-typed direct-shape pilot for structured loops without semantic carried state.
-The generated artifact is deterministic and passes MIR/EXE execution. Break,
-continue, early return, PHI, and loop-carried semantic state remain fail-fast
-boundaries."""
+typed direct-shape pilot for one local i64 loop carrier. The generated
+artifact is deterministic and passes MIR/EXE execution. PHI, carrier escape,
+and multi-carrier behavior remain fail-fast or unclaimed boundaries."""
 
-current_blocker_token = "SINGLE-SCALAR-LOOP-CARRIER-001"
+current_blocker_token = "CANONICAL-EXPLICIT-PHI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -1,0 +1,15 @@
+{
+  "kind": "RustOracleVectors",
+  "subject": "hakorune_mir_builder::single_scalar_loop_carrier",
+  "vectors": [
+    {
+      "id": "sum_three_values",
+      "operations": [
+        {
+          "expect": 16,
+          "op": "sum_values"
+        }
+      ]
+    }
+  ]
+}

@@ -19,7 +19,10 @@ from mirbuilder_optional_map_converter import (
     compile_optional_owned_recursive_enum_map_methods,
 )
 from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
-from mirbuilder_structured_loop_converter import compile_structured_loop_without_carried_state_methods
+from mirbuilder_structured_loop_converter import (
+    compile_single_scalar_loop_carrier_methods,
+    compile_structured_loop_without_carried_state_methods,
+)
 from verified_hako_family_ir import HakoMethodIR
 
 
@@ -116,6 +119,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["control.structured_loop_without_carried_state"],
         ),
         description="structured loop with typed condition/body and no semantic carried state",
+    ),
+    "control.single_scalar_loop_carrier": DirectShapeRule(
+        shape="control.single_scalar_loop_carrier",
+        lower=lambda facts, plan: compile_single_scalar_loop_carrier_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.single_scalar_loop_carrier"],
+        ),
+        description="structured loop with exactly one local i64 carrier",
     ),
     "binding_context.single_ordered_map_context": DirectShapeRule(
         shape="single_ordered_map_context",

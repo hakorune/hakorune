@@ -1,0 +1,17 @@
+{
+  "direct_shape": {
+    "control.single_scalar_loop_carrier": {
+      "method_id": "SingleScalarLoopCarrierPilot::sum_values",
+      "signature": "sum_values(values: ArrayBox): i64"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "SingleScalarLoopCarrierPilot::sum_values",
+      "raw_hako_body": false,
+      "shape_rule": "control.single_scalar_loop_carrier"
+    }
+  ],
+  "subject": "hakorune_mir_builder::single_scalar_loop_carrier"
+}

@@ -33,13 +33,13 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-SINGLE-SCALAR-LOOP-CARRIER-001
+CANONICAL-EXPLICIT-PHI-001
 ```
 
 Next task:
 
 ```text
-Implement single scalar loop carrier.
+Implement canonical explicit PHI.
 ```
 
 Purpose:
@@ -182,9 +182,10 @@ Done:
   shared MirBuilder emitter split
   optional copy/default map method ids parameterized
   structured loop without carried state direct conversion
+  single scalar loop carrier direct conversion
 
 Next:
-  Implement single scalar loop carrier.
+  Implement canonical explicit PHI.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -207,7 +208,8 @@ Task sequence:
   14. Decide TypeContext multi-field snapshot/restore transport. (closed)
   15. Implement direct TypeContext aggregate snapshot/restore conversion. (closed)
   16. Implement structured loop without carried state. (closed)
-  17. Implement single scalar loop carrier. (next)
+  17. Implement single scalar loop carrier. (closed)
+  18. Implement canonical explicit PHI. (next)
 ```
 
 Current cleanup slice:

@@ -1,0 +1,69 @@
+{
+  "body_facts": [
+    {
+      "body": [
+        {
+          "kind": "Assign",
+          "target": "sum",
+          "value": {
+            "kind": "AddI64",
+            "left": {
+              "kind": "Var",
+              "name": "sum"
+            },
+            "right": {
+              "index": {
+                "kind": "Var",
+                "name": "i"
+              },
+              "kind": "ArrayGet",
+              "source": "values"
+            }
+          }
+        },
+        {
+          "kind": "Assign",
+          "target": "i",
+          "value": {
+            "kind": "AddI64",
+            "left": {
+              "kind": "Var",
+              "name": "i"
+            },
+            "right": {
+              "kind": "I64",
+              "value": 1
+            }
+          }
+        }
+      ],
+      "break_count": 0,
+      "carrier": {
+        "escapes": false,
+        "initial_value": 0,
+        "name": "sum",
+        "type": "i64"
+      },
+      "condition": {
+        "kind": "LtI64",
+        "left": {
+          "kind": "Var",
+          "name": "i"
+        },
+        "right": {
+          "kind": "ArrayLength",
+          "source": "values"
+        }
+      },
+      "continue_count": 0,
+      "early_return_count": 0,
+      "id": "SingleScalarLoopCarrierPilot::sum_values",
+      "index_var": "i",
+      "loop_carried_state": "single_scalar",
+      "operation": "SingleScalarLoopCarrier",
+      "phi_required": false
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "subject": "hakorune_mir_builder::single_scalar_loop_carrier"
+}
