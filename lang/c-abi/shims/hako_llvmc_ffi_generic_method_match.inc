@@ -3,6 +3,8 @@
       classify_generic_method_emit_kind_from_lowering_plan(yyjson_val* entry) {
         struct LoweringPlanGenericMethodView view;
         const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
+        long long block = -1;
+        long long inst = -1;
         if (!read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
         }
@@ -12,6 +14,28 @@
           trace_lowering_plan_entry_hit(entry, "generic_method_emit");
           return (enum GenericMethodEmitKind)row->emit_kind;
         }
+        lowering_plan_read_i64_field(entry, "block", &block);
+        lowering_plan_read_i64_field(entry, "instruction_index", &inst);
+        note_pure_unsupported_shape_route_detail(
+            block,
+            inst >= 0 ? (size_t)inst : 0,
+            "mir_call",
+            "generic_method_route_contract_mismatch",
+            view.return_shape,
+            "descriptor_mismatch",
+            view.core_op,
+            hako_llvmc_generic_method_route_registry_first_tuple_mismatch(
+                view.route_id,
+                view.core_op,
+                view.route_kind,
+                view.tier,
+                view.symbol,
+                view.route_proof),
+            view.symbol,
+            view.receiver_origin_box,
+            view.route_id,
+            view.route_kind,
+            "check spec/mir/generic_method_routes.toml");
         return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
       }
 

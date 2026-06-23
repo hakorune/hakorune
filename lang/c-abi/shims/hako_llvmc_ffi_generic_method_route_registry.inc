@@ -377,4 +377,54 @@
         }
         return NULL;
       }
+
+      static const char*
+      hako_llvmc_generic_method_route_registry_first_tuple_mismatch(
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          int tier,
+          const char* helper_symbol,
+          const char* route_proof) {
+        size_t i = 0;
+        int saw_route_id = 0;
+        int saw_core_op = 0;
+        int saw_route_kind = 0;
+        int saw_tier = 0;
+        if (!route_id) return "route_id";
+        if (!core_op) return "core_op";
+        if (!route_kind) return "route_kind";
+        for (i = 0;
+             i < sizeof(hako_llvmc_generic_method_route_registry_rows) /
+                     sizeof(hako_llvmc_generic_method_route_registry_rows[0]);
+             i++) {
+          const struct HakoLlvmcGenericMethodRouteRegistryRow* row =
+              &hako_llvmc_generic_method_route_registry_rows[i];
+          if (!(row->route_id && !strcmp(row->route_id, route_id))) continue;
+          saw_route_id = 1;
+          if (!(row->core_op && !strcmp(row->core_op, core_op))) continue;
+          saw_core_op = 1;
+          if (!(row->route_kind && !strcmp(row->route_kind, route_kind))) continue;
+          saw_route_kind = 1;
+          if (row->tier != tier) continue;
+          saw_tier = 1;
+          if (helper_symbol) {
+            if (!(row->helper_symbol &&
+                  !strcmp(row->helper_symbol, helper_symbol))) {
+              return "helper_symbol";
+            }
+          }
+          if (route_proof) {
+            if (!(row->route_proof && !strcmp(row->route_proof, route_proof))) {
+              return "route_proof";
+            }
+          }
+          return NULL;
+        }
+        if (!saw_route_id) return "route_id";
+        if (!saw_core_op) return "core_op";
+        if (!saw_route_kind) return "route_kind";
+        if (!saw_tier) return "tier";
+        return "unknown";
+      }
 #endif /* HAKO_LLVMC_GENERIC_METHOD_ROUTE_REGISTRY_INC */

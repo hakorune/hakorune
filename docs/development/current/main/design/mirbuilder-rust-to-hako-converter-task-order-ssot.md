@@ -22,7 +22,7 @@ active blocker:
   LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 
 current implementation task:
-  Report generic method route contract mismatches
+  Lower owned read folds through generic operations
 
 producer responsibility stack:
   Source preparation
@@ -48,23 +48,19 @@ landed evidence:
   ArrayBox now share an explicit RuntimeValueCarrierI64 encode contract, and
   stale NyRT AOT artifacts fail before execution. Generic method route
   descriptors are generated from `spec/mir/generic_method_routes.toml` for
-  Rust, C, and Python consumers.
+  Rust, C, and Python consumers. Descriptor-backed mismatch helpers now report
+  the first mismatched route tuple field.
 
 selected next owner:
-  generic method route rejection diagnostics
+  owned read-fold operation decomposition
 
-  Diagnostics consume generated descriptors and report:
-    route_id
-    core_op
-    route_kind
-    tier
-    helper_symbol
-    return_shape
-    value_demand
-    publication_policy
-    first mismatched field
-
-  Diagnostics must not classify routes or recreate descriptor policy.
+  Replace the RegionObserver-specific `ReadFoldSlotMetadata` renderer with:
+    ForEachOrderedMapEntry
+    MapLookupOption
+    CallStatic
+    ConstructOwnedProduct
+    SequencePush
+    AssertOwnedProductSequence
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -75,9 +71,9 @@ selected transport:
 
 current fail-fast boundary:
   RegionObserver read-fold and SlotClassifier policy extraction are green.
-  Route contract truth is generated from one neutral manifest. Rejection output
-  must now explain the first descriptor mismatch instead of falling back to
-  broad `unsupported pure shape` messages.
+  Route contract truth is generated from one neutral manifest. The remaining
+  cleanup is emitter ownership: production operations must not carry oracle
+  assertions or RegionObserver-only product construction policy.
 
 forbidden:
   raw aggregate map return; read-view / lease framework; new Hako pointer
@@ -87,16 +83,19 @@ forbidden:
   MapBox-only transport fixes that leave ArrayBox ambiguous
   backend-local route descriptor copies
   diagnostics that become a second route classifier
+  `ReadFoldSlotMetadata` as a long-lived family-specific operation
 ```
 
 Acceptance for the current task:
 
 ```text
-generic method route rejection prints stable reason fields
-route_id / core_op / route_kind / tier / helper / proof are visible
-return_shape / value_demand / publication_policy are visible when mismatched
-first mismatched descriptor field is reported
-diagnostics consume generated descriptors; they do not classify routes
+ReadFoldSlotMetadata is removed or reduced to a thin compatibility wrapper
+ForEachOrderedMapEntry owns ordered iteration shape
+MapLookupOption owns optional map lookup shape
+CallStatic owns classifier/helper call shape
+ConstructOwnedProduct owns SlotMetadataBox-style product construction
+SequencePush owns ArrayBox output append
+oracle assertions move to harness operations, not production API methods
 RegionObserver generated artifact remains LLVM/AOT green
 ```
 
@@ -113,7 +112,8 @@ slot_classifier_policy = verified operation data
 collection_runtime_value_carrier = landed for MapBox and ArrayBox
 nyrt_freshness_fail_fast = landed for --no-build AOT harness
 generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
-next step = generic method route mismatch diagnostics
+generic_method_route_mismatch_diagnostics = landed for first descriptor field
+next step = generic read-fold operation decomposition
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -278,7 +278,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.17. `Report generic method route contract mismatches`
 
-   Status: active next.
+   Status: landed.
 
    ```text
    route_id / core_op / route_kind / tier / helper / proof
@@ -289,7 +289,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.18. `Lower owned read folds through generic operations`
 
-   Status: pending after route contract work.
+   Status: active next.
 
    ```text
    Replace ReadFoldSlotMetadata with:

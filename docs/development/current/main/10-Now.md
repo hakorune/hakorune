@@ -26,10 +26,10 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. The current task-order SSOT is
 `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
-Next implementation task: report generic method route contract mismatches with
-stable fields. The `RuntimeValueCarrierI64` MapBox/ArrayBox transport contract,
-stale NyRT fail-fast check, and neutral route descriptor manifest generation
-are landed.
+Next implementation task: lower owned read folds through generic operations.
+The `RuntimeValueCarrierI64` MapBox/ArrayBox transport contract, stale NyRT
+fail-fast check, neutral route descriptor manifest generation, and route
+descriptor mismatch diagnostics are landed.
 BindingContextNative, VariableContextNative simple-map, VariableContext
 snapshot/restore artifact ownership transfer, the shared MirBuilder emitter,
 the shared family generator helper and driver, the shared validated family

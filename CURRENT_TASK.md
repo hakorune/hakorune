@@ -39,7 +39,7 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Next task:
 
 ```text
-Report generic method route contract mismatches.
+Lower owned read folds through generic operations.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -65,9 +65,15 @@ Completed route descriptor SSOT slice:
     -> C route registry include
     -> Python readonly registry
 
-The next contract owner is route rejection diagnostics:
-  ny-llvmc should report route_id/core_op/route_kind/tier/helper/proof and the
-  first mismatched descriptor field instead of broad unsupported-shape output.
+Completed route rejection diagnostics slice:
+  generated C registry reports the first mismatched route descriptor field.
+  unsupported-shape diagnostics consume that mismatch without becoming a new
+  route classifier.
+
+The next contract owner is generic read-fold operation decomposition:
+  replace RegionObserver-specific ReadFoldSlotMetadata with
+  ForEachOrderedMapEntry, MapLookupOption, CallStatic, ConstructOwnedProduct,
+  SequencePush, and harness-only assertions.
 
 Completed collection transport slice:
   RuntimeValueCarrierI64 contract
@@ -311,6 +317,7 @@ Task sequence:
   34. Generate generic method route descriptors from one neutral manifest.
       (closed)
   35. Report generic method route contract mismatches with stable fields.
+      (closed)
   36. Lower owned read folds through generic operations.
       - Replace ReadFoldSlotMetadata with ForEachOrderedMapEntry,
         MapLookupOption, CallStatic, ConstructOwnedProduct, and SequencePush.

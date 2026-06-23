@@ -278,10 +278,13 @@ RuntimeValueCarrierI64 collection transport contract is now shared by MapBox
 and ArrayBox, and --no-build AOT harnesses fail fast on stale NyRT artifacts.
 Generic method route descriptors are now generated from
 spec/mir/generic_method_routes.toml for Rust, C, and Python consumers. The
-SlotClassifier policy is now verified operation data instead of emitter-owned
-logic. The next blocker is generic method route rejection diagnostics:
-ny-llvmc should report the selected route tuple and first mismatched descriptor
-field instead of broad unsupported-shape output."""
+generated C registry now reports the first mismatched route descriptor field,
+and unsupported-shape diagnostics consume that field without becoming a new
+route classifier. The SlotClassifier policy is now verified operation data
+instead of emitter-owned logic. The next blocker is generic read-fold operation
+decomposition: replace the RegionObserver-specific ReadFoldSlotMetadata
+renderer with ForEachOrderedMapEntry, MapLookupOption, CallStatic,
+ConstructOwnedProduct, SequencePush, and harness-only assertions."""
 
 current_blocker_token = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
