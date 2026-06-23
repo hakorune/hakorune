@@ -33,91 +33,44 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-BOXED-RUNTIME-NATIVE-ENUM-ABI-001
+TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001
 ```
 
 Next task:
 
 ```text
-Select the next implementation slice after the generic read-fold closeout.
+Implement the TypeContext.string_literals owned leaf projection.
 
-The comparator side is already proven:
-  order=KeyAscending(RustStringOrdV1)
-  comparator_proof=VmExeAotAccepted
+Selected source shape:
+  src/mir/builder/types/map_value.rs::string_literal
+    builder.type_ctx.string_literals.get(&value).cloned()
 
-The owned output transport is now selected:
-  RefSlotKind = native enum
-  SlotMetadata = semantic OwnedProduct
-  current execution transport = ArrayBox<SlotMetadataBox>
+Selected lowering:
+  StorageAccessFacts
+    -> order=Unobserved
+    -> ElideToLeafProjection
+    -> MapGetOption
+    -> OptionStringBox output
 
-RegionObserver SlotMetadata artifact is now green:
-  region_observer_slot_metadata_artifact=ok
-  Result: 0
+Focused gate:
+  bash tools/checks/rust_lifecycle_type_context_string_literal_derived_artifact_guard.sh
 
-The closed transport bug was generic:
-  MapBox / ArrayBox raw collection loads now preserve mixed runtime values,
-  including negative typed-object / boxed enum handles, without sign-based
-  value-kind inference.
+Acceptance:
+  generated artifact --check green
+  focused MIR/EXE/LLVM-AOT harness green
+  rust_mirbuilder_converter_matrix_guard green
+  rust_lifecycle_no_silent_hardcode_guard green
+  current_state_pointer_guard green
 
-Completed route descriptor SSOT slice:
-  spec/mir/generic_method_routes.toml
-    -> Rust descriptor table
-    -> C route registry include
-    -> Python readonly registry
+Non-claims:
+  full_emit_string_claim = 0
+  full_map_value_publication_claim = 0
+  map_value_types_claim = 0
+  map_literal_value_types_claim = 0
+  BTreeMap_iteration_order_claim = 0
 
-Completed route rejection diagnostics slice:
-  generated C registry reports the first mismatched route descriptor field.
-  unsupported-shape diagnostics consume that mismatch without becoming a new
-  route classifier.
-
-Completed generic read-fold operation decomposition:
-  RegionObserver-specific ReadFoldSlotMetadata is no longer used by the
-  generated artifact.
-  Production read-fold uses ForEachOrderedMapEntry, MapLookupOption,
-  CallStatic, ConstructOwnedProduct, and SequencePush.
-  Slot assertions use AssertOwnedProductSequence in Main harness only.
-
-Completed collection transport slice:
-  RuntimeValueCarrierI64 contract
-  RuntimeValueCarrierMode
-  RuntimeValueCarrierSite
-  MapBox / ArrayBox common encode path
-  mixed collection transport matrix
-
-Completed NyRT freshness slice:
-  --no-build LLVM harness rejects stale libnyash_kernel.a before execution.
-
-Current task order from the latest design decision:
-  1. RuntimeValueCarrierI64 contract. (closed)
-  2. NyRT freshness fail-fast. (closed)
-  3. route descriptor single SSOT. (closed)
-  4. route rejection diagnostics. (closed)
-  5. emitter generic read-fold decomposition. (closed)
-
-Next implementation slice:
-  not selected yet.
-  Do not start a new converter capability until source shape, fail-fast
-  boundary, and focused gate are named.
-
-Boxed enum ABI is already the selected representation authority:
-  SumValueRepresentation::BoxedRuntime(abi_plan_id)
-  BoxedSumAbiPlanV1
-
-Do not infer value kind from raw i64 sign.
-Do not let RuntimeValueCarrierI64 become self-describing; consumers need
-return_shape / value_demand / RuntimeValueClassFact.
-Do not treat negative typed-object / boxed enum handles as scalar i64 merely
-because the carrier is an i64.
-Do not add a second runtime value concept beyond existing return_shape /
-value_demand; carry those contracts through runtime encode/decode.
-Do not leave ArrayBox out of the mixed value transport contract.
-Do not add OrderedMapBox / RegionObserver backend special cases.
-Do not substitute insertion order for Rust BTreeMap ordering.
-Do not switch native enums to manual i64 tags as a workaround.
-Do not add MirType-name backend special cases.
-Do not hide runner MIR drift by changing the generated artifact source shape.
-Do not leave Box/Array/Future or fallback-name classification policy in the
-emitter. (closed)
+Do not add a backend route, route descriptor, or new production operation kind.
+Producer-side emit_string remains harness-only prefill for this slice.
 Do not leave RegionObserver oracle checks inside production read-fold methods.
 Do not treat next-slice selection as a route/card churn task; select only when
 there is a concrete source shape to implement.

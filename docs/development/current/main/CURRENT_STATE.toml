@@ -265,28 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1648-BOXED-RUNTIME-NATIVE-ENUM-ABI-001.md"
-latest_card_summary = """RegionObserver SlotMetadata output transport is
-selected as native RefSlotKind plus semantic OwnedProduct with current
-ArrayBox<SlotMetadataBox> transport. Focused boxed enum ABI probes are green
-for cross-function unit enums, handle-payload projection, MapBox-returned
-enums, and Option-wrapped map results. The full generated RegionObserver
-SlotMetadata artifact is now LLVM/AOT green after fixing generic MapBox
-mixed-runtime value publication for typed-object / boxed enum handles. The
-RuntimeValueCarrierI64 collection transport contract is now shared by MapBox
-and ArrayBox, and --no-build AOT harnesses fail fast on stale NyRT artifacts.
-Generic method route descriptors are now generated from
-spec/mir/generic_method_routes.toml for Rust, C, and Python consumers. The
-generated C registry now reports the first mismatched route descriptor field,
-and unsupported-shape diagnostics consume that field without becoming a new
-route classifier. The SlotClassifier policy is now verified operation data
-instead of emitter-owned logic. The next blocker is generic read-fold operation
-decomposition: replace the RegionObserver-specific ReadFoldSlotMetadata
-renderer with ForEachOrderedMapEntry, MapLookupOption, CallStatic,
-ConstructOwnedProduct, SequencePush, and harness-only assertions."""
+latest_card = "TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1649-TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001.md"
+latest_card_summary = """The next direct converter slice is the live
+TypeContext.string_literals owned leaf projection:
+map_value.rs::string_literal lowers get(&value).cloned() through
+StorageAccessFacts -> ElideToLeafProjection -> MapGetOption. This slice reuses
+existing immutable leaf projection machinery, adds no production operation kind,
+adds no backend route, and keeps emit_string plus map-value publication outside
+the claim."""
 
-current_blocker_token = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
+current_blocker_token = "TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

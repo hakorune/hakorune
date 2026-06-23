@@ -19,29 +19,29 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-facts-v0.json",
-      "sha256": "eef76ea7203be3f838c42e8e9732c215a29ea5aeea6bca7563a2ea80c5234d51"
+      "sha256": "04f9e75e9b0748a87371ace5e9cc86676a57d7defb26a9f01161f89ca40eca11"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-oracle-v0.json",
-      "sha256": "b13d74ea62b39ae64e0608bdac3fc9edb2c1b6b81cf7e7dccd6c10dcb67e7862"
+      "sha256": "e59e27cc8f1ae020fdf9fbe98db30086fe5d8a31fea4310dfc3535de437266b0"
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-plan-v0.json",
-      "sha256": "3bee366ddc0e9efc4c63798336fa200cd791bafdd840483c384646a3f1e1ccc9"
+      "sha256": "d8a455e98e40b22850c833ffc29802ff066a18bc3afbff16bd76a784bb099051"
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-behavior-recipe-v0.json",
-      "sha256": "ca7963bf903dbcd538c34f63b29e0947aed11a206d9da5bdae3a3d278b657f88"
+      "sha256": "871cdd0fffde5fb08871c01ca5f87df1e24f25e382141bbc88b3eb08626de769"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-region-parent-derived-artifact-verifier-result-v0.json",
-      "sha256": "c7adcd408c5fd67ed52fe2e36e19f0281c4fd0484bece3a5563bfe81405d6691"
+      "sha256": "a849103fcba3de8d4276ecf33267562c494759c31a5162490089630335418522"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_region_parent.hako",
-    "hako_sha256": "d808dc65f0b30fc6eff61b401d7aa85391dc247d708142f2c4ea1b131bf4b0e3"
+    "hako_sha256": "f978644ad415d22193076ca64d8df772f140d00654f238bbe001a3408d2eec86"
   },
   "pilot_scope": "MetadataContext_region_parent_only",
   "schema_version": 0,

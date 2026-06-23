@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  POST-REGION-OBSERVER-NEXT-SLICE-SELECTION-001
+  TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001
 
 current implementation task:
-  Select the next implementation slice after the generic read-fold closeout.
+  Implement TypeContext.string_literals owned leaf projection.
 
 producer responsibility stack:
   Source preparation
@@ -32,15 +32,15 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  variable_map().iter() observer fold
+  map_value.rs::string_literal get(&value).cloned()
 
 selected lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
-    -> order=KeyAscending(RustStringOrdV1)
-    -> ElideToReadFold
-    -> owned SlotMetadata output
+    -> order=Unobserved
+    -> ElideToLeafProjection
+    -> OptionStringBox output
 
 landed evidence:
   RegionObserver SlotMetadata generated artifact is LLVM/AOT green. The final
@@ -52,10 +52,8 @@ landed evidence:
   the first mismatched route tuple field.
 
 selected next owner:
-  not selected in this document.
-
-  The just-landed read-fold closeout replaced the RegionObserver-specific
-  production renderer with generic operations and harness-only assertions.
+  TypeContext.string_literals: BTreeMap<ValueId, String>
+  Only the live helper `string_literal(builder, value)` is selected.
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -65,10 +63,8 @@ selected transport:
     InlineRecord / packed / SoA without changing read-fold semantics.
 
 current fail-fast boundary:
-  RegionObserver read-fold and SlotClassifier policy extraction are green.
-  Route contract truth is generated from one neutral manifest. The remaining
-  boundary is next-slice selection: do not start a new converter capability
-  until its source shape, fail-fast boundary, and focused gate are named.
+  Allow only get(&ValueId).cloned(), no map identity escape, no element
+  reference escape, order=Unobserved, and ImmutableStringAtom values.
 
 latest design decision:
   Collection values must use the existing MIR route contracts end-to-end:
@@ -95,14 +91,11 @@ forbidden:
 Acceptance for the current task:
 
 ```text
-ReadFoldSlotMetadata is removed or reduced to a thin compatibility wrapper
-ForEachOrderedMapEntry owns ordered iteration shape
-MapLookupOption owns optional map lookup shape
-CallStatic owns classifier/helper call shape
-ConstructOwnedProduct owns SlotMetadataBox-style product construction
-SequencePush owns ArrayBox output append
-oracle assertions move to harness operations, not production API methods
-RegionObserver generated artifact remains LLVM/AOT green
+TypeContext string literal artifact regenerates deterministically
+MapGetOption is reused; new operation kind = 0
+producer-side emit_string is harness-only prefill, not converted
+full map-value publication claim = 0
+MIR/EXE/LLVM-AOT focused guard green
 ```
 
 Current mechanical status:
@@ -120,7 +113,7 @@ nyrt_freshness_fail_fast = landed for --no-build AOT harness
 generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
 generic_method_route_mismatch_diagnostics = landed for first descriptor field
 generic_read_fold_operation_decomposition = landed
-next step = select next implementation slice
+type_context_string_literal_leaf_projection = selected
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -450,13 +443,12 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
      -> owned SlotMetadata output
    ```
 
-8. `Select the next post-RegionObserver converter slice`
+8. `Select TypeContext string-literal leaf projection`
 
-   Status: design consultation point.
+   Status: selected; implementation_started=0.
 
-   Candidate directions: direct coverage, ownership cleanup, fast-path
-   consumer, or hard-tier boundary work. Require concrete source shape,
-   fail-fast boundary, focused gate, and `implementation_started=0`.
+   Shape: `string_literals.get(&value).cloned()` lowers through
+   `map.immutable_leaf_projection` to `MapGetOption`.
 
 9. `Reassess returned mutable borrow`
 

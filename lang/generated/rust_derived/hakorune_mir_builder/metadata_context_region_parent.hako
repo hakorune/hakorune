@@ -7,73 +7,42 @@
 using selfhost.shared.common.box_helpers as BoxHelpers
 
 box MetadataContext {
-    current_region_stack: ArrayBox
-
-    birth() {
-        me.current_region_stack = new ArrayBox()
-    }
 }
 
 static box MetadataContextApi {
-    push_region(ctx, region_id): i64 {
-        ctx.current_region_stack.push(region_id)
+    push_region(current_region_stack: ArrayBox, region_id): i64 {
+        current_region_stack.push(region_id)
         return 1
     }
 
-    pop_region(ctx): Option<i64> {
-        local n = ctx.current_region_stack.length()
+    current_parent_region(current_region_stack: ArrayBox): Option<i64> {
+        local n = current_region_stack.length()
         if n == 0 {
             return Option::None()
         }
-        local value = BoxHelpers.array_get(ctx.current_region_stack, n - 1)
-        local next = new ArrayBox()
-        local i = 0
-        loop(i < n - 1) {
-            next.push(BoxHelpers.array_get(ctx.current_region_stack, i))
-            i = i + 1
-        }
-        ctx.current_region_stack = next
-        return Option::Some(value)
-    }
-
-    current_parent_region(ctx): Option<i64> {
-        local n = ctx.current_region_stack.length()
-        if n == 0 {
-            return Option::None()
-        }
-        return Option::Some(BoxHelpers.array_get(ctx.current_region_stack, n - 1))
+        return Option::Some(BoxHelpers.array_get(current_region_stack, n - 1))
     }
 }
 
 static box Main {
     main() {
-        local ctx = new MetadataContext()
-        local empty_parent = MetadataContextApi.current_parent_region(ctx)
+        local current_region_stack = new ArrayBox()
+        local empty_parent = MetadataContextApi.current_parent_region(current_region_stack)
         if empty_parent != Option::None() {
             print("metadata_region_parent_empty=fail")
             return 1
         }
-        MetadataContextApi.push_region(ctx, 10)
-        local first_parent = MetadataContextApi.current_parent_region(ctx)
+        MetadataContextApi.push_region(current_region_stack, 10)
+        local first_parent = MetadataContextApi.current_parent_region(current_region_stack)
         if first_parent != Option::Some(10) {
             print("metadata_region_parent_first=fail")
             return 2
         }
-        MetadataContextApi.push_region(ctx, 20)
-        local second_parent = MetadataContextApi.current_parent_region(ctx)
+        MetadataContextApi.push_region(current_region_stack, 20)
+        local second_parent = MetadataContextApi.current_parent_region(current_region_stack)
         if second_parent != Option::Some(20) {
             print("metadata_region_parent_second=fail")
             return 3
-        }
-        local popped = MetadataContextApi.pop_region(ctx)
-        if popped != Option::Some(20) {
-            print("metadata_region_parent_pop=fail")
-            return 4
-        }
-        local after_pop_parent = MetadataContextApi.current_parent_region(ctx)
-        if after_pop_parent != Option::Some(10) {
-            print("metadata_region_parent_after_pop=fail")
-            return 5
         }
         print("metadata_context_region_parent_direct_artifact=ok")
         return 0

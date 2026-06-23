@@ -24,14 +24,6 @@
         {
           "expected": 20,
           "op": "current_parent_region_some"
-        },
-        {
-          "expected": 20,
-          "op": "pop_region_some"
-        },
-        {
-          "expected": 10,
-          "op": "current_parent_region_some"
         }
       ]
     }

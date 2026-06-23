@@ -103,6 +103,26 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
             f"    return {fail_code}",
             "}",
         ]
+    if kind == "AssertOptionSomeStringEq":
+        source = operation.get("source")
+        expected = operation.get("expected")
+        fail_message = operation.get("fail_message")
+        fail_code = operation.get("fail_code", 1)
+        if not isinstance(source, str) or "expected" not in operation or fail_message is None:
+            raise ValueError("AssertOptionSomeStringEq requires source, expected, and fail_message")
+        value_name = operation.get("value_name", f"{source}_some_value")
+        if not isinstance(value_name, str):
+            raise ValueError("AssertOptionSomeStringEq value_name must be a string")
+        return [
+            f"guard let Option::Some({value_name}) = {source} else {{",
+            f"    print({render_string_literal(fail_message)})",
+            f"    return {fail_code}",
+            "}",
+            f"if {value_name} != {render_main_value(expected)} {{",
+            f"    print({render_string_literal(fail_message)})",
+            f"    return {fail_code}",
+            "}",
+        ]
     if kind == "AssertOwnedProductSequence":
         array = operation.get("array")
         expected = operation.get("expected")
@@ -173,20 +193,13 @@ def _render_box(box: Mapping[str, Any]) -> list[str]:
         if not box_fields:
             lines.append("}")
             return lines
-        has_declaration_initializers = all(
-            field.get("initializer") is not None or field.get("initializer_operation") is not None for field in box_fields
-        )
         for field in box_fields:
-            if has_declaration_initializers:
-                lines.append(f"    {field['name']}: {field['field_type']} = {render_field_initializer(field)}")
-            else:
-                lines.append(f"    {field['name']}: {field['field_type']}")
-        if not has_declaration_initializers:
-            lines.append("")
-            lines.append("    birth() {")
-            for field in box_fields:
-                lines.append(f"        me.{field['name']} = {render_field_initializer(field)}")
-            lines.append("    }")
+            lines.append(f"    {field['name']}: {field['field_type']}")
+        lines.append("")
+        lines.append("    birth() {")
+        for field in box_fields:
+            lines.append(f"        me.{field['name']} = {render_field_initializer(field)}")
+        lines.append("    }")
         for method in box.get("methods", []):
             lines.append("")
             lines.append(f"    {method['signature']} {{")

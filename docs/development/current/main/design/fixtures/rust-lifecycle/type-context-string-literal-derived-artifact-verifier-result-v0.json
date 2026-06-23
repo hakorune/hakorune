@@ -1,0 +1,30 @@
+{
+  "checks": {
+    "borrow_lowering_decision": "ElideToLeafProjection",
+    "direct_shape_rule": "map.immutable_leaf_projection",
+    "order_observed": 0,
+    "returned_aggregate_alias": 0,
+    "rust_facts_input": "verified",
+    "selected_body_count": "string_literal_helper_only",
+    "storage_access_normalized": 1,
+    "unmapped_mir_side_effects": 0
+  },
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "TypeContext_string_literals_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "type-context-string-literal-facts-v0.json",
+  "source_plan": "type-context-string-literal-plan-v0.json",
+  "source_recipe": "type-context-string-literal-behavior-recipe-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.string_literals",
+  "transport_notes": {
+    "key_transport": "ValueIdAsI64",
+    "return_transport": "OptionStringBox",
+    "source_access_order": "Unobserved",
+    "value_transport": "ImmutableStringAtom"
+  },
+  "verified_operations": [
+    "MapGetOption"
+  ]
+}

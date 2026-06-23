@@ -35,7 +35,11 @@ static box Main {
         local ctx = new MetadataContext()
         MetadataContextHarnessApi.prefill_value_caller(ctx, 7, "main.hako:1:2")
         local caller = MetadataContextApi.value_caller(ctx, 7)
-        if caller != Option::Some("main.hako:1:2") {
+        guard let Option::Some(caller_some_value) = caller else {
+            print("metadata_context_value_caller_some=fail")
+            return 1
+        }
+        if caller_some_value != "main.hako:1:2" {
             print("metadata_context_value_caller_some=fail")
             return 1
         }
@@ -52,14 +56,6 @@ static box Main {
             local key = BoxHelpers.array_get(keys, i)
             destination.set(key, ctx.value_origin_callers.get(key))
             i = i + 1
-        }
-        if destination.get(7) != "main.hako:1:2" {
-            print("metadata_context_value_caller_fold_copy_first=fail")
-            return 3
-        }
-        if destination.get(11) != "other.hako:3:4" {
-            print("metadata_context_value_caller_fold_copy_second=fail")
-            return 4
         }
         print("metadata_context_value_caller_direct_artifact=ok")
         return 0

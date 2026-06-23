@@ -2,15 +2,14 @@
   "direct_shape": {
     "borrow_use.sequence_last_copy": {
       "field_name": "current_region_stack",
-      "last_signature": "current_parent_region(ctx): Option<i64>",
+      "last_signature": "current_parent_region(current_region_stack: ArrayBox): Option<i64>",
       "method_ids": {
         "last_copy": "RegionObserver::parent_region",
         "new": "MetadataContext::new",
-        "pop": "MetadataContext::pop_region",
         "push": "MetadataContext::push_region"
       },
-      "pop_signature": "pop_region(ctx): Option<i64>",
-      "push_signature": "push_region(ctx, region_id): i64",
+      "push_signature": "push_region(current_region_stack: ArrayBox, region_id): i64",
+      "source_arg": "current_region_stack",
       "type_name": "MetadataContext",
       "value_arg": "region_id"
     }

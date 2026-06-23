@@ -27,7 +27,6 @@
   },
   "verified_operations": [
     "SequencePush",
-    "SequencePopOption",
     "SequenceLastOption"
   ]
 }

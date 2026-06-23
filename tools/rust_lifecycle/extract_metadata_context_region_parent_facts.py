@@ -26,8 +26,6 @@ def extract_facts(source_path: Path = SOURCE, consumer_path: Path = CONSUMER) ->
         ("current_region_stack: Vec::new()", "current_region_stack init"),
         ("pub fn push_region(&mut self, region_id: RegionIdT)", "push_region"),
         ("self.current_region_stack.push(region_id);", "push_region push"),
-        ("pub fn pop_region(&mut self) -> Option<RegionIdT>", "pop_region"),
-        ("self.current_region_stack.pop()", "pop_region pop"),
         ("pub fn current_region_stack(&self) -> &[RegionIdT]", "standalone returned slice"),
     ]:
         _require(source, needle, label)
@@ -64,7 +62,6 @@ def extract_facts(source_path: Path = SOURCE, consumer_path: Path = CONSUMER) ->
         "body_facts": [
             {"id": "MetadataContext::new", "operation": "NewSequence", "selected_field": "current_region_stack"},
             {"id": "MetadataContext::push_region", "operation": "SequencePush", "selected_field": "current_region_stack"},
-            {"id": "MetadataContext::pop_region", "operation": "SequencePopOption", "selected_field": "current_region_stack"},
             {
                 "id": "RegionObserver::parent_region",
                 "operation": "SequenceLastOption",

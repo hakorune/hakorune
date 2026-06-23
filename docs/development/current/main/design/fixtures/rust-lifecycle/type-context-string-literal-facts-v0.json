@@ -1,0 +1,86 @@
+{
+  "body_facts": [
+    {
+      "id": "TypeContext::new",
+      "operation": "NewMap",
+      "selected_field": "string_literals"
+    },
+    {
+      "id": "map_value::string_literal",
+      "operation": "MapGetOption",
+      "return": "Option<String>",
+      "returned_aggregate_alias": false,
+      "selected_field": "string_literals",
+      "value_projection": "ImmutableStringAtom"
+    }
+  ],
+  "borrow_use_facts": [
+    {
+      "borrowed_kind": "Aggregate",
+      "consumer_kind": "GetClone",
+      "element_reference_escapes": false,
+      "escapes": false,
+      "id": "TypeContext::string_literals.get_cloned",
+      "identity_observed": false,
+      "order": "Unobserved",
+      "owned_projection_available": true,
+      "owner_mutated_during_use": false
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "emit_string"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::take_snapshot"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext::restore_snapshot"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext.map_value_types"
+    },
+    {
+      "deny_reason": "OutOfSlice",
+      "id": "TypeContext.map_literal_value_types"
+    }
+  ],
+  "field_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext.string_literals",
+      "iteration_observed": false,
+      "key_transport": "ValueIdAsI64",
+      "map_identity_escapes": false,
+      "rust_type": "BTreeMap<ValueId, String>",
+      "value_transport": "ImmutableStringAtom"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "path": "src/mir/builder/types/map_value.rs"
+  },
+  "subject": "hakorune_mir_builder::type_context::TypeContext.string_literals",
+  "type_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "TypeContext",
+      "rust_type": "TypeContext"
+    },
+    {
+      "id": "ValueId",
+      "rust_type": "ValueId",
+      "transport": "i64"
+    },
+    {
+      "id": "String",
+      "rust_type": "String",
+      "transport": "ImmutableStringAtom"
+    }
+  ]
+}

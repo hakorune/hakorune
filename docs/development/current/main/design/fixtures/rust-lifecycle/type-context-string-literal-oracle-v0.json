@@ -1,0 +1,55 @@
+{
+  "kind": "RustOracleVectors",
+  "promotion_scope": {
+    "full_emit_string_claim": false,
+    "full_map_value_publication_claim": false
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.string_literals",
+  "vectors": [
+    {
+      "name": "string_literal_leaf_projection",
+      "operations": [
+        {
+          "literal": "alpha",
+          "op": "prefill_string_literal",
+          "value_id": 7
+        },
+        {
+          "expected": "alpha",
+          "op": "string_literal_some",
+          "value_id": 7
+        },
+        {
+          "op": "string_literal_none",
+          "value_id": 99
+        },
+        {
+          "literal": "beta",
+          "op": "prefill_string_literal",
+          "value_id": 7
+        },
+        {
+          "expected": "alpha",
+          "op": "owned_first_result",
+          "value_id": 7
+        },
+        {
+          "expected": "beta",
+          "op": "string_literal_some",
+          "value_id": 7
+        },
+        {
+          "literal": "gamma",
+          "op": "prefill_string_literal",
+          "value_id": 8
+        },
+        {
+          "expected": "gamma",
+          "op": "string_literal_some",
+          "value_id": 8
+        }
+      ]
+    }
+  ]
+}

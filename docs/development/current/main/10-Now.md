@@ -20,16 +20,16 @@ Related:
 ## Active Blocker
 
 ```text
-BOXED-RUNTIME-NATIVE-ENUM-ABI-001
+TYPE-CONTEXT-STRING-LITERAL-LEAF-PROJECTION-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active
 lane status. The current task-order SSOT is
 `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`.
-Next implementation task: lower owned read folds through generic operations.
-The `RuntimeValueCarrierI64` MapBox/ArrayBox transport contract, stale NyRT
-fail-fast check, neutral route descriptor manifest generation, and route
-descriptor mismatch diagnostics are landed.
+Next implementation task: implement TypeContext.string_literals owned leaf
+projection for `map_value.rs::string_literal` using the existing
+StorageAccessFacts -> ElideToLeafProjection -> MapGetOption path. This slice
+does not claim full emit_string conversion or map-value publication.
 BindingContextNative, VariableContextNative simple-map, VariableContext
 snapshot/restore artifact ownership transfer, the shared MirBuilder emitter,
 the shared family generator helper and driver, the shared validated family

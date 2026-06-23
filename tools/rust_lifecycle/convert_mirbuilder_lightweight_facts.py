@@ -20,6 +20,7 @@ from mirbuilder_multi_exit_phi_artifacts import run_multi_exit_phi_artifact_gene
 from mirbuilder_single_scalar_loop_carrier_artifacts import run_single_scalar_loop_carrier_artifact_generator
 from mirbuilder_structured_loop_artifacts import run_structured_loop_artifact_generator
 from mirbuilder_type_context_origin_map_artifacts import run_type_context_origin_map_artifact_generator
+from mirbuilder_type_context_string_literal_artifacts import run_type_context_string_literal_artifact_generator
 from mirbuilder_type_context_snapshot_restore_artifacts import run_type_context_snapshot_restore_artifact_generator
 from mirbuilder_type_context_value_kind_artifacts import run_type_context_value_kind_artifact_generator
 from mirbuilder_type_context_value_type_artifacts import run_type_context_value_type_artifact_generator
@@ -37,6 +38,7 @@ FAMILY_GENERATORS = {
     "single-scalar-loop-carrier": run_single_scalar_loop_carrier_artifact_generator,
     "structured-loop-without-carried-state": run_structured_loop_artifact_generator,
     "type-context-origin-map": run_type_context_origin_map_artifact_generator,
+    "type-context-string-literal": run_type_context_string_literal_artifact_generator,
     "type-context-snapshot-restore": run_type_context_snapshot_restore_artifact_generator,
     "type-context-value-kind": run_type_context_value_kind_artifact_generator,
     "type-context-value-type": run_type_context_value_type_artifact_generator,

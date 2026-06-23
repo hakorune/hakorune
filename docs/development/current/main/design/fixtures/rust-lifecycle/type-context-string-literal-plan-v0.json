@@ -1,0 +1,31 @@
+{
+  "direct_shape": {
+    "map.immutable_leaf_projection": {
+      "field_name": "string_literals",
+      "get_signature": "string_literal(ctx, value_id): Option<StringBox>",
+      "key_arg": "value_id",
+      "method_ids": {
+        "get": "map_value::string_literal",
+        "new": "TypeContext::new"
+      },
+      "type_name": "TypeContext"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "id": "TypeContext",
+      "plan_kind": "LocalBox",
+      "shape_rule": "map.immutable_leaf_projection"
+    },
+    {
+      "id": "TypeContext.string_literals",
+      "key_transport": "ValueIdAsI64",
+      "plan_kind": "MapBox",
+      "shape_rule": "map.immutable_leaf_projection",
+      "value_transport": "ImmutableStringAtom"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::type_context::TypeContext.string_literals"
+}

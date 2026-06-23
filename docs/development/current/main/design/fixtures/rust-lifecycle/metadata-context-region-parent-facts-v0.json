@@ -11,11 +11,6 @@
       "selected_field": "current_region_stack"
     },
     {
-      "id": "MetadataContext::pop_region",
-      "operation": "SequencePopOption",
-      "selected_field": "current_region_stack"
-    },
-    {
       "id": "RegionObserver::parent_region",
       "operation": "SequenceLastOption",
       "selected_field": "current_region_stack",

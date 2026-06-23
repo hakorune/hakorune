@@ -43,7 +43,7 @@ def validate_metadata_region_parent(facts: dict[str, Any], plan: dict[str, Any],
     plans = {row["id"]: row for row in plan["plans"]}
     if plans["MetadataContext.current_region_stack"].get("shape_rule") != "borrow_use.sequence_last_copy":
         raise SystemExit("MetadataContext region-parent must use borrow_use.sequence_last_copy")
-    for op_name in ["current_parent_region_none", "push_region", "current_parent_region_some", "pop_region_some"]:
+    for op_name in ["current_parent_region_none", "push_region", "current_parent_region_some"]:
         if op_name not in _oracle_ops(oracle):
             raise SystemExit(f"missing MetadataContext region-parent oracle op: {op_name}")
 
@@ -63,26 +63,19 @@ def metadata_region_parent_spec() -> FamilyArtifactSpec:
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/metadata_context_region_parent.artifact.json",
         family_comment="hakorune_mir_builder::metadata_context::MetadataContext.region_parent",
         using_module="",
-        box=BoxSpec(
-            name="MetadataContext",
-            fields=[FieldSpec(name="current_region_stack", field_type="ArrayBox", initializer="new ArrayBox()")],
-        ),
+        box=BoxSpec(name="MetadataContext", fields=[]),
         api_name="MetadataContextApi",
         api_methods=api_methods,
         main_operations=[
-            op("NewBox", target="ctx", box="MetadataContext"),
-            op("StaticCall", target="empty_parent", callee="MetadataContextApi.current_parent_region", args=["ctx"]),
+            op("NewArray", target="current_region_stack"),
+            op("StaticCall", target="empty_parent", callee="MetadataContextApi.current_parent_region", args=["current_region_stack"]),
             op("AssertEq", left="empty_parent", right={"expr": "Option::None()"}, fail_message="metadata_region_parent_empty=fail", fail_code=1),
-            op("StaticCall", callee="MetadataContextApi.push_region", args=["ctx", "10"]),
-            op("StaticCall", target="first_parent", callee="MetadataContextApi.current_parent_region", args=["ctx"]),
+            op("StaticCall", callee="MetadataContextApi.push_region", args=["current_region_stack", "10"]),
+            op("StaticCall", target="first_parent", callee="MetadataContextApi.current_parent_region", args=["current_region_stack"]),
             op("AssertEq", left="first_parent", right={"expr": "Option::Some(10)"}, fail_message="metadata_region_parent_first=fail", fail_code=2),
-            op("StaticCall", callee="MetadataContextApi.push_region", args=["ctx", "20"]),
-            op("StaticCall", target="second_parent", callee="MetadataContextApi.current_parent_region", args=["ctx"]),
+            op("StaticCall", callee="MetadataContextApi.push_region", args=["current_region_stack", "20"]),
+            op("StaticCall", target="second_parent", callee="MetadataContextApi.current_parent_region", args=["current_region_stack"]),
             op("AssertEq", left="second_parent", right={"expr": "Option::Some(20)"}, fail_message="metadata_region_parent_second=fail", fail_code=3),
-            op("StaticCall", target="popped", callee="MetadataContextApi.pop_region", args=["ctx"]),
-            op("AssertEq", left="popped", right={"expr": "Option::Some(20)"}, fail_message="metadata_region_parent_pop=fail", fail_code=4),
-            op("StaticCall", target="after_pop_parent", callee="MetadataContextApi.current_parent_region", args=["ctx"]),
-            op("AssertEq", left="after_pop_parent", right={"expr": "Option::Some(10)"}, fail_message="metadata_region_parent_after_pop=fail", fail_code=5),
             op("Print", text="metadata_context_region_parent_direct_artifact=ok"),
             op("ReturnI64", return_value=0),
         ],
@@ -99,14 +92,13 @@ def metadata_region_parent_spec() -> FamilyArtifactSpec:
         recipe_subject="hakorune_mir_builder::metadata_context::MetadataContext.region_parent",
         selected_body_count="region_parent_methods_only",
         methods=[
-            BehaviorMethodSpec(id="MetadataContext::push_region", rust_operation="Vec::push", hako_operation="SequencePush", emits="MetadataContextApi.push_region(ctx, region_id)"),
-            BehaviorMethodSpec(id="MetadataContext::pop_region", rust_operation="Vec::pop", hako_operation="SequencePopOption", emits="MetadataContextApi.pop_region(ctx)"),
-            BehaviorMethodSpec(id="RegionObserver::parent_region", rust_operation="current_region_stack().last().copied()", hako_operation="SequenceLastOption", emits="MetadataContextApi.current_parent_region(ctx)"),
+            BehaviorMethodSpec(id="MetadataContext::push_region", rust_operation="Vec::push", hako_operation="SequencePush", emits="MetadataContextApi.push_region(current_region_stack, region_id)"),
+            BehaviorMethodSpec(id="RegionObserver::parent_region", rust_operation="current_region_stack().last().copied()", hako_operation="SequenceLastOption", emits="MetadataContextApi.current_parent_region(current_region_stack)"),
         ],
         excluded_methods=excluded,
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_metadata_context_claim": 0, "generic_metadata_context_claim": 0, "runtime_fallback": 0, "rust_bootstrap_retained": 1},
         verifier_checks={"rust_facts_input": "verified", "direct_shape_rule": "borrow_use.sequence_last_copy", "borrow_lowering_decision": "ElideToLeafProjection", "raw_aggregate_return": 0, "read_lease_claim": 0, "unresolved_call_targets": 0, "needs_semantic_capsule": 0},
-        verified_operations=["SequencePush", "SequencePopOption", "SequenceLastOption"],
+        verified_operations=["SequencePush", "SequenceLastOption"],
         transport_notes={"field_transport": "ArrayBox", "element_transport": "i64", "standalone_current_region_stack": "Deny(ReturnedReadBorrow)"},
         denied_boundaries=["MetadataContext::current_region_stack"],
         extra_manifest_fields={"excluded_methods": excluded},

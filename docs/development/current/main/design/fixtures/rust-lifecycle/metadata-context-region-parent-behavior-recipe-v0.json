@@ -7,19 +7,13 @@
   "kind": "HakoBehaviorRecipe",
   "methods": [
     {
-      "emits": "MetadataContextApi.push_region(ctx, region_id)",
+      "emits": "MetadataContextApi.push_region(current_region_stack, region_id)",
       "hako_operation": "SequencePush",
       "id": "MetadataContext::push_region",
       "rust_operation": "Vec::push"
     },
     {
-      "emits": "MetadataContextApi.pop_region(ctx)",
-      "hako_operation": "SequencePopOption",
-      "id": "MetadataContext::pop_region",
-      "rust_operation": "Vec::pop"
-    },
-    {
-      "emits": "MetadataContextApi.current_parent_region(ctx)",
+      "emits": "MetadataContextApi.current_parent_region(current_region_stack)",
       "hako_operation": "SequenceLastOption",
       "id": "RegionObserver::parent_region",
       "rust_operation": "current_region_stack().last().copied()"

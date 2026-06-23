@@ -32,8 +32,9 @@ def compile_sequence_last_copy_methods(
     value_arg: str,
     method_ids: dict[str, str],
     push_signature: str,
-    pop_signature: str,
     last_signature: str,
+    pop_signature: str | None = None,
+    source_arg: str | None = None,
 ) -> list[HakoMethodIR]:
     """Compile `current_region_stack().last().copied()`-style use elimination."""
 
@@ -41,13 +42,17 @@ def compile_sequence_last_copy_methods(
     for method_key, operation in [
         ("new", "NewSequence"),
         ("push", "SequencePush"),
-        ("pop", "SequencePopOption"),
         ("last_copy", "SequenceLastOption"),
     ]:
         method_id = method_ids.get(method_key)
         if method_id is None:
             raise ValueError(f"Deny(UnsupportedDirectShape): missing method id {method_key}")
         _require_body(body_facts, method_id, operation=operation, field=field_name)
+    if pop_signature is not None:
+        method_id = method_ids.get("pop")
+        if method_id is None:
+            raise ValueError("Deny(UnsupportedDirectShape): missing method id pop")
+        _require_body(body_facts, method_id, operation="SequencePopOption", field=field_name)
 
     field_facts = {row["id"]: row for row in facts.get("field_facts", [])}
     field_fact = field_facts.get(f"{type_name}.{field_name}")
@@ -69,8 +74,11 @@ def compile_sequence_last_copy_methods(
     if field_plan is None or field_plan.get("shape_rule") != "borrow_use.sequence_last_copy":
         raise ValueError("Deny(UnsupportedDirectShape): expected borrow_use.sequence_last_copy")
 
-    return [
-        HakoMethodIR(signature=push_signature, operations=[op("SequencePush", field=field_name, value=value_arg)]),
-        HakoMethodIR(signature=pop_signature, operations=[op("SequencePopOption", field=field_name)]),
-        HakoMethodIR(signature=last_signature, operations=[op("SequenceLastOption", field=field_name)]),
+    source_operand = {"source": source_arg} if source_arg is not None else {"field": field_name}
+    methods = [
+        HakoMethodIR(signature=push_signature, operations=[op("SequencePush", **source_operand, value=value_arg)]),
+        HakoMethodIR(signature=last_signature, operations=[op("SequenceLastOption", **source_operand)]),
     ]
+    if pop_signature is not None:
+        methods.insert(1, HakoMethodIR(signature=pop_signature, operations=[op("SequencePopOption", **source_operand)]))
+    return methods

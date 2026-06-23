@@ -1,0 +1,25 @@
+{
+  "excluded_methods": [
+    "emit_string",
+    "TypeContext::take_snapshot",
+    "TypeContext::restore_snapshot",
+    "TypeContext.map_value_types",
+    "TypeContext.map_literal_value_types"
+  ],
+  "family_id": "hakorune_mir_builder::type_context",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "TypeContextApi.string_literal(ctx, value_id)",
+      "hako_operation": "MapGetOption",
+      "id": "map_value::string_literal",
+      "rust_operation": "BTreeMap::get cloned String"
+    }
+  ],
+  "pilot_scope": "TypeContext_string_literals_only",
+  "schema_version": 0,
+  "selected_body_count": "string_literal_helper_only",
+  "source_oracle": "type-context-string-literal-oracle-v0.json",
+  "source_plan": "type-context-string-literal-plan-v0.json",
+  "subject": "hakorune_mir_builder::type_context::TypeContext.string_literals"
+}
