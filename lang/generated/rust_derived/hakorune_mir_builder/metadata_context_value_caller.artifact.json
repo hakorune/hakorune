@@ -20,7 +20,7 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-facts-v0.json",
-      "sha256": "3cb5e3abb0db48e481c04933aa8316caf0a8c94034b57989ac26d2b67ad3bf7e"
+      "sha256": "54d86ece973a26c81e2c311387c60bba0c18074aea8cb95ed34bad5904336328"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-oracle-v0.json",
@@ -36,7 +36,7 @@
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-derived-artifact-verifier-result-v0.json",
-      "sha256": "cb63d199059f240c05c8f59a03b3dac59b0d4fe8cd288535f7d656e090deb684"
+      "sha256": "423346cd8ffb471d2e47e25f46c9ba7c985142ac4062058594ccab7d844bdc78"
     }
   },
   "kind": "RustDerivedHakoArtifact",

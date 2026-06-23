@@ -15,7 +15,8 @@ from family_artifact_builders import (
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
-from shared_family_generator import read_json, run_validated_family_generator
+from shared_family_generator import read_json, run_validated_family_generator, stable_json, write_if_changed
+from mirbuilder_storage_access_facts import ELIDE_TO_LEAF_PROJECTION, classify_storage_access, storage_access_from_borrow_use
 from verified_hako_family_ir import op
 
 
@@ -47,6 +48,13 @@ def validate_metadata_value_caller(facts: dict[str, Any], plan: dict[str, Any], 
         raise SystemExit("MetadataContext value_caller projection mismatch")
     if body_facts.get("MetadataContext::value_caller", {}).get("returned_aggregate_alias") is not False:
         raise SystemExit("MetadataContext value_caller must not return aggregate alias")
+    borrow_use = {row["id"]: row for row in facts.get("borrow_use_facts", [])}
+    use_fact = borrow_use.get("MetadataContext::value_origin_callers.get_cloned")
+    if use_fact is None:
+        raise SystemExit("MetadataContext value_origin_callers get/cloned borrow-use fact missing")
+    storage_fact = storage_access_from_borrow_use(use_fact)
+    if classify_storage_access(storage_fact) != ELIDE_TO_LEAF_PROJECTION:
+        raise SystemExit("MetadataContext value_origin_callers get/cloned must lower by ElideToLeafProjection")
     for op_name in ["prefill_value_caller", "value_caller_some", "value_caller_none"]:
         if op_name not in _oracle_ops(oracle):
             raise SystemExit(f"missing MetadataContext value-caller oracle op: {op_name}")
@@ -109,20 +117,24 @@ def metadata_value_caller_spec() -> FamilyArtifactSpec:
         methods=[BehaviorMethodSpec(id="MetadataContext::value_caller", rust_operation="HashMap::get map as_str", hako_operation="MapGetOption", emits="MetadataContextApi.value_caller(ctx, value_id)")],
         excluded_methods=excluded,
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_metadata_context_claim": 0, "generic_metadata_context_claim": 0, "rust_bootstrap_retained": 1, "backend_behavior_changed": 0},
-        verifier_checks={"rust_facts_input": "verified", "direct_shape_rule": "map.immutable_leaf_projection", "selected_body_count": "value_caller_method_only", "returned_aggregate_alias": 0, "unresolved_call_targets": 0, "unmapped_mir_side_effects": 0, "needs_semantic_capsule": 0},
+        verifier_checks={"rust_facts_input": "verified", "direct_shape_rule": "map.immutable_leaf_projection", "storage_access_normalized": 1, "borrow_lowering_decision": "ElideToLeafProjection", "selected_body_count": "value_caller_method_only", "returned_aggregate_alias": 0, "unresolved_call_targets": 0, "unmapped_mir_side_effects": 0, "needs_semantic_capsule": 0},
         verified_operations=["MapGetOption"],
-        transport_notes={"key_transport": "ValueIdAsI64", "value_transport": "ImmutableStringAtom", "return_transport": "OptionStringBox"},
+        transport_notes={"key_transport": "ValueIdAsI64", "value_transport": "ImmutableStringAtom", "return_transport": "OptionStringBox", "source_access_order": "Unobserved"},
         extra_manifest_fields={"excluded_methods": excluded},
     )
 
 
 def run_metadata_value_caller_artifact_generator(*, check: bool) -> None:
     spec = metadata_value_caller_spec()
+    facts = extract_facts(METADATA_CONTEXT_SOURCE)
+    facts_text = stable_json(facts)
+    if not check:
+        write_if_changed(spec.facts_path, facts_text)
     recipe_text = build_family_artifact_recipe_text(spec)
     verifier_text = build_family_artifact_verifier_text(spec)
     hako_text = build_family_artifact_hako_text(spec)
     manifest_text = build_family_artifact_manifest_text(spec, hako_text=hako_text, recipe_text=recipe_text, verifier_text=verifier_text)
-    outputs = [(spec.recipe_path, recipe_text), (spec.verifier_path, verifier_text), (spec.hako_path, hako_text), (OUT_DIR / Path(spec.artifact_manifest).name, manifest_text)]
+    outputs = [(spec.facts_path, facts_text), (spec.recipe_path, recipe_text), (spec.verifier_path, verifier_text), (spec.hako_path, hako_text), (OUT_DIR / Path(spec.artifact_manifest).name, manifest_text)]
     run_validated_family_generator(
         check=check,
         root=ROOT,

@@ -1,10 +1,12 @@
 {
   "checks": {
+    "borrow_lowering_decision": "ElideToLeafProjection",
     "direct_shape_rule": "map.immutable_leaf_projection",
     "needs_semantic_capsule": 0,
     "returned_aggregate_alias": 0,
     "rust_facts_input": "verified",
     "selected_body_count": "value_caller_method_only",
+    "storage_access_normalized": 1,
     "unmapped_mir_side_effects": 0,
     "unresolved_call_targets": 0
   },
@@ -20,6 +22,7 @@
   "transport_notes": {
     "key_transport": "ValueIdAsI64",
     "return_transport": "OptionStringBox",
+    "source_access_order": "Unobserved",
     "value_transport": "ImmutableStringAtom"
   },
   "verified_operations": [

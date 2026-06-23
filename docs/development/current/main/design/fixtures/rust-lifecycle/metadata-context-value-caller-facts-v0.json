@@ -14,6 +14,20 @@
       "value_projection": "ImmutableStringAtom"
     }
   ],
+  "borrow_use_facts": [
+    {
+      "borrowed_kind": "Aggregate",
+      "consumer_kind": "GetClone",
+      "element_reference_escapes": false,
+      "escapes": false,
+      "id": "MetadataContext::value_origin_callers.get_cloned",
+      "identity_observed": false,
+      "order": "Unobserved",
+      "owned_projection_available": true,
+      "owner_mutated_during_use": false,
+      "source": "src/mir/builder/emission/phi_lifecycle.rs"
+    }
+  ],
   "excluded_methods": [
     {
       "deny_reason": "UnsupportedResolvedCallTarget",
@@ -21,10 +35,12 @@
     },
     {
       "deny_reason": "ReturnedReadBorrow",
+      "detail": "StandaloneAggregateReturn",
       "id": "MetadataContext::value_origin_callers"
     },
     {
       "deny_reason": "ReturnedReadBorrow",
+      "detail": "StandaloneAggregateReturn",
       "id": "MetadataContext::current_region_stack"
     },
     {

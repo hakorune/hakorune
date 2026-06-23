@@ -273,7 +273,10 @@ remain Deny(ReturnedReadBorrow), while known call-local consumers can eliminate
 the borrow. MetadataContext current_region_stack().last().copied() is lowered
 to current_parent_region(ctx): Option<i64> without returning ArrayBox or adding
 read-view / lease semantics. The next slice keeps this as source-language
-normalization into StorageAccessFacts, not new Hako pointer syntax."""
+normalization into StorageAccessFacts, not new Hako pointer syntax.
+MetadataContext value_origin_callers get/cloned now normalizes
+BorrowUseFacts through StorageAccessFacts before ElideToLeafProjection. The
+next slice is value_origin_callers iter owned-copy read fold."""
 
 current_blocker_token = "AGGREGATE-RETURNED-READ-BORROW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

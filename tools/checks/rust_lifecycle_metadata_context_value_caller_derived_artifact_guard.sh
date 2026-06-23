@@ -18,6 +18,8 @@ import json
 from pathlib import Path
 
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/metadata_context_value_caller.artifact.json").read_text())
+facts = json.loads(Path("docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-facts-v0.json").read_text())
+verifier = json.loads(Path("docs/development/current/main/design/fixtures/rust-lifecycle/metadata-context-value-caller-derived-artifact-verifier-result-v0.json").read_text())
 hako = Path("lang/generated/rust_derived/hakorune_mir_builder/metadata_context_value_caller.hako").read_text()
 
 assert manifest["kind"] == "RustDerivedHakoArtifact"
@@ -26,6 +28,11 @@ assert manifest["pilot_scope"] == "MetadataContext_value_caller_only"
 assert manifest["claims"]["generated_hako_manual_edit"] == 0
 assert manifest["claims"]["mainline_selected"] == 0
 assert manifest["claims"]["full_metadata_context_claim"] == 0
+assert verifier["checks"]["storage_access_normalized"] == 1
+assert verifier["checks"]["borrow_lowering_decision"] == "ElideToLeafProjection"
+borrow_use = {row["id"]: row for row in facts["borrow_use_facts"]}
+assert borrow_use["MetadataContext::value_origin_callers.get_cloned"]["consumer_kind"] == "GetClone"
+assert borrow_use["MetadataContext::value_origin_callers.get_cloned"]["escapes"] is False
 assert "value_caller(ctx, value_id): Option<StringBox>" in hako
 assert "return ctx.value_origin_callers" not in hako
 assert "value_origin_callers(ctx)" not in hako
@@ -56,6 +63,8 @@ generated_hako_parse=green
 generated_hako_mir_emit=green
 generated_hako_exe_aot=green
 raw_aggregate_return=0
+storage_access_normalized=1
+borrow_lowering_decision=ElideToLeafProjection
 record_value_caller_claim=0
 runtime_try_hako_then_rust_fallback=0
 summary=ok

@@ -21,17 +21,17 @@ active blocker:
   AGGREGATE-RETURNED-READ-BORROW-001
 
 current implementation task:
-  Generalize access capabilities through value-caller clone elimination
+  Implement owned read-fold for metadata caller copies
 
 selected source slice:
-  value_origin_callers().get(...).cloned()
+  value_origin_callers().iter() owned copy
 
 required lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
-    -> ElideToLeafProjection
-    -> MapGetOption
+    -> ElideToReadFold
+    -> owned output insert
 
 forbidden:
   raw aggregate map return
@@ -45,8 +45,9 @@ Acceptance for the current task:
 
 ```text
 standalone value_origin_callers() conversion -> Deny(ReturnedReadBorrow)
-known get(...).cloned() consumer -> ElideToLeafProjection
+known iter owned-copy consumer -> ElideToReadFold
 raw aggregate alias = 0
+element reference escape = 0
 unknown consumer -> Deny(ReturnedReadBorrow)
 owner mutation during projected use -> Deny(ReturnedReadBorrow)
 generated .hako MIR green
@@ -58,7 +59,7 @@ rust_mirbuilder_converter_matrix_guard green
 
 1. `Generalize access capabilities through value-caller clone elimination`
 
-   Status: next.
+   Status: landed.
 
    Scope:
 
@@ -75,7 +76,7 @@ rust_mirbuilder_converter_matrix_guard green
 
 2. `Implement owned read-fold for metadata caller copies`
 
-   Status: queued.
+   Status: next.
 
    Scope:
 

@@ -10,6 +10,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "crates/hakorune_mir_builder/src/metadata_context.rs"
+PHI_LIFECYCLE_SOURCE = ROOT / "src/mir/builder/emission/phi_lifecycle.rs"
 
 
 def _require(source: str, needle: str, label: str) -> None:
@@ -19,6 +20,7 @@ def _require(source: str, needle: str, label: str) -> None:
 
 def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
     source = source_path.read_text()
+    consumer_source = PHI_LIFECYCLE_SOURCE.read_text()
     for needle, label in [
         ("pub(super) value_origin_callers: HashMap<ValueId, String>", "value_origin_callers field"),
         ("pub fn new(current_span: SpanT) -> Self", "new"),
@@ -27,6 +29,9 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
         ("self.value_origin_callers.get(&value_id).map(|s| s.as_str())", "value_caller immutable leaf projection"),
     ]:
         _require(source, needle, label)
+    _require(consumer_source, ".value_origin_callers()", "value_origin_callers aggregate borrow consumer")
+    _require(consumer_source, ".get(&dst)", "value_origin_callers get dst consumer")
+    _require(consumer_source, ".cloned()", "value_origin_callers cloned consumer")
 
     return {
         "schema_version": 0,
@@ -70,10 +75,24 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
                 "returned_aggregate_alias": False,
             },
         ],
+        "borrow_use_facts": [
+            {
+                "id": "MetadataContext::value_origin_callers.get_cloned",
+                "source": "src/mir/builder/emission/phi_lifecycle.rs",
+                "borrowed_kind": "Aggregate",
+                "consumer_kind": "GetClone",
+                "escapes": False,
+                "owner_mutated_during_use": False,
+                "identity_observed": False,
+                "element_reference_escapes": False,
+                "owned_projection_available": True,
+                "order": "Unobserved",
+            },
+        ],
         "excluded_methods": [
             {"id": "MetadataContext::record_value_caller", "deny_reason": "UnsupportedResolvedCallTarget"},
-            {"id": "MetadataContext::value_origin_callers", "deny_reason": "ReturnedReadBorrow"},
-            {"id": "MetadataContext::current_region_stack", "deny_reason": "ReturnedReadBorrow"},
+            {"id": "MetadataContext::value_origin_callers", "deny_reason": "ReturnedReadBorrow", "detail": "StandaloneAggregateReturn"},
+            {"id": "MetadataContext::current_region_stack", "deny_reason": "ReturnedReadBorrow", "detail": "StandaloneAggregateReturn"},
             {"id": "MetadataContext::current_span", "deny_reason": "OutOfSlice"},
             {"id": "MetadataContext::set_current_span", "deny_reason": "OutOfSlice"},
             {"id": "MetadataContext::current_source_file", "deny_reason": "OutOfSlice"},

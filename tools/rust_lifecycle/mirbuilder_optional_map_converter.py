@@ -5,6 +5,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from mirbuilder_storage_access_facts import (
+    ELIDE_TO_LEAF_PROJECTION,
+    classify_storage_access,
+    storage_access_from_borrow_use,
+)
 from verified_hako_family_ir import HakoMethodIR, op
 
 
@@ -254,6 +259,17 @@ def compile_immutable_leaf_projection_map_methods(
         raise ValueError("Deny(UnsupportedTypeTransport): expected immutable string projection")
     if get_fact.get("returned_aggregate_alias") is not False:
         raise ValueError("Deny(ReturnedReadBorrow): aggregate alias must not escape")
+
+    borrow_use_facts = {row["id"]: row for row in facts.get("borrow_use_facts", [])}
+    use_fact = borrow_use_facts.get(f"{type_name}::{field_name}.get_cloned")
+    if use_fact is None:
+        raise ValueError("Deny(ReturnedReadBorrow): missing borrow-use fact")
+    access_fact = storage_access_from_borrow_use(use_fact)
+    decision = classify_storage_access(access_fact)
+    if decision != ELIDE_TO_LEAF_PROJECTION:
+        raise ValueError(f"Deny(ReturnedReadBorrow): detail={decision}")
+    if access_fact.get("order") != "Unobserved":
+        raise ValueError("Deny(UnsupportedDirectShape): leaf projection must not observe order")
 
     field_facts = {row["id"]: row for row in facts.get("field_facts", [])}
     field_fact = field_facts.get(f"{type_name}.{field_name}")
