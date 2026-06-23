@@ -1,0 +1,38 @@
+enum InnerKind {
+    A
+    B
+}
+
+enum OuterKind {
+    None
+    Some(InnerKind)
+}
+
+static box ProbeApi {
+    read_nested_tag(value: OuterKind): i64 {
+        guard let OuterKind::Some(inner) = value else {
+            return 9
+        }
+        if inner == InnerKind::A() {
+            return 0
+        }
+        if inner == InnerKind::B() {
+            return 1
+        }
+        return 8
+    }
+}
+
+static box Main {
+    main() {
+        local inner = InnerKind::B()
+        local outer = OuterKind::Some(inner)
+        local tag = ProbeApi.read_nested_tag(outer)
+        if tag != 1 {
+            print("boxed_handle_enum_cross_function=fail")
+            return 1
+        }
+        print("boxed_handle_enum_cross_function=ok")
+        return 0
+    }
+}

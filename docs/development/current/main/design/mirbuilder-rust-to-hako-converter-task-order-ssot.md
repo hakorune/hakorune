@@ -69,14 +69,16 @@ current decision:
 
 current fail-fast boundary:
   The generated RegionObserver artifact reaches MIR with native enum
-  classification, but EXE/AOT stops at variant_tag on an enum value that is not
-  a same-function variant_make local aggregate.
+  classification, and boxed enum make/tag/project now works across a function
+  boundary for payload-less and handle-payload variants. EXE/AOT still needs
+  the container round trip before `MapBox.get(... MirType ...)` can feed
+  `Option<MirType>` into the classifier.
 
   Deny(UnsupportedEnumValueTransport)
-  detail=BoxedRuntimeEnumAbiUnavailable
+  detail=BoxedRuntimeEnumContainerRoundTripUnavailable
   first_callee=SlotClassifierApi.classify/2
-  first_op=variant_tag
-  required_shape=enum function parameter and container-returned enum values
+  first_op=map_get_enum_option
+  required_shape=MapBox-returned enum nested in Option
 
 forbidden:
   raw aggregate map return
@@ -109,8 +111,9 @@ Current mechanical status:
 region-observer variable_map read-fold route = native enum / boxed product WIP
 comparator proof = VmExeAotAccepted
 slot_metadata_output_transport_claim = selected
-generated_hako = MIR green, EXE/AOT blocked on boxed runtime enum ABI
-next step = implement BoxedSumAbiPlanV1 plus boxed_runtime_v1 make/tag
+generated_hako = MIR green, EXE/AOT blocked on boxed enum container round trip
+  boxed_runtime_v1 make/tag/project = landed for cross-function enum values
+next step = close boxed enum container round trip
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -211,7 +214,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.8. `Implement boxed native enum make/tag ABI`
 
-   Status: next.
+   Status: landed.
 
    Scope:
 
@@ -260,9 +263,13 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    runtime fallback = 0
    ```
 
+   Landed evidence: `apps/tests/phase296x_boxed_unit_enum_cross_function_min.hako`
+   passes `bash tools/run_llvm_harness.sh --no-build ...` with
+   `boxed_unit_enum_cross_function=ok` and `Result: 0`.
+
 0.9. `Implement boxed native enum handle projection`
 
-   Status: pending after 0.8.
+   Status: landed.
 
    Scope:
 
@@ -295,9 +302,12 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    Option/MirType-name backend branch = 0
    ```
 
+   Landed evidence: `apps/tests/phase296x_boxed_handle_enum_cross_function_min.hako`
+   passes LLVM harness with `boxed_handle_enum_cross_function=ok`.
+
 0.10. `Close boxed enum container round trip`
 
-   Status: pending after 0.9.
+   Status: active.
 
    Scope:
 

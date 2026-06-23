@@ -229,7 +229,11 @@
             int boxed_plan_index = -1;
             if (payload) {
               long long payload_base = resolve_copy_source_reg(payload);
-              set_copy_alias(dst, payload_base);
+              if (!(enum_name &&
+                    find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index) &&
+                    boxed_sum_abi_variant_payload_storage_is_handle(boxed_plan_index, tag))) {
+                set_copy_alias(dst, payload_base);
+              }
               set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
             } else {
               if (!(enum_name &&

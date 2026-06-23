@@ -389,14 +389,25 @@
               read_int(ins, "src"));
         }
         if (!strcmp(op, "variant_make")) {
+          long long dst = read_int(ins, "dst");
+          long long payload = read_int(ins, "payload");
+          long long tag = read_int(ins, "tag");
+          const char* enum_name = read_str(ins, "enum");
+          int boxed_emit = payload
+              ? emit_boxed_sum_handle_variant_make(bid, ii, op, dst, tag, payload, enum_name)
+              : emit_boxed_sum_unit_variant_make(bid, ii, op, dst, tag, enum_name);
+          if (boxed_emit != 0) return boxed_emit > 0;
           return 1;
         }
         if (!strcmp(op, "variant_tag")) {
           long long dst = read_int(ins, "dst");
           long long value = read_int(ins, "value");
+          const char* enum_name = read_str(ins, "enum");
           struct GenericPureVariantBinding binding;
           memset(&binding, 0, sizeof(binding));
-          if (!get_variant_binding(value, &binding)) return 0;
+          if (!get_variant_binding(value, &binding)) {
+            return emit_boxed_sum_tag_read(bid, ii, op, dst, value, enum_name) > 0;
+          }
           if (binding.tag_reg) {
             EMIT("  %%r%lld = add i64 %%r%lld_tag, 0\n", dst, binding.tag_reg);
           } else {
@@ -408,9 +419,13 @@
         if (!strcmp(op, "variant_project")) {
           long long dst = read_int(ins, "dst");
           long long value = read_int(ins, "value");
+          long long tag = read_int(ins, "tag");
+          const char* enum_name = read_str(ins, "enum");
           struct GenericPureVariantBinding binding;
           memset(&binding, 0, sizeof(binding));
-          if (!get_variant_binding(value, &binding) || !binding.has_payload) return 0;
+          if (!get_variant_binding(value, &binding) || !binding.has_payload) {
+            return emit_boxed_sum_project_handle(bid, ii, op, dst, value, tag, enum_name) > 0;
+          }
           set_copy_alias(dst, resolve_copy_source_reg(binding.payload_reg));
           set_type(dst, T_I64);
           return 1;

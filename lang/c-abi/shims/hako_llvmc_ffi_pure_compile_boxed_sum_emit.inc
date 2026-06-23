@@ -33,6 +33,47 @@
         return 1;
       }
 
+      auto int emit_boxed_sum_handle_variant_make(
+          long long bid,
+          size_t ii,
+          const char* op,
+          long long dst,
+          long long tag,
+          long long payload,
+          const char* enum_name) {
+        int boxed_plan_index = -1;
+        if (!(enum_name &&
+              find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index) &&
+              boxed_sum_abi_variant_payload_storage_is_handle(boxed_plan_index, tag))) {
+          return 0;
+        }
+        long long type_id = boxed_sum_abi_runtime_type_id(boxed_plan_index);
+        long long payload_base = resolve_copy_source_reg(payload);
+        if (!(dst && payload_base && type_id > 0)) {
+          note_pure_unsupported_shape(
+              bid,
+              ii,
+              op,
+              "boxed_sum_abi_handle_variant_make_malformed_operands",
+              NULL);
+          return -1;
+        }
+        EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 2)\n",
+             dst,
+             type_id);
+        EMIT("  %%boxed_sum_tag_set_%lld_%zu = call i64 @\"nyash.object.field_set_i64_hii\"(i64 %%r%lld, i64 0, i64 %lld)\n",
+             bid,
+             ii,
+             dst,
+             tag);
+        EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 1, i64 %%r%lld)\n",
+             dst,
+             payload_base);
+        set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
+        set_type(dst, T_I64);
+        return 1;
+      }
+
       auto int emit_boxed_sum_tag_read(
           long long bid,
           size_t ii,
@@ -46,7 +87,7 @@
         }
         long long type_id = boxed_sum_abi_runtime_type_id(boxed_plan_index);
         long long value_base = resolve_copy_source_reg(value);
-        if (!(dst && value_base && type_id > 0)) {
+        if (!(dst && type_id > 0)) {
           note_pure_unsupported_shape(
               bid,
               ii,
@@ -78,6 +119,82 @@
         EMIT("boxed_sum_type_continue_%lld_%zu:\n", bid, ii);
         note_exact_status_continue_label(bid, ii);
         EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_i64_hii\"(i64 %%r%lld, i64 0)\n",
+             dst,
+             value_base);
+        set_type(dst, T_I64);
+        return 1;
+      }
+
+      auto int emit_boxed_sum_project_handle(
+          long long bid,
+          size_t ii,
+          const char* op,
+          long long dst,
+          long long value,
+          long long expected_tag,
+          const char* enum_name) {
+        int boxed_plan_index = -1;
+        if (!(enum_name &&
+              find_boxed_sum_abi_plan_index(enum_name, &boxed_plan_index) &&
+              boxed_sum_abi_variant_payload_storage_is_handle(boxed_plan_index, expected_tag))) {
+          return 0;
+        }
+        long long type_id = boxed_sum_abi_runtime_type_id(boxed_plan_index);
+        long long value_base = resolve_copy_source_reg(value);
+        if (!(dst && type_id > 0)) {
+          note_pure_unsupported_shape(
+              bid,
+              ii,
+              op,
+              "boxed_sum_abi_project_malformed_operands",
+              NULL);
+          return -1;
+        }
+        EMIT("  %%boxed_sum_project_type_%lld_%zu = call i64 @\"nyash.object.type_id_h\"(i64 %%r%lld)\n",
+             bid,
+             ii,
+             value_base);
+        EMIT("  %%boxed_sum_project_type_ok_%lld_%zu = icmp eq i64 %%boxed_sum_project_type_%lld_%zu, %lld\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             type_id);
+        EMIT("  br i1 %%boxed_sum_project_type_ok_%lld_%zu, label %%boxed_sum_project_type_continue_%lld_%zu, label %%boxed_sum_project_type_trap_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("boxed_sum_project_type_trap_%lld_%zu:\n", bid, ii);
+        EMIT("  call void @llvm.trap()\n");
+        EMIT("  unreachable\n");
+        EMIT("boxed_sum_project_type_continue_%lld_%zu:\n", bid, ii);
+        note_exact_status_continue_label(bid, ii);
+        EMIT("  %%boxed_sum_project_tag_%lld_%zu = call i64 @\"nyash.object.field_get_i64_hii\"(i64 %%r%lld, i64 0)\n",
+             bid,
+             ii,
+             value_base);
+        EMIT("  %%boxed_sum_project_tag_ok_%lld_%zu = icmp eq i64 %%boxed_sum_project_tag_%lld_%zu, %lld\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             expected_tag);
+        EMIT("  br i1 %%boxed_sum_project_tag_ok_%lld_%zu, label %%boxed_sum_project_tag_continue_%lld_%zu, label %%boxed_sum_project_tag_trap_%lld_%zu\n",
+             bid,
+             ii,
+             bid,
+             ii,
+             bid,
+             ii);
+        EMIT("boxed_sum_project_tag_trap_%lld_%zu:\n", bid, ii);
+        EMIT("  call void @llvm.trap()\n");
+        EMIT("  unreachable\n");
+        EMIT("boxed_sum_project_tag_continue_%lld_%zu:\n", bid, ii);
+        note_exact_status_continue_label(bid, ii);
+        EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_hii\"(i64 %%r%lld, i64 1)\n",
              dst,
              value_base);
         set_type(dst, T_I64);
@@ -119,7 +236,7 @@
         }
         long long value_base = resolve_copy_source_reg(operand);
         long long type_id = boxed_sum_abi_runtime_type_id(plan_index);
-        if (!(value_base && type_id > 0)) {
+        if (!(type_id > 0)) {
           note_pure_unsupported_shape(
               bid,
               ii,

@@ -159,6 +159,32 @@ mod boxed_sum_abi_tests {
         assert_eq!(plans[0]["runtime_box_name"], "__NyVariant_ProbeKind");
         assert_eq!(plans[0]["variants"][0]["payload_storage"], "none");
     }
+
+    #[test]
+    fn collect_boxed_sum_abi_plan_values_preserves_handle_payload_rows() {
+        let mut module = crate::mir::MirModule::new("test".to_string());
+        module.metadata.enum_decls.insert(
+            "OuterKind".to_string(),
+            crate::mir::MirEnumDecl {
+                type_parameters: vec![],
+                variants: vec![
+                    crate::mir::MirEnumVariantDecl {
+                        name: "None".to_string(),
+                        payload_type_name: None,
+                    },
+                    crate::mir::MirEnumVariantDecl {
+                        name: "Some".to_string(),
+                        payload_type_name: Some("InnerKind".to_string()),
+                    },
+                ],
+            },
+        );
+
+        let plans = collect_boxed_sum_abi_plan_values(&module);
+        assert_eq!(plans[0]["enum_name"], "OuterKind");
+        assert_eq!(plans[0]["variants"][0]["payload_storage"], "none");
+        assert_eq!(plans[0]["variants"][1]["payload_storage"], "handle");
+    }
 }
 
 pub(super) fn collect_typed_object_plan_values(

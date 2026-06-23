@@ -67,6 +67,19 @@
         return storage && strcmp(storage, "none") == 0;
       }
 
+      auto int boxed_sum_abi_variant_payload_storage_is_handle(
+          int plan_index,
+          long long tag) {
+        yyjson_val* plan = boxed_sum_abi_plan_at_index(plan_index);
+        yyjson_val* variants = plan ? yyjson_obj_get(plan, "variants") : NULL;
+        yyjson_val* variant = NULL;
+        const char* storage = NULL;
+        if (!(variants && yyjson_is_arr(variants) && tag >= 0)) return 0;
+        variant = yyjson_arr_get(variants, (size_t)tag);
+        storage = variant ? read_str(variant, "payload_storage") : NULL;
+        return storage && strcmp(storage, "handle") == 0;
+      }
+
       auto int emit_boxed_sum_abi_layout_registrations(FILE* f) {
         size_t count = boxed_sum_abi_plan_count();
         for (size_t pi = 0; pi < count; pi++) {

@@ -54,7 +54,7 @@ pub fn build_boxed_sum_abi_plans(module: &MirModule) -> Vec<BoxedSumAbiPlanV1> {
         .metadata
         .enum_decls
         .iter()
-        .filter_map(|(enum_name, decl)| build_unit_enum_plan(enum_name, decl))
+        .filter_map(|(enum_name, decl)| build_enum_plan(enum_name, decl))
         .enumerate()
         .map(|(index, mut plan)| {
             let plan_id = index as u32;
@@ -65,15 +65,10 @@ pub fn build_boxed_sum_abi_plans(module: &MirModule) -> Vec<BoxedSumAbiPlanV1> {
         .collect()
 }
 
-fn build_unit_enum_plan(enum_name: &str, decl: &MirEnumDecl) -> Option<BoxedSumAbiPlanV1> {
-    if decl
-        .variants
-        .iter()
-        .any(|variant| variant.payload_type_name.is_some())
-    {
+fn build_enum_plan(enum_name: &str, decl: &MirEnumDecl) -> Option<BoxedSumAbiPlanV1> {
+    if decl.variants.is_empty() {
         return None;
     }
-
     Some(BoxedSumAbiPlanV1 {
         plan_id: 0,
         enum_name: enum_name.to_string(),
@@ -87,7 +82,11 @@ fn build_unit_enum_plan(enum_name: &str, decl: &MirEnumDecl) -> Option<BoxedSumA
             .map(|(tag, variant)| BoxedSumAbiVariantPlan {
                 name: variant.name.clone(),
                 tag: tag as u32,
-                payload_storage: BoxedSumPayloadStorage::None,
+                payload_storage: if variant.payload_type_name.is_some() {
+                    BoxedSumPayloadStorage::Handle
+                } else {
+                    BoxedSumPayloadStorage::None
+                },
             })
             .collect(),
     })
@@ -138,7 +137,7 @@ mod tests {
     }
 
     #[test]
-    fn build_boxed_sum_abi_plans_does_not_guess_payload_storage() {
+    fn build_boxed_sum_abi_plans_marks_payload_variants_as_handle_storage() {
         let mut module = MirModule::new("boxed_sum_abi_payload_probe".to_string());
         module.metadata.enum_decls.insert(
             "Option".to_string(),
@@ -157,6 +156,13 @@ mod tests {
             },
         );
 
-        assert!(build_boxed_sum_abi_plans(&module).is_empty());
+        let plans = build_boxed_sum_abi_plans(&module);
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].enum_name, "Option");
+        assert_eq!(plans[0].variants[0].payload_storage, BoxedSumPayloadStorage::None);
+        assert_eq!(
+            plans[0].variants[1].payload_storage,
+            BoxedSumPayloadStorage::Handle
+        );
     }
 }
