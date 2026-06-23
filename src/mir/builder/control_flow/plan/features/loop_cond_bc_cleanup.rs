@@ -145,6 +145,7 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
             }
         }
         CoreEffectPlan::NewBox { dst, .. }
+        | CoreEffectPlan::VariantMake { dst, .. }
         | CoreEffectPlan::FieldGet { dst, .. }
         | CoreEffectPlan::BinOp { dst, .. }
         | CoreEffectPlan::Compare { dst, .. }

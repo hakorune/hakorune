@@ -33,13 +33,15 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-VARIABLE-MAP-ORDERED-OBSERVER-READ-FOLD-001
+ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001
 ```
 
 Next task:
 
 ```text
-Implement variable_map iter observer read fold with source-ordered facts.
+Make OrderedMapBox String-key ordering match Rust BTreeMap<String> for selected
+ASCII names, or deny SourceOrdered read-fold conversion until that ordering is
+available.
 ```
 
 Purpose:
@@ -189,9 +191,11 @@ Done:
   aggregate borrow-use sequence last-copy elimination
   value_origin_callers get/cloned borrow-use elimination through StorageAccessFacts
   value_origin_callers iter owned-copy read fold through StorageAccessFacts
+  known enum constructor values inside normalized loop bodies
 
 Next:
-  Implement variable_map iter observer read fold with source-ordered facts.
+  Fix OrderedMapBox source-ordered String compare before claiming
+  variable_map iter observer read fold with SourceOrdered facts.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)

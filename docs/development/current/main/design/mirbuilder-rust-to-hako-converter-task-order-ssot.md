@@ -18,21 +18,27 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  VARIABLE-MAP-ORDERED-OBSERVER-READ-FOLD-001
+  ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001
 
 current implementation task:
-  Implement ordered observer fold for VariableContext
+  Fix or deny SourceOrdered String-key OrderedMapBox iteration
 
 selected source slice:
   variable_map().iter() observer fold
 
-required lowering:
+blocked lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
     -> order=SourceOrdered
     -> ElideToReadFold
     -> owned SlotMetadata output
+
+blocker evidence:
+  RegionObserver probe with insertion order b, a, args reaches MIR/EXE after
+  loop enum-constructor acceptance, but the `.hako` OrderedMapBox output does
+  not prove Rust BTreeMap<String> ordering. SourceOrdered conversion must not
+  silently downgrade to insertion order.
 
 forbidden:
   raw aggregate map return
@@ -45,6 +51,8 @@ forbidden:
 Acceptance for the current task:
 
 ```text
+OrderedMapBox String keys match Rust BTreeMap<String> order for selected ASCII names
+or SourceOrdered read-fold conversion is denied before artifact generation
 standalone value_origin_callers() conversion -> Deny(ReturnedReadBorrow)
 variable_map().iter() source has exact file:line evidence
 known ordered observer consumer -> ElideToReadFold only for live source
@@ -139,7 +147,22 @@ rust_mirbuilder_converter_matrix_guard green
 
    Do not expose a map view or public snapshot API for this slice.
 
-5. `Implement ordered observer fold for VariableContext`
+5. `Accept enum constructors in loop value lowering`
+
+   Status: landed.
+
+   Scope:
+
+   ```text
+   ASTNode::FromCall for known enum constructors
+     -> CoreEffectPlan::VariantMake
+     -> MirInstruction::VariantMake
+   ```
+
+   This is generic compiler acceptance. It does not add RegionObserver,
+   MirType, or ArrayBox-specific lowering.
+
+6. `Fix OrderedMapBox source-ordered String compare`
 
    Status: next.
 
@@ -156,14 +179,28 @@ rust_mirbuilder_converter_matrix_guard green
    This slice must distinguish BTreeMap source ordering from unordered map
    folds. Do not use a generic unordered iteration rule here.
 
-6. `Reassess returned mutable borrow`
+7. `Implement ordered observer fold for VariableContext`
+
+   Status: parked behind OrderedMapBox source-order proof.
+
+   Scope:
+
+   ```text
+   variable_map().iter()
+     -> ElideToReadFold
+     -> order=SourceOrdered
+     -> cross-context TypeContext reads verified
+     -> owned SlotMetadata output
+   ```
+
+8. `Reassess returned mutable borrow`
 
    Status: parked behind the three read-borrow elimination slices.
 
    Standalone returned mutable aliases remain `Deny(ReturnedMutableBorrow)`.
    Only explicit mutation APIs or bounded with-map operations may reopen this.
 
-7. `Reassess NonTrivialDrop / unsafe capability boundaries`
+9. `Reassess NonTrivialDrop / unsafe capability boundaries`
 
    Status: parked.
 

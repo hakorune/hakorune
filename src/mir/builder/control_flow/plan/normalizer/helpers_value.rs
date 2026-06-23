@@ -406,6 +406,70 @@ impl super::PlanNormalizer {
                 });
                 Ok((result_id, arg_effects))
             }
+            ASTNode::FromCall {
+                parent,
+                method,
+                arguments,
+                ..
+            } => {
+                let Some(resolved) = builder.comp_ctx.resolve_enum_variant(parent, method) else {
+                    return Err(format!(
+                        "[normalizer] unsupported from-call value: {}::{}",
+                        parent, method
+                    ));
+                };
+                if resolved.decl.requires_compat_payload_box() {
+                    return Err(format!(
+                        "[normalizer] enum constructor payload box unsupported: {}::{}",
+                        parent, method
+                    ));
+                }
+                let tag = resolved.tag;
+                let payload_type = resolved
+                    .decl
+                    .payload_type_name
+                    .as_deref()
+                    .and_then(enum_payload_mir_type);
+                let expected = resolved.decl.payload_arity();
+                if arguments.len() != expected {
+                    return Err(format!(
+                        "[normalizer] enum constructor arity mismatch: {}::{} expected {} got {}",
+                        parent,
+                        method,
+                        expected,
+                        arguments.len()
+                    ));
+                }
+                if arguments.len() > 1 {
+                    return Err(format!(
+                        "[normalizer] multi-payload enum constructor unsupported: {}::{}",
+                        parent, method
+                    ));
+                }
+
+                let mut effects = Vec::new();
+                let payload = if let Some(argument) = arguments.first() {
+                    let (payload_id, mut payload_effects) =
+                        Self::lower_value_ast(argument, builder, phi_bindings)?;
+                    effects.append(&mut payload_effects);
+                    Some(payload_id)
+                } else {
+                    None
+                };
+                let dst = builder.next_value_id();
+                builder
+                    .type_ctx
+                    .set_type(dst, MirType::Box(runtime_variant_box_name(parent)));
+                effects.push(CoreEffectPlan::VariantMake {
+                    dst,
+                    enum_name: parent.clone(),
+                    variant: method.clone(),
+                    tag,
+                    payload,
+                    payload_type,
+                });
+                Ok((dst, effects))
+            }
             ASTNode::Call {
                 callee, arguments, ..
             } => {
@@ -628,4 +692,19 @@ impl super::PlanNormalizer {
             _ => Err(format!("[normalizer] Unsupported value AST: {:?}", ast)),
         }
     }
+}
+
+fn enum_payload_mir_type(raw: &str) -> Option<MirType> {
+    if raw.is_empty()
+        || raw
+            .chars()
+            .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
+    {
+        return None;
+    }
+    Some(MirBuilder::parse_type_name_to_mir(raw))
+}
+
+fn runtime_variant_box_name(enum_name: &str) -> String {
+    format!("__hako_sum_{}", enum_name)
 }

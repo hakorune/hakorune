@@ -247,6 +247,7 @@ fn effect_defined_value(effect: &CoreEffectPlan) -> Option<(ValueId, &'static st
         CoreEffectPlan::ExternCall { dst: Some(v), .. } => Some((*v, "ExternCall")),
         CoreEffectPlan::ExternCall { dst: None, .. } => None,
         CoreEffectPlan::NewBox { dst, .. } => Some((*dst, "NewBox")),
+        CoreEffectPlan::VariantMake { dst, .. } => Some((*dst, "VariantMake")),
         CoreEffectPlan::FieldGet { dst, .. } => Some((*dst, "FieldGet")),
         CoreEffectPlan::BinOp { dst, .. } => Some((*dst, "BinOp")),
         CoreEffectPlan::Compare { dst, .. } => Some((*dst, "Compare")),

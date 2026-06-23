@@ -265,17 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-METADATA-VALUE-CALLER-READ-FOLD-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1640-MIRBUILDER-METADATA-VALUE-CALLER-READ-FOLD-001.md"
-latest_card_summary = """The MirBuilder Rust-to-Hako converter now lowers the
-live MetadataContext value_origin_callers iter owned-copy read-fold through
-StorageAccessFacts -> ElideToReadFold -> MapReadFoldOwnedCopy. The source
-evidence is module_lifecycle.rs and calls/lowering.rs; standalone
-value_origin_callers remains Deny(ReturnedReadBorrow). The generated
-executable proves the fold with destination.get(7), guarded by
-CanonicalI64Text key-domain roundtrip."""
+latest_card = "MIRBUILDER-LOOP-VALUE-ENUM-CONSTRUCTOR-ACCEPTANCE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1641-MIRBUILDER-LOOP-VALUE-ENUM-CONSTRUCTOR-ACCEPTANCE-001.md"
+latest_card_summary = """The MirBuilder loop normalizer now accepts known enum
+constructor values through generic CoreEffectPlan::VariantMake and emits
+MirInstruction::VariantMake. This unblocks `ty == MirType::Box(...)` value
+lowering inside normalized loop bodies without RegionObserver/MirType-specific
+generator hardcoding. The RegionObserver ordered read-fold probe now stops at
+the next semantic blocker: OrderedMapBox must prove Rust BTreeMap<String>
+source ordering before SourceOrdered read-fold conversion can be claimed."""
 
-current_blocker_token = "VARIABLE-MAP-ORDERED-OBSERVER-READ-FOLD-001"
+current_blocker_token = "ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

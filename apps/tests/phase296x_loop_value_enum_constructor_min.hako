@@ -1,0 +1,31 @@
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+enum MirType {
+    Integer
+    Box(StringBox)
+}
+
+static box Main {
+    main() {
+        local names = new ArrayBox()
+        names.push("x")
+
+        local ref_kind = "NonRef"
+        local i = 0
+        loop(i < names.length()) {
+            local name = BoxHelpers.array_get(names, i)
+            if name == "x" {
+                local ty = MirType::Box("ArrayBox")
+                if ty == MirType::Box("ArrayBox") {
+                    ref_kind = "StrongRoot"
+                }
+            } else if name == "args" {
+                ref_kind = "StrongRoot"
+            }
+            i = i + 1
+        }
+
+        print("loop_value_enum_constructor=ok")
+        return 0
+    }
+}

@@ -176,6 +176,24 @@ impl super::PlanLowerer {
                     args: args.clone(),
                 })?;
             }
+            CoreEffectPlan::VariantMake {
+                dst,
+                enum_name,
+                variant,
+                tag,
+                payload,
+                payload_type,
+            } => {
+                let payload = payload.map(|value| builder.local_arg(value));
+                builder.emit_instruction(MirInstruction::VariantMake {
+                    dst: *dst,
+                    enum_name: enum_name.clone(),
+                    variant: variant.clone(),
+                    tag: *tag,
+                    payload,
+                    payload_type: payload_type.clone(),
+                })?;
+            }
             CoreEffectPlan::FieldGet {
                 dst,
                 base,

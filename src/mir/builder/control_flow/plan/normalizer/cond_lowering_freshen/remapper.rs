@@ -200,6 +200,10 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *dst = remap_value_id(value_map, *dst);
             *args = remap_value_ids(value_map, args);
         }
+        CoreEffectPlan::VariantMake { dst, payload, .. } => {
+            *dst = remap_value_id(value_map, *dst);
+            *payload = payload.map(|value| remap_value_id(value_map, value));
+        }
         CoreEffectPlan::FieldGet {
             dst,
             base,

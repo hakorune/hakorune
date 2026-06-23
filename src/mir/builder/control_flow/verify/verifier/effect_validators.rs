@@ -107,6 +107,25 @@ pub(super) fn verify_effect(
                 primitives::verify_value_id_basic(*arg, depth, &format!("NewBox.args[{}]", i))?;
             }
         }
+        CoreEffectPlan::VariantMake {
+            dst,
+            enum_name,
+            variant,
+            payload,
+            ..
+        } => {
+            primitives::verify_value_id_basic(*dst, depth, "VariantMake.dst")?;
+            if enum_name.is_empty() || variant.is_empty() {
+                return Err(primitives::err(
+                    "V6",
+                    "variant_make_empty_name",
+                    format!("VariantMake at depth {} has empty enum or variant name", depth),
+                ));
+            }
+            if let Some(payload) = payload {
+                primitives::verify_value_id_basic(*payload, depth, "VariantMake.payload")?;
+            }
+        }
         CoreEffectPlan::FieldGet {
             dst,
             base,

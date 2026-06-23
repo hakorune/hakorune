@@ -51,6 +51,16 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         args: Vec<ValueId>,
     },
 
+    /// Known enum constructor.
+    VariantMake {
+        dst: ValueId,
+        enum_name: String,
+        variant: String,
+        tag: u32,
+        payload: Option<ValueId>,
+        payload_type: Option<MirType>,
+    },
+
     /// Canonical field read on a known base value
     FieldGet {
         dst: ValueId,

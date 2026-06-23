@@ -102,6 +102,9 @@ fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<Value
         CoreEffectPlan::NewBox { dst, .. } => {
             defs.insert(*dst);
         }
+        CoreEffectPlan::VariantMake { dst, .. } => {
+            defs.insert(*dst);
+        }
         CoreEffectPlan::FieldGet { dst, .. } => {
             defs.insert(*dst);
         }

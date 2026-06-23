@@ -543,6 +543,7 @@ fn effect_defines_value(effect: &CoreEffectPlan) -> bool {
         | CoreEffectPlan::ValueCall { dst, .. }
         | CoreEffectPlan::ExternCall { dst, .. } => dst.is_some(),
         CoreEffectPlan::NewBox { .. }
+        | CoreEffectPlan::VariantMake { .. }
         | CoreEffectPlan::BinOp { .. }
         | CoreEffectPlan::Compare { .. }
         | CoreEffectPlan::Select { .. }
