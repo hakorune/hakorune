@@ -18,10 +18,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SOURCE-ORDERED-READ-FOLD-ROUTE-SELECTION-001
+  SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001
 
 current implementation task:
-  Select the next route after SourceOrdered OrderedMapBox iteration was denied
+  Choose how to unblock SourceOrdered RegionObserver lowering
 
 selected source slice:
   variable_map().iter() observer fold
@@ -51,6 +51,12 @@ next route choices:
   2. Change the selected observer lowering so it does not require SourceOrdered
      map iteration.
 
+implemented route-selection guardrail:
+  `tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py`
+  extracts the live source line and denies artifact generation with:
+    Deny(UnsupportedKeyTransport)
+    detail=SourceOrderedStringKeyCompareUnavailable
+
 forbidden:
   raw aggregate map return
   read-view / lease framework
@@ -74,6 +80,14 @@ owner mutation during projected use -> Deny(ReturnedReadBorrow)
 generated .hako MIR green
 generated .hako EXE green
 rust_mirbuilder_converter_matrix_guard green
+```
+
+Current mechanical status:
+
+```text
+region-observer variable_map read-fold route = Deny
+generated_hako = 0
+next step = design selection between backend String compare route and non-SourceOrdered observer lowering
 ```
 
 ## Active Task Order

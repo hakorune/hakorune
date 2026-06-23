@@ -33,15 +33,16 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 Current blocker:
 
 ```text
-SOURCE-ORDERED-READ-FOLD-ROUTE-SELECTION-001
+SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001
 ```
 
 Next task:
 
 ```text
-Choose the next route after SourceOrdered OrderedMapBox iteration was denied:
-either add a backend-accepted StringBox lexical comparison route, or change the
-selected observer lowering so it does not require SourceOrdered map iteration.
+Design-select how to unblock RegionObserver lowering after the live
+variable_map().iter() route was mechanically denied:
+  1. backend-accepted StringBox lexical comparison for OrderedMapBox
+  2. non-SourceOrdered RegionObserver lowering
 ```
 
 Purpose:

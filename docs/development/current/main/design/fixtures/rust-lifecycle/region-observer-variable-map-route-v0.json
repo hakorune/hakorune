@@ -1,0 +1,25 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRegionObserverVariableMapRoute",
+  "subject": "mir::region::observer::classify_slots_from_variable_map",
+  "source": {
+    "variable_context_path": "crates/hakorune_mir_builder/src/variable_context.rs",
+    "consumer_path": "src/mir/region/observer.rs",
+    "consumer_line": 174
+  },
+  "route": "Deny",
+  "deny": {
+    "reason": "UnsupportedKeyTransport",
+    "detail": "SourceOrderedStringKeyCompareUnavailable"
+  },
+  "decision": [
+    "do not generate RegionObserver variable_map read-fold artifact",
+    "do not substitute insertion order for Rust BTreeMap<String> order",
+    "do not add RegionObserver key-name special cases"
+  ],
+  "stop_line": [
+    "source_ordered_read_fold_claim=0",
+    "runtime_fallback=0",
+    "generated_hako=0"
+  ]
+}
