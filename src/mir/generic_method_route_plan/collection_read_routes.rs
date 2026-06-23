@@ -254,6 +254,14 @@ pub(super) fn match_generic_get_route(
                     GenericMethodValueDemand::RuntimeI64OrHandle,
                     Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
                 )
+            } else if key_route.is_i64() {
+                (
+                    GenericMethodRouteKind::MapLoadI64Any,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                    Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                    GenericMethodValueDemand::RuntimeI64OrHandle,
+                    Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+                )
             } else {
                 (
                     GenericMethodRouteKind::MapLoadAny,
@@ -358,6 +366,15 @@ pub(super) fn match_generic_get_route(
                 Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
                 GenericMethodValueDemand::ScalarI64,
                 Some(GenericMethodPublicationPolicy::NoPublication),
+            )
+        } else if key_route.is_i64() {
+            (
+                GenericMethodRouteKind::MapLoadI64Any,
+                CoreMethodLoweringTier::WarmDirectAbi,
+                GenericMethodRouteProof::GetSurfacePolicy,
+                Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                GenericMethodValueDemand::RuntimeI64OrHandle,
+                Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
             )
         } else {
             (
@@ -584,8 +601,9 @@ fn len_surface_origin_box_name(box_name: &str) -> Option<&'static str> {
 }
 
 fn map_has_route_kind_for_key(key_route: GenericMethodKeyRoute) -> GenericMethodRouteKind {
-    match key_route {
-        GenericMethodKeyRoute::I64Const => GenericMethodRouteKind::MapContainsI64,
-        GenericMethodKeyRoute::UnknownAny => GenericMethodRouteKind::MapContainsAny,
+    if key_route.is_i64() {
+        GenericMethodRouteKind::MapContainsI64
+    } else {
+        GenericMethodRouteKind::MapContainsAny
     }
 }

@@ -39,8 +39,7 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Next task:
 
 ```text
-Close the generated RegionObserver SlotMetadata artifact now that focused
-boxed enum ABI probes are green.
+Design consultation: select the next post-RegionObserver converter slice.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -51,11 +50,17 @@ The owned output transport is now selected:
   SlotMetadata = semantic OwnedProduct
   current execution transport = ArrayBox<SlotMetadataBox>
 
+RegionObserver SlotMetadata artifact is now green:
+  region_observer_slot_metadata_artifact=ok
+  Result: 0
+
+The closed transport bug was generic:
+  MapBox i64-key raw load must preserve mixed runtime values, including
+  negative typed-object / boxed enum handles.
+
 The current fail-fast boundary is:
-  Deny(UnsupportedRegionObserverReadFold)
-  detail=FullArtifactNotYetClosed
-  first_callee=SlotClassifierApi.classify/2
-  first_op=region_observer_fold
+  RegionObserver read-fold and SlotClassifier policy extraction are green.
+  Do not start the next converter slice until the next owner is selected.
 
 Boxed enum ABI is already the selected representation authority:
   SumValueRepresentation::BoxedRuntime(abi_plan_id)
@@ -65,6 +70,9 @@ Do not add OrderedMapBox / RegionObserver backend special cases.
 Do not substitute insertion order for Rust BTreeMap ordering.
 Do not switch native enums to manual i64 tags as a workaround.
 Do not add MirType-name backend special cases.
+Do not hide runner MIR drift by changing the generated artifact source shape.
+Do not leave Box/Array/Future or fallback-name classification policy in the
+emitter. (closed)
 ```
 
 Purpose:
@@ -215,10 +223,12 @@ Done:
   value_origin_callers get/cloned borrow-use elimination through StorageAccessFacts
   value_origin_callers iter owned-copy read fold through StorageAccessFacts
   known enum constructor values inside normalized loop bodies
+  RegionObserver SlotMetadata generated artifact through LLVM/AOT
+  failed ny-llvmc input MIR retention
+  SlotClassifier policy moved into verified operation data
 
 Next:
-  Fix OrderedMapBox source-ordered String compare before claiming
-  variable_map iter observer read fold with SourceOrdered facts.
+  Design consultation: select the next post-RegionObserver converter slice.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -255,7 +265,13 @@ Task sequence:
       selected live read-fold source. (closed)
   26. Implement the selected live read-fold slice. (closed)
   27. Implement variable_map iter observer read fold with source-ordered facts.
-      (next)
+      (closed: generated artifact reaches LLVM/AOT rc=0)
+  28. Retain failed ny-llvmc input MIR and report the retained path. (closed)
+  29. Fix the retained-MIR blocker. (closed: generic MapBox mixed runtime
+      value transport preserves typed-object / boxed enum handles)
+  30. Move SlotClassifier policy from emitter hardcode to verified operation
+      data. (closed)
+  31. Select the next post-RegionObserver converter slice. (design stop)
 ```
 
 Current cleanup slice:

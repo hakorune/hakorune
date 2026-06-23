@@ -16,7 +16,6 @@ mod pipeline_report;
 mod plugin_init;
 mod pyvm_executor;
 mod report;
-mod using_resolver;
 
 // Re-export error types for convenience
 use self::error::LlvmRunError;
@@ -42,25 +41,27 @@ impl NyashRunner {
             }
         };
 
-        // Step 3: Using resolution and prelude merge
-        let (clean_code, prelude_asts) =
-            match using_resolver::UsingResolverBox::resolve(self, &code, filename) {
-                Ok(result) => result,
+        // Step 3: use the same source preparation contract as MIR emit mode.
+        let prepared =
+            match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+                self, filename, &code,
+            ) {
+                Ok(prepared) => prepared,
                 Err(e) => {
                     report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
                 }
             };
 
         // Parse to AST (main)
-        let main_ast = match NyashParser::parse_from_string(&clean_code) {
+        let ast = match NyashParser::parse_from_string(&prepared.code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
                     filename,
-                    &clean_code,
+                    &prepared.code,
                     &e,
                 );
-                // Enhanced context: list merged prelude files if any (from text-merge path)
+                // Enhanced context: list merged prelude files if any.
                 let preludes =
                     crate::runner::modes::common_util::resolve::clone_last_merged_preludes();
                 if !preludes.is_empty() {
@@ -83,16 +84,6 @@ impl NyashRunner {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("Parse error: {}", e)));
             }
         };
-        // Merge preludes + main when enabled
-        let use_ast = crate::config::env::using_ast_enabled();
-        let ast = if use_ast && !prelude_asts.is_empty() {
-            crate::runner::modes::common_util::resolve::merge_prelude_asts_with_main(
-                prelude_asts,
-                &main_ast,
-            )
-        } else {
-            main_ast
-        };
         // Macro expansion (env-gated) after merge
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
         let ast = crate::runner::modes::macro_child::normalize_core_pass(&ast);
@@ -104,6 +95,7 @@ impl NyashRunner {
         let mut module = match compile_options::CompileOptionsBox::compile(
             ast,
             Some(filename),
+            prepared.imports,
             pipeline_plan.compile_options,
         ) {
             Ok(m) => m,

@@ -22,7 +22,7 @@ pub(crate) use decode::{
 };
 #[cfg(test)]
 pub(crate) use encode::runtime_i64_from_box_ref;
-pub(crate) use encode::{box_to_handle, runtime_i64_from_box_ref_caller};
+pub(crate) use encode::runtime_i64_from_box_ref_caller;
 pub(crate) use encode::{
     runtime_i64_from_scalar_checked_box_ref_caller, BorrowedAliasEncodeCaller,
 };

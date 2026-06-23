@@ -2,6 +2,7 @@
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_NONE = 0,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_RUNTIME_DATA_LOAD_ANY,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64,
+        HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY,
         HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY,
       };
@@ -22,6 +23,8 @@
             return "nyash.runtime_data.get_hh";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64:
             return "nyash.map.scalar_load_hi";
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY:
+            return "nyash.map.slot_load_hi";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
             return "nyash.map.slot_load_hh";
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_ARRAY_SLOT_LOAD_ANY:
@@ -78,6 +81,9 @@
         }
         if (route_kind && !strcmp(route_kind, "map_load_scalar_i64")) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64;
+        }
+        if (route_kind && !strcmp(route_kind, "map_load_i64_any")) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY;
         }
         if (route_kind && !strcmp(route_kind, "map_load_any")) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY;
@@ -139,6 +145,10 @@
             metadata_route_kind == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64) {
           return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64;
         }
+        if (core_route_kind == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY &&
+            metadata_route_kind == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY) {
+          return HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY;
+        }
         return core_route_kind;
       }
 
@@ -152,6 +162,7 @@
                    !strcmp(receiver_origin_box, "ArrayBox") ||
                    !strcmp(receiver_origin_box, "Box");
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64:
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY:
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:
             if (!receiver_origin_box) return 0;
             return !strcmp(receiver_origin_box, "MapBox");
@@ -179,6 +190,7 @@
       auto int generic_method_get_key_route_valid(const char* key_route) {
         if (!key_route) return 1; /* compat with older MIR JSON metadata */
         if (!strcmp(key_route, "i64_const")) return 1;
+        if (!strcmp(key_route, "i64_value")) return 1;
         if (!strcmp(key_route, "unknown_any")) return 1;
         return 0;
       }
@@ -275,6 +287,12 @@
         }
         if (!strcmp(view.core_op, "MapGet") &&
             route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_SCALAR_I64 &&
+            !lowering_plan_tier_is_direct_abi(view.tier)) {
+          if (out) out->invalid = 1;
+          return 0;
+        }
+        if (!strcmp(view.core_op, "MapGet") &&
+            route == HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY &&
             !lowering_plan_tier_is_direct_abi(view.tier)) {
           if (out) out->invalid = 1;
           return 0;
@@ -631,6 +649,23 @@
               set_type(dst, T_I64);
             } else {
               fprintf(f, "  call i64 @\"nyash.map.scalar_load_hi\"(%s)\n", ab);
+            }
+            return 1;
+          case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_I64_ANY:
+            if (dst) {
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_load_hi\"(%s)\n", dst, ab);
+              set_type(dst, T_I64);
+              if (metadata.result_origin_box) {
+                if (!generic_method_get_publish_result_origin_box(
+                        dst,
+                        metadata.result_origin_box)) {
+                  return -1;
+                }
+              } else {
+                set_origin(dst, ORG_MAP_GET);
+              }
+            } else {
+              fprintf(f, "  call i64 @\"nyash.map.slot_load_hi\"(%s)\n", ab);
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_GET_ROUTE_MAP_LOAD_ANY:

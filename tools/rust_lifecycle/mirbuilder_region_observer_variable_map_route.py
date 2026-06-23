@@ -29,7 +29,14 @@ PLAN = {
             "required_tiers": ["VM", "EXE", "AOT"],
         },
     },
-    "output_capabilities": {},
+    "output_capabilities": {
+        "Vec<SlotMetadata>": {
+            "proof": "Accepted",
+            "semantic_shape": "OwnedSequence<OwnedProduct>",
+            "sequence_transport": "ArrayBox",
+            "element_transport": "SlotMetadataBox",
+        }
+    },
 }
 
 
@@ -52,32 +59,37 @@ def _deny_reason(exc: BaseException) -> dict[str, str]:
 def route_report() -> dict[str, Any]:
     facts = extract_facts()
     try:
-        compile_ordered_read_fold(facts, PLAN)
+        compiled = compile_ordered_read_fold(facts, PLAN)
     except ValueError as exc:
         deny = _deny_reason(exc)
+        route = "Deny"
     else:
-        raise SystemExit("expected SourceOrdered read-fold to deny")
+        deny = None
+        route = "Accepted"
 
-    return {
+    report = {
         "schema_version": 0,
         "kind": "MirBuilderRegionObserverVariableMapRoute",
         "subject": "mir::region::observer::classify_slots_from_variable_map",
         "source": facts["source"],
-        "route": "Deny",
-        "deny": deny,
+        "route": route,
         "decision": [
-            "do not generate RegionObserver variable_map read-fold artifact",
             "do not substitute insertion order for Rust BTreeMap<String> order",
             "do not add RegionObserver key-name special cases",
-            "do not invent SlotMetadata / RefSlotKind transport without design acceptance",
+            "emit owned SlotMetadata output only after explicit output transport acceptance",
         ],
         "stop_line": [
-            "source_ordered_read_fold_claim=0",
-            "slot_metadata_output_transport_claim=0",
+            "source_ordered_read_fold_claim=1",
+            "slot_metadata_output_transport_claim=1",
             "runtime_fallback=0",
-            "generated_hako=0",
+            "generated_hako=1",
         ],
     }
+    if deny is None:
+        report["operations"] = compiled
+    else:
+        report["deny"] = deny
+    return report
 
 
 def main() -> int:
@@ -95,9 +107,10 @@ def main() -> int:
 
     print("output_contract=region-observer-variable-map-route-v0")
     print(f"route={report['route']}")
-    print(f"deny_reason={report['deny']['reason']}")
-    print(f"deny_detail={report['deny']['detail']}")
-    print("generated_hako=0")
+    if "deny" in report:
+        print(f"deny_reason={report['deny']['reason']}")
+        print(f"deny_detail={report['deny']['detail']}")
+    print("generated_hako=1" if report["route"] == "Accepted" else "generated_hako=0")
     print("summary=ok")
     return 0
 

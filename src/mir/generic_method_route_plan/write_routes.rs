@@ -131,8 +131,7 @@ pub(super) fn match_generic_set_route(
             CoreMethodOp::ArraySet,
         ),
         ("MapBox", _) | ("Box", _) | ("RuntimeDataBox", Some("MapBox")) => (
-            if key_route == crate::mir::generic_method_route_facts::GenericMethodKeyRoute::I64Const
-            {
+            if key_route.is_i64() {
                 GenericMethodRouteKind::MapStoreI64
             } else {
                 GenericMethodRouteKind::MapStoreAny

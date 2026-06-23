@@ -1,28 +1,33 @@
 {
-  "schema_version": 0,
-  "kind": "MirBuilderRegionObserverVariableMapRoute",
-  "subject": "mir::region::observer::classify_slots_from_variable_map",
-  "source": {
-    "variable_context_path": "crates/hakorune_mir_builder/src/variable_context.rs",
-    "consumer_path": "src/mir/region/observer.rs",
-    "consumer_line": 174
-  },
-  "route": "Deny",
-  "deny": {
-    "reason": "UnsupportedOutputTransport",
-    "detail": "OutputTransportUndecided",
-    "output": "Vec<SlotMetadata>"
-  },
   "decision": [
-    "do not generate RegionObserver variable_map read-fold artifact",
     "do not substitute insertion order for Rust BTreeMap<String> order",
     "do not add RegionObserver key-name special cases",
-    "do not invent SlotMetadata / RefSlotKind transport without design acceptance"
+    "emit owned SlotMetadata output only after explicit output transport acceptance"
   ],
+  "kind": "MirBuilderRegionObserverVariableMapRoute",
+  "operations": [
+    {
+      "destination": "slots",
+      "kind": "ReadFoldOwnedOutput",
+      "order": {
+        "comparator": "RustStringOrdV1",
+        "kind": "KeyAscending"
+      },
+      "source": "builder.variable_ctx.variable_map"
+    }
+  ],
+  "route": "Accepted",
+  "schema_version": 0,
+  "source": {
+    "consumer_line": 174,
+    "consumer_path": "src/mir/region/observer.rs",
+    "variable_context_path": "crates/hakorune_mir_builder/src/variable_context.rs"
+  },
   "stop_line": [
-    "source_ordered_read_fold_claim=0",
-    "slot_metadata_output_transport_claim=0",
+    "source_ordered_read_fold_claim=1",
+    "slot_metadata_output_transport_claim=1",
     "runtime_fallback=0",
-    "generated_hako=0"
-  ]
+    "generated_hako=1"
+  ],
+  "subject": "mir::region::observer::classify_slots_from_variable_map"
 }

@@ -29,20 +29,18 @@ transport with manual i64 tags just to make the current AOT backend pass.
 
 Focused boxed enum probes are green for cross-function unit enums,
 handle-payload projection, MapBox-returned enums, and Option-wrapped map
-results. The remaining blocker is the full generated RegionObserver
-SlotMetadata artifact:
+results. The full generated RegionObserver SlotMetadata artifact is also
+green through LLVM/AOT:
 
 ```text
-SlotClassifierApi.classify/2
+region_observer_slot_metadata_artifact=ok
+Result: 0
 ```
 
-The RegionObserver classifier needs the same boxed enum ABI through its
-complete read-fold/output path:
+The final blocker was generic mixed runtime value transport:
 
 ```text
-Option<MirType> parameter
-MapBox.get(... MirType ...) -> Option::Some(MirType)
-Option::Some payload -> MirType variant_tag / variant_project
+MapBox i64-key raw load preserves negative typed-object / boxed enum handles.
 ```
 
 ## Required Contract
@@ -112,7 +110,7 @@ path.
 
 3. `Close boxed enum container round trip`
 
-   Status: focused probes landed; full RegionObserver artifact remains active.
+   Status: landed.
 
    Scope:
 
@@ -127,6 +125,8 @@ path.
 
 4. `Close RegionObserver SlotMetadata artifact`
 
+   Status: landed.
+
    Scope:
 
    ```text
@@ -136,6 +136,39 @@ path.
    VM/MIR/EXE/AOT green
    ```
 
+   Closed blocker:
+
+   ```text
+   ny-llvmc failure retains the exact temp MIR JSON and prints
+   retained_mir=<path>. The retained evidence selected generic MapBox mixed
+   runtime value publication as the fix, not source-shape changes.
+
+   forbidden fixes:
+     generated Hako source-shape workaround
+     RegionObserver / MirType backend branch
+     OrderedMapBox-only backend branch
+   ```
+
+5. `Move slot classification policy into verified operation data`
+
+   Status: landed.
+
+   Scope after RegionObserver AOT is green:
+
+   ```text
+   live Rust classification facts
+     -> ClassifyEnumVariants operation data
+     -> emitter renders table only
+
+   Some(MirType::Unknown) -> NonRef
+   None + "args" -> StrongRoot
+   fallback names live in operation data, not the emitter
+   ```
+
+6. `Select the next post-RegionObserver converter slice`
+
+   Status: design stop.
+
 ## Acceptance
 
 ```text
@@ -143,6 +176,7 @@ same-function local enum route still green
 cross-function unit enum route EXE/AOT green
 handle-payload projection EXE/AOT green
 MapBox-returned enum classifier EXE/AOT green
+ny-llvmc failure retains exact input MIR path
 RegionObserver SlotMetadata artifact EXE/AOT green
 raw aggregate variable_map return = 0
 manual i64 enum-tag workaround = 0

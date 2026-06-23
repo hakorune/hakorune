@@ -1,0 +1,54 @@
+{
+  "kind": "RustOracleVectors",
+  "schema_version": 0,
+  "subject": "mir::region::observer::classify_slots_from_variable_map",
+  "vectors": [
+    {
+      "id": "ordered_slot_metadata_min",
+      "operations": [
+        {
+          "op": "insert_variable",
+          "name": "b",
+          "value_id": 2
+        },
+        {
+          "op": "insert_variable",
+          "name": "a",
+          "value_id": 1
+        },
+        {
+          "op": "insert_variable",
+          "name": "args",
+          "value_id": 3
+        },
+        {
+          "op": "set_type",
+          "value_id": 1,
+          "type": "Box(any)"
+        },
+        {
+          "op": "set_type",
+          "value_id": 2,
+          "type": "WeakRef"
+        },
+        {
+          "op": "expect_slots",
+          "slots": [
+            [
+              "a",
+              "StrongRoot"
+            ],
+            [
+              "args",
+              "StrongRoot"
+            ],
+            [
+              "b",
+              "WeakRoot"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -271,8 +271,12 @@ latest_card_summary = """RegionObserver SlotMetadata output transport is
 selected as native RefSlotKind plus semantic OwnedProduct with current
 ArrayBox<SlotMetadataBox> transport. Focused boxed enum ABI probes are green
 for cross-function unit enums, handle-payload projection, MapBox-returned
-enums, and Option-wrapped map results. The remaining blocker is closing the
-full generated RegionObserver SlotMetadata artifact through VM/MIR/EXE/AOT."""
+enums, and Option-wrapped map results. The full generated RegionObserver
+SlotMetadata artifact is now LLVM/AOT green after fixing generic MapBox
+mixed-runtime value publication for typed-object / boxed enum handles. The
+SlotClassifier policy is now verified operation data instead of emitter-owned
+logic. The next blocker is selecting the next post-RegionObserver converter
+slice."""
 
 current_blocker_token = "BOXED-RUNTIME-NATIVE-ENUM-ABI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

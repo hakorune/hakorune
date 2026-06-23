@@ -20,6 +20,7 @@ pub(crate) enum BorrowedAliasEncodeCaller {
     #[cfg(test)]
     Generic,
     ArrayGetIndexEncoded,
+    MapSlotLoad,
     MapRuntimeDataGetAnyKey,
 }
 
@@ -29,7 +30,9 @@ impl BorrowedAliasEncodeCaller {
         match self {
             #[cfg(test)]
             Self::Generic => BORROWED_ALIAS_ENCODE,
-            Self::ArrayGetIndexEncoded | Self::MapRuntimeDataGetAnyKey => BORROWED_ALIAS_ENCODE,
+            Self::ArrayGetIndexEncoded | Self::MapSlotLoad | Self::MapRuntimeDataGetAnyKey => {
+                BORROWED_ALIAS_ENCODE
+            }
         }
     }
 
@@ -63,7 +66,7 @@ impl BorrowedAliasEncodeCaller {
             #[cfg(test)]
             Self::Generic => {}
             Self::ArrayGetIndexEncoded => array(),
-            Self::MapRuntimeDataGetAnyKey => map(),
+            Self::MapSlotLoad | Self::MapRuntimeDataGetAnyKey => map(),
         }
     }
 }

@@ -1,0 +1,23 @@
+{
+  "borrow_use_id": "RegionObserver::classify_slots_from_variable_map",
+  "comparator_capabilities": {
+    "RustStringOrdV1": {
+      "proof": "VmExeAotAccepted",
+      "required_tiers": [
+        "VM",
+        "EXE",
+        "AOT"
+      ]
+    }
+  },
+  "destination": "slots",
+  "output_capabilities": {
+    "Vec<SlotMetadata>": {
+      "element_transport": "SlotMetadataBox",
+      "proof": "Accepted",
+      "semantic_shape": "OwnedSequence<OwnedProduct>",
+      "sequence_transport": "ArrayBox"
+    }
+  },
+  "source": "builder.variable_ctx.variable_map"
+}

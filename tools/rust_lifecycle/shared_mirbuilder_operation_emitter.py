@@ -308,6 +308,11 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         if target is None or box_name is None:
             raise ValueError("NewLocalBox requires target and box")
         return [f"local {target} = new {box_name}()"]
+    if kind == "NewLocalArray":
+        target = operation.get("target")
+        if target is None:
+            raise ValueError("NewLocalArray requires target")
+        return [f"local {target} = new ArrayBox()"]
     if kind == "MoveFieldAndResetSource":
         replacement = operation.get("replacement")
         if not isinstance(replacement, Mapping):
@@ -391,6 +396,126 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             "}",
             f"return Option::Some(BoxHelpers.array_get({source}, n - 1))",
         ]
+    if kind == "ClassifyEnumVariants":
+        type_source = operation.get("type_source")
+        source_enum = operation.get("source_enum")
+        missing_value = operation.get("missing_value_fallback")
+        variant_groups = operation.get("variant_groups")
+        default_return = operation.get("default_return")
+        if not isinstance(type_source, str) or not isinstance(source_enum, str):
+            raise ValueError("ClassifyEnumVariants requires type_source and source_enum")
+        if not isinstance(missing_value, dict) or not isinstance(variant_groups, list) or not isinstance(default_return, str):
+            raise ValueError("ClassifyEnumVariants requires missing_value_fallback, variant_groups, and default_return")
+        name_source = missing_value.get("input")
+        string_set = missing_value.get("string_set")
+        matched = missing_value.get("matched")
+        unmatched = missing_value.get("unmatched")
+        if not isinstance(name_source, str) or not isinstance(string_set, list) or not isinstance(matched, str) or not isinstance(unmatched, str):
+            raise ValueError("ClassifyEnumVariants missing-value fallback is malformed")
+        fallback_check = " or ".join(f"{name_source} == {render_string_literal(name)}" for name in string_set)
+        cases = []
+        for group in variant_groups:
+            variants = group.get("variants") if isinstance(group, dict) else None
+            returns = group.get("returns") if isinstance(group, dict) else None
+            if not isinstance(variants, list) or not isinstance(returns, str):
+                raise ValueError("ClassifyEnumVariants variant group is malformed")
+            for variant in variants:
+                if isinstance(variant, str):
+                    cases.append({"name": variant, "payload_var": None, "returns": returns})
+                elif isinstance(variant, dict) and isinstance(variant.get("name"), str):
+                    cases.append({
+                        "name": variant["name"],
+                        "payload_var": variant.get("payload_var"),
+                        "returns": returns,
+                    })
+                else:
+                    raise ValueError("ClassifyEnumVariants variant entry is malformed")
+
+        def render_cases(index: int, indent: str = "") -> list[str]:
+            if index >= len(cases):
+                return [f"{indent}return {default_return}"]
+            case = cases[index]
+            name = case["name"]
+            returns = case["returns"]
+            payload_var = case.get("payload_var")
+            if isinstance(payload_var, str):
+                lines = [f"{indent}guard let {source_enum}::{name}({payload_var}) = ty else {{"]
+                lines.extend(render_cases(index + 1, indent + "    "))
+                lines.append(f"{indent}}}")
+                lines.append(f"{indent}return {returns}")
+                return lines
+            lines = [f"{indent}if ty == {source_enum}::{name}() {{"]
+            lines.append(f"{indent}    return {returns}")
+            lines.append(f"{indent}}}")
+            lines.extend(render_cases(index + 1, indent))
+            return lines
+
+        return [
+            f"guard let Option::Some(ty) = {type_source} else {{",
+            f"    if {fallback_check} {{",
+            f"        return {matched}",
+            "    }",
+            f"    return {unmatched}",
+            "}",
+        ] + render_cases(0)
+    if kind == "ReadFoldSlotMetadata":
+        source = operation.get("source")
+        type_map = operation.get("type_map")
+        destination = operation.get("destination")
+        classifier = operation.get("classifier")
+        oracle_slots = operation.get("oracle_slots", [])
+        if not all(isinstance(value, str) for value in (source, type_map, destination, classifier)):
+            raise ValueError("ReadFoldSlotMetadata requires source, type_map, destination, and classifier")
+        if not isinstance(oracle_slots, list):
+            raise ValueError("ReadFoldSlotMetadata oracle_slots must be a list")
+        lines = [
+            f"local total = {source}.keys_value.length()",
+            "local i = 0",
+            "loop(i < total) {",
+            f"    local name = {source}.keys_value.get(i)",
+            f"    local value_id = {source}.values_value.get(i)",
+            f"    local raw_type = {type_map}.get(value_id)",
+            "    local type_opt = Option::None()",
+            "    if raw_type != null {",
+            "        type_opt = Option::Some(raw_type)",
+            "    }",
+            f"    local ref_kind = {classifier}(type_opt, name)",
+            "    local slot = new SlotMetadataBox()",
+            "    slot.name = name",
+            "    slot.ref_kind = ref_kind",
+            f"    {destination}.push(slot)",
+        ]
+        for index, expected in enumerate(oracle_slots):
+            if not isinstance(expected, Mapping):
+                raise ValueError("ReadFoldSlotMetadata oracle slot must be an object")
+            expected_name = expected.get("name")
+            expected_kind = expected.get("ref_kind")
+            fail_code = expected.get("fail_code", 100 + index)
+            if not isinstance(expected_name, str) or not isinstance(expected_kind, str) or not isinstance(fail_code, int):
+                raise ValueError("ReadFoldSlotMetadata oracle slot requires name, ref_kind, and integer fail_code")
+            lines.extend(
+                [
+                    f"    if i == {index} {{",
+                    f"        if name != {render_string_literal(expected_name)} {{",
+                    f"            print(\"region_observer_slot{index}_name=fail\")",
+                    f"            return {fail_code}",
+                    "        }",
+                    f"        if ref_kind != {expected_kind} {{",
+                    f"            print(\"region_observer_slot{index}_kind=fail\")",
+                    f"            return {fail_code + 1}",
+                    "        }",
+                    "    }",
+                ]
+            )
+        lines.extend(["    i = i + 1", "}"])
+        return lines
+    if kind == "ArrayElementFieldGet":
+        source = operation.get("array")
+        index = operation.get("index")
+        field = operation.get("field_name")
+        if not isinstance(source, str) or not isinstance(index, str) or not isinstance(field, str):
+            raise ValueError("ArrayElementFieldGet requires array, index, and field_name")
+        return [f"return {source}.get({index}).{field}"]
     if kind == "CloneOwnedMap":
         return [f"return {render_source_expr(operation)}.clone_owned()"]
     if kind == "ReplaceOwnedMap":

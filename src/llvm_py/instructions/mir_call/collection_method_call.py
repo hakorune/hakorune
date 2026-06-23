@@ -14,6 +14,7 @@ from .runtime_data_dispatch import (
     lower_runtime_data_method_call,
     select_array_collection_call_spec,
 )
+from .auto_specialize import _value_is_i64_hint
 from utils.resolver_helpers import is_arrayrepr_direct_i64
 
 DIRECT_ARRAY_HANDLE_TAG_MASK = -4
@@ -544,6 +545,9 @@ def _lower_map_get_collection_method_call(
         if local_storage_plan is not None:
             callee = declare("nyash.map.local_i64_get_hi", i64, [i64, i64])
             return builder.call(callee, [recv_h, key], name="local_fastpath_map_get_hi")
+    if arg_ids and _value_is_i64_hint(resolver, arg_ids[0]):
+        callee = declare("nyash.map.slot_load_hi", i64, [i64, i64])
+        return builder.call(callee, [recv_h, key], name="unified_map_slot_load_hi")
     callee = declare("nyash.map.slot_load_hh", i64, [i64, i64])
     return builder.call(callee, [recv_h, key], name="unified_map_slot_load_hh")
 

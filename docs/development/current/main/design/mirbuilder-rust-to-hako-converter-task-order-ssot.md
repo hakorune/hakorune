@@ -22,12 +22,19 @@ active blocker:
   LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
 
 current implementation task:
-  Lower RegionObserver through verified source-ordered read-fold
+  Design consultation: select the next post-RegionObserver converter slice
+
+producer responsibility stack:
+  Source preparation
+    -> Canonical MIR compile
+    -> MIR finalize / semantic refresh
+    -> MIR JSON serialization
+    -> ny-llvmc consumption
 
 selected source slice:
   variable_map().iter() observer fold
 
-blocked lowering:
+selected lowering:
   Rust facts
     -> BorrowUseFacts
     -> StorageAccessFacts
@@ -36,70 +43,33 @@ blocked lowering:
     -> owned SlotMetadata output
 
 blocker evidence:
-  RegionObserver probe with insertion order b, a, args reaches MIR/EXE after
-  loop enum-constructor acceptance, but the `.hako` OrderedMapBox output does
-  not prove Rust BTreeMap<String> ordering. SourceOrdered conversion must not
-  silently downgrade to insertion order.
+  RegionObserver SlotMetadata generated artifact is LLVM/AOT green. The final
+  transport blocker was generic MapBox mixed runtime value publication: i64-key
+  raw loads must preserve negative typed-object / boxed enum handles.
 
-current decision:
-  ORDERED-MAP-SOURCE-ORDERED-STRING-COMPARE-001 is closed as fail-closed.
-  The total-order comparator is now proved across VM/EXE/AOT and consumed by
-  OrderedMapBox.
-
-  SOURCE-ORDERED-UNBLOCK-ROUTE-DESIGN-001 is closed as Option 1:
-  implement backend-accepted StringBox lexical comparison as a generic
-  ComparatorCapability, not as an OrderedMapBox / RegionObserver special case.
-
-implemented route-selection guardrail:
-  `tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py`
-  extracts the live source line, accepts the comparator proof, and now denies
-  artifact generation at the next precise boundary:
-    Deny(UnsupportedOutputTransport)
-    detail=OutputTransportUndecided
-    output=Vec<SlotMetadata>
-
-current decision:
+selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
 
-  - RefSlotKind is a native enum.
-  - SlotMetadata is semantic OwnedProduct.
-  - Current execution transport is ArrayBox<SlotMetadataBox>.
-  - Future optimized transport may become InlineRecord / packed / SoA without
-    changing the read-fold semantics.
+  - RefSlotKind is native enum; SlotMetadata is semantic OwnedProduct.
+  - Current transport is ArrayBox<SlotMetadataBox>; future transport may become
+    InlineRecord / packed / SoA without changing read-fold semantics.
 
 current fail-fast boundary:
-  Focused boxed enum probes are green. The remaining boundary is the full
-  RegionObserver artifact, not a generic boxed enum transport gap.
-
-  Deny(UnsupportedRegionObserverReadFold)
-  detail=FullArtifactNotYetClosed
-  first_callee=SlotClassifierApi.classify/2
-  first_op=region_observer_fold
-  required_shape=SlotMetadata artifact VM/MIR/EXE/AOT green
+  RegionObserver read-fold and SlotClassifier policy extraction are green.
+  Do not start the next converter slice until the next owner is selected.
 
 forbidden:
-  raw aggregate map return
-  read-view / lease framework
-  new Hako pointer syntax
-  source-name hardcode
-  runtime fallback
+  raw aggregate map return; read-view / lease framework; new Hako pointer
+  syntax; source-name hardcode; runtime fallback
+  generated-Hako source-shape workaround for runner MIR drift
 ```
 
 Acceptance for the current task:
 
 ```text
-SourceOrdered read-fold conversion is denied before artifact generation
-standalone value_origin_callers() conversion -> Deny(ReturnedReadBorrow)
-variable_map().iter() source has exact file:line evidence
-known ordered observer consumer -> ElideToReadFold only for live source
-order=SourceOrdered is preserved or the slice is denied
-raw aggregate alias = 0
-element reference escape = 0
-unknown consumer -> Deny(ReturnedReadBorrow)
-owner mutation during projected use -> Deny(ReturnedReadBorrow)
-generated .hako MIR green
-generated .hako EXE green
-rust_mirbuilder_converter_matrix_guard green
+next slice has one selected owner
+no implementation starts before selection
+no docs-only process loop unless the decision is ambiguous
 ```
 
 Current mechanical status:
@@ -108,10 +78,11 @@ Current mechanical status:
 region-observer variable_map read-fold route = native enum / boxed product WIP
 comparator proof = VmExeAotAccepted
 slot_metadata_output_transport_claim = selected
-generated_hako = MIR green, EXE/AOT ready for RegionObserver closeout probe
+generated_hako = RegionObserver LLVM/AOT green
   boxed_runtime_v1 make/tag/project = landed
   boxed enum MapBox/Option round trip = landed
-next step = close RegionObserver SlotMetadata artifact
+slot_classifier_policy = verified operation data
+next step = design consultation for the next converter slice
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -174,7 +145,7 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.7. `Lower RegionObserver through verified source-ordered read-fold`
 
-   Status: blocked on generic backend enum transport.
+   Status: green through generated artifact LLVM/AOT.
 
    Scope:
 
@@ -195,16 +166,12 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    record-in-ArrayBox claim = 0
    ```
 
-   Current blocker:
+   Closed blocker:
 
    ```text
-   native enum values crossing function/container boundaries cannot be tagged
-   by AOT generic lowering yet.
-
-   The supported backend shape is still local variant_make -> variant_tag.
-   The RegionObserver classifier needs:
-     Option<MirType> parameter -> variant_tag / variant_project
-     MapBox.get(... MirType ...) -> Option::Some(MirType) -> classifier
+   MapBox i64-key raw load now preserves mixed runtime values, including
+   negative typed-object / boxed enum handles. The fix is generic transport,
+   not RegionObserver / MirType / RefSlotKind special casing.
 
    Do not switch RefSlotKind or MirType to manual i64 tags as a workaround.
    Do not add RegionObserver / MirType backend branches.
@@ -328,10 +295,25 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    native enum function parameter green
    native enum return green
    enum stored in typed object field green
-   RegionObserver SlotMetadata artifact VM/MIR/EXE/AOT green
+   focused enum container probes VM/MIR/EXE/AOT green
    ```
 
    Evidence: map and option-map round-trip probes pass LLVM harness.
+
+0.11. `Retain failed ny-llvmc input MIR`
+
+   Status: landed in working tree. Failure keeps temp MIR and prints
+   `retained_mir=<path>`; success deletes it.
+
+0.12. `Fix retained-MIR backend-ready blocker`
+
+   Status: green. The retained evidence selected generic MapBox mixed runtime
+   value transport rather than a producer/finalizer or source-shape fix.
+
+0.13. `Move slot classification policy into verified operation data`
+
+   Status: landed. Emitter renders
+   `ClassifyEnumVariants`; facts own variant groups and fallback names.
 
 1. `Generalize access capabilities through value-caller clone elimination`
 

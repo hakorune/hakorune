@@ -225,25 +225,28 @@ new Hako pointer or borrow syntax
    insertion-order substitution = 0
    ```
 
-   Status: blocked on output transport design.
+   Status: output transport selected; blocked on LLVM runner product-MIR
+   diagnostics.
 
    Current fail-fast boundary:
 
    ```text
-   Deny(UnsupportedOutputTransport)
-   detail=OutputTransportUndecided
+   Deny(UnsupportedRegionObserverReadFold)
+   detail=RunnerProductMirNotYetProven
    output=Vec<SlotMetadata>
    ```
 
 ## Current Stop Line
 
-Comparator execution is proven and OrderedMapBox consumes it, but source-ordered
-read-fold generation remains closed until owned RegionObserver output transport
-is designed and verified:
+Comparator execution is proven, OrderedMapBox consumes it, and owned
+RegionObserver output transport is selected. The current stop line is proving
+that the LLVM product route gives ny-llvmc the same backend-ready semantic MIR
+contract as the explicit MIR JSON route:
 
 ```text
-source_ordered_read_fold_claim=0
-slot_metadata_output_transport_claim=0
-generated_region_observer_artifact=0
+source_ordered_read_fold_claim=selected
+slot_metadata_output_transport_claim=selected
+generated_region_observer_artifact=WIP
+failed_ny_llvmc_input_mir_retention=WIP implemented
 runtime_fallback=0
 ```

@@ -10,6 +10,7 @@ pub(crate) enum GenericMethodRouteKind {
     RuntimeDataLoadAny,
     RuntimeDataContainsAny,
     MapLoadScalarI64,
+    MapLoadI64Any,
     MapLoadAny,
     MapEntryCount,
     MapKeysArray,
@@ -36,6 +37,7 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny
             | Self::MapLoadScalarI64
+            | Self::MapLoadI64Any
             | Self::MapLoadAny
             | Self::ArraySlotLoadAny => "generic_method.get",
             Self::RuntimeDataContainsAny
@@ -60,6 +62,7 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny
             | Self::MapLoadScalarI64
+            | Self::MapLoadI64Any
             | Self::MapLoadAny
             | Self::ArraySlotLoadAny => "get",
             Self::RuntimeDataContainsAny
@@ -83,6 +86,7 @@ impl GenericMethodRouteKind {
             Self::RuntimeDataLoadAny => "nyash.runtime_data.get_hh",
             Self::RuntimeDataContainsAny => "nyash.runtime_data.has_hh",
             Self::MapLoadScalarI64 => "nyash.map.scalar_load_hi",
+            Self::MapLoadI64Any => "nyash.map.slot_load_hi",
             Self::MapLoadAny => "nyash.map.slot_load_hh",
             Self::MapEntryCount => "nyash.map.entry_count_i64",
             Self::MapKeysArray => "nyash.map.keys_h",
@@ -109,6 +113,7 @@ impl GenericMethodRouteKind {
         match self {
             Self::RuntimeDataLoadAny
             | Self::MapLoadScalarI64
+            | Self::MapLoadI64Any
             | Self::MapLoadAny
             | Self::ArraySlotLoadAny => &["read.key"],
             Self::RuntimeDataContainsAny
@@ -134,6 +139,7 @@ impl GenericMethodRouteKind {
             Self::RuntimeDataLoadAny => "runtime_data_load_any",
             Self::RuntimeDataContainsAny => "runtime_data_contains_any",
             Self::MapLoadScalarI64 => "map_load_scalar_i64",
+            Self::MapLoadI64Any => "map_load_i64_any",
             Self::MapLoadAny => "map_load_any",
             Self::MapEntryCount => "map_entry_count",
             Self::MapKeysArray => "map_keys_array",

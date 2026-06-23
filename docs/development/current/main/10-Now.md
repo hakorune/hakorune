@@ -20,7 +20,7 @@ Related:
 ## Active Blocker
 
 ```text
-CABI-GENERIC-METHOD-ROUTE-TUPLE-HARDCODE-CLEANUP-001
+BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 ```
 
 Read `docs/development/current/main/CURRENT_STATE.toml` for the complete active

@@ -44,6 +44,8 @@ def _build_box_ir(box: Any) -> dict[str, Any]:
             }
             for field in box.fields
         ]
+        if box.methods:
+            data["methods"] = [_build_api_method_ir(method) for method in box.methods]
         return data
     data["field_name"] = box.field_name
     data["field_type"] = box.field_type

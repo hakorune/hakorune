@@ -16,7 +16,10 @@ use super::{
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     map_repr_plan::refresh_function_map_repr_plans,
     ordered_map_origin_plan::refresh_module_ordered_map_get_result_origins,
-    typed_object_plan::refresh_module_typed_object_field_value_types,
+    typed_object_plan::{
+        refresh_module_typed_object_collection_field_element_value_types,
+        refresh_module_typed_object_field_value_types,
+    },
     user_box_method_route_plan::refresh_module_user_box_method_routes,
 };
 
@@ -69,6 +72,7 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) -> RouteFixpointRep
 
     refresh_module_typed_object_field_value_types(module);
     report.typed_object_field_value_type_passes += 1;
+    refresh_module_typed_object_collection_field_element_value_types(module);
 
     // Seed focused carrier-data map result origins before generic/user-box
     // refresh so downstream ArrayBox reads can inherit the published type.
@@ -90,6 +94,7 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) -> RouteFixpointRep
     // Re-run the focused origin publication after user-box routes settle so
     // route result-box overrides and nested ArrayBox reads stay aligned.
     refresh_module_ordered_map_get_result_origins(module);
+    refresh_module_typed_object_collection_field_element_value_types(module);
     refresh_module_generic_method_routes(module);
     report.generic_passes += 1;
     refresh_module_user_box_method_routes(module);

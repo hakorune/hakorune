@@ -1,0 +1,49 @@
+{
+  "borrow_use_facts": [
+    {
+      "borrowed_kind": "Aggregate",
+      "consumer_kind": "ReadOnlyFold",
+      "element_reference_escapes": false,
+      "escapes": false,
+      "id": "RegionObserver::classify_slots_from_variable_map",
+      "identity_observed": false,
+      "order": {
+        "comparator": "RustStringOrdV1",
+        "kind": "KeyAscending"
+      },
+      "output": "Vec<SlotMetadata>",
+      "owned_projection_available": true,
+      "owner_mutated_during_use": false,
+      "source": "src/mir/region/observer.rs:174"
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "detail": "StandaloneAggregateReturn",
+      "id": "VariableContext::variable_map"
+    }
+  ],
+  "field_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "id": "VariableContext.variable_map",
+      "iteration_order": {
+        "comparator": "RustStringOrdV1",
+        "kind": "KeyAscending"
+      },
+      "key_transport": "String",
+      "map_identity_escapes": false,
+      "rust_type": "BTreeMap<String, ValueId>",
+      "value_transport": "ValueIdAsI64"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "consumer_line": 174,
+    "consumer_path": "src/mir/region/observer.rs",
+    "variable_context_path": "crates/hakorune_mir_builder/src/variable_context.rs"
+  },
+  "subject": "mir::region::observer::classify_slots_from_variable_map"
+}

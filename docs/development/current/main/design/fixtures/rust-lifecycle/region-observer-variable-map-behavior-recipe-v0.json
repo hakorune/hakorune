@@ -1,0 +1,30 @@
+{
+  "excluded_methods": [
+    "classify_slots_from_registry",
+    "observe_control_form",
+    "observe_function_region",
+    "pop_function_region"
+  ],
+  "family_id": "mir::region::observer",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "RegionObserverApi.classify_slots_from_variable_map(variable_ctx, type_ctx)",
+      "hako_operation": "ReadFoldOwnedOutput",
+      "id": "RegionObserver::classify_slots_from_variable_map",
+      "rust_operation": "variable_map().iter()"
+    },
+    {
+      "emits": "SlotClassifierApi.classify(type_opt, name)",
+      "hako_operation": "ClassifyEnumVariants",
+      "id": "Region::classify_ref_kind",
+      "rust_operation": "match MirType"
+    }
+  ],
+  "pilot_scope": "RegionObserver_variable_map_slot_metadata_only",
+  "schema_version": 0,
+  "selected_body_count": "region_observer_variable_map_read_fold_only",
+  "source_oracle": "region-observer-variable-map-oracle-v0.json",
+  "source_plan": "region-observer-variable-map-plan-v0.json",
+  "subject": "mir::region::observer::classify_slots_from_variable_map"
+}

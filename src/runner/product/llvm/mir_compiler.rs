@@ -3,6 +3,7 @@
 //! Handles AST → MIR compilation.
 
 use nyash_rust::{ast::ASTNode, mir::MirCompiler, mir::MirModule};
+use std::collections::HashMap;
 
 use super::compile_options::{FutureRewriteRoute, LlvmCompileOptions};
 
@@ -42,6 +43,7 @@ impl MirCompilerBox {
     pub fn compile(
         ast: ASTNode,
         filename: Option<&str>,
+        imports: HashMap<String, String>,
         options: LlvmCompileOptions,
     ) -> Result<MirModule, String> {
         let _rw_future = match options.future_rewrite_route {
@@ -52,10 +54,11 @@ impl MirCompilerBox {
         let mut mir_compiler = MirCompiler::new();
 
         let compile_result =
-            crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+            crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
                 &mut mir_compiler,
                 ast,
                 filename,
+                imports,
             )
             .map_err(|e| format!("MIR compilation error: {}", e))?;
 

@@ -264,6 +264,10 @@ fn run_ny_llvmc_emit_obj(json_path: &std::path::Path, obj_out: &str) -> Result<(
     spawn_ny_llvmc_emit_obj_command(&ny_llvmc, &mut cmd, obj_out)
 }
 
+fn with_retained_mir_path(err: String, json_path: &std::path::Path) -> String {
+    format!("{}\nretained_mir={}", err, json_path.display())
+}
+
 fn emit_json_and_run_ny_llvmc_emit_exe(
     emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
     exe_out: &str,
@@ -273,8 +277,13 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
     let json_path = prepare_ny_llvmc_emit_json_path();
     emit_json(&json_path)?;
     let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs);
-    let _ = std::fs::remove_file(&json_path);
-    result
+    match result {
+        Ok(()) => {
+            let _ = std::fs::remove_file(&json_path);
+            Ok(())
+        }
+        Err(err) => Err(with_retained_mir_path(err, &json_path)),
+    }
 }
 
 /// Emit native executable via ny-llvmc (lib-side MIR)
@@ -381,7 +390,9 @@ pub fn run_executable(
 
 #[cfg(test)]
 mod tests {
-    use super::{append_ny_llvmc_extra_libs_arg, ny_llvmc_driver_arg_from_backend};
+    use super::{
+        append_ny_llvmc_extra_libs_arg, ny_llvmc_driver_arg_from_backend, with_retained_mir_path,
+    };
 
     #[test]
     fn rejects_native_backend_selector_for_runner_route() {
@@ -424,5 +435,15 @@ mod tests {
         let mut cmd = std::process::Command::new("ny-llvmc");
         append_ny_llvmc_extra_libs_arg(&mut cmd, Some("   "));
         assert!(cmd.get_args().next().is_none());
+    }
+
+    #[test]
+    fn retained_mir_path_is_reported_on_emit_failure() {
+        let err = with_retained_mir_path(
+            "ny-llvmc failed".to_string(),
+            std::path::Path::new("tmp/nyash_cli_emit_123.json"),
+        );
+        assert!(err.contains("ny-llvmc failed"));
+        assert!(err.contains("retained_mir=tmp/nyash_cli_emit_123.json"));
     }
 }

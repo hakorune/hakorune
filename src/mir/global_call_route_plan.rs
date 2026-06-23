@@ -480,6 +480,7 @@ fn same_module_static_helper_generic_route_return_contract(
         }
         None => match route_kind {
             GenericMethodRouteKind::MapLoadAny
+            | GenericMethodRouteKind::MapLoadI64Any
             | GenericMethodRouteKind::RuntimeDataLoadAny
             | GenericMethodRouteKind::ArraySlotLoadAny => {
                 Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)

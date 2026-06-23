@@ -38,7 +38,7 @@ fn promotes_runtime_data_mapbox_i64_has_to_map_contains_i64() {
 }
 
 #[test]
-fn records_runtime_data_mapbox_get_as_cold_metadata_only() {
+fn promotes_runtime_data_mapbox_i64_get_to_mixed_map_load() {
     let mut function = make_function();
     let block = function
         .blocks
@@ -63,20 +63,14 @@ fn records_runtime_data_mapbox_get_as_cold_metadata_only() {
     assert_eq!(route.method(), "get");
     assert_eq!(route.receiver_origin_box(), Some("MapBox"));
     assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::I64Const));
-    assert_eq!(
-        route.route_kind(),
-        GenericMethodRouteKind::RuntimeDataLoadAny
-    );
-    assert_eq!(
-        route.route_kind().helper_symbol(),
-        "nyash.runtime_data.get_hh"
-    );
+    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapLoadI64Any);
+    assert_eq!(route.route_kind().helper_symbol(), "nyash.map.slot_load_hi");
     assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
     let core_method = route.core_method().expect("MapGet carrier");
     assert_eq!(core_method.op, CoreMethodOp::MapGet);
     assert_eq!(
         core_method.lowering_tier,
-        CoreMethodLoweringTier::ColdFallback
+        CoreMethodLoweringTier::WarmDirectAbi
     );
     assert_eq!(
         route.return_shape(),

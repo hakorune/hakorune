@@ -19,6 +19,12 @@ class FieldSpec:
 
 
 @dataclass(frozen=True)
+class ApiMethodSpec:
+    signature: str
+    operations: list[dict[str, Any]] | None = None
+
+
+@dataclass(frozen=True)
 class BoxSpec:
     name: str
     field_name: str | None = None
@@ -26,12 +32,7 @@ class BoxSpec:
     initializer: str | None = None
     initializer_operation: dict[str, Any] | None = None
     fields: list[FieldSpec] = field(default_factory=list)
-
-
-@dataclass(frozen=True)
-class ApiMethodSpec:
-    signature: str
-    operations: list[dict[str, Any]] | None = None
+    methods: list[ApiMethodSpec] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

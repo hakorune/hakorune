@@ -11,6 +11,7 @@ use super::{ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodKeyRoute {
     I64Const,
+    I64Value,
     UnknownAny,
 }
 
@@ -18,8 +19,13 @@ impl GenericMethodKeyRoute {
     pub fn as_metadata_name(self) -> &'static str {
         match self {
             Self::I64Const => "i64_const",
+            Self::I64Value => "i64_value",
             Self::UnknownAny => "unknown_any",
         }
+    }
+
+    pub fn is_i64(self) -> bool {
+        matches!(self, Self::I64Const | Self::I64Value)
     }
 }
 
@@ -143,7 +149,17 @@ pub(crate) fn classify_key_route(
 ) -> GenericMethodKeyRoute {
     match const_i64_value(function, def_map, key) {
         Some(_) => GenericMethodKeyRoute::I64Const,
-        None => GenericMethodKeyRoute::UnknownAny,
+        None => {
+            let origin = resolve_value_origin(function, def_map, key);
+            if matches!(
+                function.metadata.value_types.get(&origin),
+                Some(MirType::Integer)
+            ) {
+                GenericMethodKeyRoute::I64Value
+            } else {
+                GenericMethodKeyRoute::UnknownAny
+            }
+        }
     }
 }
 
@@ -234,6 +250,27 @@ mod tests {
         assert_eq!(
             classify_key_route(&function, &def_map, ValueId::new(1)),
             GenericMethodKeyRoute::UnknownAny
+        );
+    }
+
+    #[test]
+    fn classifies_integer_typed_dynamic_key() {
+        let mut function = make_function();
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        function.add_block(block);
+        function
+            .metadata
+            .value_types
+            .insert(ValueId::new(1), MirType::Integer);
+
+        let def_map = crate::mir::value_origin::build_value_def_map(&function);
+        assert_eq!(
+            classify_key_route(&function, &def_map, ValueId::new(2)),
+            GenericMethodKeyRoute::I64Value
         );
     }
 }

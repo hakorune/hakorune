@@ -141,13 +141,25 @@ def _render_box(box: Mapping[str, Any]) -> list[str]:
         if not box_fields:
             lines.append("}")
             return lines
+        has_declaration_initializers = all(
+            field.get("initializer") is not None or field.get("initializer_operation") is not None for field in box_fields
+        )
         for field in box_fields:
-            lines.append(f"    {field['name']}: {field['field_type']}")
-        lines.append("")
-        lines.append("    birth() {")
-        for field in box_fields:
-            lines.append(f"        me.{field['name']} = {render_field_initializer(field)}")
-        lines.append("    }")
+            if has_declaration_initializers:
+                lines.append(f"    {field['name']}: {field['field_type']} = {render_field_initializer(field)}")
+            else:
+                lines.append(f"    {field['name']}: {field['field_type']}")
+        if not has_declaration_initializers:
+            lines.append("")
+            lines.append("    birth() {")
+            for field in box_fields:
+                lines.append(f"        me.{field['name']} = {render_field_initializer(field)}")
+            lines.append("    }")
+        for method in box.get("methods", []):
+            lines.append("")
+            lines.append(f"    {method['signature']} {{")
+            lines.extend(indent(render_method_body(method), 8))
+            lines.append("    }")
         lines.append("}")
         return lines
 

@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "borrow_lowering_decision": "ElideToReadFold",
+    "mirtype_backend_branch": 0,
+    "order": {
+      "comparator": "RustStringOrdV1",
+      "kind": "KeyAscending"
+    },
+    "output_transport": "ArrayBox<SlotMetadataBox>",
+    "raw_aggregate_return": 0,
+    "region_observer_backend_branch": 0,
+    "rust_facts_input": "verified"
+  },
+  "denied_boundaries": [
+    "VariableContext::variable_map standalone returned borrow"
+  ],
+  "family_id": "mir::region::observer",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "RegionObserver_variable_map_slot_metadata_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "region-observer-variable-map-facts-v0.json",
+  "source_plan": "region-observer-variable-map-plan-v0.json",
+  "source_recipe": "region-observer-variable-map-behavior-recipe-v0.json",
+  "subject": "mir::region::observer::classify_slots_from_variable_map",
+  "transport_notes": {
+    "element_transport": "SlotMetadataBox",
+    "semantic_shape": "OwnedSequence<OwnedProduct>",
+    "sequence_transport": "ArrayBox"
+  },
+  "verified_operations": [
+    "ReadFoldOwnedOutput",
+    "ClassifyEnumVariants",
+    "ConstructOwnedProduct"
+  ]
+}

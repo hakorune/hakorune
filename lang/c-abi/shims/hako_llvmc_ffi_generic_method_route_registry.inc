@@ -113,6 +113,17 @@
               {
                   "generic_method.get",
                   "MapGet",
+                  "map_load_i64_any",
+                  "nyash.map.slot_load_hi",
+                  "get_surface_policy",
+                  2,
+                  1,
+                  2,
+                  4,
+              },
+              {
+                  "generic_method.get",
+                  "MapGet",
                   "map_load_any",
                   "nyash.map.slot_load_hh",
                   "get_surface_policy",

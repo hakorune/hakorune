@@ -3,6 +3,9 @@ pub use super::map_aliases::*;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::exports::typed_object::{
+        nyash_object_new_typed_hi, nyash_object_register_typed_layout_hi, nyash_object_type_id_h,
+    };
     use crate::nyash_runtime_data_has_hh;
     use nyash_rust::box_trait::{NyashBox, StringBox};
     use nyash_rust::boxes::map_box::MapBox;
@@ -88,6 +91,21 @@ mod tests {
 
         assert_eq!(nyash_map_scalar_load_hi_alias(handle, -71003), 0);
         assert_eq!(nyash_map_scalar_load_hi_alias(0, -71001), 0);
+    }
+
+    #[test]
+    fn slot_load_hi_preserves_typed_object_handle_values() {
+        let handle = new_map_handle();
+        let type_id = 710_240_001;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+        let object = nyash_object_new_typed_hi(type_id, 1);
+        assert_ne!(object, 0);
+        assert_eq!(nyash_object_type_id_h(object), type_id);
+
+        assert_eq!(nyash_map_slot_store_hih_alias(handle, -72001, object), 1);
+        let loaded = nyash_map_slot_load_hi_alias(handle, -72001);
+        assert_eq!(loaded, object);
+        assert_eq!(nyash_object_type_id_h(loaded), type_id);
     }
 
     #[test]

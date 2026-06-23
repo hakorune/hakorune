@@ -1,0 +1,124 @@
+{
+  "claims": {
+    "full_region_observer_claim": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "runtime_fallback": 0,
+    "rust_bootstrap_retained": 1
+  },
+  "family_id": "mir::region::observer",
+  "generator": {
+    "tool": "tools/rust_lifecycle/generate_region_observer_slot_metadata_artifact.py",
+    "version": "region-observer-slot-metadata-artifact-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-facts-v0.json",
+      "sha256": "e0699c1a50e59aba88d8e82bc1aa68171f9bf017f8593eb7fbdd8d8fd456137d"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-oracle-v0.json",
+      "sha256": "45da363404660175f8879598bb13b401566f5eb57384cf643b882cbb8696ad00"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-plan-v0.json",
+      "sha256": "2af32a3cf8c92e539c275e3be3456fa2268734d09c9f6afcc437b438d3eb08ea"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-behavior-recipe-v0.json",
+      "sha256": "e16f7045b6cfe597e7a81439f4ce62f2863ea997603ea36f60f89d1546277d8a"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-derived-artifact-verifier-result-v0.json",
+      "sha256": "4497a49fa6c0a9602594f4c60b664e2abba001b70d37fa8bb3bfc378ac1c6319"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "oracle_vectors": [
+    {
+      "id": "ordered_slot_metadata_min",
+      "operations": [
+        {
+          "name": "b",
+          "op": "insert_variable",
+          "value_id": 2
+        },
+        {
+          "name": "a",
+          "op": "insert_variable",
+          "value_id": 1
+        },
+        {
+          "name": "args",
+          "op": "insert_variable",
+          "value_id": 3
+        },
+        {
+          "op": "set_type",
+          "type": "Box(any)",
+          "value_id": 1
+        },
+        {
+          "op": "set_type",
+          "type": "WeakRef",
+          "value_id": 2
+        },
+        {
+          "op": "expect_slots",
+          "slots": [
+            [
+              "a",
+              "StrongRoot"
+            ],
+            [
+              "args",
+              "StrongRoot"
+            ],
+            [
+              "b",
+              "WeakRoot"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/region_observer_slot_metadata.hako",
+    "hako_sha256": "4a007ea335a31ddffc89547dfa89b13ba79bc52b4b198467cf339c239f9781f0"
+  },
+  "pilot_scope": "RegionObserver_variable_map_slot_metadata_only",
+  "route_plan": {
+    "borrow_use_id": "RegionObserver::classify_slots_from_variable_map",
+    "comparator_capabilities": {
+      "RustStringOrdV1": {
+        "proof": "VmExeAotAccepted",
+        "required_tiers": [
+          "VM",
+          "EXE",
+          "AOT"
+        ]
+      }
+    },
+    "destination": "slots",
+    "output_capabilities": {
+      "Vec<SlotMetadata>": {
+        "element_transport": "SlotMetadataBox",
+        "proof": "Accepted",
+        "semantic_shape": "OwnedSequence<OwnedProduct>",
+        "sequence_transport": "ArrayBox"
+      }
+    },
+    "source": "builder.variable_ctx.variable_map"
+  },
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/region/observer.rs",
+        "sha256": "cf5bb9168ade13e3fa6e0939ac0a70c8f9645a00b1683bcb4eb62e718b5eb2f4"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

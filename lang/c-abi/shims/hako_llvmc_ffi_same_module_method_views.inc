@@ -422,6 +422,18 @@
                    view,
                    "generic_method.get",
                    "MapGet",
+                   "map_load_i64_any",
+                   "nyash.map.slot_load_hi",
+                   "get_surface_policy",
+                   "MapBox",
+                   "mixed_runtime_i64_or_handle",
+                   "runtime_i64_or_handle",
+                   "runtime_data_facade",
+                   HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI) ||
+               same_module_method_view_is_direct_receiver_with(
+                   view,
+                   "generic_method.get",
+                   "MapGet",
                    "map_load_any",
                    "nyash.map.slot_load_hh",
                    "get_surface_policy",
