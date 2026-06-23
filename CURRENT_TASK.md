@@ -39,7 +39,8 @@ AGGREGATE-RETURNED-READ-BORROW-001
 Next task:
 
 ```text
-Implement value_origin_callers get/cloned borrow-use elimination.
+Implement value_origin_callers get/cloned borrow-use elimination while
+normalizing BorrowUseFacts through StorageAccessFacts.
 ```
 
 Purpose:
@@ -189,7 +190,8 @@ Done:
   aggregate borrow-use sequence last-copy elimination
 
 Next:
-  Implement value_origin_callers get/cloned borrow-use elimination.
+  Implement value_origin_callers get/cloned borrow-use elimination with
+  BorrowUseFacts -> StorageAccessFacts -> ElideToLeafProjection.
 
 Task sequence:
   1. Document direct-shape lowerer boundary. (closed by SSOT update)
@@ -218,7 +220,10 @@ Task sequence:
   20. Implement immutable leaf borrow projection. (closed)
   21. Decide aggregate returned read borrow handling. (A+ selected)
   22. Implement current_region_stack last.copied borrow-use elimination. (closed)
-  23. Implement value_origin_callers get/cloned borrow-use elimination. (next)
+  23. Implement value_origin_callers get/cloned borrow-use elimination and
+      introduce the small StorageAccessFacts normalization seam. (next)
+  24. Implement value_origin_callers iter owned-copy read fold.
+  25. Implement variable_map iter observer read fold with source-ordered facts.
 ```
 
 Current cleanup slice:

@@ -77,6 +77,65 @@ Hotline Law の詳細SSOT:
 この gate は perf の代替ではない。必ず `front split -> owner/state
 transition -> one seam` の後に使う。
 
+## Fast-Path Lowering Backlog
+
+Fast-path facts are analysis/proof scaffolding until an AOT/LLVM lowering pass
+consumes them. Do not count a fast-path fact as a speed keeper unless backend
+code generation actually reads that fact and emits cheaper code.
+
+Current boundary:
+
+```text
+analysis/proof:
+  present for selected direct-array / local-storage shapes
+
+backend consumption:
+  parked unless a measured perf owner reopens this lane
+
+non-claim:
+  scalar storage classes may already be cheap, but collection / complex boxes
+  still pay normal public object semantics unless a specific lowering keeper
+  proves otherwise
+```
+
+Treat `BackendMissing`-style fallback as a first-class blocker, not as a
+successful optimization. VM/interpreter modeling through public `ArrayBox`
+behavior is a semantic reference path, not proof that EXE/AOT escaped object
+tax.
+
+This backlog is a backend/perf lane, not a Rust-to-Hako converter task. It must
+not block MirBuilder converter migration or introduce new `.hako` syntax.
+
+Parked task order when the optimization lane reopens:
+
+```text
+1. Inventory fast-path fact consumers.
+   - prove which backend passes read DirectArrayI64 / local fast-path facts
+   - expected current result may be consumer_count=0
+
+2. Implement the first backend fact consumer.
+   - preferred first target: DirectArrayI64 / ArrayBox i64 lowering
+   - no public ArrayBox semantic change
+   - no source-name or benchmark-name branch
+
+3. Measure exact / meso / whole fronts.
+   - keeper requires instruction/work reduction on the selected owner
+   - contradiction guard must not regress
+
+4. Select the next owner only after measurement.
+   - candidates may include JSONBox / StreamBox / other collection-heavy boxes
+   - do not optimize them from inventory alone
+```
+
+Until that lane is explicitly reopened, the correct status is:
+
+```text
+fastpath_analysis_ready=partial
+fastpath_backend_consumption=parked
+speed_goal_blocker=backend_lowering_consumer_missing
+optimization_open=0
+```
+
 ## Front Split
 
 最適化レーンは、最低でも次の front を分けて読む。

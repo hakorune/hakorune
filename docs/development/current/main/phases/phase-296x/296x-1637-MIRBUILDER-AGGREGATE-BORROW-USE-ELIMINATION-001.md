@@ -17,6 +17,30 @@ known call-local consumer
 
 No live read view, lease counter, or lifetime framework is introduced.
 
+This is a Rust adapter decision, not a universal pointer model. Source
+language references are normalized before Hako lowering:
+
+```text
+Rust borrow / Go pointer-slice-map / C pointer
+  -> StorageAccessFacts
+  -> Elide / ReadFold / OwnedSnapshot / SharedHandle / SharedCell / Span /
+     UnsafeCapability / Deny
+```
+
+Do not add general Hako pointer syntax for this lane:
+
+```text
+no general &
+no general *
+no arrow / ->
+no raw pointer syntax in safe Hako
+```
+
+Future Go/C/unsafe-Rust support should enter through access/capability facts.
+Raw memory remains behind `Deny(UnsafeOrFFI)` with
+`detail=RequireUnsafeCapabilityBoundary` until an explicit unsafe capability
+boundary is designed.
+
 ## Implemented Slice
 
 Selected consumer:
@@ -58,4 +82,7 @@ runtime fallback = 0
 
 ```text
 value_origin_callers().get(...).cloned()
+  -> BorrowUseFacts
+  -> StorageAccessFacts
+  -> ElideToLeafProjection
 ```

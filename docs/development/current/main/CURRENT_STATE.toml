@@ -272,7 +272,8 @@ Option A+ aggregate-borrow contract: standalone aggregate returned borrows
 remain Deny(ReturnedReadBorrow), while known call-local consumers can eliminate
 the borrow. MetadataContext current_region_stack().last().copied() is lowered
 to current_parent_region(ctx): Option<i64> without returning ArrayBox or adding
-read-view / lease semantics."""
+read-view / lease semantics. The next slice keeps this as source-language
+normalization into StorageAccessFacts, not new Hako pointer syntax."""
 
 current_blocker_token = "AGGREGATE-RETURNED-READ-BORROW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
