@@ -1,0 +1,39 @@
+{
+  "kind": "RustOracleVectors",
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.region_parent",
+  "vectors": [
+    {
+      "name": "region_parent_last_copy",
+      "operations": [
+        {
+          "op": "current_parent_region_none"
+        },
+        {
+          "op": "push_region",
+          "region_id": 10
+        },
+        {
+          "expected": 10,
+          "op": "current_parent_region_some"
+        },
+        {
+          "op": "push_region",
+          "region_id": 20
+        },
+        {
+          "expected": 20,
+          "op": "current_parent_region_some"
+        },
+        {
+          "expected": 20,
+          "op": "pop_region_some"
+        },
+        {
+          "expected": 10,
+          "op": "current_parent_region_some"
+        }
+      ]
+    }
+  ]
+}

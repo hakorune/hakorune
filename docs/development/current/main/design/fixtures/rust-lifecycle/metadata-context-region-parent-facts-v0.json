@@ -1,0 +1,81 @@
+{
+  "body_facts": [
+    {
+      "id": "MetadataContext::new",
+      "operation": "NewSequence",
+      "selected_field": "current_region_stack"
+    },
+    {
+      "id": "MetadataContext::push_region",
+      "operation": "SequencePush",
+      "selected_field": "current_region_stack"
+    },
+    {
+      "id": "MetadataContext::pop_region",
+      "operation": "SequencePopOption",
+      "selected_field": "current_region_stack"
+    },
+    {
+      "id": "RegionObserver::parent_region",
+      "operation": "SequenceLastOption",
+      "selected_field": "current_region_stack",
+      "source_chain": "current_region_stack().last().copied()"
+    }
+  ],
+  "borrow_use_facts": [
+    {
+      "borrowed_kind": "Aggregate",
+      "consumer_kind": "LastCopy",
+      "element_reference_escapes": false,
+      "escapes": false,
+      "id": "RegionObserver::parent_region",
+      "identity_observed": false,
+      "order_observed": true,
+      "owned_projection_available": true,
+      "owner_mutated_during_use": false
+    }
+  ],
+  "excluded_methods": [
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "detail": "StandaloneAggregateReturn",
+      "id": "MetadataContext::current_region_stack"
+    },
+    {
+      "deny_reason": "ReturnedReadBorrow",
+      "detail": "StandaloneAggregateReturn",
+      "id": "MetadataContext::value_origin_callers"
+    }
+  ],
+  "field_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "element_transport": "i64",
+      "id": "MetadataContext.current_region_stack",
+      "identity_escapes": false,
+      "rust_type": "Vec<RegionIdT>",
+      "transport": "ArrayBox"
+    }
+  ],
+  "kind": "RustLifecycleFacts",
+  "schema_version": 0,
+  "source": {
+    "consumer_path": "src/mir/region/observer.rs",
+    "path": "crates/hakorune_mir_builder/src/metadata_context.rs"
+  },
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.region_parent",
+  "type_facts": [
+    {
+      "drop_fact": "TrivialMemory",
+      "generic_wide_claim": false,
+      "id": "MetadataContext",
+      "rust_type": "MetadataContext<SpanT, RegionIdT>",
+      "selected_concrete_instantiation": "MetadataContext<i64, i64>"
+    },
+    {
+      "id": "RegionIdT",
+      "rust_type": "RegionIdT",
+      "transport": "i64"
+    }
+  ]
+}

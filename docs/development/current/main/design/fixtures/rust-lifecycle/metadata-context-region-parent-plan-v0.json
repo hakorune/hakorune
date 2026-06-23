@@ -1,0 +1,35 @@
+{
+  "direct_shape": {
+    "borrow_use.sequence_last_copy": {
+      "field_name": "current_region_stack",
+      "last_signature": "current_parent_region(ctx): Option<i64>",
+      "method_ids": {
+        "last_copy": "RegionObserver::parent_region",
+        "new": "MetadataContext::new",
+        "pop": "MetadataContext::pop_region",
+        "push": "MetadataContext::push_region"
+      },
+      "pop_signature": "pop_region(ctx): Option<i64>",
+      "push_signature": "push_region(ctx, region_id): i64",
+      "type_name": "MetadataContext",
+      "value_arg": "region_id"
+    }
+  },
+  "kind": "HakoLifecyclePlan",
+  "plans": [
+    {
+      "concrete_instantiation": "MetadataContext<i64, i64>",
+      "id": "MetadataContext",
+      "plan_kind": "LocalBox",
+      "shape_rule": "borrow_use.sequence_last_copy"
+    },
+    {
+      "element_transport": "i64",
+      "id": "MetadataContext.current_region_stack",
+      "plan_kind": "ArrayBox",
+      "shape_rule": "borrow_use.sequence_last_copy"
+    }
+  ],
+  "schema_version": 0,
+  "subject": "hakorune_mir_builder::metadata_context::MetadataContext.region_parent"
+}

@@ -363,6 +363,34 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"{source}.values_value = new ArrayBox()",
             "return 1",
         ]
+    if kind == "SequencePush":
+        return [f"{render_source_expr(operation)}.push({operation['value']})", "return 1"]
+    if kind == "SequencePopOption":
+        source = render_source_expr(operation)
+        return [
+            f"local n = {source}.length()",
+            "if n == 0 {",
+            "    return Option::None()",
+            "}",
+            f"local value = BoxHelpers.array_get({source}, n - 1)",
+            "local next = new ArrayBox()",
+            "local i = 0",
+            "loop(i < n - 1) {",
+            f"    next.push(BoxHelpers.array_get({source}, i))",
+            "    i = i + 1",
+            "}",
+            f"{source} = next",
+            "return Option::Some(value)",
+        ]
+    if kind == "SequenceLastOption":
+        source = render_source_expr(operation)
+        return [
+            f"local n = {source}.length()",
+            "if n == 0 {",
+            "    return Option::None()",
+            "}",
+            f"return Option::Some(BoxHelpers.array_get({source}, n - 1))",
+        ]
     if kind == "CloneOwnedMap":
         return [f"return {render_source_expr(operation)}.clone_owned()"]
     if kind == "ReplaceOwnedMap":

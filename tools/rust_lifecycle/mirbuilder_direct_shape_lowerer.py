@@ -22,6 +22,7 @@ from mirbuilder_optional_map_converter import (
     compile_optional_owned_recursive_enum_map_methods,
 )
 from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
+from mirbuilder_sequence_borrow_converter import compile_sequence_last_copy_methods
 from mirbuilder_structured_loop_converter import (
     compile_single_scalar_loop_carrier_methods,
     compile_structured_loop_without_carried_state_methods,
@@ -113,6 +114,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["metadata.scalar_option_atom"],
         ),
         description="scalar field plus optional immutable atom metadata context",
+    ),
+    "borrow_use.sequence_last_copy": DirectShapeRule(
+        shape="borrow_use.sequence_last_copy",
+        lower=lambda facts, plan: compile_sequence_last_copy_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["borrow_use.sequence_last_copy"],
+        ),
+        description="call-local aggregate sequence borrow eliminated to last copied element",
     ),
     "aggregate.take_restore_with_defaults": DirectShapeRule(
         shape="aggregate.take_restore_with_defaults",
