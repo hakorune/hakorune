@@ -275,6 +275,76 @@ def _render_explicit_carrier_snapshot(operation: Mapping[str, Any]) -> list[str]
     ]
 
 
+def _render_read_fold_statement(operation: Mapping[str, Any]) -> list[str]:
+    kind = operation["kind"]
+    if kind == "MapLookupOption":
+        source = operation.get("source")
+        key = operation.get("key")
+        target = operation.get("target")
+        raw_target = operation.get("raw_target", f"raw_{target}")
+        if not all(isinstance(value, str) for value in (source, key, target, raw_target)):
+            raise ValueError("MapLookupOption statement requires source, key, target, and raw_target")
+        return [
+            f"local {raw_target} = {source}.get({key})",
+            f"local {target} = Option::None()",
+            f"if {raw_target} != null {{",
+            f"    {target} = Option::Some({raw_target})",
+            "}",
+        ]
+    if kind == "CallStatic":
+        target = operation.get("target")
+        callee = operation.get("callee")
+        args = operation.get("args", [])
+        if not isinstance(target, str) or not isinstance(callee, str) or not isinstance(args, list):
+            raise ValueError("CallStatic statement requires target, callee, and args")
+        if not all(isinstance(arg, str) for arg in args):
+            raise ValueError("CallStatic statement args must be local names")
+        return [f"local {target} = {callee}({', '.join(args)})"]
+    if kind == "ConstructOwnedProduct":
+        target = operation.get("target")
+        box_name = operation.get("box")
+        fields = operation.get("fields")
+        if not isinstance(target, str) or not isinstance(box_name, str) or not isinstance(fields, Mapping):
+            raise ValueError("ConstructOwnedProduct requires target, box, and fields")
+        lines = [f"local {target} = new {box_name}()"]
+        for field, value in fields.items():
+            if not isinstance(field, str) or not isinstance(value, str):
+                raise ValueError("ConstructOwnedProduct fields must map field names to local names")
+            lines.append(f"{target}.{field} = {value}")
+        return lines
+    if kind == "SequencePush":
+        target = operation.get("target")
+        value = operation.get("value")
+        if not isinstance(target, str) or not isinstance(value, str):
+            raise ValueError("SequencePush statement requires target and value")
+        return [f"{target}.push({value})"]
+    raise ValueError(f"unsupported read-fold statement operation: {kind}")
+
+
+def _render_for_each_ordered_map_entry(operation: Mapping[str, Any]) -> list[str]:
+    source = operation.get("source")
+    key_binding = operation.get("key_binding")
+    value_binding = operation.get("value_binding")
+    body = operation.get("body")
+    if not isinstance(source, str) or not isinstance(key_binding, str) or not isinstance(value_binding, str):
+        raise ValueError("ForEachOrderedMapEntry requires source, key_binding, and value_binding")
+    if not isinstance(body, list):
+        raise ValueError("ForEachOrderedMapEntry requires body")
+    lines = [
+        f"local total = {source}.keys_value.length()",
+        "local i = 0",
+        "loop(i < total) {",
+        f"    local {key_binding} = {source}.keys_value.get(i)",
+        f"    local {value_binding} = {source}.values_value.get(i)",
+    ]
+    for item in body:
+        if not isinstance(item, Mapping):
+            raise ValueError("ForEachOrderedMapEntry body entries must be operations")
+        lines.extend("    " + line if line else "" for line in _render_read_fold_statement(item))
+    lines.extend(["    i = i + 1", "}"])
+    return lines
+
+
 def render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
     if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop", "ExplicitPhiI64", "ExplicitMultiExitPhiI64Array"}:
@@ -458,57 +528,31 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"    return {unmatched}",
             "}",
         ] + render_cases(0)
+    if kind == "ForEachOrderedMapEntry":
+        return _render_for_each_ordered_map_entry(operation)
     if kind == "ReadFoldSlotMetadata":
         source = operation.get("source")
         type_map = operation.get("type_map")
         destination = operation.get("destination")
         classifier = operation.get("classifier")
-        oracle_slots = operation.get("oracle_slots", [])
         if not all(isinstance(value, str) for value in (source, type_map, destination, classifier)):
             raise ValueError("ReadFoldSlotMetadata requires source, type_map, destination, and classifier")
-        if not isinstance(oracle_slots, list):
-            raise ValueError("ReadFoldSlotMetadata oracle_slots must be a list")
-        lines = [
-            f"local total = {source}.keys_value.length()",
-            "local i = 0",
-            "loop(i < total) {",
-            f"    local name = {source}.keys_value.get(i)",
-            f"    local value_id = {source}.values_value.get(i)",
-            f"    local raw_type = {type_map}.get(value_id)",
-            "    local type_opt = Option::None()",
-            "    if raw_type != null {",
-            "        type_opt = Option::Some(raw_type)",
-            "    }",
-            f"    local ref_kind = {classifier}(type_opt, name)",
-            "    local slot = new SlotMetadataBox()",
-            "    slot.name = name",
-            "    slot.ref_kind = ref_kind",
-            f"    {destination}.push(slot)",
-        ]
-        for index, expected in enumerate(oracle_slots):
-            if not isinstance(expected, Mapping):
-                raise ValueError("ReadFoldSlotMetadata oracle slot must be an object")
-            expected_name = expected.get("name")
-            expected_kind = expected.get("ref_kind")
-            fail_code = expected.get("fail_code", 100 + index)
-            if not isinstance(expected_name, str) or not isinstance(expected_kind, str) or not isinstance(fail_code, int):
-                raise ValueError("ReadFoldSlotMetadata oracle slot requires name, ref_kind, and integer fail_code")
-            lines.extend(
-                [
-                    f"    if i == {index} {{",
-                    f"        if name != {render_string_literal(expected_name)} {{",
-                    f"            print(\"region_observer_slot{index}_name=fail\")",
-                    f"            return {fail_code}",
-                    "        }",
-                    f"        if ref_kind != {expected_kind} {{",
-                    f"            print(\"region_observer_slot{index}_kind=fail\")",
-                    f"            return {fail_code + 1}",
-                    "        }",
-                    "    }",
-                ]
-            )
-        lines.extend(["    i = i + 1", "}"])
-        return lines
+        if operation.get("oracle_slots"):
+            raise ValueError("ReadFoldSlotMetadata no longer accepts production oracle checks")
+        return _render_for_each_ordered_map_entry(
+            {
+                "kind": "ForEachOrderedMapEntry",
+                "source": source,
+                "key_binding": "name",
+                "value_binding": "value_id",
+                "body": [
+                    {"kind": "MapLookupOption", "source": type_map, "key": "value_id", "raw_target": "raw_type", "target": "type_opt"},
+                    {"kind": "CallStatic", "target": "ref_kind", "callee": classifier, "args": ["type_opt", "name"]},
+                    {"kind": "ConstructOwnedProduct", "target": "slot", "box": "SlotMetadataBox", "fields": {"name": "name", "ref_kind": "ref_kind"}},
+                    {"kind": "SequencePush", "target": destination, "value": "slot"},
+                ],
+            }
+        )
     if kind == "ArrayElementFieldGet":
         source = operation.get("array")
         index = operation.get("index")

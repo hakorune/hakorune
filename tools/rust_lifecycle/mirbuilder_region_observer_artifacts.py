@@ -149,15 +149,15 @@ def region_observer_spec() -> FamilyArtifactSpec:
                         operations=[
                             op("NewLocalArray", target="slots").to_json(),
                             op(
-                                "ReadFoldSlotMetadata",
+                                "ForEachOrderedMapEntry",
                                 source="variable_ctx",
-                                type_map="type_ctx",
-                                destination="slots",
-                                classifier="SlotClassifierApi.classify",
-                                oracle_slots=[
-                                    {"name": "a", "ref_kind": "RefSlotKind::StrongRoot()", "fail_code": 6},
-                                    {"name": "args", "ref_kind": "RefSlotKind::StrongRoot()", "fail_code": 8},
-                                    {"name": "b", "ref_kind": "RefSlotKind::WeakRoot()", "fail_code": 10},
+                                key_binding="name",
+                                value_binding="value_id",
+                                body=[
+                                    op("MapLookupOption", source="type_ctx", key="value_id", raw_target="raw_type", target="type_opt").to_json(),
+                                    op("CallStatic", target="ref_kind", callee="SlotClassifierApi.classify", args=["type_opt", "name"]).to_json(),
+                                    op("ConstructOwnedProduct", target="slot", box="SlotMetadataBox", fields={"name": "name", "ref_kind": "ref_kind"}).to_json(),
+                                    op("SequencePush", target="slots", value="slot").to_json(),
                                 ],
                             ).to_json(),
                             op("ReturnSource", source="slots").to_json(),
@@ -185,6 +185,30 @@ def region_observer_spec() -> FamilyArtifactSpec:
             op("StaticCall", target="slots", callee="RegionObserverApi.classify_slots_from_variable_map", args=["variable_ctx", "type_ctx"]),
             op("MethodCall", target="slot_count", receiver="slots", method="length"),
             op("AssertEq", left="slot_count", right=3, fail_message="region_observer_slot_count=fail", fail_code=5),
+            op(
+                "AssertOwnedProductSequence",
+                array="slots",
+                expected=[
+                    {
+                        "checks": [
+                            {"field": "name", "expected": {"literal": "a"}, "fail_message": "region_observer_slot0_name=fail", "fail_code": 6},
+                            {"field": "ref_kind", "expected": {"expr": "RefSlotKind::StrongRoot()"}, "fail_message": "region_observer_slot0_kind=fail", "fail_code": 7},
+                        ]
+                    },
+                    {
+                        "checks": [
+                            {"field": "name", "expected": {"literal": "args"}, "fail_message": "region_observer_slot1_name=fail", "fail_code": 8},
+                            {"field": "ref_kind", "expected": {"expr": "RefSlotKind::StrongRoot()"}, "fail_message": "region_observer_slot1_kind=fail", "fail_code": 9},
+                        ]
+                    },
+                    {
+                        "checks": [
+                            {"field": "name", "expected": {"literal": "b"}, "fail_message": "region_observer_slot2_name=fail", "fail_code": 10},
+                            {"field": "ref_kind", "expected": {"expr": "RefSlotKind::WeakRoot()"}, "fail_message": "region_observer_slot2_kind=fail", "fail_code": 11},
+                        ]
+                    },
+                ],
+            ),
             op("MethodCall", receiver="variable_ctx", method="set", args=[{"literal": "a"}, 99]),
             op("MethodCall", target="slot_count_after_mutation", receiver="slots", method="length"),
             op("AssertEq", left="slot_count_after_mutation", right=3, fail_message="region_observer_output_alias=fail", fail_code=12),
@@ -204,13 +228,21 @@ def region_observer_spec() -> FamilyArtifactSpec:
         recipe_subject="mir::region::observer::classify_slots_from_variable_map",
         selected_body_count="region_observer_variable_map_read_fold_only",
         methods=[
-            BehaviorMethodSpec(id="RegionObserver::classify_slots_from_variable_map", rust_operation="variable_map().iter()", hako_operation="ReadFoldOwnedOutput", emits="RegionObserverApi.classify_slots_from_variable_map(variable_ctx, type_ctx)"),
+            BehaviorMethodSpec(id="RegionObserver::classify_slots_from_variable_map", rust_operation="variable_map().iter()", hako_operation="ForEachOrderedMapEntry", emits="RegionObserverApi.classify_slots_from_variable_map(variable_ctx, type_ctx)"),
             BehaviorMethodSpec(id="Region::classify_ref_kind", rust_operation="match MirType", hako_operation="ClassifyEnumVariants", emits="SlotClassifierApi.classify(type_opt, name)"),
         ],
         excluded_methods=["classify_slots_from_registry", "observe_control_form", "observe_function_region", "pop_function_region"],
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_region_observer_claim": 0, "runtime_fallback": 0, "rust_bootstrap_retained": 1},
         verifier_checks={"rust_facts_input": "verified", "borrow_lowering_decision": "ElideToReadFold", "order": facts["borrow_use_facts"][0]["order"], "output_transport": "ArrayBox<SlotMetadataBox>", "raw_aggregate_return": 0, "region_observer_backend_branch": 0, "mirtype_backend_branch": 0},
-        verified_operations=["ReadFoldOwnedOutput", "ClassifyEnumVariants", "ConstructOwnedProduct"],
+        verified_operations=[
+            "ForEachOrderedMapEntry",
+            "MapLookupOption",
+            "CallStatic",
+            "ConstructOwnedProduct",
+            "SequencePush",
+            "AssertOwnedProductSequence",
+            "ClassifyEnumVariants",
+        ],
         transport_notes={"semantic_shape": "OwnedSequence<OwnedProduct>", "sequence_transport": "ArrayBox", "element_transport": "SlotMetadataBox"},
         denied_boundaries=["VariableContext::variable_map standalone returned borrow"],
         extra_manifest_fields={"route_plan": PLAN, "oracle_vectors": read_json(FIXTURES / "region-observer-variable-map-oracle-v0.json")["vectors"]},

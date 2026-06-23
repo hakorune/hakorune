@@ -29,8 +29,12 @@
     "sequence_transport": "ArrayBox"
   },
   "verified_operations": [
-    "ReadFoldOwnedOutput",
-    "ClassifyEnumVariants",
-    "ConstructOwnedProduct"
+    "ForEachOrderedMapEntry",
+    "MapLookupOption",
+    "CallStatic",
+    "ConstructOwnedProduct",
+    "SequencePush",
+    "AssertOwnedProductSequence",
+    "ClassifyEnumVariants"
   ]
 }

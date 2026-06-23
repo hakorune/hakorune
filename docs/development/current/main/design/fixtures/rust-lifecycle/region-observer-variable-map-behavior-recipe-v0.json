@@ -10,7 +10,7 @@
   "methods": [
     {
       "emits": "RegionObserverApi.classify_slots_from_variable_map(variable_ctx, type_ctx)",
-      "hako_operation": "ReadFoldOwnedOutput",
+      "hako_operation": "ForEachOrderedMapEntry",
       "id": "RegionObserver::classify_slots_from_variable_map",
       "rust_operation": "variable_map().iter()"
     },

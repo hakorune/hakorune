@@ -26,11 +26,11 @@
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-behavior-recipe-v0.json",
-      "sha256": "e16f7045b6cfe597e7a81439f4ce62f2863ea997603ea36f60f89d1546277d8a"
+      "sha256": "b20770bafa9e66154eb86373701d260ea40200f9cf02ae262c2e5d6d71d1809c"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/region-observer-variable-map-derived-artifact-verifier-result-v0.json",
-      "sha256": "4497a49fa6c0a9602594f4c60b664e2abba001b70d37fa8bb3bfc378ac1c6319"
+      "sha256": "54b63053b46e6e43f293fffed1c52ff67f6305f676e8f6a2a75a89802c575fe8"
     }
   },
   "kind": "RustDerivedHakoArtifact",
@@ -85,7 +85,7 @@
   ],
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/region_observer_slot_metadata.hako",
-    "hako_sha256": "4a007ea335a31ddffc89547dfa89b13ba79bc52b4b198467cf339c239f9781f0"
+    "hako_sha256": "5787719b460caf1732f48094162e2f9d3d31510d3098ac08e79b45fd9b2faea2"
   },
   "pilot_scope": "RegionObserver_variable_map_slot_metadata_only",
   "route_plan": {

@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  LOWER-REGION-OBSERVER-SOURCE-ORDERED-READ-FOLD-001
+  POST-REGION-OBSERVER-NEXT-SLICE-SELECTION-001
 
 current implementation task:
-  Lower owned read folds through generic operations
+  Select the next implementation slice after the generic read-fold closeout.
 
 producer responsibility stack:
   Source preparation
@@ -52,15 +52,10 @@ landed evidence:
   the first mismatched route tuple field.
 
 selected next owner:
-  owned read-fold operation decomposition
+  not selected in this document.
 
-  Replace the RegionObserver-specific `ReadFoldSlotMetadata` renderer with:
-    ForEachOrderedMapEntry
-    MapLookupOption
-    CallStatic
-    ConstructOwnedProduct
-    SequencePush
-    AssertOwnedProductSequence
+  The just-landed read-fold closeout replaced the RegionObserver-specific
+  production renderer with generic operations and harness-only assertions.
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -72,8 +67,19 @@ selected transport:
 current fail-fast boundary:
   RegionObserver read-fold and SlotClassifier policy extraction are green.
   Route contract truth is generated from one neutral manifest. The remaining
-  cleanup is emitter ownership: production operations must not carry oracle
-  assertions or RegionObserver-only product construction policy.
+  boundary is next-slice selection: do not start a new converter capability
+  until its source shape, fail-fast boundary, and focused gate are named.
+
+latest design decision:
+  Collection values must use the existing MIR route contracts end-to-end:
+
+  - `RuntimeValueCarrierI64` is an ABI carrier only; it preserves bits.
+  - raw i64 sign never identifies scalar vs typed-object / boxed-enum handle.
+  - consumers require `return_shape`, `value_demand`, and value-class facts.
+  - MapBox and ArrayBox share the same mixed-value encode/decode contract.
+  - route descriptors are generated from one neutral manifest.
+  - diagnostics consume descriptors; they do not choose routes.
+  - generic read-fold operations come after transport and route truth are fixed.
 
 forbidden:
   raw aggregate map return; read-view / lease framework; new Hako pointer
@@ -113,7 +119,8 @@ collection_runtime_value_carrier = landed for MapBox and ArrayBox
 nyrt_freshness_fail_fast = landed for --no-build AOT harness
 generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
 generic_method_route_mismatch_diagnostics = landed for first descriptor field
-next step = generic read-fold operation decomposition
+generic_read_fold_operation_decomposition = landed
+next step = select next implementation slice
 ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
 ```
 
@@ -244,12 +251,19 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
    Status: landed.
 
    ```text
-   RuntimeValueCarrierI64 / Mode / Site
-   MapBox and ArrayBox common mixed-value encode path
-   i64 sign inference = 0
-   negative scalar / handle collision covered by route class facts
-   typed-object load -> type_id green for MapBox and ArrayBox
-   boxed enum load -> VariantTag green for MapBox and ArrayBox
+   StoredBoxValue = collection-internal semantic value
+   RuntimeValueCarrierI64 = ABI i64 bit carrier
+   RuntimeValueClassFact = ScalarI64 / BoolI64 / Handle /
+                           BoxedEnumHandle / TypedObjectHandle
+
+   RuntimeValueCarrierI64 / Mode / Site are live.
+   MapBox and ArrayBox use a common mixed-value encode path.
+   i64 sign inference = 0.
+   negative scalar / handle collision is covered by route class facts.
+   typed-object load -> type_id is green for MapBox and ArrayBox.
+   boxed enum load -> VariantTag is green for MapBox and ArrayBox.
+   missing class fact -> Deny(UnsupportedValueTransport)
+     detail=AmbiguousRuntimeI64OrHandle
    ```
 
 0.15. `Reject stale NyRT harness artifacts`
@@ -289,14 +303,26 @@ ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capabil
 
 0.18. `Lower owned read folds through generic operations`
 
-   Status: active next.
+   Status: landed.
 
    ```text
-   Replace ReadFoldSlotMetadata with:
-   ForEachOrderedMapEntry / MapLookupOption / CallStatic /
-   ConstructOwnedProduct / SequencePush
-   oracle assertions move from production API methods to harness
-   shared emitter owns rendering only
+   Replace ReadFoldSlotMetadata with generic operation vocabulary:
+     ForEachOrderedMapEntry
+     MapLookupOption
+     CallStatic
+     ConstructOwnedProduct
+     SequencePush
+
+   Production method operations:
+     own iteration, lookup, classifier call, product construction, append
+
+   Harness-only operations:
+     AssertOwnedProductSequence
+
+   Oracle assertions must not remain embedded in production API methods.
+   Shared emitter owns rendering only; policy stays in verified operation data.
+
+   RegionObserver generated artifact remains LLVM/AOT green.
    ```
 
 1. `Generalize access capabilities through value-caller clone elimination`

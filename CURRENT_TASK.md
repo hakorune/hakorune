@@ -39,7 +39,7 @@ BOXED-RUNTIME-NATIVE-ENUM-ABI-001
 Next task:
 
 ```text
-Lower owned read folds through generic operations.
+Select the next implementation slice after the generic read-fold closeout.
 
 The comparator side is already proven:
   order=KeyAscending(RustStringOrdV1)
@@ -70,10 +70,12 @@ Completed route rejection diagnostics slice:
   unsupported-shape diagnostics consume that mismatch without becoming a new
   route classifier.
 
-The next contract owner is generic read-fold operation decomposition:
-  replace RegionObserver-specific ReadFoldSlotMetadata with
-  ForEachOrderedMapEntry, MapLookupOption, CallStatic, ConstructOwnedProduct,
-  SequencePush, and harness-only assertions.
+Completed generic read-fold operation decomposition:
+  RegionObserver-specific ReadFoldSlotMetadata is no longer used by the
+  generated artifact.
+  Production read-fold uses ForEachOrderedMapEntry, MapLookupOption,
+  CallStatic, ConstructOwnedProduct, and SequencePush.
+  Slot assertions use AssertOwnedProductSequence in Main harness only.
 
 Completed collection transport slice:
   RuntimeValueCarrierI64 contract
@@ -85,16 +87,25 @@ Completed collection transport slice:
 Completed NyRT freshness slice:
   --no-build LLVM harness rejects stale libnyash_kernel.a before execution.
 
-The selected next slice is:
-  spec/mir/generic_method_routes.toml
-  generated Rust / C / Python generic method route descriptors
-  handwritten route descriptor duplication = 0
+Current task order from the latest design decision:
+  1. RuntimeValueCarrierI64 contract. (closed)
+  2. NyRT freshness fail-fast. (closed)
+  3. route descriptor single SSOT. (closed)
+  4. route rejection diagnostics. (closed)
+  5. emitter generic read-fold decomposition. (closed)
+
+Next implementation slice:
+  not selected yet.
+  Do not start a new converter capability until source shape, fail-fast
+  boundary, and focused gate are named.
 
 Boxed enum ABI is already the selected representation authority:
   SumValueRepresentation::BoxedRuntime(abi_plan_id)
   BoxedSumAbiPlanV1
 
 Do not infer value kind from raw i64 sign.
+Do not let RuntimeValueCarrierI64 become self-describing; consumers need
+return_shape / value_demand / RuntimeValueClassFact.
 Do not treat negative typed-object / boxed enum handles as scalar i64 merely
 because the carrier is an i64.
 Do not add a second runtime value concept beyond existing return_shape /
@@ -107,6 +118,9 @@ Do not add MirType-name backend special cases.
 Do not hide runner MIR drift by changing the generated artifact source shape.
 Do not leave Box/Array/Future or fallback-name classification policy in the
 emitter. (closed)
+Do not leave RegionObserver oracle checks inside production read-fold methods.
+Do not treat next-slice selection as a route/card churn task; select only when
+there is a concrete source shape to implement.
 ```
 
 Purpose:
@@ -321,7 +335,9 @@ Task sequence:
   36. Lower owned read folds through generic operations.
       - Replace ReadFoldSlotMetadata with ForEachOrderedMapEntry,
         MapLookupOption, CallStatic, ConstructOwnedProduct, and SequencePush.
+      - Add AssertOwnedProductSequence as harness-only verification.
       - Move oracle assertions into the harness, not production API methods.
+      - Status: closed.
 ```
 
 Current cleanup slice:

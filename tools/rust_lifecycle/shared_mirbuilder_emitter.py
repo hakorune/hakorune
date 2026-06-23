@@ -103,6 +103,38 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
             f"    return {fail_code}",
             "}",
         ]
+    if kind == "AssertOwnedProductSequence":
+        array = operation.get("array")
+        expected = operation.get("expected")
+        if not isinstance(array, str) or not isinstance(expected, list):
+            raise ValueError("AssertOwnedProductSequence requires array and expected list")
+        lines: list[str] = []
+        for index, item in enumerate(expected):
+            if not isinstance(item, Mapping):
+                raise ValueError("AssertOwnedProductSequence expected entries must be objects")
+            checks = item.get("checks")
+            if not isinstance(checks, list):
+                raise ValueError("AssertOwnedProductSequence expected entry requires checks")
+            slot_name = f"slot_{index}"
+            lines.append(f"local {slot_name} = {array}.get({index})")
+            for check in checks:
+                if not isinstance(check, Mapping):
+                    raise ValueError("AssertOwnedProductSequence checks must be objects")
+                field = check.get("field")
+                expected_value = check.get("expected")
+                fail_message = check.get("fail_message")
+                fail_code = check.get("fail_code", 1)
+                if not isinstance(field, str) or "expected" not in check or not isinstance(fail_message, str):
+                    raise ValueError("AssertOwnedProductSequence check requires field, expected, and fail_message")
+                lines.extend(
+                    [
+                        f"if {slot_name}.{field} != {render_main_value(expected_value)} {{",
+                        f"    print({render_string_literal(fail_message)})",
+                        f"    return {fail_code}",
+                        "}",
+                    ]
+                )
+        return lines
     if kind == "Print":
         text = operation.get("text")
         if text is None:
