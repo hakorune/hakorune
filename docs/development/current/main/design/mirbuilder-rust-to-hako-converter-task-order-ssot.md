@@ -19,10 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIR-CALL-PREPASS-FACT-OWNER-DRAIN-001
+  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
 
 current implementation task:
-  Select the next owner after closing the MIR-call prepass fact owner drain.
+  Select the next semantic converter slice after the boxed-sum / C-shim
+  fact-owner drains.
 
 producer responsibility stack:
   Source preparation
@@ -32,12 +33,10 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  boxed-sum VariantMake I64 const payloads
+  pending next-owner selection
 
 selected lowering:
-  VariantMake / VariantTag / VariantProject
-    -> BoxedRuntime(abi_plan_id)
-    -> payload_storage=None|I64|Handle
+  pending next-owner selection
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -53,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  pending next-owner selection after MIR-call prepass fact owner drain
+  pending next-owner selection after boxed-sum / C-shim fact-owner drains
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:

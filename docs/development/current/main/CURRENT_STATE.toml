@@ -265,21 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1659-SAME-MODULE-SUM-HANDLE-FACT-OWNER-DESIGN-STOP-001.md"
-latest_card_summary = """The boxed-sum handle proof owner is selected:
-semantic authority is ValueRepresentationFact::BoxedSumHandle { abi_plan_id }.
-variant_binding remains a local tag/payload helper only. Same-module
-`__hako_sum_` prefix proof is removed through explicit value representation
-metadata. Generic-method boxed-sum result prefix proof is also drained through
-explicit result value facts. C shim responsibility inventory is landed; the
-MIR-call route policy legacy generic_method_routes fallback is removed; the
-MIR-call need-name fallback is compatibility-audited; the next blocker is
-MIR-CALL-PREPASS-FACT-OWNER-DRAIN-001 after object-storage plan name inference,
-exact-seed route quarantine, and same-module definition edge plans are
-drained."""
+latest_card = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md"
+latest_card_summary = """The task-order cleanup lane and boxed-sum / C-shim
+fact-owner drains are closed enough to stop and select the next semantic
+converter slice deliberately. The active task-order SSOT records landed
+evidence and parked cleanup lanes; implementation must not continue until the
+next owner is selected."""
 
-current_blocker_token = "MIR-CALL-PREPASS-FACT-OWNER-DRAIN-001"
+current_blocker_token = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
