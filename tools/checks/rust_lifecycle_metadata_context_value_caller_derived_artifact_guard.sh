@@ -32,15 +32,38 @@ assert verifier["checks"]["storage_access_normalized"] == 1
 assert verifier["checks"]["borrow_lowering_decision"] == "ElideToLeafProjection"
 assert verifier["checks"]["read_fold_lowering_decision"] == "ElideToReadFold"
 assert verifier["checks"]["key_domain_roundtrip"] == "CanonicalI64Text"
+assert verifier["checks"]["read_fold_direct_shape_rule"] == "borrow.read_fold"
+assert verifier["transport_notes"]["source_storage_transport"] == "ValueIdOrderedMapBox"
+assert verifier["transport_notes"]["target_storage_transport"] == "ValueIdOrderedMapBox"
 borrow_use = {row["id"]: row for row in facts["borrow_use_facts"]}
 assert borrow_use["MetadataContext::value_origin_callers.get_cloned"]["consumer_kind"] == "GetClone"
 assert borrow_use["MetadataContext::value_origin_callers.get_cloned"]["escapes"] is False
-assert borrow_use["MetadataContext::value_origin_callers.iter_owned_copy"]["consumer_kind"] == "ReadOnlyFold"
-assert borrow_use["MetadataContext::value_origin_callers.iter_owned_copy"]["escapes"] is False
+primary_fold = borrow_use["MetadataContext::value_origin_callers.iter_owned_copy.finalize_module"]
+parity_fold = borrow_use["MetadataContext::value_origin_callers.iter_owned_copy.finalize_function"]
+assert primary_fold["consumer_kind"] == "ReadOnlyFold"
+assert primary_fold["escapes"] is False
+assert primary_fold["fold_semantics"]["collision"] == "SourceWins"
+assert primary_fold["fold_semantics"]["output_order"] == "KeyAscending(ValueIdOrdV1)"
+assert parity_fold["consumer_kind"] == "ReadOnlyFold"
+assert parity_fold["parity_only"] is True
 assert "value_caller(ctx, value_id): Option<StringBox>" in hako
-assert "local keys = ctx.value_origin_callers.keys()" in hako
-assert "return ctx.value_origin_callers" not in hako
+assert "merge_value_origin_callers(source: ValueIdOrderedMapBox, base: ValueIdOrderedMapBox): ValueIdOrderedMapBox" in hako
+assert "local total = source.length()" in hako
+assert "local key = source.key_at(i)" in hako
+assert "local value = source.value_at(i)" in hako
+assert "using apps.lib.collections.value_id_ordered_map as OrderedMap" in hako
+assert "local merged = OrderedMap.create()" in hako
+assert "local merged_clone_total = base.length()" in hako
+assert "local merged_clone_key = base.key_at(merged_clone_i)" in hako
+assert "local merged_clone_value = base.value_at(merged_clone_i)" in hako
+assert "merged.set(merged_clone_key, merged_clone_value)" in hako
+assert "merged.set(key, value)" in hako
+assert "merged.key_at(0)" in hako
+assert "keys_value.push(key)" not in hako
+assert "values_value.push(value)" not in hako
+assert "return ctx.value_origin_callers\n" not in hako
 assert "value_origin_callers(ctx)" not in hako
+assert "MapReadFoldOwnedCopy" not in hako
 assert "TODO" not in hako
 PY
 

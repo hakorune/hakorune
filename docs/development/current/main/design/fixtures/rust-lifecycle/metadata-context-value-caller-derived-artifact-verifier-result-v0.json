@@ -4,6 +4,7 @@
     "direct_shape_rule": "map.immutable_leaf_projection",
     "key_domain_roundtrip": "CanonicalI64Text",
     "needs_semantic_capsule": 0,
+    "read_fold_direct_shape_rule": "borrow.read_fold",
     "read_fold_lowering_decision": "ElideToReadFold",
     "returned_aggregate_alias": 0,
     "rust_facts_input": "verified",
@@ -26,10 +27,14 @@
     "key_transport": "ValueIdAsI64",
     "return_transport": "OptionStringBox",
     "source_access_order": "Unobserved",
+    "source_storage_transport": "ValueIdOrderedMapBox",
+    "target_storage_transport": "ValueIdOrderedMapBox",
     "value_transport": "ImmutableStringAtom"
   },
   "verified_operations": [
     "MapGetOption",
-    "MapReadFoldOwnedCopy"
+    "ForEachMapEntry",
+    "CloneOwnedMap",
+    "MapSet"
   ]
 }

@@ -196,6 +196,43 @@ def _render_ordered_map_set(operation: Mapping[str, Any]) -> list[str]:
     ]
 
 
+def _render_ordered_map_set_statement(source: str, key: str, value: str) -> list[str]:
+    return [
+        "local found = 0",
+        "local set_i = 0",
+        f"loop(set_i < {source}.keys_value.length()) {{",
+        f"    if BoxHelpers.array_get({source}.keys_value, set_i) == {key} {{",
+        f"        {source}.values_value.set(set_i, {value})",
+        "        found = 1",
+        f"        set_i = {source}.keys_value.length()",
+        "    }",
+        "    set_i = set_i + 1",
+        "}",
+        "if found == 0 {",
+        f"    {source}.keys_value.push({key})",
+        f"    {source}.values_value.push({value})",
+        f"    local pos = {source}.keys_value.length() - 1",
+        "    local keep_swapping = 1",
+        "    loop(pos > 0 && keep_swapping != 0) {",
+        "        local prev = pos - 1",
+        f"        local a = BoxHelpers.array_get({source}.keys_value, prev)",
+        f"        local b = BoxHelpers.array_get({source}.keys_value, pos)",
+        "        if a < b or a == b {",
+        "            keep_swapping = 0",
+        "        } else {",
+        f"            local av = BoxHelpers.array_get({source}.values_value, prev)",
+        f"            local bv = BoxHelpers.array_get({source}.values_value, pos)",
+        f"            {source}.keys_value.set(prev, b)",
+        f"            {source}.keys_value.set(pos, a)",
+        f"            {source}.values_value.set(prev, bv)",
+        f"            {source}.values_value.set(pos, av)",
+        "            pos = pos - 1",
+        "        }",
+        "    }",
+        "}",
+    ]
+
+
 def _render_carrier_snapshot(operation: Mapping[str, Any]) -> list[str]:
     map_arg = operation["map_arg"]
     loop_var = operation["loop_var"]
@@ -318,7 +355,65 @@ def _render_read_fold_statement(operation: Mapping[str, Any]) -> list[str]:
         if not isinstance(target, str) or not isinstance(value, str):
             raise ValueError("SequencePush statement requires target and value")
         return [f"{target}.push({value})"]
+    if kind == "MapSet":
+        source = operation.get("source")
+        key = operation.get("key")
+        value = operation.get("value")
+        if not isinstance(source, str) or not isinstance(key, str) or not isinstance(value, str):
+            raise ValueError("MapSet statement requires source, key, and value")
+        storage = operation.get("storage")
+        if storage is None:
+            raise ValueError("MapSet statement requires explicit storage")
+        if storage in {"MapBox", "OrderedMapBox", "ValueIdOrderedMapBox"}:
+            return [f"{source}.set({key}, {value})"]
+        raise ValueError(f"unsupported MapSet statement storage: {storage}")
     raise ValueError(f"unsupported read-fold statement operation: {kind}")
+
+
+def _render_for_each_map_entry(operation: Mapping[str, Any]) -> list[str]:
+    source = operation.get("source")
+    key_binding = operation.get("key_binding")
+    value_binding = operation.get("value_binding")
+    body = operation.get("body")
+    if not isinstance(source, str) or not isinstance(key_binding, str) or not isinstance(value_binding, str):
+        raise ValueError("ForEachMapEntry requires source, key_binding, and value_binding")
+    if not isinstance(body, list):
+        raise ValueError("ForEachMapEntry requires body")
+    source_storage = operation.get("source_storage")
+    if source_storage is None:
+        raise ValueError("ForEachMapEntry requires explicit source_storage")
+    if source_storage == "ValueIdOrderedMapBox":
+        lines = [
+            f"local total = {source}.length()",
+            "local i = 0",
+            "loop(i < total) {",
+            f"    local {key_binding} = {source}.key_at(i)",
+            f"    local {value_binding} = {source}.value_at(i)",
+        ]
+    elif source_storage == "OrderedMapBox":
+        lines = [
+            f"local total = {source}.length()",
+            "local i = 0",
+            "loop(i < total) {",
+            f"    local {key_binding} = {source}.key_at(i)",
+            f"    local {value_binding} = {source}.get({key_binding})",
+        ]
+    elif source_storage == "MapBox":
+        lines = [
+            f"local keys = {source}.keys()",
+            "local i = 0",
+            "loop(i < keys.length()) {",
+            f"    local {key_binding} = BoxHelpers.array_get(keys, i)",
+            f"    local {value_binding} = {source}.get({key_binding})",
+        ]
+    else:
+        raise ValueError(f"unsupported ForEachMapEntry source storage: {source_storage}")
+    for item in body:
+        if not isinstance(item, Mapping):
+            raise ValueError("ForEachMapEntry body entries must be operations")
+        lines.extend("    " + line if line else "" for line in _render_read_fold_statement(item))
+    lines.extend(["    i = i + 1", "}"])
+    return lines
 
 
 def _render_for_each_ordered_map_entry(operation: Mapping[str, Any]) -> list[str]:
@@ -418,9 +513,14 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         ]
     if kind == "MapSet":
         source = render_source_expr(operation)
-        if operation.get("storage") == "MapBox":
-            return [f"{source}.set({operation['key']}, {operation['value']})", "return 1"]
-        return _render_ordered_map_set(operation)
+        storage = operation.get("storage")
+        if storage is None:
+            raise ValueError("MapSet requires explicit storage")
+        if storage in {"MapBox", "OrderedMapBox", "ValueIdOrderedMapBox"}:
+            return [f"return {source}.set({operation['key']}, {operation['value']})"]
+        raise ValueError(f"unsupported MapSet storage: {storage}")
+    if kind == "ForEachMapEntry":
+        return _render_for_each_map_entry(operation)
     if kind == "MapBoxGet":
         return [f"return {render_source_expr(operation)}.get({operation['key']})"]
     if kind == "MapBoxHas":
@@ -534,6 +634,47 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             raise ValueError("ArrayElementFieldGet requires array, index, and field_name")
         return [f"return {source}.get({index}).{field}"]
     if kind == "CloneOwnedMap":
+        target = operation.get("target")
+        if isinstance(target, str):
+            source = render_source_expr(operation)
+            target_storage = operation.get("target_storage")
+            if target_storage == "ValueIdOrderedMapBox":
+                key_var = f"{target}_clone_key"
+                value_var = f"{target}_clone_value"
+                index_var = f"{target}_clone_i"
+                total_var = f"{target}_clone_total"
+                return [
+                    "local " + target + " = OrderedMap.create()",
+                    f"local {total_var} = {source}.length()",
+                    f"local {index_var} = 0",
+                    f"loop({index_var} < {total_var}) {{",
+                    f"    local {key_var} = {source}.key_at({index_var})",
+                    f"    local {value_var} = {source}.value_at({index_var})",
+                    f"    {target}.set({key_var}, {value_var})",
+                    f"    {index_var} = {index_var} + 1",
+                    "}",
+                ]
+            if target_storage == "OrderedMapBox":
+                constructor = "OrderedMap.create()"
+                key_var = f"{target}_clone_key"
+                keys_var = f"{target}_clone_keys"
+                value_var = f"{target}_clone_value"
+                index_var = f"{target}_clone_i"
+                lines = [
+                    f"local {target} = {constructor}",
+                    f"local {keys_var} = {source}.keys_value",
+                    f"local {index_var} = 0",
+                    f"loop({index_var} < {keys_var}.length()) {{",
+                    f"    local {key_var} = BoxHelpers.array_get({keys_var}, {index_var})",
+                    f"    local {value_var} = BoxHelpers.array_get({source}.values_value, {index_var})",
+                ]
+                lines.extend(
+                    "    " + line
+                    for line in _render_ordered_map_set_statement(target, key_var, value_var)
+                )
+                lines.extend([f"    {index_var} = {index_var} + 1", "}"])
+                return lines
+            raise ValueError(f"unsupported CloneOwnedMap target storage: {target_storage}")
         return [f"return {render_source_expr(operation)}.clone_owned()"]
     if kind == "ReplaceOwnedMap":
         return [f"{render_source_expr(operation)} = {operation['value']}.clone_owned()"]

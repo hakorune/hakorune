@@ -19,3 +19,13 @@ docs/reference/boxes-system/ordered-mapbox.md
 docs/development/current/main/design/ordered-map-box-boundary-ssot.md
 ```
 
+## ValueIdOrderedMapBox
+
+`value_id_ordered_map.hako` provides deterministic i64 `ValueId`-key ordered
+map behavior for bounded compiler-construction artifacts.
+
+It is separate from `OrderedMapBox` so String-key ordering and ValueId ordering
+do not share a silent transport contract.
+
+Consumers should use `set/get/clone_owned/length/key_at/value_at`; direct
+`keys_value` / `values_value` access is an implementation detail.

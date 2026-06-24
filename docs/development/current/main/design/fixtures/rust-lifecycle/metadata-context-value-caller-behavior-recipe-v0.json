@@ -12,11 +12,17 @@
       "hako_operation": "MapGetOption",
       "id": "MetadataContext::value_caller",
       "rust_operation": "HashMap::get map as_str"
+    },
+    {
+      "emits": "MetadataContextApi.merge_value_origin_callers(source, base)",
+      "hako_operation": "ForEachMapEntry",
+      "id": "MetadataContext::value_origin_callers.iter_owned_copy.finalize_module",
+      "rust_operation": "HashMap iter insert clone into cloned BTreeMap"
     }
   ],
   "pilot_scope": "MetadataContext_value_caller_and_origin_fold_only",
   "schema_version": 0,
-  "selected_body_count": "value_caller_method_only",
+  "selected_body_count": "value_caller_method_plus_read_fold_consumer",
   "source_oracle": "metadata-context-value-caller-oracle-v0.json",
   "source_plan": "metadata-context-value-caller-plan-v0.json",
   "subject": "hakorune_mir_builder::metadata_context::MetadataContext.value_caller"

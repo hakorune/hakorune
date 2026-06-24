@@ -40,8 +40,25 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
         (module_lifecycle_source, "module lifecycle value_origin_callers read fold"),
         (call_lowering_source, "call lowering value_origin_callers read fold"),
     ]:
+        _require(fold_source, "let mut origin_callers = ", label)
+        _require(fold_source, ".metadata.value_origin_callers.clone()", label)
         _require(fold_source, "for (k, v) in self.metadata_ctx.value_origin_callers().iter()", label)
         _require(fold_source, "origin_callers.insert(*k, v.clone())", label)
+        _require(fold_source, ".metadata.value_origin_callers = origin_callers", label)
+
+    fold_semantics = {
+        "input": "MapEntries",
+        "key_projection": "Copy(ValueIdAsI64)",
+        "value_projection": "OwnedImmutableAtom",
+        "base": "CloneOwned",
+        "collision": "SourceWins",
+        "output": "OwnedOrderedMap",
+        "output_order": "KeyAscending(ValueIdOrdV1)",
+        "source_destination_alias": False,
+        "source_mutated_during_use": False,
+        "element_reference_escapes": False,
+        "destination_identity_observed": False,
+    }
 
     return {
         "schema_version": 0,
@@ -100,8 +117,8 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
                 "order": "Unobserved",
             },
             {
-                "id": "MetadataContext::value_origin_callers.iter_owned_copy",
-                "source": "src/mir/builder/module_lifecycle.rs;src/mir/builder/calls/lowering.rs",
+                "id": "MetadataContext::value_origin_callers.iter_owned_copy.finalize_module",
+                "source": "src/mir/builder/module_lifecycle.rs",
                 "borrowed_kind": "Aggregate",
                 "consumer_kind": "ReadOnlyFold",
                 "escapes": False,
@@ -110,6 +127,21 @@ def extract_facts(source_path: Path = SOURCE) -> dict[str, Any]:
                 "element_reference_escapes": False,
                 "owned_projection_available": True,
                 "order": "Unobserved",
+                "fold_semantics": fold_semantics,
+            },
+            {
+                "id": "MetadataContext::value_origin_callers.iter_owned_copy.finalize_function",
+                "source": "src/mir/builder/calls/lowering.rs",
+                "borrowed_kind": "Aggregate",
+                "consumer_kind": "ReadOnlyFold",
+                "escapes": False,
+                "owner_mutated_during_use": False,
+                "identity_observed": False,
+                "element_reference_escapes": False,
+                "owned_projection_available": True,
+                "order": "Unobserved",
+                "fold_semantics": fold_semantics,
+                "parity_only": True,
             },
         ],
         "excluded_methods": [

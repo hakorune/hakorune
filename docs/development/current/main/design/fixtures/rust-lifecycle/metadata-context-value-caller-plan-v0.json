@@ -9,6 +9,18 @@
         "new": "MetadataContext::new"
       },
       "type_name": "MetadataContext"
+    },
+    "borrow.read_fold": {
+      "base_arg": "base",
+      "fold_fact_id": "MetadataContext::value_origin_callers.iter_owned_copy.finalize_module",
+      "key_binding": "key",
+      "plan_ref": "MetadataContext.value_origin_callers.read_fold",
+      "signature": "merge_value_origin_callers(source: ValueIdOrderedMapBox, base: ValueIdOrderedMapBox): ValueIdOrderedMapBox",
+      "source_arg": "source",
+      "source_storage": "ValueIdOrderedMapBox",
+      "target_storage": "ValueIdOrderedMapBox",
+      "target_name": "merged",
+      "value_binding": "value"
     }
   },
   "kind": "HakoLifecyclePlan",
@@ -25,6 +37,12 @@
       "plan_kind": "MapBox",
       "shape_rule": "map.immutable_leaf_projection",
       "value_transport": "ImmutableStringAtom"
+    },
+    {
+      "comparator_proof": "ValueIdOrdV1",
+      "id": "MetadataContext.value_origin_callers.read_fold",
+      "plan_kind": "OwnedMapMerge",
+      "shape_rule": "borrow.read_fold"
     }
   ],
   "schema_version": 0,

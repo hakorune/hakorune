@@ -32,12 +32,51 @@
       "consumer_kind": "ReadOnlyFold",
       "element_reference_escapes": false,
       "escapes": false,
-      "id": "MetadataContext::value_origin_callers.iter_owned_copy",
+      "fold_semantics": {
+        "base": "CloneOwned",
+        "collision": "SourceWins",
+        "destination_identity_observed": false,
+        "element_reference_escapes": false,
+        "input": "MapEntries",
+        "key_projection": "Copy(ValueIdAsI64)",
+        "output": "OwnedOrderedMap",
+        "output_order": "KeyAscending(ValueIdOrdV1)",
+        "source_destination_alias": false,
+        "source_mutated_during_use": false,
+        "value_projection": "OwnedImmutableAtom"
+      },
+      "id": "MetadataContext::value_origin_callers.iter_owned_copy.finalize_module",
       "identity_observed": false,
       "order": "Unobserved",
       "owned_projection_available": true,
       "owner_mutated_during_use": false,
-      "source": "src/mir/builder/module_lifecycle.rs;src/mir/builder/calls/lowering.rs"
+      "source": "src/mir/builder/module_lifecycle.rs"
+    },
+    {
+      "borrowed_kind": "Aggregate",
+      "consumer_kind": "ReadOnlyFold",
+      "element_reference_escapes": false,
+      "escapes": false,
+      "fold_semantics": {
+        "base": "CloneOwned",
+        "collision": "SourceWins",
+        "destination_identity_observed": false,
+        "element_reference_escapes": false,
+        "input": "MapEntries",
+        "key_projection": "Copy(ValueIdAsI64)",
+        "output": "OwnedOrderedMap",
+        "output_order": "KeyAscending(ValueIdOrdV1)",
+        "source_destination_alias": false,
+        "source_mutated_during_use": false,
+        "value_projection": "OwnedImmutableAtom"
+      },
+      "id": "MetadataContext::value_origin_callers.iter_owned_copy.finalize_function",
+      "identity_observed": false,
+      "order": "Unobserved",
+      "owned_projection_available": true,
+      "owner_mutated_during_use": false,
+      "parity_only": true,
+      "source": "src/mir/builder/calls/lowering.rs"
     }
   ],
   "excluded_methods": [

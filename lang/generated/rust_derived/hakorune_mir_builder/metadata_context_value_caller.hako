@@ -4,13 +4,15 @@
 // pilot-scope: MetadataContext_value_caller_and_origin_fold_only
 // manual-edit: forbidden
 
+using apps.lib.collections.value_id_ordered_map as OrderedMap
+
 using selfhost.shared.common.box_helpers as BoxHelpers
 
 box MetadataContext {
-    value_origin_callers: MapBox
+    value_origin_callers: ValueIdOrderedMapBox
 
     birth() {
-        me.value_origin_callers = new MapBox()
+        me.value_origin_callers = OrderedMap.create()
     }
 }
 
@@ -21,12 +23,32 @@ static box MetadataContextApi {
         }
         return Option::None()
     }
+
+    merge_value_origin_callers(source: ValueIdOrderedMapBox, base: ValueIdOrderedMapBox): ValueIdOrderedMapBox {
+        local merged = OrderedMap.create()
+        local merged_clone_total = base.length()
+        local merged_clone_i = 0
+        loop(merged_clone_i < merged_clone_total) {
+            local merged_clone_key = base.key_at(merged_clone_i)
+            local merged_clone_value = base.value_at(merged_clone_i)
+            merged.set(merged_clone_key, merged_clone_value)
+            merged_clone_i = merged_clone_i + 1
+        }
+        local total = source.length()
+        local i = 0
+        loop(i < total) {
+            local key = source.key_at(i)
+            local value = source.value_at(i)
+            merged.set(key, value)
+            i = i + 1
+        }
+        return merged
+    }
 }
 
 static box MetadataContextHarnessApi {
     prefill_value_caller(ctx, value_id, caller): i64 {
-        ctx.value_origin_callers.set(value_id, caller)
-        return 1
+        return ctx.value_origin_callers.set(value_id, caller)
     }
 }
 
@@ -48,14 +70,45 @@ static box Main {
             print("metadata_context_value_caller_none=fail")
             return 2
         }
-        local destination = new MapBox()
-        MetadataContextHarnessApi.prefill_value_caller(ctx, 11, "other.hako:3:4")
-        local keys = ctx.value_origin_callers.keys()
-        local i = 0
-        loop(i < keys.length()) {
-            local key = BoxHelpers.array_get(keys, i)
-            destination.set(key, ctx.value_origin_callers.get(key))
-            i = i + 1
+        local fold_ctx = new MetadataContext()
+        MetadataContextHarnessApi.prefill_value_caller(fold_ctx, 2, "source")
+        MetadataContextHarnessApi.prefill_value_caller(fold_ctx, 7, "new")
+        local base = OrderedMap.create()
+        base.set(1, "base")
+        base.set(7, "old")
+        local merged = MetadataContextApi.merge_value_origin_callers(fold_ctx.value_origin_callers, base)
+        if merged.get(1) != "base" {
+            print("metadata_context_value_origin_fold_base=fail")
+            return 3
+        }
+        if merged.get(2) != "source" {
+            print("metadata_context_value_origin_fold_source=fail")
+            return 4
+        }
+        if merged.get(7) != "new" {
+            print("metadata_context_value_origin_fold_source_wins=fail")
+            return 5
+        }
+        if base.get(7) != "old" {
+            print("metadata_context_value_origin_fold_base_alias=fail")
+            return 6
+        }
+        MetadataContextHarnessApi.prefill_value_caller(fold_ctx, 2, "changed")
+        if merged.get(2) != "source" {
+            print("metadata_context_value_origin_fold_source_alias=fail")
+            return 7
+        }
+        if merged.key_at(0) != 1 {
+            print("metadata_context_value_origin_fold_order0=fail")
+            return 8
+        }
+        if merged.key_at(1) != 2 {
+            print("metadata_context_value_origin_fold_order1=fail")
+            return 9
+        }
+        if merged.key_at(2) != 7 {
+            print("metadata_context_value_origin_fold_order2=fail")
+            return 10
         }
         print("metadata_context_value_caller_direct_artifact=ok")
         return 0

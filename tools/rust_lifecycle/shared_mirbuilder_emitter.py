@@ -29,6 +29,10 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         box_name = operation.get("box")
         if target is None or box_name is None:
             raise ValueError("NewBox requires target and box")
+        if box_name == "OrderedMapBox":
+            return [f"local {target} = OrderedMap.create()"]
+        if box_name == "ValueIdOrderedMapBox":
+            return [f"local {target} = OrderedMap.create()"]
         return [f"local {target} = new {box_name}()"]
     if kind == "NewArray":
         target = operation.get("target")
@@ -62,20 +66,6 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if target is None or "value" not in operation:
             raise ValueError("ArrayPush requires target and value")
         return [f"{target}.push({render_main_value(value)})"]
-    if kind == "MapReadFoldOwnedCopy":
-        source = operation.get("source")
-        destination = operation.get("destination")
-        if not isinstance(source, str) or not isinstance(destination, str):
-            raise ValueError("MapReadFoldOwnedCopy requires source and destination")
-        return [
-            f"local keys = {source}.keys()",
-            "local i = 0",
-            "loop(i < keys.length()) {",
-            "    local key = BoxHelpers.array_get(keys, i)",
-            f"    {destination}.set(key, {source}.get(key))",
-            "    i = i + 1",
-            "}",
-        ]
     if kind == "AssertEq":
         left = operation.get("left")
         right = operation.get("right")

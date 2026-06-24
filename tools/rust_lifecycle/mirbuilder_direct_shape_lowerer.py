@@ -21,6 +21,7 @@ from mirbuilder_optional_map_converter import (
     compile_optional_immutable_atom_map_methods,
     compile_optional_owned_recursive_enum_map_methods,
 )
+from mirbuilder_read_fold_converter import compile_owned_map_merge_methods
 from mirbuilder_scalar_counter_converter import compile_core_context_scalar_methods
 from mirbuilder_sequence_borrow_converter import compile_sequence_last_copy_methods
 from mirbuilder_structured_loop_converter import (
@@ -123,6 +124,15 @@ DIRECT_SHAPE_RULES: dict[str, DirectShapeRule] = {
             **plan["direct_shape"]["borrow_use.sequence_last_copy"],
         ),
         description="call-local aggregate sequence borrow eliminated to last copied element",
+    ),
+    "borrow.read_fold": DirectShapeRule(
+        shape="borrow.read_fold",
+        lower=lambda facts, plan: compile_owned_map_merge_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["borrow.read_fold"],
+        ),
+        description="read-only aggregate map borrow folded into owned output",
     ),
     "aggregate.take_restore_with_defaults": DirectShapeRule(
         shape="aggregate.take_restore_with_defaults",

@@ -1,0 +1,116 @@
+// ValueIdOrderedMapBox -- deterministic i64 ValueId-key ordered map.
+//
+// v0 is intentionally small: ArrayBox-backed storage, i64 keys only,
+// deterministic ascending ValueId order, and no MapBox/ring substrate ownership.
+
+static box ValueIdOrderedMap {
+    create() {
+        local map = new ValueIdOrderedMapBox()
+        map.keys_value = new ArrayBox()
+        map.values_value = new ArrayBox()
+        return map
+    }
+}
+
+box ValueIdOrderedMapBox {
+    keys_value: ArrayBox
+    values_value: ArrayBox
+
+    clone_owned() {
+        local next = ValueIdOrderedMap.create()
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            next.keys_value.push(me.keys_value.get(i))
+            next.values_value.push(me.values_value.get(i))
+            i = i + 1
+        }
+        return next
+    }
+
+    set(key: i64, value) {
+        if key < 0 {
+            return 0
+        }
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == key {
+                me.values_value.set(i, value)
+                return 1
+            }
+            i = i + 1
+        }
+
+        me.keys_value.push(key)
+        me.values_value.push(value)
+        local pos = me.keys_value.length() - 1
+        loop(pos > 0) {
+            local prev = pos - 1
+            local a = me.keys_value.get(prev)
+            local b = me.keys_value.get(pos)
+            if a <= b {
+                return 1
+            }
+
+            local av = me.values_value.get(prev)
+            local bv = me.values_value.get(pos)
+            me.keys_value.set(prev, b)
+            me.keys_value.set(pos, a)
+            me.values_value.set(prev, bv)
+            me.values_value.set(pos, av)
+            pos = pos - 1
+        }
+        return 1
+    }
+
+    get(key: i64) {
+        if key < 0 {
+            return null
+        }
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == key {
+                return me.values_value.get(i)
+            }
+            i = i + 1
+        }
+        return null
+    }
+
+    has(key: i64) {
+        if key < 0 {
+            return false
+        }
+        local i = 0
+        loop(i < me.keys_value.length()) {
+            if me.keys_value.get(i) == key {
+                return true
+            }
+            i = i + 1
+        }
+        return false
+    }
+
+    clear() {
+        me.keys_value = new ArrayBox()
+        me.values_value = new ArrayBox()
+        return 1
+    }
+
+    length() {
+        return me.keys_value.length()
+    }
+
+    key_at(index): i64 {
+        if index >= 0 and index < me.keys_value.length() {
+            return me.keys_value.get(index)
+        }
+        return -1
+    }
+
+    value_at(index) {
+        if index >= 0 and index < me.values_value.length() {
+            return me.values_value.get(index)
+        }
+        return null
+    }
+}

@@ -64,6 +64,16 @@ FoldSemantics:
   output_order = KeyAscending(ValueIdOrdV1)
 ```
 
+Physical transport:
+
+```text
+source_storage = ValueIdOrderedMapBox
+target_storage = ValueIdOrderedMapBox
+```
+
+`OrderedMapBox` remains String-key only and is not used for this ValueId-key
+fold.
+
 Required proof:
 
 ```text
