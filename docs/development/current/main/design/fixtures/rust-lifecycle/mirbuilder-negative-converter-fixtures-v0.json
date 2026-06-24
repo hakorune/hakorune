@@ -47,6 +47,14 @@
       "status": "green"
     },
     {
+      "id": "multi_exit_phi_default_missing_denied",
+      "status": "green"
+    },
+    {
+      "id": "multi_exit_phi_default_arity_denied",
+      "status": "green"
+    },
+    {
       "id": "multi_exit_phi_carrier_escape_denied",
       "status": "green"
     },

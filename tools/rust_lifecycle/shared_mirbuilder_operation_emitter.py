@@ -101,8 +101,16 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
         target = operation.get("target")
         selector = operation.get("selector")
         exits = operation.get("exits")
-        if not isinstance(target, str) or selector is None or not isinstance(exits, list) or not exits:
-            raise ValueError("ExplicitMultiExitPhiI64Array requires target, selector, and exits")
+        default_values = operation.get("default_values")
+        if (
+            not isinstance(target, str)
+            or selector is None
+            or not isinstance(exits, list)
+            or not exits
+            or not isinstance(default_values, list)
+            or not default_values
+        ):
+            raise ValueError("ExplicitMultiExitPhiI64Array requires target, selector, exits, and default_values")
         lines = [f"local {target} = new ArrayBox()"]
         for index, exit_case in enumerate(exits):
             if not isinstance(exit_case, Mapping):
@@ -116,8 +124,8 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
             for value in values:
                 lines.append(f"    {target}.push({_render_expr(value)})")
         lines.append("} else {")
-        lines.append(f"    print({render_string_literal(operation.get('fail_message', 'multi_exit_phi_unknown_exit=fail'))})")
-        lines.append(f"    return {operation.get('fail_code', 1)}")
+        for value in default_values:
+            lines.append(f"    {target}.push({_render_expr(value)})")
         lines.append("}")
         return lines
     raise ValueError(f"unsupported statement operation: {kind}")

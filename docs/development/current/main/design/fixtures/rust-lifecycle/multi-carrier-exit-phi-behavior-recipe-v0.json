@@ -6,7 +6,7 @@
       "emits": "MultiCarrierExitPhiPilotApi.project_exit_carriers(exit_kind)",
       "hako_operation": "ExplicitMultiExitPhiI64Array",
       "id": "MultiCarrierExitPhiPilot::project_exit_carriers",
-      "rust_operation": "explicit break/continue/early-return carrier table"
+      "rust_operation": "explicit break/continue/early-return/default carrier table"
     }
   ],
   "pilot_scope": "MultiCarrierExitPhi_only",

@@ -1,6 +1,6 @@
 # 296x-1678: Same-Module ArrayBox Return Contract
 
-Status: Selected
+Status: Complete
 Date: 2026-06-25
 Token: SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001
 
@@ -169,6 +169,30 @@ bash tools/checks/current_state_pointer_guard.sh
 
 Full converter matrix green is required because this slice is selected to close
 the known matrix red edge.
+
+## Closeout Evidence
+
+```text
+source_default_exit_facts=green
+helper_scalar_fail_return_removed=green
+generated_hako_exe_aot=green
+same_module_arraybox_return_contract=green
+same_module_definition_plan=green
+backend_ready_semantic_refresh_before_ny_llvmc=green
+full_converter_matrix=green
+runtime_try_hako_then_rust_fallback=0
+```
+
+Validated with:
+
+```text
+python3 tools/rust_lifecycle/generate_multi_exit_phi_artifact.py --check
+bash tools/checks/rust_lifecycle_multi_carrier_exit_phi_derived_artifact_guard.sh
+bash tools/checks/rust_lifecycle_core_context_derived_artifact_guard.sh
+cargo test -q global_call_route_plan:: --lib
+bash tools/checks/rust_mirbuilder_negative_converter_fixtures_guard.sh
+bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
+```
 
 ## Negative Acceptance
 

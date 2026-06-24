@@ -558,6 +558,7 @@ fn same_module_static_helper_const_return_contract(
     match value {
         ConstValue::Integer(_) | ConstValue::Bool(_) => Some(GlobalCallReturnContract::ScalarI64),
         ConstValue::Void => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+        ConstValue::Null => Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
         _ => None,
     }
 }
@@ -603,7 +604,23 @@ fn merge_same_module_static_helper_contract(
             Some(GlobalCallReturnContract::VoidSentinelI64Zero),
         )
         | (
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+            Some(GlobalCallReturnContract::ScalarI64),
+        )
+        | (
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+            Some(GlobalCallReturnContract::ObjectHandle),
+        )
+        | (
             Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+        ) => Some(Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)),
+        (
+            Some(GlobalCallReturnContract::ScalarI64),
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+        )
+        | (
+            Some(GlobalCallReturnContract::ObjectHandle),
             Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
         ) => Some(Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)),
         (Some(GlobalCallReturnContract::ObjectHandle), None) => {

@@ -1,6 +1,10 @@
 {
   "checks": {
     "carrier_count": 2,
+    "default_exit": [
+      0,
+      0
+    ],
     "direct_shape_rule": "control.multi_carrier_exit_phi",
     "exit_kinds": [
       "break",

@@ -20,11 +20,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001
+  NEWTYPE-ID-GENERATOR-SCALARIZATION-001 design stop
 
 current implementation task:
-  Close the live same-module ArrayBox return red edge without opening arbitrary
-  object-return support.
+  Stop for design selection before opening ValueIdGenerator /
+  BasicBlockIdGenerator scalarization.
 
 producer responsibility stack:
   Source preparation
@@ -34,13 +34,10 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  MultiCarrierExitPhiPilotApi.project_exit_carriers/1
+  not selected for implementation yet
 
 selected lowering:
-  source default facts
-    -> ExplicitMultiExitPhiI64Array default_values
-    -> body-wide ObjectHandle return contract
-    -> SameModuleDefinitionPlan
+  pending design consultation
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -48,17 +45,20 @@ landed evidence:
   SameModuleDefinitionPlan.
   Borrow read-fold owned-map merge is green and uses ValueIdOrderedMapBox for
   ValueId/i64 keys. OrderedMapBox remains String-key only.
+  Same-module ArrayBox return is green for MultiCarrierExitPhi via
+  source-derived default_exit facts, body-wide ObjectHandle return contract,
+  SameModuleDefinitionPlan, and backend-ready semantic refresh before ny-llvmc.
 
 selected next owner:
-  SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001
+  none; design consultation required
 
 current fail-fast boundary:
-  the selected helper must have ArrayBox return transport on every path. Do
-  not reinterpret scalar fail codes as mixed runtime returns.
+  do not open ID generator scalarization until the next design stop selects the
+  exact source shape and non-claims.
 
 latest design decision:
-  Choose the focused ArrayBox return contract before ID generator
-  scalarization because it closes the current full-matrix red edge.
+  Same-module ArrayBox return is closed. Return to design selection before the
+  next semantic owner.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -73,6 +73,8 @@ same_module_scalar_counter_routes=green
 same_module_scalar_counter_definitions=green
 CoreContext scalar-counter EXE/AOT green
 multi_carrier_exit_phi ArrayBox return selected to close matrix red edge
+multi_carrier_exit_phi ArrayBox return green
+full converter matrix green
 task-order remains under 800 lines
 ```
 
@@ -83,7 +85,8 @@ borrow_read_fold_owned_map_merge = landed
 boxed_sum_variant_make_site_fact_normalization = landed
 metadata_context_region_parent_backend = green
 same_module_uniform_mir_scalar_counter_emitter = landed
-same_module_arraybox_return_contract = selected
+same_module_arraybox_return_contract = landed
+next_owner_selection = design_stop
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -100,13 +103,13 @@ history, not in this task-order SSOT.
    non_authority=callee-name C branch
 
 2. Same-module ArrayBox return contract
-   status=selected
+   status=landed
    boundary=MultiCarrierExitPhi owned i64-pair ArrayBox return
    semantic_authority=source default facts + body-wide return contract
    non_authority=callee name / scalar fail-code reinterpretation
 
 3. Newtype ID generator scalarization
-   status=parked until full matrix green
+   status=next design stop
    boundary=ValueId / BasicBlockId generator next and peek
    semantic_authority=generator state facts + nominal i64 transport
    non_authority=generator object runtime identity

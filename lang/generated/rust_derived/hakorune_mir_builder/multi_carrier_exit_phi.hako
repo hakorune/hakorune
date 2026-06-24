@@ -22,8 +22,8 @@ static box MultiCarrierExitPhiPilotApi {
             carriers.push(3)
             carriers.push(30)
         } else {
-            print("multi_exit_phi_unknown_exit=fail")
-            return 7
+            carriers.push(0)
+            carriers.push(0)
         }
         return carriers
     }
@@ -57,6 +57,15 @@ static box Main {
         if BoxHelpers.array_get(exit_2, 1) != 30 {
             print("multi_exit_phi_2_carrier1=fail")
             return 22
+        }
+        local exit_99 = MultiCarrierExitPhiPilotApi.project_exit_carriers(99)
+        if BoxHelpers.array_get(exit_99, 0) != 0 {
+            print("multi_exit_phi_99_carrier0=fail")
+            return 31
+        }
+        if BoxHelpers.array_get(exit_99, 1) != 0 {
+            print("multi_exit_phi_99_carrier1=fail")
+            return 32
         }
         print("multi_carrier_exit_phi_direct_artifact=ok")
         return 0

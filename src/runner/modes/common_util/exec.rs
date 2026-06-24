@@ -358,10 +358,12 @@ pub fn ny_llvmc_emit_exe_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-exe")?;
+    let mut backend_ready = module.clone();
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready);
+    crate::mir::backend_capability::enforce_mir_backend_supported(&backend_ready, "ny-llvmc-exe")?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {
-            crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, json_path)
+            crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(&backend_ready, json_path)
                 .map_err(|e| format!("MIR JSON emit error: {}", e))
         },
         exe_out,

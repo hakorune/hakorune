@@ -75,6 +75,28 @@ coverage rows.
    Promote only families whose native .hako source becomes edit authority.
 ```
 
+## Taskization
+
+Treat this roadmap as checkpoint planning, not as the active implementation
+queue. The active queue stays in the task-order SSOT.
+
+```text
+ARTIFACT-SELFHOST-CHECKPOINT-001
+  Complete when generated artifacts can be composed in one execution graph
+  without Rust adapter fallback.
+
+MAINLINE-SELFHOST-PILOT-001
+  Complete when a bounded normal compiler route explicitly selects
+  generated/native .hako.
+
+SOURCE-SELFHOST-ADOPTION-PLAN-001
+  Complete when selected families have native .hako as edit authority and
+  Rust is frozen as compatibility/reference source for those families.
+```
+
+Do not select these checkpoint tasks directly while a concrete semantic red
+edge exists. Select the next red edge that moves the nearest checkpoint.
+
 ## Progress Signals
 
 The percentages below are planning heuristics, not acceptance criteria:
@@ -95,6 +117,19 @@ source selfhost:
 
 Do not use broad coverage count as proof of selfhost. Use explicit composed
 execution gates.
+
+Planning horizon:
+
+```text
+artifact selfhost visible checkpoint:
+  several semantic slices after same-module ArrayBox return
+
+mainline pilot:
+  separate follow-up lane after artifact checkpoint
+
+source selfhost:
+  later adoption phase, not a current implementation claim
+```
 
 ## Required Discipline
 

@@ -87,6 +87,19 @@
           ]
         }
       ],
+      "default_exit": {
+        "kind": "default",
+        "values": [
+          {
+            "kind": "I64",
+            "value": 0
+          },
+          {
+            "kind": "I64",
+            "value": 0
+          }
+        ]
+      },
       "id": "MultiCarrierExitPhiPilot::project_exit_carriers",
       "operation": "MultiCarrierExitPhi",
       "phi_kind": "explicit",

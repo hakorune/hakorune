@@ -297,6 +297,40 @@ def _multi_exit_phi_carrier_arity_case() -> tuple[str, str]:
     return "multi_exit_phi_carrier_arity_denied", "PhiJoinRequired"
 
 
+def _multi_exit_phi_default_missing_case() -> tuple[str, str]:
+    from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-plan-v0.json"))
+    facts["body_facts"][0].pop("default_exit", None)
+    _expect_deny(
+        "UnsupportedDirectShape",
+        lambda: compile_multi_carrier_exit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.multi_carrier_exit_phi"],
+        ),
+    )
+    return "multi_exit_phi_default_missing_denied", "UnsupportedDirectShape"
+
+
+def _multi_exit_phi_default_arity_case() -> tuple[str, str]:
+    from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
+
+    facts = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-facts-v0.json"))
+    plan = copy.deepcopy(_load_json(FIXTURES / "multi-carrier-exit-phi-plan-v0.json"))
+    facts["body_facts"][0]["default_exit"]["values"] = facts["body_facts"][0]["default_exit"]["values"][:1]
+    _expect_deny(
+        "PhiJoinRequired",
+        lambda: compile_multi_carrier_exit_phi_methods(
+            facts,
+            plan,
+            **plan["direct_shape"]["control.multi_carrier_exit_phi"],
+        ),
+    )
+    return "multi_exit_phi_default_arity_denied", "PhiJoinRequired"
+
+
 def _multi_exit_phi_carrier_escape_case() -> tuple[str, str]:
     from mirbuilder_multi_exit_phi_converter import compile_multi_carrier_exit_phi_methods
 
@@ -431,6 +465,8 @@ CASE_RUNNERS: dict[str, Callable[[], tuple[str, str]]] = {
     "canonical_explicit_phi_multi_predecessor_denied": _explicit_phi_multi_predecessor_case,
     "multi_exit_phi_missing_exit_denied": _multi_exit_phi_missing_exit_case,
     "multi_exit_phi_carrier_arity_denied": _multi_exit_phi_carrier_arity_case,
+    "multi_exit_phi_default_missing_denied": _multi_exit_phi_default_missing_case,
+    "multi_exit_phi_default_arity_denied": _multi_exit_phi_default_arity_case,
     "multi_exit_phi_carrier_escape_denied": _multi_exit_phi_carrier_escape_case,
     "returned_read_borrow": _returned_read_borrow_case,
     "aggregate_borrow_unknown_consumer_denied": _aggregate_borrow_unknown_consumer_case,

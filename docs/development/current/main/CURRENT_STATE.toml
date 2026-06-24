@@ -267,14 +267,16 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1678-SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001.md"
-latest_card_summary = """The next Rust-to-Hako selfhost execution owner is
-selected: close the live MultiCarrierExitPhi same-module ArrayBox return red
-edge by adding source-derived default exit facts and requiring a body-wide
-ObjectHandle return contract. Callee-name branches, scalar fail-code
-reinterpretation, mixed-runtime promotion, new route kinds, and runtime fallback
-are forbidden."""
+latest_card_summary = """The focused MultiCarrierExitPhi same-module ArrayBox
+return red edge is closed: default exits are source-derived facts,
+ExplicitMultiExitPhiI64Array renders default ArrayBox values instead of scalar
+fail returns, and the route is verified through body-wide ObjectHandle contract
+plus SameModuleDefinitionPlan. ny-llvmc bin emission now refreshes a
+backend-ready MIR clone before JSON serialization so retained MIR matches the
+backend-ready route facts. The next blocker is a design stop before opening
+Newtype ID generator scalarization."""
 
-current_blocker_token = "SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001"
+current_blocker_token = "NEWTYPE-ID-GENERATOR-SCALARIZATION-001-DESIGN-STOP"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

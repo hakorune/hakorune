@@ -34,6 +34,17 @@ def _require_exit_values(exits: Any, *, carrier_count: int) -> None:
             _require_expr(value, allowed=allowed_expr, detail="exit.value")
 
 
+def _require_default_exit(default_exit: Any, *, carrier_count: int) -> list[dict[str, Any]]:
+    if not isinstance(default_exit, dict) or default_exit.get("kind") != "default":
+        _deny("UnsupportedDirectShape", "DefaultExitMissing")
+    values = default_exit.get("values")
+    if not isinstance(values, list) or len(values) != carrier_count:
+        _deny("PhiJoinRequired", "DefaultCarrierArityMismatch")
+    for value in values:
+        _require_expr(value, allowed={"Var", "I64", "EqI64"}, detail="default_exit.value")
+    return values
+
+
 def compile_multi_carrier_exit_phi_methods(
     facts: dict[str, Any],
     plan: dict[str, Any],
@@ -58,6 +69,7 @@ def compile_multi_carrier_exit_phi_methods(
             _deny("CarrierSensitiveAlias", "carrier escapes")
     exits = body_fact.get("exits")
     _require_exit_values(exits, carrier_count=len(carriers))
+    default_values = _require_default_exit(body_fact.get("default_exit"), carrier_count=len(carriers))
 
     plans = _plans_by_id(plan)
     shape_plan = plans.get(method_id)
@@ -75,8 +87,7 @@ def compile_multi_carrier_exit_phi_methods(
                     target=body_fact.get("target", "carriers"),
                     selector=body_fact.get("selector"),
                     exits=exits,
-                    fail_message="multi_exit_phi_unknown_exit=fail",
-                    fail_code=7,
+                    default_values=default_values,
                 ),
                 op("ReturnSource", source=body_fact.get("target", "carriers")),
             ],

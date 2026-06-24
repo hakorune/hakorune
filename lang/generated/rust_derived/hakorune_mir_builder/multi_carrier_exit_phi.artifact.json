@@ -14,11 +14,11 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-facts-v0.json",
-      "sha256": "fa45fc3117c22553a4892fe54f62793d7235fe3c906ae4233ca2f737dc93412a"
+      "sha256": "4e21721fac842e4c4496e341d2df7e6bb979fa1406a441131190dfb282fb44d9"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-oracle-v0.json",
-      "sha256": "6b5acf2a71e643cd6754c20679127c9794ee7a408e5cdaf354d05f03673d3500"
+      "sha256": "9bf11be0bc97c98ed8b075f7ce904df8069de47e74c7ba2f2e8de560f5483c0e"
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-plan-v0.json",
@@ -26,17 +26,17 @@
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-behavior-recipe-v0.json",
-      "sha256": "a5019b0690cc325ad9b35297cea579d142c69ec4ab3510ebb9c4cfb6886bd238"
+      "sha256": "7c72f7336792a3252301dde8ff885b2e62b7284b3615b6eeec48591f5d851bce"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/multi-carrier-exit-phi-derived-artifact-verifier-result-v0.json",
-      "sha256": "485428f2b4e830ffd0113a4a0772ac386b4152ab9e5f53262af75589a439e361"
+      "sha256": "307c87cf7474d9d7b05e8784caa7b382e44fcc024194c3f35fc14103cdda26e5"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/multi_carrier_exit_phi.hako",
-    "hako_sha256": "9597a435837f69daed54f62db9139440654cc7873524970b14f56ef888a47e57"
+    "hako_sha256": "40c71f1c1f889df5e6f55b27b4b42c2d68337e36cef6798dcb8798426c31435b"
   },
   "pilot_scope": "MultiCarrierExitPhi_only",
   "schema_version": 0,

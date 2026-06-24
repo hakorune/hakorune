@@ -25,6 +25,14 @@
         30
       ],
       "id": "early_return_exit"
+    },
+    {
+      "exit_kind": 99,
+      "expect": [
+        0,
+        0
+      ],
+      "id": "default_exit"
     }
   ]
 }

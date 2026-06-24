@@ -44,6 +44,14 @@ def validate_multi_exit_phi(facts: dict[str, Any], plan: dict[str, Any], oracle:
         raise SystemExit("multi-exit-PHI exit coverage mismatch")
     if len(method.get("carriers", [])) != 2:
         raise SystemExit("multi-exit-PHI carrier count mismatch")
+    default_exit = method.get("default_exit")
+    if not isinstance(default_exit, dict) or default_exit.get("kind") != "default":
+        raise SystemExit("multi-exit-PHI default exit missing")
+    default_values = default_exit.get("values")
+    if not isinstance(default_values, list) or len(default_values) != len(method.get("carriers", [])):
+        raise SystemExit("multi-exit-PHI default carrier count mismatch")
+    if [row.get("kind") for row in default_values if isinstance(row, dict)] != ["I64", "I64"]:
+        raise SystemExit("multi-exit-PHI default carriers must be i64")
     plans = {row["id"]: row for row in plan.get("plans", [])}
     shape = plans.get("MultiCarrierExitPhiPilot::project_exit_carriers")
     if shape is None or shape.get("shape_rule") != "control.multi_carrier_exit_phi":
@@ -53,12 +61,17 @@ def validate_multi_exit_phi(facts: dict[str, Any], plan: dict[str, Any], oracle:
 
 
 def _check_ops() -> list[Any]:
+    oracle = read_json(ORACLE)
     ops: list[Any] = []
-    for exit_kind, first, second, offset in [(0, 1, 10, 0), (1, 2, 20, 10), (2, 3, 30, 20)]:
+    for offset, vector in enumerate(oracle.get("vectors", [])):
+        expect = vector.get("expect")
+        if not isinstance(expect, list) or len(expect) != 2:
+            raise SystemExit("multi-exit-PHI oracle expects two carriers")
+        exit_kind = vector.get("exit_kind")
         target = f"exit_{exit_kind}"
         ops.append(op("StaticCall", target=target, callee="MultiCarrierExitPhiPilotApi.project_exit_carriers", args=[str(exit_kind)]))
-        ops.append(op("AssertArrayValueEq", array=target, index=0, expected=first, fail_message=f"multi_exit_phi_{exit_kind}_carrier0=fail", fail_code=1 + offset))
-        ops.append(op("AssertArrayValueEq", array=target, index=1, expected=second, fail_message=f"multi_exit_phi_{exit_kind}_carrier1=fail", fail_code=2 + offset))
+        ops.append(op("AssertArrayValueEq", array=target, index=0, expected=expect[0], fail_message=f"multi_exit_phi_{exit_kind}_carrier0=fail", fail_code=1 + (offset * 10)))
+        ops.append(op("AssertArrayValueEq", array=target, index=1, expected=expect[1], fail_message=f"multi_exit_phi_{exit_kind}_carrier1=fail", fail_code=2 + (offset * 10)))
     return ops
 
 
@@ -91,9 +104,9 @@ def multi_exit_phi_spec() -> FamilyArtifactSpec:
         recipe_subject="hakorune_mir_builder::multi_carrier_exit_phi",
         selected_body_count="multi_carrier_exit_phi_only",
         static_boxes=[StaticBoxSpec(name="MultiCarrierExitPhiPilotApi", methods=api_methods)],
-        methods=[BehaviorMethodSpec(id="MultiCarrierExitPhiPilot::project_exit_carriers", rust_operation="explicit break/continue/early-return carrier table", hako_operation="ExplicitMultiExitPhiI64Array", emits="MultiCarrierExitPhiPilotApi.project_exit_carriers(exit_kind)")],
+        methods=[BehaviorMethodSpec(id="MultiCarrierExitPhiPilot::project_exit_carriers", rust_operation="explicit break/continue/early-return/default carrier table", hako_operation="ExplicitMultiExitPhiI64Array", emits="MultiCarrierExitPhiPilotApi.project_exit_carriers(exit_kind)")],
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_mirbuilder_crate_claim": 0, "runtime_fallback": 0, "inferred_phi_claim": 0},
-        verifier_checks={"rust_facts_input": "fixture_verified", "direct_shape_rule": "control.multi_carrier_exit_phi", "raw_hako_body": 0, "exit_kinds": ["break", "continue", "early_return"], "carrier_count": 2},
+        verifier_checks={"rust_facts_input": "fixture_verified", "direct_shape_rule": "control.multi_carrier_exit_phi", "raw_hako_body": 0, "exit_kinds": ["break", "continue", "early_return"], "default_exit": [0, 0], "carrier_count": 2},
         verified_operations=["ExplicitMultiExitPhiI64Array", "ReturnSource"],
         denied_boundaries=["UnstructuredControlFlow", "PhiJoinRequired", "CarrierSensitiveAlias"],
     )
