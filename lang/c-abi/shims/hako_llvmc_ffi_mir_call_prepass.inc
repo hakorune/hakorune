@@ -55,13 +55,10 @@
           long long dst) {
         yyjson_val* entry = NULL;
         struct LoweringPlanExternCallView view;
-        int origin_kind = ORG_NONE;
         if (!dst) return;
         entry = find_lowering_plan_entry_for_site(bid, ii);
         if (!read_lowering_plan_extern_call_view(entry, &view)) return;
-        origin_kind = lowering_plan_extern_call_view_result_origin_kind(&view);
-        if (origin_kind == ORG_NONE) return;
-        set_scan_origin(dst, origin_kind);
+        mark_extern_call_result_origin_from_view(&view, dst);
       }
 
       auto void scan_mir_call_need_flags(
