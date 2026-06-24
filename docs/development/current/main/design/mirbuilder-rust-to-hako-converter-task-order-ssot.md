@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  GENERIC-ROUTE-DESCRIPTOR-NEXT-SLICE-DESIGN-STOP-001
+  GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001
 
 current implementation task:
-  Choose the next generic route descriptor generation slice.
+  Generate generic-method set-route value-shape rules from descriptor data.
 
 producer responsibility stack:
   Source preparation
@@ -35,7 +35,8 @@ selected source slice:
   spec/mir/generic_method_routes.toml
 
 selected lowering:
-  pending next-owner selection
+  routes.c_set_routes
+    -> generated C set_value_shape / set_route_result registry fields
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -51,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  pending: same-module/extern descriptors vs set-route value-shape table
+  GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -160,16 +161,16 @@ history, not in this task-order SSOT.
    non_authority=C row helper_symbol override except c_helper_variant selector
 
 2. Same-module / extern route descriptor generation
-   status=design-stop candidate
-   boundary=non-generic route metadata gets equivalent generated descriptor rows
-   semantic_authority=route descriptor manifest
-   non_authority=C-side name or tuple fallback classifiers
-
-3. Set-route value-shape table generation
-   status=design-stop candidate
+   status=selected
    boundary=value-shape-specific set route rows become generated descriptor data
    semantic_authority=neutral route manifests
    non_authority=handwritten LoweringPlanSetRouteRule helper/value-shape table
+
+3. Extern route descriptor generation
+   status=parked; same-module split follows later
+   boundary=extern route metadata gets equivalent generated descriptor rows
+   semantic_authority=extern route descriptor manifest
+   non_authority=C-side name or tuple fallback classifiers
 ```
 
 ## Landed Converter Capability Summary
