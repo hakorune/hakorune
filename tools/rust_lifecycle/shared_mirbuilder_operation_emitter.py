@@ -135,20 +135,10 @@ def _render_map_lookup(kind: str, operation: Mapping[str, Any]) -> list[str]:
     source = render_source_expr(operation)
     if kind == "MapGet":
         return [
-            f"local keys = {source}.keys_value",
-            f"local values = {source}.values_value",
             f"if {operation['key']} == null {{",
             "    return null",
             "}",
-            f"local key = {operation['key']}",
-            "local i = 0",
-            "loop(i < keys.length()) {",
-            "    if BoxHelpers.array_get(keys, i) == key {",
-            "        return BoxHelpers.array_get(values, i)",
-            "    }",
-            "    i = i + 1",
-            "}",
-            "return null",
+            f"return {source}.get({operation['key']})",
         ]
     return [
         f"local keys = {source}.keys_value",

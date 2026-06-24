@@ -46,20 +46,10 @@ static box BindingContextApi {
     }
 
     lookup(ctx, name) {
-        local keys = ctx.binding_map.keys_value
-        local values = ctx.binding_map.values_value
         if name == null {
             return null
         }
-        local key = name
-        local i = 0
-        loop(i < keys.length()) {
-            if BoxHelpers.array_get(keys, i) == key {
-                return BoxHelpers.array_get(values, i)
-            }
-            i = i + 1
-        }
-        return null
+        return ctx.binding_map.get(name)
     }
 
     insert(ctx, name, binding_id): i64 {
