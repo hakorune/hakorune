@@ -8,7 +8,7 @@
   },
   "family_id": "hakorune_mir_builder::binding_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_binding_context_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family binding_context",
     "version": "binding-context-derived-artifact-v0"
   },
   "inputs": {
@@ -36,7 +36,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.hako",
-    "hako_sha256": "969348c3bcebe1b8c13e681c3c922d4e2409562837e15b28518dd7a433319b1a"
+    "hako_sha256": "d63d21b5bc52040dfba4342055c0b1bd4f0f77f6485e8de53d29a653158e5dcf"
   },
   "schema_version": 0,
   "source": {

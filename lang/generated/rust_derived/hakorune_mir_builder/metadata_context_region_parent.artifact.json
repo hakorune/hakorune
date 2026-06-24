@@ -13,7 +13,7 @@
   ],
   "family_id": "hakorune_mir_builder::metadata_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_metadata_region_parent_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family metadata_region_parent",
     "version": "metadata-context-region-parent-direct-artifact-v0"
   },
   "inputs": {
@@ -41,7 +41,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_region_parent.hako",
-    "hako_sha256": "ac04c98c513b996fb215fd5d794f0054f9b7e8f981bceef72a670d2cc270044b"
+    "hako_sha256": "ec2c97aa57f9202769d5a2f71974ffa902c9fb08dc39e313ebba674de7a774fc"
   },
   "pilot_scope": "MetadataContext_region_parent_only",
   "schema_version": 0,

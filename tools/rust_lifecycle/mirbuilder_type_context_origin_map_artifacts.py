@@ -82,7 +82,7 @@ def type_context_origin_map_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_type_context_origin_map_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type_context_origin_map",
         generator_version="type-context-origin-map-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/type_context_origin_map.artifact.json",
         family_comment="hakorune_mir_builder::type_context::TypeContext.value_origin_newbox",

@@ -69,7 +69,7 @@ def structured_loop_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_structured_loop_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family structured_loop",
         generator_version="structured-loop-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/structured_loop_without_carried_state.artifact.json",
         family_comment="hakorune_mir_builder::structured_loop_without_carried_state",

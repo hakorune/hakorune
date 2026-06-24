@@ -65,7 +65,7 @@ def binding_context_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_binding_context_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family binding_context",
         generator_version="binding-context-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
         family_comment="hakorune_mir_builder::binding_context",
@@ -153,7 +153,7 @@ def variable_context_simple_map_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_variable_context_simple_map_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_simple_map",
         generator_version="variable-context-simple-map-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
@@ -237,7 +237,7 @@ def box_compilation_context_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_box_compilation_context_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family box_compilation_context",
         generator_version="box-compilation-context-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json",
         family_comment="hakorune_mir_builder::context",
@@ -298,7 +298,7 @@ def variable_context_immutable_borrow_spec() -> FamilyArtifactSpec:
     excluded = ["VariableContext::variable_map_mut", "VariableContext::snapshot", "VariableContext::restore"]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_immutable_borrow",
         generator_version="variable-context-immutable-borrow-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
@@ -361,7 +361,7 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_variable_context_snapshot_restore_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_snapshot_restore",
         generator_version="variable-context-snapshot-restore-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",

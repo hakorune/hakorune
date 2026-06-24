@@ -14,7 +14,7 @@
   ],
   "family_id": "hakorune_mir_builder::metadata_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_metadata_value_caller_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family metadata_value_caller",
     "version": "metadata-context-value-caller-direct-artifact-v0"
   },
   "inputs": {
@@ -42,7 +42,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_value_caller.hako",
-    "hako_sha256": "07bec3b3153a7002e0ed44701945a88362b8765009e254249d185914f6b19a69"
+    "hako_sha256": "d8159a6b13dd3534410a07ef90de0f829095083d20f80a1a33e944d8eca04d03"
   },
   "pilot_scope": "MetadataContext_value_caller_and_origin_fold_only",
   "schema_version": 0,

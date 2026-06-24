@@ -89,7 +89,7 @@ def metadata_context_scalar_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_metadata_context_scalar_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family metadata_context_scalar",
         generator_version="metadata-context-scalar-source-file-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/metadata_context_scalar_source_file.artifact.json",
         family_comment="hakorune_mir_builder::metadata_context::MetadataContext.scalar_source_file",

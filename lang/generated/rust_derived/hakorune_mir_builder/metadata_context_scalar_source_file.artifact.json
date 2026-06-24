@@ -24,7 +24,7 @@
   ],
   "family_id": "hakorune_mir_builder::metadata_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_metadata_context_scalar_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family metadata_context_scalar",
     "version": "metadata-context-scalar-source-file-direct-artifact-v0"
   },
   "inputs": {
@@ -52,7 +52,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_scalar_source_file.hako",
-    "hako_sha256": "ebb3854e0faf498b547fd8a3097de4aa81d2e318d6a0184177fdf6c17d22f125"
+    "hako_sha256": "8e3cd0544691cfca8fb9fe48840d8334733a3eb52b6003669b197f5827a4ed1a"
   },
   "pilot_scope": "MetadataContext_scalar_source_file_only",
   "schema_version": 0,

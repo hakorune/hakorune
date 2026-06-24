@@ -84,7 +84,7 @@ def multi_exit_phi_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_multi_exit_phi_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family multi_exit_phi",
         generator_version="multi-carrier-exit-phi-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/multi_carrier_exit_phi.artifact.json",
         family_comment="hakorune_mir_builder::multi_carrier_exit_phi",

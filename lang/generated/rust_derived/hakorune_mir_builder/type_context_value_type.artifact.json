@@ -20,7 +20,7 @@
   ],
   "family_id": "hakorune_mir_builder::type_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_type_context_value_type_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type_context_value_type",
     "version": "type-context-value-type-direct-artifact-v0"
   },
   "inputs": {
@@ -48,7 +48,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/type_context_value_type.hako",
-    "hako_sha256": "864a1783a7c16b0cadf6cb2b9c48bfa5f747d5f7d3eb2939941da4152ecf66ab"
+    "hako_sha256": "4b78b44c460141c405091d888cfbd57a9fff6e6f9374ce9fa5e69aff1466c326"
   },
   "pilot_scope": "TypeContext_value_types_only",
   "schema_version": 0,

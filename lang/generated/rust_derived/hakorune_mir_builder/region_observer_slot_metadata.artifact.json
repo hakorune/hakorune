@@ -20,7 +20,7 @@
   },
   "family_id": "mir::region::observer",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_region_observer_slot_metadata_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family region_observer_slot_metadata",
     "version": "region-observer-slot-metadata-artifact-v0"
   },
   "inputs": {
@@ -97,7 +97,7 @@
   ],
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/region_observer_slot_metadata.hako",
-    "hako_sha256": "cd86c24451480589338fd5e32ebf5251df10a32c0b9d2fbea409fb73c4fba692"
+    "hako_sha256": "4571a6360fc67331b8940c5fc85854a9384cd936b01f8e578eab9b3861ba5497"
   },
   "pilot_scope": "RegionObserver_variable_map_slot_metadata_only",
   "route_plan": {

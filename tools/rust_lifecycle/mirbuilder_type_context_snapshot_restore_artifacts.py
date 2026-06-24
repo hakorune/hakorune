@@ -151,7 +151,7 @@ def type_context_snapshot_restore_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_type_context_snapshot_restore_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type_context_snapshot_restore",
         generator_version="type-context-snapshot-restore-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/type_context_snapshot_restore.artifact.json",
         family_comment="hakorune_mir_builder::type_context::TypeContext.snapshot_restore",

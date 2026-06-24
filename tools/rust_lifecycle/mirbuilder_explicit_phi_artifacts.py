@@ -62,7 +62,7 @@ def explicit_phi_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_explicit_phi_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family explicit_phi",
         generator_version="canonical-explicit-phi-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/canonical_explicit_phi.artifact.json",
         family_comment="hakorune_mir_builder::canonical_explicit_phi",

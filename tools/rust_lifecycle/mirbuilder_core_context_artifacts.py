@@ -184,7 +184,7 @@ def core_context_spec() -> FamilyArtifactSpec:
     contract.require_selected_recipe_methods([method.id for method in methods])
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_core_context_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family core_context",
         generator_version="core-context-scalar-counters-and-id-generators-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
         family_comment="hakorune_mir_builder::core_context",

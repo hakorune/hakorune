@@ -20,7 +20,7 @@
   ],
   "family_id": "hakorune_mir_builder::type_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_type_context_snapshot_restore_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type_context_snapshot_restore",
     "version": "type-context-snapshot-restore-direct-artifact-v0"
   },
   "inputs": {
@@ -48,7 +48,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/type_context_snapshot_restore.hako",
-    "hako_sha256": "8a081f1f853f3201f16dbf3e0935842e11317ce7e6987f0cd5ed78244d1f6740"
+    "hako_sha256": "d54b1d9e16b6cd59fcd5c518b09f14f71fa4ebfe5c92079dece12e4f5a1038a3"
   },
   "pilot_scope": "TypeContext_snapshot_restore_only",
   "schema_version": 0,

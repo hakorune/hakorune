@@ -58,7 +58,7 @@ def metadata_region_parent_spec() -> FamilyArtifactSpec:
     excluded = ["MetadataContext::current_region_stack", "MetadataContext::value_origin_callers"]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_metadata_region_parent_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family metadata_region_parent",
         generator_version="metadata-context-region-parent-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/metadata_context_region_parent.artifact.json",
         family_comment="hakorune_mir_builder::metadata_context::MetadataContext.region_parent",

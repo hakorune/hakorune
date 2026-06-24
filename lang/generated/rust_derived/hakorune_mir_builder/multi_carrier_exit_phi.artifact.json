@@ -8,7 +8,7 @@
   },
   "family_id": "hakorune_mir_builder::multi_carrier_exit_phi",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_multi_exit_phi_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family multi_exit_phi",
     "version": "multi-carrier-exit-phi-direct-artifact-v0"
   },
   "inputs": {
@@ -36,7 +36,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/multi_carrier_exit_phi.hako",
-    "hako_sha256": "40c71f1c1f889df5e6f55b27b4b42c2d68337e36cef6798dcb8798426c31435b"
+    "hako_sha256": "c8f5c4ec50567d4c6969db1b2dae215bc267e3d78110ee131bf10a69919fef3a"
   },
   "pilot_scope": "MultiCarrierExitPhi_only",
   "schema_version": 0,

@@ -91,7 +91,7 @@ def region_observer_spec() -> FamilyArtifactSpec:
     classifier_op = compile_classifier_operation(facts, CLASSIFIER_PLAN)
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_region_observer_slot_metadata_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family region_observer_slot_metadata",
         generator_version="region-observer-slot-metadata-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/region_observer_slot_metadata.artifact.json",
         family_comment="mir::region::observer::classify_slots_from_variable_map",

@@ -9,7 +9,7 @@
   },
   "family_id": "hakorune_mir_builder::single_scalar_loop_carrier",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_single_scalar_loop_carrier_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family single_scalar_loop_carrier",
     "version": "single-scalar-loop-carrier-direct-artifact-v0"
   },
   "inputs": {
@@ -37,7 +37,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/single_scalar_loop_carrier.hako",
-    "hako_sha256": "6ff104bd6f849e6bb214d0773a88aa3a01042df1a4510f185e4cda0195a0bfb8"
+    "hako_sha256": "06507fe713a069134f39bc7a64fb728a94409d53e34be2a4fb0379cc9fcfca2c"
   },
   "pilot_scope": "SingleScalarLoopCarrier_only",
   "schema_version": 0,

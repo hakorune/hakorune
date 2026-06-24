@@ -16,7 +16,7 @@
   ],
   "family_id": "hakorune_mir_builder::type_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_type_context_string_literal_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type_context_string_literal",
     "version": "type-context-string-literal-direct-artifact-v0"
   },
   "inputs": {
@@ -44,7 +44,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/type_context_string_literal.hako",
-    "hako_sha256": "7a41b8d561d7af61c5bef4967d78b169bf12432f8165339a51eb206740ecbe06"
+    "hako_sha256": "ec134792aee9d8280e1d7363b555a951d0e0f1daf48c571ff1208e64d81b9993"
   },
   "pilot_scope": "TypeContext_string_literals_only",
   "schema_version": 0,

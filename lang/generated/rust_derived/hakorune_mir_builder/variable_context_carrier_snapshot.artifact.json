@@ -19,7 +19,7 @@
   ],
   "family_id": "hakorune_mir_builder::variable_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_variable_context_carrier_snapshot_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_carrier_snapshot",
     "version": "variable-context-carrier-snapshot-derived-artifact-v0"
   },
   "inputs": {
@@ -47,7 +47,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_carrier_snapshot.hako",
-    "hako_sha256": "14349a3a3bfb74cfca44b3723c06050744eb65d77de6107565a9557931e93c55"
+    "hako_sha256": "d0108bca9295ddec2d3a827e90f6472ee46fa99ef4f6e769e118e5674281f4b9"
   },
   "pilot_scope": "VariableContext_carrier_snapshot_only",
   "schema_version": 0,

@@ -15,7 +15,7 @@
   ],
   "family_id": "hakorune_mir_builder::variable_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_variable_context_simple_map_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_simple_map",
     "version": "variable-context-simple-map-derived-artifact-v0"
   },
   "inputs": {
@@ -43,7 +43,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.hako",
-    "hako_sha256": "ed676ae223b6555b1a5bcc39a9dfd3ed678b835a2f77e2cffda56e4be138c0f7"
+    "hako_sha256": "2e11beccda5d9a6dbfac1d6de10c6ab0bb0bac4979d1544b4e8d1df970777c91"
   },
   "pilot_scope": "VariableContext_simple_map_only",
   "schema_version": 0,

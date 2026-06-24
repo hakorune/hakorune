@@ -11,7 +11,7 @@
   ],
   "family_id": "hakorune_mir_builder::context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_box_compilation_context_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family box_compilation_context",
     "version": "box-compilation-context-derived-artifact-v0"
   },
   "inputs": {
@@ -39,7 +39,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.hako",
-    "hako_sha256": "2997bb0934a58d377fcb0d55a8ce4b95d21e935102b42ea35a03c79d90e2ae4b"
+    "hako_sha256": "e33a745928675068fea4dd6c1f005c03dc3f6c9e96f3db9ae50acd5cc88592ba"
   },
   "pilot_scope": "BoxCompilationContext_ctor_is_empty_only",
   "schema_version": 0,

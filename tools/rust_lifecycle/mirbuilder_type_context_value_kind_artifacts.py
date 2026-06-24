@@ -80,7 +80,7 @@ def type_context_value_kind_spec() -> FamilyArtifactSpec:
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_type_context_value_kind_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family type_context_value_kind",
         generator_version="type-context-value-kind-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/type_context_value_kind.artifact.json",
         family_comment="hakorune_mir_builder::type_context::TypeContext.value_kinds",

@@ -197,7 +197,7 @@ def carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> FamilyArt
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_variable_context_carrier_snapshot_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_carrier_snapshot",
         generator_version="variable-context-carrier-snapshot-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_carrier_snapshot.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",
@@ -383,7 +383,7 @@ def explicit_carrier_snapshot_spec(carrier_api_methods: list[ApiMethodSpec]) -> 
     ]
     return FamilyArtifactSpec(
         root=ROOT,
-        generated_by="tools/rust_lifecycle/generate_variable_context_explicit_carrier_snapshot_artifact.py",
+        generated_by="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_explicit_carrier_snapshot",
         generator_version="variable-context-explicit-carrier-snapshot-derived-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.artifact.json",
         family_comment="hakorune_mir_builder::variable_context",

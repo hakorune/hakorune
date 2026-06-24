@@ -14,7 +14,7 @@
   ],
   "family_id": "hakorune_mir_builder::variable_context",
   "generator": {
-    "tool": "tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py",
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family variable_context_immutable_borrow",
     "version": "variable-context-immutable-borrow-derived-artifact-v0"
   },
   "inputs": {
@@ -34,7 +34,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.hako",
-    "hako_sha256": "6c4e4ee7a82a7a428b409d41adb76f1f25e6cf81650dfd109094b1248c13347d"
+    "hako_sha256": "94303bf81f74629449f7533c3b85fa5ff2da7bdc769ea7328959d7fa3505ca4b"
   },
   "pilot_scope": "VariableContext_immutable_borrow_only",
   "schema_version": 0,
