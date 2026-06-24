@@ -2,6 +2,35 @@
       #include "hako_llvmc_ffi_mir_call_need_metadata_rules.inc"
       #include "hako_llvmc_ffi_mir_call_need_apply.inc"
 
+      auto int maybe_promote_array_string_birth_for_mir_call_method(
+          long long bid,
+          size_t ii,
+          enum MirCallNeedKind need_kind,
+          const struct GenericMethodRouteState* route,
+          long long recv,
+          long long arg0,
+          long long arg1) {
+        yyjson_val* entry = NULL;
+        struct LoweringPlanGenericMethodView view;
+        long long value = 0;
+        if (!route) return 0;
+        if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH) {
+          value = arg0;
+        } else if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET) {
+          value = arg1;
+        } else {
+          return 0;
+        }
+        if (route->recv_org != ORG_ARRAY_BIRTH) return 0;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!read_lowering_plan_generic_method_view(entry, &view)) return 0;
+        if (!lowering_plan_generic_method_view_value_origin_is_string(&view)) {
+          return 0;
+        }
+        return hako_llvmc_promote_array_string_birth_if_value_is_string(
+            recv, value, 1);
+      }
+
       auto enum MirCallNeedKind
       classify_mir_call_method_need_kind_from_site_lowering_plan(
           long long bid,

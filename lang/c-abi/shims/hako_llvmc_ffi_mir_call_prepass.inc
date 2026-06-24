@@ -24,15 +24,6 @@
         mark_global_call_result_origin_from_view(&view, dst);
       }
 
-      auto int mir_call_generic_method_value_origin_is_string_from_lowering_plan(
-          long long bid,
-          size_t ii) {
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        struct LoweringPlanGenericMethodView view;
-        if (!read_lowering_plan_generic_method_view(entry, &view)) return 0;
-        return lowering_plan_generic_method_view_value_origin_is_string(&view);
-      }
-
       auto void mark_user_box_method_result_from_lowering_plan(
           long long bid,
           size_t ii,
@@ -162,18 +153,8 @@
             return;
           }
           apply_mir_call_need_kind(needs, need_kind);
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH &&
-              route.recv_org == ORG_ARRAY_BIRTH &&
-              mir_call_generic_method_value_origin_is_string_from_lowering_plan(bid, ii)) {
-            hako_llvmc_promote_array_string_birth_if_value_is_string(
-                recv, a0, 1);
-          }
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET &&
-              route.recv_org == ORG_ARRAY_BIRTH &&
-              mir_call_generic_method_value_origin_is_string_from_lowering_plan(bid, ii)) {
-            hako_llvmc_promote_array_string_birth_if_value_is_string(
-                recv, a1, 1);
-          }
+          maybe_promote_array_string_birth_for_mir_call_method(
+              bid, ii, need_kind, &route, recv, a0, a1);
           return;
         }
 
