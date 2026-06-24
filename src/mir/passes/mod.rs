@@ -16,10 +16,3 @@ pub mod semantic_simplification;
 pub mod simplify_cfg;
 pub mod string_corridor_sink;
 pub mod type_hints;
-
-/// Minimal pass trait for future expansion. Currently unused by the main
-/// optimizer pipeline but provided to guide modularization.
-pub trait MirPass {
-    fn name(&self) -> &'static str;
-    fn run(&mut self, module: &mut crate::mir::MirModule);
-}
