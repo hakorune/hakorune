@@ -22,8 +22,7 @@ active blocker:
   MIR-CALL-PREPASS-FACT-OWNER-DRAIN-001
 
 current implementation task:
-  Drain call need/origin fact assembly from `hako_llvmc_ffi_mir_call_prepass.inc`
-  into generated descriptors / LoweringPlan rows.
+  Select the next owner after closing the MIR-call prepass fact owner drain.
 
 producer responsibility stack:
   Source preparation
@@ -54,7 +53,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  MIR-call prepass fact owner drain
+  pending next-owner selection after MIR-call prepass fact owner drain
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -133,6 +132,7 @@ mir_call_generic_method_emit_fallback_drain = landed
 generic_method_match_emit_fallback_drain = landed
 generic_method_legacy_route_scan_drain = landed
 mir_call_route_policy_drain = landed
+mir_call_prepass_fact_owner_drain = landed
 mir_call_need_name_fallback_audit = landed
 object_storage_plan_name_inference_drain = landed
 exact_seed_route_quarantine = landed
@@ -161,7 +161,7 @@ history, not in this task-order SSOT.
    non_authority=recursive function-list discovery in C shim
 
 2. MIR-call prepass fact owner drain
-   status=active; constructor, observer, method-origin, map-has, extern-origin lanes landed
+   status=landed; next owner selection pending
    boundary=remaining call need/origin facts come from descriptors/lowering rows
    semantic_authority=descriptor/lowering fact rows
    non_authority=C prepass reconstruction from callee spelling
