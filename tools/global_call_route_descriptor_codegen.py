@@ -36,6 +36,16 @@ def parse_global_call_proof_rows() -> list[dict[str, str]]:
         find_rust_fn_body(text, "result_origin")
     )
     validate_complete_mapping("GlobalCallProof::result_origin", variants, result_origin_map)
+    definition_owner_variant_map = parse_self_enum_match(
+        find_rust_fn_body(text, "definition_owner"),
+        "GlobalCallDefinitionOwner",
+    )
+    validate_complete_mapping(
+        "GlobalCallProof::definition_owner",
+        variants,
+        definition_owner_variant_map,
+    )
+    definition_owner_map = parse_definition_owner_names(text)
     rows: list[dict[str, str]] = []
     for variant in variants:
         result_origin = result_origin_map[variant]
@@ -51,9 +61,20 @@ def parse_global_call_proof_rows() -> list[dict[str, str]]:
                 "proof": proof_map[variant],
                 "result_origin": result_origin,
                 "origin_kind": origin_kind,
+                "definition_owner": definition_owner_map[
+                    definition_owner_variant_map[variant]
+                ],
             }
         )
     return rows
+
+
+def parse_definition_owner_names(text: str) -> dict[str, str]:
+    variants = parse_enum_variants(text, "GlobalCallDefinitionOwner")
+    impl_body = find_rust_impl_body(text, "GlobalCallDefinitionOwner")
+    owner_map = parse_self_string_match(find_rust_fn_body(impl_body, "as_json_name"))
+    validate_complete_mapping("GlobalCallDefinitionOwner::as_json_name", variants, owner_map)
+    return owner_map
 
 
 def parse_global_call_proof_map(text: str) -> dict[str, str]:
@@ -229,6 +250,7 @@ def render_c(proof_rows: list[dict[str, str]], runtime_routes: list[dict[str, st
         "        const char* proof;",
         "        const char* result_origin;",
         "        int origin_kind;",
+        "        const char* definition_owner;",
         "      };",
         "",
         "      struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow {",
@@ -245,7 +267,8 @@ def render_c(proof_rows: list[dict[str, str]], runtime_routes: list[dict[str, st
     ]
     for row in proof_rows:
         lines.append(
-            f"              {{{cq(row['proof'])}, {cq(row['result_origin'])}, {row['origin_kind']}}},"
+            f"              {{{cq(row['proof'])}, {cq(row['result_origin'])}, "
+            f"{row['origin_kind']}, {cq(row['definition_owner'])}}},"
         )
     lines.extend(
         [
@@ -279,6 +302,19 @@ def render_c(proof_rows: list[dict[str, str]], runtime_routes: list[dict[str, st
             "        if (!(row && row->result_origin && result_origin)) return ORG_NONE;",
             "        if (strcmp(row->result_origin, result_origin)) return ORG_NONE;",
             "        return row->origin_kind;",
+            "      }",
+            "",
+            "      auto int hako_llvmc_global_call_proof_registry_definition_owner_is(",
+            "          const char* proof,",
+            "          const char* definition_owner,",
+            "          const char* expected_owner) {",
+            "        const struct HakoLlvmcGlobalCallProofRegistryRow* row =",
+            "            hako_llvmc_global_call_proof_registry_find(proof);",
+            "        if (!(row && row->definition_owner && definition_owner && expected_owner)) {",
+            "          return 0;",
+            "        }",
+            "        return !strcmp(row->definition_owner, definition_owner) &&",
+            "               !strcmp(row->definition_owner, expected_owner);",
             "      }",
             "",
             "      static const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow",

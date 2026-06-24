@@ -7,6 +7,7 @@
         const char* proof;
         const char* result_origin;
         int origin_kind;
+        const char* definition_owner;
       };
 
       struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow {
@@ -20,23 +21,23 @@
 
       static const struct HakoLlvmcGlobalCallProofRegistryRow
           hako_llvmc_global_call_proof_registry_rows[] = {
-              {"typed_global_call_contract_missing", "none", ORG_NONE},
-              {"typed_global_call_leaf_numeric_i64", "none", ORG_NONE},
-              {"typed_global_call_generic_pure_string", "string", ORG_STRING},
-              {"typed_global_call_generic_string_or_void_sentinel", "string", ORG_STRING},
-              {"typed_global_call_generic_string_void_logging", "none", ORG_NONE},
-              {"typed_global_call_generic_i64", "none", ORG_NONE},
-              {"typed_global_call_parser_program_json", "string", ORG_STRING},
-              {"typed_global_call_stage1_emit_program_json", "string", ORG_STRING},
-              {"typed_global_call_static_string_array", "array_string_birth", ORG_ARRAY_STRING_BIRTH},
-              {"typed_global_call_mir_schema_map_constructor", "map_birth", ORG_MAP_BIRTH},
-              {"typed_global_call_box_type_inspector_describe", "map_birth", ORG_MAP_BIRTH},
-              {"typed_global_call_pattern_util_local_value_probe", "none", ORG_NONE},
-              {"typed_global_call_same_module_object_handle", "none", ORG_NONE},
-              {"typed_global_call_same_module_scalar_i64", "none", ORG_NONE},
-              {"typed_global_call_same_module_void_sentinel", "none", ORG_NONE},
-              {"typed_global_call_same_module_mixed_runtime", "none", ORG_NONE},
-              {"typed_global_call_void_side_effect", "none", ORG_NONE},
+              {"typed_global_call_contract_missing", "none", ORG_NONE, "none"},
+              {"typed_global_call_leaf_numeric_i64", "none", ORG_NONE, "leaf_i64"},
+              {"typed_global_call_generic_pure_string", "string", ORG_STRING, "module_generic"},
+              {"typed_global_call_generic_string_or_void_sentinel", "string", ORG_STRING, "uniform_mir"},
+              {"typed_global_call_generic_string_void_logging", "none", ORG_NONE, "uniform_mir"},
+              {"typed_global_call_generic_i64", "none", ORG_NONE, "generic_i64_or_leaf"},
+              {"typed_global_call_parser_program_json", "string", ORG_STRING, "diagnostics_only"},
+              {"typed_global_call_stage1_emit_program_json", "string", ORG_STRING, "runtime_helper"},
+              {"typed_global_call_static_string_array", "array_string_birth", ORG_ARRAY_STRING_BIRTH, "uniform_mir"},
+              {"typed_global_call_mir_schema_map_constructor", "map_birth", ORG_MAP_BIRTH, "uniform_mir"},
+              {"typed_global_call_box_type_inspector_describe", "map_birth", ORG_MAP_BIRTH, "uniform_mir"},
+              {"typed_global_call_pattern_util_local_value_probe", "none", ORG_NONE, "uniform_mir"},
+              {"typed_global_call_same_module_object_handle", "none", ORG_NONE, "uniform_mir"},
+              {"typed_global_call_same_module_scalar_i64", "none", ORG_NONE, "uniform_mir"},
+              {"typed_global_call_same_module_void_sentinel", "none", ORG_NONE, "uniform_mir"},
+              {"typed_global_call_same_module_mixed_runtime", "none", ORG_NONE, "uniform_mir"},
+              {"typed_global_call_void_side_effect", "none", ORG_NONE, "uniform_mir"},
           };
 
       auto const struct HakoLlvmcGlobalCallProofRegistryRow*
@@ -67,6 +68,19 @@
         if (!(row && row->result_origin && result_origin)) return ORG_NONE;
         if (strcmp(row->result_origin, result_origin)) return ORG_NONE;
         return row->origin_kind;
+      }
+
+      auto int hako_llvmc_global_call_proof_registry_definition_owner_is(
+          const char* proof,
+          const char* definition_owner,
+          const char* expected_owner) {
+        const struct HakoLlvmcGlobalCallProofRegistryRow* row =
+            hako_llvmc_global_call_proof_registry_find(proof);
+        if (!(row && row->definition_owner && definition_owner && expected_owner)) {
+          return 0;
+        }
+        return !strcmp(row->definition_owner, definition_owner) &&
+               !strcmp(row->definition_owner, expected_owner);
       }
 
       static const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow

@@ -873,9 +873,10 @@
           const struct LoweringPlanGlobalCallView* view,
           const char* owner) {
         return view &&
-               view->definition_owner &&
-               owner &&
-               !strcmp(view->definition_owner, owner);
+               hako_llvmc_global_call_proof_registry_definition_owner_is(
+                   view->proof,
+                   view->definition_owner,
+                   owner);
       }
 
       auto int lowering_plan_global_call_view_uses_uniform_mir_definition(
