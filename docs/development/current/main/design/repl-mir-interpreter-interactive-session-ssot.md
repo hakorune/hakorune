@@ -10,8 +10,11 @@ Scope: REPL / interactive execution / MirInterpreter session model
 
 Do not build a new interpreter for the Python-like REPL lane.
 
-Use the existing Rust `MirInterpreter` as the bootstrap/reference interactive
-execution engine and grow the current REPL around complete input cells:
+The existing Rust `MirInterpreter` may remain a bootstrap/reference execution
+engine for already-supported smoke checks, but it is not the owner for new
+interactive interpreter feature work.
+
+The target architecture remains complete input cells:
 
 ```text
 complete input cell
@@ -25,9 +28,22 @@ Physical-line execution is not the long-term contract. A physical line may be a
 complete cell, but multiline `if`, `loop`, function, box, and using forms must
 be accepted as one cell.
 
-This is not a final zero-Rust interpreter claim. The Rust implementation is the
-reference target used to stabilize the REPL contract before moving the
-interpreter owner to `.hako`.
+## Start Condition / Stop Line
+
+REPL/interpreter product work is parked until the VM / `MirInterpreter`
+execution owner has moved from Rust to `.hako`, or a future current-state card
+explicitly reopens a smaller reference-only slice.
+
+```text
+rust_mir_interpreter_new_repl_feature_owner=0
+hako_mir_interpreter_required_before_python_like_repl=1
+rust_mir_interpreter_existing_reference_smokes=allowed
+rust_mir_interpreter_feature_growth=denied
+```
+
+This prevents the REPL lane from extending the Rust VM just before it is meant
+to be replaced. The current Rust implementation is evidence and regression
+scaffolding, not the final interactive execution authority.
 
 ## Current Evidence
 
@@ -98,14 +114,14 @@ state. It should stay an I/O runner that delegates to the session objects.
 
 ### 0. REPL-RUST-REFERENCE-BOUNDARY-001
 
-Document the bootstrap/final split before feature work:
+Closed by this SSOT. The bootstrap/final split is:
 
 ```text
 current execution owner:
-  Rust MirInterpreter
+  Rust MirInterpreter for existing reference smokes only
 
 role:
-  bootstrap/reference for contract discovery and regression tests
+  evidence and regression tests for the already-supported subset
 
 final intended owner:
   .hako MirInterpreter produced or maintained through the Rust-to-Hako
@@ -123,12 +139,14 @@ zero-Rust / .hako-AOT REPL claim = 0
 Migration trigger:
 
 ```text
-after REPL-VALUE-SESSION-CONTRACT-001 and enough interpreter facts are stable,
-open a converter-owned task to translate the selected MirInterpreter slice to
-.hako and run Rust-vs-Hako differential fixtures.
+after a selected VM / MirInterpreter slice has a `.hako` implementation and
+Rust-vs-Hako differential fixtures are green, reopen the REPL task order from
+REPL-VALUE-SESSION-CONTRACT-001.
 ```
 
 ### 1. REPL-VALUE-SESSION-CONTRACT-001
+
+Status: parked until `.hako` MirInterpreter ownership exists.
 
 Make the current MVP truthful before adding new execution machinery.
 
@@ -170,6 +188,8 @@ local declarations may be collected as declared_names and skip __repl.set
 
 ### 2. REPL-PERSISTENT-MIR-EXECUTOR-001
 
+Status: parked until `.hako` MirInterpreter ownership exists.
+
 One interactive session owns one `MirInterpreter`.
 
 Persistent state:
@@ -201,6 +221,8 @@ __repl.get/set still operate through the same SessionBindings owner
 
 ### 3. REPL-COMPLETE-CELL-INPUT-001
 
+Status: parked until `.hako` MirInterpreter ownership exists.
+
 Introduce parser completeness:
 
 ```text
@@ -220,6 +242,8 @@ Acceptance:
 is one cell, not three independent one-line programs.
 
 ### 4. REPL-MODULE-FRAGMENT-INSTALL-001
+
+Status: parked until `.hako` MirInterpreter ownership exists.
 
 Split module installation from cell execution:
 

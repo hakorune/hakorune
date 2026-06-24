@@ -92,7 +92,9 @@ impl MirInterpreter {
             }
         }
         // F1: DirectArrayI64 fast-path — before generic dispatch
-        if let (Some(blk), Some(inst_idx)) = (block, instruction_index) {
+        let blk = block.or(self.last_block);
+        let inst_idx = instruction_index.or(self.last_inst_index);
+        if let (Some(blk), Some(inst_idx)) = (blk, inst_idx) {
             if let Some(Callee::Method { method, receiver: Some(recv_id), .. }) = callee {
                 if method == "get" || method == "set" {
                     if self.try_direct_array_i64_fastpath(dst, *recv_id, method, args, blk, inst_idx)? {
@@ -151,10 +153,14 @@ impl MirInterpreter {
             None => return Ok(false),
         };
         let plan = func.metadata.direct_array_access_plans.iter().find(|p| {
-            p.block() == block
+            let m = p.block() == block
                 && p.instruction_index() == instruction_index
                 && p.receiver_value() == recv_id
-                && p.array_kind() == "DirectArrayI64"
+                && p.array_kind() == "DirectArrayI64";
+            if !m {
+                    p.block(), block, p.instruction_index(), instruction_index, p.receiver_value(), recv_id, p.array_kind());
+            }
+            m
         });
         let plan = match plan {
             Some(p) => p,
@@ -229,12 +235,10 @@ impl MirInterpreter {
         idx: i64,
         val: i64,
     ) {
-        if std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1") {
-            eprintln!(
-                "[vm-trace][direct_array_i64] op={} bb={:?} inst={} idx={} val={} (method dispatch AVOIDED)",
-                op, block, inst, idx, val
-            );
-        }
+        eprintln!(
+            "[vm-trace][direct_array_i64] op={} bb={:?} inst={} idx={} val={} (method dispatch AVOIDED)",
+            op, block, inst, idx, val
+        );
     }
 
     pub(super) fn execute_callee_call(

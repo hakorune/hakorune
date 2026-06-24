@@ -108,6 +108,14 @@ Error: Undefined variable 'x'
 
 ## Implementation Status (MVP vs planned)
 
+Implementation-order note:
+
+- Interactive REPL feature work is currently parked until the VM /
+  `MirInterpreter` execution owner has moved from Rust to `.hako`, or a future
+  current-state card explicitly reopens a smaller reference-only slice.
+- Current owner for the task order and stop line:
+  `docs/development/current/main/design/repl-mir-interpreter-interactive-session-ssot.md`.
+
 Implemented in Phase 288 MVP:
 - `hakorune --repl` / `-i`
 - `.help`, `.exit/.quit`, `.reset`

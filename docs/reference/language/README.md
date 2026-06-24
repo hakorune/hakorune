@@ -48,6 +48,9 @@ Variables and scope
 - See: development/current/main/design/constructor-birth-new-lifecycle-ssot.md — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
 - See: reference/language/scope-exit-semantics.md — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and ownership-transfer terminology (no `move` keyword).
 - See: reference/language/repl.md — REPL mode semantics (file mode vs REPL binding rules).
+  Current interactive implementation work is parked by
+  development/current/main/design/vm-active-lane-retirement-ssot.md and
+  development/current/main/design/repl-mir-interpreter-interactive-session-ssot.md.
 
 Type system (SSOT)
 - See: reference/language/types.md — runtime truthiness, `+`/compare/equality semantics, and the role/limits of MIR type facts.

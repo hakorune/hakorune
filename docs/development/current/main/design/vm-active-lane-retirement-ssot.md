@@ -100,6 +100,30 @@ disallowed=simultaneous_rust_vm_and_hako_vm_product_development
 disallowed=silent_vm_fallback_to_hide_aot_gap
 ```
 
+## Interactive Interpreter / REPL Parking
+
+Interactive interpreter and Python-like REPL product work is parked.
+
+```text
+repl_active_product_target=0
+interactive_interpreter_active_product_target=0
+rust_mir_interpreter_repl_extension_allowed=0
+hako_mir_interpreter_required_before_python_like_repl=1
+```
+
+Existing REPL and `MirInterpreter` documentation is historical or
+semantic-reference material unless a later accepted current-state card
+explicitly reopens the lane.
+
+Do not expand REPL, `MirInterpreter`, or VM-interpreter runtime behavior for
+product/app execution until the Rust VM / interpreter execution owner is
+migrated to `.hako`, or until this lane is explicitly reopened for a bounded
+reference-only slice.
+
+Allowed work remains limited to narrow semantic-reference smoke tests,
+regression tests for already-supported behavior, and fail-fast diagnostics for
+unsupported VM surfaces.
+
 ## Converter Implication
 
 The RustSubset converter should not be blocked on the Rust VM route.
@@ -119,4 +143,3 @@ do not treat VM failure as compiler-construction failure when EXE/AOT is the sel
 do not add VM-specific workarounds to .hako source
 do not use silent fallback to mask unsupported VM runtime surfaces
 ```
-

@@ -130,6 +130,9 @@ impl MirInterpreter {
         let phi_count = block.phi_instructions().count();
         for (idx, sp) in block.iter_spanned_enumerated().skip(phi_count) {
             let inst = sp.inst;
+            // F1: track block+inst unconditionally for DirectArrayI64 fast-path consumer
+            self.last_block = Some(block.id);
+            self.last_inst_index = Some(idx);
             if self.vm_capture_last_inst_enabled {
                 self.last_block = Some(block.id);
                 self.last_inst_index = Some(idx);
