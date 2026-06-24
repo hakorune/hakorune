@@ -3,6 +3,7 @@
 //! - By-name fallback remains for compatibility when Callee is absent
 
 use super::*;
+use crate::boxes::array::ArrayBox;
 
 mod externs;
 mod global;

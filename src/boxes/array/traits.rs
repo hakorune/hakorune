@@ -284,7 +284,6 @@ impl std::fmt::Debug for ArrayBox {
     }
 }
 
-#[cfg(test)]
 impl ArrayBox {
     pub fn uses_inline_i64_slots(&self) -> bool {
         matches!(&*self.items.read(), ArrayStorage::InlineI64(_))
