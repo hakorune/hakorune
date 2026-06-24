@@ -26,6 +26,7 @@ pub struct GlobalCallRoute {
     callee_name: String,
     arity: usize,
     result_value: Option<ValueId>,
+    arg0_origin_box: Option<String>,
     lowering_override: Option<GlobalCallLoweringOverride>,
     target: GlobalCallTargetFacts,
 }
@@ -94,9 +95,15 @@ impl GlobalCallRoute {
             callee_name: callee_name.into(),
             arity,
             result_value,
+            arg0_origin_box: None,
             lowering_override: None,
             target,
         }
+    }
+
+    pub fn with_arg0_origin_box(mut self, arg0_origin_box: Option<String>) -> Self {
+        self.arg0_origin_box = arg0_origin_box;
+        self
     }
 
     pub fn with_optional_lowering_override(
@@ -196,6 +203,10 @@ impl GlobalCallRoute {
 
     pub fn result_value(&self) -> Option<ValueId> {
         self.result_value
+    }
+
+    pub fn arg0_origin_box(&self) -> Option<&str> {
+        self.arg0_origin_box.as_deref()
     }
 
     pub fn target_exists(&self) -> bool {

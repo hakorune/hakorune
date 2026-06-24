@@ -58,6 +58,7 @@
         const char* return_shape;
         const char* value_demand;
         const char* result_origin;
+        const char* arg0_origin_box;
         const char* definition_owner;
         const char* emit_trace_consumer;
         long long arity;
@@ -787,6 +788,7 @@
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
           out->result_origin = read_str(entry, "result_origin");
+          out->arg0_origin_box = read_str(entry, "arg0_origin_box");
           out->definition_owner = read_str(entry, "definition_owner");
           out->emit_trace_consumer = read_str(entry, "emit_trace_consumer");
           lowering_plan_read_i64_field(entry, "arity", &out->arity);
@@ -1108,6 +1110,13 @@
           return ORG_MAP_BIRTH;
         }
         return ORG_NONE;
+      }
+
+      auto int lowering_plan_global_call_view_arg0_origin_is_string(
+          const struct LoweringPlanGlobalCallView* view) {
+        return view &&
+               view->arg0_origin_box &&
+               !strcmp(view->arg0_origin_box, "StringBox");
       }
 
       auto const char* lowering_plan_global_call_view_emit_trace_consumer(

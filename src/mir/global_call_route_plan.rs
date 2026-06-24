@@ -9,6 +9,8 @@
 use super::{
     BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
+use crate::mir::generic_method_route_facts::receiver_origin_box_name;
+use crate::mir::value_origin::build_value_def_map;
 use std::collections::{BTreeMap, BTreeSet};
 
 mod box_type_inspector_describe_body;
@@ -620,6 +622,7 @@ fn refresh_function_global_call_routes_with_targets(
     let mut routes = Vec::new();
     let mut builtin_routes = Vec::new();
     let const_null_sentinels = collect_const_null_sentinels(function);
+    let def_map = build_value_def_map(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
@@ -649,6 +652,10 @@ fn refresh_function_global_call_routes_with_targets(
                     .unwrap_or_else(GlobalCallTargetFacts::missing),
             )
             .with_optional_lowering_override(lowering_override);
+            let route = route.with_arg0_origin_box(
+                args.first()
+                    .and_then(|arg0| receiver_origin_box_name(function, &def_map, *arg0)),
+            );
             if supported_backend_global(name) {
                 if route.is_builtin_print() {
                     builtin_routes.push(route);

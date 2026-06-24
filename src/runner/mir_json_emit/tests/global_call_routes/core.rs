@@ -122,6 +122,16 @@ fn refresh_module_global_call_routes_publishes_print_need_kind() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
+        .push(MirInstruction::NewBox {
+            dst: ValueId::new(7),
+            box_type: "StringBox".to_string(),
+            args: vec![],
+        });
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
         .push(MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
@@ -141,14 +151,17 @@ fn refresh_module_global_call_routes_publishes_print_need_kind() {
     assert_eq!(route["callee_name"], "print");
     assert_eq!(route["route_kind"], "global.print");
     assert_eq!(route["proof"], "typed_global_call_void_side_effect");
+    assert_eq!(route["arg0_origin_box"], "StringBox");
     assert_eq!(route["return_shape"], "void_sentinel_i64_zero");
     assert_eq!(route["value_demand"], "scalar_i64");
     assert_eq!(route["need_kind"], "printf");
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
+    assert_eq!(plan["site"], "b0.i1");
     assert_eq!(plan["source"], "global_call_routes");
     assert_eq!(plan["callee_name"], "print");
     assert_eq!(plan["route_kind"], "global.print");
+    assert_eq!(plan["arg0_origin_box"], "StringBox");
     assert_eq!(plan["need_kind"], "printf");
 }
 

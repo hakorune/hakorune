@@ -127,12 +127,16 @@
           long long a0) {
         long long a0_base = resolve_copy_source_reg(a0);
         long long cv = 0;
-        int a0_is_string =
-            get_origin(a0_base) == ORG_STRING ||
-            get_scan_origin(a0_base) == ORG_STRING ||
-            get_origin(a0) == ORG_STRING ||
-            get_scan_origin(a0) == ORG_STRING;
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        struct LoweringPlanGlobalCallView view;
+        int a0_is_string = 0;
         if (kind != HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT) return -1;
+        memset(&view, 0, sizeof(view));
+        if (source && !strcmp(source, "global_call_routes") &&
+            read_lowering_plan_global_call_view(entry, &view)) {
+          a0_is_string = lowering_plan_global_call_view_arg0_origin_is_string(&view);
+        }
         if (a0_is_string) {
           fprintf(f, "  %%print_call_b%lld_i%zu = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
                   bid, ii, a0_base ? a0_base : a0);
