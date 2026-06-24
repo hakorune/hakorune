@@ -99,8 +99,6 @@
         yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
         yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
         const char* ctype = cal ? read_str(cal, "type") : NULL;
-        const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-        yyjson_val* site_plan_entry = find_lowering_plan_entry_for_site(bid, ii);
 
         (void)blocks;
         (void)ilen;
@@ -121,7 +119,6 @@
           if (mark_constructor_call_from_lowering_plan(bid, ii, dst, needs)) {
             return;
           }
-          (void)bname;
           return;
         }
 
