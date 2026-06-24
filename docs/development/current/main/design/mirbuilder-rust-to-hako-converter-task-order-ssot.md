@@ -19,11 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  GENERIC-ROUTE-HELPER-VARIANT-DRAIN-001
+  GENERIC-ROUTE-DESCRIPTOR-NEXT-SLICE-DESIGN-STOP-001
 
 current implementation task:
-  Move generic-method concrete helper variants from C registry row overrides
-  into neutral route descriptor data.
+  Choose the next generic route descriptor generation slice.
 
 producer responsibility stack:
   Source preparation
@@ -36,8 +35,7 @@ selected source slice:
   spec/mir/generic_method_routes.toml
 
 selected lowering:
-  routes.c_helper_variants / c_registry_rows.c_helper_variant
-    -> generated C helper_symbol registry fields
+  pending next-owner selection
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -53,7 +51,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  GENERIC-ROUTE-HELPER-VARIANT-DRAIN-001
+  pending: same-module/extern descriptors vs set-route value-shape table
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -155,20 +153,20 @@ history, not in this task-order SSOT.
 
 ```text
 1. Helper-symbol override drain
-   status=selected
+   status=landed
    boundary=C registry rows keep policy deltas; route contract fields come from
      spec/mir/generic_method_routes.toml route descriptors
    semantic_authority=neutral route descriptor manifest
    non_authority=C row helper_symbol override except c_helper_variant selector
 
 2. Same-module / extern route descriptor generation
-   status=parked
+   status=design-stop candidate
    boundary=non-generic route metadata gets equivalent generated descriptor rows
    semantic_authority=route descriptor manifest
    non_authority=C-side name or tuple fallback classifiers
 
 3. Set-route value-shape table generation
-   status=parked
+   status=design-stop candidate
    boundary=value-shape-specific set route rows become generated descriptor data
    semantic_authority=neutral route manifests
    non_authority=handwritten LoweringPlanSetRouteRule helper/value-shape table

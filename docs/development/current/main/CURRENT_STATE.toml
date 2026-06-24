@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "GENERIC-ROUTE-HELPER-VARIANT-DRAIN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1662-GENERIC-ROUTE-HELPER-VARIANT-DRAIN-001.md"
-latest_card_summary = """Generic method route helper variants are now the
-selected owner. The slice moves array_store_any concrete helper symbols from C
-registry rows into route-owned c_helper_variants while keeping generated
-registry output unchanged."""
+latest_card = "GENERIC-ROUTE-DESCRIPTOR-NEXT-SLICE-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1663-GENERIC-ROUTE-DESCRIPTOR-NEXT-SLICE-DESIGN-STOP-001.md"
+latest_card_summary = """Generic route descriptor generation reached a next
+slice design stop. The choice is whether to follow task order into same-module
+/ extern route descriptor generation or take the thinner set-route value-shape
+table generation slice first."""
 
-current_blocker_token = "GENERIC-ROUTE-HELPER-VARIANT-DRAIN-001"
+current_blocker_token = "GENERIC-ROUTE-DESCRIPTOR-NEXT-SLICE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
