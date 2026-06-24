@@ -8,6 +8,7 @@ Related:
   - docs/reference/architecture/rust-to-hako-lifecycle-projection.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
   - docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
+  - docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
 ---
 
 # MirBuilder Rust-to-Hako Converter Task Order
@@ -19,11 +20,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  NEXT-MIRBUILDER-SELFHOST-EXECUTION-OWNER-DESIGN-STOP
+  SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001
 
 current implementation task:
-  Stop for next-owner design selection after closing same-module scalar-counter
-  helper execution.
+  Close the live same-module ArrayBox return red edge without opening arbitrary
+  object-return support.
 
 producer responsibility stack:
   Source preparation
@@ -33,10 +34,13 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  next source slice not selected yet
+  MultiCarrierExitPhiPilotApi.project_exit_carriers/1
 
 selected lowering:
-  pending design selection
+  source default facts
+    -> ExplicitMultiExitPhiI64Array default_values
+    -> body-wide ObjectHandle return contract
+    -> SameModuleDefinitionPlan
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -46,20 +50,20 @@ landed evidence:
   ValueId/i64 keys. OrderedMapBox remains String-key only.
 
 selected next owner:
-  design stop before NEWTYPE-ID-GENERATOR-SCALARIZATION-001
+  SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001
 
 current fail-fast boundary:
-  same-module object-return helpers remain parked. Do not open ArrayBox /
-  MapBox / string return expansion inside the scalar-counter closeout.
+  the selected helper must have ArrayBox return transport on every path. Do
+  not reinterpret scalar fail codes as mixed runtime returns.
 
 latest design decision:
-  Choose same-module scalar helper execution before adding more standalone
-  converter artifacts.
+  Choose the focused ArrayBox return contract before ID generator
+  scalarization because it closes the current full-matrix red edge.
 
 forbidden:
-  callee-name C branches; CoreContext-specific backend branches; neighboring
-  instruction scans for route discovery; extern fallback; new route kind; new
-  canonical MIR instruction; runtime fallback
+  callee-name branches; C-side ArrayBox inference; scalar fail-code
+  reinterpretation; mixed-runtime promotion; extern fallback; new route kind;
+  new canonical MIR instruction; runtime fallback
 ```
 
 Recent acceptance evidence:
@@ -68,7 +72,7 @@ Recent acceptance evidence:
 same_module_scalar_counter_routes=green
 same_module_scalar_counter_definitions=green
 CoreContext scalar-counter EXE/AOT green
-same-module object-return helpers parked
+multi_carrier_exit_phi ArrayBox return selected to close matrix red edge
 task-order remains under 800 lines
 ```
 
@@ -79,6 +83,8 @@ borrow_read_fold_owned_map_merge = landed
 boxed_sum_variant_make_site_fact_normalization = landed
 metadata_context_region_parent_backend = green
 same_module_uniform_mir_scalar_counter_emitter = landed
+same_module_arraybox_return_contract = selected
+selfhost_checkpoint_lane = artifact_selfhost
 ```
 
 ## Active Next 3
@@ -93,17 +99,17 @@ history, not in this task-order SSOT.
    semantic_authority=GlobalCallRoute + SameModuleDefinitionPlan
    non_authority=callee-name C branch
 
-2. Newtype ID generator scalarization
-   status=design stop; next-owner consultation before implementation
+2. Same-module ArrayBox return contract
+   status=selected
+   boundary=MultiCarrierExitPhi owned i64-pair ArrayBox return
+   semantic_authority=source default facts + body-wide return contract
+   non_authority=callee name / scalar fail-code reinterpretation
+
+3. Newtype ID generator scalarization
+   status=parked until full matrix green
    boundary=ValueId / BasicBlockId generator next and peek
    semantic_authority=generator state facts + nominal i64 transport
    non_authority=generator object runtime identity
-
-3. MirBuilder derived context bundle v1
-   status=parked until ID generators are green
-   boundary=compose accepted context families without mainline selection
-   semantic_authority=artifact manifests + explicit bundle membership
-   non_authority=bundle size as semantic coverage proof
 ```
 
 ## Landed Converter Capability Summary
