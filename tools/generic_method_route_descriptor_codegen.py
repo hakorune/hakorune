@@ -42,6 +42,42 @@ ROUTE_KIND_VARIANTS = {
     "map_contains_i64": "MapContainsI64",
 }
 
+C_EMIT_KIND_VALUES = {
+    "none": 0,
+    "set": 1,
+    "get": 2,
+    "len": 3,
+    "push": 4,
+    "substring": 5,
+    "has": 6,
+    "keys": 7,
+    "delete": 0,
+    "indexOf": 0,
+    "lastIndexOf": 0,
+    "contains": 0,
+}
+
+C_NEED_KIND_VALUES = {
+    "none": 0,
+    "map_set": 2,
+    "map_size": 3,
+    "map_get": 4,
+    "map_has": 5,
+    "map_delete": 6,
+    "map_keys": 7,
+    "runtime_data_has": 8,
+    "array_push": 10,
+    "array_len": 11,
+    "array_set": 12,
+    "array_get": 13,
+    "array_has": 14,
+    "string_len": 16,
+    "string_substring": 17,
+    "string_indexof": 19,
+    "string_contains": 20,
+    "any_length": 22,
+}
+
 
 def load_spec() -> dict[str, Any]:
     with SPEC.open("rb") as fh:
@@ -63,7 +99,64 @@ def load_spec() -> dict[str, Any]:
     missing = set(ROUTE_KIND_VARIANTS) - seen
     if missing:
         raise SystemExit(f"missing route descriptors: {sorted(missing)}")
+    route_by_kind = {str(route["kind"]): route for route in routes}
+    for row in rows:
+        route_kind = str(row.get("route_kind", ""))
+        route = route_by_kind.get(route_kind)
+        if route is None:
+            raise SystemExit(f"c_registry_row references unknown route_kind: {route_kind}")
+        normalized = normalize_c_registry_row(row, route)
+        row.clear()
+        row.update(normalized)
     return data
+
+
+def check_if_present(row: dict[str, Any], field: str, expected: Any) -> None:
+    if field in row and row[field] != expected:
+        raise SystemExit(
+            f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+            f"has {field}={row[field]!r}, expected {expected!r}"
+        )
+
+
+def route_emit_kind_value(route: dict[str, Any]) -> int:
+    emit_kind = str(route.get("emit_kind", ""))
+    if emit_kind not in C_EMIT_KIND_VALUES:
+        raise SystemExit(f"route {route.get('kind')} has no C emit mapping: {emit_kind}")
+    return C_EMIT_KIND_VALUES[emit_kind]
+
+
+def route_need_kind_value(route: dict[str, Any]) -> int:
+    need_kind = str(route.get("c_need_kind", ""))
+    if need_kind not in C_NEED_KIND_VALUES:
+        raise SystemExit(f"route {route.get('kind')} has no C need mapping: {need_kind}")
+    return C_NEED_KIND_VALUES[need_kind]
+
+
+def normalize_c_registry_row(row: dict[str, Any], route: dict[str, Any]) -> dict[str, Any]:
+    route_id = str(route["route_id"])
+    route_helper_symbol = str(route["helper_symbol"])
+    helper_symbol = row.get("helper_symbol")
+    tier = int(route["tier"])
+    emit_kind = route_emit_kind_value(route)
+    need_kind = route_need_kind_value(route)
+    check_if_present(row, "route_id", route_id)
+    if helper_symbol is not None and "*" not in route_helper_symbol:
+        check_if_present(row, "helper_symbol", route_helper_symbol)
+    check_if_present(row, "tier", tier)
+    check_if_present(row, "emit_kind", emit_kind)
+    check_if_present(row, "need_kind", need_kind)
+    return {
+        "route_id": route_id,
+        "core_op": row["core_op"],
+        "route_kind": route["kind"],
+        "helper_symbol": helper_symbol,
+        "route_proof": row.get("route_proof"),
+        "tier": tier,
+        "route_result": row["route_result"],
+        "emit_kind": emit_kind,
+        "need_kind": need_kind,
+    }
 
 
 def q(value: str | None) -> str:
@@ -306,7 +399,8 @@ def render_python(data: dict[str, Any]) -> str:
         lines.append("    },")
     lines.extend(["}", "", "GENERIC_METHOD_ROUTE_REGISTRY_ROWS = ("])
     for row in data["c_registry_rows"]:
-        lines.append(f"    {repr(dict(row))},")
+        py_row = {key: value for key, value in dict(row).items() if value is not None}
+        lines.append(f"    {repr(py_row)},")
     lines.extend([")", ""])
     return "\n".join(lines)
 

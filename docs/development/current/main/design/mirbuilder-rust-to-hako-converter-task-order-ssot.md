@@ -19,11 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
+  GENERIC-ROUTE-DESCRIPTOR-FULL-GENERATION-001
 
 current implementation task:
-  Select the next semantic converter slice after RegionObserver classifier
-  live facts landed.
+  Derive backend route contract fields from neutral generic-method route
+  descriptors instead of handwritten C registry tuple copies.
 
 producer responsibility stack:
   Source preparation
@@ -33,10 +33,11 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  pending next-owner selection
+  spec/mir/generic_method_routes.toml
 
 selected lowering:
-  pending next-owner selection
+  routes.c_need_kind / routes.emit_kind
+    -> generated C need-kind / emit-kind registry fields
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -52,7 +53,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  pending next-owner selection after RegionObserver classifier live facts
+  GENERIC-ROUTE-DESCRIPTOR-FULL-GENERATION-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -153,23 +154,24 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Same-module definition edge plan
-   status=landed
-   boundary=C shim validates and emits explicit definition rows only
-   semantic_authority=MIR finalize / lowering plan producer
-   non_authority=recursive function-list discovery in C shim
+1. Generic route descriptor full generation
+   status=selected
+   boundary=C registry rows keep policy deltas; route contract fields come from
+     spec/mir/generic_method_routes.toml route descriptors
+   semantic_authority=neutral route descriptor manifest
+   non_authority=handwritten C emit-kind / need-kind tuple copies
 
-2. MIR-call prepass fact owner drain
-   status=landed; next owner selection pending
-   boundary=remaining call need/origin facts come from descriptors/lowering rows
-   semantic_authority=descriptor/lowering fact rows
-   non_authority=C prepass reconstruction from callee spelling
+2. Helper-symbol override drain
+   status=parked
+   boundary=concrete helper variants move from row overrides to descriptor data
+   semantic_authority=route descriptor manifest
+   non_authority=C row helper_symbol override except temporary array-store split
 
-3. Slot classifier policy
-   status=landed; next owner selection pending
-   boundary=classification table comes from live Rust classifier facts
-   semantic_authority=live Rust facts -> structured operation
-   non_authority=family spec / emitter-owned MirType-name policy
+3. Same-module / extern route descriptor generation
+   status=parked
+   boundary=non-generic route metadata gets equivalent generated descriptor rows
+   semantic_authority=neutral route manifests
+   non_authority=C-side name or tuple fallback classifiers
 ```
 
 ## Landed Converter Capability Summary
