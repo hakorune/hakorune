@@ -7,6 +7,15 @@
         const char* proof;
       };
 
+      struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow {
+        const char* route_kind;
+        const char* proof;
+        const char* symbol;
+        const char* return_shape;
+        const char* value_demand;
+        const char* emit_kind;
+      };
+
       static const struct HakoLlvmcGlobalCallProofRegistryRow
           hako_llvmc_global_call_proof_registry_rows[] = {
               {"typed_global_call_contract_missing"},
@@ -41,6 +50,75 @@
           if (row->proof && !strcmp(row->proof, proof)) return 1;
         }
         return 0;
+      }
+
+      static const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow
+          hako_llvmc_global_call_runtime_route_registry_rows[] = {
+              {
+                  "global.print",
+                  "typed_global_call_void_side_effect",
+                  "print",
+                  "void_sentinel_i64_zero",
+                  "scalar_i64",
+                  "runtime_call",
+              },
+              {
+                  "stage1.emit_program_json_v0",
+                  "typed_global_call_stage1_emit_program_json",
+                  "nyash.stage1.emit_program_json_v0_h",
+                  "string_handle",
+                  "runtime_i64_or_handle",
+                  "runtime_call",
+              },
+          };
+
+      auto const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow*
+      hako_llvmc_global_call_runtime_route_registry_find(
+          const char* route_kind,
+          const char* proof,
+          const char* symbol,
+          const char* return_shape,
+          const char* value_demand,
+          const char* emit_kind) {
+        size_t i = 0;
+        for (i = 0;
+             i < sizeof(hako_llvmc_global_call_runtime_route_registry_rows) /
+                     sizeof(hako_llvmc_global_call_runtime_route_registry_rows[0]);
+             i++) {
+          const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow* row =
+              &hako_llvmc_global_call_runtime_route_registry_rows[i];
+          if (row->route_kind && row->proof && row->symbol &&
+              row->return_shape && row->value_demand && row->emit_kind &&
+              route_kind && proof && symbol && return_shape && value_demand && emit_kind &&
+              !strcmp(row->route_kind, route_kind) &&
+              !strcmp(row->proof, proof) &&
+              !strcmp(row->symbol, symbol) &&
+              !strcmp(row->return_shape, return_shape) &&
+              !strcmp(row->value_demand, value_demand) &&
+              !strcmp(row->emit_kind, emit_kind)) {
+            return row;
+          }
+        }
+        return NULL;
+      }
+
+      auto int hako_llvmc_global_call_runtime_route_registry_matches_stage1_emit_program_json(
+          const char* route_kind,
+          const char* proof,
+          const char* symbol,
+          const char* return_shape,
+          const char* value_demand,
+          const char* emit_kind) {
+        const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow* row =
+            hako_llvmc_global_call_runtime_route_registry_find(
+                route_kind,
+                proof,
+                symbol,
+                return_shape,
+                value_demand,
+                emit_kind);
+        return row && row->route_kind &&
+               !strcmp(row->route_kind, "stage1.emit_program_json_v0");
       }
 
 #endif /* HAKO_LLVMC_GLOBAL_CALL_ROUTE_REGISTRY_INC */

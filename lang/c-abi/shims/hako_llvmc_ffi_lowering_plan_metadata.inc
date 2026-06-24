@@ -1118,46 +1118,57 @@
 
       auto int lowering_plan_global_call_view_matches_runtime_route(
           const struct LoweringPlanGlobalCallView* view,
-          const char* route_kind,
-          const char* proof,
-          const char* symbol,
-          const char* return_shape,
-          const char* value_demand) {
+          const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow* row) {
         return view &&
+               row &&
                view->route_id &&
                !strcmp(view->route_id, "global.user_call") &&
                view->core_op &&
                !strcmp(view->core_op, "UserGlobalCall") &&
                view->route_kind &&
-               route_kind &&
-               !strcmp(view->route_kind, route_kind) &&
+               row->route_kind &&
+               !strcmp(view->route_kind, row->route_kind) &&
                view->proof &&
-               proof &&
-               !strcmp(view->proof, proof) &&
+               row->proof &&
+               !strcmp(view->proof, row->proof) &&
                view->tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME &&
                view->emit_kind &&
-               !strcmp(view->emit_kind, "runtime_call") &&
+               row->emit_kind &&
+               !strcmp(view->emit_kind, row->emit_kind) &&
                view->target_symbol &&
-               symbol &&
-               !strcmp(view->target_symbol, symbol) &&
+               row->symbol &&
+               !strcmp(view->target_symbol, row->symbol) &&
                view->return_shape &&
-               return_shape &&
-               !strcmp(view->return_shape, return_shape) &&
+               row->return_shape &&
+               !strcmp(view->return_shape, row->return_shape) &&
                view->value_demand &&
-               value_demand &&
-               !strcmp(view->value_demand, value_demand) &&
+               row->value_demand &&
+               !strcmp(view->value_demand, row->value_demand) &&
                llvm_quoted_symbol_name_is_safe(view->target_symbol);
       }
 
       auto int lowering_plan_global_call_view_is_stage1_emit_program_json(
           const struct LoweringPlanGlobalCallView* view) {
+        const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow* row = NULL;
+        if (!view) return 0;
+        if (!hako_llvmc_global_call_runtime_route_registry_matches_stage1_emit_program_json(
+                view->route_kind,
+                view->proof,
+                view->target_symbol,
+                view->return_shape,
+                view->value_demand,
+                view->emit_kind)) {
+          return 0;
+        }
+        row = hako_llvmc_global_call_runtime_route_registry_find(
+            view->route_kind,
+            view->proof,
+            view->target_symbol,
+            view->return_shape,
+            view->value_demand,
+            view->emit_kind);
         return lowering_plan_global_call_view_matches_runtime_route(
-            view,
-            "stage1.emit_program_json_v0",
-            "typed_global_call_stage1_emit_program_json",
-            "nyash.stage1.emit_program_json_v0_h",
-            "string_handle",
-            "runtime_i64_or_handle");
+            view, row);
       }
 
       auto int lowering_plan_global_call_view_result_origin_kind(

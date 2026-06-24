@@ -154,7 +154,7 @@ history, not in this task-order SSOT.
 
 ```text
 1. Same-module global-call descriptor generation
-   status=landed for global-call proof allowlist; next consumer remains open
+   status=landed for proof allowlist and stage1 runtime route matcher
    boundary=move one same-module global-call C consumer to descriptor data
    semantic_authority=global_call_routes / GlobalCallRoute metadata
    non_authority=C-side callee spelling or neighboring-instruction scans
