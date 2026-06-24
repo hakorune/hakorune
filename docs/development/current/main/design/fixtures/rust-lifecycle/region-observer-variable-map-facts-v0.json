@@ -17,6 +17,60 @@
       "source": "src/mir/region/observer.rs:174"
     }
   ],
+  "classifier_decision_facts": [
+    {
+      "id": "RegionObserver.slot_ref_kind",
+      "kind": "ClassifierDecisionFactsV1",
+      "missing_primary": {
+        "input": "name",
+        "matched": "StrongRoot",
+        "selector": "StringSet",
+        "unmatched": "NonRef",
+        "values": [
+          "args",
+          "src",
+          "body_src",
+          "bundles",
+          "bundle_names",
+          "bundle_srcs",
+          "require_mods"
+        ]
+      },
+      "primary": {
+        "cases": [
+          {
+            "result": "StrongRoot",
+            "variants": [
+              {
+                "payload": "Ignored",
+                "tag": "Box"
+              },
+              {
+                "payload": "Ignored",
+                "tag": "Array"
+              },
+              {
+                "payload": "Ignored",
+                "tag": "Future"
+              }
+            ]
+          },
+          {
+            "result": "WeakRoot",
+            "variants": [
+              {
+                "payload": "None",
+                "tag": "WeakRef"
+              }
+            ]
+          }
+        ],
+        "default": "NonRef",
+        "selector": "TaggedVariant",
+        "source_enum": "MirType"
+      }
+    }
+  ],
   "excluded_methods": [
     {
       "deny_reason": "ReturnedReadBorrow",
@@ -43,6 +97,7 @@
   "source": {
     "consumer_line": 174,
     "consumer_path": "src/mir/region/observer.rs",
+    "region_path": "src/mir/region/mod.rs",
     "variable_context_path": "crates/hakorune_mir_builder/src/variable_context.rs"
   },
   "subject": "mir::region::observer::classify_slots_from_variable_map"

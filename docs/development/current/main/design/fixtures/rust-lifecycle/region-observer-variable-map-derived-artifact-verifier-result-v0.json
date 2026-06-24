@@ -1,6 +1,7 @@
 {
   "checks": {
     "borrow_lowering_decision": "ElideToReadFold",
+    "classifier_fact_owner": "live_rust_source",
     "mirtype_backend_branch": 0,
     "order": {
       "comparator": "RustStringOrdV1",

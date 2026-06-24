@@ -267,13 +267,14 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1660-REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001.md"
-latest_card_summary = """The next semantic converter owner is the RegionObserver
-slot classifier. The remaining policy owner is not the shared emitter but the
-RegionObserver family spec; classifier decisions must come from live Rust
-source facts, lower through ClassifierDecisionFactsV1, and render via the
-existing ClassifyEnumVariants operation."""
+latest_card_summary = """The RegionObserver slot classifier now uses live Rust
+classifier facts as the semantic owner. The family spec no longer hand-writes
+ref_kind_groups or missing_value_fallback; ClassifierDecisionFactsV1 lowers to
+the existing ClassifyEnumVariants operation. Matrix, no-silent-hardcode, and
+generated MIR/EXE checks are green; the next blocker is selecting the next
+semantic converter slice."""
 
-current_blocker_token = "REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001"
+current_blocker_token = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

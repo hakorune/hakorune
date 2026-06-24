@@ -33,8 +33,13 @@ box RegionObserverArtifactProbe {
 
 
 box SlotMetadataBox {
-    name: StringBox = null
-    ref_kind: RefSlotKind = RefSlotKind::NonRef()
+    name: StringBox
+    ref_kind: RefSlotKind
+
+    birth() {
+        me.name = null
+        me.ref_kind = RefSlotKind::NonRef()
+    }
 }
 
 static box SlotClassifierApi {

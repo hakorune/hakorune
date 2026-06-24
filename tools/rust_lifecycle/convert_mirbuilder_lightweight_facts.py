@@ -17,6 +17,7 @@ from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_sc
 from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_parent_artifact_generator
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
 from mirbuilder_multi_exit_phi_artifacts import run_multi_exit_phi_artifact_generator
+from mirbuilder_region_observer_artifacts import run_region_observer_artifact_generator
 from mirbuilder_single_scalar_loop_carrier_artifacts import run_single_scalar_loop_carrier_artifact_generator
 from mirbuilder_structured_loop_artifacts import run_structured_loop_artifact_generator
 from mirbuilder_type_context_origin_map_artifacts import run_type_context_origin_map_artifact_generator
@@ -35,6 +36,7 @@ FAMILY_GENERATORS = {
     "metadata-context-region-parent": run_metadata_region_parent_artifact_generator,
     "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
     "multi-carrier-exit-phi": run_multi_exit_phi_artifact_generator,
+    "region-observer-slot-metadata": run_region_observer_artifact_generator,
     "single-scalar-loop-carrier": run_single_scalar_loop_carrier_artifact_generator,
     "structured-loop-without-carried-state": run_structured_loop_artifact_generator,
     "type-context-origin-map": run_type_context_origin_map_artifact_generator,

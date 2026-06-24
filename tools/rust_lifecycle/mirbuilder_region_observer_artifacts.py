@@ -14,6 +14,7 @@ from family_artifact_builders import (
     build_family_artifact_verifier_text,
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
+from mirbuilder_classifier_converter import compile_classifier_operation
 from mirbuilder_ordered_read_fold_converter import compile_ordered_read_fold
 from mirbuilder_ordering_capability import RUST_STRING_ORD_V1
 from shared_family_generator import read_json, run_validated_family_generator
@@ -47,6 +48,20 @@ PLAN = {
 }
 
 
+CLASSIFIER_PLAN = {
+    "classifier_fact_id": "RegionObserver.slot_ref_kind",
+    "type_source": "type_opt",
+    "classifier_output": {
+        "enum": "RefSlotKind",
+        "result_variants": {
+            "StrongRoot": "RefSlotKind::StrongRoot()",
+            "WeakRoot": "RefSlotKind::WeakRoot()",
+            "NonRef": "RefSlotKind::NonRef()",
+        },
+    },
+}
+
+
 def validate_region_observer(facts: dict[str, Any], plan: dict[str, Any], oracle: dict[str, Any]) -> None:
     fixture_facts = read_json(FIXTURES / "region-observer-variable-map-facts-v0.json")
     if facts != fixture_facts:
@@ -65,28 +80,15 @@ def validate_region_observer(facts: dict[str, Any], plan: dict[str, Any], oracle
         }
     ]:
         raise SystemExit("RegionObserver ordered read-fold compile mismatch")
+    classifier_op = compile_classifier_operation(facts, CLASSIFIER_PLAN)
+    if classifier_op.get("kind") != "ClassifyEnumVariants":
+        raise SystemExit("RegionObserver classifier compile mismatch")
 
 
 def region_observer_spec() -> FamilyArtifactSpec:
     facts = extract_facts()
     plan = read_json(FIXTURES / "region-observer-variable-map-plan-v0.json")
-    ref_kind_groups = [
-        {
-            "variants": [
-                {"name": "Box", "payload_var": "_box_payload"},
-                {"name": "Array", "payload_var": "_array_payload"},
-                {"name": "Future", "payload_var": "_future_payload"},
-            ],
-            "returns": "RefSlotKind::StrongRoot()",
-        },
-        {"variants": ["WeakRef"], "returns": "RefSlotKind::WeakRoot()"},
-    ]
-    missing_value_fallback = {
-        "input": "name",
-        "string_set": ["args", "src", "body_src", "bundles", "bundle_names", "bundle_srcs", "require_mods"],
-        "matched": "RefSlotKind::StrongRoot()",
-        "unmatched": "RefSlotKind::NonRef()",
-    }
+    classifier_op = compile_classifier_operation(facts, CLASSIFIER_PLAN)
     return FamilyArtifactSpec(
         root=ROOT,
         generated_by="tools/rust_lifecycle/generate_region_observer_slot_metadata_artifact.py",
@@ -128,16 +130,7 @@ def region_observer_spec() -> FamilyArtifactSpec:
                 methods=[
                     ApiMethodSpec(
                         signature="classify(type_opt: Option<MirType>, name: StringBox): RefSlotKind",
-                        operations=[
-                            op(
-                                "ClassifyEnumVariants",
-                                type_source="type_opt",
-                                source_enum="MirType",
-                                variant_groups=ref_kind_groups,
-                                default_return="RefSlotKind::NonRef()",
-                                missing_value_fallback=missing_value_fallback,
-                            ).to_json()
-                        ],
+                        operations=[classifier_op],
                     )
                 ],
             ),
@@ -233,7 +226,7 @@ def region_observer_spec() -> FamilyArtifactSpec:
         ],
         excluded_methods=["classify_slots_from_registry", "observe_control_form", "observe_function_region", "pop_function_region"],
         claims={"generated_hako_manual_edit": 0, "mainline_selected": 0, "full_region_observer_claim": 0, "runtime_fallback": 0, "rust_bootstrap_retained": 1},
-        verifier_checks={"rust_facts_input": "verified", "borrow_lowering_decision": "ElideToReadFold", "order": facts["borrow_use_facts"][0]["order"], "output_transport": "ArrayBox<SlotMetadataBox>", "raw_aggregate_return": 0, "region_observer_backend_branch": 0, "mirtype_backend_branch": 0},
+        verifier_checks={"rust_facts_input": "verified", "classifier_fact_owner": "live_rust_source", "borrow_lowering_decision": "ElideToReadFold", "order": facts["borrow_use_facts"][0]["order"], "output_transport": "ArrayBox<SlotMetadataBox>", "raw_aggregate_return": 0, "region_observer_backend_branch": 0, "mirtype_backend_branch": 0},
         verified_operations=[
             "ForEachOrderedMapEntry",
             "MapLookupOption",
@@ -245,7 +238,7 @@ def region_observer_spec() -> FamilyArtifactSpec:
         ],
         transport_notes={"semantic_shape": "OwnedSequence<OwnedProduct>", "sequence_transport": "ArrayBox", "element_transport": "SlotMetadataBox"},
         denied_boundaries=["VariableContext::variable_map standalone returned borrow"],
-        extra_manifest_fields={"route_plan": PLAN, "oracle_vectors": read_json(FIXTURES / "region-observer-variable-map-oracle-v0.json")["vectors"]},
+        extra_manifest_fields={"route_plan": PLAN, "classifier_plan": CLASSIFIER_PLAN, "oracle_vectors": read_json(FIXTURES / "region-observer-variable-map-oracle-v0.json")["vectors"]},
     )
 
 

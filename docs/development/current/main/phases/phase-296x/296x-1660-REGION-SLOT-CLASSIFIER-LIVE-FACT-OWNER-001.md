@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Complete
 Date: 2026-06-24
 Token: REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001
 Scope: MirBuilder Rust-to-Hako converter / RegionObserver classifier policy owner
@@ -63,7 +63,7 @@ the target plan maps semantic labels to Hako output variants.
 ## Acceptance
 
 ```text
-generated region_observer_slot_metadata.hako body remains byte-identical
+generated classifier/read-fold method bodies remain byte-identical
 generator --check green
 RegionObserver MIR green
 RegionObserver EXE/AOT green
@@ -112,4 +112,27 @@ full MirType declaration extraction = 0
 general decision-DAG framework = 0
 new Hako syntax = 0
 backend behavior changed = 0
+```
+
+## Closeout
+
+```text
+ClassifierDecisionFactsV1=landed
+source_authority=Region::classify_ref_kind + classify_slot_name_only
+family_spec_ref_kind_groups=0
+family_spec_missing_value_fallback=0
+generic_classifier_lowerer=landed
+shared_operation_emitter_behavior_changed=0
+new_operation_kind=0
+new_backend_route=0
+runtime_fallback=0
+generated_region_observer_slot_metadata_artifact=deterministic
+generated_classifier_read_fold_method_bodies=unchanged
+region_observer_generated_mir=green
+region_observer_generated_exe_aot=green
+source_mutation_fact_change_probe=green
+rust_mirbuilder_converter_matrix_guard=green
+rust_lifecycle_no_silent_hardcode_guard=green
+current_state_pointer_guard=green
+next=MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
 ```
