@@ -239,6 +239,17 @@
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }
 
+      auto int generic_method_value_origin_is_string_from_lowering_plan_site(
+          long long bid,
+          size_t ii) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        const char* value_origin_box = NULL;
+        if (!(source && !strcmp(source, "generic_method_routes"))) return 0;
+        value_origin_box = read_str(entry, "value_origin_box");
+        return value_origin_box && !strcmp(value_origin_box, "StringBox");
+      }
+
       auto int classify_generic_method_emit_plan(
           long long bid,
           size_t ii,
@@ -272,10 +283,12 @@
         }
         (void)mname;
         (void)a0;
+        plan->value_is_string_handle =
+            generic_method_value_origin_is_string_from_lowering_plan_site(bid, ii);
         plan->kind = preselected_kind;
         if (plan->kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_SET) {
           int value_is_i64 = a1 && is_plain_i64_value(a1);
-          int value_is_string_handle = a1 && get_origin(a1) == ORG_STRING;
+          int value_is_string_handle = plan->value_is_string_handle;
           enum GenericMethodSetRouteKind plan_set_route =
               classify_generic_method_set_route_from_site_lowering_plan(
                   bid,

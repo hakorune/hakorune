@@ -43,7 +43,7 @@
               fprintf(f, "  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
             }
             if (should_promote_array_string_birth_after_push(
-                    plan, value && get_origin(value) == ORG_STRING)) {
+                    plan, plan ? plan->value_is_string_handle : 0)) {
               hako_llvmc_promote_array_birth_origin_to_string(recv);
             }
             return 1;

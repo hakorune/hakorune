@@ -123,6 +123,7 @@ mir_call_generic_method_result_origin_drain = landed
 mir_call_generic_method_receiver_origin_drain = landed
 mir_call_array_string_birth_promotion_helper = landed
 mir_call_array_string_promotion_value_origin_drain = landed
+generic_method_emit_value_origin_drain = landed
 mir_call_runtime_map_has_need_fallback_drain = landed
 mir_call_extern_result_origin_plan_drain = landed
 mir_call_extern_string_route_specs = landed
