@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md"
-latest_card_summary = """The task-order cleanup lane and boxed-sum / C-shim
-fact-owner drains are closed enough to stop and select the next semantic
-converter slice deliberately. The active task-order SSOT records landed
-evidence and parked cleanup lanes; implementation must not continue until the
-next owner is selected."""
+latest_card = "REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1660-REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001.md"
+latest_card_summary = """The next semantic converter owner is the RegionObserver
+slot classifier. The remaining policy owner is not the shared emitter but the
+RegionObserver family spec; classifier decisions must come from live Rust
+source facts, lower through ClassifierDecisionFactsV1, and render via the
+existing ClassifyEnumVariants operation."""
 
-current_blocker_token = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
+current_blocker_token = "REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -19,11 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
+  REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001
 
 current implementation task:
-  Select the next semantic converter slice after the boxed-sum / C-shim
-  fact-owner drains.
+  Move RegionObserver slot classification policy from family spec data to live
+  Rust classifier facts.
 
 producer responsibility stack:
   Source preparation
@@ -33,10 +33,10 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  pending next-owner selection
+  Region::classify_ref_kind and classify_slot_name_only
 
 selected lowering:
-  pending next-owner selection
+  ClassifierDecisionFactsV1 -> existing ClassifyEnumVariants
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -52,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  pending next-owner selection after boxed-sum / C-shim fact-owner drains
+  REGION-SLOT-CLASSIFIER-LIVE-FACT-OWNER-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -166,10 +166,10 @@ history, not in this task-order SSOT.
    non_authority=C prepass reconstruction from callee spelling
 
 3. Slot classifier policy
-   status=parked
-   boundary=classification table comes from verified operation data
+   status=selected
+   boundary=classification table comes from live Rust classifier facts
    semantic_authority=live Rust facts -> structured operation
-   non_authority=emitter-owned MirType/name policy
+   non_authority=family spec / emitter-owned MirType-name policy
 ```
 
 ## Landed Converter Capability Summary
