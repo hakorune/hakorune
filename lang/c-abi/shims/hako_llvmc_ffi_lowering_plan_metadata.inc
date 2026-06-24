@@ -661,6 +661,13 @@
                !strcmp(view->receiver_origin_box, "StringBox");
       }
 
+      auto int lowering_plan_generic_method_view_value_origin_is_string(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->value_origin_box &&
+               !strcmp(view->value_origin_box, "StringBox");
+      }
+
       auto int read_lowering_plan_extern_call_view(
           yyjson_val* entry,
           struct LoweringPlanExternCallView* out) {

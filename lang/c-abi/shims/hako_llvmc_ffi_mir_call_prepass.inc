@@ -28,11 +28,9 @@
           long long bid,
           size_t ii) {
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
-        const char* source = entry ? read_str(entry, "source") : NULL;
-        const char* value_origin_box = NULL;
-        if (!(source && !strcmp(source, "generic_method_routes"))) return 0;
-        value_origin_box = read_str(entry, "value_origin_box");
-        return value_origin_box && !strcmp(value_origin_box, "StringBox");
+        struct LoweringPlanGenericMethodView view;
+        if (!read_lowering_plan_generic_method_view(entry, &view)) return 0;
+        return lowering_plan_generic_method_view_value_origin_is_string(&view);
       }
 
       auto void mark_user_box_method_result_from_lowering_plan(
