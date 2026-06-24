@@ -759,6 +759,18 @@
         set_scan_origin(dst, origin_kind);
       }
 
+      auto void mark_extern_call_result_origin_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst) {
+        yyjson_val* entry = NULL;
+        struct LoweringPlanExternCallView view;
+        if (!dst) return;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!read_lowering_plan_extern_call_view(entry, &view)) return;
+        mark_extern_call_result_origin_from_view(&view, dst);
+      }
+
       auto int lowering_plan_extern_call_view_returns_scalar_i64(
           const struct LoweringPlanExternCallView* view) {
         return view &&
@@ -1105,6 +1117,19 @@
         }
       }
 
+      auto void mark_user_box_method_result_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst) {
+        yyjson_val* entry = NULL;
+        struct LoweringPlanUserBoxMethodView view;
+        if (!dst) return;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!read_lowering_plan_user_box_method_view(entry, &view)) return;
+        if (!lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(&view)) return;
+        mark_user_box_method_result_origin_from_view(&view, dst);
+      }
+
       auto int lowering_plan_global_call_view_matches_runtime_route(
           const struct LoweringPlanGlobalCallView* view,
           const char* route_kind,
@@ -1174,6 +1199,18 @@
         if (origin_kind == ORG_NONE) return;
         set_scan_origin(dst, origin_kind);
         set_origin(dst, origin_kind);
+      }
+
+      auto void mark_global_call_result_origin_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst) {
+        yyjson_val* entry = NULL;
+        struct LoweringPlanGlobalCallView view;
+        if (!dst) return;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        if (!read_lowering_plan_global_call_view(entry, &view)) return;
+        mark_global_call_result_origin_from_view(&view, dst);
       }
 
       auto int lowering_plan_global_call_view_arg0_origin_is_string(
