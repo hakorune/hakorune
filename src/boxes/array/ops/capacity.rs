@@ -37,7 +37,7 @@ impl ArrayBox {
                         }
                     }
                 }
-                ArrayStorage::InlineI64(inline) => {
+                ArrayStorage::InlineI64(_) => {
                     // Already InlineI64 — direct push
                     // (items is borrowed immutably above, need re-borrow)
                 }
