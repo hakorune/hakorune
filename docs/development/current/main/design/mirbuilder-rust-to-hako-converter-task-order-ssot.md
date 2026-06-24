@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-24
+Date: 2026-06-25
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -19,10 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001
+  NEXT-MIRBUILDER-SELFHOST-EXECUTION-OWNER-DESIGN-STOP
 
 current implementation task:
-  Closeout complete; select the next Rust-to-Hako semantic owner.
+  Stop for next-owner design selection after closing same-module scalar-counter
+  helper execution.
 
 producer responsibility stack:
   Source preparation
@@ -32,40 +33,42 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  Option<i64>::None / Option<i64>::Some boxed-sum VariantMake sites
+  next source slice not selected yet
 
 selected lowering:
-  BoxedSumVariantMakeSiteFacts -> BoxedSumAbiPlan -> ValueRepresentationFact
+  pending design selection
 
 landed evidence:
+  Same-module scalar-counter helper execution is green for CoreContextApi
+  next_binding / next_temp_slot / next_debug_join through GlobalCallRoute plus
+  SameModuleDefinitionPlan.
   Borrow read-fold owned-map merge is green and uses ValueIdOrderedMapBox for
   ValueId/i64 keys. OrderedMapBox remains String-key only.
 
 selected next owner:
-  next semantic owner selection pending
+  design stop before NEWTYPE-ID-GENERATOR-SCALARIZATION-001
 
 current fail-fast boundary:
-  payload_type is an instantiation hint, not backend proof. Runtime payload
-  storage comes from boxed_sum_abi_plan_id + tag -> plan variant row, and
-  actual operand presence comes from has_payload / payload existence.
+  same-module object-return helpers remain parked. Do not open ArrayBox /
+  MapBox / string return expansion inside the scalar-counter closeout.
 
 latest design decision:
-  Do not erase payload_type for unit variants. Normalize it away from runtime
-  payload storage by resolving a site fact that separates hint, presence, plan,
-  and storage.
+  Choose same-module scalar helper execution before adding more standalone
+  converter artifacts.
 
 forbidden:
-  Option-name backend branches; payload_type backend proof; raw payload-reg
-  truthiness; OrderedMapBox i64-key use; runtime fallback
+  callee-name C branches; CoreContext-specific backend branches; neighboring
+  instruction scans for route discovery; extern fallback; new route kind; new
+  canonical MIR instruction; runtime fallback
 ```
 
 Recent acceptance evidence:
 
 ```text
-Borrow read-fold owned-map merge focused guard green
-ValueIdOrderedMapBox introduced for ValueId/i64 ordered storage
-no-silent-hardcode guard green for read-fold slice
-MetadataContext region-parent EXE/AOT green
+same_module_scalar_counter_routes=green
+same_module_scalar_counter_definitions=green
+CoreContext scalar-counter EXE/AOT green
+same-module object-return helpers parked
 task-order remains under 800 lines
 ```
 
@@ -75,7 +78,7 @@ Current mechanical status:
 borrow_read_fold_owned_map_merge = landed
 boxed_sum_variant_make_site_fact_normalization = landed
 metadata_context_region_parent_backend = green
-next_semantic_owner_selection = pending
+same_module_uniform_mir_scalar_counter_emitter = landed
 ```
 
 ## Active Next 3
@@ -84,23 +87,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Boxed-sum VariantMake site fact normalization
+1. Same-module uniform MIR scalar-counter emitter
    status=landed
-   boundary=payload hint / operand presence / ABI plan / storage split
-   semantic_authority=BoxedSumVariantMakeSiteFacts + BoxedSumAbiPlan
-   non_authority=payload_type spelling or Option-name backend branch
+   boundary=planned scalar state helper definitions only
+   semantic_authority=GlobalCallRoute + SameModuleDefinitionPlan
+   non_authority=callee-name C branch
 
-2. MetadataContext region-parent AOT reopen
-   status=landed
-   boundary=current_parent_region Option<i64> returns
-   semantic_authority=boxed-sum site facts and value representation facts
-   non_authority=C shim special case
+2. Newtype ID generator scalarization
+   status=design stop; next-owner consultation before implementation
+   boundary=ValueId / BasicBlockId generator next and peek
+   semantic_authority=generator state facts + nominal i64 transport
+   non_authority=generator object runtime identity
 
-3. Same-module uniform MIR emitter capability
-   status=parked
-   boundary=CoreContextApi.next_binding missing_multi_function_emitter
-   semantic_authority=same_module_definition_plan + lowering-plan view
-   non_authority=callee-name C shim branch
+3. MirBuilder derived context bundle v1
+   status=parked until ID generators are green
+   boundary=compose accepted context families without mainline selection
+   semantic_authority=artifact manifests + explicit bundle membership
+   non_authority=bundle size as semantic coverage proof
 ```
 
 ## Landed Converter Capability Summary

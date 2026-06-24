@@ -48,7 +48,8 @@ static box MetadataContextApi {
 
 static box MetadataContextHarnessApi {
     prefill_value_caller(ctx, value_id, caller): i64 {
-        return ctx.value_origin_callers.set(value_id, caller)
+        ctx.value_origin_callers.set(value_id, caller)
+        return 1
     }
 }
 

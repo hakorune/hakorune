@@ -42,7 +42,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/metadata_context_value_caller.hako",
-    "hako_sha256": "d02ed118ac6018b18a6d75b664455abd0efe6c3768b43b47556dc33f9fdb6c1b"
+    "hako_sha256": "07bec3b3153a7002e0ed44701945a88362b8765009e254249d185914f6b19a69"
   },
   "pilot_scope": "MetadataContext_value_caller_and_origin_fold_only",
   "schema_version": 0,

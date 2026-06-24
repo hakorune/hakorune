@@ -46,6 +46,67 @@ PY
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
 
 ./target/release/hakorune --emit-mir-json /tmp/hako_core_context_artifact.mir.json "$ARTIFACT" >/tmp/hako_core_context_artifact.mir.log 2>&1
+python3 - <<'PY'
+import json
+from pathlib import Path
+
+mir = json.loads(Path("/tmp/hako_core_context_artifact.mir.json").read_text())
+main = next((fn for fn in mir.get("functions", []) if fn.get("name") == "main"), None)
+if main is None:
+    raise SystemExit("missing main function in core_context MIR")
+
+metadata = main.get("metadata") or {}
+routes = [
+    route
+    for route in metadata.get("global_call_routes", [])
+    if str(route.get("callee_name", "")).startswith("CoreContextApi.")
+]
+if not routes:
+    raise SystemExit("missing CoreContextApi global-call routes")
+
+required = {
+    "CoreContextApi.next_binding/1",
+    "CoreContextApi.next_temp_slot/1",
+    "CoreContextApi.next_debug_join/1",
+}
+seen = {route.get("callee_name") for route in routes}
+missing = required - seen
+if missing:
+    raise SystemExit(f"missing CoreContextApi routes: {sorted(missing)}")
+
+for route in routes:
+    callee = route.get("callee_name")
+    if route.get("reason") is not None:
+        raise SystemExit(f"{callee}: expected direct route, got reason={route.get('reason')}")
+    expected = {
+        "tier": "DirectAbi",
+        "emit_kind": "direct_function_call",
+        "return_shape": "ScalarI64",
+        "value_demand": "scalar_i64",
+        "definition_owner": "uniform_mir",
+        "proof": "typed_global_call_same_module_scalar_i64",
+    }
+    for key, value in expected.items():
+        if route.get(key) != value:
+            raise SystemExit(f"{callee}: expected {key}={value}, got {route.get(key)}")
+
+definitions = (
+    metadata.get("same_module_definition_plans")
+    or metadata.get("same_module_function_definitions")
+    or []
+)
+definition_symbols = {row.get("target_symbol") for row in definitions}
+missing_definitions = required - definition_symbols
+if missing_definitions:
+    raise SystemExit(f"missing same-module definitions: {sorted(missing_definitions)}")
+
+for row in definitions:
+    if row.get("target_symbol") in required:
+        if row.get("definition_kind") != "same_module_function":
+            raise SystemExit(f"{row.get('target_symbol')}: unexpected definition_kind={row.get('definition_kind')}")
+        if row.get("definition_owner") != "uniform_mir":
+            raise SystemExit(f"{row.get('target_symbol')}: unexpected definition_owner={row.get('definition_owner')}")
+PY
 ./target/release/hakorune --emit-exe "$EXE" "$ARTIFACT" >/tmp/hako_core_context_artifact.build.log 2>&1
 "$EXE" >"$RAW" 2>/tmp/hako_core_context_artifact.err
 sed '/^Result: /d' "$RAW" >"$OUT"
@@ -65,6 +126,8 @@ artifact_manifest_checked_in=1
 deterministic_regeneration=green
 generated_hako_parse=green
 generated_hako_mir_emit=green
+same_module_scalar_counter_routes=green
+same_module_scalar_counter_definitions=green
 generated_hako_exe_aot=green
 core_context_full_claim=0
 mirbuilder_wide_claim=0

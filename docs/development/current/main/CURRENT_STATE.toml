@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-24"
+date = "2026-06-25"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1676-BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001.md"
-latest_card_summary = """Boxed-sum VariantMake site facts are normalized:
-payload_type remains an instantiation hint, actual payload presence is read
-from has_payload / operands, runtime storage comes from boxed_sum_abi_plan_id
-+ tag, and MetadataContext region-parent generated Hako is AOT green. The next
-blocker is selecting the next Rust-to-Hako semantic owner."""
+latest_card = "SAME-MODULE-UNIFORM-MIR-SCALAR-COUNTER-EMITTER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1677-SAME-MODULE-UNIFORM-MIR-SCALAR-COUNTER-EMITTER-001.md"
+latest_card_summary = """Same-module scalar-counter helper execution is green:
+CoreContextApi next_binding / next_temp_slot / next_debug_join now route through
+GlobalCallRoute plus SameModuleDefinitionPlan as DirectAbi scalar-i64 planned
+definitions. Same-module object-return helpers remain parked; the next blocker
+is a design stop before selecting the next MirBuilder selfhost execution owner."""
 
-current_blocker_token = "BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001"
+current_blocker_token = "NEXT-MIRBUILDER-SELFHOST-EXECUTION-OWNER-DESIGN-STOP"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

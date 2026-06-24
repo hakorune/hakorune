@@ -516,8 +516,13 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         storage = operation.get("storage")
         if storage is None:
             raise ValueError("MapSet requires explicit storage")
-        if storage in {"MapBox", "OrderedMapBox", "ValueIdOrderedMapBox"}:
-            return [f"return {source}.set({operation['key']}, {operation['value']})"]
+        if storage == "OrderedMapBox":
+            return _render_ordered_map_set(operation)
+        if storage in {"MapBox", "ValueIdOrderedMapBox"}:
+            return [
+                f"{source}.set({operation['key']}, {operation['value']})",
+                "return 1",
+            ]
         raise ValueError(f"unsupported MapSet storage: {storage}")
     if kind == "ForEachMapEntry":
         return _render_for_each_map_entry(operation)

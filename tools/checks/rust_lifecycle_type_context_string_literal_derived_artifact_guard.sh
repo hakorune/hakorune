@@ -15,6 +15,7 @@ python3 "$GENERATOR" --check
 
 python3 - <<'PY'
 import json
+import re
 from pathlib import Path
 
 manifest = json.loads(Path("lang/generated/rust_derived/hakorune_mir_builder/type_context_string_literal.artifact.json").read_text())
@@ -38,7 +39,7 @@ assert borrow_use["TypeContext::string_literals.get_cloned"]["consumer_kind"] ==
 assert borrow_use["TypeContext::string_literals.get_cloned"]["escapes"] is False
 assert borrow_use["TypeContext::string_literals.get_cloned"]["order"] == "Unobserved"
 assert "string_literal(ctx, value_id): Option<StringBox>" in hako
-assert "return ctx.string_literals" not in hako
+assert not re.search(r"\breturn\s+ctx\.string_literals\s*(?:\n|$)", hako)
 assert "emit_string" not in hako
 assert "TODO" not in hako
 PY

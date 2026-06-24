@@ -69,7 +69,7 @@ def compile_ordered_map_family_methods(
         HakoMethodIR("len(ctx): i64", [op("MapLength", field=field_name)]),
         HakoMethodIR("contains(ctx, name): i64", [op("MapHas", field=field_name, key="name")]),
         HakoMethodIR("lookup(ctx, name)", [op("MapGet", field=field_name, key="name")]),
-        HakoMethodIR(f"insert(ctx, name, {value_arg}): i64", [op("MapSet", field=field_name, key="name", value=value_arg), op("ReturnI64", return_value=0)]),
+        HakoMethodIR(f"insert(ctx, name, {value_arg}): i64", [op("MapSet", field=field_name, key="name", value=value_arg, storage="OrderedMapBox"), op("ReturnI64", return_value=0)]),
         HakoMethodIR("remove(ctx, name)", [op("MapRemove", field=field_name, key="name")]),
     ]
     if include_clear:

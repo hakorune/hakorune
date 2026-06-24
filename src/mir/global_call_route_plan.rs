@@ -7,7 +7,8 @@
  */
 
 use super::{
-    BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType,
+    ValueId,
 };
 use crate::mir::generic_method_route_facts::receiver_origin_box_name;
 use crate::mir::value_origin::build_value_def_map;
@@ -409,25 +410,84 @@ fn infer_same_module_static_helper_return_contract(
                 MirInstruction::VariantMake { dst, .. } => {
                     result_contracts.insert(*dst, GlobalCallReturnContract::ObjectHandle);
                 }
-                MirInstruction::Return { value } => {
-                    let contract = match value {
-                        Some(value) => same_module_static_helper_value_contract(
-                            *value,
-                            typed_plan_type_ids,
-                            &copy_sources,
-                            &result_contracts,
-                            &function.metadata.value_types,
-                        ),
-                        None => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
-                    };
-                    inferred = merge_same_module_static_helper_contract(inferred, contract)?;
-                }
                 _ => {}
             }
         }
     }
 
+    for _ in 0..32 {
+        let mut changed = false;
+        for block in function.blocks.values() {
+            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+                let MirInstruction::Phi { dst, inputs, .. } = instruction else {
+                    continue;
+                };
+                if result_contracts.contains_key(dst) {
+                    continue;
+                }
+                let Some(contract) = same_module_static_helper_phi_contract(
+                    inputs,
+                    typed_plan_type_ids,
+                    &copy_sources,
+                    &result_contracts,
+                    &function.metadata.value_types,
+                )?
+                else {
+                    continue;
+                };
+                result_contracts.insert(*dst, contract);
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            let MirInstruction::Return { value } = instruction else {
+                continue;
+            };
+            let contract = match value {
+                Some(value) => same_module_static_helper_value_contract(
+                    *value,
+                    typed_plan_type_ids,
+                    &copy_sources,
+                    &result_contracts,
+                    &function.metadata.value_types,
+                ),
+                None => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+            };
+            inferred = merge_same_module_static_helper_contract(inferred, contract)?;
+        }
+    }
+
     inferred.map(|contract| (same_module_static_helper_contract_proof(contract), contract))
+}
+
+fn same_module_static_helper_phi_contract(
+    inputs: &[(BasicBlockId, ValueId)],
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+    copy_sources: &BTreeMap<ValueId, ValueId>,
+    result_contracts: &BTreeMap<ValueId, GlobalCallReturnContract>,
+    value_types: &BTreeMap<ValueId, MirType>,
+) -> Option<Option<GlobalCallReturnContract>> {
+    let mut out = None;
+    for (_, input) in inputs {
+        let input_contract = same_module_static_helper_value_contract(
+            *input,
+            typed_plan_type_ids,
+            copy_sources,
+            result_contracts,
+            value_types,
+        );
+        if input_contract.is_none() {
+            return Some(None);
+        }
+        out = merge_same_module_static_helper_contract(out, input_contract)?;
+    }
+    Some(out)
 }
 
 fn same_module_static_helper_return_type_contract(
