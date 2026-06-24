@@ -156,7 +156,7 @@ impl MirInterpreter {
                 callee,
                 args,
                 ..
-            } => self.handle_call(*dst, *func, callee.as_ref(), args)?,
+            } => self.handle_call(*dst, *func, callee.as_ref(), args, None, None)?,
             MirInstruction::Debug { message, value } => {
                 self.handle_debug(message, *value)?;
             }

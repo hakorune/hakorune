@@ -120,7 +120,7 @@ impl MirInterpreter {
                         callee,
                         args,
                         ..
-                    } => self.handle_call(*dst, *func, callee.as_ref(), args)?,
+                    } => self.handle_call(*dst, *func, callee.as_ref(), args, Some(block.id), Some(instruction_index))?,
                     _ => self.execute_instruction(inst)?,
                 }
             }
