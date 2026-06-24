@@ -11,7 +11,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
         generic_route_fixture::runtime_data_map_get_scalar_i64_same_key(9, 5, 16, 17, 18),
         generic_route_fixture::string_substring(11, 7, 21, 24),
         generic_route_fixture::map_len(10, 6, 19, 20),
-        generic_route_fixture::array_push(12, 8, 25, 27),
+        generic_route_fixture::array_push_string_value(12, 8, 25, 27),
         generic_route_fixture::map_set_i64_key(13, 9, 28, 29, 31),
         generic_route_fixture::map_get_unknown_key(14, 10, 32, 33, 34),
         generic_route_fixture::array_get_i64_key(15, 11, 35, 36, 37),
@@ -201,6 +201,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(push_route["box_name"], "ArrayBox");
     assert_eq!(push_route["method"], "push");
     assert_eq!(push_route["receiver_origin_box"], "ArrayBox");
+    assert_eq!(push_route["value_origin_box"], "StringBox");
     assert_eq!(push_route["key_route"], serde_json::Value::Null);
     assert_eq!(push_route["arity"], 1);
     assert_eq!(push_route["receiver_value"], 25);
@@ -216,6 +217,11 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(push_route["value_demand"], "write_any");
     assert_eq!(push_route["publication_policy"], "no_publication");
     assert_eq!(push_route["effects"], serde_json::json!(["mutate.shape"]));
+    let push_plan = lowering_plan
+        .iter()
+        .find(|entry| entry["site"] == "b12.i8")
+        .expect("push lowering plan");
+    assert_eq!(push_plan["value_origin_box"], "StringBox");
 
     let set_route = &root["functions"][0]["metadata"]["generic_method_routes"][6];
     assert_eq!(set_route["route_id"], "generic_method.set");

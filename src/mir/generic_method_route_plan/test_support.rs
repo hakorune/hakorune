@@ -331,6 +331,30 @@ pub(crate) fn array_push(
     })
 }
 
+pub(crate) fn array_push_string_value(
+    block: u32,
+    instruction_index: usize,
+    receiver: u32,
+    result: u32,
+) -> GenericMethodRoute {
+    GenericMethodRoute::new(
+        site(block, instruction_index),
+        GenericMethodRouteSurface::new("ArrayBox", "push", 1),
+        evidence(Some("ArrayBox"), None)
+            .with_value_origin_box(Some("StringBox".to_string())),
+        operands(receiver, None, result),
+        decision(
+            GenericMethodRouteKind::ArrayAppendAny,
+            GenericMethodRouteProof::PushSurfacePolicy,
+            CoreMethodOp::ArrayPush,
+            CoreMethodLoweringTier::ColdFallback,
+            Some(GenericMethodReturnShape::ScalarI64),
+            GenericMethodValueDemand::WriteAny,
+            Some(GenericMethodPublicationPolicy::NoPublication),
+        ),
+    )
+}
+
 pub(crate) fn map_set_i64_key(
     block: u32,
     instruction_index: usize,

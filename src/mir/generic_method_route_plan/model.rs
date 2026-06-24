@@ -184,6 +184,7 @@ pub(crate) struct GenericMethodRouteEvidence {
     key_route: Option<GenericMethodKeyRoute>,
     key_const_text: Option<String>,
     result_origin_box: Option<String>,
+    value_origin_box: Option<String>,
 }
 
 impl GenericMethodRouteEvidence {
@@ -196,6 +197,7 @@ impl GenericMethodRouteEvidence {
             key_route,
             key_const_text: None,
             result_origin_box: None,
+            value_origin_box: None,
         }
     }
 
@@ -206,6 +208,11 @@ impl GenericMethodRouteEvidence {
 
     pub(crate) fn with_result_origin_box(mut self, box_name: Option<String>) -> Self {
         self.result_origin_box = box_name;
+        self
+    }
+
+    pub(crate) fn with_value_origin_box(mut self, box_name: Option<String>) -> Self {
+        self.value_origin_box = box_name;
         self
     }
 }
@@ -353,6 +360,10 @@ impl GenericMethodRoute {
 
     pub fn result_origin_box(&self) -> Option<&str> {
         self.evidence.result_origin_box.as_deref()
+    }
+
+    pub fn value_origin_box(&self) -> Option<&str> {
+        self.evidence.value_origin_box.as_deref()
     }
 
     pub(crate) fn override_result_origin_box(&mut self, box_name: String) {

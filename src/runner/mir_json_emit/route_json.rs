@@ -47,6 +47,7 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
                 "receiver_value": route.receiver_value().as_u32(),
                 "receiver_origin_box": route.receiver_origin_box(),
                 "result_origin_box": route.result_origin_box(),
+                "value_origin_box": route.value_origin_box(),
                 "arity": route.arity(),
                 "key_route": route.key_route().map(|key_route| key_route.to_string()),
                 "key_const_text": route.key_const_text(),

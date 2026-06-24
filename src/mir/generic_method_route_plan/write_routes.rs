@@ -51,6 +51,8 @@ pub(super) fn match_generic_push_route(
     if !matches!(box_name.as_str(), "Box") && receiver_origin_box.as_deref() != Some("ArrayBox") {
         return None;
     }
+    let value_arg = if args.len() == 2 { args[1] } else { args[0] };
+    let value_origin_box = receiver_origin_box_name(function, def_map, value_arg);
     if args.len() == 2 {
         let receiver_arg_origin_box =
             receiver_origin_box_name(function, def_map, args[0]).or_else(|| {
@@ -70,7 +72,8 @@ pub(super) fn match_generic_push_route(
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
-        GenericMethodRouteEvidence::new(receiver_origin_box, None),
+        GenericMethodRouteEvidence::new(receiver_origin_box, None)
+            .with_value_origin_box(value_origin_box),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::ArrayAppendAny,
@@ -141,10 +144,13 @@ pub(super) fn match_generic_set_route(
         _ => return None,
     };
 
+    let value_origin_box = receiver_origin_box_name(function, def_map, args[1]);
+
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 2),
-        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
+        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+            .with_value_origin_box(value_origin_box),
         GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
         GenericMethodRouteDecision::new(
             route_kind,
