@@ -30,6 +30,13 @@ use crate::config::env::HostHandleAllocPolicyMode;
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;
 
+/// Initial dense-slot capacity for the host handle table.
+/// String-heavy kernels allocate/drop many transient handles; start denser to
+/// reduce growth realloc spikes on hot paths. (128 Ki slots.)
+const HOST_HANDLE_INITIAL_SLOTS: usize = 128 * 1024;
+/// Initial capacity for the reusable handle free-list. (64 Ki entries.)
+const HOST_HANDLE_INITIAL_FREE: usize = 64 * 1024;
+
 #[derive(Clone)]
 struct LatestFreshStableBox {
     handle: u64,
@@ -161,16 +168,13 @@ impl Registry {
     fn new() -> Self {
         #[cfg(not(test))]
         let alloc_policy_mode = host_handles_policy::active_host_handle_alloc_policy_mode();
-        // Perf lane notes:
-        // string-heavy kernels allocate/drop many transient handles.
-        // Start denser to reduce growth realloc spikes on hot paths.
-        let mut slots = Vec::with_capacity(131072);
+        let mut slots = Vec::with_capacity(HOST_HANDLE_INITIAL_SLOTS);
         slots.push(None);
         Self {
             table: RwLock::new(SlotTable {
                 next: 1,
                 slots,
-                free: Vec::with_capacity(65536),
+                free: Vec::with_capacity(HOST_HANDLE_INITIAL_FREE),
             }),
             #[cfg(not(test))]
             alloc_policy_mode,
