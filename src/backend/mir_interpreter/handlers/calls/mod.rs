@@ -153,14 +153,10 @@ impl MirInterpreter {
             None => return Ok(false),
         };
         let plan = func.metadata.direct_array_access_plans.iter().find(|p| {
-            let m = p.block() == block
+            p.block() == block
                 && p.instruction_index() == instruction_index
                 && p.receiver_value() == recv_id
-                && p.array_kind() == "DirectArrayI64";
-            if !m {
-                    p.block(), block, p.instruction_index(), instruction_index, p.receiver_value(), recv_id, p.array_kind());
-            }
-            m
+                && p.array_kind() == "DirectArrayI64"
         });
         let plan = match plan {
             Some(p) => p,

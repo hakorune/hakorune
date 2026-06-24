@@ -24,6 +24,32 @@ impl ArrayBox {
         if matches!(&*items, ArrayStorage::InlineRecord(_)) {
             return -1;
         }
+        // F1: Auto-promote to InlineI64 when pushing an i64 value into
+        // an empty or InlineI64-compatible array. Avoids Boxed/visible method dispatch.
+        if let Some(val) = item.as_i64_fast() {
+            match &*items {
+                ArrayStorage::Boxed(existing) => {
+                    // Only promote if ALL existing elements are i64
+                    if existing.iter().all(|b| b.as_i64_fast().is_some()) {
+                        if let Some(inline) = Self::ensure_inline_i64(&mut items) {
+                            inline.push(val);
+                            return inline.len() as i64;
+                        }
+                    }
+                }
+                ArrayStorage::InlineI64(inline) => {
+                    // Already InlineI64 — direct push
+                    // (items is borrowed immutably above, need re-borrow)
+                }
+                _ => {}
+            }
+            // InlineI64 already — push directly
+            if let ArrayStorage::InlineI64(inline) = &mut *items {
+                inline.push(val);
+                return inline.len() as i64;
+            }
+        }
+        // Non-i64 value or mixed storage — ensure boxed
         let boxed = Self::ensure_boxed(&mut items);
         boxed.push(item);
         boxed.len() as i64
