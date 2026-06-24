@@ -265,14 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "BORROW-READ-FOLD-OWNED-MAP-MERGE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1675-BORROW-READ-FOLD-OWNED-MAP-MERGE-001.md"
-latest_card_summary = """The next Rust-to-Hako semantic converter owner is
-selected: promote MetadataContext value_origin_callers owned map merge into
-the direct `borrow.read_fold` rule. Details live in the selected phase card;
-implementation has not started."""
+latest_card = "BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1676-BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001.md"
+latest_card_summary = """The next Rust-to-Hako / backend ABI owner is
+selected: normalize boxed-sum VariantMake site facts so enum instantiation
+hints, actual payload presence, ABI plan identity, and runtime payload storage
+are separate. Details live in the selected phase card; implementation has not
+started."""
 
-current_blocker_token = "BORROW-READ-FOLD-OWNED-MAP-MERGE-001"
+current_blocker_token = "BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

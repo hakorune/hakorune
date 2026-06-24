@@ -19,11 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  BORROW-READ-FOLD-OWNED-MAP-MERGE-001
+  BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001
 
 current implementation task:
-  Promote MetadataContext value_origin_callers owned merge into
-  `borrow.read_fold` direct lowering.
+  Separate boxed-sum enum instantiation hints, actual payload presence, ABI
+  plan identity, and runtime payload storage for VariantMake sites.
 
 producer responsibility stack:
   Source preparation
@@ -33,119 +33,48 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  MirBuilder::finalize_module value_origin_callers owned merge
+  Option<i64>::None / Option<i64>::Some boxed-sum VariantMake sites
 
 selected lowering:
-  StorageAccessFacts + FoldSemantics -> ElideToReadFold -> ForEachMapEntry
+  BoxedSumVariantMakeSiteFacts -> BoxedSumAbiPlan -> ValueRepresentationFact
 
 landed evidence:
-  RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
-  stale NyRT fail-fast, generated route descriptors, route mismatch
-  diagnostics, generic read-fold decomposition, boxed-sum I64 payload ABI,
-  MetadataContext region-parent EXE/AOT acceptance, boxed-sum site metadata,
-  C shim payload_type fallback removal, boxed-sum const payload definition
-  indexing, boxed-sum lowering facade, variant binding fact owner drain, and
-  explicit boxed-sum value facts for same-module and generic-method results
-  plus MIR-call route policy legacy generic_method_routes fallback removal,
-  MIR-call need-name fallback auditing, object-storage plan name-inference
-  drain, exact-seed route quarantine, same-module definition edge plans, and
-  constructor birth LoweringPlan facts are landed.
+  Borrow read-fold owned-map merge is green and uses ValueIdOrderedMapBox for
+  ValueId/i64 keys. OrderedMapBox remains String-key only.
 
 selected next owner:
-  BORROW-READ-FOLD-OWNED-MAP-MERGE-001
-
-selected transport:
-  SlotMetadata / RefSlotKind output transport is selected:
-
-  - RefSlotKind is native enum; SlotMetadata is semantic OwnedProduct.
-  - Current transport is ArrayBox<SlotMetadataBox>; future transport may become
-    InlineRecord / packed / SoA without changing read-fold semantics.
+  BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001
 
 current fail-fast boundary:
-  no Option-name, MetadataContext-name, payload_type spelling, or raw i64
-  sign inference fallback. C shims may emit selected same-module helpers, but
-  must not discover selected fusion windows from neighboring instructions.
-  `__hako_sum_` box-name prefix may not be used as a new proof source.
+  payload_type is an instantiation hint, not backend proof. Runtime payload
+  storage comes from boxed_sum_abi_plan_id + tag -> plan variant row, and
+  actual operand presence comes from has_payload / payload existence.
 
 latest design decision:
-  Boxed-sum handle proof is explicit per-value representation metadata:
-
-  - semantic authority is ValueRepresentationFact::BoxedSumHandle { abi_plan_id }.
-  - variant_binding remains local tag/payload tracking only.
-  - `__hako_sum_` prefix, enum_name, box_type spelling, and raw i64 sign are
-    forbidden proofs.
+  Do not erase payload_type for unit variants. Normalize it away from runtime
+  payload storage by resolving a site fact that separates hint, presence, plan,
+  and storage.
 
 forbidden:
-  raw aggregate map return; read-view / lease framework; new Hako pointer
-  syntax; source-name hardcode; runtime fallback
-  generated-Hako source-shape workaround for runner MIR drift
-  i64 sign-based value classification
-  MapBox-only transport fixes that leave ArrayBox ambiguous
-  backend-local route descriptor copies
-  diagnostics that become a second route classifier
-  `ReadFoldSlotMetadata` compatibility renderer reintroduction
+  Option-name backend branches; payload_type backend proof; raw payload-reg
+  truthiness; OrderedMapBox i64-key use; runtime fallback
 ```
 
 Recent acceptance evidence:
 
 ```text
-TypeContext string literal artifact regenerates deterministically
-MapGetOption is reused; new operation kind = 0
-producer-side emit_string is harness-only prefill, not converted
-full map-value publication claim = 0
-MIR/EXE/LLVM-AOT focused guard green
-boxed I64 payload focused probe EXE/AOT green
-unit enum and handle-payload regressions green
-metadata_context_region_parent EXE/AOT focused guard green
+Borrow read-fold owned-map merge focused guard green
+ValueIdOrderedMapBox introduced for ValueId/i64 ordered storage
+no-silent-hardcode guard green for read-fold slice
+task-order remains under 800 lines
 ```
 
 Current mechanical status:
 
 ```text
-comparator proof = VmExeAotAccepted
-region_observer_slot_metadata = LLVM/AOT green
-boxed_runtime_v1_make_tag_project = landed
-boxed_enum_mapbox_option_roundtrip = landed
-boxed_sum_i64_payload_abi = landed
-metadata_context_region_parent_backend = landed
-same_module_typed_field_rmw_fusion_plan = landed
-same_module_result_capsule_reset_batch_plan = landed
-same_module_sum_handle_fact_owner = accepted
-explicit_boxed_sum_value_fact_same_module = landed
-generic_method_boxed_sum_result_fact = landed
-variant_binding_boxed_sum_plan_index = landed
-c_abi_shim_responsibility_inventory = landed
-mir_call_constructor_birth_fact_drain = landed
-mir_call_constructor_name_fallback_retired = landed
-global_call_direct_contract_descriptor_drain = landed
-mir_call_array_text_observer_need_drain = landed
-mir_call_generic_method_result_origin_and_get_policy_publish_drain = landed
-mir_call_generic_method_receiver_origin_drain = landed
-mir_call_array_string_birth_promotion_prepass_drain = landed
-mir_call_array_string_promotion_value_origin_drain = landed
-generic_method_emit_global_print_substring_arg0_and_value_origin_drain = landed
-mir_call_runtime_map_has_need_fallback_drain = landed
-mir_call_extern_result_origin_and_redundant_prepass_drain = landed
-mir_call_extern_string_route_specs = landed
-mir_call_extern_string_name_fallback_retired = landed
-mir_call_generic_method_emit_fallback_drain = landed
-generic_method_match_emit_fallback_drain = landed
-generic_method_legacy_route_scan_drain = landed
-mir_call_route_policy_drain = landed
-mir_call_prepass_fact_owner_drain = landed
-mir_call_need_name_fallback_audit = landed
-object_storage_plan_name_inference_drain = landed
-exact_seed_route_quarantine = landed
-same_module_definition_edge_plan = landed
-slot_classifier_policy = verified operation data
-collection_runtime_value_carrier = landed for MapBox and ArrayBox
-nyrt_freshness_fail_fast = landed for --no-build AOT harness
-generic_method_route_descriptor_ssot = landed for Rust/C/Python generated tables
-generic_method_route_mismatch_diagnostics = landed for first descriptor field
-generic_read_fold_operation_decomposition = landed
-type_context_string_literal_leaf_projection = landed
-task_hygiene_next3 = landed
-ordering SSOT = docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
+borrow_read_fold_owned_map_merge = landed
+boxed_sum_variant_make_site_fact_normalization = selected
+metadata_context_region_parent_backend = blocked on boxed_sum site storage
 ```
 
 ## Active Next 3
@@ -154,23 +83,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Borrow read-fold owned-map merge
+1. Boxed-sum VariantMake site fact normalization
    status=selected
-   boundary=HashMap read fold into cloned owned ordered map
-   semantic_authority=StorageAccessFacts + FoldSemantics
-   non_authority=Main-only MapReadFoldOwnedCopy renderer
+   boundary=payload hint / operand presence / ABI plan / storage split
+   semantic_authority=BoxedSumVariantMakeSiteFacts + BoxedSumAbiPlan
+   non_authority=payload_type spelling or Option-name backend branch
 
-2. Second live read-fold consumer parity
-   status=parked until first consumer green
-   boundary=finalize_function must normalize to the same shape
-   semantic_authority=the same borrow.read_fold rule
-   non_authority=family-specific second lowerer
+2. MetadataContext region-parent AOT reopen
+   status=parked until VariantMake site facts green
+   boundary=current_parent_region Option<i64> returns
+   semantic_authority=boxed-sum site facts and value representation facts
+   non_authority=C shim special case
 
-3. Crate-level partial bundle
+3. Same-module uniform MIR emitter capability
    status=parked
-   boundary=after semantic shape coverage reaches an adoption checkpoint
-   semantic_authority=derived-to-native adoption policy
-   non_authority=bundle count as conversion proof
+   boundary=CoreContextApi.next_binding missing_multi_function_emitter
+   semantic_authority=same_module_definition_plan + lowering-plan view
+   non_authority=callee-name C shim branch
 ```
 
 ## Landed Converter Capability Summary
@@ -250,7 +179,7 @@ The active rule table uses shape names, not family names.
 | `control.multi_carrier_exit_phi` | `ExplicitMultiExitPhiI64Array`, `ReturnSource` | landed |
 | `map.immutable_leaf_projection` | `MapGetOption` | active |
 | `borrow_use.sequence_last_copy` | `SequenceLastOption` | landed |
-| `borrow.read_fold` | map/sequence fold into owned output | queued |
+| `borrow.read_fold` | map/sequence fold into owned output | landed |
 
 Do not create rules like `type_context.value_kind_map_context`; that is a
 family-specific hardcode table under another name.
