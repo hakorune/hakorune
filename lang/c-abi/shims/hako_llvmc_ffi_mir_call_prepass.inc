@@ -111,7 +111,6 @@
         yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
         const char* ctype = cal ? read_str(cal, "type") : NULL;
         const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-        const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
         yyjson_val* site_plan_entry = find_lowering_plan_entry_for_site(bid, ii);
 
         (void)blocks;
@@ -191,17 +190,4 @@
           return;
         }
 
-        if (ctype && !strcmp(ctype, "Extern") && mname) {
-          enum MirCallNeedKind need_kind =
-              classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
-          apply_mir_call_need_kind(needs, need_kind);
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT &&
-              read_int(ins, "dst")) {
-            set_scan_origin(read_int(ins, "dst"), ORG_STRING);
-          }
-          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ENV_GET &&
-              read_int(ins, "dst")) {
-            set_scan_origin(read_int(ins, "dst"), ORG_STRING);
-          }
-        }
       }
