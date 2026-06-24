@@ -5,6 +5,8 @@
 
       struct HakoLlvmcGlobalCallProofRegistryRow {
         const char* proof;
+        const char* result_origin;
+        int origin_kind;
       };
 
       struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow {
@@ -18,38 +20,53 @@
 
       static const struct HakoLlvmcGlobalCallProofRegistryRow
           hako_llvmc_global_call_proof_registry_rows[] = {
-              {"typed_global_call_contract_missing"},
-              {"typed_global_call_leaf_numeric_i64"},
-              {"typed_global_call_generic_pure_string"},
-              {"typed_global_call_generic_string_or_void_sentinel"},
-              {"typed_global_call_generic_string_void_logging"},
-              {"typed_global_call_generic_i64"},
-              {"typed_global_call_parser_program_json"},
-              {"typed_global_call_stage1_emit_program_json"},
-              {"typed_global_call_static_string_array"},
-              {"typed_global_call_mir_schema_map_constructor"},
-              {"typed_global_call_box_type_inspector_describe"},
-              {"typed_global_call_pattern_util_local_value_probe"},
-              {"typed_global_call_same_module_object_handle"},
-              {"typed_global_call_same_module_scalar_i64"},
-              {"typed_global_call_same_module_void_sentinel"},
-              {"typed_global_call_same_module_mixed_runtime"},
-              {"typed_global_call_void_side_effect"},
+              {"typed_global_call_contract_missing", "none", ORG_NONE},
+              {"typed_global_call_leaf_numeric_i64", "none", ORG_NONE},
+              {"typed_global_call_generic_pure_string", "string", ORG_STRING},
+              {"typed_global_call_generic_string_or_void_sentinel", "string", ORG_STRING},
+              {"typed_global_call_generic_string_void_logging", "none", ORG_NONE},
+              {"typed_global_call_generic_i64", "none", ORG_NONE},
+              {"typed_global_call_parser_program_json", "string", ORG_STRING},
+              {"typed_global_call_stage1_emit_program_json", "string", ORG_STRING},
+              {"typed_global_call_static_string_array", "array_string_birth", ORG_ARRAY_STRING_BIRTH},
+              {"typed_global_call_mir_schema_map_constructor", "map_birth", ORG_MAP_BIRTH},
+              {"typed_global_call_box_type_inspector_describe", "map_birth", ORG_MAP_BIRTH},
+              {"typed_global_call_pattern_util_local_value_probe", "none", ORG_NONE},
+              {"typed_global_call_same_module_object_handle", "none", ORG_NONE},
+              {"typed_global_call_same_module_scalar_i64", "none", ORG_NONE},
+              {"typed_global_call_same_module_void_sentinel", "none", ORG_NONE},
+              {"typed_global_call_same_module_mixed_runtime", "none", ORG_NONE},
+              {"typed_global_call_void_side_effect", "none", ORG_NONE},
           };
 
-      auto int hako_llvmc_global_call_proof_registry_contains(
-          const char* proof) {
+      auto const struct HakoLlvmcGlobalCallProofRegistryRow*
+      hako_llvmc_global_call_proof_registry_find(const char* proof) {
         size_t i = 0;
-        if (!proof) return 0;
+        if (!proof) return NULL;
         for (i = 0;
              i < sizeof(hako_llvmc_global_call_proof_registry_rows) /
                      sizeof(hako_llvmc_global_call_proof_registry_rows[0]);
              i++) {
           const struct HakoLlvmcGlobalCallProofRegistryRow* row =
               &hako_llvmc_global_call_proof_registry_rows[i];
-          if (row->proof && !strcmp(row->proof, proof)) return 1;
+          if (row->proof && !strcmp(row->proof, proof)) return row;
         }
-        return 0;
+        return NULL;
+      }
+
+      auto int hako_llvmc_global_call_proof_registry_contains(
+          const char* proof) {
+        return hako_llvmc_global_call_proof_registry_find(proof) != NULL;
+      }
+
+      auto int hako_llvmc_global_call_proof_registry_result_origin_kind(
+          const char* proof,
+          const char* result_origin) {
+        const struct HakoLlvmcGlobalCallProofRegistryRow* row =
+            hako_llvmc_global_call_proof_registry_find(proof);
+        if (!(row && row->result_origin && result_origin)) return ORG_NONE;
+        if (strcmp(row->result_origin, result_origin)) return ORG_NONE;
+        return row->origin_kind;
       }
 
       static const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow

@@ -1173,18 +1173,9 @@
 
       auto int lowering_plan_global_call_view_result_origin_kind(
           const struct LoweringPlanGlobalCallView* view) {
-        if (!(view && view->result_origin)) return ORG_NONE;
-        if (!strcmp(view->result_origin, "none")) return ORG_NONE;
-        if (!strcmp(view->result_origin, "string")) {
-          return ORG_STRING;
-        }
-        if (!strcmp(view->result_origin, "array_string_birth")) {
-          return ORG_ARRAY_STRING_BIRTH;
-        }
-        if (!strcmp(view->result_origin, "map_birth")) {
-          return ORG_MAP_BIRTH;
-        }
-        return ORG_NONE;
+        if (!(view && view->proof && view->result_origin)) return ORG_NONE;
+        return hako_llvmc_global_call_proof_registry_result_origin_kind(
+            view->proof, view->result_origin);
       }
 
       auto void mark_global_call_result_origin_from_view(
