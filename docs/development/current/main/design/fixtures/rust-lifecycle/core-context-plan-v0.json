@@ -6,24 +6,6 @@
     "nightly_rustc_adapter": false,
     "runtime_fallback": false
   },
-  "denied": [
-    {
-      "deny_reason": "GeneratorObjectTransportDeferred",
-      "id": "CoreContext::next_value"
-    },
-    {
-      "deny_reason": "GeneratorObjectTransportDeferred",
-      "id": "CoreContext::next_block"
-    },
-    {
-      "deny_reason": "GeneratorObjectTransportDeferred",
-      "id": "CoreContext::peek_next_value"
-    },
-    {
-      "deny_reason": "GeneratorObjectTransportDeferred",
-      "id": "CoreContext::peek_next_block"
-    }
-  ],
   "kind": "HakoLifecyclePlan",
   "plans": [
     {
@@ -71,6 +53,62 @@
         "returns.drop_class=TrivialMemory"
       ],
       "transport": "i64"
+    },
+    {
+      "field": "value_next_id",
+      "id": "CoreContext::next_value",
+      "plan_kind": "GeneratorNextScalar",
+      "required_facts": [
+        "generator_state.next_id",
+        "generator_state.range=u32",
+        "nominal_transport=ValueIdAsI64",
+        "receiver_borrow.kind=UniqueWrite",
+        "receiver_borrow.escapes=false"
+      ],
+      "source_field": "value_gen",
+      "transport": "ValueIdAsI64"
+    },
+    {
+      "field": "value_next_id",
+      "id": "CoreContext::peek_next_value",
+      "plan_kind": "GeneratorPeekScalar",
+      "required_facts": [
+        "generator_state.next_id",
+        "generator_state.range=u32",
+        "nominal_transport=ValueIdAsI64",
+        "receiver_borrow.kind=SharedRead",
+        "receiver_borrow.escapes=false"
+      ],
+      "source_field": "value_gen",
+      "transport": "ValueIdAsI64"
+    },
+    {
+      "field": "block_next_id",
+      "id": "CoreContext::next_block",
+      "plan_kind": "GeneratorNextScalar",
+      "required_facts": [
+        "generator_state.next_id",
+        "generator_state.range=u32",
+        "nominal_transport=BasicBlockIdAsI64",
+        "receiver_borrow.kind=UniqueWrite",
+        "receiver_borrow.escapes=false"
+      ],
+      "source_field": "block_gen",
+      "transport": "BasicBlockIdAsI64"
+    },
+    {
+      "field": "block_next_id",
+      "id": "CoreContext::peek_next_block",
+      "plan_kind": "GeneratorPeekScalar",
+      "required_facts": [
+        "generator_state.next_id",
+        "generator_state.range=u32",
+        "nominal_transport=BasicBlockIdAsI64",
+        "receiver_borrow.kind=SharedRead",
+        "receiver_borrow.escapes=false"
+      ],
+      "source_field": "block_gen",
+      "transport": "BasicBlockIdAsI64"
     }
   ],
   "schema_version": 0,

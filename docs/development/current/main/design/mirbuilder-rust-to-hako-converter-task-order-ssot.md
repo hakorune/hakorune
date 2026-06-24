@@ -20,24 +20,21 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  NEWTYPE-ID-GENERATOR-SCALARIZATION-001 design stop
+  MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001
 
 current implementation task:
-  Stop for design selection before opening ValueIdGenerator /
-  BasicBlockIdGenerator scalarization.
-
-producer responsibility stack:
-  Source preparation
-    -> Canonical MIR compile
-    -> MIR finalize / semantic refresh
-    -> MIR JSON serialization
-    -> ny-llvmc consumption
+  Select the first MirBuilder derived context bundle v1 boundary. Bundle
+  ownership must remain membership-only and reference family contracts rather
+  than copying selected methods, transports, or denials.
 
 selected source slice:
-  not selected for implementation yet
+  explicit bundle membership over already accepted context-family artifacts
 
 selected lowering:
-  pending design consultation
+  BundleSpec
+    -> family contract references
+    -> generated bundle manifest
+    -> composed generated artifact smoke
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -48,17 +45,26 @@ landed evidence:
   Same-module ArrayBox return is green for MultiCarrierExitPhi via
   source-derived default_exit facts, body-wide ObjectHandle return contract,
   SameModuleDefinitionPlan, and backend-ready semantic refresh before ny-llvmc.
+  CoreContext ID generators are green through GeneratorStateFacts,
+  NominalIdTransportPlan, value_next_id/block_next_id scalar fields, and
+  ValueIdAsI64 / BasicBlockIdAsI64 verifier metadata.
+  CoreContext artifact contract projection is green: VerifiedHakoFamilyIR plus
+  stable Deny results plus artifact identity project the manifest, verifier
+  expectation, and guard consumer through VerifiedFamilyArtifactContractV1.
 
 selected next owner:
-  none; design consultation required
+  MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001
 
 current fail-fast boundary:
-  do not open ID generator scalarization until the next design stop selects the
-  exact source shape and non-claims.
+  bundle manifests may own family membership and ordering only; they must not
+  restate family selected methods, semantic transports, denials, or behavioral
+  claims.
 
 latest design decision:
-  Same-module ArrayBox return is closed. Return to design selection before the
-  next semantic owner.
+  CoreContext proved the projection seam: keep VerifiedHakoFamilyIR as family
+  semantic authority and use a thin verified family artifact contract to derive
+  manifest/verifier/guard expectations. Bundle v1 should consume family
+  contract references, not become a second semantic authority.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -74,6 +80,7 @@ same_module_scalar_counter_definitions=green
 CoreContext scalar-counter EXE/AOT green
 multi_carrier_exit_phi ArrayBox return selected to close matrix red edge
 multi_carrier_exit_phi ArrayBox return green
+core_context_artifact_contract_projection green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -86,7 +93,8 @@ boxed_sum_variant_make_site_fact_normalization = landed
 metadata_context_region_parent_backend = green
 same_module_uniform_mir_scalar_counter_emitter = landed
 same_module_arraybox_return_contract = landed
-next_owner_selection = design_stop
+newtype_id_generator_scalarization = landed
+core_context_artifact_contract_projection = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -96,23 +104,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Same-module uniform MIR scalar-counter emitter
-   status=landed
-   boundary=planned scalar state helper definitions only
-   semantic_authority=GlobalCallRoute + SameModuleDefinitionPlan
-   non_authority=callee-name C branch
+1. MirBuilder derived context bundle v1
+   status=selected
+   boundary=compose accepted context families without mainline selection
+   semantic_authority=explicit bundle membership plus family contract references
+   non_authority=copying family selected methods / transports / denials
 
-2. Same-module ArrayBox return contract
-   status=landed
-   boundary=MultiCarrierExitPhi owned i64-pair ArrayBox return
-   semantic_authority=source default facts + body-wide return contract
-   non_authority=callee name / scalar fail-code reinterpretation
+2. MirBuilder allocation policy slice
+   status=parked
+   boundary=MirBuilder::next_value_id reserved/function-local policy
+   semantic_authority=function allocation facts
+   non_authority=CoreContext generator scalarization
 
-3. Newtype ID generator scalarization
-   status=next design stop
-   boundary=ValueId / BasicBlockId generator next and peek
-   semantic_authority=generator state facts + nominal i64 transport
-   non_authority=generator object runtime identity
+3. Additional family contract projection
+   status=parked until bundle v1 exposes a concrete duplication point
+   boundary=one family at a time
+   semantic_authority=VerifiedHakoFamilyIR + stable Deny results
+   non_authority=bulk framework migration
 ```
 
 ## Landed Converter Capability Summary

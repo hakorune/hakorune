@@ -97,7 +97,11 @@
         "borrow_escape": "CallOnly",
         "mutation": false
       },
-      "ownership_effect": "None"
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
     },
     {
       "id": "CoreContext::peek_next_block",
@@ -106,7 +110,11 @@
         "borrow_escape": "CallOnly",
         "mutation": false
       },
-      "ownership_effect": "None"
+      "ownership_effect": "None",
+      "returns": {
+        "copy_class": "ImmediateValue",
+        "drop_class": "TrivialMemory"
+      }
     }
   ],
   "body_facts": [
@@ -173,6 +181,58 @@
       "return_shape": "BasicBlockId"
     }
   ],
+  "generator_state_facts": [
+    {
+      "id": "ValueIdGenerator::next",
+      "operation": "NewtypeIdNext",
+      "state_field": "next_id",
+      "nominal_type": "ValueId",
+      "transport": "ValueIdAsI64",
+      "mutation": "PostIncrement",
+      "range": "u32"
+    },
+    {
+      "id": "ValueIdGenerator::peek_next",
+      "operation": "NewtypeIdPeek",
+      "state_field": "next_id",
+      "nominal_type": "ValueId",
+      "transport": "ValueIdAsI64",
+      "mutation": "ReadOnly",
+      "range": "u32"
+    },
+    {
+      "id": "BasicBlockIdGenerator::next",
+      "operation": "NewtypeIdNext",
+      "state_field": "next_id",
+      "nominal_type": "BasicBlockId",
+      "transport": "BasicBlockIdAsI64",
+      "mutation": "PostIncrement",
+      "range": "u32"
+    },
+    {
+      "id": "BasicBlockIdGenerator::peek_next",
+      "operation": "NewtypeIdPeek",
+      "state_field": "next_id",
+      "nominal_type": "BasicBlockId",
+      "transport": "BasicBlockIdAsI64",
+      "mutation": "ReadOnly",
+      "range": "u32"
+    }
+  ],
+  "nominal_id_transport_plan": [
+    {
+      "nominal_type": "ValueId",
+      "transport": "ValueIdAsI64",
+      "physical_lane": "i64",
+      "raw_i64_equivalence": false
+    },
+    {
+      "nominal_type": "BasicBlockId",
+      "transport": "BasicBlockIdAsI64",
+      "physical_lane": "i64",
+      "raw_i64_equivalence": false
+    }
+  ],
   "negative_requirements": [
     {
       "id": "missing_counter_init",
@@ -185,6 +245,14 @@
     {
       "id": "missing_bindingid_constructor",
       "required_fact": "BindingId::new"
+    },
+    {
+      "id": "generator_object_identity",
+      "required_deny": "GeneratorObjectTransportRequired"
+    },
+    {
+      "id": "mirbuilder_allocation_policy",
+      "required_deny": "FunctionLocalAllocationPolicyRequired"
     }
   ]
 }

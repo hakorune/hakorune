@@ -66,7 +66,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.hako",
-    "hako_sha256": "7f6fb1fc0664ca3431a8a667f84faf66e1ce6a40f910f49734415be66909e42f"
+    "hako_sha256": "2ce0582e21596c8311bb562aac0de8bb7427eeffc719c385122ff36373a9473e"
   },
   "pilot_scope": "MirBuilder_easy_v0_ordered_map_bundle",
   "schema_version": 0,

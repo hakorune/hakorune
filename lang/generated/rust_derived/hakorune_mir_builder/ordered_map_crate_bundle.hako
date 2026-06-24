@@ -47,20 +47,10 @@ static box BindingContextApi {
     }
 
     lookup(ctx, name) {
-        local keys = ctx.binding_map.keys_value
-        local values = ctx.binding_map.values_value
         if name == null {
             return null
         }
-        local key = name
-        local i = 0
-        loop(i < keys.length()) {
-            if BoxHelpers.array_get(keys, i) == key {
-                return BoxHelpers.array_get(values, i)
-            }
-            i = i + 1
-        }
-        return null
+        return ctx.binding_map.get(name)
     }
 
     insert(ctx, name, binding_id): i64 {
@@ -133,11 +123,15 @@ static box BoxCompilationContextApi {
 }
 
 box CoreContext {
+    value_next_id: i64
+    block_next_id: i64
     next_binding_id: i64
     temp_slot_counter: i64
     debug_join_counter: i64
 
     birth() {
+        me.value_next_id = 0
+        me.block_next_id = 0
         me.next_binding_id = 0
         me.temp_slot_counter = 0
         me.debug_join_counter = 0
@@ -167,6 +161,30 @@ static box CoreContextApi {
             ctx.debug_join_counter = ctx.debug_join_counter + 1
         }
         return id
+    }
+
+    next_value(ctx): i64 {
+        local id = ctx.value_next_id
+        if ctx.value_next_id < 4294967295 {
+            ctx.value_next_id = ctx.value_next_id + 1
+        }
+        return id
+    }
+
+    peek_next_value(ctx): i64 {
+        return ctx.value_next_id
+    }
+
+    next_block(ctx): i64 {
+        local id = ctx.block_next_id
+        if ctx.block_next_id < 4294967295 {
+            ctx.block_next_id = ctx.block_next_id + 1
+        }
+        return id
+    }
+
+    peek_next_block(ctx): i64 {
+        return ctx.block_next_id
     }
 }
 
@@ -209,20 +227,10 @@ static box VariableContextApi {
     }
 
     lookup(ctx, name) {
-        local keys = ctx.variable_map.keys_value
-        local values = ctx.variable_map.values_value
         if name == null {
             return null
         }
-        local key = name
-        local i = 0
-        loop(i < keys.length()) {
-            if BoxHelpers.array_get(keys, i) == key {
-                return BoxHelpers.array_get(values, i)
-            }
-            i = i + 1
-        }
-        return null
+        return ctx.variable_map.get(name)
     }
 
     insert(ctx, name, value_id): i64 {

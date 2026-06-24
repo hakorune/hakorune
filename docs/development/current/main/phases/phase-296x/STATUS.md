@@ -2,32 +2,31 @@
 # phase-296x Status (generated)
 
 ## counts
-- archived (done): 1426  (in archive/)
-- visible: 260
+- archived (done): 1425  (in archive/)
+- visible: 262
 
 ## visible by status
-        174 closed
+        177 closed
          58 active
+          7 complete
           5 current
-          5 complete
-          3 closed  
           2 selected
-          1 superseded by 296x-1639 and 296x-1640
-          1 rejected-after-full-smoke
-          1 rejected
-          1 planned
-          1 parked
-          1 landed / parked
-          1 landed / blocked
-          1 design stop
-          1 design consultation
-          1 decision
-          1 closeout
-          1 blocked_by_source_shape
           1 blocked
+          1 blocked_by_source_shape
+          1 closeout
+          1 decision
+          1 design consultation
+          1 design stop
+          1 landed / blocked
+          1 landed / parked
+          1 parked
+          1 planned
+          1 rejected
+          1 rejected-after-full-smoke
+          1 superseded by 296x-1639 and 296x-1640
 
 ## in-progress (latest)
-- NEWTYPE-ID-GENERATOR-SCALARIZATION-001 (296x-1679)
+- CORE-CONTEXT-ARTIFACT-CONTRACT-PROJECTION-001 (296x-1680)
 
 ## rule
 - Select / Record / Inventory は commit message で記録し、card 化しない。

@@ -1,10 +1,4 @@
 {
-  "excluded_methods": [
-    "CoreContext::next_value",
-    "CoreContext::next_block",
-    "CoreContext::peek_next_value",
-    "CoreContext::peek_next_block"
-  ],
   "family_id": "hakorune_mir_builder::core_context",
   "kind": "HakoBehaviorRecipe",
   "methods": [
@@ -25,12 +19,36 @@
       "hako_operation": "TakeThenSaturatingIncrementU32",
       "id": "CoreContext::next_debug_join",
       "rust_operation": "saturating_add"
+    },
+    {
+      "emits": "CoreContextApi.next_value(ctx)",
+      "hako_operation": "TakeThenSaturatingIncrementU32",
+      "id": "CoreContext::next_value",
+      "rust_operation": "ValueIdGenerator::next normal-range"
+    },
+    {
+      "emits": "CoreContextApi.peek_next_value(ctx)",
+      "hako_operation": "FieldGet",
+      "id": "CoreContext::peek_next_value",
+      "rust_operation": "ValueIdGenerator::peek_next"
+    },
+    {
+      "emits": "CoreContextApi.next_block(ctx)",
+      "hako_operation": "TakeThenSaturatingIncrementU32",
+      "id": "CoreContext::next_block",
+      "rust_operation": "BasicBlockIdGenerator::next normal-range"
+    },
+    {
+      "emits": "CoreContextApi.peek_next_block(ctx)",
+      "hako_operation": "FieldGet",
+      "id": "CoreContext::peek_next_block",
+      "rust_operation": "BasicBlockIdGenerator::peek_next"
     }
   ],
-  "pilot_scope": "CoreContext_scalar_counters_only",
+  "pilot_scope": "CoreContext_scalar_counters_and_id_generators",
   "schema_version": 0,
-  "selected_body_count": "scalar_counter_methods_only",
+  "selected_body_count": "scalar_counter_methods_plus_newtype_id_generators",
   "source_oracle": "core-context-oracle-v0.json",
   "source_plan": "core-context-plan-v0.json",
-  "subject": "hakorune_mir_builder::core_context::CoreContext.scalar_counters"
+  "subject": "hakorune_mir_builder::core_context::CoreContext.scalar_counters_and_id_generators"
 }

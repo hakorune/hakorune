@@ -265,18 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1678-SAME-MODULE-ARRAYBOX-RETURN-CONTRACT-001.md"
-latest_card_summary = """The focused MultiCarrierExitPhi same-module ArrayBox
-return red edge is closed: default exits are source-derived facts,
-ExplicitMultiExitPhiI64Array renders default ArrayBox values instead of scalar
-fail returns, and the route is verified through body-wide ObjectHandle contract
-plus SameModuleDefinitionPlan. ny-llvmc bin emission now refreshes a
-backend-ready MIR clone before JSON serialization so retained MIR matches the
-backend-ready route facts. The next blocker is a design stop before opening
-Newtype ID generator scalarization."""
+latest_card = "CORE-CONTEXT-ARTIFACT-CONTRACT-PROJECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1680-CORE-CONTEXT-ARTIFACT-CONTRACT-PROJECTION-001.md"
+latest_card_summary = """Before opening MirBuilder derived context bundle v1,
+run one CoreContext-only synchronization-cost reduction slice. The focused
+contract projection is implemented and green: CoreContext manifest/verifier
+projection and guard consumption now flow through
+VerifiedFamilyArtifactContractV1 without changing generated .hako behavior,
+backend routes, ABI, or runtime behavior. Full matrix is green after the
+generic MapGet return-shape contract fixed the existing BindingContext lookup
+same-module route edge without a callee-name branch or runtime fallback. The
+next blocker is selecting the MirBuilder derived context bundle v1 boundary."""
 
-current_blocker_token = "NEWTYPE-ID-GENERATOR-SCALARIZATION-001-DESIGN-STOP"
+current_blocker_token = "MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -57,7 +57,7 @@ cat <<'REPORT'
 matrix=rust-mirbuilder-converter-v0
 binding_context=green
 canonical_explicit_phi=green
-core_context_scalar_counters=green
+core_context_scalar_counters_and_id_generators=green
 metadata_context_scalar_source_file=green
 metadata_context_region_parent=green
 metadata_context_region_parent_backend=green

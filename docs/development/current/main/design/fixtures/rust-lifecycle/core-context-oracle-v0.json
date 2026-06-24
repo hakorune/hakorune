@@ -1,18 +1,13 @@
 {
-  "denied_vectors": [
-    "next_value",
-    "next_block",
-    "peek_next_value",
-    "peek_next_block"
-  ],
+  "denied_vectors": [],
   "drop_oracle": {
     "drop_observable": false,
     "required_fact": "CoreContext.drop_fact=TrivialMemory"
   },
   "kind": "RustOracleVectors",
   "promotion_scope": {
-    "core_context_claim": "scalar_counters_only",
-    "hako_authority": "CoreContext scalar counters only",
+    "core_context_claim": "scalar_counters_and_newtype_id_generators",
+    "hako_authority": "CoreContext scalar counters plus nominal ID generator state",
     "mirbuilder_wide_claim": false
   },
   "schema_version": 0,
@@ -45,6 +40,39 @@
         {
           "expect": 1,
           "op": "next_debug_join"
+        }
+      ]
+    },
+    {
+      "id": "core_context_newtype_id_generators",
+      "operations": [
+        {
+          "expect": 0,
+          "op": "next_value"
+        },
+        {
+          "expect": 1,
+          "op": "next_value"
+        },
+        {
+          "expect": 2,
+          "op": "peek_next_value"
+        },
+        {
+          "expect": 2,
+          "op": "next_value"
+        },
+        {
+          "expect": 0,
+          "op": "next_block"
+        },
+        {
+          "expect": 1,
+          "op": "peek_next_block"
+        },
+        {
+          "expect": 1,
+          "op": "next_block"
         }
       ]
     }

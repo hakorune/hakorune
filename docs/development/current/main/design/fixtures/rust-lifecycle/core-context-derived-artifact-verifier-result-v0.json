@@ -1,18 +1,16 @@
 {
   "checks": {
     "backend_behavior_changed": 0,
-    "denied_generator_object_methods": [
-      "CoreContext::next_value",
-      "CoreContext::next_block",
-      "CoreContext::peek_next_value",
-      "CoreContext::peek_next_block"
-    ],
+    "excluded_methods": [],
+    "generator_object_transport": 0,
     "hako_behavior_recipe": "verified",
     "hako_lifecycle_plan": "verified",
+    "invalid_id_claim": 0,
     "mainline_selected": 0,
+    "reserved_value_id_skipping_claim": 0,
     "rust_bootstrap_retained": 1,
     "rust_facts_input": "verified",
-    "selected_body_count": "scalar_counter_methods_only",
+    "selected_body_count": "scalar_counter_methods_plus_newtype_id_generators",
     "unclassified_drop_obligations": 0,
     "unmapped_mir_side_effects": 0,
     "unmapped_thir_nodes": 0,
@@ -20,19 +18,25 @@
   },
   "family_id": "hakorune_mir_builder::core_context",
   "kind": "DerivedHakoArtifactVerifierResult",
-  "pilot_scope": "CoreContext_scalar_counters_only",
+  "pilot_scope": "CoreContext_scalar_counters_and_id_generators",
   "result": "VerifiedHakoFamilyIR",
   "schema_version": 0,
   "source_facts": "core-context-facts-v0.json",
   "source_plan": "core-context-plan-v0.json",
   "source_recipe": "core-context-behavior-recipe-v0.json",
-  "subject": "hakorune_mir_builder::core_context::CoreContext.scalar_counters",
+  "subject": "hakorune_mir_builder::core_context::CoreContext.scalar_counters_and_id_generators",
   "transport_notes": {
+    "basic_block_id_transport": "BasicBlockIdAsI64",
     "binding_id_transport": "i64_raw",
-    "counter_transport": "i64"
+    "counter_transport": "i64",
+    "generator_object_transport": 0,
+    "invalid_id_claim": 0,
+    "reserved_value_id_skipping_claim": 0,
+    "value_id_transport": "ValueIdAsI64"
   },
   "verified_operations": [
     "ScalarCounterInit",
-    "TakeThenSaturatingIncrementU32"
+    "TakeThenSaturatingIncrementU32",
+    "FieldGet"
   ]
 }

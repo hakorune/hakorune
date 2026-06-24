@@ -53,20 +53,10 @@ static box VariableMapViewApi {
     }
 
     lookup(view, name) {
-        local keys = view.keys_value
-        local values = view.values_value
         if name == null {
             return null
         }
-        local key = name
-        local i = 0
-        loop(i < keys.length()) {
-            if BoxHelpers.array_get(keys, i) == key {
-                return BoxHelpers.array_get(values, i)
-            }
-            i = i + 1
-        }
-        return null
+        return view.get(name)
     }
 }
 

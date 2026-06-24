@@ -2,9 +2,9 @@
 """Extract target-neutral CoreContext lifecycle facts.
 
 This is an easy-tier consultation slice only. It captures the scalar-counter
-source shapes of `crates/hakorune_mir_builder/src/core_context.rs` without
-opening any Hako lifecycle plan, route selection, or nightly rustc adapter
-path.
+and bounded newtype-ID generator source shapes of
+`crates/hakorune_mir_builder/src/core_context.rs` without opening MirBuilder
+allocation policy, route selection, or nightly rustc adapter path.
 """
 
 from __future__ import annotations
@@ -127,7 +127,15 @@ def _method_fact(name: str, signature: dict[str, Any]) -> dict[str, Any]:
         "receiver": receiver_fact(signature["params"]) if name != "new" else {"borrow_kind": "Owned", "borrow_escape": "LocalOnly", "mutation": False},
         "ownership_effect": "None",
     }
-    if name in {"next_value", "next_block", "next_binding", "next_temp_slot", "next_debug_join"}:
+    if name in {
+        "next_value",
+        "next_block",
+        "next_binding",
+        "next_temp_slot",
+        "next_debug_join",
+        "peek_next_value",
+        "peek_next_block",
+    }:
         fact["returns"] = immediate_return()
     return fact
 
@@ -152,6 +160,10 @@ def extract_facts(source_path: Path) -> dict[str, Any]:
     for fragment in [
         "ValueIdGenerator::new()",
         "BasicBlockIdGenerator::new()",
+        "self.value_gen.next()",
+        "self.block_gen.next()",
+        "self.value_gen.peek_next()",
+        "self.block_gen.peek_next()",
         "BindingId::new(self.next_binding_id)",
         "self.next_binding_id = self.next_binding_id.saturating_add(1);",
         "self.temp_slot_counter = self.temp_slot_counter.saturating_add(1);",
@@ -178,10 +190,64 @@ def extract_facts(source_path: Path) -> dict[str, Any]:
         ],
         "method_facts": [_method_fact(name, signatures[name]) for name in expected_methods],
         "body_facts": [_body_fact(name, source) for name in expected_methods],
+        "generator_state_facts": [
+            {
+                "id": "ValueIdGenerator::next",
+                "operation": "NewtypeIdNext",
+                "state_field": "next_id",
+                "nominal_type": "ValueId",
+                "transport": "ValueIdAsI64",
+                "mutation": "PostIncrement",
+                "range": "u32",
+            },
+            {
+                "id": "ValueIdGenerator::peek_next",
+                "operation": "NewtypeIdPeek",
+                "state_field": "next_id",
+                "nominal_type": "ValueId",
+                "transport": "ValueIdAsI64",
+                "mutation": "ReadOnly",
+                "range": "u32",
+            },
+            {
+                "id": "BasicBlockIdGenerator::next",
+                "operation": "NewtypeIdNext",
+                "state_field": "next_id",
+                "nominal_type": "BasicBlockId",
+                "transport": "BasicBlockIdAsI64",
+                "mutation": "PostIncrement",
+                "range": "u32",
+            },
+            {
+                "id": "BasicBlockIdGenerator::peek_next",
+                "operation": "NewtypeIdPeek",
+                "state_field": "next_id",
+                "nominal_type": "BasicBlockId",
+                "transport": "BasicBlockIdAsI64",
+                "mutation": "ReadOnly",
+                "range": "u32",
+            },
+        ],
+        "nominal_id_transport_plan": [
+            {
+                "nominal_type": "ValueId",
+                "transport": "ValueIdAsI64",
+                "physical_lane": "i64",
+                "raw_i64_equivalence": False,
+            },
+            {
+                "nominal_type": "BasicBlockId",
+                "transport": "BasicBlockIdAsI64",
+                "physical_lane": "i64",
+                "raw_i64_equivalence": False,
+            },
+        ],
         "negative_requirements": [
             {"id": "missing_counter_init", "required_fact": "ScalarCounterInit"},
             {"id": "missing_saturating_add", "required_fact": "saturating_add"},
             {"id": "missing_bindingid_constructor", "required_fact": "BindingId::new"},
+            {"id": "generator_object_identity", "required_deny": "GeneratorObjectTransportRequired"},
+            {"id": "mirbuilder_allocation_policy", "required_deny": "FunctionLocalAllocationPolicyRequired"},
         ],
     }
 
