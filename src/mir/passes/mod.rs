@@ -1,5 +1,6 @@
-// MIR optimization subpasses module
-// Minimal scaffold to unblock builds when type hint propagation is not yet implemented.
+// Reusable MIR transforms / analyses namespace.
+// All passes take `&mut MirModule` only (no MirOptimizer coupling); safe for
+// external reuse (runner/bin, LLVM backend). Boundary: see OPTIMIZER_REGISTRY.md
 
 pub mod callsite_canonicalize;
 pub mod concat3_canonicalize;
