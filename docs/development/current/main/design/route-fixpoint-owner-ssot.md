@@ -69,10 +69,13 @@ RouteFixpoint does not create a second MIR dialect.
 Future rows may add:
 
 ```text
-RouteFixpointReport
 RouteDiagnostic vocabulary
 RouteLedger view
 nyllvmc progress events
 ```
+
+The former passive `RouteFixpointReport` return value was removed because no
+consumer read it. If route-fixpoint reporting is needed later, reintroduce it
+as a separate consumed diagnostic row instead of a passive return structure.
 
 Those are separate rows. `ROUTE-FIXPOINT-001` only makes the owner explicit.

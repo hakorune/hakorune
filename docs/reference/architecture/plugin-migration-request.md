@@ -190,7 +190,6 @@ encode_string_result(&contents, result, result_len)
 - **FileBoxプラグイン実装**: `plugins/nyash-filebox-plugin/src/lib.rs`
 - **FFI仕様書**: `docs/説明書/reference/plugin-system/ffi-abi-specification.md`
 - **プラグインシステム説明**: `docs/説明書/reference/plugin-system/plugin-system.md`
-- **BID-FFI型変換** (参考): `src/bid-converter-copilot/tlv.rs`
 
 ## 🔧 実装ガイド：FileBoxを例に
 
