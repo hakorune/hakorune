@@ -230,10 +230,10 @@ impl MirInterpreter {
         val: i64,
     ) {
         if std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1") {
-            crate::runtime::get_global_ring0().log.debug(&format!(
+            eprintln!(
                 "[vm-trace][direct_array_i64] op={} bb={:?} inst={} idx={} val={} (method dispatch AVOIDED)",
                 op, block, inst, idx, val
-            ));
+            );
         }
     }
 
