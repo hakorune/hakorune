@@ -175,6 +175,22 @@
         return tier == HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME;
       }
 
+      auto const char* lowering_plan_tier_metadata_json_name(
+          enum LoweringPlanTierMetadata tier) {
+        switch (tier) {
+          case HAKO_LLVMC_LOWERING_PLAN_TIER_HOT_INLINE:
+            return "HotInline";
+          case HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI:
+            return "DirectAbi";
+          case HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME:
+            return "ColdRuntime";
+          case HAKO_LLVMC_LOWERING_PLAN_TIER_UNSUPPORTED:
+            return "Unsupported";
+          default:
+            return NULL;
+        }
+      }
+
       auto yyjson_val* find_lowering_plan_entry_for_site(long long bid, size_t ii) {
         yyjson_val* entries = NULL;
         size_t pi = 0;
@@ -852,14 +868,14 @@
       auto int lowering_plan_global_call_view_has_direct_target(
           const struct LoweringPlanGlobalCallView* view) {
         return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "global.user_call") &&
                view->callee_name &&
                view->target_symbol &&
-               view->core_op &&
-               !strcmp(view->core_op, "UserGlobalCall") &&
-               view->route_kind &&
-               !strcmp(view->route_kind, "global.user_call") &&
+               hako_llvmc_global_call_route_registry_matches_direct_contract(
+                   view->route_id,
+                   view->core_op,
+                   view->route_kind,
+                   lowering_plan_tier_metadata_json_name(view->tier),
+                   view->emit_kind) &&
                lowering_plan_proof_is_typed_global_call_contract(view->proof) &&
                view->target_exists &&
                view->has_target_arity &&

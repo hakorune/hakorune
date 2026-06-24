@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  USER-BOX-METHOD-DIRECT-ROUTE-DESCRIPTOR-GENERATION-001
+  GLOBAL-CALL-DIRECT-CONTRACT-DESCRIPTOR-DRAIN-001
 
 current implementation task:
-  Generate user-box method direct route descriptors from route metadata.
+  Generate the global-call direct contract descriptor from route metadata.
 
 producer responsibility stack:
   Source preparation
@@ -32,11 +32,11 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  src/mir/user_box_method_route_plan.rs
+  src/mir/global_call_route_plan/route.rs
 
 selected lowering:
-  UserBoxMethodRoute direct route/proof/owner metadata
-    -> generated C direct route registry validation
+  GlobalCallRoute fixed direct route/core/tier/emit-kind tuple
+    -> generated C direct contract registry validation
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -52,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  USER-BOX-METHOD-DIRECT-ROUTE-DESCRIPTOR-GENERATION-001
+  GLOBAL-CALL-DIRECT-CONTRACT-DESCRIPTOR-DRAIN-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -117,6 +117,7 @@ variant_binding_boxed_sum_plan_index = landed
 c_abi_shim_responsibility_inventory = landed
 mir_call_constructor_birth_fact_drain = landed
 mir_call_constructor_name_fallback_retired = landed
+global_call_direct_contract_descriptor_drain = landed
 mir_call_array_text_observer_need_drain = landed
 mir_call_generic_method_result_origin_and_get_policy_publish_drain = landed
 mir_call_generic_method_receiver_origin_drain = landed
@@ -154,22 +155,22 @@ history, not in this task-order SSOT.
 
 ```text
 1. Same-module global-call descriptor generation
-   status=landed for proof, route, origin, and definition-owner descriptor rows
-   boundary=move one same-module global-call C consumer to descriptor data
+   status=landed for proof, origin, definition-owner, and direct-contract rows
+   boundary=fixed direct route/core/tier/emit-kind tuple only
    semantic_authority=global_call_routes / GlobalCallRoute metadata
    non_authority=C-side callee spelling or neighboring-instruction scans
 
-2. Same-module user-box method descriptor generation
-   status=landed for direct route/proof/owner descriptor rows
-   boundary=user_box_method_route_plan gets its own descriptor owner
-   semantic_authority=user_box_method_route_plan metadata
-   non_authority=exact seed userbox routes or same-module global-call policy
+2. Return to Rust-to-Hako semantic lane
+   status=next design stop
+   boundary=select next semantic converter owner
+   semantic_authority=mirbuilder-rust-to-hako task order / next design answer
+   non_authority=route descriptor cleanup drift
 
-3. MIR instruction SSOT schema sync
-   status=landed for JSON schema op enum sync coverage
-   boundary=doc / ledger / JSON schema sync guard only
-   semantic_authority=canonical MIR instruction enum
-   non_authority=hand-maintained schema drift
+3. User-box return-contract descriptor
+   status=parked until concrete mismatch
+   boundary=dynamic call-site return contract, not static method-kind table
+   semantic_authority=UserBoxMethodRoute return contract if introduced
+   non_authority=C-side static combination table
 ```
 
 ## Landed Converter Capability Summary

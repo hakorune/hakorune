@@ -19,6 +19,14 @@
         const char* emit_kind;
       };
 
+      struct HakoLlvmcGlobalCallDirectContractRow {
+        const char* route_id;
+        const char* core_op;
+        const char* route_kind;
+        const char* tier;
+        const char* emit_kind;
+      };
+
       static const struct HakoLlvmcGlobalCallProofRegistryRow
           hako_llvmc_global_call_proof_registry_rows[] = {
               {"typed_global_call_contract_missing", "none", ORG_NONE, "none"},
@@ -81,6 +89,33 @@
         }
         return !strcmp(row->definition_owner, definition_owner) &&
                !strcmp(row->definition_owner, expected_owner);
+      }
+
+      static const struct HakoLlvmcGlobalCallDirectContractRow
+          hako_llvmc_global_call_direct_contract_row = {
+              "global.user_call",
+              "UserGlobalCall",
+              "global.user_call",
+              "DirectAbi",
+              "direct_function_call",
+          };
+
+      auto int hako_llvmc_global_call_route_registry_matches_direct_contract(
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          const char* tier,
+          const char* emit_kind) {
+        const struct HakoLlvmcGlobalCallDirectContractRow* row =
+            &hako_llvmc_global_call_direct_contract_row;
+        return row->route_id && row->core_op && row->route_kind &&
+               row->tier && row->emit_kind && route_id && core_op && route_kind &&
+               tier && emit_kind &&
+               !strcmp(row->route_id, route_id) &&
+               !strcmp(row->core_op, core_op) &&
+               !strcmp(row->route_kind, route_kind) &&
+               !strcmp(row->tier, tier) &&
+               !strcmp(row->emit_kind, emit_kind);
       }
 
       static const struct HakoLlvmcGlobalCallRuntimeRouteRegistryRow
