@@ -534,24 +534,7 @@
 
       auto int lowering_plan_proof_is_typed_global_call_contract(
           const char* proof) {
-        return proof &&
-               (!strcmp(proof, "typed_global_call_contract_missing") ||
-                !strcmp(proof, "typed_global_call_leaf_numeric_i64") ||
-                !strcmp(proof, "typed_global_call_generic_pure_string") ||
-                !strcmp(proof, "typed_global_call_generic_string_or_void_sentinel") ||
-                !strcmp(proof, "typed_global_call_generic_string_void_logging") ||
-                !strcmp(proof, "typed_global_call_generic_i64") ||
-                !strcmp(proof, "typed_global_call_parser_program_json") ||
-                !strcmp(proof, "typed_global_call_stage1_emit_program_json") ||
-                !strcmp(proof, "typed_global_call_static_string_array") ||
-                !strcmp(proof, "typed_global_call_mir_schema_map_constructor") ||
-                !strcmp(proof, "typed_global_call_box_type_inspector_describe") ||
-                !strcmp(proof, "typed_global_call_same_module_object_handle") ||
-                !strcmp(proof, "typed_global_call_same_module_scalar_i64") ||
-                !strcmp(proof, "typed_global_call_same_module_void_sentinel") ||
-                !strcmp(proof, "typed_global_call_same_module_mixed_runtime") ||
-                !strcmp(proof, "typed_global_call_void_side_effect") ||
-                !strcmp(proof, "typed_global_call_pattern_util_local_value_probe"));
+        return hako_llvmc_global_call_proof_registry_contains(proof);
       }
 
       auto int lowering_plan_entry_is_typed_global_call_contract(
