@@ -4,14 +4,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
-GENERATOR="tools/rust_lifecycle/generate_single_scalar_loop_carrier_artifact.py"
+GENERATOR="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py"
+FAMILY="single-scalar-loop-carrier"
 ARTIFACT="lang/generated/rust_derived/hakorune_mir_builder/single_scalar_loop_carrier.hako"
 EXE="/tmp/hako_single_scalar_loop_carrier_artifact"
 RAW="$EXE.out.raw"
 OUT="$EXE.out"
 EXPECTED="$EXE.expected"
 
-python3 "$GENERATOR" --check
+python3 "$GENERATOR" --family "$FAMILY" --check
 
 python3 - <<'PY'
 import json

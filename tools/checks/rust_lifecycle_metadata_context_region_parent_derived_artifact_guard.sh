@@ -4,14 +4,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
-GENERATOR="tools/rust_lifecycle/generate_metadata_region_parent_artifact.py"
+GENERATOR="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py"
+FAMILY="metadata-context-region-parent"
 ARTIFACT="lang/generated/rust_derived/hakorune_mir_builder/metadata_context_region_parent.hako"
 EXE="/tmp/hako_metadata_context_region_parent_artifact"
 RAW="$EXE.out.raw"
 OUT="$EXE.out"
 EXPECTED="$EXE.expected"
 
-python3 "$GENERATOR" --check
+python3 "$GENERATOR" --family "$FAMILY" --check
 
 python3 - <<'PY'
 import json

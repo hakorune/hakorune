@@ -4,11 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
-GENERATOR="tools/rust_lifecycle/generate_variable_context_immutable_borrow_artifact.py"
+GENERATOR="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py"
+FAMILY="variable-context-immutable-borrow"
 ARTIFACT="lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.hako"
 MANIFEST="lang/generated/rust_derived/hakorune_mir_builder/variable_context_immutable_borrow.artifact.json"
 
-python3 "$GENERATOR" --check
+python3 "$GENERATOR" --family "$FAMILY" --check
 
 python3 - <<'PY'
 import json

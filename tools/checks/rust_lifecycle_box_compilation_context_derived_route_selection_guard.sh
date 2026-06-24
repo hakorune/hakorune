@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 GENERATOR_LOG="/tmp/hako_box_compilation_context_derived_route_selection_generator.out"
 
-if ! python3 tools/rust_lifecycle/generate_box_compilation_context_artifact.py --check >"$GENERATOR_LOG" 2>&1; then
+if ! python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family box-compilation-context --check >"$GENERATOR_LOG" 2>&1; then
     cat "$GENERATOR_LOG"
     exit 1
 fi

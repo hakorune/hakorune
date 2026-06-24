@@ -4,7 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
-GENERATOR="tools/rust_lifecycle/generate_binding_context_artifact.py"
+GENERATOR="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py"
+FAMILY="binding-context"
 ARTIFACT="lang/generated/rust_derived/hakorune_mir_builder/binding_context.hako"
 MANIFEST="lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json"
 EXE="/tmp/hako_binding_context_derived_artifact"
@@ -12,7 +13,7 @@ RAW="$EXE.out.raw"
 OUT="$EXE.out"
 EXPECTED="$EXE.expected"
 
-python3 "$GENERATOR" --check
+python3 "$GENERATOR" --family "$FAMILY" --check
 
 python3 - <<'PY'
 import json

@@ -4,14 +4,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
-GENERATOR="tools/rust_lifecycle/generate_variable_context_carrier_snapshot_artifact.py"
+GENERATOR="tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py"
+FAMILY="variable-context-carrier-snapshot"
 ARTIFACT="lang/generated/rust_derived/hakorune_mir_builder/variable_context_carrier_snapshot.hako"
 EXE="/tmp/hako_variable_context_carrier_snapshot_artifact"
 RAW="$EXE.out.raw"
 OUT="$EXE.out"
 EXPECTED="$EXE.expected"
 
-python3 "$GENERATOR" --check
+python3 "$GENERATOR" --family "$FAMILY" --check
 bash tools/checks/rust_lifecycle_variable_context_carrier_snapshot_guard.sh
 
 python3 - <<'PY'

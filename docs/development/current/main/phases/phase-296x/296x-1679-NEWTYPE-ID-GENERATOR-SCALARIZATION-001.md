@@ -153,7 +153,7 @@ transport_notes:
 Gates:
 
 ```text
-python3 tools/rust_lifecycle/generate_core_context_artifact.py --check
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family core-context --check
 bash tools/checks/rust_lifecycle_core_context_derived_artifact_guard.sh
 bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
 bash tools/checks/rust_lifecycle_no_silent_hardcode_guard.sh
@@ -228,7 +228,7 @@ Validated with:
 
 ```text
 cargo build --release --bin hakorune
-python3 tools/rust_lifecycle/generate_core_context_artifact.py --check
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family core-context --check
 bash tools/checks/rust_lifecycle_core_context_derived_artifact_guard.sh
 bash tools/checks/rust_mirbuilder_converter_matrix_guard.sh
 bash tools/checks/rust_lifecycle_no_silent_hardcode_guard.sh
