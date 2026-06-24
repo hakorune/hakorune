@@ -16,6 +16,42 @@
         return ORG_NONE;
       }
 
+      auto int publish_generic_method_result_origin_box(
+          long long reg,
+          const char* box_name) {
+        int typed_plan_index = -1;
+        int origin_kind = ORG_NONE;
+        if (!box_name || !reg) return 1;
+        if (!strcmp(box_name, "StringBox")) {
+          origin_kind = ORG_STRING;
+        } else if (!strcmp(box_name, "ArrayBox") ||
+                   !strcmp(box_name, "DirectArrayI64")) {
+          origin_kind = ORG_ARRAY_BIRTH;
+        } else if (!strcmp(box_name, "MapBox")) {
+          origin_kind = ORG_MAP_BIRTH;
+        } else {
+          if (!find_typed_object_plan_index(box_name, &typed_plan_index)) {
+            return 0;
+          }
+          set_type(reg, T_I64);
+          set_origin(reg, ORG_TYPED_OBJECT);
+          set_scan_origin(reg, ORG_TYPED_OBJECT);
+          set_typed_object_binding(reg, typed_plan_index);
+          return 1;
+        }
+        set_type(reg, T_I64);
+        set_origin(reg, origin_kind);
+        set_scan_origin(reg, origin_kind);
+        return 1;
+      }
+
+      auto int publish_generic_method_result_metadata(
+          long long reg,
+          const char* box_name) {
+        if (publish_value_representation_fact(reg)) return 1;
+        return publish_generic_method_result_origin_box(reg, box_name);
+      }
+
       auto int mark_generic_method_result_origin_from_lowering_plan(
           long long bid,
           size_t ii,
