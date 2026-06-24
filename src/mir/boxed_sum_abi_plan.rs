@@ -99,6 +99,15 @@ pub fn find_boxed_sum_site_plan<'a>(
     let storage = payload_type
         .map(payload_storage_from_mir_type)
         .unwrap_or(Some(BoxedSumPayloadStorage::None))?;
+    find_boxed_sum_site_plan_for_storage(plans, enum_name, tag, storage)
+}
+
+pub fn find_boxed_sum_site_plan_for_storage<'a>(
+    plans: &'a [BoxedSumAbiPlanV1],
+    enum_name: &str,
+    tag: u32,
+    storage: BoxedSumPayloadStorage,
+) -> Option<&'a BoxedSumAbiPlanV1> {
     let mut matches = plans.iter().filter(|plan| {
         plan.enum_name == enum_name
             && plan
@@ -132,12 +141,17 @@ pub fn build_function_boxed_sum_site_plan_map(
                     dst,
                     enum_name,
                     tag,
+                    payload,
                     payload_type,
                     ..
                 } => {
-                    if let Some(site) =
-                        site_plan_for_variant_site(plans, enum_name, *tag, payload_type.as_ref())
-                    {
+                    if let Some(site) = site_plan_for_variant_make(
+                        plans,
+                        enum_name,
+                        *tag,
+                        payload.is_some(),
+                        payload_type.as_ref(),
+                    ) {
                         site_plans.insert((*block_id, instruction_index), site.clone());
                         value_plans.insert(*dst, site);
                     }
@@ -201,6 +215,46 @@ fn site_plan_for_variant_site(
     })
 }
 
+fn site_plan_for_variant_make(
+    plans: &[BoxedSumAbiPlanV1],
+    enum_name: &str,
+    tag: u32,
+    has_payload: bool,
+    payload_type: Option<&MirType>,
+) -> Option<BoxedSumSitePlan> {
+    let plan = if has_payload {
+        find_boxed_sum_site_plan(plans, enum_name, tag, Some(payload_type?))?
+    } else {
+        let storage = BoxedSumPayloadStorage::None;
+        if let Some(payload_type) = payload_type {
+            plans
+                .iter()
+                .find(|plan| {
+                    plan.enum_name == enum_name
+                        && plan.variants.get(tag as usize).is_some_and(|variant| {
+                            variant.tag == tag && variant.payload_storage == storage
+                        })
+                        && plan.variants.iter().any(|variant| {
+                            variant.payload_storage
+                                == payload_storage_from_mir_type(payload_type)
+                                    .unwrap_or(BoxedSumPayloadStorage::None)
+                        })
+                })
+                .or_else(|| find_boxed_sum_site_plan_for_storage(plans, enum_name, tag, storage))?
+        } else {
+            find_boxed_sum_site_plan_for_storage(plans, enum_name, tag, storage)?
+        }
+    };
+    let payload_storage = plan
+        .variants
+        .get(tag as usize)
+        .map(|variant| variant.payload_storage.clone());
+    Some(BoxedSumSitePlan {
+        plan_id: plan.plan_id,
+        payload_storage,
+    })
+}
+
 fn build_enum_plan(enum_name: &str, decl: &MirEnumDecl) -> Option<BoxedSumAbiPlanV1> {
     if decl.variants.is_empty() {
         return None;
@@ -242,10 +296,19 @@ fn build_site_plan(module: &MirModule, inst: &MirInstruction) -> Option<BoxedSum
         MirInstruction::VariantMake {
             enum_name,
             tag,
+            payload,
             payload_type,
             ..
+        } => {
+            return build_variant_make_site_plan(
+                module,
+                enum_name,
+                *tag,
+                payload.is_some(),
+                payload_type.as_ref(),
+            );
         }
-        | MirInstruction::VariantProject {
+        MirInstruction::VariantProject {
             enum_name,
             tag,
             payload_type,
@@ -254,6 +317,65 @@ fn build_site_plan(module: &MirModule, inst: &MirInstruction) -> Option<BoxedSum
         _ => return None,
     };
     let storage = payload_storage_from_mir_type(payload_type?)?;
+    build_site_plan_with_storage(module, enum_name, tag, storage)
+}
+
+fn build_variant_make_site_plan(
+    module: &MirModule,
+    enum_name: &str,
+    tag: u32,
+    has_payload: bool,
+    payload_type: Option<&MirType>,
+) -> Option<BoxedSumAbiPlanV1> {
+    let decl = module.metadata.enum_decls.get(enum_name)?;
+    if !has_payload {
+        if let Some(payload_type) = payload_type {
+            if let Some(plan) = build_single_param_instantiated_plan(enum_name, decl, payload_type)
+            {
+                let variant = plan.variants.get(tag as usize)?;
+                if variant.tag == tag && variant.payload_storage == BoxedSumPayloadStorage::None {
+                    return Some(plan);
+                }
+            }
+        }
+        return build_site_plan_with_storage(module, enum_name, tag, BoxedSumPayloadStorage::None);
+    }
+
+    let storage = payload_storage_from_mir_type(payload_type?)?;
+    build_site_plan_with_storage(module, enum_name, tag, storage)
+}
+
+fn build_single_param_instantiated_plan(
+    enum_name: &str,
+    decl: &MirEnumDecl,
+    payload_type: &MirType,
+) -> Option<BoxedSumAbiPlanV1> {
+    let [param] = decl.type_parameters.as_slice() else {
+        return None;
+    };
+    let storage = payload_storage_from_mir_type(payload_type)?;
+    let mut plan = build_enum_plan(enum_name, decl)?;
+    let mut used_hint = false;
+    for (index, variant_decl) in decl.variants.iter().enumerate() {
+        if variant_decl.payload_type_name.as_deref() == Some(param.as_str()) {
+            let variant = plan.variants.get_mut(index)?;
+            variant.payload_storage = storage.clone();
+            used_hint = true;
+        }
+    }
+    if !used_hint {
+        return None;
+    }
+    plan.shape_key = shape_key(enum_name, &plan.variants);
+    Some(plan)
+}
+
+fn build_site_plan_with_storage(
+    module: &MirModule,
+    enum_name: &str,
+    tag: u32,
+    storage: BoxedSumPayloadStorage,
+) -> Option<BoxedSumAbiPlanV1> {
     let decl = module.metadata.enum_decls.get(enum_name)?;
     let mut plan = build_enum_plan(enum_name, decl)?;
     let variant = plan.variants.get_mut(tag as usize)?;
@@ -489,5 +611,112 @@ mod tests {
 
         assert_eq!(plan.shape_key, "Option|0:none,1:i64");
         assert_eq!(tag_site.payload_storage, None);
+    }
+
+    #[test]
+    fn variant_make_none_uses_payload_type_as_instantiation_hint() {
+        use crate::mir::{BasicBlock, BasicBlockId, MirFunction};
+
+        let mut module = MirModule::new("boxed_sum_none_i64_probe".to_string());
+        module.metadata.enum_decls.insert(
+            "Option".to_string(),
+            MirEnumDecl {
+                type_parameters: vec!["T".to_string()],
+                variants: vec![
+                    MirEnumVariantDecl {
+                        name: "None".to_string(),
+                        payload_type_name: None,
+                    },
+                    MirEnumVariantDecl {
+                        name: "Some".to_string(),
+                        payload_type_name: Some("T".to_string()),
+                    },
+                ],
+            },
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::VariantMake {
+            dst: crate::mir::ValueId::new(2),
+            enum_name: "Option".to_string(),
+            variant: "None".to_string(),
+            tag: 0,
+            payload: None,
+            payload_type: Some(MirType::Integer),
+        });
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "probe".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function.blocks.insert(BasicBlockId::new(0), block);
+        module.functions.insert("probe".to_string(), function);
+
+        let plans = build_boxed_sum_abi_plans(&module);
+        let function = module.functions.get("probe").unwrap();
+        let site_map = build_function_boxed_sum_site_plan_map(function, &plans);
+        let make_site = site_map.get(&(BasicBlockId::new(0), 0)).unwrap();
+        let plan = plans.get(make_site.plan_id as usize).unwrap();
+
+        assert_eq!(plan.shape_key, "Option|0:none,1:i64");
+        assert_eq!(
+            make_site.payload_storage,
+            Some(BoxedSumPayloadStorage::None)
+        );
+    }
+
+    #[test]
+    fn variant_make_some_payload_zero_is_still_payload_present() {
+        use crate::mir::{BasicBlock, BasicBlockId, MirFunction};
+
+        let mut module = MirModule::new("boxed_sum_some_zero_payload_probe".to_string());
+        module.metadata.enum_decls.insert(
+            "Option".to_string(),
+            MirEnumDecl {
+                type_parameters: vec!["T".to_string()],
+                variants: vec![
+                    MirEnumVariantDecl {
+                        name: "None".to_string(),
+                        payload_type_name: None,
+                    },
+                    MirEnumVariantDecl {
+                        name: "Some".to_string(),
+                        payload_type_name: Some("T".to_string()),
+                    },
+                ],
+            },
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::VariantMake {
+            dst: crate::mir::ValueId::new(2),
+            enum_name: "Option".to_string(),
+            variant: "Some".to_string(),
+            tag: 1,
+            payload: Some(crate::mir::ValueId::new(0)),
+            payload_type: Some(MirType::Integer),
+        });
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "probe".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function.blocks.insert(BasicBlockId::new(0), block);
+        module.functions.insert("probe".to_string(), function);
+
+        let plans = build_boxed_sum_abi_plans(&module);
+        let function = module.functions.get("probe").unwrap();
+        let site_map = build_function_boxed_sum_site_plan_map(function, &plans);
+        let make_site = site_map.get(&(BasicBlockId::new(0), 0)).unwrap();
+        let plan = plans.get(make_site.plan_id as usize).unwrap();
+
+        assert_eq!(plan.shape_key, "Option|0:none,1:i64");
+        assert_eq!(make_site.payload_storage, Some(BoxedSumPayloadStorage::I64));
     }
 }

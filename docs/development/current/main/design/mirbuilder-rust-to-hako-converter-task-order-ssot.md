@@ -22,8 +22,7 @@ active blocker:
   BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001
 
 current implementation task:
-  Separate boxed-sum enum instantiation hints, actual payload presence, ABI
-  plan identity, and runtime payload storage for VariantMake sites.
+  Closeout complete; select the next Rust-to-Hako semantic owner.
 
 producer responsibility stack:
   Source preparation
@@ -43,7 +42,7 @@ landed evidence:
   ValueId/i64 keys. OrderedMapBox remains String-key only.
 
 selected next owner:
-  BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001
+  next semantic owner selection pending
 
 current fail-fast boundary:
   payload_type is an instantiation hint, not backend proof. Runtime payload
@@ -66,6 +65,7 @@ Recent acceptance evidence:
 Borrow read-fold owned-map merge focused guard green
 ValueIdOrderedMapBox introduced for ValueId/i64 ordered storage
 no-silent-hardcode guard green for read-fold slice
+MetadataContext region-parent EXE/AOT green
 task-order remains under 800 lines
 ```
 
@@ -73,8 +73,9 @@ Current mechanical status:
 
 ```text
 borrow_read_fold_owned_map_merge = landed
-boxed_sum_variant_make_site_fact_normalization = selected
-metadata_context_region_parent_backend = blocked on boxed_sum site storage
+boxed_sum_variant_make_site_fact_normalization = landed
+metadata_context_region_parent_backend = green
+next_semantic_owner_selection = pending
 ```
 
 ## Active Next 3
@@ -84,13 +85,13 @@ history, not in this task-order SSOT.
 
 ```text
 1. Boxed-sum VariantMake site fact normalization
-   status=selected
+   status=landed
    boundary=payload hint / operand presence / ABI plan / storage split
    semantic_authority=BoxedSumVariantMakeSiteFacts + BoxedSumAbiPlan
    non_authority=payload_type spelling or Option-name backend branch
 
 2. MetadataContext region-parent AOT reopen
-   status=parked until VariantMake site facts green
+   status=landed
    boundary=current_parent_region Option<i64> returns
    semantic_authority=boxed-sum site facts and value representation facts
    non_authority=C shim special case

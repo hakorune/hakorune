@@ -137,6 +137,13 @@
             read_lowering_plan_global_call_view(entry, &view)) {
           a0_is_string = lowering_plan_global_call_view_arg0_origin_is_string(&view);
         }
+        if (!a0_is_string && a0 &&
+            (get_origin(a0) == ORG_STRING ||
+             get_scan_origin(a0) == ORG_STRING ||
+             get_origin(a0_base) == ORG_STRING ||
+             get_scan_origin(a0_base) == ORG_STRING)) {
+          a0_is_string = 1;
+        }
         if (a0_is_string) {
           fprintf(f, "  %%print_call_b%lld_i%zu = call i64 @\"nyash.console.log_handle\"(i64 %%r%lld)\n",
                   bid, ii, a0_base ? a0_base : a0);

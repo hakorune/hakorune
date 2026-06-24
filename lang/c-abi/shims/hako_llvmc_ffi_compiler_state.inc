@@ -62,6 +62,20 @@
           int has_payload) {
         set_variant_binding_with_enum(r, tag_const, tag_reg, payload_reg, has_payload, NULL, -1);
       }
+      auto void set_type(long long r, int t) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r){ types[i].ty=t; return; } } if (types_n<ARR_LEN(types)){ types[types_n].reg=r; types[types_n].ty=t; types_n++; } else { note_generic_capacity_overflow("generic_type_inventory_full"); } }
+      auto void put_const(long long r, long long v){
+        if (r > 0 && r < (long long)ARR_LEN(const_by_reg)) {
+          const_by_reg[r] = v;
+          const_by_reg_present[r] = 1;
+        }
+        for (size_t i=0;i<consts_n;i++){
+          if (consts[i].reg==r){
+            consts[i].val=v;
+            return;
+          }
+        }
+        if (consts_n<ARR_LEN(consts)){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } else { note_generic_capacity_overflow("generic_i64_const_inventory_full"); }
+      }
       auto int publish_variant_binding_from_instruction(yyjson_val* ins) {
         yyjson_val* row = ins ? yyjson_obj_get(ins, "variant_binding") : NULL;
         yyjson_val* has_payload_value = NULL;
@@ -151,7 +165,6 @@
         }
         return T_NONE;
       }
-      auto void set_type(long long r, int t) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r){ types[i].ty=t; return; } } if (types_n<ARR_LEN(types)){ types[types_n].reg=r; types[types_n].ty=t; types_n++; } else { note_generic_capacity_overflow("generic_type_inventory_full"); } }
       auto int has_const(long long r, long long* out){
         if (r > 0 && r < (long long)ARR_LEN(const_by_reg) &&
             const_by_reg_present[r]) {
@@ -181,19 +194,6 @@
         int bool_const = 0;
         if (!r) return 0;
         return get_type(r) == T_I1 || has_bool_const(r, &bool_const);
-      }
-      auto void put_const(long long r, long long v){
-        if (r > 0 && r < (long long)ARR_LEN(const_by_reg)) {
-          const_by_reg[r] = v;
-          const_by_reg_present[r] = 1;
-        }
-        for (size_t i=0;i<consts_n;i++){
-          if (consts[i].reg==r){
-            consts[i].val=v;
-            return;
-          }
-        }
-        if (consts_n<ARR_LEN(consts)){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } else { note_generic_capacity_overflow("generic_i64_const_inventory_full"); }
       }
       auto const char* get_str_const(long long r){
         for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; }

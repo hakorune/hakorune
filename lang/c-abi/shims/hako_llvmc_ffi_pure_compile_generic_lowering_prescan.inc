@@ -374,6 +374,9 @@
             long long a0 = 0;
             long long a1 = 0;
             long long known_len = 0;
+            if (dst) {
+              generic_pure_publish_reg_metadata(dst);
+            }
             if (args && yyjson_is_arr(args)) {
               if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
               if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));

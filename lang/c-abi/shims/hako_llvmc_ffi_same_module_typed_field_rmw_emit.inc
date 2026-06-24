@@ -376,10 +376,16 @@
           long long tag = read_int(ins, "tag");
           const char* enum_name = read_str(ins, "enum");
           const char* payload_storage = read_str(ins, "boxed_sum_payload_storage");
+          yyjson_val* variant_binding = yyjson_obj_get(ins, "variant_binding");
+          yyjson_val* has_payload_value = variant_binding
+              ? yyjson_obj_get(variant_binding, "has_payload")
+              : NULL;
+          int has_payload = has_payload_value && yyjson_is_bool(has_payload_value) &&
+              yyjson_get_bool(has_payload_value);
           int boxed_plan_index = -1;
           boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
           int boxed_emit = emit_boxed_sum_variant_make_lowering(
-              bid, ii, op, dst, tag, payload, enum_name, payload_storage, boxed_plan_index);
+              bid, ii, op, dst, tag, payload, has_payload, enum_name, payload_storage, boxed_plan_index);
           if (boxed_emit != 0) return boxed_emit > 0;
           return 1;
         }

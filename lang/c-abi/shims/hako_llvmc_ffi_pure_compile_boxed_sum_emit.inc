@@ -410,15 +410,19 @@
           long long dst,
           long long tag,
           long long payload,
+          int has_payload,
           const char* enum_name,
           const char* payload_storage,
           int boxed_plan_index) {
         if (!payload_storage) {
+          if (!has_payload && boxed_plan_index < 0) {
+            return 0;
+          }
           note_pure_unsupported_shape(
               bid, ii, op, "boxed_sum_abi_missing_site_payload_storage", enum_name);
           return -1;
         }
-        if (!payload) {
+        if (!has_payload) {
           return emit_boxed_sum_unit_variant_make(
               bid, ii, op, dst, tag, enum_name, boxed_plan_index);
         }
@@ -443,8 +447,12 @@
         struct GenericPureVariantBinding binding;
         memset(&binding, 0, sizeof(binding));
         if (!get_variant_binding(value, &binding)) {
+          int value_plan_index = boxed_plan_index;
+          if (value_plan_index < 0) {
+            get_boxed_sum_binding(value, &value_plan_index);
+          }
           int boxed_emit = emit_boxed_sum_tag_read(
-              bid, ii, op, dst, value, enum_name, boxed_plan_index);
+              bid, ii, op, dst, value, enum_name, value_plan_index);
           if (boxed_emit != 0) return boxed_emit;
           if (unavailable_reason) {
             note_pure_unsupported_shape(bid, ii, op, unavailable_reason, enum_name);
@@ -523,6 +531,11 @@
           struct GenericPureVariantBinding* binding,
           char* out_ref,
           size_t out_ref_len) {
+        if (binding && !binding->has_payload && plan_index >= 0 &&
+            boxed_sum_abi_variant_payload_storage_is_none(plan_index, binding->tag_const)) {
+          snprintf(out_ref, out_ref_len, "%lld", binding->tag_const);
+          return 1;
+        }
         if (boxed_sum_unit_binding_plan_index(binding, NULL)) {
           snprintf(out_ref, out_ref_len, "%lld", binding->tag_const);
           return 1;
@@ -598,6 +611,18 @@
             boxed_sum_unit_binding_plan_index(&lhs_binding, &lhs_plan_index);
         int has_rhs_plan = has_rhs_binding &&
             boxed_sum_unit_binding_plan_index(&rhs_binding, &rhs_plan_index);
+        int lhs_boxed_plan_index = -1;
+        int rhs_boxed_plan_index = -1;
+        int has_lhs_boxed_plan = get_boxed_sum_binding(lhs, &lhs_boxed_plan_index);
+        int has_rhs_boxed_plan = get_boxed_sum_binding(rhs, &rhs_boxed_plan_index);
+        if (!has_lhs_plan && has_lhs_boxed_plan) {
+          lhs_plan_index = lhs_boxed_plan_index;
+          has_lhs_plan = 1;
+        }
+        if (!has_rhs_plan && has_rhs_boxed_plan) {
+          rhs_plan_index = rhs_boxed_plan_index;
+          has_rhs_plan = 1;
+        }
         if (!(has_lhs_plan || has_rhs_plan)) {
           return 0;
         }

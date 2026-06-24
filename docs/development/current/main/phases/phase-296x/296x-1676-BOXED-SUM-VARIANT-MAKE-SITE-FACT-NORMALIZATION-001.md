@@ -1,6 +1,6 @@
 # 296x-1676: Boxed Sum VariantMake Site Fact Normalization
 
-Status: Selected
+Status: Complete
 Date: 2026-06-24
 Token: BOXED-SUM-VARIANT-MAKE-SITE-FACT-NORMALIZATION-001
 
@@ -122,4 +122,46 @@ rename payload_type into actual_payload_type / sum_instantiation_hint
 MIR JSON root boxed-sum plan rebuild consolidation
 multi-parameter enum type-argument mapping
 JSON schema tightening for boxed-sum site fields
+```
+
+## Closeout
+
+Implemented in the Rust boxed-sum site resolver and C AOT consumer path.
+
+```text
+VariantMake site facts:
+  payload_type remains an instantiation hint
+  has_payload / payload presence drives constructor arity
+  plan.variants[tag].payload_storage drives runtime storage
+  resolved BoxedSumSitePlan is consumed by MIR JSON emission
+
+C AOT:
+  VariantMake reads explicit has_payload from variant_binding
+  raw payload register truthiness is not used
+  VariantTag can read boxed-sum ValueRepresentationFact from operands
+  boxed handle + local unit binding compare lowers through tag comparison
+  print lowering also consumes existing ORG_STRING metadata
+```
+
+Evidence:
+
+```text
+cargo test -q boxed_sum
+cargo test -q variant_make
+cargo test -q value_representation_fact
+cargo build --release --bin hakorune
+bash tools/build_hako_llvmc_ffi.sh
+bash tools/checks/rust_lifecycle_metadata_context_region_parent_derived_artifact_guard.sh
+git diff --check
+```
+
+Result:
+
+```text
+metadata_context_region_parent AOT green
+None and Some use Option|0:none,1:i64 where required
+Some(payload=%0) remains payload-present
+Option-name backend branch = 0
+payload_type backend proof = 0
+runtime fallback = 0
 ```

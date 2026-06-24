@@ -2,13 +2,13 @@ use crate::mir::{boxed_sum_abi_plan, MirType, ValueId};
 use serde_json::json;
 
 pub(crate) fn emit_variant_make(
-    boxed_sum_abi_plans: &[boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     dst: &ValueId,
     enum_name: &str,
     variant: &str,
     tag: u32,
     payload: Option<&ValueId>,
     payload_type: Option<&MirType>,
+    site_plan: Option<&boxed_sum_abi_plan::BoxedSumSitePlan>,
 ) -> serde_json::Value {
     let mut obj = json!({
         "op": "variant_make",
@@ -23,24 +23,7 @@ pub(crate) fn emit_variant_make(
     if let Some(payload_type) = payload_type.and_then(type_hint_to_json) {
         obj["payload_type"] = payload_type;
     }
-    let site_plan = boxed_sum_abi_plan::find_boxed_sum_site_plan(
-        boxed_sum_abi_plans,
-        enum_name,
-        tag,
-        payload_type,
-    );
-    annotate_boxed_sum_site_plan(
-        &mut obj,
-        site_plan
-            .map(|plan| boxed_sum_abi_plan::BoxedSumSitePlan {
-                plan_id: plan.plan_id,
-                payload_storage: plan
-                    .variants
-                    .get(tag as usize)
-                    .map(|variant| variant.payload_storage.clone()),
-            })
-            .as_ref(),
-    );
+    annotate_boxed_sum_site_plan(&mut obj, site_plan);
     annotate_variant_binding(&mut obj, dst, enum_name, tag, payload, site_plan.is_some());
     obj
 }
@@ -192,13 +175,16 @@ mod tests {
     fn variant_make_emits_boxed_sum_site_plan_metadata() {
         let plan = option_i64_plan();
         let json = emit_variant_make(
-            &[plan],
             &ValueId::new(2),
             "Option",
             "Some",
             1,
             Some(&ValueId::new(1)),
             Some(&MirType::Integer),
+            Some(&boxed_sum_abi_plan::BoxedSumSitePlan {
+                plan_id: plan.plan_id,
+                payload_storage: Some(BoxedSumPayloadStorage::I64),
+            }),
         );
 
         assert_eq!(json["boxed_sum_abi_plan_id"], 7);
@@ -215,7 +201,7 @@ mod tests {
 
     #[test]
     fn variant_make_emits_local_unit_binding_fact() {
-        let json = emit_variant_make(&[], &ValueId::new(2), "Probe", "None", 0, None, None);
+        let json = emit_variant_make(&ValueId::new(2), "Probe", "None", 0, None, None, None);
 
         assert_eq!(json["variant_binding"]["dst"], 2);
         assert_eq!(json["variant_binding"]["tag_const"], 0);
@@ -223,6 +209,53 @@ mod tests {
         assert_eq!(json["variant_binding"]["has_payload"], false);
         assert_eq!(json["variant_binding"]["copy_alias_payload"], false);
         assert_eq!(json["variant_binding"]["const_zero_result"], true);
+    }
+
+    #[test]
+    fn variant_make_none_keeps_instantiation_hint_but_uses_resolved_site_plan() {
+        let plan = option_i64_plan();
+        let json = emit_variant_make(
+            &ValueId::new(2),
+            "Option",
+            "None",
+            0,
+            None,
+            Some(&MirType::Integer),
+            Some(&boxed_sum_abi_plan::BoxedSumSitePlan {
+                plan_id: plan.plan_id,
+                payload_storage: Some(BoxedSumPayloadStorage::None),
+            }),
+        );
+
+        assert_eq!(json["payload_type"], "Integer");
+        assert_eq!(json["boxed_sum_abi_plan_id"], 7);
+        assert_eq!(json["boxed_sum_payload_storage"], "none");
+        assert_eq!(json["variant_binding"]["has_payload"], false);
+        assert_eq!(json["variant_binding"]["payload_reg"], 0);
+        assert_eq!(json["variant_binding"]["const_zero_result"], false);
+        assert_eq!(json["variant_binding"]["boxed_sum_abi_plan_id"], 7);
+    }
+
+    #[test]
+    fn variant_make_some_zero_payload_is_not_unit_variant() {
+        let plan = option_i64_plan();
+        let json = emit_variant_make(
+            &ValueId::new(2),
+            "Option",
+            "Some",
+            1,
+            Some(&ValueId::new(0)),
+            Some(&MirType::Integer),
+            Some(&boxed_sum_abi_plan::BoxedSumSitePlan {
+                plan_id: plan.plan_id,
+                payload_storage: Some(BoxedSumPayloadStorage::I64),
+            }),
+        );
+
+        assert_eq!(json["variant_binding"]["payload_reg"], 0);
+        assert_eq!(json["variant_binding"]["has_payload"], true);
+        assert_eq!(json["variant_binding"]["copy_alias_payload"], false);
+        assert_eq!(json["variant_binding"]["const_zero_result"], false);
     }
 
     #[test]

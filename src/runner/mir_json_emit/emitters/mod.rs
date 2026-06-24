@@ -154,13 +154,13 @@ fn emit_instruction(
             payload,
             payload_type,
         } => Ok(sum::emit_variant_make(
-            boxed_sum_abi_plans,
             dst,
             enum_name,
             variant,
             *tag,
             payload.as_ref(),
             payload_type.as_ref(),
+            boxed_sum_site_plans.get(&(block, instruction_index)),
         )),
         I::VariantTag {
             dst,
