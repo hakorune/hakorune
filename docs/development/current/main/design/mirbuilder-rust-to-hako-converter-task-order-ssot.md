@@ -19,11 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  RUST-TO-HAKO-SEMANTIC-LANE-NEXT-OWNER-SELECTION-001
+  BORROW-READ-FOLD-OWNED-MAP-MERGE-001
 
 current implementation task:
-  Select the next Rust-to-Hako semantic converter owner after descriptor
-  cleanup closeout.
+  Promote MetadataContext value_origin_callers owned merge into
+  `borrow.read_fold` direct lowering.
 
 producer responsibility stack:
   Source preparation
@@ -33,10 +33,10 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  pending design answer
+  MirBuilder::finalize_module value_origin_callers owned merge
 
 selected lowering:
-  pending design answer
+  StorageAccessFacts + FoldSemantics -> ElideToReadFold -> ForEachMapEntry
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -52,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  RUST-TO-HAKO-SEMANTIC-LANE-NEXT-OWNER-SELECTION-001
+  BORROW-READ-FOLD-OWNED-MAP-MERGE-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -154,23 +154,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Same-module global-call descriptor generation
-   status=landed for proof, origin, definition-owner, and direct-contract rows
-   boundary=fixed direct route/core/tier/emit-kind tuple only
-   semantic_authority=global_call_routes / GlobalCallRoute metadata
-   non_authority=C-side callee spelling or neighboring-instruction scans
+1. Borrow read-fold owned-map merge
+   status=selected
+   boundary=HashMap read fold into cloned owned ordered map
+   semantic_authority=StorageAccessFacts + FoldSemantics
+   non_authority=Main-only MapReadFoldOwnedCopy renderer
 
-2. Return to Rust-to-Hako semantic lane
-   status=next design stop
-   boundary=select next semantic converter owner
-   semantic_authority=mirbuilder-rust-to-hako task order / next design answer
-   non_authority=route descriptor cleanup drift
+2. Second live read-fold consumer parity
+   status=parked until first consumer green
+   boundary=finalize_function must normalize to the same shape
+   semantic_authority=the same borrow.read_fold rule
+   non_authority=family-specific second lowerer
 
-3. User-box return-contract descriptor
-   status=parked until concrete mismatch
-   boundary=dynamic call-site return contract, not static method-kind table
-   semantic_authority=UserBoxMethodRoute return contract if introduced
-   non_authority=C-side static combination table
+3. Crate-level partial bundle
+   status=parked
+   boundary=after semantic shape coverage reaches an adoption checkpoint
+   semantic_authority=derived-to-native adoption policy
+   non_authority=bundle count as conversion proof
 ```
 
 ## Landed Converter Capability Summary

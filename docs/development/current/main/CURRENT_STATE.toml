@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "GLOBAL-CALL-SAME-MODULE-CONTRACT-INFERENCE-FIX-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1674-GLOBAL-CALL-SAME-MODULE-CONTRACT-INFERENCE-FIX-001.md"
-latest_card_summary = """Same-module static-helper contract inference now
-fails closed for unproven scalar / void-sentinel child return contracts. The
-global_call_route_plan test module is green again; descriptor generation was
-unchanged."""
+latest_card = "BORROW-READ-FOLD-OWNED-MAP-MERGE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1675-BORROW-READ-FOLD-OWNED-MAP-MERGE-001.md"
+latest_card_summary = """The next Rust-to-Hako semantic converter owner is
+selected: promote MetadataContext value_origin_callers owned map merge into
+the direct `borrow.read_fold` rule. Details live in the selected phase card;
+implementation has not started."""
 
-current_blocker_token = "GLOBAL-CALL-SAME-MODULE-CONTRACT-INFERENCE-FIX-001"
+current_blocker_token = "BORROW-READ-FOLD-OWNED-MAP-MERGE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
