@@ -166,7 +166,7 @@ history, not in this task-order SSOT.
    non_authority=exact seed userbox routes or same-module global-call policy
 
 3. MIR instruction SSOT schema sync
-   status=parked; cleanup lane after the next semantic descriptor slice
+   status=landed for JSON schema op enum sync coverage
    boundary=doc / ledger / JSON schema sync guard only
    semantic_authority=canonical MIR instruction enum
    non_authority=hand-maintained schema drift
