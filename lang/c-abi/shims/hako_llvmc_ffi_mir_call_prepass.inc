@@ -1,14 +1,3 @@
-      auto void mark_global_call_result_origin_from_view(
-          const struct LoweringPlanGlobalCallView* view,
-          long long dst) {
-        int origin_kind = ORG_NONE;
-        if (!dst || !view) return;
-        origin_kind = lowering_plan_global_call_view_result_origin_kind(view);
-        if (origin_kind == ORG_NONE) return;
-        set_scan_origin(dst, origin_kind);
-        set_origin(dst, origin_kind);
-      }
-
       auto void mark_global_call_result_origin_from_lowering_plan(
           long long bid,
           size_t ii,
