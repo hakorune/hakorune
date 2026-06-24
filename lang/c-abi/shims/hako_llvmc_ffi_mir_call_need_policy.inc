@@ -31,6 +31,26 @@
             recv, value, 1);
       }
 
+      auto int mark_constructor_call_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst,
+          struct MirCallNeedFlags* needs) {
+        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        struct LoweringPlanConstructorCallView view;
+        enum MirCallNeedKind need_kind;
+        int origin_kind;
+        if (!entry) return 0;
+        if (!read_lowering_plan_constructor_call_view(entry, &view)) return 0;
+        need_kind = mir_call_constructor_need_kind_from_lowering_plan_entry(entry);
+        apply_mir_call_need_kind(needs, need_kind);
+        origin_kind = lowering_plan_constructor_call_view_result_origin_kind(&view);
+        if (dst && origin_kind != ORG_NONE) {
+          set_scan_origin(dst, origin_kind);
+        }
+        return 1;
+      }
+
       auto enum MirCallNeedKind
       classify_mir_call_method_need_kind_from_site_lowering_plan(
           long long bid,
