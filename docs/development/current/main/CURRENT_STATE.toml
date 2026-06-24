@@ -265,13 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1664-GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001.md"
-latest_card_summary = """Set-route value-shape descriptor generation is
-complete: descriptor-owned manifest data now owns LoweringPlanSetRouteRule tuple
-data, and focused MapSet/ArraySet EXE/AOT smokes are green."""
+latest_card = "EXTERN-ROUTE-DESCRIPTOR-GENERATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1665-EXTERN-ROUTE-DESCRIPTOR-GENERATION-001.md"
+latest_card_summary = """Extern route descriptor generation is complete for the
+declaration-need slice: C extern need rows are generated from the Rust
+ExternCallRouteSpec table, and the handwritten LoweringPlanExternNeedRule table
+is removed."""
 
-current_blocker_token = "GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001"
+current_blocker_token = "EXTERN-ROUTE-DESCRIPTOR-GENERATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

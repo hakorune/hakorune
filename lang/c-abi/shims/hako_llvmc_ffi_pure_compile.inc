@@ -605,6 +605,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_const_string_hoist.inc"
       #include "hako_llvmc_ffi_core_method_metadata.inc"
       #include "hako_llvmc_ffi_lowering_plan_metadata.inc"
+      #include "hako_llvmc_ffi_extern_call_route_registry.inc"
       #include "hako_llvmc_ffi_constructor_call_route_metadata.inc"
       #include "hako_llvmc_ffi_generic_method_result_metadata.inc"
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"

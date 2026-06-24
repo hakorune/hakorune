@@ -161,13 +161,13 @@ history, not in this task-order SSOT.
    non_authority=C row helper_symbol override except c_helper_variant selector
 
 2. Set-route value-shape table generation
-   status=selected
+   status=landed
    boundary=value-shape-specific set route rows become generated descriptor data
    semantic_authority=neutral route manifests
    non_authority=handwritten LoweringPlanSetRouteRule helper/value-shape table
 
 3. Extern route descriptor generation
-   status=parked; same-module split follows later
+   status=landed; same-module split follows later
    boundary=extern route metadata gets equivalent generated descriptor rows
    semantic_authority=extern route descriptor manifest
    non_authority=C-side name or tuple fallback classifiers
