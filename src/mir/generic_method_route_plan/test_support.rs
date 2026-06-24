@@ -76,10 +76,18 @@ struct FixtureSpec<'a> {
 }
 
 fn route(spec: FixtureSpec<'_>) -> GenericMethodRoute {
+    let route_evidence = evidence(spec.receiver_origin_box, spec.key_route);
+    route_with_evidence(spec, route_evidence)
+}
+
+fn route_with_evidence(
+    spec: FixtureSpec<'_>,
+    route_evidence: GenericMethodRouteEvidence,
+) -> GenericMethodRoute {
     GenericMethodRoute::new(
         site(spec.block, spec.instruction_index),
         GenericMethodRouteSurface::new(spec.box_name, spec.method, spec.arity),
-        evidence(spec.receiver_origin_box, spec.key_route),
+        route_evidence,
         operands(spec.receiver, spec.key, spec.result),
         decision(
             spec.route_kind,
@@ -254,25 +262,28 @@ pub(crate) fn string_substring(
     receiver: u32,
     result: u32,
 ) -> GenericMethodRoute {
-    let mut route = route(FixtureSpec {
-        block,
-        instruction_index,
-        box_name: "StringBox",
-        method: "substring",
-        arity: 2,
-        receiver_origin_box: Some("StringBox"),
-        key_route: None,
-        receiver,
-        key: None,
-        result,
-        route_kind: GenericMethodRouteKind::StringSubstring,
-        proof: GenericMethodRouteProof::SubstringSurfacePolicy,
-        core_op: CoreMethodOp::StringSubstring,
-        lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
-        return_shape: None,
-        value_demand: GenericMethodValueDemand::ReadRef,
-        publication_policy: None,
-    });
+    let mut route = route_with_evidence(
+        FixtureSpec {
+            block,
+            instruction_index,
+            box_name: "StringBox",
+            method: "substring",
+            arity: 2,
+            receiver_origin_box: Some("StringBox"),
+            key_route: None,
+            receiver,
+            key: None,
+            result,
+            route_kind: GenericMethodRouteKind::StringSubstring,
+            proof: GenericMethodRouteProof::SubstringSurfacePolicy,
+            core_op: CoreMethodOp::StringSubstring,
+            lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
+            return_shape: None,
+            value_demand: GenericMethodValueDemand::ReadRef,
+            publication_policy: None,
+        },
+        evidence(Some("StringBox"), None).with_arg0_origin_box(Some("StringBox".to_string())),
+    );
     route.override_result_origin_box("StringBox".to_string());
     route
 }
@@ -340,8 +351,7 @@ pub(crate) fn array_push_string_value(
     GenericMethodRoute::new(
         site(block, instruction_index),
         GenericMethodRouteSurface::new("ArrayBox", "push", 1),
-        evidence(Some("ArrayBox"), None)
-            .with_value_origin_box(Some("StringBox".to_string())),
+        evidence(Some("ArrayBox"), None).with_value_origin_box(Some("StringBox".to_string())),
         operands(receiver, None, result),
         decision(
             GenericMethodRouteKind::ArrayAppendAny,

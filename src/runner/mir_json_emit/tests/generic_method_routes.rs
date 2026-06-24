@@ -78,6 +78,15 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(get_plan["publication_policy"], "runtime_data_facade");
     assert_eq!(get_plan["effects"], serde_json::json!(["read.key"]));
 
+    let substring_plan = &lowering_plan[3];
+    assert_eq!(substring_plan["source"], "generic_method_routes");
+    assert_eq!(
+        substring_plan["source_route_id"],
+        "generic_method.substring"
+    );
+    assert_eq!(substring_plan["receiver_origin_box"], "StringBox");
+    assert_eq!(substring_plan["arg0_origin_box"], "StringBox");
+
     let get_route = &root["functions"][0]["metadata"]["generic_method_routes"][1];
     assert_eq!(get_route["route_id"], "generic_method.get");
     assert_eq!(get_route["block"], 8);
@@ -165,6 +174,7 @@ fn build_mir_json_root_emits_generic_method_routes() {
     assert_eq!(substring_route["box_name"], "StringBox");
     assert_eq!(substring_route["method"], "substring");
     assert_eq!(substring_route["receiver_origin_box"], "StringBox");
+    assert_eq!(substring_route["arg0_origin_box"], "StringBox");
     assert_eq!(substring_route["result_origin_box"], "StringBox");
     assert_eq!(substring_route["key_route"], serde_json::Value::Null);
     assert_eq!(substring_route["arity"], 2);

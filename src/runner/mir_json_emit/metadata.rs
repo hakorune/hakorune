@@ -332,6 +332,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "box_name": route.box_name(),
                 "method": route.method(),
                 "receiver_origin_box": route.receiver_origin_box(),
+                "arg0_origin_box": route.arg0_origin_box(),
                 "result_origin_box": route.result_origin_box(),
                 "value_origin_box": route.value_origin_box(),
                 "key_route": route.key_route().map(|key_route| key_route.to_string()),

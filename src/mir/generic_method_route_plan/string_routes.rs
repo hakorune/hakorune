@@ -64,6 +64,16 @@ pub(super) fn match_generic_substring_route(
     {
         return None;
     }
+    let arg0_origin_box = args.first().and_then(|arg0| {
+        receiver_origin_box_name(function, def_map, *arg0).or_else(|| {
+            generic_pure_string_value_origin_box_name_with_flow(
+                function,
+                def_map,
+                *arg0,
+                pure_string_flow,
+            )
+        })
+    });
     let substring_args = substring_logical_args(
         function,
         def_map,
@@ -77,6 +87,7 @@ pub(super) fn match_generic_substring_route(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), substring_args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None)
+            .with_arg0_origin_box(arg0_origin_box)
             .with_result_origin_box(Some("StringBox".to_string())),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(

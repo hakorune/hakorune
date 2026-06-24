@@ -22,9 +22,12 @@
         long long raw0 = 0;
         const char* source = entry ? read_str(entry, "source") : NULL;
         const char* source_route_id = entry ? read_str(entry, "source_route_id") : NULL;
+        struct LoweringPlanGenericMethodView view;
+        memset(&view, 0, sizeof(view));
         if (!(source && !strcmp(source, "generic_method_routes"))) return;
         if (!lowering_plan_read_i64_field(entry, "arity", &arity)) return;
         if (arity < 0) return;
+        read_lowering_plan_generic_method_view(entry, &view);
         if (recv &&
             argc == (size_t)(arity + 1) &&
             hako_llvmc_mir_call_arg_reg_at(args, 0, &raw0)) {
@@ -32,10 +35,8 @@
             start = 1;
           } else if (source_route_id &&
                      !strcmp(source_route_id, "generic_method.substring") &&
-                     (get_origin(raw0) == ORG_STRING ||
-                      get_scan_origin(raw0) == ORG_STRING) &&
-                     (get_origin(recv) == ORG_STRING ||
-                      get_scan_origin(recv) == ORG_STRING)) {
+                     lowering_plan_generic_method_view_receiver_origin_is_string(&view) &&
+                     lowering_plan_generic_method_view_arg0_origin_is_string(&view)) {
             start = 1;
           }
         }

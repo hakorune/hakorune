@@ -14,6 +14,7 @@
         const char* symbol;
         const char* route_proof;
         const char* receiver_origin_box;
+        const char* arg0_origin_box;
         const char* result_origin_box;
         const char* key_route;
         const char* return_shape;
@@ -594,6 +595,7 @@
           out->symbol = read_str(entry, "symbol");
           out->route_proof = read_str(entry, "route_proof");
           out->receiver_origin_box = read_str(entry, "receiver_origin_box");
+          out->arg0_origin_box = read_str(entry, "arg0_origin_box");
           out->result_origin_box = read_str(entry, "result_origin_box");
           out->key_route = read_str(entry, "key_route");
           out->return_shape = read_str(entry, "return_shape");
@@ -643,6 +645,20 @@
                view->route_proof &&
                route_proof &&
                !strcmp(view->route_proof, route_proof);
+      }
+
+      auto int lowering_plan_generic_method_view_arg0_origin_is_string(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->arg0_origin_box &&
+               !strcmp(view->arg0_origin_box, "StringBox");
+      }
+
+      auto int lowering_plan_generic_method_view_receiver_origin_is_string(
+          const struct LoweringPlanGenericMethodView* view) {
+        return view &&
+               view->receiver_origin_box &&
+               !strcmp(view->receiver_origin_box, "StringBox");
       }
 
       auto int read_lowering_plan_extern_call_view(
