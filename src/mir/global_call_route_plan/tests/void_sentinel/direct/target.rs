@@ -56,10 +56,13 @@ fn refresh_module_global_call_routes_marks_string_or_void_sentinel_body_direct_t
     assert_eq!(route.target_symbol(), Some("Helper.maybe_text/0"));
     assert_eq!(route.target_return_type(), Some("void".to_string()));
     assert_eq!(route.target_shape(), None);
+    assert_eq!(route.target_shape_reason(), None);
     assert_eq!(
-        route.target_shape_reason(),
-        Some("generic_string_global_target_shape_unknown")
+        route.proof(),
+        "typed_global_call_generic_string_or_void_sentinel"
     );
-    assert_eq!(route.tier(), "Unsupported");
-    assert_eq!(route.reason(), Some("missing_multi_function_emitter"));
+    assert_eq!(route.return_shape(), Some("string_handle_or_null"));
+    assert_eq!(route.value_demand(), "runtime_i64_or_handle");
+    assert_eq!(route.tier(), "DirectAbi");
+    assert_eq!(route.reason(), None);
 }

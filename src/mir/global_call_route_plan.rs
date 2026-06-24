@@ -546,8 +546,10 @@ fn merge_same_module_static_helper_contract(
             Some(GlobalCallReturnContract::VoidSentinelI64Zero),
             Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
         ) => Some(Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)),
-        (Some(current), None) => Some(Some(current)),
-        (None, None) => Some(None),
+        (Some(GlobalCallReturnContract::ObjectHandle), None) => {
+            Some(Some(GlobalCallReturnContract::ObjectHandle))
+        }
+        (Some(_), None) | (None, None) => None,
         (Some(_), Some(_)) => None,
     }
 }
@@ -579,7 +581,10 @@ fn same_module_static_helper_contract_allowed(
                 MirType::Void | MirType::Unknown
             )
         }
-        GlobalCallReturnContract::ScalarI64 | GlobalCallReturnContract::VoidSentinelI64Zero => true,
+        GlobalCallReturnContract::ScalarI64 => true,
+        GlobalCallReturnContract::VoidSentinelI64Zero => {
+            matches!(function.signature.return_type, MirType::Void)
+        }
         _ => false,
     }
 }
