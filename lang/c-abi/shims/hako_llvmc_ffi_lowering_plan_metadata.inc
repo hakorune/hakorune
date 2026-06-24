@@ -1075,6 +1075,26 @@
         return ORG_NONE;
       }
 
+      auto void mark_user_box_method_result_origin_from_view(
+          const struct LoweringPlanUserBoxMethodView* view,
+          long long dst) {
+        int typed_plan_index = -1;
+        int origin_kind = ORG_NONE;
+        if (!dst || !view) return;
+        if (view->target_result_box_name &&
+            find_typed_object_plan_index(view->target_result_box_name, &typed_plan_index)) {
+          set_origin(dst, ORG_TYPED_OBJECT);
+          set_scan_origin(dst, ORG_TYPED_OBJECT);
+          set_typed_object_binding(dst, typed_plan_index);
+          return;
+        }
+        origin_kind = lowering_plan_user_box_method_view_result_origin_kind(view);
+        if (origin_kind != ORG_NONE) {
+          set_origin(dst, origin_kind);
+          set_scan_origin(dst, origin_kind);
+        }
+      }
+
       auto int lowering_plan_global_call_view_matches_runtime_route(
           const struct LoweringPlanGlobalCallView* view,
           const char* route_kind,

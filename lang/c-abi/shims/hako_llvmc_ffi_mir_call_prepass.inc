@@ -20,26 +20,13 @@
         yyjson_val* entry = NULL;
         const char* source = NULL;
         struct LoweringPlanUserBoxMethodView view;
-        int typed_plan_index = -1;
-        int origin_kind = ORG_NONE;
         if (!dst) return;
         entry = find_lowering_plan_entry_for_site(bid, ii);
         source = entry ? read_str(entry, "source") : NULL;
         if (!(source && !strcmp(source, "user_box_method_routes"))) return;
         if (!read_lowering_plan_user_box_method_view(entry, &view)) return;
         if (!lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(&view)) return;
-        if (view.target_result_box_name &&
-            find_typed_object_plan_index(view.target_result_box_name, &typed_plan_index)) {
-          set_origin(dst, ORG_TYPED_OBJECT);
-          set_scan_origin(dst, ORG_TYPED_OBJECT);
-          set_typed_object_binding(dst, typed_plan_index);
-          return;
-        }
-        origin_kind = lowering_plan_user_box_method_view_result_origin_kind(&view);
-        if (origin_kind != ORG_NONE) {
-          set_origin(dst, origin_kind);
-          set_scan_origin(dst, origin_kind);
-        }
+        mark_user_box_method_result_origin_from_view(&view, dst);
       }
 
       auto int mark_constructor_call_from_lowering_plan(
