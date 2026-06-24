@@ -19,10 +19,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001
+  USER-BOX-METHOD-DIRECT-ROUTE-DESCRIPTOR-GENERATION-001
 
 current implementation task:
-  Generate generic-method set-route value-shape rules from descriptor data.
+  Generate user-box method direct route descriptors from route metadata.
 
 producer responsibility stack:
   Source preparation
@@ -32,11 +32,11 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  spec/mir/generic_method_routes.toml
+  src/mir/user_box_method_route_plan.rs
 
 selected lowering:
-  routes.c_set_routes
-    -> generated C set_value_shape / set_route_result registry fields
+  UserBoxMethodRoute direct route/proof/owner metadata
+    -> generated C direct route registry validation
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -52,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001
+  USER-BOX-METHOD-DIRECT-ROUTE-DESCRIPTOR-GENERATION-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
@@ -160,7 +160,7 @@ history, not in this task-order SSOT.
    non_authority=C-side callee spelling or neighboring-instruction scans
 
 2. Same-module user-box method descriptor generation
-   status=parked; split after global-call descriptor slice is green
+   status=landed for direct route/proof/owner descriptor rows
    boundary=user_box_method_route_plan gets its own descriptor owner
    semantic_authority=user_box_method_route_plan metadata
    non_authority=exact seed userbox routes or same-module global-call policy

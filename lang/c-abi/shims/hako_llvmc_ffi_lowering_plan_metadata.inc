@@ -999,23 +999,15 @@
       auto int lowering_plan_user_box_method_view_has_direct_target(
           const struct LoweringPlanUserBoxMethodView* view) {
         return view &&
-               view->route_id &&
-               !strcmp(view->route_id, "user_box.method_call") &&
-               view->core_op &&
-               !strcmp(view->core_op, "UserBoxMethodCall") &&
-               view->route_kind &&
-               view->method &&
-               view->proof &&
-               view->route_proof &&
-               ((view->method &&
-                 !strcmp(view->method, "birth") &&
-                 !strcmp(view->route_kind, "user_box.birth") &&
-                 !strcmp(view->proof, "typed_user_box_birth_same_module") &&
-                 !strcmp(view->route_proof, "typed_user_box_birth_same_module")) ||
-                (strcmp(view->method, "birth") &&
-                 !strcmp(view->route_kind, "user_box.method") &&
-                 !strcmp(view->proof, "typed_user_box_method_same_module") &&
-                 !strcmp(view->route_proof, "typed_user_box_method_same_module"))) &&
+               hako_llvmc_user_box_method_route_registry_direct_is(
+                   view->route_id,
+                   view->core_op,
+                   view->route_kind,
+                   view->method,
+                   view->proof,
+                   view->route_proof,
+                   view->definition_owner,
+                   view->emit_kind) &&
                view->target_exists &&
                view->has_target_arity &&
                view->has_arity_matches &&
