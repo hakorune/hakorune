@@ -153,24 +153,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Helper-symbol override drain
-   status=landed
-   boundary=C registry rows keep policy deltas; route contract fields come from
-     spec/mir/generic_method_routes.toml route descriptors
-   semantic_authority=neutral route descriptor manifest
-   non_authority=C row helper_symbol override except c_helper_variant selector
+1. Same-module global-call descriptor generation
+   status=selected
+   boundary=move one same-module global-call C consumer to descriptor data
+   semantic_authority=global_call_routes / GlobalCallRoute metadata
+   non_authority=C-side callee spelling or neighboring-instruction scans
 
-2. Set-route value-shape table generation
-   status=landed
-   boundary=value-shape-specific set route rows become generated descriptor data
-   semantic_authority=neutral route manifests
-   non_authority=handwritten LoweringPlanSetRouteRule helper/value-shape table
+2. Same-module user-box method descriptor generation
+   status=parked; split after global-call descriptor slice is green
+   boundary=user_box_method_route_plan gets its own descriptor owner
+   semantic_authority=user_box_method_route_plan metadata
+   non_authority=exact seed userbox routes or same-module global-call policy
 
-3. Extern route descriptor generation
-   status=landed; same-module split follows later
-   boundary=extern route metadata gets equivalent generated descriptor rows
-   semantic_authority=extern route descriptor manifest
-   non_authority=C-side name or tuple fallback classifiers
+3. MIR instruction SSOT schema sync
+   status=parked; cleanup lane after the next semantic descriptor slice
+   boundary=doc / ledger / JSON schema sync guard only
+   semantic_authority=canonical MIR instruction enum
+   non_authority=hand-maintained schema drift
 ```
 
 ## Landed Converter Capability Summary
@@ -628,8 +627,8 @@ P1. GENERIC-ROUTE-DESCRIPTOR-FULL-GENERATION-001
     current files:
       lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc
       lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc
-    - generate same-module views, need-kind mapping, emit-kind mapping, and
-      extern need mapping from the neutral route manifest
+    - generate same-module views, need-kind mapping, and emit-kind mapping from
+      route descriptors; extern need mapping is already generated
     - handwritten route/proof tuple copies become generated output checks only
     - backends switch on generated route ids / descriptor fields
 
