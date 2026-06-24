@@ -45,6 +45,7 @@ FAMILY_GENERATORS = {
     "type-context-value-kind": run_type_context_value_kind_artifact_generator,
     "type-context-value-type": run_type_context_value_type_artifact_generator,
     "variable-context-simple-map": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_simple_map", check=check),
+    "variable-context-immutable-borrow": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_immutable_borrow", check=check),
     "variable-context-snapshot-restore": lambda *, check: run_mirbuilder_family_artifact_generator("variable_context_snapshot_restore", check=check),
     "variable-context-carrier-snapshot": run_variable_context_carrier_snapshot_artifact_generator,
     "variable-context-explicit-carrier-snapshot": run_variable_context_explicit_carrier_snapshot_artifact_generator,
