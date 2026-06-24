@@ -19,10 +19,11 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  GLOBAL-CALL-DIRECT-CONTRACT-DESCRIPTOR-DRAIN-001
+  RUST-TO-HAKO-SEMANTIC-LANE-NEXT-OWNER-SELECTION-001
 
 current implementation task:
-  Generate the global-call direct contract descriptor from route metadata.
+  Select the next Rust-to-Hako semantic converter owner after descriptor
+  cleanup closeout.
 
 producer responsibility stack:
   Source preparation
@@ -32,11 +33,10 @@ producer responsibility stack:
     -> ny-llvmc consumption
 
 selected source slice:
-  src/mir/global_call_route_plan/route.rs
+  pending design answer
 
 selected lowering:
-  GlobalCallRoute fixed direct route/core/tier/emit-kind tuple
-    -> generated C direct contract registry validation
+  pending design answer
 
 landed evidence:
   RegionObserver SlotMetadata LLVM/AOT green; mixed runtime value carrier,
@@ -52,7 +52,7 @@ landed evidence:
   constructor birth LoweringPlan facts are landed.
 
 selected next owner:
-  GLOBAL-CALL-DIRECT-CONTRACT-DESCRIPTOR-DRAIN-001
+  RUST-TO-HAKO-SEMANTIC-LANE-NEXT-OWNER-SELECTION-001
 
 selected transport:
   SlotMetadata / RefSlotKind output transport is selected:
