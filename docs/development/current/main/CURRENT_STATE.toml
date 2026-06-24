@@ -268,9 +268,8 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 latest_card = "GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1664-GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001.md"
 latest_card_summary = """Set-route value-shape descriptor generation is
-selected before same-module / extern expansion so the generic-method descriptor
-family closes first. The slice moves LoweringPlanSetRouteRule tuple data into
-descriptor-owned manifest data."""
+complete: descriptor-owned manifest data now owns LoweringPlanSetRouteRule tuple
+data, and focused MapSet/ArraySet EXE/AOT smokes are green."""
 
 current_blocker_token = "GENERIC-SET-ROUTE-VALUE-SHAPE-DESCRIPTOR-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

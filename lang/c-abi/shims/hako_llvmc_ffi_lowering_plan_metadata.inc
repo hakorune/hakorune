@@ -15,6 +15,7 @@
         const char* route_proof;
         const char* receiver_origin_box;
         const char* arg0_origin_box;
+        const char* value_origin_box;
         const char* result_origin_box;
         const char* key_route;
         const char* return_shape;
@@ -594,8 +595,10 @@
           out->route_kind = read_str(entry, "route_kind");
           out->symbol = read_str(entry, "symbol");
           out->route_proof = read_str(entry, "route_proof");
+          if (!out->route_proof) out->route_proof = read_str(entry, "proof");
           out->receiver_origin_box = read_str(entry, "receiver_origin_box");
           out->arg0_origin_box = read_str(entry, "arg0_origin_box");
+          out->value_origin_box = read_str(entry, "value_origin_box");
           out->result_origin_box = read_str(entry, "result_origin_box");
           out->key_route = read_str(entry, "key_route");
           out->return_shape = read_str(entry, "return_shape");

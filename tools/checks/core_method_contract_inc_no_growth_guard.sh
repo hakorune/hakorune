@@ -34,7 +34,6 @@ c_policy_paths = tuple(pathlib.Path(arg).resolve() for arg in sys.argv[4:])
 
 TARGET_FUNCTIONS = (
     "classify_generic_method_emit_kind",
-    "classify_generic_method_set_route",
     "classify_generic_method_get_route",
     "classify_generic_method_has_route",
     "classify_generic_method_len_route",

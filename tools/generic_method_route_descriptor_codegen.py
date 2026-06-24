@@ -78,6 +78,23 @@ C_NEED_KIND_VALUES = {
     "any_length": 22,
 }
 
+C_SET_VALUE_SHAPE_VALUES = {
+    "none": 0,
+    "any": 1,
+    "i64": 2,
+    "non_string_handle": 3,
+    "string_handle": 4,
+}
+
+C_SET_ROUTE_RESULT_VALUES = {
+    "none": 0,
+    "map_store_i64": 1,
+    "map_store_any": 2,
+    "array_store_i64": 3,
+    "array_store_string": 4,
+    "array_store_any": 5,
+}
+
 
 def load_spec() -> dict[str, Any]:
     with SPEC.open("rb") as fh:
@@ -100,6 +117,7 @@ def load_spec() -> dict[str, Any]:
     if missing:
         raise SystemExit(f"missing route descriptors: {sorted(missing)}")
     route_by_kind = {str(route["kind"]): route for route in routes}
+    validate_c_set_routes(routes, rows)
     for row in rows:
         route_kind = str(row.get("route_kind", ""))
         route = route_by_kind.get(route_kind)
@@ -109,6 +127,77 @@ def load_spec() -> dict[str, Any]:
         row.clear()
         row.update(normalized)
     return data
+
+
+def validate_c_set_routes(routes: list[dict[str, Any]], rows: list[dict[str, Any]]) -> None:
+    rows_by_route: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        if "c_set_route" in row:
+            rows_by_route.setdefault(str(row.get("route_kind", "")), []).append(row)
+
+    for route in routes:
+        route_kind = str(route.get("kind", ""))
+        set_routes = route.get("c_set_routes")
+        if set_routes is None:
+            if route_kind in rows_by_route:
+                raise SystemExit(
+                    f"route {route_kind} has c_registry_rows with c_set_route "
+                    "but no c_set_routes"
+                )
+            continue
+        if not isinstance(set_routes, list) or not set_routes:
+            raise SystemExit(f"route {route_kind} has empty/invalid c_set_routes")
+
+        helper_variants = {
+            str(item.get("key"))
+            for item in route.get("c_helper_variants", [])
+            if isinstance(item, dict)
+        }
+        seen_keys: set[str] = set()
+        seen_shapes: set[str] = set()
+        has_any = False
+        for item in set_routes:
+            key = str(item.get("key", ""))
+            if key in seen_keys:
+                raise SystemExit(f"route {route_kind} duplicates c_set_routes key={key!r}")
+            seen_keys.add(key)
+
+            shape = str(item.get("value_shape", ""))
+            if shape not in C_SET_VALUE_SHAPE_VALUES:
+                raise SystemExit(f"route {route_kind} has unknown c_set_routes value_shape={shape!r}")
+            if shape in seen_shapes:
+                raise SystemExit(f"route {route_kind} duplicates c_set_routes value_shape={shape!r}")
+            seen_shapes.add(shape)
+            has_any = has_any or shape == "any"
+
+            result = str(item.get("result", ""))
+            if result not in C_SET_ROUTE_RESULT_VALUES:
+                raise SystemExit(f"route {route_kind} has unknown c_set_routes result={result!r}")
+
+            helper_variant = item.get("helper_variant")
+            if helper_variant is not None and str(helper_variant) not in helper_variants:
+                raise SystemExit(
+                    f"route {route_kind} c_set_routes key={key!r} references "
+                    f"unknown helper_variant={helper_variant!r}"
+                )
+
+        if has_any and len(seen_shapes) > 1:
+            raise SystemExit(f"route {route_kind} mixes any and specific c_set_routes")
+
+        route_rows = rows_by_route.get(route_kind, [])
+        route_row_keys = [str(row.get("c_set_route", "")) for row in route_rows]
+        for key in seen_keys:
+            if route_row_keys.count(key) != 1:
+                raise SystemExit(
+                    f"route {route_kind} c_set_routes key={key!r} must have exactly "
+                    f"one c_registry_row, found {route_row_keys.count(key)}"
+                )
+        for key in route_row_keys:
+            if key not in seen_keys:
+                raise SystemExit(
+                    f"route {route_kind} c_registry_row references unknown "
+                    f"c_set_route={key!r}"
+                )
 
 
 def check_if_present(row: dict[str, Any], field: str, expected: Any) -> None:
@@ -140,6 +229,7 @@ def normalize_c_registry_row(row: dict[str, Any], route: dict[str, Any]) -> dict
     tier = int(route["tier"])
     emit_kind = route_emit_kind_value(route)
     need_kind = route_need_kind_value(route)
+    set_value_shape, set_route_result = resolve_c_set_route(row, route)
     check_if_present(row, "route_id", route_id)
     if helper_symbol is not None and "*" not in route_helper_symbol:
         check_if_present(row, "helper_symbol", route_helper_symbol)
@@ -156,6 +246,8 @@ def normalize_c_registry_row(row: dict[str, Any], route: dict[str, Any]) -> dict
         "route_result": row["route_result"],
         "emit_kind": emit_kind,
         "need_kind": need_kind,
+        "set_value_shape": set_value_shape,
+        "set_route_result": set_route_result,
     }
 
 
@@ -189,6 +281,38 @@ def resolve_c_row_helper_symbol(row: dict[str, Any], route: dict[str, Any]) -> s
         f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
         f"uses helper_symbol={helper_symbol!r} not listed in c_helper_variants"
     )
+
+
+def resolve_c_set_route(row: dict[str, Any], route: dict[str, Any]) -> tuple[int, int]:
+    requested = row.get("c_set_route")
+    if requested is None:
+        return 0, 0
+    routes = route.get("c_set_routes")
+    if not isinstance(routes, list):
+        raise SystemExit(
+            f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+            "uses c_set_route but route has no c_set_routes"
+        )
+    matches = [item for item in routes if item.get("key") == requested]
+    if len(matches) != 1:
+        raise SystemExit(
+            f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+            f"has unknown c_set_route={requested!r}"
+        )
+    item = matches[0]
+    helper_variant = item.get("helper_variant")
+    if helper_variant is not None and row.get("c_helper_variant") != helper_variant:
+        raise SystemExit(
+            f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+            f"c_set_route={requested!r} expects c_helper_variant={helper_variant!r}"
+        )
+    value_shape = str(item.get("value_shape", ""))
+    result = str(item.get("result", ""))
+    if value_shape not in C_SET_VALUE_SHAPE_VALUES:
+        raise SystemExit(f"unknown c_set_routes value_shape: {value_shape}")
+    if result not in C_SET_ROUTE_RESULT_VALUES:
+        raise SystemExit(f"unknown c_set_routes result: {result}")
+    return C_SET_VALUE_SHAPE_VALUES[value_shape], C_SET_ROUTE_RESULT_VALUES[result]
 
 
 def q(value: str | None) -> str:
@@ -276,6 +400,8 @@ def render_c(data: dict[str, Any]) -> str:
         "        int route_result;",
         "        int emit_kind;",
         "        int need_kind;",
+        "        int set_value_shape;",
+        "        int set_route_result;",
         "      };",
         "",
         "      static const struct HakoLlvmcGenericMethodRouteRegistryRow",
@@ -294,12 +420,21 @@ def render_c(data: dict[str, Any]) -> str:
                 f"                  {int(row['route_result'])},",
                 f"                  {int(row['emit_kind'])},",
                 f"                  {int(row['need_kind'])},",
+                f"                  {int(row['set_value_shape'])},",
+                f"                  {int(row['set_route_result'])},",
                 "              },",
             ]
         )
     lines.extend(
         [
             "          };",
+            "",
+            "      static int hako_llvmc_generic_method_route_registry_tier_from_label(",
+            "          const char* lowering_tier) {",
+            "        if (lowering_tier && !strcmp(lowering_tier, \"warm_direct_abi\")) return 2;",
+            "        if (lowering_tier && !strcmp(lowering_tier, \"cold_fallback\")) return 3;",
+            "        return 0;",
+            "      }",
             "",
             "      static const struct HakoLlvmcGenericMethodRouteRegistryRow*",
             "      hako_llvmc_generic_method_route_registry_find_by_tuple(",
@@ -346,6 +481,52 @@ def render_c(data: dict[str, Any]) -> str:
             "              !strcmp(row->route_kind, route_kind) &&",
             "              !strcmp(row->helper_symbol, helper_symbol) &&",
             "              !strcmp(row->route_proof, route_proof)) {",
+            "            return row;",
+            "          }",
+            "        }",
+            "        return NULL;",
+            "      }",
+            "",
+            "      static const struct HakoLlvmcGenericMethodRouteRegistryRow*",
+            "      hako_llvmc_generic_method_route_registry_find_set_rule(",
+            "          const char* route_id,",
+            "          const char* core_op,",
+            "          const char* route_kind,",
+            "          int tier,",
+            "          const char* helper_symbol,",
+            "          const char* route_proof,",
+            "          int set_value_shape) {",
+            "        size_t i = 0;",
+            "        for (i = 0;",
+            "             i < sizeof(hako_llvmc_generic_method_route_registry_rows) /",
+            "                     sizeof(hako_llvmc_generic_method_route_registry_rows[0]);",
+            "             i++) {",
+            "          const struct HakoLlvmcGenericMethodRouteRegistryRow* row =",
+            "              &hako_llvmc_generic_method_route_registry_rows[i];",
+            "          if (!(row->route_id && row->core_op && row->route_kind &&",
+            "                route_id && core_op && route_kind &&",
+            "                !strcmp(row->route_id, route_id) &&",
+            "                !strcmp(row->core_op, core_op) &&",
+            "                !strcmp(row->route_kind, route_kind) &&",
+            "                row->tier == tier)) {",
+            "            continue;",
+            "          }",
+            "          if (helper_symbol) {",
+            "            if (!(row->helper_symbol &&",
+            "                  !strcmp(row->helper_symbol, helper_symbol))) {",
+            "              continue;",
+            "            }",
+            "          }",
+            "          if (route_proof) {",
+            "            if (!(row->route_proof && !strcmp(row->route_proof, route_proof))) {",
+            "              continue;",
+            "            }",
+            "          }",
+            "          if (!(row->set_value_shape == set_value_shape ||",
+            "                row->set_value_shape == 1)) {",
+            "            continue;",
+            "          }",
+            "          if (row->set_route_result != 0) {",
             "            return row;",
             "          }",
             "        }",
@@ -431,7 +612,12 @@ def render_python(data: dict[str, Any]) -> str:
         lines.append("    },")
     lines.extend(["}", "", "GENERIC_METHOD_ROUTE_REGISTRY_ROWS = ("])
     for row in data["c_registry_rows"]:
-        py_row = {key: value for key, value in dict(row).items() if value is not None}
+        py_row = {
+            key: value
+            for key, value in dict(row).items()
+            if value is not None
+            and key not in {"set_value_shape", "set_route_result"}
+        }
         lines.append(f"    {repr(py_row)},")
     lines.extend([")", ""])
     return "\n".join(lines)

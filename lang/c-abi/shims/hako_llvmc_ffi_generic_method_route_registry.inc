@@ -13,6 +13,8 @@
         int route_result;
         int emit_kind;
         int need_kind;
+        int set_value_shape;
+        int set_route_result;
       };
 
       static const struct HakoLlvmcGenericMethodRouteRegistryRow
@@ -27,6 +29,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -38,6 +42,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -49,6 +55,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -60,6 +68,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -71,6 +81,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -82,6 +94,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -93,6 +107,8 @@
                   1,
                   2,
                   4,
+                  0,
+                  0,
               },
               {
                   "generic_method.get",
@@ -104,6 +120,8 @@
                   5,
                   2,
                   13,
+                  0,
+                  0,
               },
               {
                   "generic_method.has",
@@ -115,6 +133,8 @@
                   3,
                   6,
                   8,
+                  0,
+                  0,
               },
               {
                   "generic_method.has",
@@ -126,6 +146,8 @@
                   3,
                   6,
                   5,
+                  0,
+                  0,
               },
               {
                   "generic_method.has",
@@ -137,6 +159,8 @@
                   3,
                   6,
                   5,
+                  0,
+                  0,
               },
               {
                   "generic_method.has",
@@ -148,6 +172,8 @@
                   3,
                   6,
                   14,
+                  0,
+                  0,
               },
               {
                   "generic_method.len",
@@ -159,6 +185,8 @@
                   2,
                   3,
                   3,
+                  0,
+                  0,
               },
               {
                   "generic_method.len",
@@ -170,6 +198,8 @@
                   4,
                   3,
                   11,
+                  0,
+                  0,
               },
               {
                   "generic_method.len",
@@ -181,6 +211,8 @@
                   9,
                   3,
                   22,
+                  0,
+                  0,
               },
               {
                   "generic_method.len",
@@ -192,6 +224,8 @@
                   8,
                   3,
                   16,
+                  0,
+                  0,
               },
               {
                   "generic_method.push",
@@ -203,6 +237,8 @@
                   6,
                   4,
                   10,
+                  0,
+                  0,
               },
               {
                   "generic_method.keys",
@@ -214,6 +250,8 @@
                   0,
                   7,
                   7,
+                  0,
+                  0,
               },
               {
                   "generic_method.set",
@@ -225,6 +263,8 @@
                   0,
                   1,
                   2,
+                  1,
+                  1,
               },
               {
                   "generic_method.set",
@@ -234,6 +274,8 @@
                   "set_surface_policy",
                   3,
                   0,
+                  1,
+                  2,
                   1,
                   2,
               },
@@ -247,6 +289,8 @@
                   0,
                   1,
                   12,
+                  2,
+                  3,
               },
               {
                   "generic_method.set",
@@ -258,6 +302,8 @@
                   0,
                   1,
                   12,
+                  3,
+                  5,
               },
               {
                   "generic_method.set",
@@ -269,6 +315,8 @@
                   0,
                   1,
                   12,
+                  4,
+                  4,
               },
               {
                   "generic_method.delete",
@@ -280,6 +328,8 @@
                   0,
                   0,
                   6,
+                  0,
+                  0,
               },
               {
                   "generic_method.substring",
@@ -291,6 +341,8 @@
                   8,
                   5,
                   17,
+                  0,
+                  0,
               },
               {
                   "generic_method.indexOf",
@@ -302,6 +354,8 @@
                   10,
                   0,
                   19,
+                  0,
+                  0,
               },
               {
                   "generic_method.lastIndexOf",
@@ -313,6 +367,8 @@
                   11,
                   0,
                   19,
+                  0,
+                  0,
               },
               {
                   "generic_method.contains",
@@ -324,8 +380,17 @@
                   12,
                   0,
                   20,
+                  0,
+                  0,
               },
           };
+
+      static int hako_llvmc_generic_method_route_registry_tier_from_label(
+          const char* lowering_tier) {
+        if (lowering_tier && !strcmp(lowering_tier, "warm_direct_abi")) return 2;
+        if (lowering_tier && !strcmp(lowering_tier, "cold_fallback")) return 3;
+        return 0;
+      }
 
       static const struct HakoLlvmcGenericMethodRouteRegistryRow*
       hako_llvmc_generic_method_route_registry_find_by_tuple(
@@ -372,6 +437,52 @@
               !strcmp(row->route_kind, route_kind) &&
               !strcmp(row->helper_symbol, helper_symbol) &&
               !strcmp(row->route_proof, route_proof)) {
+            return row;
+          }
+        }
+        return NULL;
+      }
+
+      static const struct HakoLlvmcGenericMethodRouteRegistryRow*
+      hako_llvmc_generic_method_route_registry_find_set_rule(
+          const char* route_id,
+          const char* core_op,
+          const char* route_kind,
+          int tier,
+          const char* helper_symbol,
+          const char* route_proof,
+          int set_value_shape) {
+        size_t i = 0;
+        for (i = 0;
+             i < sizeof(hako_llvmc_generic_method_route_registry_rows) /
+                     sizeof(hako_llvmc_generic_method_route_registry_rows[0]);
+             i++) {
+          const struct HakoLlvmcGenericMethodRouteRegistryRow* row =
+              &hako_llvmc_generic_method_route_registry_rows[i];
+          if (!(row->route_id && row->core_op && row->route_kind &&
+                route_id && core_op && route_kind &&
+                !strcmp(row->route_id, route_id) &&
+                !strcmp(row->core_op, core_op) &&
+                !strcmp(row->route_kind, route_kind) &&
+                row->tier == tier)) {
+            continue;
+          }
+          if (helper_symbol) {
+            if (!(row->helper_symbol &&
+                  !strcmp(row->helper_symbol, helper_symbol))) {
+              continue;
+            }
+          }
+          if (route_proof) {
+            if (!(row->route_proof && !strcmp(row->route_proof, route_proof))) {
+              continue;
+            }
+          }
+          if (!(row->set_value_shape == set_value_shape ||
+                row->set_value_shape == 1)) {
+            continue;
+          }
+          if (row->set_route_result != 0) {
             return row;
           }
         }

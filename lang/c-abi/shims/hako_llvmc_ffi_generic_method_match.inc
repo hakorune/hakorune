@@ -1,4 +1,5 @@
       #include "hako_llvmc_ffi_generic_method_policy.inc"
+
       auto enum GenericMethodEmitKind
       classify_generic_method_emit_kind_from_lowering_plan(yyjson_val* entry) {
         struct LoweringPlanGenericMethodView view;
@@ -40,6 +41,60 @@
       }
 
       auto enum GenericMethodEmitKind
+      classify_generic_method_emit_kind_from_metadata(
+          long long bid,
+          size_t ii) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "generic_method_routes") : NULL;
+        size_t ri = 0;
+        if (!(routes && yyjson_is_arr(routes))) {
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* core_method = route ? yyjson_obj_get(route, "core_method") : NULL;
+          long long block = -1;
+          long long inst = -1;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* core_op = core_method ? read_str(core_method, "op") : NULL;
+          int tier =
+              hako_llvmc_generic_method_route_registry_tier_from_label(
+                  core_method ? read_str(core_method, "lowering_tier") : NULL);
+          const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(route, "instruction_index", &inst) ||
+              block != bid ||
+              inst != (long long)ii) {
+            continue;
+          }
+          row = hako_llvmc_generic_method_route_registry_find_by_tuple(
+              route_id,
+              core_op,
+              route_kind,
+              tier);
+          if (row && row->emit_kind != 0) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "generic_method_emit_metadata",
+                  "hit",
+                  "descriptor_row",
+                  route_kind ? route_kind : "-");
+            }
+            return (enum GenericMethodEmitKind)row->emit_kind;
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "generic_method_emit_metadata",
+                "skip",
+                "descriptor_mismatch",
+                route_kind ? route_kind : "-");
+          }
+          return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
+        }
+        return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
+      }
+
+      auto enum GenericMethodEmitKind
       classify_generic_method_emit_kind_from_site_lowering_plan(
           long long bid,
           size_t ii) {
@@ -51,94 +106,85 @@
             return plan_kind;
           }
         }
-        return HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
-      }
-
-      auto enum GenericMethodSetRouteKind
-      generic_method_set_route_from_metadata_value_shape(
-          const char* op,
-          const char* route_kind,
-          int value_is_i64,
-          int value_is_string_handle) {
-        if (op && !strcmp(op, "MapSet") &&
-            route_kind && !strcmp(route_kind, "map_store_i64")) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64;
-        }
-        if (op && !strcmp(op, "MapSet") &&
-            route_kind && !strcmp(route_kind, "map_store_any")) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
-        }
-        if (op && !strcmp(op, "ArraySet") &&
-            route_kind && !strcmp(route_kind, "array_store_any")) {
-          if (value_is_i64) {
-            return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
-          }
-          if (value_is_string_handle) {
-            return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
-          }
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
-        }
-        return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+        return classify_generic_method_emit_kind_from_metadata(bid, ii);
       }
 
       enum LoweringPlanSetValueShape {
-        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY = 0,
+        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NONE = 0,
+        HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY,
         HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64,
         HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE,
         HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE,
       };
 
-      struct LoweringPlanSetRouteRule {
-        const char* route_id;
-        const char* core_op;
-        const char* route_kind;
-        const char* symbol;
-        const char* route_proof;
-        enum LoweringPlanTierMetadata tier;
-        enum LoweringPlanSetValueShape value_shape;
-        enum GenericMethodSetRouteKind result;
-      };
-
-      auto int lowering_plan_set_value_shape_matches(
-          enum LoweringPlanSetValueShape shape,
+      auto enum LoweringPlanSetValueShape lowering_plan_set_value_shape_from_runtime_value(
           int value_is_i64,
           int value_is_string_handle) {
-        switch (shape) {
-          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY:
-            return 1;
-          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64:
-            return value_is_i64;
-          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE:
-            return !value_is_i64 && !value_is_string_handle;
-          case HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE:
-            return value_is_string_handle;
-          default:
-            return 0;
+        if (value_is_i64) {
+          return HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64;
         }
+        if (value_is_string_handle) {
+          return HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE;
+        }
+        return HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE;
       }
 
       auto enum GenericMethodSetRouteKind
-      lowering_plan_set_route_rule_matches(
-          const struct LoweringPlanGenericMethodView* view,
-          const struct LoweringPlanSetRouteRule* rule,
-          int value_is_i64,
-          int value_is_string_handle) {
-        if (!(view && rule)) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
-        if (lowering_plan_generic_method_view_matches_route_tuple(
-                view,
-                rule->route_id,
-                rule->core_op,
-                rule->route_kind,
-                rule->tier) &&
-            view->symbol &&
-            !strcmp(view->symbol, rule->symbol) &&
-            view->route_proof &&
-            !strcmp(view->route_proof, rule->route_proof) &&
-            lowering_plan_set_value_shape_matches(
-                rule->value_shape,
-                value_is_i64,
-                value_is_string_handle)) {
-          return rule->result;
+      classify_generic_method_set_route_from_metadata(
+          long long bid,
+          size_t ii,
+          enum LoweringPlanSetValueShape value_shape) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "generic_method_routes") : NULL;
+        size_t ri = 0;
+        if (!(routes && yyjson_is_arr(routes))) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* core_method = route ? yyjson_obj_get(route, "core_method") : NULL;
+          long long block = -1;
+          long long inst = -1;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* proof = route ? read_str(route, "proof") : NULL;
+          const char* core_op = core_method ? read_str(core_method, "op") : NULL;
+          int tier =
+              hako_llvmc_generic_method_route_registry_tier_from_label(
+                  core_method ? read_str(core_method, "lowering_tier") : NULL);
+          const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(route, "instruction_index", &inst) ||
+              block != bid ||
+              inst != (long long)ii ||
+              !(route_id && !strcmp(route_id, "generic_method.set"))) {
+            continue;
+          }
+          row = hako_llvmc_generic_method_route_registry_find_set_rule(
+              route_id,
+              core_op,
+              route_kind,
+              tier,
+              NULL,
+              proof,
+              (int)value_shape);
+          if (row && row->set_route_result != 0) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "generic_method_set_metadata",
+                  "hit",
+                  "descriptor_row",
+                  route_kind ? route_kind : "-");
+            }
+            return (enum GenericMethodSetRouteKind)row->set_route_result;
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "generic_method_set_metadata",
+                "skip",
+                "descriptor_mismatch",
+                route_kind ? route_kind : "-");
+          }
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
         }
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }
@@ -149,74 +195,27 @@
           size_t ii,
           int value_is_i64,
           int value_is_string_handle) {
-        static const struct LoweringPlanSetRouteRule rules[] = {
-          {
-            "generic_method.set",
-            "MapSet",
-            "map_store_i64",
-            "nyash.map.slot_store_hih",
-            "set_surface_policy",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY,
-            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64,
-          },
-          {
-            "generic_method.set",
-            "MapSet",
-            "map_store_any",
-            "nyash.map.slot_store_hhh",
-            "set_surface_policy",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_ANY,
-            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY,
-          },
-          {
-            "generic_method.set",
-            "ArraySet",
-            "array_store_any",
-            "nyash.array.slot_store_hii",
-            "set_surface_policy",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_I64,
-            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64,
-          },
-          {
-            "generic_method.set",
-            "ArraySet",
-            "array_store_any",
-            "nyash.array.slot_store_hih",
-            "set_surface_policy",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NON_STRING_HANDLE,
-            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY,
-          },
-          {
-            "generic_method.set",
-            "ArraySet",
-            "array_store_any",
-            "nyash.array.set_his",
-            "set_surface_policy",
-            HAKO_LLVMC_LOWERING_PLAN_TIER_COLD_RUNTIME,
-            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_STRING_HANDLE,
-            HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING,
-          },
-        };
         yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView view;
-        size_t ri = 0;
+        const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
+        enum LoweringPlanSetValueShape value_shape =
+            HAKO_LLVMC_LOWERING_PLAN_SET_VALUE_NONE;
         if (!entry || !read_lowering_plan_generic_method_view(entry, &view)) {
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
         }
-        for (ri = 0; ri < ARR_LEN(rules); ri++) {
-          enum GenericMethodSetRouteKind route =
-              lowering_plan_set_route_rule_matches(
-                  &view,
-                  &rules[ri],
-                  value_is_i64,
-                  value_is_string_handle);
-          if (route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
-            return route;
-          }
+        value_shape = lowering_plan_set_value_shape_from_runtime_value(
+            value_is_i64,
+            value_is_string_handle);
+        row = hako_llvmc_generic_method_route_registry_find_set_rule(
+            view.route_id,
+            view.core_op,
+            view.route_kind,
+            view.tier,
+            NULL,
+            view.route_proof,
+            (int)value_shape);
+        if (row && row->set_route_result != 0) {
+          return (enum GenericMethodSetRouteKind)row->set_route_result;
         }
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }
@@ -236,7 +235,12 @@
         if (plan_route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
           return plan_route;
         }
-        return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
+        return classify_generic_method_set_route_from_metadata(
+            bid,
+            ii,
+            lowering_plan_set_value_shape_from_runtime_value(
+                value_is_i64,
+                value_is_string_handle));
       }
 
       auto int generic_method_value_origin_is_string_from_lowering_plan_site(
@@ -287,24 +291,18 @@
         if (plan->kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_SET) {
           int value_is_i64 = a1 && is_plain_i64_value(a1);
           int value_is_string_handle = plan->value_is_string_handle;
-          enum GenericMethodSetRouteKind plan_set_route =
+          plan->set_route =
               classify_generic_method_set_route_from_site_lowering_plan(
                   bid,
                   ii,
                   value_is_i64,
                   value_is_string_handle);
-          enum GenericMethodSetRouteKind set_route = classify_generic_method_set_route(
-              bname, plan, value_is_i64, value_is_string_handle);
-          if (plan_set_route != HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
-            set_route = plan_set_route;
-          }
-          plan->set_route = set_route;
           plan->array_store_string_source_preserve =
-              classify_array_store_string_source_preserve(set_route);
+              classify_array_store_string_source_preserve(plan->set_route);
           plan->array_store_string_identity_demand_stable_object =
-              classify_array_store_string_identity_demand_stable_object(set_route);
+              classify_array_store_string_identity_demand_stable_object(plan->set_route);
           plan->array_store_string_publication_demand_publish_handle =
-              classify_array_store_string_publication_demand_publish_handle(set_route);
+              classify_array_store_string_publication_demand_publish_handle(plan->set_route);
         }
         return plan->kind != HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE;
       }

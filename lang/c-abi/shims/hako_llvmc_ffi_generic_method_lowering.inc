@@ -872,10 +872,8 @@
             int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
             int array_set_string_handle = plan.value_is_string_handle;
             enum GenericMethodSetRouteKind set_route = plan.set_route;
-            if (set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE) {
-              set_route = classify_generic_method_set_route(
-                  bname, &plan, array_set_plain_i64, array_set_string_handle);
-            }
+            (void)array_set_plain_i64;
+            (void)array_set_string_handle;
             ab[0] = '\0';
             if (recv) append_i64_arg_ref(ab, ab_cap, recv, 1);
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');

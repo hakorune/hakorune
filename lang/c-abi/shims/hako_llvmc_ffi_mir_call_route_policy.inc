@@ -55,6 +55,59 @@
       }
 
       auto enum MirCallGenericMethodRouteKind
+      classify_mir_call_generic_method_route_kind_from_metadata(
+          long long bid,
+          size_t ii) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "generic_method_routes") : NULL;
+        size_t ri = 0;
+        if (!(routes && yyjson_is_arr(routes))) {
+          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* core_method = route ? yyjson_obj_get(route, "core_method") : NULL;
+          long long block = -1;
+          long long inst = -1;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* core_op = core_method ? read_str(core_method, "op") : NULL;
+          int tier = hako_llvmc_generic_method_route_registry_tier_from_label(
+              core_method ? read_str(core_method, "lowering_tier") : NULL);
+          const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(route, "instruction_index", &inst) ||
+              block != bid ||
+              inst != (long long)ii) {
+            continue;
+          }
+          row = hako_llvmc_generic_method_route_registry_find_by_tuple(
+              route_id,
+              core_op,
+              route_kind,
+              tier);
+          if (row && row->route_result != HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "mir_call_route_metadata",
+                  "hit",
+                  "generic_method_descriptor",
+                  route_kind ? route_kind : "-");
+            }
+            return (enum MirCallGenericMethodRouteKind)row->route_result;
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "mir_call_route_metadata",
+                "skip",
+                "generic_method_descriptor_mismatch",
+                route_kind ? route_kind : "-");
+          }
+          return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
+        }
+        return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
+      }
+
+      auto enum MirCallGenericMethodRouteKind
       classify_mir_call_generic_method_route_kind_from_lowering_plan_site(
           long long bid,
           size_t ii) {
@@ -67,7 +120,7 @@
             return plan_route;
           }
         }
-        return HAKO_LLVMC_MIR_CALL_ROUTE_FALLBACK;
+        return classify_mir_call_generic_method_route_kind_from_metadata(bid, ii);
       }
 
       auto int lowering_plan_generic_method_receiver_origin_kind(
@@ -87,7 +140,32 @@
           size_t ii) {
         yyjson_val* plan_entry = find_lowering_plan_entry_for_site(bid, ii);
         struct LoweringPlanGenericMethodView view;
-        if (!plan_entry) return ORG_NONE;
+        if (!plan_entry) {
+          yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "generic_method_routes") : NULL;
+          size_t ri = 0;
+          if (!(routes && yyjson_is_arr(routes))) return ORG_NONE;
+          for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+            yyjson_val* route = yyjson_arr_get(routes, ri);
+            long long block = -1;
+            long long inst = -1;
+            const char* receiver_origin_box = route ? read_str(route, "receiver_origin_box") : NULL;
+            if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+                !hako_llvmc_json_read_i64_field(route, "instruction_index", &inst) ||
+                block != bid ||
+                inst != (long long)ii) {
+              continue;
+            }
+            if (!receiver_origin_box) return ORG_NONE;
+            if (!strcmp(receiver_origin_box, "StringBox")) return ORG_STRING;
+            if (!strcmp(receiver_origin_box, "ArrayBox") ||
+                !strcmp(receiver_origin_box, "DirectArrayI64")) {
+              return ORG_ARRAY_BIRTH;
+            }
+            if (!strcmp(receiver_origin_box, "MapBox")) return ORG_MAP_BIRTH;
+            return ORG_NONE;
+          }
+          return ORG_NONE;
+        }
         if (!read_lowering_plan_generic_method_view(plan_entry, &view)) {
           return ORG_NONE;
         }

@@ -6,34 +6,42 @@ TAG="generic-method-set-policy-mirror-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 HAKO_POLICY="$ROOT_DIR/lang/src/runtime/collections/method_policy_box.hako"
+SPEC="$ROOT_DIR/spec/mir/generic_method_routes.toml"
 C_POLICY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc"
 C_MATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc"
 C_LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_lowering.inc"
 C_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc"
+C_REGISTRY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_generic_method_route_registry.inc"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$HAKO_POLICY" "$C_POLICY" "$C_MATCH" "$C_LOWERING" "$C_ROUTE"
+guard_require_files "$TAG" "$HAKO_POLICY" "$SPEC" "$C_POLICY" "$C_MATCH" "$C_LOWERING" "$C_ROUTE" "$C_REGISTRY"
 
 echo "[$TAG] checking generic-method Set route/demand mirror"
 
-python3 - "$ROOT_DIR" "$HAKO_POLICY" "$C_POLICY" "$C_MATCH" "$C_LOWERING" "$C_ROUTE" <<'PY'
+python3 - "$ROOT_DIR" "$HAKO_POLICY" "$SPEC" "$C_POLICY" "$C_MATCH" "$C_LOWERING" "$C_ROUTE" "$C_REGISTRY" <<'PY'
 import pathlib
 import re
 import sys
+import tomllib
 
 tag = "generic-method-set-policy-mirror-guard"
 root = pathlib.Path(sys.argv[1])
 hako_path = pathlib.Path(sys.argv[2])
-c_policy_path = pathlib.Path(sys.argv[3])
-c_match_path = pathlib.Path(sys.argv[4])
-c_lowering_path = pathlib.Path(sys.argv[5])
-c_route_path = pathlib.Path(sys.argv[6])
+spec_path = pathlib.Path(sys.argv[3])
+c_policy_path = pathlib.Path(sys.argv[4])
+c_match_path = pathlib.Path(sys.argv[5])
+c_lowering_path = pathlib.Path(sys.argv[6])
+c_route_path = pathlib.Path(sys.argv[7])
+c_registry_path = pathlib.Path(sys.argv[8])
 
 hako = hako_path.read_text()
+with spec_path.open("rb") as fh:
+    spec = tomllib.load(fh)
 c_policy = c_policy_path.read_text()
 c_match = c_match_path.read_text()
 c_lowering = c_lowering_path.read_text()
 c_route = c_route_path.read_text()
+c_registry = c_registry_path.read_text()
 
 ROUTES = [
     ("route_none", "None", "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE"),
@@ -45,6 +53,15 @@ ROUTES = [
         "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING",
     ),
     ("route_array_store_any", "ArrayStoreAny", "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY"),
+]
+
+C_ENUM_NAMES = [
+    "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE",
+    "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64",
+    "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY",
+    "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64",
+    "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING",
+    "HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY",
 ]
 
 SET_ROUTE_METHODS = {method for method, _, _ in ROUTES if method != "route_none"}
@@ -114,11 +131,10 @@ enum = re.search(r"enum\s+GenericMethodSetRouteKind\s*\{(?P<body>.*?)\};", c_pol
 if not enum:
     fail(f"{rel(c_policy_path)} missing GenericMethodSetRouteKind")
 enum_names = re.findall(r"\b(HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_[A-Z0-9_]+)\b", enum.group("body"))
-expected_enum_names = [enum_name for _, _, enum_name in ROUTES]
-if enum_names != expected_enum_names:
+if enum_names != C_ENUM_NAMES:
     fail(
         "GenericMethodSetRouteKind drift: "
-        f"expected {expected_enum_names}, found {enum_names}"
+        f"expected {C_ENUM_NAMES}, found {enum_names}"
     )
 
 set_body = extract_body(hako, "set_route")
@@ -130,27 +146,76 @@ if unknown_routes:
 if missing_routes:
     fail(f"CollectionMethodPolicyBox.set_route no longer covers expected routes: {missing_routes}")
 
-c_set_body = extract_body(c_policy, "classify_generic_method_set_route")
-c_set_legacy_returns = set(
-    re.findall(r"\breturn\s+(HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_[A-Z0-9_]+)\s*;", c_set_body)
-)
-metadata_set_body = extract_body(c_match, "generic_method_set_route_from_metadata_value_shape")
-c_set_metadata_returns = set(
-    re.findall(
-        r"\breturn\s+(HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_[A-Z0-9_]+)\s*;",
-        metadata_set_body,
-    )
-)
-c_set_returns = c_set_legacy_returns | c_set_metadata_returns
-unknown_c_returns = sorted(c_set_returns - set(expected_enum_names))
-missing_c_returns = sorted(set(expected_enum_names) - c_set_returns)
-if unknown_c_returns:
-    fail(f"C set route consumers return unknown route enums: {unknown_c_returns}")
-if missing_c_returns:
+for path, text in (
+    (c_policy_path, c_policy),
+    (c_match_path, c_match),
+    (c_lowering_path, c_lowering),
+):
+    if re.search(r"\bclassify_generic_method_set_route\s*\(", text):
+        fail(f"{rel(path)} still contains handwritten Set route fallback")
+
+expected_set_routes = {
+    ("map_store_i64", "any", "map_store_i64"),
+    ("map_store_any", "any", "map_store_any"),
+    ("array_store_any", "i64", "array_store_i64"),
+    ("array_store_any", "non_string_handle", "array_store_any"),
+    ("array_store_any", "string_handle", "array_store_string"),
+}
+actual_set_routes = set()
+for route in spec.get("routes", []):
+    route_kind = route.get("kind")
+    for item in route.get("c_set_routes", []):
+        actual_set_routes.add(
+            (route_kind, item.get("value_shape"), item.get("result"))
+        )
+if actual_set_routes != expected_set_routes:
     fail(
-        "C set route consumers no longer cover expected route enums: "
-        f"{missing_c_returns}"
+        "generic-method Set c_set_routes drift: "
+        f"expected {sorted(expected_set_routes)}, found {sorted(actual_set_routes)}"
     )
+
+require_regex(
+    c_registry,
+    r"\bint\s+set_value_shape\s*;\s*\bint\s+set_route_result\s*;",
+    "generated C route registry must expose Set value-shape/result fields",
+)
+if "hako_llvmc_generic_method_route_registry_find_set_rule" not in c_registry:
+    fail("generated C route registry must expose Set rule lookup helper")
+
+set_row_patterns = [
+    (
+        "MapSet/map_store_i64",
+        r'"generic_method\.set"\s*,\s*"MapSet"\s*,\s*"map_store_i64"\s*,\s*'
+        r'"nyash\.map\.slot_store_hih"\s*,\s*"set_surface_policy"\s*,\s*'
+        r"3\s*,\s*0\s*,\s*1\s*,\s*2\s*,\s*1\s*,\s*1\s*,",
+    ),
+    (
+        "MapSet/map_store_any",
+        r'"generic_method\.set"\s*,\s*"MapSet"\s*,\s*"map_store_any"\s*,\s*'
+        r'"nyash\.map\.slot_store_hhh"\s*,\s*"set_surface_policy"\s*,\s*'
+        r"3\s*,\s*0\s*,\s*1\s*,\s*2\s*,\s*1\s*,\s*2\s*,",
+    ),
+    (
+        "ArraySet/i64",
+        r'"generic_method\.set"\s*,\s*"ArraySet"\s*,\s*"array_store_any"\s*,\s*'
+        r'"nyash\.array\.slot_store_hii"\s*,\s*"set_surface_policy"\s*,\s*'
+        r"3\s*,\s*0\s*,\s*1\s*,\s*12\s*,\s*2\s*,\s*3\s*,",
+    ),
+    (
+        "ArraySet/non_string_handle",
+        r'"generic_method\.set"\s*,\s*"ArraySet"\s*,\s*"array_store_any"\s*,\s*'
+        r'"nyash\.array\.slot_store_hih"\s*,\s*"set_surface_policy"\s*,\s*'
+        r"3\s*,\s*0\s*,\s*1\s*,\s*12\s*,\s*3\s*,\s*5\s*,",
+    ),
+    (
+        "ArraySet/string_handle",
+        r'"generic_method\.set"\s*,\s*"ArraySet"\s*,\s*"array_store_any"\s*,\s*'
+        r'"nyash\.array\.set_his"\s*,\s*"set_surface_policy"\s*,\s*'
+        r"3\s*,\s*0\s*,\s*1\s*,\s*12\s*,\s*4\s*,\s*4\s*,",
+    ),
+]
+for label, pattern in set_row_patterns:
+    require_regex(c_registry, pattern, f"generated C registry missing Set row {label}")
 
 for method, expected in DEMANDS:
     body = extract_body(hako, method)

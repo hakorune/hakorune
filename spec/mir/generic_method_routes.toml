@@ -145,6 +145,11 @@ c_helper_variants = [
   { key = "handle", helper_symbol = "nyash.array.slot_store_hih" },
   { key = "string", helper_symbol = "nyash.array.set_his" },
 ]
+c_set_routes = [
+  { key = "i64", value_shape = "i64", helper_variant = "i64", result = "array_store_i64" },
+  { key = "handle", value_shape = "non_string_handle", helper_variant = "handle", result = "array_store_any" },
+  { key = "string", value_shape = "string_handle", helper_variant = "string", result = "array_store_string" },
+]
 
 [[routes]]
 kind = "map_store_i64"
@@ -155,6 +160,9 @@ tier = 3
 value_demand = "write_any"
 effects = ["mutate.slot"]
 c_need_kind = "map_set"
+c_set_routes = [
+  { key = "any", value_shape = "any", result = "map_store_i64" },
+]
 
 [[routes]]
 kind = "map_store_any"
@@ -165,6 +173,9 @@ tier = 3
 value_demand = "write_any"
 effects = ["mutate.slot"]
 c_need_kind = "map_set"
+c_set_routes = [
+  { key = "any", value_shape = "any", result = "map_store_any" },
+]
 
 [[routes]]
 kind = "map_delete_any"
@@ -414,6 +425,7 @@ core_op = "MapSet"
 route_kind = "map_store_i64"
 helper_symbol = "nyash.map.slot_store_hih"
 route_proof = "set_surface_policy"
+c_set_route = "any"
 tier = 3
 route_result = 0
 
@@ -423,6 +435,7 @@ core_op = "MapSet"
 route_kind = "map_store_any"
 helper_symbol = "nyash.map.slot_store_hhh"
 route_proof = "set_surface_policy"
+c_set_route = "any"
 tier = 3
 route_result = 0
 
@@ -432,6 +445,7 @@ core_op = "ArraySet"
 route_kind = "array_store_any"
 c_helper_variant = "i64"
 route_proof = "set_surface_policy"
+c_set_route = "i64"
 tier = 3
 route_result = 0
 
@@ -441,6 +455,7 @@ core_op = "ArraySet"
 route_kind = "array_store_any"
 c_helper_variant = "handle"
 route_proof = "set_surface_policy"
+c_set_route = "handle"
 tier = 3
 route_result = 0
 
@@ -450,6 +465,7 @@ core_op = "ArraySet"
 route_kind = "array_store_any"
 c_helper_variant = "string"
 route_proof = "set_surface_policy"
+c_set_route = "string"
 tier = 3
 route_result = 0
 

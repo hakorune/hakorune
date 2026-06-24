@@ -160,7 +160,7 @@ history, not in this task-order SSOT.
    semantic_authority=neutral route descriptor manifest
    non_authority=C row helper_symbol override except c_helper_variant selector
 
-2. Same-module / extern route descriptor generation
+2. Set-route value-shape table generation
    status=selected
    boundary=value-shape-specific set route rows become generated descriptor data
    semantic_authority=neutral route manifests

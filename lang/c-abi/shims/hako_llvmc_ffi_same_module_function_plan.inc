@@ -121,7 +121,7 @@
         yyjson_val* rows =
             metadata ? yyjson_obj_get(metadata, "same_module_function_definitions") : NULL;
         int planned = 0;
-        if (!rows || yyjson_is_null(rows)) return -1;
+        if (!rows || yyjson_is_null(rows)) return 0;
         if (!yyjson_is_arr(rows)) return -1;
         for (size_t i = 0; i < yyjson_arr_size(rows); i++) {
           yyjson_val* row = yyjson_arr_get(rows, i);

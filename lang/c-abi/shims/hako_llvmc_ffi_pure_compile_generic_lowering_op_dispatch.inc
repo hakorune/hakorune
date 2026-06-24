@@ -141,7 +141,7 @@
             if (field &&
                 !strcmp(field, "alignment_result") &&
                 object_storage_plan_alignment_result_owner_receiver_ready(box_reg)) {
-              if (!emit_flattened_nested_alignment_result_reset(f, bid, ii, box_reg)) {
+              if (!emit_flattened_nested_alignment_result_reset(f, bid, ii, box_reg, NULL)) {
                 note_pure_unsupported_shape(
                     bid,
                     ii,

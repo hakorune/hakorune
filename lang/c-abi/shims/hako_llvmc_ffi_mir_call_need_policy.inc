@@ -2,6 +2,21 @@
       #include "hako_llvmc_ffi_mir_call_need_metadata_rules.inc"
       #include "hako_llvmc_ffi_mir_call_need_apply.inc"
 
+      auto enum MirCallNeedKind
+      classify_mir_call_method_need_kind_from_site_lowering_plan(
+          long long bid,
+          size_t ii);
+
+      auto enum MirCallNeedKind
+      classify_mir_call_global_need_kind_from_lowering_plan(
+          long long bid,
+          size_t ii);
+
+      auto enum MirCallNeedKind
+      classify_mir_call_extern_need_kind_from_lowering_plan(
+          long long bid,
+          size_t ii);
+
       auto int maybe_promote_array_string_birth_for_mir_call_method(
           long long bid,
           size_t ii,
@@ -123,6 +138,59 @@
       }
 
       auto enum MirCallNeedKind
+      classify_mir_call_generic_method_need_kind_from_metadata(
+          long long bid,
+          size_t ii) {
+        yyjson_val* routes = fn_metadata ? yyjson_obj_get(fn_metadata, "generic_method_routes") : NULL;
+        size_t ri = 0;
+        if (!(routes && yyjson_is_arr(routes))) {
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        for (ri = 0; ri < yyjson_arr_size(routes); ri++) {
+          yyjson_val* route = yyjson_arr_get(routes, ri);
+          yyjson_val* core_method = route ? yyjson_obj_get(route, "core_method") : NULL;
+          long long block = -1;
+          long long inst = -1;
+          const char* route_id = route ? read_str(route, "route_id") : NULL;
+          const char* route_kind = route ? read_str(route, "route_kind") : NULL;
+          const char* core_op = core_method ? read_str(core_method, "op") : NULL;
+          int tier = hako_llvmc_generic_method_route_registry_tier_from_label(
+              core_method ? read_str(core_method, "lowering_tier") : NULL);
+          const struct HakoLlvmcGenericMethodRouteRegistryRow* row = NULL;
+          if (!hako_llvmc_json_read_i64_field(route, "block", &block) ||
+              !hako_llvmc_json_read_i64_field(route, "instruction_index", &inst) ||
+              block != bid ||
+              inst != (long long)ii) {
+            continue;
+          }
+          row = hako_llvmc_generic_method_route_registry_find_by_tuple(
+              route_id,
+              core_op,
+              route_kind,
+              tier);
+          if (row && row->need_kind != 0) {
+            if (hako_llvmc_route_trace_enabled()) {
+              hako_llvmc_emit_route_trace(
+                  "mir_call_need_metadata",
+                  "hit",
+                  "generic_method_descriptor",
+                  route_kind ? route_kind : "-");
+            }
+            return (enum MirCallNeedKind)row->need_kind;
+          }
+          if (hako_llvmc_route_trace_enabled()) {
+            hako_llvmc_emit_route_trace(
+                "mir_call_need_metadata",
+                "skip",
+                "generic_method_descriptor_mismatch",
+                route_kind ? route_kind : "-");
+          }
+          return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        }
+        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+      }
+
+      auto enum MirCallNeedKind
       classify_mir_call_method_need_kind_from_site_lowering_plan(
           long long bid,
           size_t ii) {
@@ -135,7 +203,7 @@
             return plan_need;
           }
         }
-        return HAKO_LLVMC_MIR_CALL_NEED_NONE;
+        return classify_mir_call_generic_method_need_kind_from_metadata(bid, ii);
       }
 
       auto enum MirCallNeedKind

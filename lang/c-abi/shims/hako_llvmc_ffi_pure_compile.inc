@@ -305,7 +305,17 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (!d) break;
       yyjson_val* root = yyjson_doc_get_root(d);
       hako_llvmc_generic_pure_program_view program;
-      if (!hako_llvmc_read_generic_pure_program_view(root, &program)) { yyjson_doc_free(d); break; }
+      if (!hako_llvmc_read_generic_pure_program_view(root, &program)) {
+        if (hako_llvmc_route_trace_enabled()) {
+          hako_llvmc_emit_route_trace(
+              "generic_pure_program_view",
+              "skip",
+              "program_view_unavailable",
+              "functions/entry/blocks");
+        }
+        yyjson_doc_free(d);
+        break;
+      }
       hako_llvmc_generic_pure_function_view* active_function = &program.entry;
       yyjson_val* fn0 = active_function->fn;
       yyjson_val* fn_metadata = active_function->metadata;
@@ -580,6 +590,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_indexof_observer_state.inc"
       #include "hako_llvmc_ffi_array_string_window_policy.inc"
       #include "hako_llvmc_ffi_array_slot_emit.inc"
+      #include "hako_llvmc_ffi_mir_call_need_vocab.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
       #include "hako_llvmc_ffi_observer_store_region_metadata.inc"
       #include "hako_llvmc_ffi_array_text_edit_metadata.inc"

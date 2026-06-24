@@ -23,6 +23,29 @@
           if (mark_constructor_call_from_lowering_plan(bid, ii, dst, needs)) {
             return;
           }
+          switch (classify_mir_call_constructor_surface(
+              cal ? (read_str(cal, "box_name")
+                  ? read_str(cal, "box_name")
+                  : read_str(cal, "box_type"))
+                  : NULL)) {
+            case HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_MAP_BOX:
+              apply_mir_call_need_kind(needs, HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH);
+              if (dst) {
+                set_scan_origin(dst, ORG_MAP_BIRTH);
+                set_origin(dst, ORG_MAP_BIRTH);
+              }
+              return;
+            case HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_ARRAY_BOX:
+              apply_mir_call_need_kind(needs, HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH);
+              if (dst) {
+                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                set_origin(dst, ORG_ARRAY_BIRTH);
+              }
+              return;
+            case HAKO_LLVMC_MIR_CALL_CONSTRUCTOR_SURFACE_NONE:
+            default:
+              break;
+          }
           return;
         }
 

@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Complete
 Date: 2026-06-24
 Scope: Move generic-method set-route value-shape selection into descriptor data.
 ---
@@ -57,4 +57,17 @@ same-module descriptor generation = 0
 extern descriptor generation = 0
 new backend route = 0
 runtime fallback = 0
+```
+
+## Verification
+
+```text
+python3 tools/generic_method_route_descriptor_codegen.py --check
+bash tools/checks/generic_method_set_policy_mirror_guard.sh
+bash tools/checks/core_method_contract_inc_no_growth_guard.sh
+bash tools/build_hako_llvmc_ffi.sh
+bash tools/smokes/v2/profiles/integration/compat/pure-keep/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh
+bash tools/smokes/v2/profiles/archive/pure-historical/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh
+bash tools/smokes/v2/profiles/archive/pure-historical/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh
+bash tools/checks/current_state_pointer_guard.sh
 ```

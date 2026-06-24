@@ -1,3 +1,6 @@
+#ifndef HAKO_LLVMC_FFI_MIR_CALL_NEED_VOCAB_INC
+#define HAKO_LLVMC_FFI_MIR_CALL_NEED_VOCAB_INC
+
       /*
        * MIR call declaration need vocabulary.
        *
@@ -109,3 +112,5 @@
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_PROGRAM_JSON,
         HAKO_LLVMC_MIR_CALL_NEED_PRINTF,
       };
+
+#endif

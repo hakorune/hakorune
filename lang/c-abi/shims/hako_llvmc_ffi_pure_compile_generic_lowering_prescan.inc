@@ -233,7 +233,8 @@
             if (!publish_variant_binding_from_instruction(ins)) {
               note_pure_unsupported_shape(
                   bid, ii, op, "variant_binding_fact_missing", read_str(ins, "enum"));
-              return;
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
             }
             (void)publish_value_representation_fact(read_int(ins, "dst"));
           } else if (strcmp(op, "variant_tag")==0) {
@@ -596,13 +597,28 @@
       }
 
       if (plan_same_module_function_definitions() < 0) {
+        note_pure_unsupported_shape(
+            -1,
+            0,
+            "same_module_plan",
+            "same_module_function_plan_failed",
+            NULL);
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
-
       // IR temp file
       char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_gen_%d.ll", "/tmp", (int)getpid());
-      FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(d); break; }
+      FILE* f = fopen(llpath, "wb");
+      if (!f) {
+        note_pure_unsupported_shape(
+            -1,
+            0,
+            "generic_pure_ir",
+            "ir_temp_file_open_failed",
+            NULL);
+        yyjson_doc_free(d);
+        break;
+      }
       fprintf(f, "; nyash pure IR (generic)\n");
       fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
       emit_module_function_declarations(f);

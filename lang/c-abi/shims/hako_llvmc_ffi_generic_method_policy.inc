@@ -53,30 +53,6 @@
         return set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
       }
 
-      auto enum GenericMethodSetRouteKind classify_generic_method_set_route(
-          const char* bname,
-          const struct GenericMethodEmitPlan* plan,
-          int value_is_i64,
-          int value_is_string_handle) {
-        int arrayish = 0;
-        (void)bname;
-        if (plan &&
-            (plan->recv_org == ORG_ARRAY_BIRTH ||
-             plan->recv_org == ORG_ARRAY_STRING_BIRTH ||
-             plan->runtime_array_string ||
-             plan->runtime_array_push ||
-             plan->runtime_array_get ||
-             plan->runtime_array_len)) {
-          arrayish = 1;
-        }
-        if (arrayish) {
-          if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
-          if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
-        }
-        return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
-      }
-
       auto int should_promote_array_string_birth_after_set(
           const struct GenericMethodEmitPlan* plan,
           int value_is_string_handle) {
