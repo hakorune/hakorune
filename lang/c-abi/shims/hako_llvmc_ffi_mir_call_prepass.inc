@@ -14,15 +14,9 @@
         (void)ilen;
         (void)insts;
         if (!needs) return;
-        {
-          enum MirCallNeedKind plan_extern_need =
-              classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
-          if (plan_extern_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
-            apply_mir_call_need_kind(needs, plan_extern_need);
-            mark_extern_call_result_origin_from_lowering_plan(
-                bid, ii, read_int(ins, "dst"));
-            return;
-          }
+        if (scan_mir_extern_call_need_flags_from_lowering_plan(
+                bid, ii, ins, needs)) {
+          return;
         }
         if (ctype && !strcmp(ctype, "Constructor")) {
           long long dst = read_int(ins, "dst");
@@ -39,13 +33,8 @@
         }
 
         if (ctype && !strcmp(ctype, "Global")) {
-          enum MirCallNeedKind plan_need =
-              classify_mir_call_global_need_kind_from_lowering_plan(bid, ii);
-          mark_global_call_result_origin_from_lowering_plan(
-              bid, ii, read_int(ins, "dst"));
-          if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
-            apply_mir_call_need_kind(needs, plan_need);
-          }
+          scan_mir_global_call_need_flags_from_lowering_plan(
+              bid, ii, ins, needs);
           return;
         }
 

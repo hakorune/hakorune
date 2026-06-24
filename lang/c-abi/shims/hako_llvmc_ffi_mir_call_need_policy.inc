@@ -51,6 +51,20 @@
         return 1;
       }
 
+      auto int scan_mir_extern_call_need_flags_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          yyjson_val* ins,
+          struct MirCallNeedFlags* needs) {
+        enum MirCallNeedKind plan_extern_need =
+            classify_mir_call_extern_need_kind_from_lowering_plan(bid, ii);
+        if (plan_extern_need == HAKO_LLVMC_MIR_CALL_NEED_NONE) return 0;
+        apply_mir_call_need_kind(needs, plan_extern_need);
+        mark_extern_call_result_origin_from_lowering_plan(
+            bid, ii, read_int(ins, "dst"));
+        return 1;
+      }
+
       auto void scan_mir_method_call_need_flags_from_lowering_plan(
           long long bid,
           size_t ii,
@@ -92,6 +106,20 @@
         apply_mir_call_need_kind(needs, need_kind);
         maybe_promote_array_string_birth_for_mir_call_method(
             bid, ii, need_kind, &route, recv, a0, a1);
+      }
+
+      auto void scan_mir_global_call_need_flags_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          yyjson_val* ins,
+          struct MirCallNeedFlags* needs) {
+        enum MirCallNeedKind plan_need =
+            classify_mir_call_global_need_kind_from_lowering_plan(bid, ii);
+        mark_global_call_result_origin_from_lowering_plan(
+            bid, ii, read_int(ins, "dst"));
+        if (plan_need != HAKO_LLVMC_MIR_CALL_NEED_NONE) {
+          apply_mir_call_need_kind(needs, plan_need);
+        }
       }
 
       auto enum MirCallNeedKind
