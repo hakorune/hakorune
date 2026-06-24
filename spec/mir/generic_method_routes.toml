@@ -140,6 +140,11 @@ tier = 3
 value_demand = "write_any"
 effects = ["mutate.slot"]
 c_need_kind = "array_set"
+c_helper_variants = [
+  { key = "i64", helper_symbol = "nyash.array.slot_store_hii" },
+  { key = "handle", helper_symbol = "nyash.array.slot_store_hih" },
+  { key = "string", helper_symbol = "nyash.array.set_his" },
+]
 
 [[routes]]
 kind = "map_store_i64"
@@ -425,7 +430,7 @@ route_result = 0
 route_id = "generic_method.set"
 core_op = "ArraySet"
 route_kind = "array_store_any"
-helper_symbol = "nyash.array.slot_store_hii"
+c_helper_variant = "i64"
 route_proof = "set_surface_policy"
 tier = 3
 route_result = 0
@@ -434,7 +439,7 @@ route_result = 0
 route_id = "generic_method.set"
 core_op = "ArraySet"
 route_kind = "array_store_any"
-helper_symbol = "nyash.array.slot_store_hih"
+c_helper_variant = "handle"
 route_proof = "set_surface_policy"
 tier = 3
 route_result = 0
@@ -443,7 +448,7 @@ route_result = 0
 route_id = "generic_method.set"
 core_op = "ArraySet"
 route_kind = "array_store_any"
-helper_symbol = "nyash.array.set_his"
+c_helper_variant = "string"
 route_proof = "set_surface_policy"
 tier = 3
 route_result = 0

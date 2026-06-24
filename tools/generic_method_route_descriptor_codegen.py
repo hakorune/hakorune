@@ -136,7 +136,7 @@ def route_need_kind_value(route: dict[str, Any]) -> int:
 def normalize_c_registry_row(row: dict[str, Any], route: dict[str, Any]) -> dict[str, Any]:
     route_id = str(route["route_id"])
     route_helper_symbol = str(route["helper_symbol"])
-    helper_symbol = row.get("helper_symbol")
+    helper_symbol = resolve_c_row_helper_symbol(row, route)
     tier = int(route["tier"])
     emit_kind = route_emit_kind_value(route)
     need_kind = route_need_kind_value(route)
@@ -157,6 +157,38 @@ def normalize_c_registry_row(row: dict[str, Any], route: dict[str, Any]) -> dict
         "emit_kind": emit_kind,
         "need_kind": need_kind,
     }
+
+
+def resolve_c_row_helper_symbol(row: dict[str, Any], route: dict[str, Any]) -> str | None:
+    variant_key = row.get("c_helper_variant")
+    if variant_key is not None:
+        variants = route.get("c_helper_variants")
+        if not isinstance(variants, list):
+            raise SystemExit(
+                f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+                "uses c_helper_variant but route has no c_helper_variants"
+            )
+        for variant in variants:
+            if variant.get("key") == variant_key:
+                return str(variant["helper_symbol"])
+        raise SystemExit(
+            f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+            f"has unknown c_helper_variant={variant_key!r}"
+        )
+    helper_symbol = row.get("helper_symbol")
+    if helper_symbol is None:
+        return None
+    route_helper_symbol = str(route["helper_symbol"])
+    if "*" not in route_helper_symbol:
+        check_if_present(row, "helper_symbol", route_helper_symbol)
+        return str(helper_symbol)
+    for variant in route.get("c_helper_variants", []):
+        if variant.get("helper_symbol") == helper_symbol:
+            return str(helper_symbol)
+    raise SystemExit(
+        f"c_registry_row {row.get('core_op')}/{row.get('route_kind')} "
+        f"uses helper_symbol={helper_symbol!r} not listed in c_helper_variants"
+    )
 
 
 def q(value: str | None) -> str:
