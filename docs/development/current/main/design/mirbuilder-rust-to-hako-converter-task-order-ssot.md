@@ -115,6 +115,7 @@ same_module_result_capsule_reset_batch_plan = landed
 same_module_sum_handle_fact_owner = accepted
 explicit_boxed_sum_value_fact_same_module = landed
 generic_method_boxed_sum_result_fact = landed
+variant_binding_boxed_sum_plan_index = landed
 c_abi_shim_responsibility_inventory = landed
 mir_call_constructor_birth_fact_drain = landed
 mir_call_constructor_name_fallback_retired = landed

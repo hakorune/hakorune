@@ -27,7 +27,8 @@
           long long tag_reg,
           long long payload_reg,
           int has_payload,
-          const char* enum_name) {
+          const char* enum_name,
+          int boxed_sum_plan_index) {
         if (!r) return;
         for (size_t i = 0; i < variant_bindings_n; i++) {
           if (variant_bindings[i].reg == r) {
@@ -36,6 +37,7 @@
             variant_bindings[i].payload_reg = payload_reg;
             variant_bindings[i].has_payload = has_payload;
             variant_bindings[i].enum_name = enum_name;
+            variant_bindings[i].boxed_sum_plan_index = boxed_sum_plan_index;
             return;
           }
         }
@@ -46,6 +48,7 @@
           variant_bindings[variant_bindings_n].payload_reg = payload_reg;
           variant_bindings[variant_bindings_n].has_payload = has_payload;
           variant_bindings[variant_bindings_n].enum_name = enum_name;
+          variant_bindings[variant_bindings_n].boxed_sum_plan_index = boxed_sum_plan_index;
           variant_bindings_n++;
         } else {
           note_generic_capacity_overflow("generic_variant_binding_inventory_full");
@@ -57,17 +60,20 @@
           long long tag_reg,
           long long payload_reg,
           int has_payload) {
-        set_variant_binding_with_enum(r, tag_const, tag_reg, payload_reg, has_payload, NULL);
+        set_variant_binding_with_enum(r, tag_const, tag_reg, payload_reg, has_payload, NULL, -1);
       }
       auto int publish_variant_binding_from_instruction(yyjson_val* ins) {
         yyjson_val* row = ins ? yyjson_obj_get(ins, "variant_binding") : NULL;
         yyjson_val* has_payload_value = NULL;
         yyjson_val* copy_alias_value = NULL;
         yyjson_val* const_zero_value = NULL;
+        yyjson_val* boxed_sum_plan_value = NULL;
         long long dst = 0;
         long long tag_const = 0;
         long long tag_reg = 0;
         long long payload_reg = 0;
+        long long boxed_sum_plan_id = -1;
+        int boxed_sum_plan_index = -1;
         int has_payload = 0;
         int copy_alias_payload = 0;
         int const_zero_result = 0;
@@ -81,6 +87,7 @@
         has_payload_value = yyjson_obj_get(row, "has_payload");
         copy_alias_value = yyjson_obj_get(row, "copy_alias_payload");
         const_zero_value = yyjson_obj_get(row, "const_zero_result");
+        boxed_sum_plan_value = yyjson_obj_get(row, "boxed_sum_abi_plan_id");
         has_payload = has_payload_value && yyjson_is_bool(has_payload_value) &&
             yyjson_get_bool(has_payload_value);
         copy_alias_payload = copy_alias_value && yyjson_is_bool(copy_alias_value) &&
@@ -88,6 +95,13 @@
         const_zero_result = const_zero_value && yyjson_is_bool(const_zero_value) &&
             yyjson_get_bool(const_zero_value);
         if (!(dst && enum_name)) return 0;
+        if (boxed_sum_plan_value && yyjson_is_num(boxed_sum_plan_value)) {
+          boxed_sum_plan_id = (long long)yyjson_get_sint(boxed_sum_plan_value);
+          if (!boxed_sum_abi_plan_index_from_plan_id(boxed_sum_plan_id, &boxed_sum_plan_index)) {
+            note_generic_capacity_overflow("variant_binding_invalid_boxed_sum_plan");
+            return 0;
+          }
+        }
         if (copy_alias_payload && payload_reg) {
           set_copy_alias(dst, resolve_copy_source_reg(payload_reg));
         }
@@ -100,7 +114,8 @@
             tag_reg,
             payload_reg ? resolve_copy_source_reg(payload_reg) : 0,
             has_payload,
-            enum_name);
+            enum_name,
+            boxed_sum_plan_index);
         set_type(dst, T_I64);
         return 1;
       }

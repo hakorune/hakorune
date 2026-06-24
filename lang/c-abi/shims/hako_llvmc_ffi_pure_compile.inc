@@ -341,6 +341,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         long long payload_reg;
         const char* enum_name;
         int has_payload;
+        int boxed_sum_plan_index;
       };
       struct GenericPureBlockTailLabel {
         long long bid;

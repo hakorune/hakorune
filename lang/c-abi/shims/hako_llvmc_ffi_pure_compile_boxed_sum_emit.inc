@@ -76,7 +76,7 @@
         EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 1, i64 %%r%lld)\n",
              dst,
              payload_base);
-        set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
+        set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name, boxed_plan_index);
         set_type(dst, T_I64);
         set_boxed_sum_binding(dst, boxed_plan_index);
         return 1;
@@ -136,7 +136,7 @@
              dst,
              bid,
              ii);
-        set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name);
+        set_variant_binding_with_enum(dst, tag, 0, payload_base, 1, enum_name, boxed_plan_index);
         set_type(dst, T_I64);
         set_boxed_sum_binding(dst, boxed_plan_index);
         return 1;
@@ -500,13 +500,10 @@
       auto int boxed_sum_unit_binding_plan_index(
           struct GenericPureVariantBinding* binding,
           int* out_plan_index) {
-        if (!(binding && binding->enum_name && !binding->has_payload)) {
+        if (!(binding && !binding->has_payload && binding->boxed_sum_plan_index >= 0)) {
           return 0;
         }
-        int plan_index = -1;
-        if (!find_boxed_sum_abi_plan_index(binding->enum_name, &plan_index)) {
-          return 0;
-        }
+        int plan_index = binding->boxed_sum_plan_index;
         if (!boxed_sum_abi_variant_payload_storage_is_none(plan_index, binding->tag_const)) {
           return 0;
         }

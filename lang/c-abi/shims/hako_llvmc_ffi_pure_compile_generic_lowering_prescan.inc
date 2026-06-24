@@ -217,7 +217,8 @@
                       variant_binding.tag_reg,
                       variant_binding.payload_reg,
                       variant_binding.has_payload,
-                      variant_binding.enum_name);
+                      variant_binding.enum_name,
+                      variant_binding.boxed_sum_plan_index);
                 }
               }
               generic_pure_publish_reg_metadata(dst);
