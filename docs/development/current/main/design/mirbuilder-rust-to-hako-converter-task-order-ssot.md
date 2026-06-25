@@ -81,7 +81,7 @@ selected next owner:
   PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 
 current fail-fast boundary:
-  The next slice may only classify Python converter tooling roles and forbid new Python SemanticProjector growth. It must not delete existing Python bootstrap/oracle tooling, rewrite converter implementation, materialize FunctionRegionStackPop, or claim HakoAdopted/source selfhost.
+  The next slice may only classify Python converter tooling roles and forbid new Python SemanticProjector growth. It must keep Python/Hako seams JSON-backed with one selected authority per stage. It must not delete existing Python bootstrap/oracle tooling, rewrite converter implementation, materialize FunctionRegionStackPop, or claim HakoAdopted/source selfhost.
 
 latest design decision:
   ConditionFnInjection is now an executable DerivedShadow artifact. The semantic closure report advances the executable materialization gap to finalize_module.region_stack_pop, but task-order intentionally stops widening Python semantic projection growth first: classify Python converter roles, freeze new Python SemanticProjector growth, then select allocation-policy Hako adoption and ReturnEmission Hako shadow projector follow-ons.

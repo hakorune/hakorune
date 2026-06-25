@@ -77,6 +77,150 @@ This does not delete the existing Python converter. Existing Python remains a
 valuable reference implementation, oracle, fixture updater, and bootstrap tool.
 It only stops new compiler meaning from growing in Python by default.
 
+## Language Boundary Contract
+
+During migration, one family pipeline may temporarily touch both Python and
+`.hako`. That is allowed only when the language seam is explicit and
+file-backed.
+
+```text
+allowed seam:
+  canonical JSON file
+
+forbidden seam:
+  in-memory Python calls into Hako projector internals
+  Hako projector importing Python semantic helpers
+  shared mutable state across Python/Hako stages
+  backend/runtime fallback between Python and Hako semantics
+```
+
+The intended shadow shape is:
+
+```text
+source facts / plan JSON
+  -> Python SemanticProjector as oracle
+  -> Hako SemanticProjector as shadow candidate
+  -> canonical JSON diff
+  -> one selected authority after parity
+```
+
+The deterministic emitter may remain Python while the semantic projector is
+being migrated. The emitter may consume typed projection JSON; it must not
+re-decide directability, transport, lifecycle, or behavior recipe semantics.
+
+## Temporary Chimera Budget
+
+Mixed Python/Hako operation is a migration mechanism, not a steady state.
+
+Rules:
+
+```text
+shadow_window_per_family:
+  short; parity -> promotion/retire decision must be named
+
+concurrent_hako_shadow_projectors:
+  bounded; do not open another Hako shadow projector when an existing shadow
+  has no retire token or parity gate
+
+authority_during_shadow:
+  Python = oracle/bootstrap
+  Hako   = shadow candidate
+
+authority_after_promotion:
+  Hako   = mainline SemanticProjector for that family/stage
+  Python = frozen oracle or retired
+
+permanent dual authority:
+  forbidden
+```
+
+Every Hako shadow projector must record:
+
+```text
+family_id
+stage_id
+input_json
+output_json
+python_oracle
+hako_shadow
+parity_gate
+promotion_token
+retirement_token
+```
+
+If a family cannot name a retirement token, it may not enter HakoShadow.
+
+## Authority Handoff States
+
+Converter implementation migration uses this stage vocabulary.
+
+```text
+PythonBootstrap:
+  Python owns the implementation for a stage.
+
+HakoShadow:
+  Hako implementation exists, but Python remains oracle/bootstrap.
+  Canonical output diff is required.
+
+HakoMainline:
+  Hako implementation is selected for that stage before execution.
+  Python remains explicit oracle/bootstrap only.
+
+PythonFrozen:
+  Python implementation is kept only for compatibility/oracle.
+  No semantic growth is allowed.
+
+Retired:
+  Python implementation for that family/stage is removed or unreachable from
+  active regeneration.
+```
+
+Promotion is stage-scoped. A family may have:
+
+```text
+SemanticProjector = HakoMainline
+DeterministicEmitter = PythonBootstrap
+GuardOrchestrator = PythonBootstrap
+```
+
+This is not a violation as long as each stage has exactly one selected
+authority and the boundaries are JSON/file based.
+
+## Freeze Checkpoint Acceptance
+
+`PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001` is green only when the repository
+has a machine-checkable role inventory for active Rust-to-Hako converter tools.
+
+Minimum acceptance:
+
+```text
+all active Python converter tools are classified:
+  FactsAdapter
+  SemanticProjector
+  DeterministicEmitter
+  GuardOrchestrator
+
+existing Python SemanticProjector entries include:
+  family/stage id
+  allowed role = bootstrap/oracle
+  retirement or HakoShadow follow-on token
+
+new Python SemanticProjector growth:
+  forbidden by default
+
+HakoAdopted artifact Python write:
+  forbidden
+
+normal selfhost build Python SemanticProjector dependency:
+  forbidden
+
+CI / fixture / diff / oracle Python use:
+  allowed
+```
+
+The freeze checkpoint must not delete existing Python converter code. Deletion,
+retirement, or HakoMainline promotion is handled by later family-scoped cards.
+
 ## First Adoption Candidate
 
 The first `HakoAdopted` decision should use an already-mainline derived family,
