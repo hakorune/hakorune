@@ -90,6 +90,9 @@ CONDITION_FN_INJECTION_PLAN = (
 FUNCTION_REGION_STACK_POP_PLAN = (
     FIXTURES / "mirbuilder-function-region-stack-pop-plan-v0.json"
 )
+SLOT_REGISTRY_RELEASE_PLAN = (
+    FIXTURES / "mirbuilder-slot-registry-release-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -196,6 +199,7 @@ def contract_sources() -> list[dict[str, Any]]:
     module_function_insertion = read_json(MODULE_FUNCTION_INSERTION_PLAN)
     condition_fn_injection = read_json(CONDITION_FN_INJECTION_PLAN)
     function_region_stack_pop = read_json(FUNCTION_REGION_STACK_POP_PLAN)
+    slot_registry_release = read_json(SLOT_REGISTRY_RELEASE_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -616,6 +620,40 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if region_pop_non_claims.get(key) != 0:
             raise SelectionError(f"function-region stack pop plan must keep {key}=0")
+    if slot_registry_release.get("kind") != "MirBuilderSlotRegistryReleasePlanV1":
+        raise SelectionError("SlotRegistry release plan has wrong kind")
+    slot_caps = set(slot_registry_release.get("available_capabilities") or [])
+    if "SlotRegistryRelease" not in slot_caps:
+        raise SelectionError("SlotRegistry release plan lacks SlotRegistryRelease")
+    release = slot_registry_release.get("release_policy") or {}
+    if release.get("lifecycle_owner") != "CompilationContext.current_slot_registry":
+        raise SelectionError("SlotRegistry release lifecycle owner drift")
+    if release.get("init_operation") != "Some(FunctionSlotRegistry::new())":
+        raise SelectionError("SlotRegistry release init operation drift")
+    if release.get("release_operation") != "current_slot_registry = None":
+        raise SelectionError("SlotRegistry release operation drift")
+    if (
+        release.get("release_timing")
+        != "AfterFunctionRegionStackPopBeforeModuleMetadataPublication"
+    ):
+        raise SelectionError("SlotRegistry release timing drift")
+    slot_contract = slot_registry_release.get("result_contract") or {}
+    if slot_contract.get("entrypoint") != "MirBuilder::finalize_module current_slot_registry release":
+        raise SelectionError("SlotRegistry release entrypoint drift")
+    if slot_contract.get("mutates") != ["builder.comp_ctx.current_slot_registry"]:
+        raise SelectionError("SlotRegistry release mutation frame drift")
+    slot_non_claims = slot_registry_release.get("non_claims") or {}
+    for key in [
+        "slot_metadata_classification",
+        "module_metadata_publication",
+        "metadata_publication",
+        "semantic_refresh",
+        "all_functions_phi_materialization",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if slot_non_claims.get(key) != 0:
+            raise SelectionError(f"SlotRegistry release plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -790,6 +828,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::function_region_stack_pop",
             "manifest_path": rel(FUNCTION_REGION_STACK_POP_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "SlotRegistryRelease",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::slot_registry_release",
+            "manifest_path": rel(SLOT_REGISTRY_RELEASE_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1212,12 +1257,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.slot_registry_release",
             "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
             "required_capability": "SlotRegistryRelease",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "SlotRegistryRelease",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "SlotRegistryReleaseRequired",
                 "semantic_owner": "MirBuilder::finalize_module slot registry cleanup",
                 "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-001",
+            },
+        },
+        {
+            "id": "finalize_module.module_metadata_publication",
+            "callsite": "MirBuilder::finalize_module -> publish module metadata",
+            "required_capability": "ModuleMetadataPublication",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "ModuleMetadataPublicationRequired",
+                "semantic_owner": "MirBuilder::finalize_module module metadata publication",
+                "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-001",
             },
         },
     ]
@@ -1411,6 +1471,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

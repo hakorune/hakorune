@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSlotRegistryReleasePlanV1",
+  "subject": "MirBuilder::finalize_module SlotRegistry release",
+  "source_authority": {
+    "prepare": "src/mir/builder/module_lifecycle.rs::MirBuilder::prepare_module",
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "predecessor_plan": "mirbuilder-function-region-stack-pop-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "prepared_slot_registry": "Some(FunctionSlotRegistry)"
+  },
+  "observed_source_order": {
+    "prepare_module": [
+      {
+        "marker": "self.comp_ctx.current_slot_registry =",
+        "byte_offset": 937
+      },
+      {
+        "marker": "Some(crate::mir::region::function_slot_registry::FunctionSlotRegistry::new());",
+        "byte_offset": 987
+      },
+      {
+        "marker": "crate::mir::region::observer::observe_function_region(self);",
+        "byte_offset": 1137
+      }
+    ],
+    "finalize_module": [
+      {
+        "marker": "crate::mir::region::observer::pop_function_region(self);",
+        "byte_offset": 9346
+      },
+      {
+        "marker": "self.comp_ctx.current_slot_registry = None;",
+        "byte_offset": 9457
+      },
+      {
+        "marker": "module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();",
+        "byte_offset": 9603
+      }
+    ]
+  },
+  "release_policy": {
+    "lifecycle_owner": "CompilationContext.current_slot_registry",
+    "init_operation": "Some(FunctionSlotRegistry::new())",
+    "release_operation": "current_slot_registry = None",
+    "release_timing": "AfterFunctionRegionStackPopBeforeModuleMetadataPublication",
+    "released_value": "FunctionSlotRegistry"
+  },
+  "available_capabilities": [
+    "SlotRegistryRelease"
+  ],
+  "result_contract": {
+    "mutates": [
+      "builder.comp_ctx.current_slot_registry"
+    ],
+    "entrypoint": "MirBuilder::finalize_module current_slot_registry release",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "slot_metadata_classification": 0,
+    "function_region_stack_pop": 0,
+    "module_metadata_publication": 0,
+    "metadata_publication": 0,
+    "semantic_refresh": 0,
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

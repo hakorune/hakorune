@@ -141,6 +141,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "SlotRegistryRelease",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::slot_registry_release",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -582,13 +589,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
       "id": "finalize_module.slot_registry_release",
-      "provider": null,
+      "provider": {
+        "capability": "SlotRegistryRelease",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "SlotRegistryRelease",
       "unsupported": {
         "deny_detail": "SlotRegistryReleaseRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-001",
         "semantic_owner": "MirBuilder::finalize_module slot registry cleanup"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> publish module metadata",
+      "id": "finalize_module.module_metadata_publication",
+      "provider": null,
+      "required_capability": "ModuleMetadataPublication",
+      "unsupported": {
+        "deny_detail": "ModuleMetadataPublicationRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-001",
+        "semantic_owner": "MirBuilder::finalize_module module metadata publication"
       }
     }
   ],
