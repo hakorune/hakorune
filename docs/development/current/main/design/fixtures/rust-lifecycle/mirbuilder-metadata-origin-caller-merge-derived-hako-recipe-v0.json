@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "MetadataOriginCallerMergeApi.merge(fn_state, metadata_ctx)",
+      "hako_operation": "CloneOwnedMap + ForEachMapEntry + ReturnValue",
+      "id": "MetadataOriginCallerMerge::merge",
+      "rust_operation": "clone function.metadata.value_origin_callers, insert metadata_ctx entries, replace function metadata"
+    }
+  ],
+  "pilot_scope": "MetadataOriginCallerMerge_minimal_literal_profile",
+  "schema_version": 0,
+  "selected_body_count": "metadata_origin_caller_merge_minimal_literal_profile_only",
+  "source_oracle": "mirbuilder-metadata-origin-caller-merge-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-metadata-origin-caller-merge-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.metadata_origin_caller_merge"
+}

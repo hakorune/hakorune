@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.metadata_origin_caller_merge"
-assert gap["callsite"] == "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers"
-assert gap["required_capability"] == "MetadataOriginCallerMerge"
-assert gap["next_slice_token"] == "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.phi_return_type_inference"
+assert gap["callsite"] == "MirBuilder::finalize_module -> infer return type from PHI"
+assert gap["required_capability"] == "PhiReturnTypeInference"
+assert gap["next_slice_token"] == "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -120,6 +120,13 @@ assert metadata_value_type_edge["evidence_tier"] == "VerifiedArtifact"
 assert metadata_value_type_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert metadata_value_type_edge["route_state"] == "DerivedShadow"
 assert metadata_value_type_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_metadata_value_type_publication.artifact.json"
+metadata_origin_caller_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.metadata_origin_caller_merge"]
+assert len(metadata_origin_caller_edges) == 1
+metadata_origin_caller_edge = metadata_origin_caller_edges[0]
+assert metadata_origin_caller_edge["evidence_tier"] == "VerifiedArtifact"
+assert metadata_origin_caller_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert metadata_origin_caller_edge["route_state"] == "DerivedShadow"
+assert metadata_origin_caller_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_metadata_origin_caller_merge.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

@@ -53,6 +53,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_type_hint_provision.artifact.json",
     "MetadataValueTypePublication": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_metadata_value_type_publication.artifact.json",
+    "MetadataOriginCallerMerge": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_metadata_origin_caller_merge.artifact.json",
 }
 
 
@@ -207,6 +209,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "MetadataOriginCallerMerge":
         return "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "PhiReturnTypeInference":
+        return "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -293,13 +297,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.metadata_origin_caller_merge", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.phi_return_type_inference", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "MetadataOriginCallerMerge",
+        first_gap["required_capability"] == "PhiReturnTypeInference",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:

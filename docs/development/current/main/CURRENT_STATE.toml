@@ -265,20 +265,20 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1732-MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """MirBuilder metadata value-type publication now has
-a DerivedShadow Hako artifact for the prepared minimal profile. The artifact
-materializes function.metadata.value_types = self.type_ctx.value_types.clone(),
-records the clone-owned publication frame, and returns a
-MetadataValueTypePublicationResultBox while origin-caller merge, PHI
-return/input work, module function insertion, full finalize_module, mainline
-selection, and source selfhost remain non-claims. The semantic closure report
-now derives finalize_module.metadata_origin_caller_merge as the first
-executable materialization gap. The next blocker is
-MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001."""
+latest_card = "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1733-MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """MirBuilder metadata origin-caller merge now has a
+DerivedShadow Hako artifact for the prepared minimal profile. The artifact
+materializes the clone-owned ValueIdOrderedMapBox merge from
+self.metadata_ctx.value_origin_callers() into
+function.metadata.value_origin_callers with SourceWins collision behavior,
+while PHI return/input work, module function insertion, full finalize_module,
+mainline selection, and source selfhost remain non-claims. The semantic
+closure report now derives finalize_module.phi_return_type_inference as the
+first executable materialization gap. The next blocker is
+MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

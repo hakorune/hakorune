@@ -1,0 +1,38 @@
+{
+  "kind": "MirBuilderMetadataOriginCallerMergeDerivedHakoOracleV1",
+  "non_claims": {
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "module_function_insertion": 0,
+    "phi_input_materialization": 0,
+    "phi_return_type_inference": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module function.metadata.value_origin_callers merge",
+  "vectors": [
+    {
+      "expect": {
+        "base_preserved": 1,
+        "merged_entries": 3,
+        "ok": 1,
+        "source_preserved": 1,
+        "source_wins": 1
+      },
+      "inputs": {
+        "base": "function.metadata.value_origin_callers",
+        "base_entries": {
+          "1": "base",
+          "7": "old"
+        },
+        "function_transport": "MirFunctionPreparedMain",
+        "source": "self.metadata_ctx.value_origin_callers()",
+        "source_entries": {
+          "2": "source",
+          "7": "new"
+        }
+      },
+      "name": "source_entries_merge_into_cloned_function_metadata_with_source_wins"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "checks": {
+    "collision_policy": "SourceWins",
+    "entrypoint": "function.metadata.value_origin_callers = origin_callers",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "metadata_origin_caller_merge_only": 1,
+    "minimal_path_expected_result": "OkImplicitUnit",
+    "phi_return_type_inference": 0,
+    "runtime_fallback": 0,
+    "selected_body_count": "metadata_origin_caller_merge_minimal_literal_profile_only",
+    "source": "self.metadata_ctx.value_origin_callers()",
+    "target": "function.metadata.value_origin_callers"
+  },
+  "denied_boundaries": [
+    "phi_return_type_inference",
+    "phi_input_materialization",
+    "module_function_insertion",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MetadataOriginCallerMerge_minimal_literal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-metadata-origin-caller-merge-plan-v0.json",
+  "source_plan": "mirbuilder-metadata-origin-caller-merge-plan-v0.json",
+  "source_recipe": "mirbuilder-metadata-origin-caller-merge-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.metadata_origin_caller_merge",
+  "transport_notes": {
+    "collision_policy": "SourceWins",
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "phi_return_type_inference": 0,
+    "source_storage_transport": "ValueIdOrderedMapBox",
+    "source_transport": "ValueIdOrderedMapBox",
+    "target_storage_transport": "ValueIdOrderedMapBox",
+    "target_transport": "ValueIdOrderedMapBox"
+  },
+  "verified_operations": [
+    "CloneOwnedMap",
+    "ForEachMapEntry",
+    "MapSet",
+    "SetField",
+    "ReturnValue",
+    "MetadataOriginCallerMergeShell"
+  ]
+}

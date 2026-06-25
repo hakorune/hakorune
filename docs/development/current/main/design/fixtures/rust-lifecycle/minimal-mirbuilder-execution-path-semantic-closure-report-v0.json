@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 13,
+      "PlanOnly": 12,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 15
+      "VerifiedArtifact": 16
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 15,
-      "Missing": 13,
+      "ExecutableArtifactPresent": 16,
+      "Missing": 12,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 14,
+      "DerivedShadow": 15,
       "NotApplicable": 4,
-      "Unselected": 13
+      "Unselected": 12
     }
   },
   "edges": [
@@ -372,15 +372,15 @@
       "status": "Available",
       "required_capability": "MetadataOriginCallerMerge",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "MetadataOriginCallerMerge",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-origin-caller-merge-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_metadata_origin_caller_merge.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.metadata_origin_caller_merge",
-    "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
-    "required_capability": "MetadataOriginCallerMerge",
-    "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.phi_return_type_inference",
+    "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
+    "required_capability": "PhiReturnTypeInference",
+    "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {
