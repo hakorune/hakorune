@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::prepare_module -> MirModule::new",
+    "callsite": "MirBuilder::prepare_module -> MirFunction::new",
     "deny_reason": "UnsupportedTypeTransport",
-    "deny_detail": "MirModuleMinimalShellTransportRequired",
-    "semantic_owner": "MirModule::new",
-    "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
+    "deny_detail": "MirFunctionConstructorTransportRequired",
+    "semantic_owner": "MirFunction::new",
+    "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:
@@ -65,9 +65,9 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-selection-guard-v0
 selection_guard=green
 entry_is_prepared_state=1
-first_unsupported_edge=MirBuilder::prepare_module -> MirModule::new
-deny_detail=MirModuleMinimalShellTransportRequired
-next_slice_token=MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001
+first_unsupported_edge=MirBuilder::prepare_module -> MirFunction::new
+deny_detail=MirFunctionConstructorTransportRequired
+next_slice_token=MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001
 generated_hako_change=0
 runtime_fallback=0
 summary=ok

@@ -33,6 +33,9 @@ PREPARED_KERNEL_MANIFEST = (
     / "lang/generated/rust_derived/hakorune_mir_builder/"
     "mirbuilder_next_value_id_prepared_state_kernel.artifact.json"
 )
+MODULE_SHELL_PLAN = (
+    FIXTURES / "mir-module-minimal-shell-transport-plan-v0.json"
+)
 
 PLAN_PATH = FIXTURES / "minimal-mirbuilder-execution-path-plan-v0.json"
 RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
@@ -112,6 +115,7 @@ def contract_sources() -> list[dict[str, Any]]:
     bundle = read_json(BUNDLE_MANIFEST)
     core = read_json(CORE_CONTEXT_MANIFEST)
     prepared = read_json(PREPARED_KERNEL_MANIFEST)
+    module_shell = read_json(MODULE_SHELL_PLAN)
 
     if bundle.get("bundle_contract_model") != "membership_only_v1":
         raise SelectionError("ordered_map bundle is not membership_only_v1")
@@ -140,8 +144,21 @@ def contract_sources() -> list[dict[str, Any]]:
         raise SelectionError("prepared-state kernel manifest lacks policy-kernel claim")
     if prepared_claims.get("full_mirbuilder_object_method") != 0:
         raise SelectionError("prepared-state kernel claims full MirBuilder object method")
+    if module_shell.get("kind") != "MirModuleMinimalShellTransportPlanV1":
+        raise SelectionError("module shell transport plan has wrong kind")
+    if module_shell.get("directability", {}).get("capability") != "MirModuleMinimalShellTransport":
+        raise SelectionError("module shell plan does not provide MirModuleMinimalShellTransport")
+    if module_shell.get("non_claims", {}).get("source_file_assignment") != 0:
+        raise SelectionError("module shell plan must not claim source_file assignment")
 
     return [
+        {
+            "capability": "MirModuleMinimalShellTransport",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir::MirModule",
+            "manifest_path": rel(MODULE_SHELL_PLAN),
+            "artifact_state": "PlanOnly",
+        },
         {
             "capability": "CoreContext.scalar_counters_and_id_generators",
             "contract_kind": "VerifiedFamilyArtifactContractV1",
@@ -193,7 +210,10 @@ def build_plan() -> dict[str, Any]:
             "id": "prepare_module.module_new",
             "callsite": "MirBuilder::prepare_module -> MirModule::new",
             "required_capability": "MirModuleMinimalShellTransport",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "MirModuleMinimalShellTransport",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedTypeTransport",
                 "deny_detail": "MirModuleMinimalShellTransportRequired",
@@ -205,7 +225,11 @@ def build_plan() -> dict[str, Any]:
             "id": "prepare_module.source_file",
             "callsite": "MirBuilder::prepare_module -> current_source_file",
             "required_capability": "SourceFileOptionTransport",
-            "provider": None,
+            "provider": {
+                "kind": "ProfileExcluded",
+                "profile_key": "source_file",
+                "profile_value": None,
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedTypeTransport",
                 "deny_detail": "SourceFileOptionTransportRequired",
@@ -313,6 +337,7 @@ def build_plan() -> dict[str, Any]:
 def analyze_frontier(plan: dict[str, Any]) -> dict[str, Any]:
     contracts = plan["contract_sources"]
     reached_prefix: list[dict[str, Any]] = []
+    profile_excluded: list[dict[str, Any]] = []
     not_reached: list[dict[str, Any]] = []
     first_unsupported: dict[str, Any] | None = None
 
@@ -343,7 +368,7 @@ def analyze_frontier(plan: dict[str, Any]) -> dict[str, Any]:
             reached_prefix.append(first_unsupported)
             continue
 
-        if provider["kind"] == "ArtifactContract":
+        if provider["kind"] in {"ArtifactContract", "CapabilityPlan"}:
             contract = provider_contract(provider["capability"], contracts)
             if contract is None:
                 raise SelectionError(
@@ -358,6 +383,34 @@ def analyze_frontier(plan: dict[str, Any]) -> dict[str, Any]:
                     "contract_reference": contract,
                 }
             )
+            continue
+
+        if provider["kind"] == "ProfileExcluded":
+            key = provider["profile_key"]
+            if plan["execution_profile"].get(key) != provider["profile_value"]:
+                unsupported = edge["unsupported"]
+                first_unsupported = {
+                    "edge_id": edge["id"],
+                    "callsite": edge["callsite"],
+                    "status": "Unsupported",
+                    "required_capability": edge["required_capability"],
+                    "deny_reason": unsupported["deny_reason"],
+                    "deny_detail": unsupported["deny_detail"],
+                    "semantic_owner": unsupported["semantic_owner"],
+                    "next_slice_token": unsupported["next_slice_token"],
+                }
+                reached_prefix.append(first_unsupported)
+                continue
+            row = {
+                "edge_id": edge["id"],
+                "callsite": edge["callsite"],
+                "status": "ProfileExcluded",
+                "required_capability": edge["required_capability"],
+                "profile_key": key,
+                "profile_value": provider["profile_value"],
+            }
+            reached_prefix.append(row)
+            profile_excluded.append(row)
             continue
 
         if provider["kind"] in {"ExecutionProfile", "LiveSourceOrder"}:
@@ -383,7 +436,7 @@ def analyze_frontier(plan: dict[str, Any]) -> dict[str, Any]:
         "input_profile": plan["input_profile"],
         "execution_profile": plan["execution_profile"],
         "reached_prefix": reached_prefix,
-        "profile_excluded_edges": [],
+        "profile_excluded_edges": profile_excluded,
         "first_unsupported_edge": first_unsupported,
         "not_reached_edges": not_reached,
         "claims": {
@@ -409,17 +462,17 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "MirBuilder::prepare_module -> MirModule::new",
+        "callsite": "MirBuilder::prepare_module -> MirFunction::new",
         "deny_reason": "UnsupportedTypeTransport",
-        "deny_detail": "MirModuleMinimalShellTransportRequired",
-        "semantic_owner": "MirModule::new",
-        "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
+        "deny_detail": "MirFunctionConstructorTransportRequired",
+        "semantic_owner": "MirFunction::new",
+        "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:
             raise SelectionError(f"first unsupported edge expected {key}={value}, got {first.get(key)}")
     statuses = [row["status"] for row in result["reached_prefix"]]
-    if statuses != ["Available", "Available", "Unsupported"]:
+    if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Unsupported"]:
         raise SelectionError(f"unexpected reached frontier statuses: {statuses}")
     for row in result["not_reached_edges"]:
         if row.get("status") != "NotReached":

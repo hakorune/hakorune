@@ -265,16 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1690-MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001.md"
-latest_card_summary = """Minimal MirBuilder execution path selection is green.
-Live Rust source order plus explicit family artifact contracts derive the first
-unsupported edge at MirBuilder::prepare_module -> MirModule::new with
-detail=MirModuleMinimalShellTransportRequired. No generated Hako, backend
-route, ABI, runtime fallback, mainline selection, or source-selfhost claim is
-added."""
+latest_card = "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1691-MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001.md"
+latest_card_summary = """MirModule minimal shell transport is green as a
+source-derived PlanOnly capability for MirModule::new. It models only name,
+empty functions, empty globals, and ModuleMetadata::default. The minimal
+execution frontier now advances through source_file=None ProfileExcluded and
+CoreContext next_block to MirFunction::new with
+detail=MirFunctionConstructorTransportRequired."""
 
-current_blocker_token = "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001"
+current_blocker_token = "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

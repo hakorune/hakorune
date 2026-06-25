@@ -1,0 +1,68 @@
+{
+  "schema_version": 0,
+  "kind": "MirModuleMinimalShellTransportPlanV1",
+  "subject": "hakorune_mir::MirModule::new",
+  "source_authority": {
+    "constructor": "src/mir/function/module_impl.rs::MirModule::new",
+    "shape": "src/mir/function/types.rs::MirModule"
+  },
+  "constructor_signature": {
+    "parameter": {
+      "name": "name",
+      "rust_type": "String",
+      "transport": "ModuleNameStringAtom"
+    },
+    "return": {
+      "rust_type": "MirModule",
+      "transport": "MirModuleMinimalShell"
+    }
+  },
+  "shell_fields": [
+    {
+      "field": "name",
+      "rust_type": "String",
+      "initializer": "parameter:name",
+      "transport": "ModuleNameStringAtom"
+    },
+    {
+      "field": "functions",
+      "rust_type": "BTreeMap<String, MirFunction>",
+      "initializer": "BTreeMap::new",
+      "transport": "EmptyFunctionTable"
+    },
+    {
+      "field": "globals",
+      "rust_type": "HashMap<String, ConstValue>",
+      "initializer": "HashMap::new",
+      "transport": "EmptyGlobalConstTable"
+    },
+    {
+      "field": "metadata",
+      "rust_type": "ModuleMetadata",
+      "initializer": "ModuleMetadata::default",
+      "transport": "ModuleMetadataDefaultShell"
+    }
+  ],
+  "metadata_default_observations": {
+    "source_file": null,
+    "source_file_transport": "AbsentSourceFile",
+    "metadata_mutation_claim": 0
+  },
+  "directability": {
+    "capability": "MirModuleMinimalShellTransport",
+    "decision": "Available",
+    "scope": "constructor shell only"
+  },
+  "non_claims": {
+    "source_file_assignment": 0,
+    "function_insertion": 0,
+    "global_publication": 0,
+    "metadata_publication": 0,
+    "finalize_module": 0,
+    "full_mirbuilder_new": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0
+  }
+}

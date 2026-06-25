@@ -1,6 +1,13 @@
 {
   "contract_sources": [
     {
+      "artifact_state": "PlanOnly",
+      "capability": "MirModuleMinimalShellTransport",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir::MirModule",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-module-minimal-shell-transport-plan-v0.json"
+    },
+    {
       "artifact_state": "DerivedShadow",
       "capability": "CoreContext.scalar_counters_and_id_generators",
       "contract_kind": "VerifiedFamilyArtifactContractV1",
@@ -73,7 +80,10 @@
     {
       "callsite": "MirBuilder::prepare_module -> MirModule::new",
       "id": "prepare_module.module_new",
-      "provider": null,
+      "provider": {
+        "capability": "MirModuleMinimalShellTransport",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "MirModuleMinimalShellTransport",
       "unsupported": {
         "deny_detail": "MirModuleMinimalShellTransportRequired",
@@ -85,7 +95,11 @@
     {
       "callsite": "MirBuilder::prepare_module -> current_source_file",
       "id": "prepare_module.source_file",
-      "provider": null,
+      "provider": {
+        "kind": "ProfileExcluded",
+        "profile_key": "source_file",
+        "profile_value": null
+      },
       "required_capability": "SourceFileOptionTransport",
       "unsupported": {
         "deny_detail": "SourceFileOptionTransportRequired",

@@ -20,18 +20,18 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001
+  MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001
 
 current implementation task:
-  Implement the minimal MirModule shell transport required by the derived first
-  red edge for PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)).
+  Implement the MirFunction constructor composition required by the advanced
+  PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)) frontier.
 
 selected source slice:
-  MirBuilder::prepare_module -> MirModule::new
+  MirBuilder::prepare_module -> MirFunction::new
 
 selected lowering:
-  MirModule::new live constructor semantics
-    -> minimal module shell transport
+  MirFunction::new live constructor semantics
+    -> function constructor composition
     -> prepared-state execution path frontier advancement
 
 landed evidence:
@@ -77,20 +77,21 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
+  MirModule shell is green; frontier advances through ProfileExcluded source_file=None and CoreContext next_block to MirFunction::new.
 
 selected next owner:
-  MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001
+  MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001
 
 current fail-fast boundary:
-  The next slice may only model the minimal MirModule shell required by the
-  derived frontier edge. It must not infer coverage from bundle size, widen to
-  full MirBuilder::new, or silently promote a generated artifact to mainline
-  source authority.
+  The next slice may only model MirFunction::new plus its nested entry
+  BasicBlock constructor. It must not split a separate block-only claim, widen
+  to full function lowering, or silently promote generated artifacts to
+  mainline source authority.
 
 latest design decision:
-  Minimal execution path selection is green as analysis-only frontier
-  discovery. Proceed to MirModule minimal shell transport, not broad coverage
-  expansion.
+  MirModule minimal shell transport is green as source-derived PlanOnly
+  capability. Proceed to MirFunction constructor composition, not broad
+  coverage expansion.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -117,7 +118,8 @@ mirbuilder_next_value_id_prepared_state_kernel green
 mirbuilder_allocation_policy_bundle_adoption green
 mirbuilder_prepared_state_reserved_membership_transport_alignment green
 mirbuilder_minimal_execution_path_selection green
-derived_first_red_edge=MirBuilder::prepare_module -> MirModule::new
+mir_module_minimal_shell_transport green
+derived_first_red_edge=MirBuilder::prepare_module -> MirFunction::new
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -142,6 +144,7 @@ mirbuilder_next_value_id_prepared_state_kernel = landed
 mirbuilder_allocation_policy_bundle_adoption = landed
 mirbuilder_prepared_state_reserved_membership_transport_alignment = landed
 mirbuilder_minimal_execution_path_selection = landed
+mir_module_minimal_shell_transport = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -151,23 +154,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIR module minimal shell transport
+1. MirFunction constructor composition
    status=selected
-   boundary=MirModule::new minimal shell only
-   semantic_authority=MirModule constructor facts
-   non_authority=full module/finalize behavior
-
-2. MirFunction constructor composition
-   status=parked until module shell frontier advances
    boundary=MirFunction::new plus nested entry BasicBlock
    semantic_authority=function constructor facts
    non_authority=separate block-only claim
 
-3. Minimal literal const/return path
+2. Minimal literal const/return path
    status=parked until function constructor frontier advances
    boundary=integer Const plus Return emission
    semantic_authority=literal emission facts
    non_authority=finalize composition
+
+3. Bounded finalize composition
+   status=parked until const/return path frontier advances
+   boundary=only finalization needed by AST Literal Integer(0)
+   semantic_authority=finalize source facts
+   non_authority=full finalize behavior
 ```
 
 ## Landed Converter Capability Summary

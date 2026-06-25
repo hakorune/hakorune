@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::prepare_module -> MirModule::new",
-    "deny_detail": "MirModuleMinimalShellTransportRequired",
+    "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+    "deny_detail": "MirFunctionConstructorTransportRequired",
     "deny_reason": "UnsupportedTypeTransport",
-    "edge_id": "prepare_module.module_new",
-    "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
-    "required_capability": "MirModuleMinimalShellTransport",
-    "semantic_owner": "MirModule::new",
+    "edge_id": "prepare_module.function_new",
+    "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
+    "required_capability": "MirFunctionConstructorTransport",
+    "semantic_owner": "MirFunction::new",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -36,21 +36,6 @@
   },
   "kind": "MinimalMirBuilderFirstRedEdgeResultV1",
   "not_reached_edges": [
-    {
-      "callsite": "MirBuilder::prepare_module -> current_source_file",
-      "edge_id": "prepare_module.source_file",
-      "status": "NotReached"
-    },
-    {
-      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
-      "edge_id": "prepare_module.next_block",
-      "status": "NotReached"
-    },
-    {
-      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
-      "edge_id": "prepare_module.function_new",
-      "status": "NotReached"
-    },
     {
       "callsite": "MirBuilder::prepare_module -> current state install",
       "edge_id": "prepare_module.state_install",
@@ -67,7 +52,16 @@
       "status": "NotReached"
     }
   ],
-  "profile_excluded_edges": [],
+  "profile_excluded_edges": [
+    {
+      "callsite": "MirBuilder::prepare_module -> current_source_file",
+      "edge_id": "prepare_module.source_file",
+      "profile_key": "source_file",
+      "profile_value": null,
+      "required_capability": "SourceFileOptionTransport",
+      "status": "ProfileExcluded"
+    }
+  ],
   "reached_prefix": [
     {
       "callsite": "PreparedMirBuilderStateV1",
@@ -90,12 +84,46 @@
     },
     {
       "callsite": "MirBuilder::prepare_module -> MirModule::new",
-      "deny_detail": "MirModuleMinimalShellTransportRequired",
-      "deny_reason": "UnsupportedTypeTransport",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "MirModuleMinimalShellTransport",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir::MirModule",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-module-minimal-shell-transport-plan-v0.json"
+      },
       "edge_id": "prepare_module.module_new",
-      "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
       "required_capability": "MirModuleMinimalShellTransport",
-      "semantic_owner": "MirModule::new",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> current_source_file",
+      "edge_id": "prepare_module.source_file",
+      "profile_key": "source_file",
+      "profile_value": null,
+      "required_capability": "SourceFileOptionTransport",
+      "status": "ProfileExcluded"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
+      "contract_reference": {
+        "artifact_state": "DerivedShadow",
+        "capability": "CoreContext.scalar_counters_and_id_generators",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::core_context",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json"
+      },
+      "edge_id": "prepare_module.next_block",
+      "required_capability": "CoreContext.scalar_counters_and_id_generators",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+      "deny_detail": "MirFunctionConstructorTransportRequired",
+      "deny_reason": "UnsupportedTypeTransport",
+      "edge_id": "prepare_module.function_new",
+      "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
+      "required_capability": "MirFunctionConstructorTransport",
+      "semantic_owner": "MirFunction::new",
       "status": "Unsupported"
     }
   ],
