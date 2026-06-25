@@ -1,0 +1,249 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoundedFinalizeCompositionPlanV1",
+  "subject": "MirBuilder::finalize_module(result_value)",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "module_add_function": "src/mir/function/module_impl.rs::MirModule::add_function",
+    "type_propagation": "src/mir/type_propagation/pipeline.rs::TypePropagationPipeline",
+    "semantic_refresh_subset": "src/mir/semantic_refresh.rs::refresh_module_record_and_packed_layout_plans"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "source_file": null,
+    "dev_birth_verification": false,
+    "condition_fn_initially_missing": true,
+    "user_box_decls": "Empty",
+    "record_decls": "Empty",
+    "enum_decls": "Empty"
+  },
+  "observed_source_order": [
+    {
+      "marker": "self.hint_scope_leave(0);",
+      "byte_offset": 70
+    },
+    {
+      "marker": "if let Some(block_id) = self.current_block",
+      "byte_offset": 104
+    },
+    {
+      "marker": "block.add_instruction(MirInstruction::Return",
+      "byte_offset": 371
+    },
+    {
+      "marker": "function.signature.return_type = mt;",
+      "byte_offset": 641
+    },
+    {
+      "marker": "let mut module = self.current_module.take().unwrap();",
+      "byte_offset": 751
+    },
+    {
+      "marker": "verify_typed_values_are_defined",
+      "byte_offset": 919
+    },
+    {
+      "marker": "let mut function = self.scope_ctx.current_function.take().unwrap();",
+      "byte_offset": 1021
+    },
+    {
+      "marker": "TypePropagationPipeline::run(&mut function, &mut self.type_ctx.value_types)?;",
+      "byte_offset": 1462
+    },
+    {
+      "marker": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+      "byte_offset": 1911
+    },
+    {
+      "marker": "function.metadata.value_types = self.type_ctx.value_types.clone();",
+      "byte_offset": 2192
+    },
+    {
+      "marker": "function.metadata.value_origin_callers = origin_callers;",
+      "byte_offset": 2480
+    },
+    {
+      "marker": "phi_type_inference::infer_return_type_from_phi",
+      "byte_offset": 2835
+    },
+    {
+      "marker": "materialize_all_phi_inputs",
+      "byte_offset": 3197
+    },
+    {
+      "marker": "if crate::config::env::using_is_dev()",
+      "byte_offset": 3624
+    },
+    {
+      "marker": "module.add_function(function);",
+      "byte_offset": 8129
+    },
+    {
+      "marker": "if module.functions.get(\"condition_fn\").is_none()",
+      "byte_offset": 8570
+    },
+    {
+      "marker": "name: \"condition_fn\".to_string(),",
+      "byte_offset": 8680
+    },
+    {
+      "marker": "crate::mir::function_emission::emit_const_integer(&mut f, entry, 1);",
+      "byte_offset": 9096
+    },
+    {
+      "marker": "module.add_function(f);",
+      "byte_offset": 9259
+    },
+    {
+      "marker": "crate::mir::region::observer::pop_function_region(self);",
+      "byte_offset": 9346
+    },
+    {
+      "marker": "self.comp_ctx.current_slot_registry = None;",
+      "byte_offset": 9457
+    },
+    {
+      "marker": "module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();",
+      "byte_offset": 9603
+    },
+    {
+      "marker": "module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();",
+      "byte_offset": 10338
+    },
+    {
+      "marker": "module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();",
+      "byte_offset": 10435
+    },
+    {
+      "marker": "refresh_module_record_and_packed_layout_plans(&mut module);",
+      "byte_offset": 10550
+    },
+    {
+      "marker": "refresh_module_typed_object_plans(&mut module);",
+      "byte_offset": 10649
+    },
+    {
+      "marker": "refresh_module_direct_state_plans(&mut module);",
+      "byte_offset": 10736
+    },
+    {
+      "marker": "materialize_all_phi_inputs(\n                function,\n                \"finalize_module_all_functions\",",
+      "byte_offset": 10902
+    },
+    {
+      "marker": "Ok(module)",
+      "byte_offset": 11040
+    }
+  ],
+  "composition": [
+    {
+      "step": "scope_leave",
+      "operation": "hint_scope_leave(0)"
+    },
+    {
+      "step": "append_return_if_unterminated",
+      "operation": "MirInstruction::Return",
+      "value": "result_value"
+    },
+    {
+      "step": "update_return_type_from_result",
+      "source": "type_ctx.value_types[result_value]",
+      "target": "function.signature.return_type"
+    },
+    {
+      "step": "take_module",
+      "operation": "current_module.take().unwrap"
+    },
+    {
+      "step": "verify_typed_values",
+      "operation": "verify_typed_values_are_defined"
+    },
+    {
+      "step": "take_function",
+      "operation": "scope_ctx.current_function.take().unwrap"
+    },
+    {
+      "step": "type_propagation",
+      "operation": "TypePropagationPipeline::run"
+    },
+    {
+      "step": "type_hint_provision",
+      "operation": "annotate_missing_result_types_from_calls_and_await"
+    },
+    {
+      "step": "publish_value_types",
+      "target": "function.metadata.value_types"
+    },
+    {
+      "step": "merge_origin_callers",
+      "collision": "metadata_ctx source wins"
+    },
+    {
+      "step": "phi_return_type_inference",
+      "operation": "infer_return_type_from_phi"
+    },
+    {
+      "step": "materialize_phi_inputs_main",
+      "operation": "materialize_all_phi_inputs"
+    },
+    {
+      "step": "dev_birth_verification",
+      "profile": "ExcludedFalse"
+    },
+    {
+      "step": "module_add_main_function",
+      "operation": "MirModule::add_function"
+    },
+    {
+      "step": "inject_condition_fn_if_missing",
+      "operation": "condition_fn const 1 return",
+      "required_by_source": true
+    },
+    {
+      "step": "pop_function_region",
+      "operation": "region::observer::pop_function_region"
+    },
+    {
+      "step": "clear_slot_registry",
+      "operation": "current_slot_registry = None"
+    },
+    {
+      "step": "publish_module_metadata",
+      "fields": [
+        "user_box_decls",
+        "record_decls",
+        "enum_decls"
+      ]
+    },
+    {
+      "step": "refresh_module_plans_subset",
+      "operations": [
+        "refresh_module_record_and_packed_layout_plans",
+        "refresh_module_typed_object_plans",
+        "refresh_module_direct_state_plans"
+      ]
+    },
+    {
+      "step": "materialize_phi_inputs_all_functions",
+      "operation": "materialize_all_phi_inputs"
+    },
+    {
+      "step": "return_module",
+      "transport": "MirModuleMinimalShell"
+    }
+  ],
+  "available_capabilities": [
+    "FinalizeModuleComposition"
+  ],
+  "non_claims": {
+    "full_finalize_module": 0,
+    "other_root_shapes": 0,
+    "condition_fn_policy_generalization": 0,
+    "semantic_refresh_full_claim": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

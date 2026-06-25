@@ -29,6 +29,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "FinalizeModuleComposition",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::bounded_finalize",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-composition-plan-v0.json"
+    },
+    {
       "artifact_state": "DerivedShadow",
       "capability": "CoreContext.scalar_counters_and_id_generators",
       "contract_kind": "VerifiedFamilyArtifactContractV1",
@@ -186,13 +193,28 @@
     {
       "callsite": "MirBuilder::finalize_module",
       "id": "finalize_module.composition",
-      "provider": null,
+      "provider": {
+        "capability": "FinalizeModuleComposition",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "FinalizeModuleComposition",
       "unsupported": {
         "deny_detail": "FinalizeModuleCompositionRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
         "semantic_owner": "MirBuilder::finalize_module"
+      }
+    },
+    {
+      "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+      "id": "minimal_execution_path.smoke",
+      "provider": null,
+      "required_capability": "MinimalExecutionPathSmoke",
+      "unsupported": {
+        "deny_detail": "MinimalExecutionPathSmokeRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
+        "semantic_owner": "minimal MirBuilder execution path"
       }
     }
   ],

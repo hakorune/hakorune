@@ -42,6 +42,9 @@ FUNCTION_CONSTRUCTOR_PLAN = (
 LITERAL_INTEGER_PLAN = (
     FIXTURES / "mirbuilder-literal-integer-lowering-plan-v0.json"
 )
+BOUNDED_FINALIZE_PLAN = (
+    FIXTURES / "mirbuilder-bounded-finalize-composition-plan-v0.json"
+)
 
 PLAN_PATH = FIXTURES / "minimal-mirbuilder-execution-path-plan-v0.json"
 RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
@@ -124,6 +127,7 @@ def contract_sources() -> list[dict[str, Any]]:
     module_shell = read_json(MODULE_SHELL_PLAN)
     function_constructor = read_json(FUNCTION_CONSTRUCTOR_PLAN)
     literal_integer = read_json(LITERAL_INTEGER_PLAN)
+    bounded_finalize = read_json(BOUNDED_FINALIZE_PLAN)
 
     if bundle.get("bundle_contract_model") != "membership_only_v1":
         raise SelectionError("ordered_map bundle is not membership_only_v1")
@@ -176,6 +180,16 @@ def contract_sources() -> list[dict[str, Any]]:
         raise SelectionError("literal integer plan must not claim return emission")
     if literal_non_claims.get("generated_hako_artifact") != 0:
         raise SelectionError("literal integer plan must not claim generated Hako")
+    if bounded_finalize.get("kind") != "MirBuilderBoundedFinalizeCompositionPlanV1":
+        raise SelectionError("bounded finalize composition plan has wrong kind")
+    finalize_caps = set(bounded_finalize.get("available_capabilities") or [])
+    if "FinalizeModuleComposition" not in finalize_caps:
+        raise SelectionError("bounded finalize plan lacks FinalizeModuleComposition")
+    finalize_non_claims = bounded_finalize.get("non_claims") or {}
+    if finalize_non_claims.get("full_finalize_module") != 0:
+        raise SelectionError("bounded finalize plan must not claim full finalize")
+    if finalize_non_claims.get("generated_hako_artifact") != 0:
+        raise SelectionError("bounded finalize plan must not claim generated Hako")
 
     return [
         {
@@ -204,6 +218,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::literal_integer",
             "manifest_path": rel(LITERAL_INTEGER_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "FinalizeModuleComposition",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::bounded_finalize",
+            "manifest_path": rel(BOUNDED_FINALIZE_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -342,12 +363,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.composition",
             "callsite": "MirBuilder::finalize_module",
             "required_capability": "FinalizeModuleComposition",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "FinalizeModuleComposition",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "FinalizeModuleCompositionRequired",
                 "semantic_owner": "MirBuilder::finalize_module",
                 "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
+            },
+        },
+        {
+            "id": "minimal_execution_path.smoke",
+            "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+            "required_capability": "MinimalExecutionPathSmoke",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "MinimalExecutionPathSmokeRequired",
+                "semantic_owner": "minimal MirBuilder execution path",
+                "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
             },
         },
     ]
@@ -518,11 +554,11 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "MirBuilder::finalize_module",
+        "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
         "deny_reason": "UnsupportedDirectShape",
-        "deny_detail": "FinalizeModuleCompositionRequired",
-        "semantic_owner": "MirBuilder::finalize_module",
-        "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
+        "deny_detail": "MinimalExecutionPathSmokeRequired",
+        "semantic_owner": "minimal MirBuilder execution path",
+        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:
@@ -533,6 +569,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

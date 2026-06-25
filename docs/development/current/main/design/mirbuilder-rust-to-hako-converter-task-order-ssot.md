@@ -20,18 +20,17 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001
 
 current implementation task:
-  Implement bounded finalize composition required by the advanced
-  PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)) frontier.
+  Add the minimal PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)) smoke.
 
 selected source slice:
-  MirBuilder::finalize_module
+  prepared-state build_module(AST Literal Integer(0)) execution surface
 
 selected lowering:
-  finalize_module for the literal-integer path
-    -> return/module sealing needed by AST Literal Integer(0) frontier
+  explicit artifact contracts
+    -> minimal smoke proof without mainline selection
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -76,19 +75,18 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor composition, and literal integer lowering are green; frontier advances to bounded finalize composition.
+  MirModule shell, MirFunction constructor, literal integer lowering, and bounded finalize composition are green; frontier advances to minimal execution smoke.
 
 selected next owner:
-  MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001
 
 current fail-fast boundary:
-  The next slice may only model the finalization needed by
-  build_module(AST Literal Integer(0)). It must not widen to full finalize,
-  condition_fn injection, semantic refresh, other expressions, or mainline
-  source authority.
+  The next slice may only prove the prepared-state literal-integer execution
+  path. It must not select mainline routes, widen source authority, or add
+  runtime fallback.
 
 latest design decision:
-  Literal integer lowering is green as PlanOnly capability. Proceed to bounded finalize composition, not broad finalize coverage.
+  Bounded finalize composition is green as PlanOnly capability. Proceed to a minimal execution smoke, not mainline selection.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -118,7 +116,8 @@ mirbuilder_minimal_execution_path_selection green
 mir_module_minimal_shell_transport green
 mir_function_constructor_composition green
 mirbuilder_literal_integer_lowering green
-derived_first_red_edge=MirBuilder::finalize_module
+mirbuilder_bounded_finalize_composition green
+derived_first_red_edge=MinimalExecutionPathSmokeRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -146,6 +145,7 @@ mirbuilder_minimal_execution_path_selection = landed
 mir_module_minimal_shell_transport = landed
 mir_function_constructor_composition = landed
 mirbuilder_literal_integer_lowering = landed
+mirbuilder_bounded_finalize_composition = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -155,17 +155,17 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Bounded finalize composition
+1. Minimal execution path smoke
    status=selected
-   boundary=finalization needed by AST Literal Integer(0)
-   semantic_authority=finalize source facts
-   non_authority=full finalize behavior
-
-2. Minimal execution path smoke
-   status=parked until bounded finalize frontier advances
-   boundary=Return of selected literal value only
-   semantic_authority=minimal execution path contracts
+   boundary=prepared-state AST Literal Integer(0) only
+   semantic_authority=explicit contracts plus smoke result
    non_authority=mainline selection
+
+2. Minimal execution path frontier refresh
+   status=parked until smoke green
+   boundary=derive next unsupported live edge
+   semantic_authority=frontier analyzer
+   non_authority=manual next-edge selection
 
 3. Mainline pilot
    status=parked until minimal execution path green
