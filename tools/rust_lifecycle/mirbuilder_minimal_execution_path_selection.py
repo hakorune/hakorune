@@ -66,6 +66,9 @@ TYPE_PROPAGATION_PIPELINE_PLAN = (
 TYPE_HINT_PROVISION_PLAN = (
     FIXTURES / "mirbuilder-type-hint-provision-plan-v0.json"
 )
+METADATA_VALUE_TYPE_PUBLICATION_PLAN = (
+    FIXTURES / "mirbuilder-metadata-value-type-publication-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -164,6 +167,7 @@ def contract_sources() -> list[dict[str, Any]]:
     current_function_take = read_json(CURRENT_FUNCTION_TAKE_PLAN)
     type_propagation_pipeline = read_json(TYPE_PROPAGATION_PIPELINE_PLAN)
     type_hint_provision = read_json(TYPE_HINT_PROVISION_PLAN)
+    metadata_value_type_publication = read_json(METADATA_VALUE_TYPE_PUBLICATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -356,6 +360,32 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if type_hint_non_claims.get(key) != 0:
             raise SelectionError(f"type hint provision plan must keep {key}=0")
+    if (
+        metadata_value_type_publication.get("kind")
+        != "MirBuilderMetadataValueTypePublicationPlanV1"
+    ):
+        raise SelectionError("metadata value-type publication plan has wrong kind")
+    metadata_value_caps = set(
+        metadata_value_type_publication.get("available_capabilities") or []
+    )
+    if "MetadataValueTypePublication" not in metadata_value_caps:
+        raise SelectionError(
+            "metadata value-type publication plan lacks MetadataValueTypePublication"
+        )
+    publication = metadata_value_type_publication.get("publication") or {}
+    if publication.get("operation") != "CloneOwnedMap":
+        raise SelectionError("metadata value-type publication operation drift")
+    if publication.get("timing") != "AfterTypeHintProvisionBeforeOriginCallerMerge":
+        raise SelectionError("metadata value-type publication timing drift")
+    metadata_value_non_claims = metadata_value_type_publication.get("non_claims") or {}
+    for key in [
+        "metadata_origin_caller_merge",
+        "phi_return_type_inference",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if metadata_value_non_claims.get(key) != 0:
+            raise SelectionError(f"metadata value-type publication plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -474,6 +504,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::type_hint_provision",
             "manifest_path": rel(TYPE_HINT_PROVISION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "MetadataValueTypePublication",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::metadata_value_type_publication",
+            "manifest_path": rel(METADATA_VALUE_TYPE_PUBLICATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -776,12 +813,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.metadata_value_type_publication",
             "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
             "required_capability": "MetadataValueTypePublication",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "MetadataValueTypePublication",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "MetadataValueTypePublicationRequired",
                 "semantic_owner": "MirBuilder::finalize_module metadata value type publication",
                 "next_slice_token": "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001",
+            },
+        },
+        {
+            "id": "finalize_module.metadata_origin_caller_merge",
+            "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
+            "required_capability": "MetadataOriginCallerMerge",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "MetadataOriginCallerMergeRequired",
+                "semantic_owner": "MirBuilder::finalize_module metadata origin-caller merge",
+                "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001",
             },
         },
     ]
@@ -975,6 +1027,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

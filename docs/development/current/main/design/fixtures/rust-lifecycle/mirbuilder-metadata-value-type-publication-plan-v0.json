@@ -1,0 +1,59 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMetadataValueTypePublicationPlanV1",
+  "subject": "MirBuilder::finalize_module function.metadata.value_types publication",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "predecessor_plan": "mirbuilder-type-hint-provision-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "function_transport": "MirFunctionPreparedMain",
+    "value_types_source": "self.type_ctx.value_types",
+    "metadata_target": "function.metadata.value_types"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+        "byte_offset": 1911
+      },
+      {
+        "marker": "function.metadata.value_types = self.type_ctx.value_types.clone();",
+        "byte_offset": 2192
+      },
+      {
+        "marker": "let mut origin_callers = function.metadata.value_origin_callers.clone();",
+        "byte_offset": 2267
+      }
+    ]
+  },
+  "publication": {
+    "source": "self.type_ctx.value_types",
+    "target": "function.metadata.value_types",
+    "operation": "CloneOwnedMap",
+    "timing": "AfterTypeHintProvisionBeforeOriginCallerMerge"
+  },
+  "available_capabilities": [
+    "MetadataValueTypePublication"
+  ],
+  "result_contract": {
+    "mutates": [
+      "function.metadata.value_types"
+    ],
+    "entrypoint": "function.metadata.value_types = self.type_ctx.value_types.clone()",
+    "minimal_path_expected_result": "OkImplicitUnit"
+  },
+  "non_claims": {
+    "metadata_origin_caller_merge": 0,
+    "phi_return_type_inference": 0,
+    "phi_input_materialization": 0,
+    "module_function_insertion": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

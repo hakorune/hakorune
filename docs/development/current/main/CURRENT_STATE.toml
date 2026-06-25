@@ -265,18 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-TYPE-HINT-PROVISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1704-MIRBUILDER-TYPE-HINT-PROVISION-001.md"
-latest_card_summary = """TypeHintProvision is now a source-derived PlanOnly
-capability provider for the prepared-state minimal MirBuilder path. The plan
-fixes the existing type_hint_providers::annotate_missing_result_types_from_calls_and_await
-entrypoint and provider cases without claiming metadata publication, PHI
-return inference, full finalize, generated Hako, backend routes, ABI changes,
-runtime fallback, or source selfhost. The frontier analyzer now advances to
-MetadataValueTypePublicationRequired. The next blocker is
-MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001."""
+latest_card = "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1705-MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001.md"
+latest_card_summary = """MetadataValueTypePublication is now a source-derived
+PlanOnly capability provider for the prepared-state minimal MirBuilder path.
+The plan fixes the existing function.metadata.value_types publication after
+type-hint provision without claiming value-origin caller merge, PHI return
+inference, full finalize, generated Hako, backend routes, ABI changes, runtime
+fallback, or source selfhost. The frontier analyzer now advances to
+MetadataOriginCallerMergeRequired. The next blocker is
+MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001."""
 
-current_blocker_token = "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001"
+current_blocker_token = "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

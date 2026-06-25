@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001
+  MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001
 
 current implementation task:
-  Address the metadata value-type publication edge derived after TypeHintProvision became available.
+  Address the metadata origin-caller merge edge derived after MetadataValueTypePublication became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, and TypeHintProvision are green; the frontier now derives metadata value-type publication as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, and MetadataValueTypePublication are green; the frontier now derives metadata origin-caller merge as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001
+  MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  TypeHintProvision is green as a PlanOnly capability. Proceed to metadata value-type publication, not origin-caller merge, PHI inference, or full finalize.
+  MetadataValueTypePublication is green as a PlanOnly capability. Proceed to metadata origin-caller merge, not PHI inference, PHI input materialization, or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -116,7 +116,7 @@ mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
-derived_first_red_edge=MetadataValueTypePublicationRequired
+derived_first_red_edge=MetadataOriginCallerMergeRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -154,6 +154,7 @@ mirbuilder_typed_value_verification = landed
 mirbuilder_current_function_take = landed
 mirbuilder_type_propagation_pipeline = landed
 mirbuilder_type_hint_provision = landed
+mirbuilder_metadata_value_type_publication = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -163,14 +164,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Metadata value-type publication edge
+1. Metadata origin-caller merge edge
    status=selected
-   boundary=finalize_module function.metadata.value_types publication
-   semantic_authority=frontier analyzer plus TypeHintProvision non_claim metadata_value_type_publication=0
+   boundary=finalize_module function.metadata.value_origin_callers merge
+   semantic_authority=frontier analyzer plus MetadataValueTypePublication non_claim metadata_origin_caller_merge=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after metadata value-type publication
-   status=parked until metadata value-type publication edge is green
+2. Next semantic owner after metadata origin-caller merge
+   status=parked until metadata origin-caller merge edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage
