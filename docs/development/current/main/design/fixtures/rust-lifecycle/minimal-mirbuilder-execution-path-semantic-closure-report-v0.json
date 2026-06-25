@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 23,
+      "PlanOnly": 22,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 5
+      "VerifiedArtifact": 6
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 5,
-      "Missing": 23,
+      "ExecutableArtifactPresent": 6,
+      "Missing": 22,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 4,
+      "DerivedShadow": 5,
       "NotApplicable": 4,
-      "Unselected": 23
+      "Unselected": 22
     }
   },
   "edges": [
@@ -168,15 +168,15 @@
       "status": "Available",
       "required_capability": "LiteralIntegerLowering",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "LiteralIntegerLowering",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
-        "family_id": "hakorune_mir_builder::literal_integer",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::literal_integer_lowering",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "lower_root.literal_integer",
-    "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
-    "required_capability": "LiteralIntegerLowering",
-    "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.composition",
+    "callsite": "MirBuilder::finalize_module",
+    "required_capability": "FinalizeModuleComposition",
+    "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

@@ -1,0 +1,37 @@
+{
+  "kind": "MirBuilderLiteralIntegerDerivedHakoOracleV1",
+  "non_claims": {
+    "abi_changed": 0,
+    "backend_route_changed": 0,
+    "finalize_module": 0,
+    "full_expression_lowering": 0,
+    "return_emission": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::build_literal LiteralValue::Integer prepared-state projection",
+  "vectors": [
+    {
+      "expect": {
+        "final_core_context_value_counter": 100,
+        "final_function_counter": 4,
+        "first_const_value": 0,
+        "first_published_type_integer": 1,
+        "first_result_value": 1,
+        "second_const_value": 42,
+        "second_published_type_integer": 1,
+        "second_result_value": 3
+      },
+      "initial_core_context_value_counter": 100,
+      "initial_function_counter": 1,
+      "inputs": [
+        0,
+        42
+      ],
+      "name": "literal_zero_then_reserved_gap_literal_42",
+      "reserved_values": [
+        2
+      ]
+    }
+  ]
+}

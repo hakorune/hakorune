@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the next executable gap: MirBuilder::lower_root(ASTNode::Literal(Integer(0))).
+  Materialize the next executable gap: bounded finalize_module composition.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, and PreparedStateInstall are now DerivedShadow executable Hako artifacts, and the semantic closure report derives literal integer lowering as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, and LiteralIntegerLowering are now DerivedShadow executable Hako artifacts, and the semantic closure report derives bounded finalize composition as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only materialize literal integer lowering for ASTNode::Literal(Integer(0)) as a generated Hako artifact. It must not claim general expression lowering, return emission, finalize composition, mainline selection, or source selfhost.
+  The next slice may only materialize bounded finalize_module composition for the prepared minimal profile as a generated Hako artifact. It must not claim full finalize_module, full build_module execution, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is lower_root.literal_integer, so proceed to literal integer lowering artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.composition, so proceed to bounded finalize artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -127,8 +127,9 @@ mirbuilder_minimal_execution_path_semantic_closure_report green
 mir_module_minimal_shell_derived_hako_artifact green
 mir_function_constructor_derived_hako_artifact green
 mirbuilder_prepared_state_install_derived_hako_artifact green
-first_executable_materialization_gap=lower_root.literal_integer
-next_slice=MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001
+mirbuilder_literal_integer_derived_hako_artifact green
+first_executable_materialization_gap=finalize_module.composition
+next_slice=MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -184,6 +185,7 @@ mirbuilder_minimal_execution_path_semantic_closure_report = landed
 mir_module_minimal_shell_derived_hako_artifact = landed
 mir_function_constructor_derived_hako_artifact = landed
 mirbuilder_prepared_state_install_derived_hako_artifact = landed
+mirbuilder_literal_integer_derived_hako_artifact = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -193,14 +195,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Literal integer lowering derived Hako artifact
+1. Bounded finalize derived Hako artifact
    status=selected
-   boundary=ASTNode::Literal(Integer(0)) lowering only
+   boundary=prepared minimal finalize_module composition only
    semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=general expression lowering or return/finalize/mainline claim
+   non_authority=full finalize_module or build_module/mainline claim
 
 2. Next executable materialization gap
-   status=parked until literal integer artifact is green
+   status=parked until bounded finalize artifact is green
    boundary=source-order earliest remaining executable gap
    semantic_authority=semantic closure report regenerated after artifact
    non_authority=coverage percentage or bundle size

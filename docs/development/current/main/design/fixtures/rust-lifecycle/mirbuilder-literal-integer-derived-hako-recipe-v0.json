@@ -1,0 +1,42 @@
+{
+  "family_id": "hakorune_mir_builder::literal_integer_lowering",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "FunctionValueIdCounterStateApi.next(state)",
+      "hako_operation": "TakeThenIncrementI64",
+      "id": "FunctionValueIdCounterState::next",
+      "rust_operation": "MirFunction::next_value_id prepared-state counter"
+    },
+    {
+      "emits": "ReservedValueIdMembershipViewApi.add(view, value_id)",
+      "hako_operation": "ValueIdOrderedMapBox.set",
+      "id": "ReservedValueIdMembershipView::add",
+      "rust_operation": "test-only prepared reserved membership setup"
+    },
+    {
+      "emits": "ReservedValueIdMembershipViewApi.has(view, candidate)",
+      "hako_operation": "ValueIdOrderedMapBox.has",
+      "id": "ReservedValueIdMembershipView::has",
+      "rust_operation": "MembershipOnly reserved ValueId observation"
+    },
+    {
+      "emits": "MirBuilderAllocationPolicyApi.next_value_id(...)",
+      "hako_operation": "StructuredLoop + IfElse + CallStatic + ReturnValue",
+      "id": "MirBuilderAllocationPolicy::next_value_id",
+      "rust_operation": "ResolvedValueAllocationPolicyV1 prepared-state execution"
+    },
+    {
+      "emits": "LiteralIntegerLoweringApi.lower(...)",
+      "hako_operation": "AllocateValueId + ConstIntegerInstructionShell + MirTypeIntegerPublicationShell",
+      "id": "LiteralIntegerLowering::lower",
+      "rust_operation": "MirBuilder::build_literal LiteralValue::Integer"
+    }
+  ],
+  "pilot_scope": "LiteralIntegerLowering_prepared_state_only",
+  "schema_version": 0,
+  "selected_body_count": "literal_integer_lowering_prepared_state_only",
+  "source_oracle": "mirbuilder-literal-integer-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-literal-integer-lowering-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.build_literal.integer.prepared_state_projection"
+}

@@ -1,0 +1,73 @@
+{
+  "claims": {
+    "allocation_policy_prepared_state_dependency": 1,
+    "backend_behavior_changed": 0,
+    "bool_literal": 0,
+    "finalize_module": 0,
+    "float_literal": 0,
+    "full_expression_lowering": 0,
+    "generated_hako_manual_edit": 0,
+    "literal_integer_lowering": 1,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "null_literal": 0,
+    "return_emission": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "string_literal": 0,
+    "typed_integer_literal": 0,
+    "void_literal": 0
+  },
+  "dependency_artifacts": {
+    "allocation_policy": {
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json",
+      "sha256": "53c013de80958bf34d08579cd29523972b7cad18d5a8ea275c6c5512e53a7d0f"
+    }
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::literal_integer_lowering",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-literal-integer-lowering",
+    "version": "mirbuilder-literal-integer-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json",
+      "sha256": "9fde6df7233a490deb4392498f55e8f0d78d92afc88f7ac0ac52fe97507f38f6"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-derived-hako-oracle-v0.json",
+      "sha256": "e3b24db8b4d4707584424033b3f7cd0cf15b15b089d0f4f2492f3ded20c53192"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json",
+      "sha256": "9fde6df7233a490deb4392498f55e8f0d78d92afc88f7ac0ac52fe97507f38f6"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-derived-hako-recipe-v0.json",
+      "sha256": "737e65f2b3c750cd89645a514ac5625db3689e08770e0df3a6b9b5b218d5dab0"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-derived-hako-verifier-result-v0.json",
+      "sha256": "cb58eace6cf71c781979a0c48e19e7cc12b95d809d638a928b3f81293843bef1"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.hako",
+    "hako_sha256": "ddb4ff252c65cad9ede018a9a481b6c24d4a60468fee2b6ec771a569203dec75"
+  },
+  "pilot_scope": "LiteralIntegerLowering_prepared_state_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/builder_build.rs",
+        "sha256": "bd90d77f1d53aecdda9ebdcda5e2e71f0e91c01741860d0c23bf7e91d2c12242"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

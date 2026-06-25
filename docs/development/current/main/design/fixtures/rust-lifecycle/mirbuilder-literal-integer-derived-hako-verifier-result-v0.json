@@ -1,0 +1,62 @@
+{
+  "checks": {
+    "allocates_result_value": 1,
+    "allocation_policy_dependency_verified": 1,
+    "backend_behavior_changed": 0,
+    "emits_const_integer_instruction_shell": 1,
+    "excluded_methods": [],
+    "finalize_module": 0,
+    "literal_integer_lowering_only": 1,
+    "publishes_mir_type_integer_shell": 1,
+    "reserved_candidate_consumed": 1,
+    "return_emission": 0,
+    "returns_value_id": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "literal_integer_lowering_prepared_state_only"
+  },
+  "denied_boundaries": [
+    "typed_integer_literal",
+    "float_literal",
+    "bool_literal",
+    "string_literal",
+    "null_literal",
+    "void_literal",
+    "full_expression_lowering",
+    "return_emission",
+    "finalize_module",
+    "backend_route_changed",
+    "abi_changed",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::literal_integer_lowering",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "LiteralIntegerLowering_prepared_state_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-literal-integer-lowering-plan-v0.json",
+  "source_plan": "mirbuilder-literal-integer-lowering-plan-v0.json",
+  "source_recipe": "mirbuilder-literal-integer-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.build_literal.integer.prepared_state_projection",
+  "transport_notes": {
+    "allocation_policy_dependency": "MirBuilderAllocationPolicy.prepared_state_next_value_id",
+    "finalize_module": 0,
+    "instruction_transport": "ConstIntegerInstructionShell",
+    "literal_payload_transport": "ScalarI64",
+    "published_type_transport": "MirTypeIntegerPublicationShell",
+    "result_transport": "ValueIdAsI64",
+    "return_emission": 0,
+    "return_terminator_transport": "unselected",
+    "type_context_map_transport": "unselected"
+  },
+  "verified_operations": [
+    "TakeThenIncrementI64",
+    "ValueIdOrderedMapBox.set",
+    "ValueIdOrderedMapBox.has",
+    "StructuredLoop",
+    "IfElse",
+    "CallStatic",
+    "ReturnValue",
+    "ConstIntegerInstructionShell",
+    "MirTypeIntegerPublicationShell"
+  ]
+}
