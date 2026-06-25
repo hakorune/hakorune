@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> take current_function",
-    "deny_detail": "CurrentFunctionTakeRequired",
-    "deny_reason": "UnsupportedTypeTransport",
-    "edge_id": "finalize_module.take_current_function",
-    "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
-    "required_capability": "CurrentFunctionTake",
-    "semantic_owner": "MirBuilder::finalize_module current_function take",
+    "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
+    "deny_detail": "TypePropagationPipelineRequired",
+    "deny_reason": "UnsupportedDirectShape",
+    "edge_id": "finalize_module.type_propagation",
+    "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
+    "required_capability": "TypePropagationPipelineExecution",
+    "semantic_owner": "MirBuilder::finalize_module type propagation",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -232,12 +232,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> take current_function",
-      "deny_detail": "CurrentFunctionTakeRequired",
-      "deny_reason": "UnsupportedTypeTransport",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "CurrentFunctionTake",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::current_function_take",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-function-take-plan-v0.json"
+      },
       "edge_id": "finalize_module.take_current_function",
-      "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
       "required_capability": "CurrentFunctionTake",
-      "semantic_owner": "MirBuilder::finalize_module current_function take",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
+      "deny_detail": "TypePropagationPipelineRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.type_propagation",
+      "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
+      "required_capability": "TypePropagationPipelineExecution",
+      "semantic_owner": "MirBuilder::finalize_module type propagation",
       "status": "Unsupported"
     }
   ],

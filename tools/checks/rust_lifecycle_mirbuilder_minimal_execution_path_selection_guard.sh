@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::finalize_module -> take current_function",
-    "deny_reason": "UnsupportedTypeTransport",
-    "deny_detail": "CurrentFunctionTakeRequired",
-    "semantic_owner": "MirBuilder::finalize_module current_function take",
-    "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
+    "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
+    "deny_reason": "UnsupportedDirectShape",
+    "deny_detail": "TypePropagationPipelineRequired",
+    "semantic_owner": "MirBuilder::finalize_module type propagation",
+    "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:

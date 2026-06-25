@@ -265,19 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-TYPED-VALUE-VERIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1701-MIRBUILDER-TYPED-VALUE-VERIFICATION-001.md"
-latest_card_summary = """TypedValueDefinitionVerification is now a
-source-derived PlanOnly capability provider for the prepared-state minimal
-MirBuilder path. The plan verifies builder.type_ctx.value_types against
-compute_def_blocks(func) and func.params at the finalize_module boundary
-without claiming current-function take, type propagation, PHI inference, full
-finalize, generated Hako, backend routes, ABI changes, runtime fallback, or
-source selfhost. The frontier analyzer now advances to
-CurrentFunctionTakeRequired. The next blocker is
-MIRBUILDER-CURRENT-FUNCTION-TAKE-001."""
+latest_card = "MIRBUILDER-CURRENT-FUNCTION-TAKE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1702-MIRBUILDER-CURRENT-FUNCTION-TAKE-001.md"
+latest_card_summary = """CurrentFunctionTake is now a source-derived PlanOnly
+capability provider for the prepared-state minimal MirBuilder path. The plan
+transports the prepared main MirFunction through
+self.scope_ctx.current_function.take().unwrap() without claiming type
+propagation, type-hint provision, PHI inference, full finalize, generated
+Hako, backend routes, ABI changes, runtime fallback, or source selfhost. The
+frontier analyzer now advances to TypePropagationPipelineRequired. The next
+blocker is MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001."""
 
-current_blocker_token = "MIRBUILDER-CURRENT-FUNCTION-TAKE-001"
+current_blocker_token = "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -64,6 +64,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-value-verification-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "CurrentFunctionTake",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::current_function_take",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-function-take-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -340,13 +347,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> take current_function",
       "id": "finalize_module.take_current_function",
-      "provider": null,
+      "provider": {
+        "capability": "CurrentFunctionTake",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "CurrentFunctionTake",
       "unsupported": {
         "deny_detail": "CurrentFunctionTakeRequired",
         "deny_reason": "UnsupportedTypeTransport",
         "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
         "semantic_owner": "MirBuilder::finalize_module current_function take"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
+      "id": "finalize_module.type_propagation",
+      "provider": null,
+      "required_capability": "TypePropagationPipelineExecution",
+      "unsupported": {
+        "deny_detail": "TypePropagationPipelineRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
+        "semantic_owner": "MirBuilder::finalize_module type propagation"
       }
     }
   ],

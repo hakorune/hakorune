@@ -57,6 +57,9 @@ CURRENT_MODULE_TAKE_PLAN = (
 TYPED_VALUE_VERIFICATION_PLAN = (
     FIXTURES / "mirbuilder-typed-value-verification-plan-v0.json"
 )
+CURRENT_FUNCTION_TAKE_PLAN = (
+    FIXTURES / "mirbuilder-current-function-take-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -152,6 +155,7 @@ def contract_sources() -> list[dict[str, Any]]:
     return_type_publication = read_json(RETURN_TYPE_PUBLICATION_PLAN)
     current_module_take = read_json(CURRENT_MODULE_TAKE_PLAN)
     typed_value_verification = read_json(TYPED_VALUE_VERIFICATION_PLAN)
+    current_function_take = read_json(CURRENT_FUNCTION_TAKE_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -276,6 +280,23 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if typed_value_non_claims.get(key) != 0:
             raise SelectionError(f"typed-value verification plan must keep {key}=0")
+    if current_function_take.get("kind") != "MirBuilderCurrentFunctionTakePlanV1":
+        raise SelectionError("current function take plan has wrong kind")
+    current_function_caps = set(current_function_take.get("available_capabilities") or [])
+    if "CurrentFunctionTake" not in current_function_caps:
+        raise SelectionError("current function take plan lacks CurrentFunctionTake")
+    current_function_contract = current_function_take.get("result_contract") or {}
+    if current_function_contract.get("taken_value") != "MirFunctionPreparedMain":
+        raise SelectionError("current function take must transport MirFunctionPreparedMain")
+    current_function_non_claims = current_function_take.get("non_claims") or {}
+    for key in [
+        "type_propagation",
+        "type_hint_provision",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if current_function_non_claims.get(key) != 0:
+            raise SelectionError(f"current function take plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -373,6 +394,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::typed_value_verification",
             "manifest_path": rel(TYPED_VALUE_VERIFICATION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "CurrentFunctionTake",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::current_function_take",
+            "manifest_path": rel(CURRENT_FUNCTION_TAKE_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -630,12 +658,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.take_current_function",
             "callsite": "MirBuilder::finalize_module -> take current_function",
             "required_capability": "CurrentFunctionTake",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "CurrentFunctionTake",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedTypeTransport",
                 "deny_detail": "CurrentFunctionTakeRequired",
                 "semantic_owner": "MirBuilder::finalize_module current_function take",
                 "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
+            },
+        },
+        {
+            "id": "finalize_module.type_propagation",
+            "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
+            "required_capability": "TypePropagationPipelineExecution",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "TypePropagationPipelineRequired",
+                "semantic_owner": "MirBuilder::finalize_module type propagation",
+                "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
             },
         },
     ]
@@ -829,6 +872,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",
