@@ -442,6 +442,7 @@ lang/src/compiler/lib/projection_value.hako
 lang/src/compiler/lib/canonical_json.hako
 lang/src/compiler/lib/return_emission_projector.hako
 lang/src/compiler/lib/function_region_stack_pop_projector.hako
+lang/src/compiler/lib/slot_registry_release_projector.hako
 ```
 
 Promotion rule:
