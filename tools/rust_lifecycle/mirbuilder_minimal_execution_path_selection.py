@@ -48,6 +48,9 @@ BOUNDED_FINALIZE_PLAN = (
 RETURN_EMISSION_PLAN = (
     FIXTURES / "mirbuilder-return-emission-plan-v0.json"
 )
+RETURN_TYPE_PUBLICATION_PLAN = (
+    FIXTURES / "mirbuilder-return-type-publication-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -140,6 +143,7 @@ def contract_sources() -> list[dict[str, Any]]:
     literal_integer = read_json(LITERAL_INTEGER_PLAN)
     bounded_finalize = read_json(BOUNDED_FINALIZE_PLAN)
     return_emission = read_json(RETURN_EMISSION_PLAN)
+    return_type_publication = read_json(RETURN_TYPE_PUBLICATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -216,6 +220,18 @@ def contract_sources() -> list[dict[str, Any]]:
         raise SelectionError("return emission plan must not claim full finalize")
     if return_non_claims.get("generated_hako_artifact") != 0:
         raise SelectionError("return emission plan must not claim generated Hako")
+    if return_type_publication.get("kind") != "MirBuilderReturnTypePublicationPlanV1":
+        raise SelectionError("return type publication plan has wrong kind")
+    return_type_caps = set(return_type_publication.get("available_capabilities") or [])
+    if "ReturnTypePublication" not in return_type_caps:
+        raise SelectionError("return type publication plan lacks ReturnTypePublication")
+    return_type_non_claims = return_type_publication.get("non_claims") or {}
+    if return_type_non_claims.get("module_take") != 0:
+        raise SelectionError("return type publication plan must not claim module take")
+    if return_type_non_claims.get("full_finalize_module") != 0:
+        raise SelectionError("return type publication plan must not claim full finalize")
+    if return_type_non_claims.get("generated_hako_artifact") != 0:
+        raise SelectionError("return type publication plan must not claim generated Hako")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -292,6 +308,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::return_emission",
             "manifest_path": rel(RETURN_EMISSION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "ReturnTypePublication",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::return_type_publication",
+            "manifest_path": rel(RETURN_TYPE_PUBLICATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -504,12 +527,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.return_type_publication",
             "callsite": "MirBuilder::finalize_module -> publish return type from result_value",
             "required_capability": "ReturnTypePublication",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "ReturnTypePublication",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "ReturnTypePublicationRequired",
                 "semantic_owner": "MirBuilder::finalize_module return type publication",
                 "next_slice_token": "MIRBUILDER-RETURN-TYPE-PUBLICATION-001",
+            },
+        },
+        {
+            "id": "finalize_module.take_module",
+            "callsite": "MirBuilder::finalize_module -> take current_module",
+            "required_capability": "CurrentModuleTake",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedTypeTransport",
+                "deny_detail": "CurrentModuleTakeRequired",
+                "semantic_owner": "MirBuilder::finalize_module current_module take",
+                "next_slice_token": "MIRBUILDER-CURRENT-MODULE-TAKE-001",
             },
         },
     ]
@@ -703,6 +741,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

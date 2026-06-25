@@ -43,6 +43,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "ReturnTypePublication",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::return_type_publication",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-type-publication-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -274,13 +281,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> publish return type from result_value",
       "id": "finalize_module.return_type_publication",
-      "provider": null,
+      "provider": {
+        "capability": "ReturnTypePublication",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "ReturnTypePublication",
       "unsupported": {
         "deny_detail": "ReturnTypePublicationRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-RETURN-TYPE-PUBLICATION-001",
         "semantic_owner": "MirBuilder::finalize_module return type publication"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> take current_module",
+      "id": "finalize_module.take_module",
+      "provider": null,
+      "required_capability": "CurrentModuleTake",
+      "unsupported": {
+        "deny_detail": "CurrentModuleTakeRequired",
+        "deny_reason": "UnsupportedTypeTransport",
+        "next_slice_token": "MIRBUILDER-CURRENT-MODULE-TAKE-001",
+        "semantic_owner": "MirBuilder::finalize_module current_module take"
       }
     }
   ],

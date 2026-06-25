@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderReturnTypePublicationPlanV1",
+  "subject": "MirBuilder::finalize_module publish return type from result_value",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "function_signature": "src/mir/function/types.rs::FunctionSignature",
+    "input_type_source": "type_ctx.value_types[result_value]"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "current_function": "Present",
+    "result_value_transport": "ValueIdAsI64",
+    "result_value_type": "MirType::Integer",
+    "initial_function_return_type": "MirType::Void"
+  },
+  "observed_source_order": [
+    {
+      "marker": "if let Some(mt) = self.type_ctx.value_types.get(&result_value).cloned()",
+      "byte_offset": 543
+    },
+    {
+      "marker": "function.signature.return_type = mt;",
+      "byte_offset": 641
+    },
+    {
+      "marker": "let mut module = self.current_module.take().unwrap();",
+      "byte_offset": 751
+    }
+  ],
+  "publication_sequence": [
+    {
+      "step": "lookup_result_type",
+      "source": "self.type_ctx.value_types.get(&result_value).cloned()",
+      "value_transport": "ValueIdAsI64"
+    },
+    {
+      "step": "publish_signature_return_type",
+      "target": "function.signature.return_type",
+      "value": "lookup_result_type"
+    }
+  ],
+  "available_capabilities": [
+    "ReturnTypePublication"
+  ],
+  "result_contract": {
+    "signature_return_type": "MirType::Integer",
+    "source_value_type": "type_ctx.value_types[result_value]",
+    "source_value_type_owner": "LiteralIntegerLowering"
+  },
+  "non_claims": {
+    "module_take": 0,
+    "verify_typed_values": 0,
+    "full_finalize_module": 0,
+    "phi_return_type_inference": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}
