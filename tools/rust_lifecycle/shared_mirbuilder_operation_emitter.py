@@ -24,6 +24,11 @@ def _render_expr(expr: Any) -> str:
         if not isinstance(raw_expr, str):
             raise ValueError("expr expression requires string")
         return raw_expr
+    if "literal" in expr:
+        literal = expr.get("literal")
+        if not isinstance(literal, str):
+            raise ValueError("literal expression requires string")
+        return render_string_literal(literal)
     kind = expr.get("kind")
     if kind == "Var":
         name = expr.get("name")
@@ -107,6 +112,18 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
             return [call]
         if not isinstance(target, str):
             raise ValueError("MethodCall target must be a string")
+        return [f"local {target} = {call}"]
+    if kind == "StaticCall":
+        target = operation.get("target")
+        callee = operation.get("callee")
+        args = operation.get("args", [])
+        if not isinstance(callee, str) or not isinstance(args, list):
+            raise ValueError("StaticCall requires callee and args")
+        call = f"{callee}({', '.join(_render_expr(arg) for arg in args)})"
+        if target is None:
+            return [call]
+        if not isinstance(target, str):
+            raise ValueError("StaticCall target must be a string")
         return [f"local {target} = {call}"]
     if kind == "ArrayPush":
         target = operation.get("target")
@@ -514,6 +531,7 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         "NewBox",
         "SetField",
         "MethodCall",
+        "StaticCall",
         "ArrayPush",
         "StructuredLoop",
         "IfElse",

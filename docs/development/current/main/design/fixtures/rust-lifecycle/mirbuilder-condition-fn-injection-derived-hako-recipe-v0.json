@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::condition_fn_injection",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "ConditionFnInjectionApi.inject_if_missing(module_state)",
+      "hako_operation": "OrderedMapBox.has + OrderedMapBox.set + ReturnValue",
+      "id": "ConditionFnInjection::inject_if_missing",
+      "rust_operation": "MirBuilder::finalize_module condition_fn injection block"
+    }
+  ],
+  "pilot_scope": "ConditionFnInjection_minimal_literal_profile",
+  "schema_version": 0,
+  "selected_body_count": "condition_fn_injection_minimal_literal_profile_only",
+  "source_oracle": "mirbuilder-condition-fn-injection-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-condition-fn-injection-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.condition_fn_injection"
+}

@@ -21,10 +21,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001
+  PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 
 current implementation task:
-  Materialize the next executable gap: finalize_module condition_fn injection.
+  Classify Python converter tool roles and freeze new Python SemanticProjector growth before widening derived artifact expansion.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -75,16 +75,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, and ModuleFunctionInsertion are now DerivedShadow executable Hako artifacts, and the semantic closure report derives ConditionFnInjection as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives FunctionRegionStackPop as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001
+  PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 
 current fail-fast boundary:
-  The next slice may only materialize condition_fn injection as a reusable generated Hako artifact for the prepared minimal profile. It must not claim region cleanup, metadata publication, full finalize_module, mainline selection, or source selfhost.
+  The next slice may only classify Python converter tooling roles and forbid new Python SemanticProjector growth. It must not delete existing Python bootstrap/oracle tooling, rewrite converter implementation, materialize FunctionRegionStackPop, or claim HakoAdopted/source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.condition_fn_injection, so proceed to condition_fn injection artifact materialization. After that slice lands, stop widening Python semantic projection growth before continuing derived artifact expansion: classify Python converter roles, freeze new Python SemanticProjector growth, then select allocation-policy Hako adoption and ReturnEmission Hako shadow projector follow-ons.
+  ConditionFnInjection is now an executable DerivedShadow artifact. The semantic closure report advances the executable materialization gap to finalize_module.region_stack_pop, but task-order intentionally stops widening Python semantic projection growth first: classify Python converter roles, freeze new Python SemanticProjector growth, then select allocation-policy Hako adoption and ReturnEmission Hako shadow projector follow-ons.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -143,8 +143,10 @@ mirbuilder_phi_return_type_inference_derived_hako_artifact green
 mirbuilder_phi_input_materialization_derived_hako_artifact green
 mirbuilder_dev_birth_verification_derived_hako_artifact green
 mirbuilder_module_function_insertion_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.condition_fn_injection
-next_slice=MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001
+mirbuilder_condition_fn_injection_derived_hako_artifact green
+first_executable_materialization_gap=finalize_module.region_stack_pop
+next_slice=MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -210,6 +212,7 @@ mirbuilder_current_function_take_derived_hako_artifact = landed
 mirbuilder_type_propagation_pipeline_derived_hako_artifact = landed
 selfhost_checkpoint_lane = artifact_selfhost
 mirbuilder_module_function_insertion_derived_hako_artifact = landed
+mirbuilder_condition_fn_injection_derived_hako_artifact = landed
 ```
 
 ## Active Next 3
@@ -218,23 +221,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. ConditionFn injection derived Hako artifact
+1. Python semantic projector growth freeze
    status=selected
-   boundary=materialize source-required condition_fn stub injection after module insertion
-   semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=region cleanup, full finalize, or mainline claim
-
-2. Python semantic projector growth freeze
-   status=parked until condition_fn injection artifact is green
    boundary=role-classify Python converter tooling and forbid new Python SemanticProjector growth
    semantic_authority=rust-to-hako-converter-implementation-role-ssot
    non_authority=deleting existing Python bootstrap/oracle tooling
 
-3. Allocation-policy Hako adoption decision
+2. Allocation-policy Hako adoption decision
    status=parked until Python growth freeze is green
    boundary=first HakoAdopted decision candidate from an already-DerivedMainline family
    semantic_authority=derived-to-native artifact model + allocation-policy route selection
    non_authority=ReturnEmission adoption or full minimal path mainline claim
+
+3. ReturnEmission Hako shadow projector
+   status=parked until adoption decision checkpoint
+   boundary=first Hako SemanticProjector shadow over canonical ReturnEmission plan
+   semantic_authority=Python oracle plus Hako projector parity
+   non_authority=Rust source rescan or emitter rewrite
 ```
 
 ## Landed Converter Capability Summary

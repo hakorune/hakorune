@@ -1,0 +1,64 @@
+{
+  "claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "condition_fn_injection": 1,
+    "condition_fn_policy_generalization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "region_stack_pop": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::condition_fn_injection",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-condition-fn-injection",
+    "version": "mirbuilder-condition-fn-injection-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json",
+      "sha256": "b6e20eeb4ee5c71b265696b466083fee8b528eb2c1ed728b3df3877343bc12f6"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-derived-hako-oracle-v0.json",
+      "sha256": "8083a38686087fd7413016e9481018f0f3a68d6e02fc419462483dc7c9149627"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json",
+      "sha256": "b6e20eeb4ee5c71b265696b466083fee8b528eb2c1ed728b3df3877343bc12f6"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-derived-hako-recipe-v0.json",
+      "sha256": "259edf40199cb24ddc8c0ede94b166ae2965e807fe1ae507848c0960907ffe26"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-derived-hako-verifier-result-v0.json",
+      "sha256": "e181361ede2e32c281d9167cc197a83103ed72d4ddf931713f4fbb689a845b14"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.hako",
+    "hako_sha256": "f873c36b24b3855c820d2a71b2064874e34e684d6502cbcd8b833462af866e79"
+  },
+  "pilot_scope": "ConditionFnInjection_minimal_literal_profile",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 8,
+      "PlanOnly": 7,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 20
+      "VerifiedArtifact": 21
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 20,
-      "Missing": 8,
+      "ExecutableArtifactPresent": 21,
+      "Missing": 7,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 19,
+      "DerivedShadow": 20,
       "NotApplicable": 4,
-      "Unselected": 8
+      "Unselected": 7
     }
   },
   "edges": [
@@ -457,15 +457,15 @@
       "status": "Available",
       "required_capability": "ConditionFnInjection",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "ConditionFnInjection",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::condition_fn_injection",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.condition_fn_injection",
-    "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
-    "required_capability": "ConditionFnInjection",
-    "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.region_stack_pop",
+    "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
+    "required_capability": "FunctionRegionStackPop",
+    "next_slice_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

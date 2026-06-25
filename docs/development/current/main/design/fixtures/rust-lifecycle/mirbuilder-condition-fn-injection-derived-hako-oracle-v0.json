@@ -1,0 +1,54 @@
+{
+  "kind": "MirBuilderConditionFnInjectionDerivedHakoOracleV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "condition_fn_policy_generalization": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "region_stack_pop": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module condition_fn injection",
+  "vectors": [
+    {
+      "expect": {
+        "const_integer_value": 1,
+        "effects": "EffectMask::PURE",
+        "entry_block": 0,
+        "full_finalize_module": 0,
+        "function_count": 2,
+        "function_name": "condition_fn",
+        "injected": 1,
+        "ok": 1,
+        "param_count": 1,
+        "region_stack_pop": 0,
+        "return_type": "MirType::Integer",
+        "returns_value": 1
+      },
+      "inputs": {
+        "condition_fn_initially_missing": true,
+        "initial_function_count": 1,
+        "module_transport": "MirModuleMinimalShell"
+      },
+      "name": "prepared_module_injects_missing_condition_fn_stub"
+    },
+    {
+      "expect": {
+        "collision_policy": "NoDuplicateWhenPresent",
+        "function_count": 2,
+        "injected": 0,
+        "ok": 1
+      },
+      "inputs": {
+        "condition_fn_initially_missing": false,
+        "initial_function_count": 2,
+        "module_transport": "MirModuleMinimalShell"
+      },
+      "name": "existing_condition_fn_is_not_duplicated"
+    }
+  ]
+}
