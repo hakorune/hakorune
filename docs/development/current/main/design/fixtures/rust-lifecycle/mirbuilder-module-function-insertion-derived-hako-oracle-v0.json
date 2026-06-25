@@ -1,0 +1,35 @@
+{
+  "kind": "MirBuilderModuleFunctionInsertionDerivedHakoOracleV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "condition_fn_injection": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "region_stack_pop": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module module.add_function(function)",
+  "vectors": [
+    {
+      "expect": {
+        "collision_policy": "ReplaceExistingByName",
+        "condition_fn_injection": 0,
+        "full_finalize_module": 0,
+        "function_count": 1,
+        "inserted_name": "main",
+        "ok": 1
+      },
+      "inputs": {
+        "function_name": "main",
+        "function_transport": "MirFunctionPreparedMain",
+        "initial_function_count": 0,
+        "module_transport": "MirModuleMinimalShell"
+      },
+      "name": "prepared_module_inserts_main_function_by_signature_name"
+    }
+  ]
+}

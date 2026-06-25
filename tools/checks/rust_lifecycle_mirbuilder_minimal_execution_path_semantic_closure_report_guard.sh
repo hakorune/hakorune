@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.module_function_insertion"
-assert gap["callsite"] == "MirBuilder::finalize_module -> module.add_function(function)"
-assert gap["required_capability"] == "ModuleFunctionInsertion"
-assert gap["next_slice_token"] == "MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.condition_fn_injection"
+assert gap["callsite"] == "MirBuilder::finalize_module -> inject condition_fn when missing"
+assert gap["required_capability"] == "ConditionFnInjection"
+assert gap["next_slice_token"] == "MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -148,6 +148,13 @@ assert dev_birth_edge["evidence_tier"] == "VerifiedArtifact"
 assert dev_birth_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert dev_birth_edge["route_state"] == "DerivedShadow"
 assert dev_birth_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_dev_birth_verification.artifact.json"
+module_function_insertion_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.module_function_insertion"]
+assert len(module_function_insertion_edges) == 1
+module_function_insertion_edge = module_function_insertion_edges[0]
+assert module_function_insertion_edge["evidence_tier"] == "VerifiedArtifact"
+assert module_function_insertion_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert module_function_insertion_edge["route_state"] == "DerivedShadow"
+assert module_function_insertion_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_function_insertion.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

@@ -1,0 +1,58 @@
+{
+  "checks": {
+    "collision_policy": "ReplaceExistingByName",
+    "condition_fn_injection": 0,
+    "container": "MirModule.functions",
+    "container_operation": "BTreeMap::insert",
+    "context": "finalize_module",
+    "entrypoint": "MirModule::add_function",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "hako_operation": "OrderedMapBox.set",
+    "module_function_insertion_only": 1,
+    "module_transport": "MirModuleMinimalShell",
+    "mutation_frame": [
+      "module.functions"
+    ],
+    "runtime_fallback": 0,
+    "selected_body_count": "module_function_insertion_minimal_literal_profile_only"
+  },
+  "denied_boundaries": [
+    "condition_fn_injection",
+    "all_functions_phi_materialization",
+    "region_stack_pop",
+    "slot_registry_release",
+    "metadata_publication",
+    "semantic_refresh",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::module_function_insertion",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "ModuleFunctionInsertion_minimal_literal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-module-function-insertion-plan-v0.json",
+  "source_plan": "mirbuilder-module-function-insertion-plan-v0.json",
+  "source_recipe": "mirbuilder-module-function-insertion-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.module_function_insertion",
+  "transport_notes": {
+    "collision_policy": "ReplaceExistingByName",
+    "condition_fn_injection": 0,
+    "container": "MirModule.functions",
+    "container_operation": "BTreeMap::insert",
+    "full_finalize_module": 0,
+    "function_key_source": "function.signature.name.clone()",
+    "function_transport": "MirFunctionPreparedMain",
+    "hako_operation": "OrderedMapBox.set",
+    "module_transport": "MirModuleMinimalShell"
+  },
+  "verified_operations": [
+    "OrderedMapBox.set",
+    "SetField",
+    "ReturnValue",
+    "ModuleFunctionInsertionShell"
+  ]
+}

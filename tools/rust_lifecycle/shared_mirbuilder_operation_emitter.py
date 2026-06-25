@@ -95,6 +95,19 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
         if not isinstance(target, str) or not isinstance(field, str) or value is None:
             raise ValueError("SetField requires target, field, and value")
         return [f"{target}.{field} = {_render_expr(value)}"]
+    if kind == "MethodCall":
+        target = operation.get("target")
+        receiver = operation.get("receiver")
+        method = operation.get("method")
+        args = operation.get("args", [])
+        if not isinstance(receiver, str) or not isinstance(method, str) or not isinstance(args, list):
+            raise ValueError("MethodCall requires receiver, method, and args")
+        call = f"{receiver}.{method}({', '.join(_render_expr(arg) for arg in args)})"
+        if target is None:
+            return [call]
+        if not isinstance(target, str):
+            raise ValueError("MethodCall target must be a string")
+        return [f"local {target} = {call}"]
     if kind == "ArrayPush":
         target = operation.get("target")
         value = operation.get("value")
@@ -500,6 +513,7 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
         "Assign",
         "NewBox",
         "SetField",
+        "MethodCall",
         "ArrayPush",
         "StructuredLoop",
         "IfElse",

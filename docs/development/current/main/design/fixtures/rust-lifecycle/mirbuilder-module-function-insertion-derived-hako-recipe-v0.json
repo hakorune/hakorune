@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::module_function_insertion",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "ModuleFunctionInsertionApi.insert(module_state, function_state)",
+      "hako_operation": "OrderedMapBox.set + ReturnValue",
+      "id": "ModuleFunctionInsertion::insert",
+      "rust_operation": "MirModule::add_function"
+    }
+  ],
+  "pilot_scope": "ModuleFunctionInsertion_minimal_literal_profile",
+  "schema_version": 0,
+  "selected_body_count": "module_function_insertion_minimal_literal_profile_only",
+  "source_oracle": "mirbuilder-module-function-insertion-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-module-function-insertion-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.module_function_insertion"
+}
