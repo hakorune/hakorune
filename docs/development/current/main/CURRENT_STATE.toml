@@ -265,19 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1681-MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001.md"
-latest_card_summary = """MirBuilder derived context bundle v1 is implemented
-and green. The ordered_map_crate_bundle manifest now uses
-bundle_contract_model=membership_only_v1, keeps bundle-local member ids,
-references CoreContext's VerifiedFamilyArtifactContractV1, and avoids copying
-family selected methods, semantic transports, or denials. The composed bundle
-smoke now exercises CoreContext scalar counters and ID generators. Full matrix,
-current pointer guard, no-silent-hardcode guard, and cargo check are green. The
-next blocker is MirBuilder allocation policy, which must not treat CoreContext
-generator scalarization as full MirBuilder::next_value_id semantics."""
+latest_card = "MIRBUILDER-ALLOCATION-POLICY-FACTS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1682-MIRBUILDER-ALLOCATION-POLICY-FACTS-001.md"
+latest_card_summary = """MirBuilder allocation policy is selected as a
+facts-first child slice. The next task is to extract live source facts for
+MirBuilder::next_value_id, MirFunction parameter/counter seeding, parameter
+setup, and JoinIR reserved exclusion sets, then resolve them into a typed
+allocation policy and directability decision. Generated Hako, CoreContext
+artifacts, backend routes, ABI, runtime, and bundle membership remain unchanged.
+CoreContext generator scalarization remains a non-authority for full
+MirBuilder::next_value_id semantics."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-SLICE-001"
+current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-FACTS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

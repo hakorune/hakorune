@@ -20,21 +20,22 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-SLICE-001
+  MIRBUILDER-ALLOCATION-POLICY-FACTS-001
 
 current implementation task:
-  Select the higher-level MirBuilder allocation policy boundary after the
-  derived context bundle v1 closeout. This is not CoreContext generator
-  scalarization; it must cover reserved/function-local allocation policy.
+  Extract and validate MirBuilder allocation policy facts before choosing any
+  executable Hako representation. This is a child slice of
+  MIRBUILDER-ALLOCATION-POLICY-SLICE-001.
 
 selected source slice:
-  MirBuilder::next_value_id / related allocation policy surfaces
+  MirBuilder::next_value_id source facts, MirFunction parameter/counter seed
+  facts, parameter setup facts, and JoinIR reserved exclusion-set facts
 
 selected lowering:
-  allocation facts
-    -> nominal ValueId transport
-    -> explicit reserved/function-local policy proof
-    -> focused generated artifact smoke
+  live source
+    -> MirBuilderAllocationPolicyFactsV1
+    -> ResolvedValueAllocationPolicyV1
+    -> DirectabilityDecision
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -58,17 +59,17 @@ landed evidence:
   or denials.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-SLICE-001
+  MIRBUILDER-ALLOCATION-POLICY-FACTS-001
 
 current fail-fast boundary:
-  CoreContext generator state is not enough to claim MirBuilder allocation
-  semantics. Reserved IDs, function-local allocation policy, and invalid/sentinel
-  boundaries must be explicit or fail-fast.
+  Facts may describe the composed policy, but executable lowering remains denied
+  until current_function transport, reserved exclusion-set transport, parameter
+  setup compatibility, sentinel, and overflow boundaries are selected.
 
 latest design decision:
-  Bundle v1 proved the membership seam: bundle manifests own membership and
-  ordering only, while family contracts own selected methods, transports, and
-  denials. The next slice can now return to MirBuilder allocation semantics.
+  Choose B: source facts -> resolved allocation policy -> directability
+  decision. Do not flatten allocation semantics into booleans and do not treat
+  CoreContext generator scalarization as MirBuilder allocation policy.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -110,23 +111,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirBuilder allocation policy slice
+1. MirBuilder allocation policy facts
    status=selected
-   boundary=MirBuilder::next_value_id reserved/function-local policy
-   semantic_authority=function allocation facts
-   non_authority=CoreContext generator scalarization
+   boundary=source facts and resolved policy only; executable lowering denied
+   semantic_authority=MirBuilderAllocationPolicyFactsV1 + ResolvedValueAllocationPolicyV1
+   non_authority=CoreContext generator scalarization or flat boolean facts
 
-2. MirBuilder minimal execution path
-   status=parked until allocation policy is green
-   boundary=ValueId creation, block creation, Const/Copy/Return emission, module finalization
-   semantic_authority=focused call graph and generated context bundle
-   non_authority=crate-wide conversion coverage
+2. Function-local ValueId allocator
+   status=parked until allocation facts are green
+   boundary=MirFunction next counter and parameter-seeded initial state
+   semantic_authority=function allocator facts
+   non_authority=reserved exclusion-set handling
 
-3. Additional family contract projection
-   status=parked until bundle v1 exposes a concrete duplication point
-   boundary=one family at a time
-   semantic_authority=VerifiedHakoFamilyIR + stable Deny results
-   non_authority=bulk framework migration
+3. Reserved ValueId exclusion policy
+   status=parked until function-local allocator is green
+   boundary=reserved exclusion set transport and retry policy
+   semantic_authority=ReservedValueExclusionSetFacts
+   non_authority=PHI-dst-only naming or ordered-map representation
 ```
 
 ## Landed Converter Capability Summary
