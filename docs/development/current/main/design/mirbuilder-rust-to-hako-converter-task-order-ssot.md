@@ -21,18 +21,21 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Hold the minimal execution path at the explicit design stop and choose the
-  next executable owner only after frontier review.
+  Materialize the first current public-main executable gap from the minimal
+  execution path report: FunctionRegionStackPop.
 
 selected source slice:
-  Minimal execution path semantic closure report and the explicit
-  design-stop result
+  MirBuilder::finalize_module
+    -> region::observer::pop_function_region
 
 selected lowering:
-  semantic closure report -> design review stop
+  FunctionRegionStackPopPlanV1
+    -> prepared trace-flag projection
+    -> SequencePopOption
+    -> generated Hako artifact
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -93,23 +96,21 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives minimal_path.completion_design_stop as the next frontier result.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.region_stack_pop as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only resolve the explicit design stop from the current
-  frontier result. It must not claim a new executable artifact, new backend
-  route, ABI change, runtime fallback, or source selfhost.
+  The slice may only materialize prepared-state region stack pop. Host env
+  lookup, region push/logging, SlotRegistryRelease, full MetadataContext,
+  backend route, ABI, runtime fallback, and source selfhost remain unselected.
 
 latest design decision:
-  The compiler library landing zone is now materialized as ordinary Hako
-  modules. The ReturnEmission, FunctionRegionStackPop, and SlotRegistryRelease
-  Hako shadow projectors are landed under lang/src/compiler/lib. The minimal
-  execution path has reached an explicit design stop after
-  AllFunctionsPhiMaterialization; the next executable owner is intentionally
-  not selected until review resolves the stop.
+  Frontier review resolves the prior design stop against current public-main:
+  MirModule, MirFunction, CurrentModuleTake, and ReturnEmission executable
+  artifacts are already present. The next owner is the analyzer-derived first
+  PlanOnly/Missing edge, FunctionRegionStackPop.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -169,8 +170,8 @@ mirbuilder_phi_input_materialization_derived_hako_artifact green
 mirbuilder_dev_birth_verification_derived_hako_artifact green
 mirbuilder_module_function_insertion_derived_hako_artifact green
 mirbuilder_condition_fn_injection_derived_hako_artifact green
-first_executable_materialization_gap=minimal_path.completion_design_stop
-next_slice=MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+first_executable_materialization_gap=finalize_module.region_stack_pop
+next_slice=MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
 post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 full converter matrix green
 task-order remains under 800 lines
@@ -246,23 +247,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Python semantic projector growth freeze
-   status=landed
-   boundary=role-classify Python converter tooling and forbid new Python SemanticProjector growth
-   semantic_authority=rust-to-hako-converter-implementation-role-ssot
-   non_authority=deleting existing Python bootstrap/oracle tooling
-
-2. Hako compiler TextBuilder and CanonicalJson library
-   status=landed
-   boundary=ordinary Hako compiler library under lang/src/compiler/lib, no ABI surface
-   semantic_authority=rust-to-hako-converter-implementation-role-ssot
-   non_authority=TypeBox ABI, host ABI, distribution packaging, or language syntax
-
-3. MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
+1. Function region stack pop Derived Hako artifact
    status=selected
-   boundary=ReturnEmission facts/plan JSON into typed projection and canonical JSON
-   semantic_authority=rust-to-hako-converter-implementation-role-ssot
-   non_authority=adding new Python SemanticProjector growth or new ABI
+   boundary=prepared trace flag plus current_region_stack pop/discard
+   semantic_authority=MirBuilderFunctionRegionStackPopPlanV1
+   non_authority=host env lookup or full MetadataContext conversion
+
+2. Slot registry release Derived Hako artifact
+   status=parked until frontier advances after region stack pop
+   boundary=release current function slot registry at finalize_module timing
+   semantic_authority=SlotRegistryReleasePlanV1
+   non_authority=prewriting analyzer result before regeneration
+
+3. Minimal execution path report regeneration
+   status=parked until selected artifact green
+   boundary=derive the next materialization gap from updated artifact contracts
+   semantic_authority=minimal execution path analyzer
+   non_authority=coverage percentage or bundle size
 ```
 
 ## Landed Converter Capability Summary

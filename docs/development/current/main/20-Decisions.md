@@ -17,7 +17,7 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - selfhost mirbuilder migration 中は Rust builder に新しい source-aware lowering / shape intelligence を増やさず、canonical MIR / MIR-to-MIR / backend optimization を継続しながら `.hako` builder authority を先に進める。
 - backend lane vocabulary (`llvmlite`, `ny-llvmc`, `native`) は stage2-aot-fast-lane-crossing-inventory.md と llvm-harness.md を正本にする。
 - current active lane / blocker / latest-card pointer は `CURRENT_STATE.toml` を正本にする。`CURRENT_TASK.md` と thin mirrors は必要時だけそこへ誘導する。
-- minimal MirBuilder execution path is paused at the explicit design stop; the next owner stays unselected until frontier review resolves `MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001`.
+- minimal MirBuilder execution path frontier review resolves the design stop to `MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001`; the older MirModule gap is already closed on current `public-main`.
 - `stage2-mainline` への entry task pack は `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にする。
 
 ## Migration Rule
