@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Stop for design review after all selected minimal-path finalize edges became available.
+  Materialize the first executable gap: MirBuilder::prepare_module -> MirModule::new.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green; the frontier now derives the minimal execution path completion design stop.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. The semantic closure report is green and derives MirModuleMinimalShell as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next action is a design review stop. Do not implement the next semantic slice until the completion/design direction is selected.
+  The next slice may only materialize MirModuleMinimalShell as a generated Hako artifact. It must not claim full MirModule conversion, function insertion, mainline selection, or source selfhost.
 
 latest design decision:
-  All selected minimal-path finalize edges are available as PlanOnly capabilities. Stop for completion design review before adding executable artifacts or claiming mainline/source selfhost.
+  Semantic closure is Closed, but executable Hako closure is Open. The first executable materialization gap is prepare_module.module_new, so proceed to MirModuleMinimalShell artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -123,7 +123,9 @@ mirbuilder_record_packed_layout_refresh green
 mirbuilder_typed_object_plan_refresh green
 mirbuilder_direct_state_plan_refresh green
 mirbuilder_all_functions_phi_materialization green
-derived_first_red_edge=MinimalExecutionPathCompletionDesignReviewRequired
+mirbuilder_minimal_execution_path_semantic_closure_report green
+first_executable_materialization_gap=prepare_module.module_new
+next_slice=MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -175,6 +177,7 @@ mirbuilder_record_packed_layout_refresh = landed
 mirbuilder_typed_object_plan_refresh = landed
 mirbuilder_direct_state_plan_refresh = landed
 mirbuilder_all_functions_phi_materialization = landed
+mirbuilder_minimal_execution_path_semantic_closure_report = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -184,17 +187,17 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Minimal execution path completion design stop
+1. MirModule minimal shell derived Hako artifact
    status=selected
-   boundary=post-finalize completion review
-   semantic_authority=frontier analyzer plus all selected minimal-path edges available
-   non_authority=automatic mainline/source-selfhost claim
+   boundary=MirModuleMinimalShellApi.new(name) only
+   semantic_authority=semantic closure report first_executable_materialization_gap
+   non_authority=full MirModule conversion or mainline/source-selfhost claim
 
-2. Next semantic owner after design review
-   status=parked until completion direction is selected
-   boundary=one selected owner only
-   semantic_authority=design card outcome
-   non_authority=coverage percentage or artifact existence
+2. Next executable materialization gap
+   status=parked until MirModuleMinimalShell artifact is green
+   boundary=source-order earliest remaining executable gap
+   semantic_authority=semantic closure report regenerated after artifact
+   non_authority=coverage percentage or bundle size
 
 3. Wider minimal path mainline
    status=parked until all selected edges have executable artifacts

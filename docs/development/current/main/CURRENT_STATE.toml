@@ -265,19 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1718-MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001.md"
-latest_card_summary = """AllFunctionsPhiMaterialization is now a
-source-derived PlanOnly capability provider for the prepared-state minimal
-MirBuilder path. The plan fixes only the finalize_module sweep over
-module.functions.values_mut() and its delegation to the existing
-PhiInputMaterialization provider with context finalize_module_all_functions.
-It does not claim full finalize, generated Hako, backend routes, ABI changes,
-runtime fallback, mainline selection, or source selfhost. The frontier analyzer
-now advances to the minimal execution path completion design stop. The next
-blocker is MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001."""
+latest_card = "MIRBUILDER-MINIMAL-EXECUTION-PATH-SEMANTIC-CLOSURE-REPORT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1719-MIRBUILDER-MINIMAL-EXECUTION-PATH-SEMANTIC-CLOSURE-REPORT-001.md"
+latest_card_summary = """The minimal MirBuilder path now has a semantic
+closure report that separates selected-source-edge semantic closure from
+generated Hako executable closure. Semantic closure is Closed and Rust smoke
+observation is Green, but generated Hako executable closure remains Open and
+full-path mainline/source-selfhost eligibility remain denied. The first
+executable materialization gap is prepare_module.module_new. The next blocker
+is MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
+current_blocker_token = "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

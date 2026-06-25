@@ -1,0 +1,610 @@
+{
+  "schema_version": 0,
+  "kind": "MinimalMirBuilderExecutionPathSemanticClosureReportV1",
+  "completion_scope": "SelectedSourceEdgeSemanticClosure",
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "execution_profile": {
+    "builder_safepoint_entry": false,
+    "current_block": "Absent",
+    "current_function": "Absent",
+    "current_module": "Absent",
+    "dev_birth_verification": false,
+    "kind": "PreparedMirBuilderStateV1",
+    "reserved_value_ids": "Empty",
+    "runtime_fallback": false,
+    "source_file": null
+  },
+  "closure": {
+    "all_selected_source_edges_available": true,
+    "semantic_plan_closure": "Closed",
+    "rust_smoke_observation": "Green",
+    "generated_hako_executable_closure": "Open",
+    "full_path_mainline_eligible": false,
+    "source_selfhost_eligible": false,
+    "artifact_selfhost_checkpoint_complete": false
+  },
+  "design_stop": {
+    "edge_id": "minimal_path.completion_design_stop",
+    "callsite": "MinimalMirBuilderExecutionPath -> post-finalize completion design stop",
+    "deny_detail": "MinimalExecutionPathCompletionDesignReviewRequired",
+    "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
+  },
+  "edge_counts": {
+    "evidence_tier": {
+      "Observed": 1,
+      "PlanOnly": 26,
+      "ProfileExcluded": 1,
+      "SourceOrderOrProfile": 2,
+      "VerifiedArtifact": 2
+    },
+    "artifact_materialization": {
+      "ExecutableArtifactPresent": 2,
+      "Missing": 26,
+      "NotApplicable": 4
+    },
+    "route_state": {
+      "DerivedMainline": 1,
+      "DerivedShadow": 1,
+      "NotApplicable": 4,
+      "Unselected": 26
+    }
+  },
+  "edges": [
+    {
+      "edge_id": "entry.prepared_state_profile",
+      "callsite": "PreparedMirBuilderStateV1",
+      "status": "Available",
+      "required_capability": "PreparedMirBuilderStateV1",
+      "semantic_status": "Available",
+      "evidence_tier": "SourceOrderOrProfile",
+      "artifact_materialization": "NotApplicable",
+      "route_state": "NotApplicable",
+      "provider_reference": {
+        "kind": "ExecutionProfile"
+      }
+    },
+    {
+      "edge_id": "build_module.prepare_module",
+      "callsite": "MirBuilder::build_module -> prepare_module",
+      "status": "Available",
+      "required_capability": "RustSourceCallOrder",
+      "semantic_status": "Available",
+      "evidence_tier": "SourceOrderOrProfile",
+      "artifact_materialization": "NotApplicable",
+      "route_state": "NotApplicable",
+      "provider_reference": {
+        "facts": "build_module_order",
+        "kind": "LiveSourceOrder"
+      }
+    },
+    {
+      "edge_id": "prepare_module.module_new",
+      "callsite": "MirBuilder::prepare_module -> MirModule::new",
+      "status": "Available",
+      "required_capability": "MirModuleMinimalShellTransport",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "MirModuleMinimalShellTransport",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir::MirModule",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-module-minimal-shell-transport-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "prepare_module.source_file",
+      "callsite": "MirBuilder::prepare_module -> current_source_file",
+      "status": "ProfileExcluded",
+      "required_capability": "SourceFileOptionTransport",
+      "semantic_status": "Available",
+      "evidence_tier": "ProfileExcluded",
+      "artifact_materialization": "NotApplicable",
+      "route_state": "NotApplicable",
+      "provider_reference": {
+        "contract_kind": "ExecutionProfileExclusion",
+        "profile_key": "source_file",
+        "profile_value": null
+      }
+    },
+    {
+      "edge_id": "prepare_module.next_block",
+      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
+      "status": "Available",
+      "required_capability": "CoreContext.scalar_counters_and_id_generators",
+      "semantic_status": "Available",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
+      "provider_reference": {
+        "capability": "CoreContext.scalar_counters_and_id_generators",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::core_context",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "artifact_state": "DerivedShadow"
+      }
+    },
+    {
+      "edge_id": "prepare_module.function_new",
+      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+      "status": "Available",
+      "required_capability": "MirFunctionConstructorTransport",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "MirFunctionConstructorTransport",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir::MirFunction",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "prepare_module.state_install",
+      "callsite": "MirBuilder::prepare_module -> current state install",
+      "status": "Available",
+      "required_capability": "PreparedStateInstall",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "PreparedStateInstall",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir::MirFunction",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "lower_root.literal_integer",
+      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+      "status": "Available",
+      "required_capability": "LiteralIntegerLowering",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "LiteralIntegerLowering",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::literal_integer",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.composition",
+      "callsite": "MirBuilder::finalize_module",
+      "status": "Available",
+      "required_capability": "FinalizeModuleComposition",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "FinalizeModuleComposition",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::bounded_finalize",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-composition-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "minimal_execution_path.smoke",
+      "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+      "status": "Available",
+      "required_capability": "MinimalExecutionPathSmoke",
+      "semantic_status": "Available",
+      "evidence_tier": "Observed",
+      "artifact_materialization": "NotApplicable",
+      "route_state": "NotApplicable",
+      "provider_reference": {
+        "capability": "MinimalExecutionPathSmoke",
+        "contract_kind": "SmokeResultV1",
+        "family_id": "hakorune_mir_builder::minimal_execution_path",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-smoke-result-v0.json",
+        "artifact_state": "Observed"
+      }
+    },
+    {
+      "edge_id": "mainline_pilot.selection",
+      "callsite": "MirBuilder allocation policy mainline pilot selection",
+      "status": "Available",
+      "required_capability": "MirBuilderAllocationPolicyMainlinePilot",
+      "semantic_status": "Available",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedMainline",
+      "provider_reference": {
+        "capability": "MirBuilderAllocationPolicyMainlinePilot",
+        "contract_kind": "DerivedMainlineRouteSelectionV1",
+        "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.route.json",
+        "artifact_state": "DerivedMainline"
+      }
+    },
+    {
+      "edge_id": "finalize_module.return_emission",
+      "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
+      "status": "Available",
+      "required_capability": "ReturnEmission",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "ReturnEmission",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::return_emission",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.return_type_publication",
+      "callsite": "MirBuilder::finalize_module -> publish return type from result_value",
+      "status": "Available",
+      "required_capability": "ReturnTypePublication",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "ReturnTypePublication",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::return_type_publication",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-type-publication-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.take_module",
+      "callsite": "MirBuilder::finalize_module -> take current_module",
+      "status": "Available",
+      "required_capability": "CurrentModuleTake",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "CurrentModuleTake",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::current_module_take",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.verify_typed_values",
+      "callsite": "MirBuilder::finalize_module -> verify typed values are defined",
+      "status": "Available",
+      "required_capability": "TypedValueDefinitionVerification",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "TypedValueDefinitionVerification",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::typed_value_verification",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-value-verification-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.take_current_function",
+      "callsite": "MirBuilder::finalize_module -> take current_function",
+      "status": "Available",
+      "required_capability": "CurrentFunctionTake",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "CurrentFunctionTake",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::current_function_take",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-function-take-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.type_propagation",
+      "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
+      "status": "Available",
+      "required_capability": "TypePropagationPipelineExecution",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "TypePropagationPipelineExecution",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::type_propagation_pipeline",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-propagation-pipeline-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.type_hint_provision",
+      "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
+      "status": "Available",
+      "required_capability": "TypeHintProvision",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "TypeHintProvision",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::type_hint_provision",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-hint-provision-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.metadata_value_type_publication",
+      "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
+      "status": "Available",
+      "required_capability": "MetadataValueTypePublication",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "MetadataValueTypePublication",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::metadata_value_type_publication",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-value-type-publication-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.metadata_origin_caller_merge",
+      "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
+      "status": "Available",
+      "required_capability": "MetadataOriginCallerMerge",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "MetadataOriginCallerMerge",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-origin-caller-merge-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.phi_return_type_inference",
+      "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
+      "status": "Available",
+      "required_capability": "PhiReturnTypeInference",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "PhiReturnTypeInference",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::phi_return_type_inference",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.phi_input_materialization",
+      "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
+      "status": "Available",
+      "required_capability": "PhiInputMaterialization",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "PhiInputMaterialization",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::phi_input_materialization",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-input-materialization-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.dev_birth_verification",
+      "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
+      "status": "Available",
+      "required_capability": "DevBirthVerification",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "DevBirthVerification",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::dev_birth_verification",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.module_function_insertion",
+      "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
+      "status": "Available",
+      "required_capability": "ModuleFunctionInsertion",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "ModuleFunctionInsertion",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::module_function_insertion",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-function-insertion-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.condition_fn_injection",
+      "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
+      "status": "Available",
+      "required_capability": "ConditionFnInjection",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "ConditionFnInjection",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::condition_fn_injection",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.region_stack_pop",
+      "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
+      "status": "Available",
+      "required_capability": "FunctionRegionStackPop",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "FunctionRegionStackPop",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::function_region_stack_pop",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.slot_registry_release",
+      "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
+      "status": "Available",
+      "required_capability": "SlotRegistryRelease",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "SlotRegistryRelease",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::slot_registry_release",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.module_metadata_publication",
+      "callsite": "MirBuilder::finalize_module -> publish module metadata",
+      "status": "Available",
+      "required_capability": "ModuleMetadataPublication",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "ModuleMetadataPublication",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::module_metadata_publication",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-metadata-publication-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.record_packed_layout_refresh",
+      "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
+      "status": "Available",
+      "required_capability": "RecordAndPackedLayoutRefresh",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "RecordAndPackedLayoutRefresh",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.typed_object_plan_refresh",
+      "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
+      "status": "Available",
+      "required_capability": "TypedObjectPlanRefresh",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "TypedObjectPlanRefresh",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.direct_state_plan_refresh",
+      "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
+      "status": "Available",
+      "required_capability": "DirectStatePlanRefresh",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "DirectStatePlanRefresh",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    },
+    {
+      "edge_id": "finalize_module.all_functions_phi_materialization",
+      "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
+      "status": "Available",
+      "required_capability": "AllFunctionsPhiMaterialization",
+      "semantic_status": "Available",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected",
+      "provider_reference": {
+        "capability": "AllFunctionsPhiMaterialization",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::all_functions_phi_materialization",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-plan-v0.json",
+        "artifact_state": "PlanOnly"
+      }
+    }
+  ],
+  "first_executable_materialization_gap": {
+    "edge_id": "prepare_module.module_new",
+    "callsite": "MirBuilder::prepare_module -> MirModule::new",
+    "required_capability": "MirModuleMinimalShellTransport",
+    "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
+    "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
+  },
+  "claims": {
+    "semantic_closure_report": 1,
+    "generated_hako_change": 0,
+    "full_build_module_generated_hako_execution": 0,
+    "full_path_mainline_selected": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "coverage_percentage_as_proof": 0,
+    "bundle_size_as_proof": 0
+  }
+}
