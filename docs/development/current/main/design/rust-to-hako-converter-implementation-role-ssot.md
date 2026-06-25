@@ -406,7 +406,7 @@ surface matures.
 Initial compiler-library stack:
 
 ```text
-ReturnEmissionHakoProjector
+ReturnEmissionHakoProjector / FunctionRegionStackPopHakoProjector
   -> CompilerProjectionValueBox
   -> CanonicalJsonWriterBox
   -> TextBuilderBox
@@ -440,6 +440,8 @@ First placement for the projector support libraries:
 lang/src/compiler/lib/text_builder.hako
 lang/src/compiler/lib/projection_value.hako
 lang/src/compiler/lib/canonical_json.hako
+lang/src/compiler/lib/return_emission_projector.hako
+lang/src/compiler/lib/function_region_stack_pop_projector.hako
 ```
 
 Promotion rule:

@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1742-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001.md"
-latest_card_summary = """The first Hako shadow projector support module is
+latest_card = "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROJECTOR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1743-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROJECTOR-001.md"
+latest_card_summary = """The second Hako shadow projector support module is
 now materialized under lang/src/compiler/lib. The landing surface keeps
-ReturnEmission plan JSON, typed Hako shadow projection, Python oracle, and
-canonical JSON parity separate. The next blocker is the FunctionRegionStackPop
+FunctionRegionStackPop plan JSON, typed Hako shadow projection, Python oracle,
+and canonical JSON parity separate. The next blocker is the SlotRegistryRelease
 derived Hako artifact."""
 
-current_blocker_token = "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

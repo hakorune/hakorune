@@ -26,6 +26,7 @@ lib.text_builder = "lib/text_builder.hako"
 lib.canonical_json = "lib/canonical_json.hako"
 lib.projection_value = "lib/projection_value.hako"
 lib.return_emission_projector = "lib/return_emission_projector.hako"
+lib.function_region_stack_pop_projector = "lib/function_region_stack_pop_projector.hako"
 
 # Pipeline v2 (emit only)
 pipeline_v2.flow_entry = "pipeline_v2/flow_entry.hako"

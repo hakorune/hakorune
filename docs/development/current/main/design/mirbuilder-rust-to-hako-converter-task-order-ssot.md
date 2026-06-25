@@ -21,15 +21,14 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Project FunctionRegionStackPop facts/plan JSON into typed canonical
-  projection and emit the shadow Hako projector using the compiler library
-  lane.
+  Project SlotRegistryRelease facts/plan JSON into typed canonical projection
+  and emit the shadow Hako projector using the compiler library lane.
 
 selected source slice:
-  FunctionRegionStackPop facts/plan JSON and canonical JSON writer surface
+  SlotRegistryRelease facts/plan JSON and canonical JSON writer surface
 
 selected lowering:
   typed projection values -> canonical JSON -> shadow projector parity
@@ -62,6 +61,10 @@ landed evidence:
   library boundary, and the ordinary Hako compiler library modules are landed
   under lang/src/compiler/lib/ with text_builder / projection_value /
   canonical_json exports wired.
+  FunctionRegionStackPop shadow projector support is landed under
+  lang/src/compiler/lib/function_region_stack_pop_projector.hako, keeping
+  plan JSON, typed shadow projection, Python oracle, and canonical JSON
+  parity separate with no ABI surface.
   MirBuilder allocation policy facts are green: live source now projects to
   MirBuilderAllocationPolicyFactsV1, ResolvedValueAllocationPolicyV1, and an
   explicit DirectabilityDecision=Deny until current_function / reserved-set /
@@ -88,20 +91,19 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives FunctionRegionStackPop as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only project existing FunctionRegionStackPop plan JSON
-  into typed values and canonical JSON through the ordinary Hako compiler
-  library lane. It must not add new Python SemanticProjector growth, invent a
-  new ABI, reopen host/TypeBox boundaries, materialize
-  finalize_module.slot_registry_release, or claim HakoAdopted/source selfhost.
+  The next slice may only project existing SlotRegistryRelease plan JSON into
+  typed values and canonical JSON through the ordinary Hako compiler library
+  lane. It must not add new Python SemanticProjector growth, invent a new ABI,
+  reopen host/TypeBox boundaries, or claim HakoAdopted/source selfhost.
 
 latest design decision:
   The compiler library landing zone is now materialized as ordinary Hako
-  modules. The ReturnEmission Hako shadow projector is now landed under
-  lang/src/compiler/lib. The next executable owner is the
-  FunctionRegionStackPop derived Hako artifact; allocation-policy Hako
+  modules. The ReturnEmission and FunctionRegionStackPop Hako shadow
+  projectors are landed under lang/src/compiler/lib. The next executable owner
+  is the SlotRegistryRelease derived Hako artifact; allocation-policy Hako
   adoption remains parked until that lane is explicit.
 
 forbidden:
@@ -162,8 +164,8 @@ mirbuilder_phi_input_materialization_derived_hako_artifact green
 mirbuilder_dev_birth_verification_derived_hako_artifact green
 mirbuilder_module_function_insertion_derived_hako_artifact green
 mirbuilder_condition_fn_injection_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.region_stack_pop
-next_slice=MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+first_executable_materialization_gap=finalize_module.slot_registry_release
+next_slice=MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001
 post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 full converter matrix green
 task-order remains under 800 lines

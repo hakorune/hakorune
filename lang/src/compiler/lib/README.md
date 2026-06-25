@@ -17,6 +17,8 @@ Scope:
   - `projection_value.hako`
 - first shadow-projector support library:
   - `return_emission_projector.hako`
+- next shadow-projector support library:
+  - `function_region_stack_pop_projector.hako`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`
