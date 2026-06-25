@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
-    "deny_detail": "PhiInputMaterializationRequired",
+    "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
+    "deny_detail": "DevBirthVerificationRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.phi_input_materialization",
-    "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001",
-    "required_capability": "PhiInputMaterialization",
-    "semantic_owner": "MirBuilder::finalize_module PHI input materialization",
+    "edge_id": "finalize_module.dev_birth_verification",
+    "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
+    "required_capability": "DevBirthVerification",
+    "semantic_owner": "MirBuilder::finalize_module dev birth verification",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -310,12 +310,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
-      "deny_detail": "PhiInputMaterializationRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "PhiInputMaterialization",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::phi_input_materialization",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-input-materialization-plan-v0.json"
+      },
       "edge_id": "finalize_module.phi_input_materialization",
-      "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001",
       "required_capability": "PhiInputMaterialization",
-      "semantic_owner": "MirBuilder::finalize_module PHI input materialization",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
+      "deny_detail": "DevBirthVerificationRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.dev_birth_verification",
+      "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
+      "required_capability": "DevBirthVerification",
+      "semantic_owner": "MirBuilder::finalize_module dev birth verification",
       "status": "Unsupported"
     }
   ],

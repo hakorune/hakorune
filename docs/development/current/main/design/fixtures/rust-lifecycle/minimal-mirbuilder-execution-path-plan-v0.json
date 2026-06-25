@@ -106,6 +106,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "PhiInputMaterialization",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::phi_input_materialization",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-input-materialization-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -472,13 +479,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
       "id": "finalize_module.phi_input_materialization",
-      "provider": null,
+      "provider": {
+        "capability": "PhiInputMaterialization",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "PhiInputMaterialization",
       "unsupported": {
         "deny_detail": "PhiInputMaterializationRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001",
         "semantic_owner": "MirBuilder::finalize_module PHI input materialization"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
+      "id": "finalize_module.dev_birth_verification",
+      "provider": null,
+      "required_capability": "DevBirthVerification",
+      "unsupported": {
+        "deny_detail": "DevBirthVerificationRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
+        "semantic_owner": "MirBuilder::finalize_module dev birth verification"
       }
     }
   ],

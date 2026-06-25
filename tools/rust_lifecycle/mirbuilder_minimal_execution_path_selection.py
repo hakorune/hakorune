@@ -75,6 +75,9 @@ METADATA_ORIGIN_CALLER_MERGE_PLAN = (
 PHI_RETURN_TYPE_INFERENCE_PLAN = (
     FIXTURES / "mirbuilder-phi-return-type-inference-plan-v0.json"
 )
+PHI_INPUT_MATERIALIZATION_PLAN = (
+    FIXTURES / "mirbuilder-phi-input-materialization-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -176,6 +179,7 @@ def contract_sources() -> list[dict[str, Any]]:
     metadata_value_type_publication = read_json(METADATA_VALUE_TYPE_PUBLICATION_PLAN)
     metadata_origin_caller_merge = read_json(METADATA_ORIGIN_CALLER_MERGE_PLAN)
     phi_return_type_inference = read_json(PHI_RETURN_TYPE_INFERENCE_PLAN)
+    phi_input_materialization = read_json(PHI_INPUT_MATERIALIZATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -439,6 +443,38 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if phi_return_non_claims.get(key) != 0:
             raise SelectionError(f"PHI return-type inference plan must keep {key}=0")
+    if phi_input_materialization.get("kind") != "MirBuilderPhiInputMaterializationPlanV1":
+        raise SelectionError("PHI input materialization plan has wrong kind")
+    phi_input_caps = set(phi_input_materialization.get("available_capabilities") or [])
+    if "PhiInputMaterialization" not in phi_input_caps:
+        raise SelectionError("PHI input materialization plan lacks PhiInputMaterialization")
+    if phi_input_materialization.get("materialization_steps") != [
+        "PruneUnusedPhiInstructions",
+        "CompleteMissingSelfCarriedPhiInputs",
+        "CollectPhiInputWorklist",
+        "BuildDefBlocksAndDominators",
+        "RematerializeIncomingPerPredWithMemo",
+        "RewritePhiInputSlots",
+        "ReturnChangedCount",
+    ]:
+        raise SelectionError("PHI input materialization step order drift")
+    phi_input_contract = phi_input_materialization.get("result_contract") or {}
+    if (
+        phi_input_contract.get("entrypoint")
+        != "phi_input_materializer::materialize_all_phi_inputs"
+    ):
+        raise SelectionError("PHI input materialization entrypoint drift")
+    phi_input_non_claims = phi_input_materialization.get("non_claims") or {}
+    for key in [
+        "dev_birth_verification",
+        "module_function_insertion",
+        "all_functions_phi_materialization",
+        "semantic_refresh",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if phi_input_non_claims.get(key) != 0:
+            raise SelectionError(f"PHI input materialization plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -578,6 +614,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::phi_return_type_inference",
             "manifest_path": rel(PHI_RETURN_TYPE_INFERENCE_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "PhiInputMaterialization",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::phi_input_materialization",
+            "manifest_path": rel(PHI_INPUT_MATERIALIZATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -925,12 +968,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.phi_input_materialization",
             "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
             "required_capability": "PhiInputMaterialization",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "PhiInputMaterialization",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "PhiInputMaterializationRequired",
                 "semantic_owner": "MirBuilder::finalize_module PHI input materialization",
                 "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001",
+            },
+        },
+        {
+            "id": "finalize_module.dev_birth_verification",
+            "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
+            "required_capability": "DevBirthVerification",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "DevBirthVerificationRequired",
+                "semantic_owner": "MirBuilder::finalize_module dev birth verification",
+                "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
             },
         },
     ]
@@ -1124,6 +1182,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

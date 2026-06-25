@@ -265,18 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1707-MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001.md"
-latest_card_summary = """PhiReturnTypeInference is now a source-derived
+latest_card = "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1708-MIRBUILDER-PHI-INPUT-MATERIALIZATION-001.md"
+latest_card_summary = """PhiInputMaterialization is now a source-derived
 PlanOnly capability provider for the prepared-state minimal MirBuilder path.
-The plan fixes the existing phi_type_inference::infer_return_type_from_phi
-delegation and resolver chain without claiming PHI input materialization, full
-finalize, generated Hako, backend routes, ABI changes, runtime fallback, or
-source selfhost. The frontier analyzer now advances to
-PhiInputMaterializationRequired. The next blocker is
-MIRBUILDER-PHI-INPUT-MATERIALIZATION-001."""
+The plan fixes the existing phi_input_materializer::materialize_all_phi_inputs
+delegation and rematerialization helper shape without claiming dev birth
+verification, module insertion, full finalize, generated Hako, backend routes,
+ABI changes, runtime fallback, or source selfhost. The frontier analyzer now
+advances to DevBirthVerificationRequired. The next blocker is
+MIRBUILDER-DEV-BIRTH-VERIFICATION-001."""
 
-current_blocker_token = "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001"
+current_blocker_token = "MIRBUILDER-DEV-BIRTH-VERIFICATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

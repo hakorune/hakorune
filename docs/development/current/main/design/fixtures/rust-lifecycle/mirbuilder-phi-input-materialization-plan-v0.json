@@ -1,0 +1,106 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPhiInputMaterializationPlanV1",
+  "subject": "MirBuilder::finalize_module phi_input_materializer::materialize_all_phi_inputs",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "provider": "src/mir/builder/ssa/phi_input_materializer.rs::materialize_all_phi_inputs",
+    "predecessor_plan": "mirbuilder-phi-return-type-inference-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "function_transport": "MirFunctionPreparedMain",
+    "context": "finalize_module"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "phi_type_inference::infer_return_type_from_phi",
+        "byte_offset": 2835
+      },
+      {
+        "marker": "phi_input_materializer::materialize_all_phi_inputs",
+        "byte_offset": 3173
+      },
+      {
+        "marker": "\"finalize_module\"",
+        "byte_offset": 3264
+      },
+      {
+        "marker": "if crate::config::env::using_is_dev()",
+        "byte_offset": 3624
+      }
+    ],
+    "materializer": [
+      {
+        "marker": "prune_unused_phi_instructions(func)",
+        "byte_offset": 23
+      },
+      {
+        "marker": "complete_missing_self_carried_phi_inputs(func)",
+        "byte_offset": 75
+      },
+      {
+        "marker": "for (block_id, block) in &func.blocks",
+        "byte_offset": 158
+      },
+      {
+        "marker": "if let MirInstruction::Phi { inputs, .. } = inst",
+        "byte_offset": 282
+      },
+      {
+        "marker": "PhiInputMaterializationAnalysis::new(func)",
+        "byte_offset": 565
+      },
+      {
+        "marker": "PhiInputRematContext::new(pred)",
+        "byte_offset": 860
+      },
+      {
+        "marker": "rematerialize_for_pred(func, &analysis, incoming, context, \"phi\", remat_ctx)?",
+        "byte_offset": 933
+      },
+      {
+        "marker": "*slot = materialized;",
+        "byte_offset": 2024
+      },
+      {
+        "marker": "Ok(changed)",
+        "byte_offset": 2079
+      }
+    ]
+  },
+  "materialization_steps": [
+    "PruneUnusedPhiInstructions",
+    "CompleteMissingSelfCarriedPhiInputs",
+    "CollectPhiInputWorklist",
+    "BuildDefBlocksAndDominators",
+    "RematerializeIncomingPerPredWithMemo",
+    "RewritePhiInputSlots",
+    "ReturnChangedCount"
+  ],
+  "available_capabilities": [
+    "PhiInputMaterialization"
+  ],
+  "result_contract": {
+    "mutates": [
+      "function.blocks",
+      "function.next_value_id"
+    ],
+    "entrypoint": "phi_input_materializer::materialize_all_phi_inputs",
+    "minimal_path_expected_result": "Result<usize, String>"
+  },
+  "non_claims": {
+    "dev_birth_verification": 0,
+    "module_function_insertion": 0,
+    "condition_fn_injection": 0,
+    "all_functions_phi_materialization": 0,
+    "semantic_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}
