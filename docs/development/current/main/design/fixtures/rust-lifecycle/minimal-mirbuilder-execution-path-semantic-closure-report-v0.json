@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 26,
+      "PlanOnly": 25,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 2
+      "VerifiedArtifact": 3
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 2,
-      "Missing": 26,
+      "ExecutableArtifactPresent": 3,
+      "Missing": 25,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 1,
+      "DerivedShadow": 2,
       "NotApplicable": 4,
-      "Unselected": 26
+      "Unselected": 25
     }
   },
   "edges": [
@@ -85,15 +85,15 @@
       "status": "Available",
       "required_capability": "MirModuleMinimalShellTransport",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "MirModuleMinimalShellTransport",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
-        "family_id": "hakorune_mir::MirModule",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-module-minimal-shell-transport-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir::MirModuleMinimalShell",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "prepare_module.module_new",
-    "callsite": "MirBuilder::prepare_module -> MirModule::new",
-    "required_capability": "MirModuleMinimalShellTransport",
-    "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "prepare_module.function_new",
+    "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+    "required_capability": "MirFunctionConstructorTransport",
+    "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

@@ -10,6 +10,7 @@ mainline eligibility, and source-selfhost eligibility open/denied.
 from __future__ import annotations
 
 import argparse
+import hashlib
 from collections import Counter
 from copy import deepcopy
 from pathlib import Path
@@ -25,6 +26,10 @@ RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
 FIXTURE = FIXTURES / "minimal-mirbuilder-execution-path-semantic-closure-report-v0.json"
 
 EXECUTABLE_ARTIFACT_STATES = {"DerivedShadow", "DerivedMainline"}
+EXECUTABLE_ARTIFACT_MANIFESTS = {
+    "MirModuleMinimalShellTransport": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+}
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -63,8 +68,44 @@ def _route_state(artifact_state: str | None) -> str:
     return "NotApplicable"
 
 
-def _classify_edge(row: dict[str, Any]) -> dict[str, Any]:
-    contract = row.get("contract_reference") or {}
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _executable_artifact_contracts() -> dict[str, dict[str, Any]]:
+    contracts: dict[str, dict[str, Any]] = {}
+    for capability, manifest_path in EXECUTABLE_ARTIFACT_MANIFESTS.items():
+        if not manifest_path.exists():
+            continue
+        manifest = _read_json(manifest_path)
+        require(manifest.get("kind") == "RustDerivedHakoArtifact", f"wrong artifact kind: {manifest_path}")
+        state = manifest.get("state")
+        require(state in EXECUTABLE_ARTIFACT_STATES, f"artifact state is not executable: {manifest_path}")
+        output = manifest.get("output") or {}
+        hako_path = ROOT / output.get("hako_path", "")
+        require(hako_path.exists(), f"artifact hako output missing: {hako_path}")
+        require(
+            output.get("hako_sha256") == _sha256_file(hako_path),
+            f"artifact hako hash stale: {manifest_path}",
+        )
+        claims = manifest.get("claims") or {}
+        require(claims.get("runtime_fallback") == 0, f"artifact may not claim runtime fallback: {manifest_path}")
+        require(claims.get("new_backend_route") == 0, f"artifact may not claim backend route: {manifest_path}")
+        contracts[capability] = {
+            "capability": capability,
+            "contract_kind": "VerifiedFamilyArtifactContractV1",
+            "family_id": manifest.get("family_id"),
+            "manifest_path": str(manifest_path.relative_to(ROOT)),
+            "artifact_state": state,
+        }
+    return contracts
+
+
+def _classify_edge(row: dict[str, Any], artifact_contracts: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    contract = dict(row.get("contract_reference") or {})
+    capability = contract.get("capability") or row.get("required_capability")
+    if contract.get("artifact_state") == "PlanOnly" and capability in artifact_contracts:
+        contract = dict(artifact_contracts[capability])
     artifact_state = contract.get("artifact_state")
     classified = {
         "edge_id": row["edge_id"],
@@ -116,6 +157,8 @@ def _first_executable_gap(edges: list[dict[str, Any]]) -> dict[str, Any]:
 def _materialization_slice_for(capability: str | None) -> str:
     if capability == "MirModuleMinimalShellTransport":
         return "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "MirFunctionConstructorTransport":
+        return "MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -142,7 +185,8 @@ def build_report() -> dict[str, Any]:
         )
     require(result.get("not_reached_edges") == [], "semantic closure report expects no not-reached edges")
 
-    edges = [_classify_edge(edge) for edge in selected_edges]
+    artifact_contracts = _executable_artifact_contracts()
+    edges = [_classify_edge(edge, artifact_contracts) for edge in selected_edges]
     first_gap = _first_executable_gap(edges)
     counts = {
         "evidence_tier": dict(sorted(Counter(edge["evidence_tier"] for edge in edges).items())),
@@ -201,13 +245,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "prepare_module.module_new", "first materialization gap drift")
+    require(first_gap["edge_id"] == "prepare_module.function_new", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "MirModuleMinimalShellTransport",
+        first_gap["required_capability"] == "MirFunctionConstructorTransport",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:
@@ -241,7 +285,7 @@ def validate_report(report: dict[str, Any]) -> None:
 def run_drift_probes(report: dict[str, Any]) -> None:
     probes: list[tuple[str, list[Any], Any]] = [
         ("smoke treated as executable", ["edges"], None),
-        ("first gap hand-edited", ["first_executable_materialization_gap", "edge_id"], "prepare_module.function_new"),
+        ("first gap hand-edited", ["first_executable_materialization_gap", "edge_id"], "prepare_module.module_new"),
         ("full path mainline claim", ["closure", "full_path_mainline_eligible"], True),
         ("source selfhost claim", ["claims", "source_selfhost_claim"], 1),
     ]

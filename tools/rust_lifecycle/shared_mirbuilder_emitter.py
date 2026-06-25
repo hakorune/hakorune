@@ -72,6 +72,11 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if not isinstance(target, str) or not isinstance(field, str) or "value" not in operation:
             raise ValueError("SetField requires target, field, and value")
         return [f"{target}.{field} = {render_main_value(operation['value'])}"]
+    if kind == "Assign":
+        target = operation.get("target")
+        if not isinstance(target, str) or "value" not in operation:
+            raise ValueError("Assign requires target and value")
+        return [f"local {target} = {render_main_value(operation['value'])}"]
     if kind == "AssertEq":
         left = operation.get("left")
         right = operation.get("right")

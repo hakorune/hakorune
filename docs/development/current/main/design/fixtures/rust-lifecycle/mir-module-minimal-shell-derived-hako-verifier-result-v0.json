@@ -1,0 +1,59 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "constructor_shell_only": 1,
+    "excluded_methods": [],
+    "fresh_function_table_identity": 1,
+    "fresh_global_table_identity": 1,
+    "function_insertion": 0,
+    "functions_initially_empty": 1,
+    "global_publication": 0,
+    "globals_initially_empty": 1,
+    "module_name_preserved": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "mir_module_minimal_shell_constructor_only",
+    "source_file_absent": 1,
+    "source_plan_input": "verified"
+  },
+  "denied_boundaries": [
+    "source_file_assignment",
+    "function_insertion",
+    "global_publication",
+    "metadata_publication",
+    "finalize_module",
+    "full_mirbuilder_new",
+    "generated_hako_artifact",
+    "backend_route_changed",
+    "abi_changed",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir::MirModuleMinimalShell",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MirModuleMinimalShell_new_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mir-module-minimal-shell-transport-plan-v0.json",
+  "source_plan": "mir-module-minimal-shell-transport-plan-v0.json",
+  "source_recipe": "mir-module-minimal-shell-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir::MirModule::new.minimal_shell",
+  "transport_notes": {
+    "full_mir_module_conversion": 0,
+    "function_table_observation": "empty + fresh identity only",
+    "function_table_transport": "EmptyFunctionTable",
+    "global_table_observation": "empty + fresh identity only",
+    "global_table_transport": "EmptyGlobalConstTable",
+    "metadata_transport": "ModuleMetadataDefaultShell",
+    "module_transport": "MirModuleMinimalShell",
+    "name_transport": "ModuleNameStringAtom",
+    "semantic_capability": "MirModuleMinimalShellTransport",
+    "source_file_transport": "AbsentSourceFile"
+  },
+  "verified_operations": [
+    "NewBox",
+    "SetField",
+    "ReturnValue",
+    "OrderedMap.create",
+    "OrderedMapBox.length",
+    "Option::None"
+  ]
+}

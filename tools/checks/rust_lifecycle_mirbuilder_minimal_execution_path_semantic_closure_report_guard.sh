@@ -25,10 +25,17 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "prepare_module.module_new"
-assert gap["callsite"] == "MirBuilder::prepare_module -> MirModule::new"
-assert gap["required_capability"] == "MirModuleMinimalShellTransport"
-assert gap["next_slice_token"] == "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "prepare_module.function_new"
+assert gap["callsite"] == "MirBuilder::prepare_module -> MirFunction::new"
+assert gap["required_capability"] == "MirFunctionConstructorTransport"
+assert gap["next_slice_token"] == "MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001"
+module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
+assert len(module_edges) == 1
+module_edge = module_edges[0]
+assert module_edge["evidence_tier"] == "VerifiedArtifact"
+assert module_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert module_edge["route_state"] == "DerivedShadow"
+assert module_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

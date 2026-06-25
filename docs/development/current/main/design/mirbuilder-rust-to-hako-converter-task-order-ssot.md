@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
+  MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the first executable gap: MirBuilder::prepare_module -> MirModule::new.
+  Materialize the next executable gap: MirBuilder::prepare_module -> MirFunction::new.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. The semantic closure report is green and derives MirModuleMinimalShell as the first executable materialization gap.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell is now a DerivedShadow executable Hako artifact, and the semantic closure report derives MirFunction::new as the next executable materialization gap.
 
 selected next owner:
-  MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
+  MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only materialize MirModuleMinimalShell as a generated Hako artifact. It must not claim full MirModule conversion, function insertion, mainline selection, or source selfhost.
+  The next slice may only materialize MirFunction constructor shell behavior as a generated Hako artifact. It must not claim full MirFunction conversion, full BasicBlock conversion beyond constructor-owned entry block, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first executable materialization gap is prepare_module.module_new, so proceed to MirModuleMinimalShell artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is prepare_module.function_new, so proceed to MirFunction constructor artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -124,8 +124,9 @@ mirbuilder_typed_object_plan_refresh green
 mirbuilder_direct_state_plan_refresh green
 mirbuilder_all_functions_phi_materialization green
 mirbuilder_minimal_execution_path_semantic_closure_report green
-first_executable_materialization_gap=prepare_module.module_new
-next_slice=MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
+mir_module_minimal_shell_derived_hako_artifact green
+first_executable_materialization_gap=prepare_module.function_new
+next_slice=MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -178,6 +179,7 @@ mirbuilder_typed_object_plan_refresh = landed
 mirbuilder_direct_state_plan_refresh = landed
 mirbuilder_all_functions_phi_materialization = landed
 mirbuilder_minimal_execution_path_semantic_closure_report = landed
+mir_module_minimal_shell_derived_hako_artifact = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -187,14 +189,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirModule minimal shell derived Hako artifact
+1. MirFunction constructor derived Hako artifact
    status=selected
-   boundary=MirModuleMinimalShellApi.new(name) only
+   boundary=MirFunction constructor shell only
    semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=full MirModule conversion or mainline/source-selfhost claim
+   non_authority=full MirFunction conversion or mainline/source-selfhost claim
 
 2. Next executable materialization gap
-   status=parked until MirModuleMinimalShell artifact is green
+   status=parked until MirFunction constructor artifact is green
    boundary=source-order earliest remaining executable gap
    semantic_authority=semantic closure report regenerated after artifact
    non_authority=coverage percentage or bundle size

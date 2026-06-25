@@ -70,6 +70,19 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
         if not isinstance(target, str) or value is None:
             raise ValueError("Assign requires target and value")
         return [f"{target} = {_render_expr(value)}"]
+    if kind == "NewBox":
+        target = operation.get("target")
+        box_name = operation.get("box")
+        if not isinstance(target, str) or not isinstance(box_name, str):
+            raise ValueError("NewBox requires target and box")
+        return [f"local {target} = new {box_name}()"]
+    if kind == "SetField":
+        target = operation.get("target")
+        field = operation.get("field")
+        value = operation.get("value")
+        if not isinstance(target, str) or not isinstance(field, str) or value is None:
+            raise ValueError("SetField requires target, field, and value")
+        return [f"{target}.{field} = {_render_expr(value)}"]
     if kind == "ArrayPush":
         target = operation.get("target")
         value = operation.get("value")
@@ -473,6 +486,8 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
     if kind in {
         "LocalI64",
         "Assign",
+        "NewBox",
+        "SetField",
         "ArrayPush",
         "StructuredLoop",
         "IfElse",

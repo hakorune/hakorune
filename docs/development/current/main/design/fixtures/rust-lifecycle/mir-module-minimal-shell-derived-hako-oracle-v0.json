@@ -1,0 +1,31 @@
+{
+  "kind": "MirModuleMinimalShellDerivedHakoOracleV1",
+  "non_claims": {
+    "full_mir_module_conversion": 0,
+    "function_insertion": 0,
+    "global_publication": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "source_file_assignment": 0
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir::MirModule::new",
+  "vectors": [
+    {
+      "expect": {
+        "first_functions_initial": 0,
+        "first_globals_initial": 0,
+        "first_name": "main",
+        "first_source_file": "Option::None",
+        "second_functions_after_first_mutation": 0,
+        "second_globals_after_first_mutation": 0,
+        "second_name": "other"
+      },
+      "inputs": {
+        "first_name": "main",
+        "second_name": "other"
+      },
+      "name": "fresh_module_shells"
+    }
+  ]
+}

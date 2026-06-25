@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir::MirModuleMinimalShell",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "MirModuleMinimalShellApi.create(name)",
+      "hako_operation": "NewBox + SetField + ReturnValue",
+      "id": "MirModuleMinimalShell::new",
+      "rust_operation": "MirModule::new shell constructor"
+    }
+  ],
+  "pilot_scope": "MirModuleMinimalShell_new_only",
+  "schema_version": 0,
+  "selected_body_count": "mir_module_minimal_shell_constructor_only",
+  "source_oracle": "mir-module-minimal-shell-derived-hako-oracle-v0.json",
+  "source_plan": "mir-module-minimal-shell-transport-plan-v0.json",
+  "subject": "hakorune_mir::MirModule::new.minimal_shell"
+}
