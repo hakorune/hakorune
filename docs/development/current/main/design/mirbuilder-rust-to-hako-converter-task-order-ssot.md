@@ -20,22 +20,21 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-FACTS-001
+  FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001
 
 current implementation task:
-  Extract and validate MirBuilder allocation policy facts before choosing any
-  executable Hako representation. This is a child slice of
-  MIRBUILDER-ALLOCATION-POLICY-SLICE-001.
+  Select the function-local ValueId allocator boundary after allocation-policy
+  facts closeout. Keep reserved exclusion-set transport and full
+  MirBuilder::next_value_id composition parked.
 
 selected source slice:
-  MirBuilder::next_value_id source facts, MirFunction parameter/counter seed
-  facts, parameter setup facts, and JoinIR reserved exclusion-set facts
+  MirFunction::new parameter prepopulation / counter seed and
+  MirFunction::next_value_id take-then-increment
 
 selected lowering:
-  live source
-    -> MirBuilderAllocationPolicyFactsV1
-    -> ResolvedValueAllocationPolicyV1
-    -> DirectabilityDecision
+  FunctionAllocatorFacts
+    -> function-local ValueIdAsI64 allocator plan
+    -> focused generated artifact smoke
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -57,19 +56,24 @@ landed evidence:
   VerifiedFamilyArtifactContractV1, exercises scalar counters and ID
   generators, and avoids copying family selected methods, semantic transports,
   or denials.
+  MirBuilder allocation policy facts are green: live source now projects to
+  MirBuilderAllocationPolicyFactsV1, ResolvedValueAllocationPolicyV1, and an
+  explicit DirectabilityDecision=Deny until current_function / reserved-set /
+  parameter fallback / sentinel / overflow boundaries are selected.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-FACTS-001
+  FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001
 
 current fail-fast boundary:
-  Facts may describe the composed policy, but executable lowering remains denied
-  until current_function transport, reserved exclusion-set transport, parameter
-  setup compatibility, sentinel, and overflow boundaries are selected.
+  Function-local allocator may claim MirFunction parameter-seeded counter and
+  take-then-increment behavior only. It must not claim reserved exclusion-set
+  retry, current_function composition, module-global fallback, or invalid
+  sentinel exclusion.
 
 latest design decision:
-  Choose B: source facts -> resolved allocation policy -> directability
-  decision. Do not flatten allocation semantics into booleans and do not treat
-  CoreContext generator scalarization as MirBuilder allocation policy.
+  Allocation policy facts proved the source authority split. Proceed one layer
+  down the follow-on order: function-local allocator first, then reserved
+  exclusion, then full MirBuilder::next_value_id composition.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -87,6 +91,7 @@ multi_carrier_exit_phi ArrayBox return selected to close matrix red edge
 multi_carrier_exit_phi ArrayBox return green
 core_context_artifact_contract_projection green
 mirbuilder_derived_context_bundle_v1 green
+mirbuilder_allocation_policy_facts green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -102,6 +107,7 @@ same_module_arraybox_return_contract = landed
 newtype_id_generator_scalarization = landed
 core_context_artifact_contract_projection = landed
 mirbuilder_derived_context_bundle_v1 = landed
+mirbuilder_allocation_policy_facts = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -111,23 +117,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirBuilder allocation policy facts
+1. Function-local ValueId allocator
    status=selected
-   boundary=source facts and resolved policy only; executable lowering denied
-   semantic_authority=MirBuilderAllocationPolicyFactsV1 + ResolvedValueAllocationPolicyV1
-   non_authority=CoreContext generator scalarization or flat boolean facts
-
-2. Function-local ValueId allocator
-   status=parked until allocation facts are green
    boundary=MirFunction next counter and parameter-seeded initial state
-   semantic_authority=function allocator facts
-   non_authority=reserved exclusion-set handling
+   semantic_authority=FunctionAllocatorFacts
+   non_authority=reserved exclusion-set handling or current_function composition
 
-3. Reserved ValueId exclusion policy
+2. Reserved ValueId exclusion policy
    status=parked until function-local allocator is green
    boundary=reserved exclusion set transport and retry policy
    semantic_authority=ReservedValueExclusionSetFacts
    non_authority=PHI-dst-only naming or ordered-map representation
+
+3. MirBuilder next_value_id composition
+   status=parked until reserved exclusion policy is green
+   boundary=current_function selection plus retry composition
+   semantic_authority=ResolvedValueAllocationPolicyV1
+   non_authority=module-global CoreContext branch alone
 ```
 
 ## Landed Converter Capability Summary

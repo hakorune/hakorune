@@ -1,0 +1,114 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAllocationPolicyFactsV1",
+  "subject": "hakorune_mir_builder::MirBuilder::next_value_id",
+  "source": {
+    "id_alloc": "src/mir/builder/utils/id_alloc.rs",
+    "function_impl": "src/mir/function/function_impl.rs",
+    "parameter_setup": "src/mir/builder/calls/parameter_setup.rs",
+    "header_phi_prebuild": "src/mir/builder/control_flow/joinir/merge/header_phi_prebuild.rs",
+    "compilation_context": "src/mir/builder/compilation_context.rs",
+    "value_id": "crates/hakorune_mir_core/src/value_id.rs"
+  },
+  "candidate_selection": {
+    "predicate": "CurrentFunctionPresent",
+    "present_source": "MirFunctionNextValueId",
+    "absent_source": "CoreContextNextValue",
+    "selection_frequency": "PerCandidateAttempt"
+  },
+  "function_allocator": {
+    "state": "MirFunction.next_value_id",
+    "operation": "TakeThenIncrement",
+    "param_ids": "[0, param_count)",
+    "initial_counter_seed": "max(param_count, 1)",
+    "zero_floor_policy": true,
+    "transport": "ValueIdAsI64"
+  },
+  "module_allocator": {
+    "state": "CoreContext.value_gen",
+    "operation": "GeneratorNext",
+    "first_candidate": 0,
+    "transport": "ValueIdAsI64"
+  },
+  "exclusion_set": {
+    "storage_owner": "CompilationContext",
+    "producer": "JoinIrHeaderPhiPrebuild",
+    "members": [
+      "PhiDestinations",
+      "JoinIrFunctionParameters"
+    ],
+    "update_kind": "ReplaceSnapshot",
+    "consumer": "MirBuilder::next_value_id",
+    "predicate": "CandidateNotInReservedSet",
+    "observation": "MembershipOnly",
+    "rejected_candidate_effect": "Consumed",
+    "retry": "GenerateNextCandidate",
+    "lifetime": "JoinIrMergeTemporary"
+  },
+  "parameter_initialization": {
+    "prepopulation": "ParameterIdPrepopulation",
+    "counter_seed": "FunctionCounterSeed",
+    "binding_reuse": "ParameterBindingReuse",
+    "counter_floor_repair": "ParameterCounterFloorRepair",
+    "compatibility_fallback": "ParameterSetupCompatibilityFallbackUnselected"
+  },
+  "sentinel_policy": {
+    "function_initial_floor": 1,
+    "zero_reserved_by_function_constructor_policy": true,
+    "formal_invalid_sentinel": "u32::MAX",
+    "formal_invalid_exclusion_claim": false
+  },
+  "boundary_facts": [
+    "CurrentFunctionOptionTransportUnselected",
+    "ReservedValueSetTransportUnselected",
+    "ParameterSetupCompatibilityFallbackUnselected",
+    "ReservedSetLifetimeProofRequired",
+    "FormalInvalidSentinelPolicyUnselected",
+    "AllocationCounterOverflowPolicyUnselected"
+  ],
+  "claims": {
+    "core_context_reserved_skip_claim": 0,
+    "generated_hako_changed": 0,
+    "executable_allocation_policy_claim": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0
+  },
+  "resolved_policy": {
+    "schema_version": 0,
+    "kind": "ResolvedValueAllocationPolicyV1",
+    "allocator_selector": "CurrentFunctionPresent",
+    "candidate_producers": [
+      {
+        "when": "present",
+        "producer": "MirFunctionNextValueId",
+        "state": "MirFunction.next_value_id",
+        "operation": "TakeThenIncrement"
+      },
+      {
+        "when": "absent",
+        "producer": "CoreContextNextValue",
+        "state": "CoreContext.value_gen",
+        "operation": "GeneratorNext"
+      }
+    ],
+    "acceptance_predicate": "CandidateNotInReservedSet",
+    "rejection_effect": "Consumed",
+    "retry_policy": "GenerateNextCandidate",
+    "result_transport": "ValueIdAsI64"
+  },
+  "directability": {
+    "kind": "DirectabilityDecision",
+    "decision": "Deny",
+    "reason": "UnsupportedDirectShape",
+    "detail": "CurrentFunctionAndReservedSetCompositionUnselected",
+    "unselected_boundaries": [
+      "CurrentFunctionOptionTransportUnselected",
+      "ReservedValueSetTransportUnselected",
+      "ParameterSetupCompatibilityFallbackUnselected",
+      "ReservedSetLifetimeProofRequired",
+      "FormalInvalidSentinelPolicyUnselected",
+      "AllocationCounterOverflowPolicyUnselected"
+    ]
+  }
+}

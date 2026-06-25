@@ -267,16 +267,16 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "MIRBUILDER-ALLOCATION-POLICY-FACTS-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1682-MIRBUILDER-ALLOCATION-POLICY-FACTS-001.md"
-latest_card_summary = """MirBuilder allocation policy is selected as a
-facts-first child slice. The next task is to extract live source facts for
-MirBuilder::next_value_id, MirFunction parameter/counter seeding, parameter
-setup, and JoinIR reserved exclusion sets, then resolve them into a typed
-allocation policy and directability decision. Generated Hako, CoreContext
-artifacts, backend routes, ABI, runtime, and bundle membership remain unchanged.
-CoreContext generator scalarization remains a non-authority for full
-MirBuilder::next_value_id semantics."""
+latest_card_summary = """MirBuilder allocation policy facts are implemented
+and green. Live source now extracts to MirBuilderAllocationPolicyFactsV1,
+resolves to ResolvedValueAllocationPolicyV1, and records
+DirectabilityDecision=Deny until current_function transport, reserved-set
+transport, parameter compatibility fallback, sentinel, and overflow boundaries
+are selected. Generated Hako, CoreContext artifacts, backend routes, ABI,
+runtime, and bundle membership remain unchanged. The next blocker is the
+function-local ValueId allocator slice."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-FACTS-001"
+current_blocker_token = "FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

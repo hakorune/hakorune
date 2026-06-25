@@ -1,6 +1,6 @@
 # 296x-1682: MirBuilder Allocation Policy Facts
 
-Status: Selected
+Status: Complete
 Date: 2026-06-25
 Token: MIRBUILDER-ALLOCATION-POLICY-FACTS-001
 
@@ -226,6 +226,36 @@ runtime fallback = 0
 task-order remains under 800 lines
 ```
 
+## Validated
+
+```text
+bash tools/checks/rust_lifecycle_mirbuilder_allocation_policy_facts_guard.sh
+python3 -m py_compile tools/rust_lifecycle/mirbuilder_allocation_policy_facts.py tools/rust_lifecycle/extract_mirbuilder_allocation_policy_facts.py
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Closeout Evidence
+
+```text
+MirBuilderAllocationPolicyFactsV1=green
+ResolvedValueAllocationPolicyV1=green
+directability=Deny(UnsupportedDirectShape)
+detail=CurrentFunctionAndReservedSetCompositionUnselected
+rejected_candidate_effect=Consumed
+retry=GenerateNextCandidate
+function_allocator=TakeThenIncrement
+function_counter_seed=max(param_count, 1)
+module_allocator=CoreContextNextValue
+reserved_exclusion_members=PhiDestinations union JoinIrFunctionParameters
+CoreContext_reserved_skip_claim=0
+generated_hako_changed=0
+executable_allocation_policy_claim=0
+backend_route_changed=0
+abi_changed=0
+runtime_fallback=0
+```
+
 Suggested mutation probes:
 
 ```text
@@ -249,8 +279,8 @@ CoreContext policy expansion = 0
 ## Follow-on Order
 
 ```text
-1. MIRBUILDER-ALLOCATION-POLICY-FACTS-001
-2. FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001
+1. MIRBUILDER-ALLOCATION-POLICY-FACTS-001 (landed)
+2. FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001 (next)
 3. RESERVED-VALUE-EXCLUSION-POLICY-001
 4. MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001
 ```
