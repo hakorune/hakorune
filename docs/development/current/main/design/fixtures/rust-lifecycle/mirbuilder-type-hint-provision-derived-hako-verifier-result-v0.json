@@ -1,0 +1,60 @@
+{
+  "checks": {
+    "entrypoint": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "metadata_value_type_publication": 0,
+    "minimal_path_expected_result": "OkImplicitUnit",
+    "module_transport": "MirModulePreparedMain",
+    "provider_cases": [
+      "Await",
+      "Call(Global)",
+      "Call(Constructor)",
+      "Call(OtherOrMissingCallee)"
+    ],
+    "runtime_fallback": 0,
+    "selected_body_count": "type_hint_provision_minimal_literal_profile_only",
+    "type_hint_provision_only": 1,
+    "value_types": "self.type_ctx.value_types"
+  },
+  "denied_boundaries": [
+    "metadata_value_type_publication",
+    "metadata_origin_caller_merge",
+    "phi_return_type_inference",
+    "phi_input_materialization",
+    "module_function_insertion",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::type_hint_provision",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "TypeHintProvision_minimal_literal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-type-hint-provision-plan-v0.json",
+  "source_plan": "mirbuilder-type-hint-provision-plan-v0.json",
+  "source_recipe": "mirbuilder-type-hint-provision-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.type_hint_provision",
+  "transport_notes": {
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "metadata_origin_caller_merge": "unselected",
+    "metadata_value_type_publication": 0,
+    "module_transport": "MirModulePreparedMain",
+    "provider_cases": [
+      "Await",
+      "Call(Global)",
+      "Call(Constructor)",
+      "Call(OtherOrMissingCallee)"
+    ],
+    "value_origin_newbox_transport": "TypeContextValueOriginNewBoxShell",
+    "value_types_transport": "TypeContextValueTypesShell"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "TypeHintProvisionShell"
+  ]
+}

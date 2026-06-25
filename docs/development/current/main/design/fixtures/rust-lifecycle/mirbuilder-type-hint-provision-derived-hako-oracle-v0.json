@@ -1,0 +1,33 @@
+{
+  "kind": "MirBuilderTypeHintProvisionDerivedHakoOracleV1",
+  "non_claims": {
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "metadata_origin_caller_merge": 0,
+    "metadata_value_type_publication": 0,
+    "module_function_insertion": 0,
+    "phi_input_materialization": 0,
+    "phi_return_type_inference": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+  "vectors": [
+    {
+      "expect": {
+        "existing_type_preserved": 1,
+        "ok": 1,
+        "provider_cases": 4,
+        "value_origin_newbox_inserted": 1,
+        "value_types_inserted": 4
+      },
+      "inputs": {
+        "function_transport": "MirFunctionPreparedMain",
+        "module_transport": "MirModulePreparedMain",
+        "preexisting_value_type_count": 1,
+        "value_types_transport": "self.type_ctx.value_types"
+      },
+      "name": "minimal_literal_type_hints_cover_provider_cases"
+    }
+  ]
+}
