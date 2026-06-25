@@ -463,15 +463,15 @@ def build_plan() -> dict[str, Any]:
             },
         },
         {
-            "id": "minimal_execution_path.next_edge_selection",
-            "callsite": "Minimal MirBuilder execution path next live edge selection",
-            "required_capability": "NextMinimalExecutionPathEdgeSelection",
+            "id": "finalize_module.return_emission",
+            "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
+            "required_capability": "ReturnEmission",
             "provider": None,
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
-                "deny_detail": "NextMinimalExecutionPathEdgeRequired",
-                "semantic_owner": "minimal MirBuilder execution path frontier",
-                "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
+                "deny_detail": "ReturnEmissionRequired",
+                "semantic_owner": "MirBuilder::finalize_module return emission",
+                "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
             },
         },
     ]
@@ -642,11 +642,11 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "Minimal MirBuilder execution path next live edge selection",
+        "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
         "deny_reason": "UnsupportedDirectShape",
-        "deny_detail": "NextMinimalExecutionPathEdgeRequired",
-        "semantic_owner": "minimal MirBuilder execution path frontier",
-        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
+        "deny_detail": "ReturnEmissionRequired",
+        "semantic_owner": "MirBuilder::finalize_module return emission",
+        "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:

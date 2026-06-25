@@ -250,15 +250,15 @@
       }
     },
     {
-      "callsite": "Minimal MirBuilder execution path next live edge selection",
-      "id": "minimal_execution_path.next_edge_selection",
+      "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
+      "id": "finalize_module.return_emission",
       "provider": null,
-      "required_capability": "NextMinimalExecutionPathEdgeSelection",
+      "required_capability": "ReturnEmission",
       "unsupported": {
-        "deny_detail": "NextMinimalExecutionPathEdgeRequired",
+        "deny_detail": "ReturnEmissionRequired",
         "deny_reason": "UnsupportedDirectShape",
-        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
-        "semantic_owner": "minimal MirBuilder execution path frontier"
+        "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
+        "semantic_owner": "MirBuilder::finalize_module return emission"
       }
     }
   ],

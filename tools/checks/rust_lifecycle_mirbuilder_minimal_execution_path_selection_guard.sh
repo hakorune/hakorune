@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "Minimal MirBuilder execution path next live edge selection",
+    "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "NextMinimalExecutionPathEdgeRequired",
-    "semantic_owner": "minimal MirBuilder execution path frontier",
-    "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
+    "deny_detail": "ReturnEmissionRequired",
+    "semantic_owner": "MirBuilder::finalize_module return emission",
+    "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -65,9 +65,9 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-selection-guard-v0
 selection_guard=green
 entry_is_prepared_state=1
-first_unsupported_edge=Minimal MirBuilder execution path next live edge selection
-deny_detail=NextMinimalExecutionPathEdgeRequired
-next_slice_token=MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001
+first_unsupported_edge=MirBuilder::finalize_module -> append Return(result_value)
+deny_detail=ReturnEmissionRequired
+next_slice_token=MIRBUILDER-RETURN-EMISSION-001
 generated_hako_change=0
 runtime_fallback=0
 summary=ok
