@@ -45,6 +45,9 @@ LITERAL_INTEGER_PLAN = (
 BOUNDED_FINALIZE_PLAN = (
     FIXTURES / "mirbuilder-bounded-finalize-composition-plan-v0.json"
 )
+MINIMAL_SMOKE_RESULT = (
+    FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
+)
 
 PLAN_PATH = FIXTURES / "minimal-mirbuilder-execution-path-plan-v0.json"
 RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
@@ -128,6 +131,7 @@ def contract_sources() -> list[dict[str, Any]]:
     function_constructor = read_json(FUNCTION_CONSTRUCTOR_PLAN)
     literal_integer = read_json(LITERAL_INTEGER_PLAN)
     bounded_finalize = read_json(BOUNDED_FINALIZE_PLAN)
+    minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
 
     if bundle.get("bundle_contract_model") != "membership_only_v1":
         raise SelectionError("ordered_map bundle is not membership_only_v1")
@@ -190,6 +194,23 @@ def contract_sources() -> list[dict[str, Any]]:
         raise SelectionError("bounded finalize plan must not claim full finalize")
     if finalize_non_claims.get("generated_hako_artifact") != 0:
         raise SelectionError("bounded finalize plan must not claim generated Hako")
+    if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
+        raise SelectionError("minimal execution smoke result has wrong kind")
+    smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
+    if "MinimalExecutionPathSmoke" not in smoke_caps:
+        raise SelectionError("minimal execution smoke result lacks MinimalExecutionPathSmoke")
+    smoke_claims = minimal_smoke.get("claims") or {}
+    for key in [
+        "full_mirbuilder_new_claim",
+        "generated_hako_change",
+        "mainline_selected",
+        "new_backend_route",
+        "new_abi",
+        "runtime_fallback",
+        "source_selfhost_claim",
+    ]:
+        if smoke_claims.get(key) != 0:
+            raise SelectionError(f"minimal smoke result must keep {key}=0")
 
     return [
         {
@@ -226,6 +247,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "family_id": "hakorune_mir_builder::bounded_finalize",
             "manifest_path": rel(BOUNDED_FINALIZE_PLAN),
             "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "MinimalExecutionPathSmoke",
+            "contract_kind": "SmokeResultV1",
+            "family_id": "hakorune_mir_builder::minimal_execution_path",
+            "manifest_path": rel(MINIMAL_SMOKE_RESULT),
+            "artifact_state": "Observed",
         },
         {
             "capability": "CoreContext.scalar_counters_and_id_generators",
@@ -378,12 +406,27 @@ def build_plan() -> dict[str, Any]:
             "id": "minimal_execution_path.smoke",
             "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
             "required_capability": "MinimalExecutionPathSmoke",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "MinimalExecutionPathSmoke",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "MinimalExecutionPathSmokeRequired",
                 "semantic_owner": "minimal MirBuilder execution path",
                 "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
+            },
+        },
+        {
+            "id": "mainline_pilot.selection",
+            "callsite": "MirBuilder allocation policy mainline pilot selection",
+            "required_capability": "MirBuilderAllocationPolicyMainlinePilot",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "MainlineSelectionRequired",
+                "semantic_owner": "MirBuilder allocation policy mainline pilot",
+                "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
             },
         },
     ]
@@ -554,11 +597,11 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+        "callsite": "MirBuilder allocation policy mainline pilot selection",
         "deny_reason": "UnsupportedDirectShape",
-        "deny_detail": "MinimalExecutionPathSmokeRequired",
-        "semantic_owner": "minimal MirBuilder execution path",
-        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
+        "deny_detail": "MainlineSelectionRequired",
+        "semantic_owner": "MirBuilder allocation policy mainline pilot",
+        "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:
@@ -569,6 +612,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

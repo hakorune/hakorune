@@ -1,0 +1,26 @@
+{
+  "available_capabilities": [
+    "MinimalExecutionPathSmoke"
+  ],
+  "claims": {
+    "full_mirbuilder_new_claim": 0,
+    "generated_hako_change": 0,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "kind": "MinimalMirBuilderExecutionPathSmokeResultV1",
+  "observed": {
+    "condition_fn_injection": "source_required",
+    "main_const_integer": "ConstValue::Integer(0)",
+    "main_function": "present",
+    "main_return_type": "MirType::Integer",
+    "main_return_value": "literal_integer_const_dst",
+    "rust_integration_test": "tests/mirbuilder_minimal_execution_path_smoke.rs::mirbuilder_minimal_literal_integer_path_smoke"
+  }
+}

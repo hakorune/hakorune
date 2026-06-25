@@ -20,17 +20,16 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001
+  MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001
 
 current implementation task:
-  Add the minimal PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)) smoke.
+  Select the explicit mainline pilot surface after minimal execution smoke.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
 
 selected lowering:
-  explicit artifact contracts
-    -> minimal smoke proof without mainline selection
+  explicit artifact contracts -> minimal smoke proof -> mainline pilot design stop
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -75,18 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, and bounded finalize composition are green; frontier advances to minimal execution smoke.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, and minimal execution smoke are green; frontier advances to mainline pilot selection.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001
+  MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001
 
 current fail-fast boundary:
-  The next slice may only prove the prepared-state literal-integer execution
-  path. It must not select mainline routes, widen source authority, or add
-  runtime fallback.
+  The next slice is a design-selection stop. It must not silently select mainline routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  Bounded finalize composition is green as PlanOnly capability. Proceed to a minimal execution smoke, not mainline selection.
+  Minimal execution smoke is green. Proceed to mainline pilot selection only after the explicit adoption surface is designed.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -117,7 +114,8 @@ mir_module_minimal_shell_transport green
 mir_function_constructor_composition green
 mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
-derived_first_red_edge=MinimalExecutionPathSmokeRequired
+mirbuilder_minimal_execution_path_smoke green
+derived_first_red_edge=MainlineSelectionRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -146,6 +144,7 @@ mir_module_minimal_shell_transport = landed
 mir_function_constructor_composition = landed
 mirbuilder_literal_integer_lowering = landed
 mirbuilder_bounded_finalize_composition = landed
+mirbuilder_minimal_execution_path_smoke = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -155,23 +154,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Minimal execution path smoke
+1. Mainline pilot design
    status=selected
-   boundary=prepared-state AST Literal Integer(0) only
-   semantic_authority=explicit contracts plus smoke result
-   non_authority=mainline selection
-
-2. Minimal execution path frontier refresh
-   status=parked until smoke green
-   boundary=derive next unsupported live edge
-   semantic_authority=frontier analyzer
-   non_authority=manual next-edge selection
-
-3. Mainline pilot
-   status=parked until minimal execution path green
-   boundary=explicit derived route selection only
-   semantic_authority=mainline adoption policy
+   boundary=allocation policy mainline adoption surface only
+   semantic_authority=explicit adoption policy
    non_authority=artifact existence
+
+2. Allocation policy mainline pilot
+   status=parked until design selected
+   boundary=explicit route selection only
+   semantic_authority=mainline adoption policy
+   non_authority=silent fallback
+
+3. Next minimal execution path edge
+   status=parked until mainline pilot green
+   boundary=frontier analyzer result
+   semantic_authority=live source order plus contracts
+   non_authority=manual next-edge selection
 ```
 
 ## Landed Converter Capability Summary

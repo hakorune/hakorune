@@ -36,6 +36,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-composition-plan-v0.json"
     },
     {
+      "artifact_state": "Observed",
+      "capability": "MinimalExecutionPathSmoke",
+      "contract_kind": "SmokeResultV1",
+      "family_id": "hakorune_mir_builder::minimal_execution_path",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-smoke-result-v0.json"
+    },
+    {
       "artifact_state": "DerivedShadow",
       "capability": "CoreContext.scalar_counters_and_id_generators",
       "contract_kind": "VerifiedFamilyArtifactContractV1",
@@ -208,13 +215,28 @@
     {
       "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
       "id": "minimal_execution_path.smoke",
-      "provider": null,
+      "provider": {
+        "capability": "MinimalExecutionPathSmoke",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "MinimalExecutionPathSmoke",
       "unsupported": {
         "deny_detail": "MinimalExecutionPathSmokeRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
         "semantic_owner": "minimal MirBuilder execution path"
+      }
+    },
+    {
+      "callsite": "MirBuilder allocation policy mainline pilot selection",
+      "id": "mainline_pilot.selection",
+      "provider": null,
+      "required_capability": "MirBuilderAllocationPolicyMainlinePilot",
+      "unsupported": {
+        "deny_detail": "MainlineSelectionRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
+        "semantic_owner": "MirBuilder allocation policy mainline pilot"
       }
     }
   ],

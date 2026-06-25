@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+    "callsite": "MirBuilder allocation policy mainline pilot selection",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "MinimalExecutionPathSmokeRequired",
-    "semantic_owner": "minimal MirBuilder execution path",
-    "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001",
+    "deny_detail": "MainlineSelectionRequired",
+    "semantic_owner": "MirBuilder allocation policy mainline pilot",
+    "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:
@@ -65,9 +65,9 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-selection-guard-v0
 selection_guard=green
 entry_is_prepared_state=1
-first_unsupported_edge=PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke
-deny_detail=MinimalExecutionPathSmokeRequired
-next_slice_token=MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001
+first_unsupported_edge=MirBuilder allocation policy mainline pilot selection
+deny_detail=MainlineSelectionRequired
+next_slice_token=MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001
 generated_hako_change=0
 runtime_fallback=0
 summary=ok
