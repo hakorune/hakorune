@@ -1,0 +1,64 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLiteralIntegerLoweringPlanV1",
+  "subject": "MirBuilder::build_literal(LiteralValue::Integer)",
+  "source_authority": {
+    "dispatcher": "src/mir/builder/builder_build.rs::MirBuilder::build_literal",
+    "emitter": "src/mir/builder/emission/constant.rs::emit_integer",
+    "frontend_literal": "crates/hakorune_frontend_ast/src/literal.rs::LiteralValue::Integer",
+    "mir_const": "crates/hakorune_mir_core/src/types.rs::ConstValue::Integer",
+    "mir_instruction": "src/mir/instruction.rs::MirInstruction::Const"
+  },
+  "selected_source_shape": {
+    "input_ast": "ASTNode::Literal(Integer(0))",
+    "literal_variant": "LiteralValue::Integer",
+    "literal_payload_transport": "ScalarI64"
+  },
+  "lowering_sequence": [
+    {
+      "step": "allocate_result",
+      "operation": "MirBuilder::next_value_id",
+      "required_capability": "MirBuilderAllocationPolicy.prepared_state_next_value_id",
+      "result_transport": "ValueIdAsI64"
+    },
+    {
+      "step": "emit_const_instruction",
+      "operation": "MirInstruction::Const",
+      "dst": "allocated ValueId",
+      "value": "ConstValue::Integer(input i64)",
+      "value_transport": "ScalarI64"
+    },
+    {
+      "step": "publish_type",
+      "operation": "type_ctx.value_types.insert",
+      "value_type": "MirType::Integer"
+    },
+    {
+      "step": "return_result",
+      "transport": "ValueIdAsI64"
+    }
+  ],
+  "available_capabilities": [
+    "LiteralIntegerLowering"
+  ],
+  "result_contract": {
+    "result_value": "ValueIdAsI64",
+    "emitted_instruction": "ConstValue::Integer",
+    "published_type": "MirType::Integer"
+  },
+  "non_claims": {
+    "typed_integer_literal": 0,
+    "float_literal": 0,
+    "bool_literal": 0,
+    "string_literal": 0,
+    "null_literal": 0,
+    "void_literal": 0,
+    "full_expression_lowering": 0,
+    "finalize_module": 0,
+    "return_emission": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0
+  }
+}

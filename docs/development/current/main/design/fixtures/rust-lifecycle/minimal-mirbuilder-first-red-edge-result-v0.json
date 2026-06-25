@@ -22,26 +22,20 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
-    "deny_detail": "LiteralIntegerLoweringRequired",
+    "callsite": "MirBuilder::finalize_module",
+    "deny_detail": "FinalizeModuleCompositionRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "lower_root.literal_integer",
-    "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
-    "required_capability": "LiteralIntegerLowering",
-    "semantic_owner": "MirBuilder::build_literal",
+    "edge_id": "finalize_module.composition",
+    "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
+    "required_capability": "FinalizeModuleComposition",
+    "semantic_owner": "MirBuilder::finalize_module",
     "status": "Unsupported"
   },
   "input_profile": {
     "ast": "ASTNode::Literal(Integer(0))"
   },
   "kind": "MinimalMirBuilderFirstRedEdgeResultV1",
-  "not_reached_edges": [
-    {
-      "callsite": "MirBuilder::finalize_module",
-      "edge_id": "finalize_module.composition",
-      "status": "NotReached"
-    }
-  ],
+  "not_reached_edges": [],
   "profile_excluded_edges": [
     {
       "callsite": "MirBuilder::prepare_module -> current_source_file",
@@ -134,12 +128,25 @@
     },
     {
       "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
-      "deny_detail": "LiteralIntegerLoweringRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "LiteralIntegerLowering",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::literal_integer",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json"
+      },
       "edge_id": "lower_root.literal_integer",
-      "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
       "required_capability": "LiteralIntegerLowering",
-      "semantic_owner": "MirBuilder::build_literal",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module",
+      "deny_detail": "FinalizeModuleCompositionRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.composition",
+      "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
+      "required_capability": "FinalizeModuleComposition",
+      "semantic_owner": "MirBuilder::finalize_module",
       "status": "Unsupported"
     }
   ],

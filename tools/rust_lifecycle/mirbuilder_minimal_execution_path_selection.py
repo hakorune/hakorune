@@ -39,6 +39,9 @@ MODULE_SHELL_PLAN = (
 FUNCTION_CONSTRUCTOR_PLAN = (
     FIXTURES / "mir-function-constructor-composition-plan-v0.json"
 )
+LITERAL_INTEGER_PLAN = (
+    FIXTURES / "mirbuilder-literal-integer-lowering-plan-v0.json"
+)
 
 PLAN_PATH = FIXTURES / "minimal-mirbuilder-execution-path-plan-v0.json"
 RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
@@ -120,6 +123,7 @@ def contract_sources() -> list[dict[str, Any]]:
     prepared = read_json(PREPARED_KERNEL_MANIFEST)
     module_shell = read_json(MODULE_SHELL_PLAN)
     function_constructor = read_json(FUNCTION_CONSTRUCTOR_PLAN)
+    literal_integer = read_json(LITERAL_INTEGER_PLAN)
 
     if bundle.get("bundle_contract_model") != "membership_only_v1":
         raise SelectionError("ordered_map bundle is not membership_only_v1")
@@ -162,6 +166,16 @@ def contract_sources() -> list[dict[str, Any]]:
             raise SelectionError(f"function constructor plan lacks capability: {capability}")
     if function_constructor.get("non_claims", {}).get("separate_block_only_claim") != 0:
         raise SelectionError("function constructor plan must not split block-only claim")
+    if literal_integer.get("kind") != "MirBuilderLiteralIntegerLoweringPlanV1":
+        raise SelectionError("literal integer lowering plan has wrong kind")
+    literal_caps = set(literal_integer.get("available_capabilities") or [])
+    if "LiteralIntegerLowering" not in literal_caps:
+        raise SelectionError("literal integer plan lacks LiteralIntegerLowering")
+    literal_non_claims = literal_integer.get("non_claims") or {}
+    if literal_non_claims.get("return_emission") != 0:
+        raise SelectionError("literal integer plan must not claim return emission")
+    if literal_non_claims.get("generated_hako_artifact") != 0:
+        raise SelectionError("literal integer plan must not claim generated Hako")
 
     return [
         {
@@ -183,6 +197,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir::MirFunction",
             "manifest_path": rel(FUNCTION_CONSTRUCTOR_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "LiteralIntegerLowering",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::literal_integer",
+            "manifest_path": rel(LITERAL_INTEGER_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -306,7 +327,10 @@ def build_plan() -> dict[str, Any]:
             "id": "lower_root.literal_integer",
             "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
             "required_capability": "LiteralIntegerLowering",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "LiteralIntegerLowering",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "LiteralIntegerLoweringRequired",
@@ -323,7 +347,7 @@ def build_plan() -> dict[str, Any]:
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "FinalizeModuleCompositionRequired",
                 "semantic_owner": "MirBuilder::finalize_module",
-                "next_slice_token": "MIRBUILDER-FINALIZE-MODULE-COMPOSITION-001",
+                "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
             },
         },
     ]
@@ -494,11 +518,11 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+        "callsite": "MirBuilder::finalize_module",
         "deny_reason": "UnsupportedDirectShape",
-        "deny_detail": "LiteralIntegerLoweringRequired",
-        "semantic_owner": "MirBuilder::build_literal",
-        "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
+        "deny_detail": "FinalizeModuleCompositionRequired",
+        "semantic_owner": "MirBuilder::finalize_module",
+        "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:
@@ -509,6 +533,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

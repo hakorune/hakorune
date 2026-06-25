@@ -20,19 +20,18 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-LITERAL-INTEGER-LOWERING-001
+  MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001
 
 current implementation task:
-  Implement the literal integer lowering required by the advanced
+  Implement bounded finalize composition required by the advanced
   PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)) frontier.
 
 selected source slice:
-  MirBuilder::lower_root(ASTNode::Literal(Integer(0)))
+  MirBuilder::finalize_module
 
 selected lowering:
-  build_literal(Integer)
-    -> integer Const emission
-    -> prepared-state execution path frontier advancement
+  finalize_module for the literal-integer path
+    -> return/module sealing needed by AST Literal Integer(0) frontier
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -77,19 +76,19 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell and MirFunction constructor composition are green; frontier advances through prepared state install to literal integer lowering.
+  MirModule shell, MirFunction constructor composition, and literal integer lowering are green; frontier advances to bounded finalize composition.
 
 selected next owner:
-  MIRBUILDER-LITERAL-INTEGER-LOWERING-001
+  MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001
 
 current fail-fast boundary:
-  The next slice may only model the Integer literal path needed by
-  build_module(AST Literal Integer(0)). It must not widen to full expression
-  lowering, String/Bool/Null literals, finalize behavior, or mainline source
-  authority.
+  The next slice may only model the finalization needed by
+  build_module(AST Literal Integer(0)). It must not widen to full finalize,
+  condition_fn injection, semantic refresh, other expressions, or mainline
+  source authority.
 
 latest design decision:
-  MirFunction constructor composition is green as PlanOnly capability. Proceed to literal integer lowering, not broad coverage expansion.
+  Literal integer lowering is green as PlanOnly capability. Proceed to bounded finalize composition, not broad finalize coverage.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -118,7 +117,8 @@ mirbuilder_prepared_state_reserved_membership_transport_alignment green
 mirbuilder_minimal_execution_path_selection green
 mir_module_minimal_shell_transport green
 mir_function_constructor_composition green
-derived_first_red_edge=MirBuilder::lower_root(ASTNode::Literal(Integer(0)))
+mirbuilder_literal_integer_lowering green
+derived_first_red_edge=MirBuilder::finalize_module
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -145,6 +145,7 @@ mirbuilder_prepared_state_reserved_membership_transport_alignment = landed
 mirbuilder_minimal_execution_path_selection = landed
 mir_module_minimal_shell_transport = landed
 mir_function_constructor_composition = landed
+mirbuilder_literal_integer_lowering = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -154,23 +155,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Literal integer lowering
+1. Bounded finalize composition
    status=selected
-   boundary=AST Literal Integer(0) -> integer Const only
-   semantic_authority=literal emission facts
-   non_authority=full expression lowering
-
-2. Minimal return emission
-   status=parked until literal integer frontier advances
-   boundary=Return of selected literal value only
-   semantic_authority=return emission facts
-   non_authority=full finalize composition
-
-3. Bounded finalize composition
-   status=parked until const/return path frontier advances
-   boundary=only finalization needed by AST Literal Integer(0)
+   boundary=finalization needed by AST Literal Integer(0)
    semantic_authority=finalize source facts
    non_authority=full finalize behavior
+
+2. Minimal execution path smoke
+   status=parked until bounded finalize frontier advances
+   boundary=Return of selected literal value only
+   semantic_authority=minimal execution path contracts
+   non_authority=mainline selection
+
+3. Mainline pilot
+   status=parked until minimal execution path green
+   boundary=explicit derived route selection only
+   semantic_authority=mainline adoption policy
+   non_authority=artifact existence
 ```
 
 ## Landed Converter Capability Summary

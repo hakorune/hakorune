@@ -22,6 +22,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "LiteralIntegerLowering",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::literal_integer",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-literal-integer-lowering-plan-v0.json"
+    },
+    {
       "artifact_state": "DerivedShadow",
       "capability": "CoreContext.scalar_counters_and_id_generators",
       "contract_kind": "VerifiedFamilyArtifactContractV1",
@@ -164,7 +171,10 @@
     {
       "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
       "id": "lower_root.literal_integer",
-      "provider": null,
+      "provider": {
+        "capability": "LiteralIntegerLowering",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "LiteralIntegerLowering",
       "unsupported": {
         "deny_detail": "LiteralIntegerLoweringRequired",
@@ -181,7 +191,7 @@
       "unsupported": {
         "deny_detail": "FinalizeModuleCompositionRequired",
         "deny_reason": "UnsupportedDirectShape",
-        "next_slice_token": "MIRBUILDER-FINALIZE-MODULE-COMPOSITION-001",
+        "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
         "semantic_owner": "MirBuilder::finalize_module"
       }
     }

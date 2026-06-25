@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+    "callsite": "MirBuilder::finalize_module",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "LiteralIntegerLoweringRequired",
-    "semantic_owner": "MirBuilder::build_literal",
-    "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
+    "deny_detail": "FinalizeModuleCompositionRequired",
+    "semantic_owner": "MirBuilder::finalize_module",
+    "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:
@@ -65,9 +65,9 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-selection-guard-v0
 selection_guard=green
 entry_is_prepared_state=1
-first_unsupported_edge=MirBuilder::lower_root(ASTNode::Literal(Integer(0)))
-deny_detail=LiteralIntegerLoweringRequired
-next_slice_token=MIRBUILDER-LITERAL-INTEGER-LOWERING-001
+first_unsupported_edge=MirBuilder::finalize_module
+deny_detail=FinalizeModuleCompositionRequired
+next_slice_token=MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001
 generated_hako_change=0
 runtime_fallback=0
 summary=ok

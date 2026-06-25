@@ -265,16 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1692-MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001.md"
-latest_card_summary = """MirFunction constructor composition is green as a
-source-derived PlanOnly capability for MirFunction::new plus nested
-BasicBlock::new. It includes parameter prepopulation, counter seed
-max(param_count, 1), FunctionMetadata::default, and prepared-state install.
-The minimal execution frontier now advances to literal integer lowering with
-detail=LiteralIntegerLoweringRequired."""
+latest_card = "MIRBUILDER-LITERAL-INTEGER-LOWERING-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1693-MIRBUILDER-LITERAL-INTEGER-LOWERING-001.md"
+latest_card_summary = """Literal integer lowering is green as a source-derived
+PlanOnly capability for LiteralValue::Integer through emit_integer. It proves
+ConstValue::Integer emission, ValueIdAsI64 result transport, and
+MirType::Integer publication without claiming other literals, return emission,
+generated Hako, backend routes, ABI, or runtime behavior. The minimal execution
+frontier now advances to finalize_module with
+detail=FinalizeModuleCompositionRequired."""
 
-current_blocker_token = "MIRBUILDER-LITERAL-INTEGER-LOWERING-001"
+current_blocker_token = "MIRBUILDER-BOUNDED-FINALIZE-COMPOSITION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
