@@ -1,0 +1,60 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "module_function_insertion": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "phi_input_materialization": 0,
+    "phi_return_type_inference": 1,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::phi_return_type_inference",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-phi-return-type-inference",
+    "version": "mirbuilder-phi-return-type-inference-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
+      "sha256": "5ae77aaf159a540679e2dc7ee64288693c8d5cf2429998d2c19f6fef2a946a07"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-oracle-v0.json",
+      "sha256": "6205e31a75ba0b4f2289a898d196b73c704377ec151be7a704e59eadeb56c67b"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
+      "sha256": "5ae77aaf159a540679e2dc7ee64288693c8d5cf2429998d2c19f6fef2a946a07"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-recipe-v0.json",
+      "sha256": "3d379c523666245e11b883e416b34682e35f6adbb6cbf20e16424880f77d1fe3"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-verifier-result-v0.json",
+      "sha256": "14575c04feb26929a97710a1a0228c27ea9b5879a103b438409db168f3b261d8"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_return_type_inference.hako",
+    "hako_sha256": "a25fd3f52fcfb9cac4dbf7ee99c6778acfb01e951d1fd4623e416c1c2b8bb05e"
+  },
+  "pilot_scope": "PhiReturnTypeInference_minimal_literal_profile",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/phi_type_inference.rs",
+        "sha256": "0460714de2087a99b22a1ab8d083acd173470180757ed61d17060af5c758f630"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 12,
+      "PlanOnly": 11,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 16
+      "VerifiedArtifact": 17
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 16,
-      "Missing": 12,
+      "ExecutableArtifactPresent": 17,
+      "Missing": 11,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 15,
+      "DerivedShadow": 16,
       "NotApplicable": 4,
-      "Unselected": 12
+      "Unselected": 11
     }
   },
   "edges": [
@@ -389,15 +389,15 @@
       "status": "Available",
       "required_capability": "PhiReturnTypeInference",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "PhiReturnTypeInference",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::phi_return_type_inference",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_return_type_inference.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.phi_return_type_inference",
-    "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
-    "required_capability": "PhiReturnTypeInference",
-    "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.phi_input_materialization",
+    "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
+    "required_capability": "PhiInputMaterialization",
+    "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

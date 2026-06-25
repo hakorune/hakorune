@@ -22,6 +22,7 @@ from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_
 from mirbuilder_current_function_take_artifacts import run_current_function_take_artifact_generator
 from mirbuilder_current_module_take_artifacts import run_current_module_take_artifact_generator
 from mirbuilder_literal_integer_artifacts import run_literal_integer_lowering_artifact_generator
+from mirbuilder_phi_return_type_inference_artifacts import run_phi_return_type_inference_artifact_generator
 from mirbuilder_return_emission_artifacts import run_return_emission_artifact_generator
 from mirbuilder_return_type_publication_artifacts import run_return_type_publication_artifact_generator
 from mirbuilder_typed_value_verification_artifacts import run_typed_value_verification_artifact_generator
@@ -52,6 +53,7 @@ FAMILY_GENERATORS = {
     "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
     "mirbuilder-metadata-origin-caller-merge": run_metadata_origin_caller_merge_artifact_generator,
     "mirbuilder-metadata-value-type-publication": run_metadata_value_type_publication_artifact_generator,
+    "mirbuilder-phi-return-type-inference": run_phi_return_type_inference_artifact_generator,
     "mir-function-constructor-shell": run_mir_function_constructor_shell_artifact_generator,
     "mir-module-minimal-shell": run_mir_module_minimal_shell_artifact_generator,
     "mirbuilder-prepared-state-install": run_prepared_state_install_artifact_generator,

@@ -1,0 +1,30 @@
+{
+  "kind": "MirBuilderPhiReturnTypeInferenceDerivedHakoOracleV1",
+  "non_claims": {
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "module_function_insertion": 0,
+    "phi_input_materialization": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module phi_type_inference::infer_return_type_from_phi",
+  "vectors": [
+    {
+      "expect": {
+        "inferred": 1,
+        "ok": 1,
+        "phi_input_materialization": 0,
+        "resolver_steps": 8,
+        "return_type_is_integer": 1
+      },
+      "inputs": {
+        "builder_type_context": "self.type_ctx.value_types",
+        "function_transport": "MirFunctionPreparedMain",
+        "initial_return_type": "MirType::Unknown",
+        "phi_value_type": "MirType::Integer"
+      },
+      "name": "unknown_return_type_infers_integer_from_phi_resolver_chain"
+    }
+  ]
+}

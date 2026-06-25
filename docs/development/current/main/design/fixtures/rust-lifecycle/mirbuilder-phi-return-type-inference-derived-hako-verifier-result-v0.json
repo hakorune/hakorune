@@ -1,0 +1,63 @@
+{
+  "checks": {
+    "builder_type_context": "self.type_ctx.value_types",
+    "entrypoint": "phi_type_inference::infer_return_type_from_phi",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "minimal_path_expected_result": "Option<MirType>",
+    "phi_input_materialization": 0,
+    "phi_return_type_inference_only": 1,
+    "resolver_chain": [
+      "SkipConcreteReturnType",
+      "TerminatorReturnOnly",
+      "DirectValueTypesLookup",
+      "TypeHintPolicyExtract",
+      "MethodReturnHintBox",
+      "PhiTypeResolver",
+      "GenericTypeResolver",
+      "UnknownFallbackOutsideDebug"
+    ],
+    "runtime_fallback": 0,
+    "selected_body_count": "phi_return_type_inference_minimal_literal_profile_only"
+  },
+  "denied_boundaries": [
+    "phi_input_materialization",
+    "module_function_insertion",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::phi_return_type_inference",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "PhiReturnTypeInference_minimal_literal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-phi-return-type-inference-plan-v0.json",
+  "source_plan": "mirbuilder-phi-return-type-inference-plan-v0.json",
+  "source_recipe": "mirbuilder-phi-return-type-inference-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.phi_return_type_inference",
+  "transport_notes": {
+    "builder_type_context": "self.type_ctx.value_types",
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "module_function_insertion": "unselected",
+    "phi_input_materialization": 0,
+    "resolver_chain": [
+      "SkipConcreteReturnType",
+      "TerminatorReturnOnly",
+      "DirectValueTypesLookup",
+      "TypeHintPolicyExtract",
+      "MethodReturnHintBox",
+      "PhiTypeResolver",
+      "GenericTypeResolver",
+      "UnknownFallbackOutsideDebug"
+    ],
+    "result_transport": "OptionMirType"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "PhiReturnTypeInferenceShell"
+  ]
+}

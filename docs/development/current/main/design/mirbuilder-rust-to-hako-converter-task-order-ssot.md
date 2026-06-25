@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the next executable gap: finalize_module PHI return-type inference.
+  Materialize the next executable gap: finalize_module PHI input materialization.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, and MetadataOriginCallerMerge are now DerivedShadow executable Hako artifacts, and the semantic closure report derives PhiReturnTypeInference as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, and PhiReturnTypeInference are now DerivedShadow executable Hako artifacts, and the semantic closure report derives PhiInputMaterialization as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only materialize PHI return-type inference as a reusable generated Hako artifact for the prepared minimal profile. It must not claim PHI input materialization, module function insertion, full finalize_module, mainline selection, or source selfhost.
+  The next slice may only materialize PHI input materialization as a reusable generated Hako artifact for the prepared minimal profile. It must not claim dev birth verification, module function insertion, full finalize_module, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.phi_return_type_inference, so proceed to PHI return-type inference artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.phi_input_materialization, so proceed to PHI input materialization artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -138,8 +138,9 @@ mirbuilder_type_propagation_pipeline_derived_hako_artifact green
 mirbuilder_type_hint_provision_derived_hako_artifact green
 mirbuilder_metadata_value_type_publication_derived_hako_artifact green
 mirbuilder_metadata_origin_caller_merge_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.phi_return_type_inference
-next_slice=MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001
+mirbuilder_phi_return_type_inference_derived_hako_artifact green
+first_executable_materialization_gap=finalize_module.phi_input_materialization
+next_slice=MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -212,14 +213,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. PHI return-type inference derived Hako artifact
+1. PHI input materialization derived Hako artifact
    status=selected
-   boundary=infer function.signature.return_type from PHI after metadata origin-caller merge
+   boundary=materialize all PHI inputs after PHI return-type inference
    semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=PHI input materialization, module insertion, full finalize, or mainline claim
+   non_authority=dev birth verification, module insertion, full finalize, or mainline claim
 
 2. Next executable materialization gap
-   status=parked until PHI return-type inference artifact is green
+   status=parked until PHI input materialization artifact is green
    boundary=source-order earliest remaining executable gap
    semantic_authority=semantic closure report regenerated after artifact
    non_authority=coverage percentage or bundle size
