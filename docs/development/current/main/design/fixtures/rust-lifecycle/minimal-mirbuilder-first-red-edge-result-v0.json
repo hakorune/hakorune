@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder allocation policy mainline pilot selection",
-    "deny_detail": "MainlineSelectionRequired",
+    "callsite": "Minimal MirBuilder execution path next live edge selection",
+    "deny_detail": "NextMinimalExecutionPathEdgeRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "mainline_pilot.selection",
-    "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
-    "required_capability": "MirBuilderAllocationPolicyMainlinePilot",
-    "semantic_owner": "MirBuilder allocation policy mainline pilot",
+    "edge_id": "minimal_execution_path.next_edge_selection",
+    "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
+    "required_capability": "NextMinimalExecutionPathEdgeSelection",
+    "semantic_owner": "minimal MirBuilder execution path frontier",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -167,12 +167,25 @@
     },
     {
       "callsite": "MirBuilder allocation policy mainline pilot selection",
-      "deny_detail": "MainlineSelectionRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "DerivedMainline",
+        "capability": "MirBuilderAllocationPolicyMainlinePilot",
+        "contract_kind": "DerivedMainlineRouteSelectionV1",
+        "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.route.json"
+      },
       "edge_id": "mainline_pilot.selection",
-      "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
       "required_capability": "MirBuilderAllocationPolicyMainlinePilot",
-      "semantic_owner": "MirBuilder allocation policy mainline pilot",
+      "status": "Available"
+    },
+    {
+      "callsite": "Minimal MirBuilder execution path next live edge selection",
+      "deny_detail": "NextMinimalExecutionPathEdgeRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "minimal_execution_path.next_edge_selection",
+      "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
+      "required_capability": "NextMinimalExecutionPathEdgeSelection",
+      "semantic_owner": "minimal MirBuilder execution path frontier",
       "status": "Unsupported"
     }
   ],

@@ -48,6 +48,11 @@ BOUNDED_FINALIZE_PLAN = (
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
+MAINLINE_ROUTE = (
+    ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/"
+    "mirbuilder_next_value_id_prepared_state_kernel.route.json"
+)
 
 PLAN_PATH = FIXTURES / "minimal-mirbuilder-execution-path-plan-v0.json"
 RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
@@ -132,6 +137,7 @@ def contract_sources() -> list[dict[str, Any]]:
     literal_integer = read_json(LITERAL_INTEGER_PLAN)
     bounded_finalize = read_json(BOUNDED_FINALIZE_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
+    mainline_route = read_json(MAINLINE_ROUTE)
 
     if bundle.get("bundle_contract_model") != "membership_only_v1":
         raise SelectionError("ordered_map bundle is not membership_only_v1")
@@ -211,6 +217,23 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if smoke_claims.get(key) != 0:
             raise SelectionError(f"minimal smoke result must keep {key}=0")
+    if mainline_route.get("kind") != "DerivedMainlineRouteSelectionV1":
+        raise SelectionError("mainline route has wrong kind")
+    if (
+        mainline_route.get("route_slot_id")
+        != "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1"
+    ):
+        raise SelectionError("mainline route has wrong route_slot_id")
+    profiles = mainline_route.get("profiles") or {}
+    if profiles.get("selfhost_mainline", {}).get("route") != "derived_hako":
+        raise SelectionError("mainline route does not select derived_hako for selfhost")
+    if profiles.get("rust_bootstrap", {}).get("route") != "rust_bootstrap":
+        raise SelectionError("mainline route does not retain rust_bootstrap")
+    if mainline_route.get("fallback_policy") != "Forbidden":
+        raise SelectionError("mainline route fallback must be forbidden")
+    route_claims = mainline_route.get("claims") or {}
+    if route_claims.get("runtime_try_hako_then_rust_fallback") != 0:
+        raise SelectionError("mainline route must not permit runtime fallback")
 
     return [
         {
@@ -254,6 +277,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "family_id": "hakorune_mir_builder::minimal_execution_path",
             "manifest_path": rel(MINIMAL_SMOKE_RESULT),
             "artifact_state": "Observed",
+        },
+        {
+            "capability": "MirBuilderAllocationPolicyMainlinePilot",
+            "contract_kind": "DerivedMainlineRouteSelectionV1",
+            "family_id": mainline_route.get("family_id"),
+            "manifest_path": rel(MAINLINE_ROUTE),
+            "artifact_state": "DerivedMainline",
         },
         {
             "capability": "CoreContext.scalar_counters_and_id_generators",
@@ -421,12 +451,27 @@ def build_plan() -> dict[str, Any]:
             "id": "mainline_pilot.selection",
             "callsite": "MirBuilder allocation policy mainline pilot selection",
             "required_capability": "MirBuilderAllocationPolicyMainlinePilot",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "MirBuilderAllocationPolicyMainlinePilot",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "MainlineSelectionRequired",
                 "semantic_owner": "MirBuilder allocation policy mainline pilot",
                 "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
+            },
+        },
+        {
+            "id": "minimal_execution_path.next_edge_selection",
+            "callsite": "Minimal MirBuilder execution path next live edge selection",
+            "required_capability": "NextMinimalExecutionPathEdgeSelection",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "NextMinimalExecutionPathEdgeRequired",
+                "semantic_owner": "minimal MirBuilder execution path frontier",
+                "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
             },
         },
     ]
@@ -597,11 +642,11 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "MirBuilder allocation policy mainline pilot selection",
+        "callsite": "Minimal MirBuilder execution path next live edge selection",
         "deny_reason": "UnsupportedDirectShape",
-        "deny_detail": "MainlineSelectionRequired",
-        "semantic_owner": "MirBuilder allocation policy mainline pilot",
-        "next_slice_token": "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001",
+        "deny_detail": "NextMinimalExecutionPathEdgeRequired",
+        "semantic_owner": "minimal MirBuilder execution path frontier",
+        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:
@@ -612,6 +657,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

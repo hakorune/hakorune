@@ -15,7 +15,13 @@ from family_artifact_builders import (
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_core_context_artifacts import core_context_contract, core_context_spec
-from shared_family_generator import read_json, run_family_generator, stable_json, write_if_changed
+from shared_family_generator import (
+    read_json,
+    run_family_generator,
+    rust_manifest_file_entry,
+    stable_json,
+    write_if_changed,
+)
 from verified_family_artifact_contract import ArtifactIdentity, VerifiedFamilyArtifactContractV1
 from verified_hako_family_ir import op
 
@@ -28,6 +34,9 @@ ID_ALLOC = ROOT / "src/mir/builder/utils/id_alloc.rs"
 COMPOSITION = FIXTURES / "mirbuilder-next-value-id-composition-plan-v0.json"
 PROJECTION = FIXTURES / "mirbuilder-next-value-id-execution-projection-v0.json"
 ORACLE = FIXTURES / "mirbuilder-next-value-id-prepared-state-oracle-v0.json"
+MAINLINE_SELECTION_PLAN = (
+    FIXTURES / "mirbuilder-allocation-policy-mainline-selection-plan-v0.json"
+)
 
 
 def _var(name: str) -> dict[str, str]:
@@ -270,6 +279,8 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
     oracle = build_oracle()
     validate_projection(projection, oracle)
     contract = _contract(projection)
+    selection_plan = read_json(MAINLINE_SELECTION_PLAN)
+    _validate_mainline_selection_plan(selection_plan)
     core_spec = core_context_spec()
     core_next_value = [
         method for method in core_spec.api_methods if method.signature == "next_value(ctx): i64"
@@ -441,7 +452,7 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
             op("ReturnI64", return_value=0),
         ],
         family_id=contract.family_id,
-        state="DerivedShadow",
+        state="DerivedMainline",
         source_rust_file=ID_ALLOC,
         hako_path=OUT_DIR / "mirbuilder_next_value_id_prepared_state_kernel.hako",
         facts_path=COMPOSITION,
@@ -457,11 +468,16 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
             "generated_hako_manual_edit": 0,
             "prepared_state_policy_kernel": 1,
             "full_mirbuilder_object_method": 0,
-            "mainline_selected": 0,
+            "mainline_selected": 1,
+            "rust_bootstrap_retained": 1,
+            "source_selfhost_claim": 0,
+            "hako_adopted": 0,
+            "native_hako_edit_authority": 0,
             "backend_behavior_changed": 0,
             "runtime_fallback": 0,
             "new_backend_route": 0,
             "new_abi": 0,
+            "new_canonical_mir_instruction": 0,
         },
         verifier_checks=contract.verifier_checks(
             {
@@ -495,6 +511,41 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
         denied_boundaries=list(projection["non_claims"].keys()),
         extra_manifest_fields=contract.manifest_extra_fields(),
     )
+
+
+def _validate_mainline_selection_plan(plan: dict[str, Any]) -> None:
+    if plan.get("kind") != "MirBuilderAllocationPolicyMainlineSelectionPlanV1":
+        raise ValueError("mainline selection plan has wrong kind")
+    if plan.get("family_id") != "hakorune_mir_builder::next_value_id_prepared_state_kernel":
+        raise ValueError("mainline selection plan has wrong family_id")
+    if (
+        plan.get("route_slot_id")
+        != "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1"
+    ):
+        raise ValueError("mainline selection plan has wrong route_slot_id")
+    if plan.get("selected_scope") != "PreparedStateMirBuilderNextValueIdKernel":
+        raise ValueError("mainline selection plan has wrong selected_scope")
+    if (
+        plan.get("selected_capability")
+        != "MirBuilderAllocationPolicy.prepared_state_next_value_id"
+    ):
+        raise ValueError("mainline selection plan has wrong selected_capability")
+    profiles = plan.get("profiles") or {}
+    if profiles.get("selfhost_mainline", {}).get("route") != "derived_hako":
+        raise ValueError("selfhost_mainline must select derived_hako")
+    for profile in ["rust_bootstrap", "platform_bringup"]:
+        if profiles.get(profile, {}).get("route") != "rust_bootstrap":
+            raise ValueError(f"{profile} must retain rust_bootstrap")
+    if plan.get("state_transition") != {"from": "DerivedShadow", "to": "DerivedMainline"}:
+        raise ValueError("mainline selection plan has wrong state transition")
+    if plan.get("selection_timing") != "PreExecutionArtifactGraphComposition":
+        raise ValueError("mainline selection must be pre-execution")
+    if plan.get("fallback_policy") != "Forbidden":
+        raise ValueError("fallback policy must be forbidden")
+    for key, value in (plan.get("claims") or {}).items():
+        expected = 1 if key in {"prepared_state_policy_kernel", "mainline_selected", "rust_bootstrap_retained"} else 0
+        if value != expected:
+            raise ValueError(f"unexpected mainline selection claim {key}={value}")
 
 
 def _projection_and_oracle_text() -> tuple[str, str]:
@@ -533,6 +584,19 @@ def _outputs() -> list[tuple[Path, str]]:
         recipe_text=recipe_text,
         verifier_text=verifier_text,
     )
+    manifest = read_json_from_text(manifest_text)
+    manifest.setdefault("inputs", {})["mainline_selection_plan"] = rust_manifest_file_entry(
+        path=MAINLINE_SELECTION_PLAN,
+        root=ROOT,
+    )
+    manifest["mainline_selection"] = {
+        "kind": "MirBuilderAllocationPolicyMainlineSelectionPlanV1",
+        "plan_path": str(MAINLINE_SELECTION_PLAN.relative_to(ROOT)),
+        "route_slot_id": "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1",
+        "selection_timing": "PreExecutionArtifactGraphComposition",
+        "fallback_policy": "Forbidden",
+    }
+    manifest_text = stable_json(manifest)
     outputs: list[tuple[Path, str]] = [
         (PROJECTION, projection_text),
         (ORACLE, oracle_text),
@@ -548,6 +612,12 @@ def _outputs() -> list[tuple[Path, str]]:
         ]
     )
     return outputs
+
+
+def read_json_from_text(text: str) -> dict[str, Any]:
+    import json
+
+    return json.loads(text)
 
 
 def run_prepared_state_kernel_generator(*, check: bool) -> None:

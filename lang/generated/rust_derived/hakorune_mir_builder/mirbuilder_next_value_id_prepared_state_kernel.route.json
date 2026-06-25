@@ -1,0 +1,63 @@
+{
+  "artifact": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.hako",
+    "hako_sha256": "e3fdf7c0a9c76c74911451ee8a8f374ff3ec93a0244fe5a22c682c5783156d0f",
+    "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json",
+    "manifest_sha256": "53c013de80958bf34d08579cd29523972b7cad18d5a8ea275c6c5512e53a7d0f",
+    "state": "DerivedMainline"
+  },
+  "claims": {
+    "mainline_selected": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_try_hako_then_rust_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "fallback_policy": "Forbidden",
+  "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+  "kind": "DerivedMainlineRouteSelectionV1",
+  "profiles": {
+    "platform_bringup": {
+      "provider": "src/mir/builder/utils/id_alloc.rs",
+      "route": "rust_bootstrap"
+    },
+    "rust_bootstrap": {
+      "provider": "src/mir/builder/utils/id_alloc.rs",
+      "route": "rust_bootstrap"
+    },
+    "selfhost_mainline": {
+      "provider": "checked_in_generated_hako",
+      "route": "derived_hako"
+    }
+  },
+  "route_slot_id": "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1",
+  "schema_version": 0,
+  "selected_capability": "MirBuilderAllocationPolicy.prepared_state_next_value_id",
+  "selected_route_closure": [
+    {
+      "classification": "SameArtifactHako",
+      "symbol": "MirBuilderAllocationPolicyApi.next_value_id/4"
+    },
+    {
+      "classification": "SameArtifactHako",
+      "symbol": "FunctionValueIdCounterStateApi.next/1"
+    },
+    {
+      "classification": "SameArtifactHako",
+      "symbol": "ReservedValueIdMembershipViewApi.has/2"
+    },
+    {
+      "classification": "SameArtifactHako",
+      "symbol": "CoreContextApi.next_value/1"
+    },
+    {
+      "classification": "AllowedHostSubstrate",
+      "symbol": "ValueIdOrderedMapBox"
+    }
+  ],
+  "selected_scope": "PreparedStateMirBuilderNextValueIdKernel",
+  "selection_plan": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-mainline-selection-plan-v0.json",
+    "sha256": "168024f1d3c9d8830dbf22ec9c6d1d5007beff9c3cf45d564e4de14fb29d6222"
+  }
+}

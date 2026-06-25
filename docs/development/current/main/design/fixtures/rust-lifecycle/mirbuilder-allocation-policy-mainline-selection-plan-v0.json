@@ -1,0 +1,57 @@
+{
+  "claims": {
+    "full_mirbuilder_object_method": 0,
+    "hako_adopted": 0,
+    "mainline_selected": 1,
+    "native_hako_edit_authority": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "prepared_state_policy_kernel": 1,
+    "runtime_fallback": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "derived_provider": {
+    "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json",
+    "contract_kind": "VerifiedFamilyArtifactContractV1"
+  },
+  "fallback_policy": "Forbidden",
+  "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+  "kind": "MirBuilderAllocationPolicyMainlineSelectionPlanV1",
+  "non_authority": {
+    "artifact_existence_alone": 1,
+    "bundle_manifest": 1,
+    "callee_name": 1,
+    "coverage_percentage": 1
+  },
+  "profiles": {
+    "platform_bringup": {
+      "route": "rust_bootstrap"
+    },
+    "rust_bootstrap": {
+      "route": "rust_bootstrap"
+    },
+    "selfhost_mainline": {
+      "route": "derived_hako"
+    }
+  },
+  "route_slot_id": "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1",
+  "rust_provider": {
+    "roles": [
+      "bootstrap",
+      "platform_bringup",
+      "oracle"
+    ],
+    "route": "rust_bootstrap",
+    "source": "src/mir/builder/utils/id_alloc.rs"
+  },
+  "schema_version": 0,
+  "selected_capability": "MirBuilderAllocationPolicy.prepared_state_next_value_id",
+  "selected_scope": "PreparedStateMirBuilderNextValueIdKernel",
+  "selection_timing": "PreExecutionArtifactGraphComposition",
+  "state_transition": {
+    "from": "DerivedShadow",
+    "to": "DerivedMainline"
+  }
+}

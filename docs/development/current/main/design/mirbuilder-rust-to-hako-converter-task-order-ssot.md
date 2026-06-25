@@ -20,16 +20,16 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001
 
 current implementation task:
-  Select the explicit mainline pilot surface after minimal execution smoke.
+  Refresh the frontier after the allocation-policy mainline pilot.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
 
 selected lowering:
-  explicit artifact contracts -> minimal smoke proof -> mainline pilot design stop
+  explicit artifact contracts -> mainline route selection -> next frontier
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, and minimal execution smoke are green; frontier advances to mainline pilot selection.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, and the allocation-policy mainline pilot are green; frontier advances to next-edge selection.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001
 
 current fail-fast boundary:
-  The next slice is a design-selection stop. It must not silently select mainline routes, widen source authority, or add runtime fallback.
+  The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  Minimal execution smoke is green. Proceed to mainline pilot selection only after the explicit adoption surface is designed.
+  Prepared-state allocation policy mainline selection is green for one family only. Proceed to frontier refresh, not full build_module mainline.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -115,7 +115,8 @@ mir_function_constructor_composition green
 mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
-derived_first_red_edge=MainlineSelectionRequired
+mirbuilder_allocation_policy_mainline_pilot green
+derived_first_red_edge=NextMinimalExecutionPathEdgeRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -145,6 +146,7 @@ mir_function_constructor_composition = landed
 mirbuilder_literal_integer_lowering = landed
 mirbuilder_bounded_finalize_composition = landed
 mirbuilder_minimal_execution_path_smoke = landed
+mirbuilder_allocation_policy_mainline_pilot = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -154,23 +156,22 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Mainline pilot design
+1. Minimal execution path frontier refresh
    status=selected
-   boundary=allocation policy mainline adoption surface only
-   semantic_authority=explicit adoption policy
-   non_authority=artifact existence
-
-2. Allocation policy mainline pilot
-   status=parked until design selected
-   boundary=explicit route selection only
-   semantic_authority=mainline adoption policy
-   non_authority=silent fallback
-
-3. Next minimal execution path edge
-   status=parked until mainline pilot green
-   boundary=frontier analyzer result
-   semantic_authority=live source order plus contracts
+   boundary=derive next unsupported live edge
+   semantic_authority=frontier analyzer
    non_authority=manual next-edge selection
+
+2. Next semantic owner
+   status=parked until frontier refresh green
+   boundary=first unsupported edge only
+   semantic_authority=live source order plus contracts
+   non_authority=coverage percentage
+
+3. Wider minimal path mainline
+   status=parked until all selected edges have executable artifacts
+   boundary=build_module AST Literal Integer(0) only
+   semantic_authority=mainline adoption policy; non_authority=smoke alone
 ```
 
 ## Landed Converter Capability Summary

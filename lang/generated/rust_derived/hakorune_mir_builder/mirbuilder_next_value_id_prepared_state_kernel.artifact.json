@@ -3,11 +3,16 @@
     "backend_behavior_changed": 0,
     "full_mirbuilder_object_method": 0,
     "generated_hako_manual_edit": 0,
-    "mainline_selected": 0,
+    "hako_adopted": 0,
+    "mainline_selected": 1,
+    "native_hako_edit_authority": 0,
     "new_abi": 0,
     "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
     "prepared_state_policy_kernel": 1,
-    "runtime_fallback": 0
+    "runtime_fallback": 0,
+    "rust_bootstrap_retained": 1,
+    "source_selfhost_claim": 0
   },
   "excluded_methods": [],
   "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
@@ -19,6 +24,10 @@
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-composition-plan-v0.json",
       "sha256": "c6845926db0ff7f8b28c01963f196a331058fe2e3a03b53c0dcad0974cd532d5"
+    },
+    "mainline_selection_plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-mainline-selection-plan-v0.json",
+      "sha256": "168024f1d3c9d8830dbf22ec9c6d1d5007beff9c3cf45d564e4de14fb29d6222"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-oracle-v0.json",
@@ -38,6 +47,13 @@
     }
   },
   "kind": "RustDerivedHakoArtifact",
+  "mainline_selection": {
+    "fallback_policy": "Forbidden",
+    "kind": "MirBuilderAllocationPolicyMainlineSelectionPlanV1",
+    "plan_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-mainline-selection-plan-v0.json",
+    "route_slot_id": "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1",
+    "selection_timing": "PreExecutionArtifactGraphComposition"
+  },
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.hako",
     "hako_sha256": "e3fdf7c0a9c76c74911451ee8a8f374ff3ec93a0244fe5a22c682c5783156d0f"
@@ -52,5 +68,5 @@
       }
     ]
   },
-  "state": "DerivedShadow"
+  "state": "DerivedMainline"
 }

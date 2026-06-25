@@ -265,16 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1695-MIRBUILDER-MINIMAL-EXECUTION-PATH-SMOKE-001.md"
-latest_card_summary = """Minimal execution path smoke is green for
-PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)). It observes
-main ConstValue::Integer(0), Integer return type, Return of the literal dst,
-and source-required condition_fn injection without claiming full MirBuilder
-authority, generated Hako, mainline selection, backend routes, ABI, or runtime
-fallback. The frontier now advances to MainlineSelectionRequired."""
+latest_card = "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1696-MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001.md"
+latest_card_summary = """Prepared-state allocation policy is selected on the
+selfhost mainline through MirBuilderAllocationPolicyMainlineSelectionPlanV1 and
+DerivedMainlineRouteSelectionV1. The selected scope is only the
+next_value_id prepared-state kernel; rust_bootstrap remains a separate route,
+fallback is forbidden, generated Hako bytes are unchanged, and no full
+MirBuilder/source-selfhost/HakoAdopted claim is made. The frontier now advances
+to NextMinimalExecutionPathEdgeRequired."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-MAINLINE-PILOT-001"
+current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
