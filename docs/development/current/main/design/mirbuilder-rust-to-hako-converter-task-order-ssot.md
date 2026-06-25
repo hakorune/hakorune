@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
   - docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
   - docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
+  - docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md
 ---
 
 # MirBuilder Rust-to-Hako Converter Task Order
@@ -83,7 +84,7 @@ current fail-fast boundary:
   The next slice may only materialize condition_fn injection as a reusable generated Hako artifact for the prepared minimal profile. It must not claim region cleanup, metadata publication, full finalize_module, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.condition_fn_injection, so proceed to condition_fn injection artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.condition_fn_injection, so proceed to condition_fn injection artifact materialization. After that slice lands, stop widening Python semantic projection growth before continuing derived artifact expansion: classify Python converter roles, freeze new Python SemanticProjector growth, then select allocation-policy Hako adoption and ReturnEmission Hako shadow projector follow-ons.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -223,16 +224,17 @@ history, not in this task-order SSOT.
    semantic_authority=semantic closure report first_executable_materialization_gap
    non_authority=region cleanup, full finalize, or mainline claim
 
-2. Next executable materialization gap
+2. Python semantic projector growth freeze
    status=parked until condition_fn injection artifact is green
-   boundary=source-order earliest remaining executable gap
-   semantic_authority=semantic closure report regenerated after artifact
-   non_authority=coverage percentage or bundle size
+   boundary=role-classify Python converter tooling and forbid new Python SemanticProjector growth
+   semantic_authority=rust-to-hako-converter-implementation-role-ssot
+   non_authority=deleting existing Python bootstrap/oracle tooling
 
-3. Wider minimal path mainline
-   status=parked until all selected edges have executable artifacts
-   boundary=build_module AST Literal Integer(0) only
-   semantic_authority=mainline adoption policy; non_authority=smoke alone
+3. Allocation-policy Hako adoption decision
+   status=parked until Python growth freeze is green
+   boundary=first HakoAdopted decision candidate from an already-DerivedMainline family
+   semantic_authority=derived-to-native artifact model + allocation-policy route selection
+   non_authority=ReturnEmission adoption or full minimal path mainline claim
 ```
 
 ## Landed Converter Capability Summary
