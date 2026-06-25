@@ -265,20 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1734-MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """MirBuilder PHI return-type inference now has a
+latest_card = "MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1735-MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """MirBuilder PHI input materialization now has a
 DerivedShadow Hako artifact for the prepared minimal profile. The artifact
-materializes the source-derived resolver-chain frame for
-phi_type_inference::infer_return_type_from_phi and updates the prepared
-function signature return-type shell while PHI input materialization, module
-function insertion, full finalize_module, mainline selection, and source
-selfhost remain non-claims. The semantic closure report now derives
-finalize_module.phi_input_materialization as the first executable
-materialization gap. The next blocker is
-MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001."""
+materializes the source-derived materialize_all_phi_inputs step sequence and
+returns a PhiInputMaterializationResultBox while dev birth verification,
+module insertion, all-functions PHI materialization, full finalize_module,
+mainline selection, and source selfhost remain non-claims. The semantic
+closure report now derives finalize_module.dev_birth_verification as the
+first executable materialization gap. The next blocker is
+MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

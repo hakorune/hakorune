@@ -1,0 +1,33 @@
+{
+  "kind": "MirBuilderPhiInputMaterializationDerivedHakoOracleV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "condition_fn_injection": 0,
+    "dev_birth_verification": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "module_function_insertion": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module phi_input_materializer::materialize_all_phi_inputs",
+  "vectors": [
+    {
+      "expect": {
+        "changed_count": 1,
+        "dev_birth_verification": 0,
+        "function_blocks_mutated": 1,
+        "function_next_value_id_mutated": 1,
+        "materialization_steps": 7,
+        "ok": 1
+      },
+      "inputs": {
+        "context": "finalize_module",
+        "function_transport": "MirFunctionPreparedMain",
+        "initial_next_value_id": 10
+      },
+      "name": "prepared_phi_input_materialization_records_step_order_and_changed_count"
+    }
+  ]
+}

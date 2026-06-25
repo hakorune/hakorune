@@ -1,0 +1,67 @@
+{
+  "checks": {
+    "context": "finalize_module",
+    "dev_birth_verification": 0,
+    "entrypoint": "phi_input_materializer::materialize_all_phi_inputs",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "materialization_steps": [
+      "PruneUnusedPhiInstructions",
+      "CompleteMissingSelfCarriedPhiInputs",
+      "CollectPhiInputWorklist",
+      "BuildDefBlocksAndDominators",
+      "RematerializeIncomingPerPredWithMemo",
+      "RewritePhiInputSlots",
+      "ReturnChangedCount"
+    ],
+    "minimal_path_expected_result": "Result<usize, String>",
+    "phi_input_materialization_only": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "phi_input_materialization_minimal_literal_profile_only"
+  },
+  "denied_boundaries": [
+    "dev_birth_verification",
+    "module_function_insertion",
+    "condition_fn_injection",
+    "all_functions_phi_materialization",
+    "semantic_refresh",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::phi_input_materialization",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "PhiInputMaterialization_minimal_literal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-phi-input-materialization-plan-v0.json",
+  "source_plan": "mirbuilder-phi-input-materialization-plan-v0.json",
+  "source_recipe": "mirbuilder-phi-input-materialization-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.phi_input_materialization",
+  "transport_notes": {
+    "context": "finalize_module",
+    "dev_birth_verification": 0,
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "materialization_steps": [
+      "PruneUnusedPhiInstructions",
+      "CompleteMissingSelfCarriedPhiInputs",
+      "CollectPhiInputWorklist",
+      "BuildDefBlocksAndDominators",
+      "RematerializeIncomingPerPredWithMemo",
+      "RewritePhiInputSlots",
+      "ReturnChangedCount"
+    ],
+    "module_function_insertion": "unselected",
+    "mutation_frame": [
+      "function.blocks",
+      "function.next_value_id"
+    ]
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "PhiInputMaterializationShell"
+  ]
+}

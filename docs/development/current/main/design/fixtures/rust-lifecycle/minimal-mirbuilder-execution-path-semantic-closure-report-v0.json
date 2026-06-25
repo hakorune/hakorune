@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 11,
+      "PlanOnly": 10,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 17
+      "VerifiedArtifact": 18
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 17,
-      "Missing": 11,
+      "ExecutableArtifactPresent": 18,
+      "Missing": 10,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 16,
+      "DerivedShadow": 17,
       "NotApplicable": 4,
-      "Unselected": 11
+      "Unselected": 10
     }
   },
   "edges": [
@@ -406,15 +406,15 @@
       "status": "Available",
       "required_capability": "PhiInputMaterialization",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "PhiInputMaterialization",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::phi_input_materialization",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-input-materialization-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_input_materialization.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.phi_input_materialization",
-    "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
-    "required_capability": "PhiInputMaterialization",
-    "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.dev_birth_verification",
+    "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
+    "required_capability": "DevBirthVerification",
+    "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {
