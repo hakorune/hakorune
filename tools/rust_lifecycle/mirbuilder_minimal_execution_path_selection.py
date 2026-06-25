@@ -69,6 +69,9 @@ TYPE_HINT_PROVISION_PLAN = (
 METADATA_VALUE_TYPE_PUBLICATION_PLAN = (
     FIXTURES / "mirbuilder-metadata-value-type-publication-plan-v0.json"
 )
+METADATA_ORIGIN_CALLER_MERGE_PLAN = (
+    FIXTURES / "mirbuilder-metadata-origin-caller-merge-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -168,6 +171,7 @@ def contract_sources() -> list[dict[str, Any]]:
     type_propagation_pipeline = read_json(TYPE_PROPAGATION_PIPELINE_PLAN)
     type_hint_provision = read_json(TYPE_HINT_PROVISION_PLAN)
     metadata_value_type_publication = read_json(METADATA_VALUE_TYPE_PUBLICATION_PLAN)
+    metadata_origin_caller_merge = read_json(METADATA_ORIGIN_CALLER_MERGE_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -386,6 +390,26 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if metadata_value_non_claims.get(key) != 0:
             raise SelectionError(f"metadata value-type publication plan must keep {key}=0")
+    if (
+        metadata_origin_caller_merge.get("kind")
+        != "MirBuilderMetadataOriginCallerMergePlanV1"
+    ):
+        raise SelectionError("metadata origin-caller merge plan has wrong kind")
+    metadata_origin_caps = set(metadata_origin_caller_merge.get("available_capabilities") or [])
+    if "MetadataOriginCallerMerge" not in metadata_origin_caps:
+        raise SelectionError("metadata origin-caller merge plan lacks MetadataOriginCallerMerge")
+    merge = metadata_origin_caller_merge.get("merge") or {}
+    if merge.get("collision_policy") != "SourceWins":
+        raise SelectionError("metadata origin-caller merge collision policy drift")
+    metadata_origin_non_claims = metadata_origin_caller_merge.get("non_claims") or {}
+    for key in [
+        "phi_return_type_inference",
+        "phi_input_materialization",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if metadata_origin_non_claims.get(key) != 0:
+            raise SelectionError(f"metadata origin-caller merge plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -511,6 +535,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::metadata_value_type_publication",
             "manifest_path": rel(METADATA_VALUE_TYPE_PUBLICATION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "MetadataOriginCallerMerge",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
+            "manifest_path": rel(METADATA_ORIGIN_CALLER_MERGE_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -828,12 +859,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.metadata_origin_caller_merge",
             "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
             "required_capability": "MetadataOriginCallerMerge",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "MetadataOriginCallerMerge",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "MetadataOriginCallerMergeRequired",
                 "semantic_owner": "MirBuilder::finalize_module metadata origin-caller merge",
                 "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001",
+            },
+        },
+        {
+            "id": "finalize_module.phi_return_type_inference",
+            "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
+            "required_capability": "PhiReturnTypeInference",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "PhiReturnTypeInferenceRequired",
+                "semantic_owner": "MirBuilder::finalize_module PHI return type inference",
+                "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001",
             },
         },
     ]
@@ -1027,6 +1073,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

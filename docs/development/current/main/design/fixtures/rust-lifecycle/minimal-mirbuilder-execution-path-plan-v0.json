@@ -92,6 +92,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-value-type-publication-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "MetadataOriginCallerMerge",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-origin-caller-merge-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -428,13 +435,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
       "id": "finalize_module.metadata_origin_caller_merge",
-      "provider": null,
+      "provider": {
+        "capability": "MetadataOriginCallerMerge",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "MetadataOriginCallerMerge",
       "unsupported": {
         "deny_detail": "MetadataOriginCallerMergeRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001",
         "semantic_owner": "MirBuilder::finalize_module metadata origin-caller merge"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
+      "id": "finalize_module.phi_return_type_inference",
+      "provider": null,
+      "required_capability": "PhiReturnTypeInference",
+      "unsupported": {
+        "deny_detail": "PhiReturnTypeInferenceRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001",
+        "semantic_owner": "MirBuilder::finalize_module PHI return type inference"
       }
     }
   ],

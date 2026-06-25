@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
-    "deny_detail": "MetadataOriginCallerMergeRequired",
+    "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
+    "deny_detail": "PhiReturnTypeInferenceRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.metadata_origin_caller_merge",
-    "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001",
-    "required_capability": "MetadataOriginCallerMerge",
-    "semantic_owner": "MirBuilder::finalize_module metadata origin-caller merge",
+    "edge_id": "finalize_module.phi_return_type_inference",
+    "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001",
+    "required_capability": "PhiReturnTypeInference",
+    "semantic_owner": "MirBuilder::finalize_module PHI return type inference",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -284,12 +284,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
-      "deny_detail": "MetadataOriginCallerMergeRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "MetadataOriginCallerMerge",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-origin-caller-merge-plan-v0.json"
+      },
       "edge_id": "finalize_module.metadata_origin_caller_merge",
-      "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-001",
       "required_capability": "MetadataOriginCallerMerge",
-      "semantic_owner": "MirBuilder::finalize_module metadata origin-caller merge",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
+      "deny_detail": "PhiReturnTypeInferenceRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.phi_return_type_inference",
+      "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001",
+      "required_capability": "PhiReturnTypeInference",
+      "semantic_owner": "MirBuilder::finalize_module PHI return type inference",
       "status": "Unsupported"
     }
   ],

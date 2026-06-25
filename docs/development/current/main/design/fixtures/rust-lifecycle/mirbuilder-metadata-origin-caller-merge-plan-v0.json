@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMetadataOriginCallerMergePlanV1",
+  "subject": "MirBuilder::finalize_module function.metadata.value_origin_callers merge",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "predecessor_plan": "mirbuilder-metadata-value-type-publication-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "function_transport": "MirFunctionPreparedMain",
+    "source": "self.metadata_ctx.value_origin_callers()",
+    "base": "function.metadata.value_origin_callers",
+    "target": "function.metadata.value_origin_callers"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "function.metadata.value_types = self.type_ctx.value_types.clone();",
+        "byte_offset": 2192
+      },
+      {
+        "marker": "let mut origin_callers = function.metadata.value_origin_callers.clone();",
+        "byte_offset": 2267
+      },
+      {
+        "marker": "for (k, v) in self.metadata_ctx.value_origin_callers().iter()",
+        "byte_offset": 2348
+      },
+      {
+        "marker": "origin_callers.insert(*k, v.clone());",
+        "byte_offset": 2424
+      },
+      {
+        "marker": "function.metadata.value_origin_callers = origin_callers;",
+        "byte_offset": 2480
+      },
+      {
+        "marker": "phi_type_inference::infer_return_type_from_phi",
+        "byte_offset": 2835
+      }
+    ]
+  },
+  "merge": {
+    "base_operation": "CloneExistingFunctionMap",
+    "source_iteration": "BorrowedMetadataContextValueOriginCallersIter",
+    "entry_operation": "InsertClonedValue",
+    "collision_policy": "SourceWins",
+    "target_assignment": "ReplaceFunctionMetadataValueOriginCallers"
+  },
+  "available_capabilities": [
+    "MetadataOriginCallerMerge"
+  ],
+  "result_contract": {
+    "mutates": [
+      "function.metadata.value_origin_callers"
+    ],
+    "entrypoint": "function.metadata.value_origin_callers = origin_callers",
+    "minimal_path_expected_result": "OkImplicitUnit"
+  },
+  "non_claims": {
+    "phi_return_type_inference": 0,
+    "phi_input_materialization": 0,
+    "module_function_insertion": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}
