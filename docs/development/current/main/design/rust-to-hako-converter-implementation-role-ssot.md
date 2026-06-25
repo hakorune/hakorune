@@ -313,6 +313,52 @@ ReturnEmissionHakoProjector
   -> StringBox / ArrayBox / OrderedMapBox
 ```
 
+Placement:
+
+```text
+compiler-only helper library:
+  lang/src/compiler/lib/**
+
+shared reusable JSON/text library:
+  lang/src/shared/json/**
+  lang/src/shared/common/**
+
+host-backed facade:
+  lang/src/runtime/host/**
+
+low-level substrate implementation:
+  lang/src/runtime/substrate/**
+
+native compiler family authority:
+  lang/src/mir/builder/**
+  lang/src/compiler/**
+```
+
+First placement for the projector support libraries:
+
+```text
+lang/src/compiler/lib/text_builder.hako
+lang/src/compiler/lib/projection_value.hako
+lang/src/compiler/lib/canonical_json.hako
+```
+
+Promotion rule:
+
+```text
+lang/src/compiler/lib/**
+  -> compiler-only, free to evolve with compiler projector needs
+
+lang/src/shared/json/**
+  -> promote only after multiple non-projector compiler users need it
+
+TypeBox ABI / value-repr manifest
+  -> add only when values cross Hako <-> host/plugin boundary
+```
+
+Do not create a distribution ABI for these helpers yet. Distribution can start
+as ordinary checked-in `.hako` modules. ABI packaging is a later boundary
+decision, not a prerequisite for compiler-library usefulness.
+
 `CompilerProjectionValueBox` is internal to compiler tooling. It should model:
 
 ```text
@@ -383,6 +429,31 @@ Language syntax/spec additions are last resort. A helper graduates from
 library to language only when multiple compiler families require it, the
 library cannot preserve type safety or optimization semantics, and VM/AOT
 behavior must be fixed as language meaning.
+
+## Open Design Boundaries
+
+No additional design consultation is required before the current freeze
+checkpoint or before a docs-only placement card for the compiler library.
+
+New consultation is required before any of these changes:
+
+```text
+TypeBox ABI exposure for compiler libraries
+host ABI facade for JSON/Text/projector semantics
+promotion from lang/src/compiler/lib to lang/src/shared/**
+promotion from library helper to language syntax/spec
+distribution/package ABI for compiler libraries
+hako.buf-backed TextBuilder implementation
+```
+
+The next executable work should stay docs/inventory first:
+
+```text
+1. PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
+2. HAKO-COMPILER-TEXT-BUILDER-V0-001
+3. HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001
+4. MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
+```
 
 ## Non-Claims
 

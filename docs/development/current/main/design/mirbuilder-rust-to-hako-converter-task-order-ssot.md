@@ -227,17 +227,17 @@ history, not in this task-order SSOT.
    semantic_authority=rust-to-hako-converter-implementation-role-ssot
    non_authority=deleting existing Python bootstrap/oracle tooling
 
-2. Allocation-policy Hako adoption decision
+2. Hako compiler TextBuilder and CanonicalJson library
+   status=parked until Python growth freeze is green
+   boundary=ordinary Hako compiler library under lang/src/compiler/lib, no ABI surface
+   semantic_authority=rust-to-hako-converter-implementation-role-ssot
+   non_authority=TypeBox ABI, host ABI, distribution packaging, or language syntax
+
+3. Allocation-policy Hako adoption decision
    status=parked until Python growth freeze is green
    boundary=first HakoAdopted decision candidate from an already-DerivedMainline family
    semantic_authority=derived-to-native artifact model + allocation-policy route selection
    non_authority=ReturnEmission adoption or full minimal path mainline claim
-
-3. ReturnEmission Hako shadow projector
-   status=parked until Hako compiler TextBuilder/CanonicalJson library support exists
-   boundary=first Hako SemanticProjector shadow over canonical ReturnEmission plan
-   semantic_authority=Python oracle plus Hako projector parity over JSON seam
-   non_authority=Rust source rescan, emitter rewrite, TypeBox ABI, or host ABI
 ```
 
 ## Landed Converter Capability Summary
