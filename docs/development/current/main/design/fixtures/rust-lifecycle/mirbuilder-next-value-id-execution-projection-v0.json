@@ -1,0 +1,66 @@
+{
+  "directability": {
+    "full_mirbuilder_object_method": "Deny",
+    "prepared_state_policy_kernel": "Allow"
+  },
+  "exclusion_transport": {
+    "access": "ReadOnly",
+    "exposed_operation": "has",
+    "physical_pilot": "ReservedValueIdMembershipViewBox",
+    "semantic": "ReservedValueIdMembership",
+    "substrate": "ValueIdOrderedMapBox"
+  },
+  "execution_scope": "PreparedStatePolicyKernel",
+  "function_state_transport": {
+    "lane": "i64",
+    "nominal_result": "ValueIdAsI64",
+    "operation": "TakeThenIncrementI64",
+    "physical": "FunctionValueIdCounterState.next_value_id",
+    "semantic": "MirFunction.next_value_id"
+  },
+  "kind": "MirBuilderNextValueIdExecutionProjectionV1",
+  "module_state_transport": {
+    "artifact_contract": "CoreContext VerifiedFamilyArtifactContractV1",
+    "called_method": "CoreContextApi.next_value",
+    "semantic": "CoreContext.value_gen"
+  },
+  "mutation_frame": {
+    "absent": "CoreContext value counter mutates, function counter unchanged",
+    "present": "function counter mutates, CoreContext value counter unchanged",
+    "rejected": "selected counter already consumed",
+    "reserved_view": "read-only"
+  },
+  "non_claims": {
+    "compilation_context_conversion": 0,
+    "formal_invalid_sentinel_exclusion": 0,
+    "full_mirfunction_conversion": 0,
+    "full_option_mirfunction_transport": 0,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "overflow_parity": 0,
+    "parameter_compatibility_fallback": 0,
+    "runtime_fallback": 0,
+    "scope_context_conversion": 0,
+    "total_termination": 0
+  },
+  "observation_closure": {
+    "core_context": "CoreContextApi.next_value only",
+    "current_function": "PresenceOnly",
+    "function_state": "next_value_id field only",
+    "reserved_set": "MembershipOnly"
+  },
+  "progress_precondition": "At least one unreserved candidate before overflow boundary",
+  "result_transport": "ValueIdAsI64",
+  "schema_version": 0,
+  "selector_transport": {
+    "canonical_values": {
+      "absent": 0,
+      "present": 1
+    },
+    "evaluation": "PerCandidateAttempt",
+    "physical": "CurrentFunctionPresenceI64BoolV0",
+    "semantic": "CurrentFunctionPresence"
+  },
+  "source_plan": "MirBuilderNextValueIdCompositionPlanV1"
+}

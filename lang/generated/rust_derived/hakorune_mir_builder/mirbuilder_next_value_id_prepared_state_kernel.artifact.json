@@ -1,0 +1,56 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_mirbuilder_object_method": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "prepared_state_policy_kernel": 1,
+    "runtime_fallback": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-next-value-id-prepared-state-kernel",
+    "version": "mirbuilder-next-value-id-prepared-state-kernel-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-composition-plan-v0.json",
+      "sha256": "c6845926db0ff7f8b28c01963f196a331058fe2e3a03b53c0dcad0974cd532d5"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-oracle-v0.json",
+      "sha256": "70ad7aa24c4b4d71793468a3c55fffa6823c5c8b6a982350060cae72252c7dd7"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-execution-projection-v0.json",
+      "sha256": "ccdaf166b00c5e2da49808004ecca1fd1ae9540bc1410d71eb29b03c7a216683"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-recipe-v0.json",
+      "sha256": "5669d593c22be982a7274e866d2af2c49b402019dcbc9b7a550cd9313e855f5c"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-verifier-result-v0.json",
+      "sha256": "6bd287130a66eb61214cd07b65b758ced260a01e1ad7f0e54effa1ee01f98128"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.hako",
+    "hako_sha256": "428775a937c14eb632d7f2c17da36b690b4d3edaa8aa21551a082eaab8902451"
+  },
+  "pilot_scope": "PreparedStateMirBuilderNextValueIdKernel",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/utils/id_alloc.rs",
+        "sha256": "300fe48fe9fb231909caa7376a92fd6d194a18f0e2a60f2b3afa89de399758b6"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

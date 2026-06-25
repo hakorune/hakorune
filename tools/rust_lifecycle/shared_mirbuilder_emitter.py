@@ -66,6 +66,12 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if target is None or "value" not in operation:
             raise ValueError("ArrayPush requires target and value")
         return [f"{target}.push({render_main_value(value)})"]
+    if kind == "SetField":
+        target = operation.get("target")
+        field = operation.get("field")
+        if not isinstance(target, str) or not isinstance(field, str) or "value" not in operation:
+            raise ValueError("SetField requires target, field, and value")
+        return [f"{target}.{field} = {render_main_value(operation['value'])}"]
     if kind == "AssertEq":
         left = operation.get("left")
         right = operation.get("right")

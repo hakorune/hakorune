@@ -1,0 +1,56 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "composition_plan_input": "verified",
+    "excluded_methods": [],
+    "execution_projection": "verified",
+    "full_mirbuilder_object_method": 0,
+    "prepared_state_policy_kernel": 1,
+    "reserved_membership_only": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "prepared_state_policy_kernel_methods_only",
+    "selector_per_candidate_attempt": 1
+  },
+  "denied_boundaries": [
+    "full_option_mirfunction_transport",
+    "full_mirfunction_conversion",
+    "scope_context_conversion",
+    "compilation_context_conversion",
+    "parameter_compatibility_fallback",
+    "formal_invalid_sentinel_exclusion",
+    "overflow_parity",
+    "total_termination",
+    "new_backend_route",
+    "new_abi",
+    "runtime_fallback",
+    "mainline_selected"
+  ],
+  "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "PreparedStateMirBuilderNextValueIdKernel",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-next-value-id-composition-plan-v0.json",
+  "source_plan": "mirbuilder-next-value-id-execution-projection-v0.json",
+  "source_recipe": "mirbuilder-next-value-id-prepared-state-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.next_value_id.prepared_state_kernel",
+  "transport_notes": {
+    "core_context_contract": "VerifiedFamilyArtifactContractV1",
+    "current_function_presence_transport": "CurrentFunctionPresenceI64BoolV0",
+    "full_mirbuilder_object_method_directability": "Deny",
+    "function_state_transport": "FunctionValueIdCounterAsI64",
+    "module_state_transport": "CoreContext VerifiedFamilyArtifactContractV1",
+    "raw_i64_truthiness": 0,
+    "reserved_membership_transport": "ReservedValueIdMembershipOnly",
+    "result_transport": "ValueIdAsI64"
+  },
+  "verified_operations": [
+    "TakeThenIncrementI64",
+    "ValueIdOrderedMapBox.set",
+    "ValueIdOrderedMapBox.has",
+    "StructuredLoop",
+    "IfElse",
+    "CallStatic",
+    "ReturnValue"
+  ]
+}

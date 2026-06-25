@@ -20,20 +20,19 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001
+  MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001
 
 current implementation task:
-  Implement the prepared-state generated Hako policy kernel for
-  MirBuilder::next_value_id.
+  Adopt the prepared-state next_value_id policy kernel into the MirBuilder
+  derived context bundle.
 
 selected source slice:
-  prepared-state policy kernel, not full MirBuilder object transport
+  membership-only bundle inclusion for the prepared-state policy kernel
 
 selected lowering:
-  MirBuilderNextValueIdCompositionPlanV1
-    -> MirBuilderNextValueIdExecutionProjectionV1
-    -> VerifiedHakoFamilyIR
-    -> generated Hako policy kernel
+  prepared-state policy kernel artifact
+    -> explicit bundle membership
+    -> bundle-level smoke
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -72,19 +71,18 @@ landed evidence:
   reserved retry oracle vectors.
 
 selected next owner:
-  MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001
+  MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001
 
 current fail-fast boundary:
-  The kernel may claim only prepared-state execution: current-function
-  presence, narrow function counter state, existing CoreContext contract, and
-  membership-only reserved view. It must not claim full MirBuilder,
-  ScopeContext, CompilationContext, full Option<MirFunction>, parameter
-  fallback, invalid sentinel exclusion, overflow, total termination, new
-  backend route, ABI, or runtime fallback.
+  Bundle adoption may claim explicit artifact membership and smoke execution
+  only. It must not claim full MirBuilder, mainline selection, HakoAdopted
+  source authority, parameter fallback, invalid sentinel exclusion, overflow,
+  new backend route, ABI, or runtime fallback.
 
 latest design decision:
-  Choose A: generated Hako artifact, but C-sized as a prepared-state policy
-  kernel. Reject backend direct metadata consumer and extra proof-only runner.
+  Prepared-state Hako policy kernel is green through deterministic generation,
+  MIR emission, direct same-module route, and EXE/AOT smoke. Proceed to bundle
+  adoption as membership, not source authority.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -107,6 +105,7 @@ function_local_value_id_allocator green
 reserved_value_exclusion_policy green
 mirbuilder_next_value_id_composition green
 allocation_policy_execution_surface_selected=prepared_state_hako_kernel
+mirbuilder_next_value_id_prepared_state_kernel green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -127,6 +126,7 @@ function_local_value_id_allocator = landed
 reserved_value_exclusion_policy = landed
 mirbuilder_next_value_id_composition = landed
 allocation_policy_execution_surface_consultation = landed
+mirbuilder_next_value_id_prepared_state_kernel = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -136,23 +136,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Prepared-state Hako policy kernel
+1. MirBuilder allocation policy bundle adoption
    status=selected
-   boundary=generated Hako kernel using prepared state only
-   semantic_authority=MirBuilderNextValueIdCompositionPlanV1
-   non_authority=full MirBuilder object transport
-
-2. MirBuilder allocation policy executable smoke
-   status=parked until prepared-state kernel is generated
-   boundary=EXE/AOT smoke for present/absent allocator branches
-   semantic_authority=MirBuilderNextValueIdExecutionProjectionV1
-   non_authority=backend direct metadata consumer
-
-3. MirBuilder allocation policy adoption into bundle
-   status=parked until executable smoke is green
-   boundary=compose allocation policy with existing context bundle
-   semantic_authority=explicit artifact or backend-consumer membership
+   boundary=explicit bundle membership for prepared-state kernel
+   semantic_authority=artifact manifest + explicit bundle membership
    non_authority=bundle size as conversion proof
+
+2. Minimal MirBuilder execution path selection
+   status=parked until bundle adoption is green
+   boundary=first generated context call graph beyond standalone artifacts
+   semantic_authority=first unsupported live edge
+   non_authority=coverage percentage
+
+3. MirBuilder allocation policy mainline pilot
+   status=parked until minimal execution path is green
+   boundary=explicit route selection between generated_hako and rust_bootstrap
+   semantic_authority=DerivedMainline adoption policy
+   non_authority=silent fallback
 ```
 
 ## Landed Converter Capability Summary

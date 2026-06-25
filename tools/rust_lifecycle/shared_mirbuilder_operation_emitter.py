@@ -48,6 +48,12 @@ def _render_expr(expr: Any) -> str:
             raise ValueError(f"{kind} expression requires left and right")
         op = {"AddI64": "+", "LtI64": "<", "EqI64": "=="}[kind]
         return f"{_render_expr(left)} {op} {_render_expr(right)}"
+    if kind == "CallStatic":
+        callee = expr.get("callee")
+        args = expr.get("args", [])
+        if not isinstance(callee, str) or not isinstance(args, list):
+            raise ValueError("CallStatic expression requires callee and args")
+        return f"{callee}({', '.join(_render_expr(arg) for arg in args)})"
     raise ValueError(f"unsupported Hako expression: {kind}")
 
 
@@ -82,6 +88,30 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
             lines.extend("    " + line if line else "" for line in _render_statement_operation(item))
         lines.append("}")
         return lines
+    if kind == "IfElse":
+        condition = operation.get("condition")
+        then_body = operation.get("then_body")
+        else_body = operation.get("else_body", [])
+        if condition is None or not isinstance(then_body, list) or not isinstance(else_body, list):
+            raise ValueError("IfElse requires condition, then_body, and else_body")
+        lines = [f"if {_render_expr(condition)} {{"]
+        for item in then_body:
+            if not isinstance(item, Mapping):
+                raise ValueError("IfElse then_body entries must be operations")
+            lines.extend("    " + line if line else "" for line in _render_statement_operation(item))
+        if else_body:
+            lines.append("} else {")
+            for item in else_body:
+                if not isinstance(item, Mapping):
+                    raise ValueError("IfElse else_body entries must be operations")
+                lines.extend("    " + line if line else "" for line in _render_statement_operation(item))
+        lines.append("}")
+        return lines
+    if kind == "ReturnValue":
+        value = operation.get("value")
+        if value is None:
+            raise ValueError("ReturnValue requires value")
+        return [f"return {_render_expr(value)}"]
     if kind == "ExplicitPhiI64":
         target = operation.get("target")
         condition = operation.get("condition")
@@ -440,7 +470,16 @@ def _render_for_each_ordered_map_entry(operation: Mapping[str, Any]) -> list[str
 
 def render_operation(operation: Mapping[str, Any]) -> list[str]:
     kind = operation["kind"]
-    if kind in {"LocalI64", "Assign", "ArrayPush", "StructuredLoop", "ExplicitPhiI64", "ExplicitMultiExitPhiI64Array"}:
+    if kind in {
+        "LocalI64",
+        "Assign",
+        "ArrayPush",
+        "StructuredLoop",
+        "IfElse",
+        "ReturnValue",
+        "ExplicitPhiI64",
+        "ExplicitMultiExitPhiI64Array",
+    }:
         return _render_statement_operation(operation)
     if kind == "MapGetOption":
         source = render_source_expr(operation)
@@ -724,6 +763,13 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             f"if {source} < 4294967295 {{",
             f"    {source} = {source} + 1",
             "}",
+            "return id",
+        ]
+    if kind == "TakeThenIncrementI64":
+        source = render_source_expr(operation)
+        return [
+            f"local id = {source}",
+            f"{source} = {source} + 1",
             "return id",
         ]
     raise ValueError(f"unsupported Hako operation: {kind}")
