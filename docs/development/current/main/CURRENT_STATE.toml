@@ -265,17 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RETURN-TYPE-PUBLICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1699-MIRBUILDER-RETURN-TYPE-PUBLICATION-001.md"
-latest_card_summary = """ReturnTypePublication is now a source-derived
-PlanOnly capability provider for the prepared-state minimal MirBuilder path.
-The plan publishes type_ctx.value_types[result_value] to
-function.signature.return_type without claiming module take, full finalize,
-generated Hako, backend routes, ABI changes, runtime fallback, or source
-selfhost. The frontier analyzer now advances to CurrentModuleTakeRequired. The
-next blocker is MIRBUILDER-CURRENT-MODULE-TAKE-001."""
+latest_card = "MIRBUILDER-CURRENT-MODULE-TAKE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1700-MIRBUILDER-CURRENT-MODULE-TAKE-001.md"
+latest_card_summary = """CurrentModuleTake is now a source-derived PlanOnly
+capability provider for the prepared-state minimal MirBuilder path. The plan
+transports the prepared MirModuleMinimalShell through
+self.current_module.take().unwrap() without claiming typed-value verification,
+current-function take, full finalize, generated Hako, backend routes, ABI
+changes, runtime fallback, or source selfhost. The frontier analyzer now
+advances to TypedValueVerificationRequired. The next blocker is
+MIRBUILDER-TYPED-VALUE-VERIFICATION-001."""
 
-current_blocker_token = "MIRBUILDER-CURRENT-MODULE-TAKE-001"
+current_blocker_token = "MIRBUILDER-TYPED-VALUE-VERIFICATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

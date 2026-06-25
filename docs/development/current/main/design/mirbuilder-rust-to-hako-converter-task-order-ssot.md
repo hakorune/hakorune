@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CURRENT-MODULE-TAKE-001
+  MIRBUILDER-TYPED-VALUE-VERIFICATION-001
 
 current implementation task:
-  Address the current-module take edge derived after ReturnTypePublication became available.
+  Address the typed-value verification edge derived after CurrentModuleTake became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, and ReturnTypePublication are green; the frontier now derives CurrentModuleTake as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, and CurrentModuleTake are green; the frontier now derives typed-value verification as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-CURRENT-MODULE-TAKE-001
+  MIRBUILDER-TYPED-VALUE-VERIFICATION-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  ReturnTypePublication is green as a PlanOnly capability. Proceed to CurrentModuleTake, not full finalize or wider build_module mainline.
+  CurrentModuleTake is green as a PlanOnly capability. Proceed to typed-value verification, not current-function take or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -116,7 +116,7 @@ mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
-derived_first_red_edge=CurrentModuleTakeRequired
+derived_first_red_edge=TypedValueVerificationRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -149,6 +149,7 @@ mirbuilder_minimal_execution_path_smoke = landed
 mirbuilder_allocation_policy_mainline_pilot = landed
 mirbuilder_return_emission = landed
 mirbuilder_return_type_publication = landed
+mirbuilder_current_module_take = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -158,14 +159,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. CurrentModuleTake edge
+1. TypedValueVerification edge
    status=selected
-   boundary=finalize_module current_module.take().unwrap()
-   semantic_authority=frontier analyzer plus ReturnTypePublication non_claim module_take=0
+   boundary=finalize_module verify_typed_values_are_defined
+   semantic_authority=frontier analyzer plus CurrentModuleTake non_claim verify_typed_values=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after CurrentModuleTake
-   status=parked until current-module take edge is green
+2. Next semantic owner after typed-value verification
+   status=parked until typed-value verification edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage

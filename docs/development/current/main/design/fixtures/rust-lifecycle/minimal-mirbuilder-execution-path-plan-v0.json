@@ -50,6 +50,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-type-publication-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "CurrentModuleTake",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::current_module_take",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -296,13 +303,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> take current_module",
       "id": "finalize_module.take_module",
-      "provider": null,
+      "provider": {
+        "capability": "CurrentModuleTake",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "CurrentModuleTake",
       "unsupported": {
         "deny_detail": "CurrentModuleTakeRequired",
         "deny_reason": "UnsupportedTypeTransport",
         "next_slice_token": "MIRBUILDER-CURRENT-MODULE-TAKE-001",
         "semantic_owner": "MirBuilder::finalize_module current_module take"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> verify typed values are defined",
+      "id": "finalize_module.verify_typed_values",
+      "provider": null,
+      "required_capability": "TypedValueDefinitionVerification",
+      "unsupported": {
+        "deny_detail": "TypedValueVerificationRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-TYPED-VALUE-VERIFICATION-001",
+        "semantic_owner": "MirBuilder::finalize_module typed value verification"
       }
     }
   ],
