@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::return_type_publication",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "ReturnTypePublicationApi.publish(signature, value_type, result_value)",
+      "hako_operation": "ValidateValueType + SetField + ReturnValue",
+      "id": "ReturnTypePublication::publish",
+      "rust_operation": "MirBuilder::finalize_module publish return type from result_value"
+    }
+  ],
+  "pilot_scope": "ReturnTypePublication_integer_result_only",
+  "schema_version": 0,
+  "selected_body_count": "return_type_publication_integer_result_only",
+  "source_oracle": "mirbuilder-return-type-publication-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-return-type-publication-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.return_type_publication"
+}

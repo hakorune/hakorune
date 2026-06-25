@@ -39,6 +39,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_bounded_finalize_composition.artifact.json",
     "ReturnEmission": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_emission.artifact.json",
+    "ReturnTypePublication": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_type_publication.artifact.json",
 }
 
 
@@ -179,6 +181,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "ReturnTypePublication":
         return "MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "CurrentModuleTake":
+        return "MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -265,13 +269,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.return_type_publication", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.take_module", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "ReturnTypePublication",
+        first_gap["required_capability"] == "CurrentModuleTake",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:

@@ -1,0 +1,45 @@
+{
+  "checks": {
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "module_take": 0,
+    "result_value_transport": "ValueIdAsI64",
+    "return_type_publication_only": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "return_type_publication_integer_result_only",
+    "signature_return_type": "MirType::Integer",
+    "source_value_type_owner": "LiteralIntegerLowering",
+    "verify_typed_values": 0
+  },
+  "denied_boundaries": [
+    "module_take",
+    "verify_typed_values",
+    "full_finalize_module",
+    "phi_return_type_inference",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::return_type_publication",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "ReturnTypePublication_integer_result_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-return-type-publication-plan-v0.json",
+  "source_plan": "mirbuilder-return-type-publication-plan-v0.json",
+  "source_recipe": "mirbuilder-return-type-publication-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.return_type_publication",
+  "transport_notes": {
+    "full_finalize_module": 0,
+    "function_signature_transport": "ReturnTypeFunctionSignatureShell",
+    "module_take": 0,
+    "published_return_type": "MirType::Integer",
+    "result_value_transport": "ValueIdAsI64",
+    "value_type_record_transport": "ReturnTypeValueTypeRecordShell",
+    "verify_typed_values": "unselected"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "MirTypeIntegerReturnShell"
+  ]
+}

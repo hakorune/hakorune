@@ -1,0 +1,29 @@
+{
+  "kind": "MirBuilderReturnTypePublicationDerivedHakoOracleV1",
+  "non_claims": {
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "module_take": 0,
+    "phi_return_type_inference": 0,
+    "runtime_fallback": 0,
+    "verify_typed_values": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module publish return type from result_value",
+  "vectors": [
+    {
+      "expect": {
+        "publication_present": 1,
+        "published_from_value_id": 7,
+        "return_type_is_integer": 1
+      },
+      "inputs": {
+        "initial_return_type_is_integer": 0,
+        "result_value": 7,
+        "type_record_is_integer": 1,
+        "type_record_value_id": 7
+      },
+      "name": "integer_result_value_publishes_integer_return_type"
+    }
+  ]
+}

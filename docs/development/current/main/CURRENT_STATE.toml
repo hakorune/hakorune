@@ -265,19 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1725-MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """MirBuilder ReturnEmission now has a DerivedShadow
-Hako artifact for the prepared minimal profile. The artifact materializes only
-append Return(result_value), marks the target block terminated, records
-Some(result_value), and records empty successors while return type publication,
-full finalize_module, other terminator shapes, mainline selection, and source
-selfhost remain non-claims. The semantic closure report now derives
-finalize_module.return_type_publication as the first executable materialization
+latest_card = "MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1726-MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """MirBuilder return type publication now has a
+DerivedShadow Hako artifact for the prepared minimal profile. The artifact
+materializes only the result_value type shell lookup and MirType::Integer
+publication into the function signature shell while module take, typed-value
+verification, full finalize_module, PHI return type inference, mainline
+selection, and source selfhost remain non-claims. The semantic closure report
+now derives finalize_module.take_module as the first executable materialization
 gap. The next blocker is
-MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001."""
+MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
