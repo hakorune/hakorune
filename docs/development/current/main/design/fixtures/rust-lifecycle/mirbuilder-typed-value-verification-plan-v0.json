@@ -1,0 +1,120 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderTypedValueVerificationPlanV1",
+  "subject": "MirBuilder::finalize_module verify typed values are defined",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "verifier": "src/mir/builder/emission/value_lifecycle.rs::verify_typed_values_are_defined",
+    "predecessor_plan": "mirbuilder-current-module-take-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "current_function": "Present",
+    "type_context": "type_ctx.value_types",
+    "strict_gate": "strict_or_dev_planner_required"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "let mut module = self.current_module.take().unwrap();",
+        "byte_offset": 751
+      },
+      {
+        "marker": "verify_typed_values_are_defined",
+        "byte_offset": 919
+      },
+      {
+        "marker": "\"finalize_module\"",
+        "byte_offset": 982
+      },
+      {
+        "marker": "let mut function = self.scope_ctx.current_function.take().unwrap();",
+        "byte_offset": 1021
+      }
+    ],
+    "verifier": [
+      {
+        "marker": "if !strict_or_dev_planner_required()",
+        "byte_offset": 5
+      },
+      {
+        "marker": "builder.scope_ctx.current_function.as_ref()",
+        "byte_offset": 94
+      },
+      {
+        "marker": "let def_blocks = compute_def_blocks(func);",
+        "byte_offset": 180
+      },
+      {
+        "marker": "let param_set = &func.params;",
+        "byte_offset": 227
+      },
+      {
+        "marker": "let mut missing: Vec<(ValueId, MirType)>",
+        "byte_offset": 414
+      },
+      {
+        "marker": "collect_referenced_values(func)",
+        "byte_offset": 1156
+      },
+      {
+        "marker": "builder.pending_phis",
+        "byte_offset": 1242
+      },
+      {
+        "marker": "builder.pin_slot_names",
+        "byte_offset": 1445
+      },
+      {
+        "marker": "builder.type_ctx.value_types.remove(&v);",
+        "byte_offset": 2011
+      },
+      {
+        "marker": "Err(format!(",
+        "byte_offset": 2907
+      }
+    ]
+  },
+  "verification_contract": {
+    "typed_values": "builder.type_ctx.value_types",
+    "definition_sources": [
+      "compute_def_blocks(func)",
+      "func.params"
+    ],
+    "excluded_value": "ValueId::INVALID",
+    "fatal_missing_if_referenced_by": [
+      "collect_referenced_values(func)",
+      "builder.pending_phis",
+      "builder.pin_slot_names"
+    ],
+    "stale_missing_cleanup": [
+      "type_ctx.value_types",
+      "type_ctx.value_kinds",
+      "type_ctx.value_origin_newbox"
+    ],
+    "fail_fast_tag": "[freeze:contract][value_lifecycle/typed_without_def]"
+  },
+  "available_capabilities": [
+    "TypedValueDefinitionVerification"
+  ],
+  "result_contract": {
+    "boundary": "typed ValueIds are defined or parameters before function take",
+    "fatal_missing_behavior": "Err(freeze:contract)",
+    "stale_missing_behavior": "prune builder-side stale type entries",
+    "minimal_path_expected_result": "Ok"
+  },
+  "non_claims": {
+    "current_function_take": 0,
+    "type_propagation": 0,
+    "type_hint_provision": 0,
+    "phi_return_type_inference": 0,
+    "phi_input_materialization": 0,
+    "module_metadata_publication": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

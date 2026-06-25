@@ -54,6 +54,9 @@ RETURN_TYPE_PUBLICATION_PLAN = (
 CURRENT_MODULE_TAKE_PLAN = (
     FIXTURES / "mirbuilder-current-module-take-plan-v0.json"
 )
+TYPED_VALUE_VERIFICATION_PLAN = (
+    FIXTURES / "mirbuilder-typed-value-verification-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -148,6 +151,7 @@ def contract_sources() -> list[dict[str, Any]]:
     return_emission = read_json(RETURN_EMISSION_PLAN)
     return_type_publication = read_json(RETURN_TYPE_PUBLICATION_PLAN)
     current_module_take = read_json(CURRENT_MODULE_TAKE_PLAN)
+    typed_value_verification = read_json(TYPED_VALUE_VERIFICATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -253,6 +257,25 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if current_module_non_claims.get(key) != 0:
             raise SelectionError(f"current module take plan must keep {key}=0")
+    if typed_value_verification.get("kind") != "MirBuilderTypedValueVerificationPlanV1":
+        raise SelectionError("typed-value verification plan has wrong kind")
+    typed_value_caps = set(typed_value_verification.get("available_capabilities") or [])
+    if "TypedValueDefinitionVerification" not in typed_value_caps:
+        raise SelectionError("typed-value verification plan lacks TypedValueDefinitionVerification")
+    typed_value_contract = typed_value_verification.get("verification_contract") or {}
+    if typed_value_contract.get("typed_values") != "builder.type_ctx.value_types":
+        raise SelectionError("typed-value verification plan has wrong typed_values source")
+    if typed_value_contract.get("definition_sources") != ["compute_def_blocks(func)", "func.params"]:
+        raise SelectionError("typed-value verification plan has wrong definition sources")
+    typed_value_non_claims = typed_value_verification.get("non_claims") or {}
+    for key in [
+        "current_function_take",
+        "type_propagation",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if typed_value_non_claims.get(key) != 0:
+            raise SelectionError(f"typed-value verification plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -343,6 +366,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::current_module_take",
             "manifest_path": rel(CURRENT_MODULE_TAKE_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "TypedValueDefinitionVerification",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::typed_value_verification",
+            "manifest_path": rel(TYPED_VALUE_VERIFICATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -585,12 +615,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.verify_typed_values",
             "callsite": "MirBuilder::finalize_module -> verify typed values are defined",
             "required_capability": "TypedValueDefinitionVerification",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "TypedValueDefinitionVerification",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "TypedValueVerificationRequired",
                 "semantic_owner": "MirBuilder::finalize_module typed value verification",
                 "next_slice_token": "MIRBUILDER-TYPED-VALUE-VERIFICATION-001",
+            },
+        },
+        {
+            "id": "finalize_module.take_current_function",
+            "callsite": "MirBuilder::finalize_module -> take current_function",
+            "required_capability": "CurrentFunctionTake",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedTypeTransport",
+                "deny_detail": "CurrentFunctionTakeRequired",
+                "semantic_owner": "MirBuilder::finalize_module current_function take",
+                "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
             },
         },
     ]
@@ -784,6 +829,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

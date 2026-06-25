@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> verify typed values are defined",
-    "deny_detail": "TypedValueVerificationRequired",
-    "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.verify_typed_values",
-    "next_slice_token": "MIRBUILDER-TYPED-VALUE-VERIFICATION-001",
-    "required_capability": "TypedValueDefinitionVerification",
-    "semantic_owner": "MirBuilder::finalize_module typed value verification",
+    "callsite": "MirBuilder::finalize_module -> take current_function",
+    "deny_detail": "CurrentFunctionTakeRequired",
+    "deny_reason": "UnsupportedTypeTransport",
+    "edge_id": "finalize_module.take_current_function",
+    "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
+    "required_capability": "CurrentFunctionTake",
+    "semantic_owner": "MirBuilder::finalize_module current_function take",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -219,12 +219,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> verify typed values are defined",
-      "deny_detail": "TypedValueVerificationRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "TypedValueDefinitionVerification",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::typed_value_verification",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-value-verification-plan-v0.json"
+      },
       "edge_id": "finalize_module.verify_typed_values",
-      "next_slice_token": "MIRBUILDER-TYPED-VALUE-VERIFICATION-001",
       "required_capability": "TypedValueDefinitionVerification",
-      "semantic_owner": "MirBuilder::finalize_module typed value verification",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> take current_function",
+      "deny_detail": "CurrentFunctionTakeRequired",
+      "deny_reason": "UnsupportedTypeTransport",
+      "edge_id": "finalize_module.take_current_function",
+      "next_slice_token": "MIRBUILDER-CURRENT-FUNCTION-TAKE-001",
+      "required_capability": "CurrentFunctionTake",
+      "semantic_owner": "MirBuilder::finalize_module current_function take",
       "status": "Unsupported"
     }
   ],
