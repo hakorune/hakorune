@@ -96,6 +96,9 @@ SLOT_REGISTRY_RELEASE_PLAN = (
 MODULE_METADATA_PUBLICATION_PLAN = (
     FIXTURES / "mirbuilder-module-metadata-publication-plan-v0.json"
 )
+RECORD_PACKED_LAYOUT_REFRESH_PLAN = (
+    FIXTURES / "mirbuilder-record-packed-layout-refresh-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -204,6 +207,7 @@ def contract_sources() -> list[dict[str, Any]]:
     function_region_stack_pop = read_json(FUNCTION_REGION_STACK_POP_PLAN)
     slot_registry_release = read_json(SLOT_REGISTRY_RELEASE_PLAN)
     module_metadata_publication = read_json(MODULE_METADATA_PUBLICATION_PLAN)
+    record_packed_layout_refresh = read_json(RECORD_PACKED_LAYOUT_REFRESH_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -691,6 +695,45 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if module_metadata_non_claims.get(key) != 0:
             raise SelectionError(f"module metadata publication plan must keep {key}=0")
+    if (
+        record_packed_layout_refresh.get("kind")
+        != "MirBuilderRecordPackedLayoutRefreshPlanV1"
+    ):
+        raise SelectionError("record/packed layout refresh plan has wrong kind")
+    record_refresh_caps = set(record_packed_layout_refresh.get("available_capabilities") or [])
+    if "RecordAndPackedLayoutRefresh" not in record_refresh_caps:
+        raise SelectionError("record/packed layout refresh plan lacks RecordAndPackedLayoutRefresh")
+    record_refresh = record_packed_layout_refresh.get("refresh_policy") or {}
+    if record_refresh.get("entrypoint") != "refresh_module_record_and_packed_layout_plans":
+        raise SelectionError("record/packed layout refresh entrypoint drift")
+    if (
+        record_refresh.get("timing")
+        != "AfterModuleMetadataPublicationBeforeTypedObjectRefresh"
+    ):
+        raise SelectionError("record/packed layout refresh timing drift")
+    if record_refresh.get("steps") != [
+        "refresh_module_record_layout_plans",
+        "refresh_module_array_record_storage_plans",
+        "refresh_module_array_record_autouse_eligibility_plans",
+        "refresh_module_array_record_materialization_boundary_plans",
+        "refresh_module_array_record_packed_autouse_pilot_plans",
+        "refresh_module_source_packed_array_autouse_pilot_plans",
+        "refresh_module_source_packed_array_direct_read_consumption_plans",
+        "refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans",
+        "refresh_module_hako_alloc_huge_page_packed_store_pilot_plans",
+    ]:
+        raise SelectionError("record/packed layout refresh step order drift")
+    record_refresh_non_claims = record_packed_layout_refresh.get("non_claims") or {}
+    for key in [
+        "typed_object_plan_refresh",
+        "direct_state_plan_refresh",
+        "full_semantic_refresh",
+        "all_functions_phi_materialization",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if record_refresh_non_claims.get(key) != 0:
+            raise SelectionError(f"record/packed layout refresh plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -879,6 +922,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::module_metadata_publication",
             "manifest_path": rel(MODULE_METADATA_PUBLICATION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "RecordAndPackedLayoutRefresh",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
+            "manifest_path": rel(RECORD_PACKED_LAYOUT_REFRESH_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1331,12 +1381,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.record_packed_layout_refresh",
             "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
             "required_capability": "RecordAndPackedLayoutRefresh",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "RecordAndPackedLayoutRefresh",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "RecordAndPackedLayoutRefreshRequired",
                 "semantic_owner": "MirBuilder::finalize_module record/packed layout refresh",
                 "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001",
+            },
+        },
+        {
+            "id": "finalize_module.typed_object_plan_refresh",
+            "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
+            "required_capability": "TypedObjectPlanRefresh",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "TypedObjectPlanRefreshRequired",
+                "semantic_owner": "MirBuilder::finalize_module typed object plan refresh",
+                "next_slice_token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001",
             },
         },
     ]
@@ -1530,6 +1595,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

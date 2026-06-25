@@ -1,0 +1,115 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecordPackedLayoutRefreshPlanV1",
+  "subject": "MirBuilder::finalize_module record/packed layout refresh",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "refresh_entrypoint": "src/mir/semantic_refresh.rs::refresh_module_record_and_packed_layout_plans",
+    "predecessor_plan": "mirbuilder-module-metadata-publication-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "module_transport": "MirModuleMinimalShell"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();",
+        "byte_offset": 10435
+      },
+      {
+        "marker": "crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);",
+        "byte_offset": 10520
+      },
+      {
+        "marker": "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);",
+        "byte_offset": 10618
+      }
+    ],
+    "refresh_entrypoint": [
+      {
+        "marker": "refresh_module_record_layout_plans(module);",
+        "byte_offset": 5
+      },
+      {
+        "marker": "refresh_module_array_record_storage_plans(module);",
+        "byte_offset": 53
+      },
+      {
+        "marker": "refresh_module_array_record_autouse_eligibility_plans(module);",
+        "byte_offset": 108
+      },
+      {
+        "marker": "refresh_module_array_record_materialization_boundary_plans(module);",
+        "byte_offset": 175
+      },
+      {
+        "marker": "refresh_module_array_record_packed_autouse_pilot_plans(module);",
+        "byte_offset": 247
+      },
+      {
+        "marker": "refresh_module_source_packed_array_autouse_pilot_plans(module);",
+        "byte_offset": 315
+      },
+      {
+        "marker": "refresh_module_source_packed_array_direct_read_consumption_plans(module);",
+        "byte_offset": 383
+      },
+      {
+        "marker": "refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);",
+        "byte_offset": 461
+      },
+      {
+        "marker": "refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);",
+        "byte_offset": 539
+      }
+    ]
+  },
+  "refresh_policy": {
+    "entrypoint": "refresh_module_record_and_packed_layout_plans",
+    "timing": "AfterModuleMetadataPublicationBeforeTypedObjectRefresh",
+    "steps": [
+      "refresh_module_record_layout_plans",
+      "refresh_module_array_record_storage_plans",
+      "refresh_module_array_record_autouse_eligibility_plans",
+      "refresh_module_array_record_materialization_boundary_plans",
+      "refresh_module_array_record_packed_autouse_pilot_plans",
+      "refresh_module_source_packed_array_autouse_pilot_plans",
+      "refresh_module_source_packed_array_direct_read_consumption_plans",
+      "refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans",
+      "refresh_module_hako_alloc_huge_page_packed_store_pilot_plans"
+    ],
+    "module_arg": "&mut MirModule"
+  },
+  "available_capabilities": [
+    "RecordAndPackedLayoutRefresh"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.metadata.record_layout_plans",
+      "module.metadata.array_record_storage_plans",
+      "module.metadata.array_record_autouse_eligibility_plans",
+      "module.metadata.array_record_materialization_boundary_plans",
+      "module.metadata.array_record_packed_autouse_pilot_plans",
+      "module.metadata.source_packed_array_autouse_pilot_plans",
+      "module.metadata.source_packed_array_direct_read_consumption_plans",
+      "module.metadata.hako_alloc_aligned_small_packed_store_pilot_plans",
+      "module.metadata.hako_alloc_huge_page_packed_store_pilot_plans"
+    ],
+    "entrypoint": "semantic_refresh::refresh_module_record_and_packed_layout_plans",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "typed_object_plan_refresh": 0,
+    "direct_state_plan_refresh": 0,
+    "full_semantic_refresh": 0,
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

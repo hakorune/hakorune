@@ -155,6 +155,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-metadata-publication-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "RecordAndPackedLayoutRefresh",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -626,13 +633,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
       "id": "finalize_module.record_packed_layout_refresh",
-      "provider": null,
+      "provider": {
+        "capability": "RecordAndPackedLayoutRefresh",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "RecordAndPackedLayoutRefresh",
       "unsupported": {
         "deny_detail": "RecordAndPackedLayoutRefreshRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001",
         "semantic_owner": "MirBuilder::finalize_module record/packed layout refresh"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
+      "id": "finalize_module.typed_object_plan_refresh",
+      "provider": null,
+      "required_capability": "TypedObjectPlanRefresh",
+      "unsupported": {
+        "deny_detail": "TypedObjectPlanRefreshRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001",
+        "semantic_owner": "MirBuilder::finalize_module typed object plan refresh"
       }
     }
   ],
