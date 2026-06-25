@@ -45,6 +45,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_current_module_take.artifact.json",
     "TypedValueDefinitionVerification": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_value_verification.artifact.json",
+    "CurrentFunctionTake": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_current_function_take.artifact.json",
 }
 
 
@@ -191,6 +193,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "CurrentFunctionTake":
         return "MIRBUILDER-CURRENT-FUNCTION-TAKE-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "TypePropagationPipelineExecution":
+        return "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -277,13 +281,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.take_current_function", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.type_propagation", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "CurrentFunctionTake",
+        first_gap["required_capability"] == "TypePropagationPipelineExecution",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-CURRENT-FUNCTION-TAKE-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:

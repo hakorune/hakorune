@@ -17,6 +17,7 @@ from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_sc
 from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_parent_artifact_generator
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
 from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_generator
+from mirbuilder_current_function_take_artifacts import run_current_function_take_artifact_generator
 from mirbuilder_current_module_take_artifacts import run_current_module_take_artifact_generator
 from mirbuilder_literal_integer_artifacts import run_literal_integer_lowering_artifact_generator
 from mirbuilder_return_emission_artifacts import run_return_emission_artifact_generator
@@ -49,6 +50,7 @@ FAMILY_GENERATORS = {
     "mir-module-minimal-shell": run_mir_module_minimal_shell_artifact_generator,
     "mirbuilder-prepared-state-install": run_prepared_state_install_artifact_generator,
     "mirbuilder-bounded-finalize-composition": run_bounded_finalize_artifact_generator,
+    "mirbuilder-current-function-take": run_current_function_take_artifact_generator,
     "mirbuilder-current-module-take": run_current_module_take_artifact_generator,
     "mirbuilder-literal-integer-lowering": run_literal_integer_lowering_artifact_generator,
     "mirbuilder-next-value-id-prepared-state-kernel": run_prepared_state_kernel_generator,

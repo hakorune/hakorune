@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "current_function_take_only": 1,
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "post_take_state": "None",
+    "runtime_fallback": 0,
+    "selected_body_count": "current_function_take_present_function_only",
+    "taken_function_present": 1,
+    "type_hint_provision": 0,
+    "type_propagation": 0
+  },
+  "denied_boundaries": [
+    "type_propagation",
+    "type_hint_provision",
+    "metadata_value_type_publication",
+    "phi_return_type_inference",
+    "phi_input_materialization",
+    "module_function_insertion",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::current_function_take",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "CurrentFunctionTake_present_function_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-current-function-take-plan-v0.json",
+  "source_plan": "mirbuilder-current-function-take-plan-v0.json",
+  "source_recipe": "mirbuilder-current-function-take-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.current_function_take",
+  "transport_notes": {
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "post_take_state": "None",
+    "state_transport": "PreparedCurrentFunctionPresenceShell",
+    "type_hint_provision": "unselected",
+    "type_propagation": 0
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "MirFunctionPreparedMain",
+    "PreparedCurrentFunctionPresenceShell"
+  ]
+}
