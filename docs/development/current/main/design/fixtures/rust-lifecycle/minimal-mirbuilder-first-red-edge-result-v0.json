@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::prepare_module -> MirFunction::new",
-    "deny_detail": "MirFunctionConstructorTransportRequired",
-    "deny_reason": "UnsupportedTypeTransport",
-    "edge_id": "prepare_module.function_new",
-    "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
-    "required_capability": "MirFunctionConstructorTransport",
-    "semantic_owner": "MirFunction::new",
+    "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+    "deny_detail": "LiteralIntegerLoweringRequired",
+    "deny_reason": "UnsupportedDirectShape",
+    "edge_id": "lower_root.literal_integer",
+    "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
+    "required_capability": "LiteralIntegerLowering",
+    "semantic_owner": "MirBuilder::build_literal",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -36,16 +36,6 @@
   },
   "kind": "MinimalMirBuilderFirstRedEdgeResultV1",
   "not_reached_edges": [
-    {
-      "callsite": "MirBuilder::prepare_module -> current state install",
-      "edge_id": "prepare_module.state_install",
-      "status": "NotReached"
-    },
-    {
-      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
-      "edge_id": "lower_root.literal_integer",
-      "status": "NotReached"
-    },
     {
       "callsite": "MirBuilder::finalize_module",
       "edge_id": "finalize_module.composition",
@@ -118,12 +108,38 @@
     },
     {
       "callsite": "MirBuilder::prepare_module -> MirFunction::new",
-      "deny_detail": "MirFunctionConstructorTransportRequired",
-      "deny_reason": "UnsupportedTypeTransport",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "MirFunctionConstructorTransport",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir::MirFunction",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json"
+      },
       "edge_id": "prepare_module.function_new",
-      "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
       "required_capability": "MirFunctionConstructorTransport",
-      "semantic_owner": "MirFunction::new",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> current state install",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "PreparedStateInstall",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir::MirFunction",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json"
+      },
+      "edge_id": "prepare_module.state_install",
+      "required_capability": "PreparedStateInstall",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+      "deny_detail": "LiteralIntegerLoweringRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "lower_root.literal_integer",
+      "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
+      "required_capability": "LiteralIntegerLowering",
+      "semantic_owner": "MirBuilder::build_literal",
       "status": "Unsupported"
     }
   ],

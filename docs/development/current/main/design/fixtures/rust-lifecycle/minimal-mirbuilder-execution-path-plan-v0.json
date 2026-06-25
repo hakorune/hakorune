@@ -8,6 +8,20 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-module-minimal-shell-transport-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "MirFunctionConstructorTransport",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir::MirFunction",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json"
+    },
+    {
+      "artifact_state": "PlanOnly",
+      "capability": "PreparedStateInstall",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir::MirFunction",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json"
+    },
+    {
       "artifact_state": "DerivedShadow",
       "capability": "CoreContext.scalar_counters_and_id_generators",
       "contract_kind": "VerifiedFamilyArtifactContractV1",
@@ -120,7 +134,10 @@
     {
       "callsite": "MirBuilder::prepare_module -> MirFunction::new",
       "id": "prepare_module.function_new",
-      "provider": null,
+      "provider": {
+        "capability": "MirFunctionConstructorTransport",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "MirFunctionConstructorTransport",
       "unsupported": {
         "deny_detail": "MirFunctionConstructorTransportRequired",
@@ -132,7 +149,10 @@
     {
       "callsite": "MirBuilder::prepare_module -> current state install",
       "id": "prepare_module.state_install",
-      "provider": null,
+      "provider": {
+        "capability": "PreparedStateInstall",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "PreparedStateInstall",
       "unsupported": {
         "deny_detail": "PreparedStateInstallRequired",

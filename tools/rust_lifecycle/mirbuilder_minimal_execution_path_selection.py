@@ -36,6 +36,9 @@ PREPARED_KERNEL_MANIFEST = (
 MODULE_SHELL_PLAN = (
     FIXTURES / "mir-module-minimal-shell-transport-plan-v0.json"
 )
+FUNCTION_CONSTRUCTOR_PLAN = (
+    FIXTURES / "mir-function-constructor-composition-plan-v0.json"
+)
 
 PLAN_PATH = FIXTURES / "minimal-mirbuilder-execution-path-plan-v0.json"
 RESULT_PATH = FIXTURES / "minimal-mirbuilder-first-red-edge-result-v0.json"
@@ -116,6 +119,7 @@ def contract_sources() -> list[dict[str, Any]]:
     core = read_json(CORE_CONTEXT_MANIFEST)
     prepared = read_json(PREPARED_KERNEL_MANIFEST)
     module_shell = read_json(MODULE_SHELL_PLAN)
+    function_constructor = read_json(FUNCTION_CONSTRUCTOR_PLAN)
 
     if bundle.get("bundle_contract_model") != "membership_only_v1":
         raise SelectionError("ordered_map bundle is not membership_only_v1")
@@ -150,6 +154,14 @@ def contract_sources() -> list[dict[str, Any]]:
         raise SelectionError("module shell plan does not provide MirModuleMinimalShellTransport")
     if module_shell.get("non_claims", {}).get("source_file_assignment") != 0:
         raise SelectionError("module shell plan must not claim source_file assignment")
+    if function_constructor.get("kind") != "MirFunctionConstructorCompositionPlanV1":
+        raise SelectionError("function constructor plan has wrong kind")
+    function_caps = set(function_constructor.get("available_capabilities") or [])
+    for capability in ["MirFunctionConstructorTransport", "PreparedStateInstall"]:
+        if capability not in function_caps:
+            raise SelectionError(f"function constructor plan lacks capability: {capability}")
+    if function_constructor.get("non_claims", {}).get("separate_block_only_claim") != 0:
+        raise SelectionError("function constructor plan must not split block-only claim")
 
     return [
         {
@@ -157,6 +169,20 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir::MirModule",
             "manifest_path": rel(MODULE_SHELL_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "MirFunctionConstructorTransport",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir::MirFunction",
+            "manifest_path": rel(FUNCTION_CONSTRUCTOR_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "PreparedStateInstall",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir::MirFunction",
+            "manifest_path": rel(FUNCTION_CONSTRUCTOR_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -250,7 +276,10 @@ def build_plan() -> dict[str, Any]:
             "id": "prepare_module.function_new",
             "callsite": "MirBuilder::prepare_module -> MirFunction::new",
             "required_capability": "MirFunctionConstructorTransport",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "MirFunctionConstructorTransport",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedTypeTransport",
                 "deny_detail": "MirFunctionConstructorTransportRequired",
@@ -262,7 +291,10 @@ def build_plan() -> dict[str, Any]:
             "id": "prepare_module.state_install",
             "callsite": "MirBuilder::prepare_module -> current state install",
             "required_capability": "PreparedStateInstall",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "PreparedStateInstall",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "PreparedStateInstallRequired",
@@ -462,17 +494,26 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
     expected = {
-        "callsite": "MirBuilder::prepare_module -> MirFunction::new",
-        "deny_reason": "UnsupportedTypeTransport",
-        "deny_detail": "MirFunctionConstructorTransportRequired",
-        "semantic_owner": "MirFunction::new",
-        "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
+        "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+        "deny_reason": "UnsupportedDirectShape",
+        "deny_detail": "LiteralIntegerLoweringRequired",
+        "semantic_owner": "MirBuilder::build_literal",
+        "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
     }
     for key, value in expected.items():
         if first.get(key) != value:
             raise SelectionError(f"first unsupported edge expected {key}={value}, got {first.get(key)}")
     statuses = [row["status"] for row in result["reached_prefix"]]
-    if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Unsupported"]:
+    if statuses != [
+        "Available",
+        "Available",
+        "Available",
+        "ProfileExcluded",
+        "Available",
+        "Available",
+        "Available",
+        "Unsupported",
+    ]:
         raise SelectionError(f"unexpected reached frontier statuses: {statuses}")
     for row in result["not_reached_edges"]:
         if row.get("status") != "NotReached":

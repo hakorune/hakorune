@@ -20,18 +20,18 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001
+  MIRBUILDER-LITERAL-INTEGER-LOWERING-001
 
 current implementation task:
-  Implement the MirFunction constructor composition required by the advanced
+  Implement the literal integer lowering required by the advanced
   PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)) frontier.
 
 selected source slice:
-  MirBuilder::prepare_module -> MirFunction::new
+  MirBuilder::lower_root(ASTNode::Literal(Integer(0)))
 
 selected lowering:
-  MirFunction::new live constructor semantics
-    -> function constructor composition
+  build_literal(Integer)
+    -> integer Const emission
     -> prepared-state execution path frontier advancement
 
 landed evidence:
@@ -77,21 +77,19 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell is green; frontier advances through ProfileExcluded source_file=None and CoreContext next_block to MirFunction::new.
+  MirModule shell and MirFunction constructor composition are green; frontier advances through prepared state install to literal integer lowering.
 
 selected next owner:
-  MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001
+  MIRBUILDER-LITERAL-INTEGER-LOWERING-001
 
 current fail-fast boundary:
-  The next slice may only model MirFunction::new plus its nested entry
-  BasicBlock constructor. It must not split a separate block-only claim, widen
-  to full function lowering, or silently promote generated artifacts to
-  mainline source authority.
+  The next slice may only model the Integer literal path needed by
+  build_module(AST Literal Integer(0)). It must not widen to full expression
+  lowering, String/Bool/Null literals, finalize behavior, or mainline source
+  authority.
 
 latest design decision:
-  MirModule minimal shell transport is green as source-derived PlanOnly
-  capability. Proceed to MirFunction constructor composition, not broad
-  coverage expansion.
+  MirFunction constructor composition is green as PlanOnly capability. Proceed to literal integer lowering, not broad coverage expansion.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -119,7 +117,8 @@ mirbuilder_allocation_policy_bundle_adoption green
 mirbuilder_prepared_state_reserved_membership_transport_alignment green
 mirbuilder_minimal_execution_path_selection green
 mir_module_minimal_shell_transport green
-derived_first_red_edge=MirBuilder::prepare_module -> MirFunction::new
+mir_function_constructor_composition green
+derived_first_red_edge=MirBuilder::lower_root(ASTNode::Literal(Integer(0)))
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -145,6 +144,7 @@ mirbuilder_allocation_policy_bundle_adoption = landed
 mirbuilder_prepared_state_reserved_membership_transport_alignment = landed
 mirbuilder_minimal_execution_path_selection = landed
 mir_module_minimal_shell_transport = landed
+mir_function_constructor_composition = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -154,17 +154,17 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirFunction constructor composition
+1. Literal integer lowering
    status=selected
-   boundary=MirFunction::new plus nested entry BasicBlock
-   semantic_authority=function constructor facts
-   non_authority=separate block-only claim
-
-2. Minimal literal const/return path
-   status=parked until function constructor frontier advances
-   boundary=integer Const plus Return emission
+   boundary=AST Literal Integer(0) -> integer Const only
    semantic_authority=literal emission facts
-   non_authority=finalize composition
+   non_authority=full expression lowering
+
+2. Minimal return emission
+   status=parked until literal integer frontier advances
+   boundary=Return of selected literal value only
+   semantic_authority=return emission facts
+   non_authority=full finalize composition
 
 3. Bounded finalize composition
    status=parked until const/return path frontier advances

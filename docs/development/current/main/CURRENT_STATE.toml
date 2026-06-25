@@ -265,16 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1691-MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001.md"
-latest_card_summary = """MirModule minimal shell transport is green as a
-source-derived PlanOnly capability for MirModule::new. It models only name,
-empty functions, empty globals, and ModuleMetadata::default. The minimal
-execution frontier now advances through source_file=None ProfileExcluded and
-CoreContext next_block to MirFunction::new with
-detail=MirFunctionConstructorTransportRequired."""
+latest_card = "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1692-MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001.md"
+latest_card_summary = """MirFunction constructor composition is green as a
+source-derived PlanOnly capability for MirFunction::new plus nested
+BasicBlock::new. It includes parameter prepopulation, counter seed
+max(param_count, 1), FunctionMetadata::default, and prepared-state install.
+The minimal execution frontier now advances to literal integer lowering with
+detail=LiteralIntegerLoweringRequired."""
 
-current_blocker_token = "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001"
+current_blocker_token = "MIRBUILDER-LITERAL-INTEGER-LOWERING-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

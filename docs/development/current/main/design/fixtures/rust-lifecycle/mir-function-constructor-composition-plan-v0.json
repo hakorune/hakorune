@@ -1,0 +1,87 @@
+{
+  "schema_version": 0,
+  "kind": "MirFunctionConstructorCompositionPlanV1",
+  "subject": "hakorune_mir::MirFunction::new",
+  "source_authority": {
+    "function_constructor": "src/mir/function/function_impl.rs::MirFunction::new",
+    "basic_block_constructor": "src/mir/basic_block.rs::BasicBlock::new",
+    "shape": "src/mir/function/types.rs::MirFunction"
+  },
+  "constructor_signature": {
+    "params": [
+      {
+        "name": "signature",
+        "rust_type": "FunctionSignature",
+        "transport": "FunctionSignaturePrepared"
+      },
+      {
+        "name": "entry_block",
+        "rust_type": "BasicBlockId",
+        "transport": "BasicBlockIdAsI64"
+      }
+    ],
+    "return": {
+      "rust_type": "MirFunction",
+      "transport": "MirFunctionConstructorShell"
+    }
+  },
+  "composition": {
+    "entry_block_child": {
+      "constructor": "BasicBlock::new",
+      "argument": "entry_block",
+      "transport": "BasicBlockConstructorShell"
+    },
+    "blocks": {
+      "initializer": "HashMap::new",
+      "insertion": "entry_block -> BasicBlock::new(entry_block)",
+      "transport": "EntryBlockOnlyFunctionBlockTable"
+    },
+    "params": {
+      "source": "signature.params.len()",
+      "range": "[0, param_count)",
+      "value_transport": "ValueIdAsI64",
+      "prepopulation": "ValueId::new(i)"
+    },
+    "next_value_id": {
+      "seed": "max(param_count, 1)",
+      "transport": "ValueIdCounterAsI64"
+    },
+    "locals": {
+      "initializer": "Vec::new",
+      "transport": "EmptyLocalTypeList"
+    },
+    "metadata": {
+      "initializer": "FunctionMetadata::default",
+      "transport": "FunctionMetadataDefaultShell"
+    }
+  },
+  "basic_block_defaults": {
+    "instructions": "Vec::new",
+    "instruction_spans": "Vec::new",
+    "terminator": null,
+    "terminator_span": null,
+    "predecessors": "BTreeSet::new",
+    "successors": "BTreeSet::new",
+    "effects": "EffectMask::PURE",
+    "reachable": false,
+    "sealed": false,
+    "return_env": null,
+    "return_env_layout": null
+  },
+  "available_capabilities": [
+    "MirFunctionConstructorTransport",
+    "PreparedStateInstall"
+  ],
+  "non_claims": {
+    "separate_block_only_claim": 0,
+    "function_body_lowering": 0,
+    "instruction_emission": 0,
+    "parameter_setup_compatibility_fallback": 0,
+    "reserve_parameter_value_ids_call": 0,
+    "function_finalization": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0
+  }
+}
