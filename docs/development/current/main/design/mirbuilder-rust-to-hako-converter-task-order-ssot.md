@@ -20,18 +20,20 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001
+  MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001
 
 current implementation task:
-  Stop for design consultation before choosing how the resolved allocation
-  policy becomes executable.
+  Implement the prepared-state generated Hako policy kernel for
+  MirBuilder::next_value_id.
 
 selected source slice:
-  execution surface selection for the already-resolved allocation policy
+  prepared-state policy kernel, not full MirBuilder object transport
 
 selected lowering:
   MirBuilderNextValueIdCompositionPlanV1
-    -> design choice: generated artifact vs backend consumer
+    -> MirBuilderNextValueIdExecutionProjectionV1
+    -> VerifiedHakoFamilyIR
+    -> generated Hako policy kernel
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -70,17 +72,19 @@ landed evidence:
   reserved retry oracle vectors.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001
+  MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001
 
 current fail-fast boundary:
-  Do not implement the executable surface until design consultation chooses
-  generated Hako artifact, backend consumer, or another explicit boundary.
-  No silent fallback, ad hoc Hako shape, or runtime patch is allowed.
+  The kernel may claim only prepared-state execution: current-function
+  presence, narrow function counter state, existing CoreContext contract, and
+  membership-only reserved view. It must not claim full MirBuilder,
+  ScopeContext, CompilationContext, full Option<MirFunction>, parameter
+  fallback, invalid sentinel exclusion, overflow, total termination, new
+  backend route, ABI, or runtime fallback.
 
 latest design decision:
-  Allocation facts, function-local subplan, reserved-exclusion subplan, and
-  full composition plan are closed. The remaining question is the execution
-  surface owner.
+  Choose A: generated Hako artifact, but C-sized as a prepared-state policy
+  kernel. Reject backend direct metadata consumer and extra proof-only runner.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -102,6 +106,7 @@ mirbuilder_allocation_policy_facts green
 function_local_value_id_allocator green
 reserved_value_exclusion_policy green
 mirbuilder_next_value_id_composition green
+allocation_policy_execution_surface_selected=prepared_state_hako_kernel
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -121,6 +126,7 @@ mirbuilder_allocation_policy_facts = landed
 function_local_value_id_allocator = landed
 reserved_value_exclusion_policy = landed
 mirbuilder_next_value_id_composition = landed
+allocation_policy_execution_surface_consultation = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -130,17 +136,17 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirBuilder allocation policy execution surface consultation
+1. Prepared-state Hako policy kernel
    status=selected
-   boundary=choose generated artifact vs backend consumer
+   boundary=generated Hako kernel using prepared state only
    semantic_authority=MirBuilderNextValueIdCompositionPlanV1
-   non_authority=ad hoc Hako shape or runtime fallback
+   non_authority=full MirBuilder object transport
 
 2. MirBuilder allocation policy executable smoke
-   status=parked until design consultation resolves execution surface
-   boundary=generated artifact or backend consumer using the resolved policy
-   semantic_authority=MirBuilder allocation policy plan
-   non_authority=CoreContext generator behavior alone
+   status=parked until prepared-state kernel is generated
+   boundary=EXE/AOT smoke for present/absent allocator branches
+   semantic_authority=MirBuilderNextValueIdExecutionProjectionV1
+   non_authority=backend direct metadata consumer
 
 3. MirBuilder allocation policy adoption into bundle
    status=parked until executable smoke is green

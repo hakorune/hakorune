@@ -265,19 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1685-MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001.md"
-latest_card_summary = """MirBuilder next_value_id composition is implemented
-as a plan/oracle projection from ResolvedValueAllocationPolicyV1 plus the
-function-local allocator and reserved-exclusion subplans.
-MirBuilderNextValueIdCompositionPlanV1 fixes current_function allocator
-selection, present/absent candidate producers, reserved membership rejection,
-Consumed rejected candidates, GenerateNextCandidate retry, and ValueIdAsI64
-result transport. Generated Hako, backend routes, ABI, invalid sentinel
-exclusion, overflow, silent fallback, and runtime behavior remain unclaimed.
-The next blocker is design consultation for the executable surface."""
+latest_card = "MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1686-MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001.md"
+latest_card_summary = """Execution surface consultation selected generated
+Hako, scoped as a prepared-state policy kernel. The next slice should project
+MirBuilderNextValueIdCompositionPlanV1 to
+MirBuilderNextValueIdExecutionProjectionV1, then to VerifiedHakoFamilyIR and a
+focused generated Hako kernel. Backend direct metadata interpretation and
+additional oracle-only runner are rejected. Full MirBuilder, ScopeContext,
+CompilationContext, full Option<MirFunction>, parameter fallback, invalid
+sentinel exclusion, overflow, total termination, new backend route, ABI,
+runtime fallback, and mainline selection remain non-claims."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001"
+current_blocker_token = "MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
