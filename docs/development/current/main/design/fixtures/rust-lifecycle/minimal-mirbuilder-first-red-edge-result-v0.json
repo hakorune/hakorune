@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
-    "deny_detail": "TypeHintProvisionRequired",
+    "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
+    "deny_detail": "MetadataValueTypePublicationRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.type_hint_provision",
-    "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-001",
-    "required_capability": "TypeHintProvision",
-    "semantic_owner": "MirBuilder::finalize_module type hint provision",
+    "edge_id": "finalize_module.metadata_value_type_publication",
+    "next_slice_token": "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001",
+    "required_capability": "MetadataValueTypePublication",
+    "semantic_owner": "MirBuilder::finalize_module metadata value type publication",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -258,12 +258,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
-      "deny_detail": "TypeHintProvisionRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "TypeHintProvision",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::type_hint_provision",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-hint-provision-plan-v0.json"
+      },
       "edge_id": "finalize_module.type_hint_provision",
-      "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-001",
       "required_capability": "TypeHintProvision",
-      "semantic_owner": "MirBuilder::finalize_module type hint provision",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
+      "deny_detail": "MetadataValueTypePublicationRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.metadata_value_type_publication",
+      "next_slice_token": "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001",
+      "required_capability": "MetadataValueTypePublication",
+      "semantic_owner": "MirBuilder::finalize_module metadata value type publication",
       "status": "Unsupported"
     }
   ],

@@ -1,0 +1,96 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderTypeHintProvisionPlanV1",
+  "subject": "MirBuilder::finalize_module type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "provider": "src/mir/builder/type_hint_providers.rs::annotate_missing_result_types_from_calls_and_await",
+    "predecessor_plan": "mirbuilder-type-propagation-pipeline-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "function_transport": "MirFunctionPreparedMain",
+    "module_transport": "MirModulePreparedMain",
+    "value_types": "self.type_ctx.value_types"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "TypePropagationPipeline::run(&mut function, &mut self.type_ctx.value_types)?;",
+        "byte_offset": 1462
+      },
+      {
+        "marker": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+        "byte_offset": 1911
+      },
+      {
+        "marker": "function.metadata.value_types = self.type_ctx.value_types.clone();",
+        "byte_offset": 2192
+      }
+    ],
+    "provider": [
+      {
+        "marker": "for (_bid, bb) in function.blocks.iter()",
+        "byte_offset": 83
+      },
+      {
+        "marker": "for inst in bb.instructions.iter()",
+        "byte_offset": 134
+      },
+      {
+        "marker": "MirInstruction::Await { dst, future }",
+        "byte_offset": 212
+      },
+      {
+        "marker": "MirInstruction::Call",
+        "byte_offset": 719
+      }
+    ]
+  },
+  "provider_cases": [
+    {
+      "instruction": "Await",
+      "result": "FutureInnerOrUnknown",
+      "mutation": "InsertMissingValueType"
+    },
+    {
+      "instruction": "Call(Global)",
+      "result": "ModuleSignatureReturnOrAnnotationOrUnknown",
+      "mutation": "InsertMissingValueType"
+    },
+    {
+      "instruction": "Call(Constructor)",
+      "result": "BoxType",
+      "mutation": "InsertMissingValueTypeAndValueOriginNewBox"
+    },
+    {
+      "instruction": "Call(OtherOrMissingCallee)",
+      "result": "Unknown",
+      "mutation": "InsertMissingValueType"
+    }
+  ],
+  "available_capabilities": [
+    "TypeHintProvision"
+  ],
+  "result_contract": {
+    "mutates": [
+      "self.type_ctx.value_types",
+      "self.type_ctx.value_origin_newbox"
+    ],
+    "entrypoint": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+    "minimal_path_expected_result": "OkImplicitUnit"
+  },
+  "non_claims": {
+    "metadata_value_type_publication": 0,
+    "metadata_origin_caller_merge": 0,
+    "phi_return_type_inference": 0,
+    "phi_input_materialization": 0,
+    "module_function_insertion": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

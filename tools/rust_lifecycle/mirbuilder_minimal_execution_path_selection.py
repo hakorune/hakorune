@@ -63,6 +63,9 @@ CURRENT_FUNCTION_TAKE_PLAN = (
 TYPE_PROPAGATION_PIPELINE_PLAN = (
     FIXTURES / "mirbuilder-type-propagation-pipeline-plan-v0.json"
 )
+TYPE_HINT_PROVISION_PLAN = (
+    FIXTURES / "mirbuilder-type-hint-provision-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -160,6 +163,7 @@ def contract_sources() -> list[dict[str, Any]]:
     typed_value_verification = read_json(TYPED_VALUE_VERIFICATION_PLAN)
     current_function_take = read_json(CURRENT_FUNCTION_TAKE_PLAN)
     type_propagation_pipeline = read_json(TYPE_PROPAGATION_PIPELINE_PLAN)
+    type_hint_provision = read_json(TYPE_HINT_PROVISION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -323,6 +327,35 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if type_propagation_non_claims.get(key) != 0:
             raise SelectionError(f"type propagation pipeline plan must keep {key}=0")
+    if type_hint_provision.get("kind") != "MirBuilderTypeHintProvisionPlanV1":
+        raise SelectionError("type hint provision plan has wrong kind")
+    type_hint_caps = set(type_hint_provision.get("available_capabilities") or [])
+    if "TypeHintProvision" not in type_hint_caps:
+        raise SelectionError("type hint provision plan lacks TypeHintProvision")
+    type_hint_contract = type_hint_provision.get("result_contract") or {}
+    if (
+        type_hint_contract.get("entrypoint")
+        != "type_hint_providers::annotate_missing_result_types_from_calls_and_await"
+    ):
+        raise SelectionError("type hint provision entrypoint drift")
+    if [
+        case.get("instruction") for case in type_hint_provision.get("provider_cases") or []
+    ] != [
+        "Await",
+        "Call(Global)",
+        "Call(Constructor)",
+        "Call(OtherOrMissingCallee)",
+    ]:
+        raise SelectionError("type hint provision provider case order drift")
+    type_hint_non_claims = type_hint_provision.get("non_claims") or {}
+    for key in [
+        "metadata_value_type_publication",
+        "metadata_origin_caller_merge",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if type_hint_non_claims.get(key) != 0:
+            raise SelectionError(f"type hint provision plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -434,6 +467,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::type_propagation_pipeline",
             "manifest_path": rel(TYPE_PROPAGATION_PIPELINE_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "TypeHintProvision",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::type_hint_provision",
+            "manifest_path": rel(TYPE_HINT_PROVISION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -721,12 +761,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.type_hint_provision",
             "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
             "required_capability": "TypeHintProvision",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "TypeHintProvision",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "TypeHintProvisionRequired",
                 "semantic_owner": "MirBuilder::finalize_module type hint provision",
                 "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-001",
+            },
+        },
+        {
+            "id": "finalize_module.metadata_value_type_publication",
+            "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
+            "required_capability": "MetadataValueTypePublication",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "MetadataValueTypePublicationRequired",
+                "semantic_owner": "MirBuilder::finalize_module metadata value type publication",
+                "next_slice_token": "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001",
             },
         },
     ]
@@ -920,6 +975,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

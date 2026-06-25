@@ -78,6 +78,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-propagation-pipeline-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "TypeHintProvision",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::type_hint_provision",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-hint-provision-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -384,13 +391,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
       "id": "finalize_module.type_hint_provision",
-      "provider": null,
+      "provider": {
+        "capability": "TypeHintProvision",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "TypeHintProvision",
       "unsupported": {
         "deny_detail": "TypeHintProvisionRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-001",
         "semantic_owner": "MirBuilder::finalize_module type hint provision"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
+      "id": "finalize_module.metadata_value_type_publication",
+      "provider": null,
+      "required_capability": "MetadataValueTypePublication",
+      "unsupported": {
+        "deny_detail": "MetadataValueTypePublicationRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001",
+        "semantic_owner": "MirBuilder::finalize_module metadata value type publication"
       }
     }
   ],

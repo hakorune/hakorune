@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-TYPE-HINT-PROVISION-001
+  MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001
 
 current implementation task:
-  Address the type-hint provision edge derived after TypePropagationPipeline became available.
+  Address the metadata value-type publication edge derived after TypeHintProvision became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, and TypePropagationPipelineExecution are green; the frontier now derives type-hint provision as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, and TypeHintProvision are green; the frontier now derives metadata value-type publication as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-TYPE-HINT-PROVISION-001
+  MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  TypePropagationPipelineExecution is green as a PlanOnly capability. Proceed to type-hint provision, not metadata publication, PHI inference, or full finalize.
+  TypeHintProvision is green as a PlanOnly capability. Proceed to metadata value-type publication, not origin-caller merge, PHI inference, or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -116,7 +116,7 @@ mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
-derived_first_red_edge=TypeHintProvisionRequired
+derived_first_red_edge=MetadataValueTypePublicationRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -153,6 +153,7 @@ mirbuilder_current_module_take = landed
 mirbuilder_typed_value_verification = landed
 mirbuilder_current_function_take = landed
 mirbuilder_type_propagation_pipeline = landed
+mirbuilder_type_hint_provision = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -162,14 +163,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. TypeHintProvision edge
+1. Metadata value-type publication edge
    status=selected
-   boundary=finalize_module annotate_missing_result_types_from_calls_and_await
-   semantic_authority=frontier analyzer plus TypePropagationPipeline non_claim type_hint_provision=0
+   boundary=finalize_module function.metadata.value_types publication
+   semantic_authority=frontier analyzer plus TypeHintProvision non_claim metadata_value_type_publication=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after type-hint provision
-   status=parked until type-hint provision edge is green
+2. Next semantic owner after metadata value-type publication
+   status=parked until metadata value-type publication edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage
