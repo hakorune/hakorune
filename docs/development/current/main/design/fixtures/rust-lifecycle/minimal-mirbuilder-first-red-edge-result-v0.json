@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
-    "deny_detail": "DirectStatePlanRefreshRequired",
+    "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
+    "deny_detail": "AllFunctionsPhiMaterializationRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.direct_state_plan_refresh",
-    "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
-    "required_capability": "DirectStatePlanRefresh",
-    "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
+    "edge_id": "finalize_module.all_functions_phi_materialization",
+    "next_slice_token": "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001",
+    "required_capability": "AllFunctionsPhiMaterialization",
+    "semantic_owner": "MirBuilder::finalize_module all-functions PHI materialization",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -427,12 +427,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
-      "deny_detail": "DirectStatePlanRefreshRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "DirectStatePlanRefresh",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-plan-v0.json"
+      },
       "edge_id": "finalize_module.direct_state_plan_refresh",
-      "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
       "required_capability": "DirectStatePlanRefresh",
-      "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
+      "deny_detail": "AllFunctionsPhiMaterializationRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.all_functions_phi_materialization",
+      "next_slice_token": "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001",
+      "required_capability": "AllFunctionsPhiMaterialization",
+      "semantic_owner": "MirBuilder::finalize_module all-functions PHI materialization",
       "status": "Unsupported"
     }
   ],

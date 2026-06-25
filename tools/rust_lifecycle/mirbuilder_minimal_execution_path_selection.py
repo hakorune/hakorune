@@ -102,6 +102,9 @@ RECORD_PACKED_LAYOUT_REFRESH_PLAN = (
 TYPED_OBJECT_PLAN_REFRESH_PLAN = (
     FIXTURES / "mirbuilder-typed-object-plan-refresh-plan-v0.json"
 )
+DIRECT_STATE_PLAN_REFRESH_PLAN = (
+    FIXTURES / "mirbuilder-direct-state-plan-refresh-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -212,6 +215,7 @@ def contract_sources() -> list[dict[str, Any]]:
     module_metadata_publication = read_json(MODULE_METADATA_PUBLICATION_PLAN)
     record_packed_layout_refresh = read_json(RECORD_PACKED_LAYOUT_REFRESH_PLAN)
     typed_object_plan_refresh = read_json(TYPED_OBJECT_PLAN_REFRESH_PLAN)
+    direct_state_plan_refresh = read_json(DIRECT_STATE_PLAN_REFRESH_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -772,6 +776,49 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if typed_object_non_claims.get(key) != 0:
             raise SelectionError(f"typed object plan refresh plan must keep {key}=0")
+    if direct_state_plan_refresh.get("kind") != "MirBuilderDirectStatePlanRefreshPlanV1":
+        raise SelectionError("direct state plan refresh plan has wrong kind")
+    direct_state_caps = set(direct_state_plan_refresh.get("available_capabilities") or [])
+    if "DirectStatePlanRefresh" not in direct_state_caps:
+        raise SelectionError("direct state plan refresh plan lacks DirectStatePlanRefresh")
+    direct_state_refresh = direct_state_plan_refresh.get("refresh_policy") or {}
+    if direct_state_refresh.get("entrypoint") != "refresh_module_direct_state_plans":
+        raise SelectionError("direct state plan refresh entrypoint drift")
+    if (
+        direct_state_refresh.get("timing")
+        != "AfterTypedObjectPlanRefreshBeforeAllFunctionsPhiMaterialization"
+    ):
+        raise SelectionError("direct state plan refresh timing drift")
+    if direct_state_refresh.get("operation") != "AssignDirectStatePlans":
+        raise SelectionError("direct state plan refresh operation drift")
+    if (
+        direct_state_refresh.get("build_provider")
+        != "direct_state_plan::build_direct_state_plans"
+    ):
+        raise SelectionError("direct state plan refresh build provider drift")
+    if direct_state_refresh.get("target") != "module.metadata.direct_state_plans":
+        raise SelectionError("direct state plan refresh target drift")
+    direct_state_builder = direct_state_plan_refresh.get("plan_builder_contract") or {}
+    if direct_state_builder.get("input_authority") != "module.metadata.user_box_field_decls":
+        raise SelectionError("direct state plan refresh input authority drift")
+    if direct_state_builder.get("field_selection") != "TypedObjectFieldStorageUsesIntegerLaneAndNotWeak":
+        raise SelectionError("direct state plan refresh field selection drift")
+    if direct_state_builder.get("runtime_layout_created") != 0:
+        raise SelectionError("direct state plan refresh must not claim runtime layout")
+    if direct_state_builder.get("lowering_enabled") != 0:
+        raise SelectionError("direct state plan refresh must not claim lowering")
+    direct_state_non_claims = direct_state_plan_refresh.get("non_claims") or {}
+    for key in [
+        "all_functions_phi_materialization",
+        "direct_state_lowering",
+        "route_selection",
+        "native_direct_guard",
+        "full_semantic_refresh",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if direct_state_non_claims.get(key) != 0:
+            raise SelectionError(f"direct state plan refresh plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -974,6 +1021,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
             "manifest_path": rel(TYPED_OBJECT_PLAN_REFRESH_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "DirectStatePlanRefresh",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+            "manifest_path": rel(DIRECT_STATE_PLAN_REFRESH_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1456,12 +1510,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.direct_state_plan_refresh",
             "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
             "required_capability": "DirectStatePlanRefresh",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "DirectStatePlanRefresh",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "DirectStatePlanRefreshRequired",
                 "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
                 "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
+            },
+        },
+        {
+            "id": "finalize_module.all_functions_phi_materialization",
+            "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
+            "required_capability": "AllFunctionsPhiMaterialization",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "AllFunctionsPhiMaterializationRequired",
+                "semantic_owner": "MirBuilder::finalize_module all-functions PHI materialization",
+                "next_slice_token": "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001",
             },
         },
     ]
@@ -1655,6 +1724,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

@@ -1,0 +1,91 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderDirectStatePlanRefreshPlanV1",
+  "subject": "MirBuilder::finalize_module direct state plan refresh",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "refresh_entrypoint": "src/mir/direct_state_plan.rs::refresh_module_direct_state_plans",
+    "predecessor_plan": "mirbuilder-typed-object-plan-refresh-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "module_transport": "MirModuleMinimalShell"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);",
+        "byte_offset": 10618
+      },
+      {
+        "marker": "crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);",
+        "byte_offset": 10705
+      },
+      {
+        "marker": "materialize_all_phi_inputs(\n                function,\n                \"finalize_module_all_functions\",",
+        "byte_offset": 10902
+      }
+    ],
+    "refresh_entrypoint": [
+      {
+        "marker": "module.metadata.direct_state_plans = build_direct_state_plans(module);",
+        "byte_offset": 5
+      }
+    ],
+    "build_entrypoint": [
+      {
+        "marker": "user_box_field_decls",
+        "byte_offset": 63
+      },
+      {
+        "marker": "names.sort();",
+        "byte_offset": 142
+      },
+      {
+        "marker": "build_direct_state_plan(module, box_name, fields)",
+        "byte_offset": 312
+      }
+    ]
+  },
+  "refresh_policy": {
+    "entrypoint": "refresh_module_direct_state_plans",
+    "timing": "AfterTypedObjectPlanRefreshBeforeAllFunctionsPhiMaterialization",
+    "operation": "AssignDirectStatePlans",
+    "source": "build_direct_state_plans(module)",
+    "build_provider": "direct_state_plan::build_direct_state_plans",
+    "target": "module.metadata.direct_state_plans",
+    "module_arg": "&mut MirModule"
+  },
+  "plan_builder_contract": {
+    "input_authority": "module.metadata.user_box_field_decls",
+    "ordering": "SortBoxNames",
+    "field_selection": "TypedObjectFieldStorageUsesIntegerLaneAndNotWeak",
+    "state_repr": "direct_v0",
+    "runtime_layout_created": 0,
+    "lowering_enabled": 0
+  },
+  "available_capabilities": [
+    "DirectStatePlanRefresh"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.metadata.direct_state_plans"
+    ],
+    "entrypoint": "direct_state_plan::refresh_module_direct_state_plans",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "direct_state_lowering": 0,
+    "route_selection": 0,
+    "native_direct_guard": 0,
+    "full_semantic_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

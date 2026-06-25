@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
+    "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "DirectStatePlanRefreshRequired",
-    "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
-    "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
+    "deny_detail": "AllFunctionsPhiMaterializationRequired",
+    "semantic_owner": "MirBuilder::finalize_module all-functions PHI materialization",
+    "next_slice_token": "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:
