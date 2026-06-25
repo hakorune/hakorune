@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the next executable gap: finalize_module ReturnEmission.
+  Materialize the next executable gap: finalize_module return type publication.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, and BoundedFinalizeComposition are now DerivedShadow executable Hako artifacts, and the semantic closure report derives ReturnEmission as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, and ReturnEmission are now DerivedShadow executable Hako artifacts, and the semantic closure report derives ReturnTypePublication as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only materialize ReturnEmission as a reusable generated Hako artifact for the prepared minimal profile. It must not claim full finalize_module, type publication, module take, mainline selection, or source selfhost.
+  The next slice may only materialize return type publication as a reusable generated Hako artifact for the prepared minimal profile. It must not claim full finalize_module, return emission, module take, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.return_emission, so proceed to ReturnEmission artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.return_type_publication, so proceed to return type publication artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -129,8 +129,9 @@ mir_function_constructor_derived_hako_artifact green
 mirbuilder_prepared_state_install_derived_hako_artifact green
 mirbuilder_literal_integer_derived_hako_artifact green
 mirbuilder_bounded_finalize_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.return_emission
-next_slice=MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001
+mirbuilder_return_emission_derived_hako_artifact green
+first_executable_materialization_gap=finalize_module.return_type_publication
+next_slice=MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -188,6 +189,7 @@ mir_function_constructor_derived_hako_artifact = landed
 mirbuilder_prepared_state_install_derived_hako_artifact = landed
 mirbuilder_literal_integer_derived_hako_artifact = landed
 mirbuilder_bounded_finalize_derived_hako_artifact = landed
+mirbuilder_return_emission_derived_hako_artifact = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -197,14 +199,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. ReturnEmission derived Hako artifact
+1. Return type publication derived Hako artifact
    status=selected
-   boundary=append Return(result_value) capability only
+   boundary=publish return type from result_value capability only
    semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=full finalize_module, type publication, module take, or mainline claim
+   non_authority=full finalize_module, return emission, module take, or mainline claim
 
 2. Next executable materialization gap
-   status=parked until ReturnEmission artifact is green
+   status=parked until return type publication artifact is green
    boundary=source-order earliest remaining executable gap
    semantic_authority=semantic closure report regenerated after artifact
    non_authority=coverage percentage or bundle size

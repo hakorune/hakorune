@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::return_emission",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "ReturnEmissionApi.emit(block, result_value)",
+      "hako_operation": "SetField + ReturnValue",
+      "id": "ReturnEmission::emit",
+      "rust_operation": "MirBuilder::finalize_module append Return(result_value)"
+    }
+  ],
+  "pilot_scope": "ReturnEmission_unterminated_block_only",
+  "schema_version": 0,
+  "selected_body_count": "return_emission_unterminated_block_only",
+  "source_oracle": "mirbuilder-return-emission-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-return-emission-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.return_emission"
+}

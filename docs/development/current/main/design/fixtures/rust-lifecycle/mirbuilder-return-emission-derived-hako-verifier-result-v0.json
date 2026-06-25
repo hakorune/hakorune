@@ -1,0 +1,46 @@
+{
+  "checks": {
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "return_emission_only": 1,
+    "return_type_publication": 0,
+    "return_value_some": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "return_emission_unterminated_block_only",
+    "successors_empty": 1,
+    "terminator_is_return": 1,
+    "value_transport": "ValueIdAsI64"
+  },
+  "denied_boundaries": [
+    "return_type_publication",
+    "full_finalize_module",
+    "other_terminator_shapes",
+    "already_terminated_block_behavior",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::return_emission",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "ReturnEmission_unterminated_block_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-return-emission-plan-v0.json",
+  "source_plan": "mirbuilder-return-emission-plan-v0.json",
+  "source_recipe": "mirbuilder-return-emission-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.return_emission",
+  "transport_notes": {
+    "already_terminated_block_behavior": "unselected",
+    "block_transport": "ReturnEmissionBasicBlockShell",
+    "full_finalize_module": 0,
+    "result_value_transport": "ValueIdAsI64",
+    "return_type_publication": 0,
+    "successor_transport": "EmptySuccessorShell",
+    "terminator_transport": "MirInstructionReturnShell"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "MirInstructionReturnShell",
+    "EmptySuccessorShell"
+  ]
+}

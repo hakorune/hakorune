@@ -18,6 +18,7 @@ from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_pare
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
 from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_generator
 from mirbuilder_literal_integer_artifacts import run_literal_integer_lowering_artifact_generator
+from mirbuilder_return_emission_artifacts import run_return_emission_artifact_generator
 from mir_function_constructor_artifacts import run_mir_function_constructor_shell_artifact_generator
 from mir_module_minimal_shell_artifacts import run_mir_module_minimal_shell_artifact_generator
 from mirbuilder_prepared_state_install_artifacts import run_prepared_state_install_artifact_generator
@@ -47,6 +48,7 @@ FAMILY_GENERATORS = {
     "mirbuilder-bounded-finalize-composition": run_bounded_finalize_artifact_generator,
     "mirbuilder-literal-integer-lowering": run_literal_integer_lowering_artifact_generator,
     "mirbuilder-next-value-id-prepared-state-kernel": run_prepared_state_kernel_generator,
+    "mirbuilder-return-emission": run_return_emission_artifact_generator,
     "multi-carrier-exit-phi": run_multi_exit_phi_artifact_generator,
     "region-observer-slot-metadata": run_region_observer_artifact_generator,
     "single-scalar-loop-carrier": run_single_scalar_loop_carrier_artifact_generator,

@@ -1,0 +1,28 @@
+{
+  "kind": "MirBuilderReturnEmissionDerivedHakoOracleV1",
+  "non_claims": {
+    "already_terminated_block_behavior": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "return_type_publication": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module append Return(result_value)",
+  "vectors": [
+    {
+      "expect": {
+        "return_value": 7,
+        "return_value_present": 1,
+        "successors_empty": 1,
+        "terminated": 1
+      },
+      "inputs": {
+        "block_id": 0,
+        "initial_terminated": 0,
+        "result_value": 7
+      },
+      "name": "unterminated_block_gets_return_terminator"
+    }
+  ]
+}

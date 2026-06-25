@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 21,
+      "PlanOnly": 20,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 7
+      "VerifiedArtifact": 8
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 7,
-      "Missing": 21,
+      "ExecutableArtifactPresent": 8,
+      "Missing": 20,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 6,
+      "DerivedShadow": 7,
       "NotApplicable": 4,
-      "Unselected": 21
+      "Unselected": 20
     }
   },
   "edges": [
@@ -236,15 +236,15 @@
       "status": "Available",
       "required_capability": "ReturnEmission",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "ReturnEmission",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::return_emission",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_emission.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.return_emission",
-    "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
-    "required_capability": "ReturnEmission",
-    "next_slice_token": "MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.return_type_publication",
+    "callsite": "MirBuilder::finalize_module -> publish return type from result_value",
+    "required_capability": "ReturnTypePublication",
+    "next_slice_token": "MIRBUILDER-RETURN-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {
