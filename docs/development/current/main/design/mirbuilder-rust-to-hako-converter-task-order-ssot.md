@@ -20,19 +20,19 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  RESERVED-VALUE-EXCLUSION-POLICY-001
+  MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001
 
 current implementation task:
-  Select the reserved ValueId exclusion policy after function-local allocator
-  closeout. Keep full MirBuilder::next_value_id composition parked.
+  Select the full MirBuilder::next_value_id composition now that
+  function-local allocation and reserved exclusion policy are closed.
 
 selected source slice:
-  CompilationContext reserved_value_ids plus JoinIR header PHI prebuild
-  ReplaceSnapshot producer and MirBuilder::next_value_id membership consumer
+  MirBuilder::next_value_id allocator selection, reserved membership retry,
+  and accepted candidate return
 
 selected lowering:
-  ReservedValueExclusionSetFacts
-    -> membership-only exclusion policy
+  ResolvedValueAllocationPolicyV1
+    -> composed next_value_id policy
     -> focused plan/oracle guard
 
 landed evidence:
@@ -62,20 +62,24 @@ landed evidence:
   Function-local ValueId allocator is green: FunctionAllocatorFacts now project
   to FunctionLocalValueIdAllocatorPlanV1 with param_count seeded state,
   ValueIdAsI64 result transport, and oracle vectors for param_count 0/1/3.
+  Reserved ValueId exclusion policy is green: ReservedValueExclusionSetFacts
+  now project to membership-only rejection with PHI destinations plus JoinIR
+  function parameters, consumed rejected candidates, and GenerateNextCandidate
+  retry. Concrete representation remains unselected.
 
 selected next owner:
-  RESERVED-VALUE-EXCLUSION-POLICY-001
+  MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001
 
 current fail-fast boundary:
-  Reserved exclusion policy may claim membership-only rejection, consumed
-  rejected candidates, and GenerateNextCandidate retry only. It must not claim
-  current_function composition, module-global fallback, invalid sentinel
-  exclusion, or a concrete ordered map/set representation.
+  Composition may claim allocator selection plus reserved retry only if it
+  consumes FunctionLocalValueIdAllocatorPlanV1 and
+  ReservedValueExclusionPolicyPlanV1. It must not claim generated Hako,
+  backend routes, invalid sentinel exclusion, overflow, or silent fallback.
 
 latest design decision:
-  Function-local allocation is closed as a plan/oracle projection, not a full
-  MirBuilder allocation implementation. Proceed to reserved exclusion policy,
-  then full MirBuilder::next_value_id composition.
+  Function-local allocation and reserved exclusion are closed as separate
+  plan/oracle projections. Proceed to full MirBuilder::next_value_id
+  composition without re-deriving their sub-policies.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -95,6 +99,7 @@ core_context_artifact_contract_projection green
 mirbuilder_derived_context_bundle_v1 green
 mirbuilder_allocation_policy_facts green
 function_local_value_id_allocator green
+reserved_value_exclusion_policy green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -112,6 +117,7 @@ core_context_artifact_contract_projection = landed
 mirbuilder_derived_context_bundle_v1 = landed
 mirbuilder_allocation_policy_facts = landed
 function_local_value_id_allocator = landed
+reserved_value_exclusion_policy = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -121,23 +127,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Reserved ValueId exclusion policy
+1. MirBuilder next_value_id composition
    status=selected
-   boundary=reserved exclusion set transport and retry policy
-   semantic_authority=ReservedValueExclusionSetFacts
-   non_authority=PHI-dst-only naming or ordered-map representation
-
-2. MirBuilder next_value_id composition
-   status=parked until reserved exclusion policy is green
    boundary=current_function selection plus retry composition
    semantic_authority=ResolvedValueAllocationPolicyV1
    non_authority=module-global CoreContext branch alone
 
-3. MirBuilder allocation policy executable smoke
+2. MirBuilder allocation policy executable smoke
    status=parked until composition is green
    boundary=generated artifact or backend consumer using the resolved policy
    semantic_authority=MirBuilder allocation policy plan
    non_authority=CoreContext generator behavior alone
+
+3. MirBuilder allocation policy design consultation
+   status=parked until composition plan proves executable surface is needed
+   boundary=choose generated artifact vs backend consumer for policy execution
+   semantic_authority=resolved allocation policy plus prior sub-plans
+   non_authority=ad hoc Hako shape or runtime fallback
 ```
 
 ## Landed Converter Capability Summary
