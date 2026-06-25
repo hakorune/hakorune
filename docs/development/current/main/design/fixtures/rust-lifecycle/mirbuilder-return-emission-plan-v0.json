@@ -1,0 +1,98 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderReturnEmissionPlanV1",
+  "subject": "MirBuilder::finalize_module append Return(result_value)",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "basic_block": "src/mir/basic_block.rs::BasicBlock::add_instruction",
+    "mir_instruction": "src/mir/instruction.rs::MirInstruction::Return"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "current_block": "Present",
+    "current_function": "Present",
+    "target_block": "Present",
+    "target_block_terminated": false,
+    "result_value_transport": "ValueIdAsI64"
+  },
+  "observed_source_order": [
+    {
+      "marker": "if let Some(block_id) = self.current_block",
+      "byte_offset": 104
+    },
+    {
+      "marker": "if let Some(ref mut function) = self.scope_ctx.current_function",
+      "byte_offset": 161
+    },
+    {
+      "marker": "if let Some(block) = function.get_block_mut(block_id)",
+      "byte_offset": 243
+    },
+    {
+      "marker": "if !block.is_terminated()",
+      "byte_offset": 319
+    },
+    {
+      "marker": "block.add_instruction(MirInstruction::Return",
+      "byte_offset": 371
+    },
+    {
+      "marker": "value: Some(result_value)",
+      "byte_offset": 446
+    },
+    {
+      "marker": "function.signature.return_type = mt;",
+      "byte_offset": 641
+    }
+  ],
+  "emission_sequence": [
+    {
+      "step": "select_current_block",
+      "source": "self.current_block",
+      "transport": "BasicBlockIdAsI64"
+    },
+    {
+      "step": "select_current_function",
+      "source": "self.scope_ctx.current_function",
+      "observation": "presence_and_mutable_payload"
+    },
+    {
+      "step": "select_target_block",
+      "operation": "function.get_block_mut(block_id)"
+    },
+    {
+      "step": "guard_unterminated",
+      "predicate": "not block.is_terminated()"
+    },
+    {
+      "step": "append_return",
+      "operation": "block.add_instruction(MirInstruction::Return)",
+      "value": "Some(result_value)"
+    },
+    {
+      "step": "publish_terminator",
+      "owner": "BasicBlock::add_instruction_with_span",
+      "terminator": "MirInstruction::Return"
+    }
+  ],
+  "available_capabilities": [
+    "ReturnEmission"
+  ],
+  "result_contract": {
+    "terminator": "MirInstruction::Return",
+    "value": "Some(result_value)",
+    "value_transport": "ValueIdAsI64",
+    "successors": "Empty"
+  },
+  "non_claims": {
+    "return_type_publication": 0,
+    "full_finalize_module": 0,
+    "other_terminator_shapes": 0,
+    "already_terminated_block_behavior": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

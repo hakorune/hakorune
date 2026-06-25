@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-RETURN-EMISSION-001
+  MIRBUILDER-RETURN-TYPE-PUBLICATION-001
 
 current implementation task:
-  Address the ReturnEmission edge derived by the frontier refresh.
+  Address the return-type publication edge derived after ReturnEmission became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, and the allocation-policy mainline pilot are green; frontier refresh derives ReturnEmission as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, and ReturnEmission are green; the frontier now derives ReturnTypePublication as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-RETURN-EMISSION-001
+  MIRBUILDER-RETURN-TYPE-PUBLICATION-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  Frontier refresh is green: ReturnEmission is the derived next unsupported edge (literal-integer return_emission=0 grounding). Proceed to ReturnEmission, not full build_module mainline.
+  ReturnEmission is green as a PlanOnly capability. Proceed to ReturnTypePublication, not full finalize or wider build_module mainline.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -116,7 +116,7 @@ mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
-derived_first_red_edge=ReturnEmissionRequired
+derived_first_red_edge=ReturnTypePublicationRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -147,6 +147,7 @@ mirbuilder_literal_integer_lowering = landed
 mirbuilder_bounded_finalize_composition = landed
 mirbuilder_minimal_execution_path_smoke = landed
 mirbuilder_allocation_policy_mainline_pilot = landed
+mirbuilder_return_emission = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -156,14 +157,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. ReturnEmission edge
+1. ReturnTypePublication edge
    status=selected
-   boundary=finalize_module append Return(result_value)
-   semantic_authority=frontier analyzer plus literal-integer return_emission=0
+   boundary=finalize_module function.signature.return_type = type_ctx[result_value]
+   semantic_authority=frontier analyzer plus ReturnEmission non_claim return_type_publication=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after ReturnEmission
-   status=parked until ReturnEmission edge has executable artifact
+2. Next semantic owner after ReturnTypePublication
+   status=parked until return-type publication edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage

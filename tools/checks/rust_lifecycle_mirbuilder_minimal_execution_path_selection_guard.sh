@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
+    "callsite": "MirBuilder::finalize_module -> publish return type from result_value",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "ReturnEmissionRequired",
-    "semantic_owner": "MirBuilder::finalize_module return emission",
-    "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
+    "deny_detail": "ReturnTypePublicationRequired",
+    "semantic_owner": "MirBuilder::finalize_module return type publication",
+    "next_slice_token": "MIRBUILDER-RETURN-TYPE-PUBLICATION-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:

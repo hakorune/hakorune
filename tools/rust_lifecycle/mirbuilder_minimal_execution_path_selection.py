@@ -45,6 +45,9 @@ LITERAL_INTEGER_PLAN = (
 BOUNDED_FINALIZE_PLAN = (
     FIXTURES / "mirbuilder-bounded-finalize-composition-plan-v0.json"
 )
+RETURN_EMISSION_PLAN = (
+    FIXTURES / "mirbuilder-return-emission-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -136,6 +139,7 @@ def contract_sources() -> list[dict[str, Any]]:
     function_constructor = read_json(FUNCTION_CONSTRUCTOR_PLAN)
     literal_integer = read_json(LITERAL_INTEGER_PLAN)
     bounded_finalize = read_json(BOUNDED_FINALIZE_PLAN)
+    return_emission = read_json(RETURN_EMISSION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -200,6 +204,18 @@ def contract_sources() -> list[dict[str, Any]]:
         raise SelectionError("bounded finalize plan must not claim full finalize")
     if finalize_non_claims.get("generated_hako_artifact") != 0:
         raise SelectionError("bounded finalize plan must not claim generated Hako")
+    if return_emission.get("kind") != "MirBuilderReturnEmissionPlanV1":
+        raise SelectionError("return emission plan has wrong kind")
+    return_caps = set(return_emission.get("available_capabilities") or [])
+    if "ReturnEmission" not in return_caps:
+        raise SelectionError("return emission plan lacks ReturnEmission")
+    return_non_claims = return_emission.get("non_claims") or {}
+    if return_non_claims.get("return_type_publication") != 0:
+        raise SelectionError("return emission plan must not claim return type publication")
+    if return_non_claims.get("full_finalize_module") != 0:
+        raise SelectionError("return emission plan must not claim full finalize")
+    if return_non_claims.get("generated_hako_artifact") != 0:
+        raise SelectionError("return emission plan must not claim generated Hako")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -269,6 +285,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::bounded_finalize",
             "manifest_path": rel(BOUNDED_FINALIZE_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "ReturnEmission",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::return_emission",
+            "manifest_path": rel(RETURN_EMISSION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -466,12 +489,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.return_emission",
             "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
             "required_capability": "ReturnEmission",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "ReturnEmission",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "ReturnEmissionRequired",
                 "semantic_owner": "MirBuilder::finalize_module return emission",
                 "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
+            },
+        },
+        {
+            "id": "finalize_module.return_type_publication",
+            "callsite": "MirBuilder::finalize_module -> publish return type from result_value",
+            "required_capability": "ReturnTypePublication",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "ReturnTypePublicationRequired",
+                "semantic_owner": "MirBuilder::finalize_module return type publication",
+                "next_slice_token": "MIRBUILDER-RETURN-TYPE-PUBLICATION-001",
             },
         },
     ]
@@ -665,6 +703,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",
