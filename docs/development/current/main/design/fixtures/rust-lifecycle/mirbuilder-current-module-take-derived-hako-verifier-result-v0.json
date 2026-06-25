@@ -1,0 +1,45 @@
+{
+  "checks": {
+    "current_function_take": 0,
+    "current_module_take_only": 1,
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "module_transport": "MirModuleMinimalShell",
+    "post_take_state": "None",
+    "runtime_fallback": 0,
+    "selected_body_count": "current_module_take_present_module_only",
+    "taken_module_present": 1,
+    "verify_typed_values": 0
+  },
+  "denied_boundaries": [
+    "verify_typed_values",
+    "current_function_take",
+    "full_finalize_module",
+    "module_metadata_publication",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::current_module_take",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "CurrentModuleTake_present_module_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-current-module-take-plan-v0.json",
+  "source_plan": "mirbuilder-current-module-take-plan-v0.json",
+  "source_recipe": "mirbuilder-current-module-take-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.current_module_take",
+  "transport_notes": {
+    "current_function_take": 0,
+    "full_finalize_module": 0,
+    "module_transport": "MirModuleMinimalShell",
+    "post_take_state": "None",
+    "state_transport": "PreparedCurrentModulePresenceShell",
+    "verify_typed_values": 0
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "MirModuleMinimalShell",
+    "PreparedCurrentModulePresenceShell"
+  ]
+}

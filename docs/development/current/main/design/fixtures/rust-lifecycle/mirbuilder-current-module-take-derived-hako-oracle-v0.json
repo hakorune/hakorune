@@ -1,0 +1,31 @@
+{
+  "kind": "MirBuilderCurrentModuleTakeDerivedHakoOracleV1",
+  "non_claims": {
+    "current_function_take": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "runtime_fallback": 0,
+    "verify_typed_values": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module current_module.take().unwrap()",
+  "vectors": [
+    {
+      "expect": {
+        "current_module_present": 0,
+        "functions_empty": 1,
+        "globals_empty": 1,
+        "module_name_is_main": 1,
+        "taken_module_present": 1
+      },
+      "inputs": {
+        "functions_empty": 1,
+        "globals_empty": 1,
+        "initial_current_module_present": 1,
+        "module_name_is_main": 1
+      },
+      "name": "present_module_is_taken_and_state_cleared"
+    }
+  ]
+}

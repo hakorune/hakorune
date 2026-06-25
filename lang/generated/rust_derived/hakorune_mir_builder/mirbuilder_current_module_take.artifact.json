@@ -1,0 +1,61 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "current_function_take": 0,
+    "current_module_take": 1,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "verify_typed_values": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::current_module_take",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-current-module-take",
+    "version": "mirbuilder-current-module-take-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-plan-v0.json",
+      "sha256": "3e3d79136ba2d3d7c7f14c021e28238f7151e2ddfa096aa539f53281289a9b75"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-derived-hako-oracle-v0.json",
+      "sha256": "71858dc404cd2eabaff6f82e41f1c65b2c877debb613055be43174108354d824"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-plan-v0.json",
+      "sha256": "3e3d79136ba2d3d7c7f14c021e28238f7151e2ddfa096aa539f53281289a9b75"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-derived-hako-recipe-v0.json",
+      "sha256": "f2701168d5ca49972ddd38b515d6ec32480db578c494fdf165c222529d60a0b3"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-derived-hako-verifier-result-v0.json",
+      "sha256": "31cec9cbdc9b9b0b69a023f2a441a32879fdac3f628fb8dcf4b5fea113e9751d"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_current_module_take.hako",
+    "hako_sha256": "7a9e82d917ccfec36d6b7db70ac91407a8ca445e4a7197efc0e69e931442b932"
+  },
+  "pilot_scope": "CurrentModuleTake_present_module_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

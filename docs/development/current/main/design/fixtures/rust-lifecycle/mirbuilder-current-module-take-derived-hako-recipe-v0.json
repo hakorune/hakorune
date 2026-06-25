@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::current_module_take",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "CurrentModuleTakeApi.take(state, module)",
+      "hako_operation": "ClearPresence + MarkTaken + ReturnValue",
+      "id": "CurrentModuleTake::take",
+      "rust_operation": "MirBuilder::finalize_module current_module.take().unwrap()"
+    }
+  ],
+  "pilot_scope": "CurrentModuleTake_present_module_only",
+  "schema_version": 0,
+  "selected_body_count": "current_module_take_present_module_only",
+  "source_oracle": "mirbuilder-current-module-take-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-current-module-take-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.current_module_take"
+}

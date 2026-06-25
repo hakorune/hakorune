@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 19,
+      "PlanOnly": 18,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 9
+      "VerifiedArtifact": 10
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 9,
-      "Missing": 19,
+      "ExecutableArtifactPresent": 10,
+      "Missing": 18,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 8,
+      "DerivedShadow": 9,
       "NotApplicable": 4,
-      "Unselected": 19
+      "Unselected": 18
     }
   },
   "edges": [
@@ -270,15 +270,15 @@
       "status": "Available",
       "required_capability": "CurrentModuleTake",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "CurrentModuleTake",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::current_module_take",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-current-module-take-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_current_module_take.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.take_module",
-    "callsite": "MirBuilder::finalize_module -> take current_module",
-    "required_capability": "CurrentModuleTake",
-    "next_slice_token": "MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.verify_typed_values",
+    "callsite": "MirBuilder::finalize_module -> verify typed values are defined",
+    "required_capability": "TypedValueDefinitionVerification",
+    "next_slice_token": "MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {
