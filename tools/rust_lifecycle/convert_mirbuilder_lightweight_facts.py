@@ -23,6 +23,7 @@ from mirbuilder_literal_integer_artifacts import run_literal_integer_lowering_ar
 from mirbuilder_return_emission_artifacts import run_return_emission_artifact_generator
 from mirbuilder_return_type_publication_artifacts import run_return_type_publication_artifact_generator
 from mirbuilder_typed_value_verification_artifacts import run_typed_value_verification_artifact_generator
+from mirbuilder_type_propagation_pipeline_artifacts import run_type_propagation_pipeline_artifact_generator
 from mir_function_constructor_artifacts import run_mir_function_constructor_shell_artifact_generator
 from mir_module_minimal_shell_artifacts import run_mir_module_minimal_shell_artifact_generator
 from mirbuilder_prepared_state_install_artifacts import run_prepared_state_install_artifact_generator
@@ -57,6 +58,7 @@ FAMILY_GENERATORS = {
     "mirbuilder-return-emission": run_return_emission_artifact_generator,
     "mirbuilder-return-type-publication": run_return_type_publication_artifact_generator,
     "mirbuilder-typed-value-verification": run_typed_value_verification_artifact_generator,
+    "mirbuilder-type-propagation-pipeline": run_type_propagation_pipeline_artifact_generator,
     "multi-carrier-exit-phi": run_multi_exit_phi_artifact_generator,
     "region-observer-slot-metadata": run_region_observer_artifact_generator,
     "single-scalar-loop-carrier": run_single_scalar_loop_carrier_artifact_generator,

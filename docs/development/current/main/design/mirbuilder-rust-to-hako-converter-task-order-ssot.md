@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-TYPE-HINT-PROVISION-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the next executable gap: finalize_module TypePropagationPipeline execution.
+  Materialize the next executable gap: finalize_module type-hint provision.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, and CurrentFunctionTake are now DerivedShadow executable Hako artifacts, and the semantic closure report derives TypePropagationPipelineExecution as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, and TypePropagationPipelineExecution are now DerivedShadow executable Hako artifacts, and the semantic closure report derives TypeHintProvision as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-TYPE-HINT-PROVISION-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only materialize TypePropagationPipeline execution as a reusable generated Hako artifact for the prepared minimal profile. It must not claim type-hint provision, metadata publication, PHI return/input work, full finalize_module, mainline selection, or source selfhost.
+  The next slice may only materialize type-hint provision as a reusable generated Hako artifact for the prepared minimal profile. It must not claim metadata value-type publication, PHI return/input work, full finalize_module, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.type_propagation, so proceed to TypePropagationPipeline artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.type_hint_provision, so proceed to type-hint provision artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -134,8 +134,9 @@ mirbuilder_return_type_publication_derived_hako_artifact green
 mirbuilder_current_module_take_derived_hako_artifact green
 mirbuilder_typed_value_verification_derived_hako_artifact green
 mirbuilder_current_function_take_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.type_propagation
-next_slice=MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001
+mirbuilder_type_propagation_pipeline_derived_hako_artifact green
+first_executable_materialization_gap=finalize_module.type_hint_provision
+next_slice=MIRBUILDER-TYPE-HINT-PROVISION-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -198,6 +199,7 @@ mirbuilder_return_type_publication_derived_hako_artifact = landed
 mirbuilder_current_module_take_derived_hako_artifact = landed
 mirbuilder_typed_value_verification_derived_hako_artifact = landed
 mirbuilder_current_function_take_derived_hako_artifact = landed
+mirbuilder_type_propagation_pipeline_derived_hako_artifact = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -207,14 +209,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Type propagation pipeline derived Hako artifact
+1. Type-hint provision derived Hako artifact
    status=selected
-   boundary=run prepared TypePropagationPipeline before later finalize steps
+   boundary=annotate missing call/await result types after type propagation
    semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=type-hint provision, metadata publication, PHI work, or mainline claim
+   non_authority=metadata publication, PHI work, full finalize, or mainline claim
 
 2. Next executable materialization gap
-   status=parked until TypePropagationPipeline artifact is green
+   status=parked until type-hint provision artifact is green
    boundary=source-order earliest remaining executable gap
    semantic_authority=semantic closure report regenerated after artifact
    non_authority=coverage percentage or bundle size

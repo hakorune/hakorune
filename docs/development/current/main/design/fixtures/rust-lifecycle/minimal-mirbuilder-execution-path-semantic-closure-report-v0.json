@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 16,
+      "PlanOnly": 15,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 12
+      "VerifiedArtifact": 13
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 12,
-      "Missing": 16,
+      "ExecutableArtifactPresent": 13,
+      "Missing": 15,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 11,
+      "DerivedShadow": 12,
       "NotApplicable": 4,
-      "Unselected": 16
+      "Unselected": 15
     }
   },
   "edges": [
@@ -321,15 +321,15 @@
       "status": "Available",
       "required_capability": "TypePropagationPipelineExecution",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "TypePropagationPipelineExecution",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::type_propagation_pipeline",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-propagation-pipeline-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_type_propagation_pipeline.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.type_propagation",
-    "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
-    "required_capability": "TypePropagationPipelineExecution",
-    "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.type_hint_provision",
+    "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
+    "required_capability": "TypeHintProvision",
+    "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

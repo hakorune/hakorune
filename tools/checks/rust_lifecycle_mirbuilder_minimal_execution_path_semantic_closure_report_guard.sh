@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.type_propagation"
-assert gap["callsite"] == "MirBuilder::finalize_module -> TypePropagationPipeline::run"
-assert gap["required_capability"] == "TypePropagationPipelineExecution"
-assert gap["next_slice_token"] == "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.type_hint_provision"
+assert gap["callsite"] == "MirBuilder::finalize_module -> annotate missing call/await result types"
+assert gap["required_capability"] == "TypeHintProvision"
+assert gap["next_slice_token"] == "MIRBUILDER-TYPE-HINT-PROVISION-DERIVED-HAKO-ARTIFACT-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -99,6 +99,13 @@ assert current_function_edge["evidence_tier"] == "VerifiedArtifact"
 assert current_function_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert current_function_edge["route_state"] == "DerivedShadow"
 assert current_function_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_current_function_take.artifact.json"
+type_propagation_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.type_propagation"]
+assert len(type_propagation_edges) == 1
+type_propagation_edge = type_propagation_edges[0]
+assert type_propagation_edge["evidence_tier"] == "VerifiedArtifact"
+assert type_propagation_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert type_propagation_edge["route_state"] == "DerivedShadow"
+assert type_propagation_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_type_propagation_pipeline.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

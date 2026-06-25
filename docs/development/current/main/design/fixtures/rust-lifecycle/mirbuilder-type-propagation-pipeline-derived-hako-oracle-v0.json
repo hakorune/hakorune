@@ -1,0 +1,32 @@
+{
+  "kind": "MirBuilderTypePropagationPipelineDerivedHakoOracleV1",
+  "non_claims": {
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "metadata_value_type_publication": 0,
+    "module_function_insertion": 0,
+    "phi_input_materialization": 0,
+    "phi_return_type_inference": 0,
+    "runtime_fallback": 0,
+    "type_hint_provision": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module TypePropagationPipeline::run",
+  "vectors": [
+    {
+      "expect": {
+        "function_mutated": 1,
+        "ok": 1,
+        "phi_type_inference": 1,
+        "steps_run": 5,
+        "value_types_mutated": 1
+      },
+      "inputs": {
+        "function_transport": "MirFunctionPreparedMain",
+        "initial_steps_run": 0,
+        "value_types_transport": "self.type_ctx.value_types"
+      },
+      "name": "minimal_literal_pipeline_runs_all_steps"
+    }
+  ]
+}
