@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::finalize_module -> publish module metadata",
+    "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "ModuleMetadataPublicationRequired",
-    "semantic_owner": "MirBuilder::finalize_module module metadata publication",
-    "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-001",
+    "deny_detail": "RecordAndPackedLayoutRefreshRequired",
+    "semantic_owner": "MirBuilder::finalize_module record/packed layout refresh",
+    "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:

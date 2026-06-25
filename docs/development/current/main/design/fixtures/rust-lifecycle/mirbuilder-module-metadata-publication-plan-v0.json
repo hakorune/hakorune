@@ -1,0 +1,118 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderModuleMetadataPublicationPlanV1",
+  "subject": "MirBuilder::finalize_module module metadata publication",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "predecessor_plan": "mirbuilder-slot-registry-release-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "module_transport": "MirModuleMinimalShell"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "self.comp_ctx.current_slot_registry = None;",
+        "byte_offset": 9457
+      },
+      {
+        "marker": "module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();",
+        "byte_offset": 9603
+      },
+      {
+        "marker": "module.metadata.user_box_field_decls = self",
+        "byte_offset": 9686
+      },
+      {
+        "marker": ".comp_ctx",
+        "byte_offset": 9742
+      },
+      {
+        "marker": ".user_box_field_decls",
+        "byte_offset": 9764
+      },
+      {
+        "marker": "crate::mir::UserBoxFieldDecl",
+        "byte_offset": 10010
+      },
+      {
+        "marker": "declared_type_name: decl.declared_type_name",
+        "byte_offset": 10114
+      },
+      {
+        "marker": "is_weak: decl.is_weak",
+        "byte_offset": 10187
+      },
+      {
+        "marker": "module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();",
+        "byte_offset": 10338
+      },
+      {
+        "marker": "module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();",
+        "byte_offset": 10435
+      },
+      {
+        "marker": "crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);",
+        "byte_offset": 10520
+      }
+    ]
+  },
+  "publication": {
+    "timing": "AfterSlotRegistryReleaseBeforeSemanticRefresh",
+    "fields": [
+      {
+        "target": "module.metadata.user_box_decls",
+        "source": "self.comp_ctx.user_defined_boxes",
+        "operation": "CloneOwnedMap"
+      },
+      {
+        "target": "module.metadata.user_box_field_decls",
+        "source": "self.comp_ctx.user_box_field_decls",
+        "operation": "MapValuesToUserBoxFieldDecl",
+        "projected_fields": [
+          "name",
+          "declared_type_name",
+          "is_weak"
+        ]
+      },
+      {
+        "target": "module.metadata.record_decls",
+        "source": "self.comp_ctx.record_decls",
+        "operation": "CloneIntoIterCollect"
+      },
+      {
+        "target": "module.metadata.enum_decls",
+        "source": "self.comp_ctx.enum_decls_for_module_metadata()",
+        "operation": "FunctionCall"
+      }
+    ]
+  },
+  "available_capabilities": [
+    "ModuleMetadataPublication"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.metadata.user_box_decls",
+      "module.metadata.user_box_field_decls",
+      "module.metadata.record_decls",
+      "module.metadata.enum_decls"
+    ],
+    "entrypoint": "MirBuilder::finalize_module module metadata publication",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "semantic_refresh": 0,
+    "record_and_packed_layout_refresh": 0,
+    "typed_object_plan_refresh": 0,
+    "direct_state_plan_refresh": 0,
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

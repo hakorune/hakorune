@@ -93,6 +93,9 @@ FUNCTION_REGION_STACK_POP_PLAN = (
 SLOT_REGISTRY_RELEASE_PLAN = (
     FIXTURES / "mirbuilder-slot-registry-release-plan-v0.json"
 )
+MODULE_METADATA_PUBLICATION_PLAN = (
+    FIXTURES / "mirbuilder-module-metadata-publication-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -200,6 +203,7 @@ def contract_sources() -> list[dict[str, Any]]:
     condition_fn_injection = read_json(CONDITION_FN_INJECTION_PLAN)
     function_region_stack_pop = read_json(FUNCTION_REGION_STACK_POP_PLAN)
     slot_registry_release = read_json(SLOT_REGISTRY_RELEASE_PLAN)
+    module_metadata_publication = read_json(MODULE_METADATA_PUBLICATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -654,6 +658,39 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if slot_non_claims.get(key) != 0:
             raise SelectionError(f"SlotRegistry release plan must keep {key}=0")
+    if (
+        module_metadata_publication.get("kind")
+        != "MirBuilderModuleMetadataPublicationPlanV1"
+    ):
+        raise SelectionError("module metadata publication plan has wrong kind")
+    module_metadata_caps = set(module_metadata_publication.get("available_capabilities") or [])
+    if "ModuleMetadataPublication" not in module_metadata_caps:
+        raise SelectionError("module metadata publication plan lacks ModuleMetadataPublication")
+    publication = module_metadata_publication.get("publication") or {}
+    if publication.get("timing") != "AfterSlotRegistryReleaseBeforeSemanticRefresh":
+        raise SelectionError("module metadata publication timing drift")
+    fields = publication.get("fields") or []
+    if [field.get("target") for field in fields] != [
+        "module.metadata.user_box_decls",
+        "module.metadata.user_box_field_decls",
+        "module.metadata.record_decls",
+        "module.metadata.enum_decls",
+    ]:
+        raise SelectionError("module metadata publication field order drift")
+    if fields[1].get("projected_fields") != ["name", "declared_type_name", "is_weak"]:
+        raise SelectionError("module metadata user-box field projection drift")
+    module_metadata_non_claims = module_metadata_publication.get("non_claims") or {}
+    for key in [
+        "semantic_refresh",
+        "record_and_packed_layout_refresh",
+        "typed_object_plan_refresh",
+        "direct_state_plan_refresh",
+        "all_functions_phi_materialization",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if module_metadata_non_claims.get(key) != 0:
+            raise SelectionError(f"module metadata publication plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -835,6 +872,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::slot_registry_release",
             "manifest_path": rel(SLOT_REGISTRY_RELEASE_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "ModuleMetadataPublication",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::module_metadata_publication",
+            "manifest_path": rel(MODULE_METADATA_PUBLICATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1272,12 +1316,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.module_metadata_publication",
             "callsite": "MirBuilder::finalize_module -> publish module metadata",
             "required_capability": "ModuleMetadataPublication",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "ModuleMetadataPublication",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "ModuleMetadataPublicationRequired",
                 "semantic_owner": "MirBuilder::finalize_module module metadata publication",
                 "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-001",
+            },
+        },
+        {
+            "id": "finalize_module.record_packed_layout_refresh",
+            "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
+            "required_capability": "RecordAndPackedLayoutRefresh",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "RecordAndPackedLayoutRefreshRequired",
+                "semantic_owner": "MirBuilder::finalize_module record/packed layout refresh",
+                "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001",
             },
         },
     ]
@@ -1471,6 +1530,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

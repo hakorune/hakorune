@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> publish module metadata",
-    "deny_detail": "ModuleMetadataPublicationRequired",
+    "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
+    "deny_detail": "RecordAndPackedLayoutRefreshRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.module_metadata_publication",
-    "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-001",
-    "required_capability": "ModuleMetadataPublication",
-    "semantic_owner": "MirBuilder::finalize_module module metadata publication",
+    "edge_id": "finalize_module.record_packed_layout_refresh",
+    "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001",
+    "required_capability": "RecordAndPackedLayoutRefresh",
+    "semantic_owner": "MirBuilder::finalize_module record/packed layout refresh",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -388,12 +388,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> publish module metadata",
-      "deny_detail": "ModuleMetadataPublicationRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "ModuleMetadataPublication",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::module_metadata_publication",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-metadata-publication-plan-v0.json"
+      },
       "edge_id": "finalize_module.module_metadata_publication",
-      "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-001",
       "required_capability": "ModuleMetadataPublication",
-      "semantic_owner": "MirBuilder::finalize_module module metadata publication",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
+      "deny_detail": "RecordAndPackedLayoutRefreshRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.record_packed_layout_refresh",
+      "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001",
+      "required_capability": "RecordAndPackedLayoutRefresh",
+      "semantic_owner": "MirBuilder::finalize_module record/packed layout refresh",
       "status": "Unsupported"
     }
   ],

@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-MODULE-METADATA-PUBLICATION-001
+  MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001
 
 current implementation task:
-  Address the module metadata publication edge derived after SlotRegistryRelease became available.
+  Address the record/packed layout refresh edge derived after ModuleMetadataPublication became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, and SlotRegistryRelease are green; the frontier now derives module metadata publication as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are green; the frontier now derives record/packed layout refresh as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-MODULE-METADATA-PUBLICATION-001
+  MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  SlotRegistryRelease is green as a PlanOnly capability. Proceed to module metadata publication, not semantic refresh, all-functions PHI materialization, or full finalize.
+  ModuleMetadataPublication is green as a PlanOnly capability. Proceed to record/packed layout refresh, not typed object refresh, direct state refresh, all-functions PHI materialization, or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -118,7 +118,8 @@ mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
 mirbuilder_function_region_stack_pop green
 mirbuilder_slot_registry_release green
-derived_first_red_edge=ModuleMetadataPublicationRequired
+mirbuilder_module_metadata_publication green
+derived_first_red_edge=RecordAndPackedLayoutRefreshRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -165,6 +166,7 @@ mirbuilder_module_function_insertion = landed
 mirbuilder_condition_fn_injection = landed
 mirbuilder_function_region_stack_pop = landed
 mirbuilder_slot_registry_release = landed
+mirbuilder_module_metadata_publication = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -174,14 +176,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Module metadata publication edge
+1. Record/packed layout refresh edge
    status=selected
-   boundary=finalize_module module.metadata user_box/record/enum publication
-   semantic_authority=frontier analyzer plus SlotRegistryRelease non_claim module_metadata_publication=0
+   boundary=finalize_module refresh_module_record_and_packed_layout_plans
+   semantic_authority=frontier analyzer plus ModuleMetadataPublication non_claim record_and_packed_layout_refresh=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after module metadata publication
-   status=parked until module metadata publication edge is green
+2. Next semantic owner after record/packed layout refresh
+   status=parked until record/packed layout refresh edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage
