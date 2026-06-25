@@ -1,0 +1,92 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderTypePropagationPipelinePlanV1",
+  "subject": "MirBuilder::finalize_module TypePropagationPipeline::run",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "pipeline": "src/mir/type_propagation/pipeline.rs::TypePropagationPipeline::run",
+    "predecessor_plan": "mirbuilder-current-function-take-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "function_transport": "MirFunctionPreparedMain",
+    "value_types": "self.type_ctx.value_types"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "let mut function = self.scope_ctx.current_function.take().unwrap();",
+        "byte_offset": 1021
+      },
+      {
+        "marker": "use crate::mir::type_propagation::TypePropagationPipeline;",
+        "byte_offset": 1395
+      },
+      {
+        "marker": "TypePropagationPipeline::run(&mut function, &mut self.type_ctx.value_types)?;",
+        "byte_offset": 1462
+      },
+      {
+        "marker": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
+        "byte_offset": 1911
+      }
+    ],
+    "pipeline": [
+      {
+        "marker": "Self::seed_declared_field_types(function, value_types);",
+        "byte_offset": 216
+      },
+      {
+        "marker": "Self::step1_copy_propagation(function, value_types)?;",
+        "byte_offset": 327
+      },
+      {
+        "marker": "Self::step2_binop_repropagation(function, value_types)?;",
+        "byte_offset": 450
+      },
+      {
+        "marker": "Self::step3_copy_propagation(function, value_types)?;",
+        "byte_offset": 579
+      },
+      {
+        "marker": "Self::step4_phi_type_inference(function, value_types)?;",
+        "byte_offset": 718
+      },
+      {
+        "marker": "Ok(())",
+        "byte_offset": 783
+      }
+    ]
+  },
+  "pipeline_steps": [
+    "seed_declared_field_types",
+    "copy_propagation_initial",
+    "binop_repropagation",
+    "copy_propagation_after_binop",
+    "phi_type_inference"
+  ],
+  "available_capabilities": [
+    "TypePropagationPipelineExecution"
+  ],
+  "result_contract": {
+    "mutates": [
+      "function",
+      "self.type_ctx.value_types"
+    ],
+    "entrypoint": "TypePropagationPipeline::run",
+    "minimal_path_expected_result": "Ok"
+  },
+  "non_claims": {
+    "type_hint_provision": 0,
+    "metadata_value_type_publication": 0,
+    "phi_return_type_inference": 0,
+    "phi_input_materialization": 0,
+    "module_function_insertion": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
-    "deny_detail": "TypePropagationPipelineRequired",
+    "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
+    "deny_detail": "TypeHintProvisionRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.type_propagation",
-    "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
-    "required_capability": "TypePropagationPipelineExecution",
-    "semantic_owner": "MirBuilder::finalize_module type propagation",
+    "edge_id": "finalize_module.type_hint_provision",
+    "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-001",
+    "required_capability": "TypeHintProvision",
+    "semantic_owner": "MirBuilder::finalize_module type hint provision",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -245,12 +245,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> TypePropagationPipeline::run",
-      "deny_detail": "TypePropagationPipelineRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "TypePropagationPipelineExecution",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::type_propagation_pipeline",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-type-propagation-pipeline-plan-v0.json"
+      },
       "edge_id": "finalize_module.type_propagation",
-      "next_slice_token": "MIRBUILDER-TYPE-PROPAGATION-PIPELINE-001",
       "required_capability": "TypePropagationPipelineExecution",
-      "semantic_owner": "MirBuilder::finalize_module type propagation",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> annotate missing call/await result types",
+      "deny_detail": "TypeHintProvisionRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.type_hint_provision",
+      "next_slice_token": "MIRBUILDER-TYPE-HINT-PROVISION-001",
+      "required_capability": "TypeHintProvision",
+      "semantic_owner": "MirBuilder::finalize_module type hint provision",
       "status": "Unsupported"
     }
   ],
