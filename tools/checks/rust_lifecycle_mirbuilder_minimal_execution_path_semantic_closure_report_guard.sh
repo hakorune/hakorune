@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.verify_typed_values"
-assert gap["callsite"] == "MirBuilder::finalize_module -> verify typed values are defined"
-assert gap["required_capability"] == "TypedValueDefinitionVerification"
-assert gap["next_slice_token"] == "MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.take_current_function"
+assert gap["callsite"] == "MirBuilder::finalize_module -> take current_function"
+assert gap["required_capability"] == "CurrentFunctionTake"
+assert gap["next_slice_token"] == "MIRBUILDER-CURRENT-FUNCTION-TAKE-DERIVED-HAKO-ARTIFACT-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -85,6 +85,13 @@ assert current_module_edge["evidence_tier"] == "VerifiedArtifact"
 assert current_module_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert current_module_edge["route_state"] == "DerivedShadow"
 assert current_module_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_current_module_take.artifact.json"
+typed_value_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.verify_typed_values"]
+assert len(typed_value_edges) == 1
+typed_value_edge = typed_value_edges[0]
+assert typed_value_edge["evidence_tier"] == "VerifiedArtifact"
+assert typed_value_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert typed_value_edge["route_state"] == "DerivedShadow"
+assert typed_value_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_value_verification.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

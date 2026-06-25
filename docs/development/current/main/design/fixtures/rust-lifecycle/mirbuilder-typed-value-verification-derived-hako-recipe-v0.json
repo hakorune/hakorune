@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::typed_value_verification",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "TypedValueVerificationApi.verify(result_value, typed_value, defined_value, param_value)",
+      "hako_operation": "ValidateTypedValueDefined + ReturnValue",
+      "id": "TypedValueVerification::verify",
+      "rust_operation": "verify_typed_values_are_defined(self, \"finalize_module\")"
+    }
+  ],
+  "pilot_scope": "TypedValueVerification_minimal_literal_success_only",
+  "schema_version": 0,
+  "selected_body_count": "typed_value_verification_minimal_literal_success_only",
+  "source_oracle": "mirbuilder-typed-value-verification-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-typed-value-verification-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.typed_value_verification"
+}

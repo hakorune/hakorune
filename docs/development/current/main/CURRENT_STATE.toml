@@ -265,20 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1727-MIRBUILDER-CURRENT-MODULE-TAKE-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """MirBuilder current_module take now has a
-DerivedShadow Hako artifact for the prepared minimal profile. The artifact
-materializes only the prepared current_module presence shell, clears the
-presence tag, marks the module payload taken, and returns the
-MirModuleMinimalShell payload while typed-value verification,
-current_function take, full finalize_module, module metadata publication,
-mainline selection, and source selfhost remain non-claims. The semantic closure
-report now derives finalize_module.verify_typed_values as the first executable
-materialization gap. The next blocker is
-MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001."""
+latest_card = "MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1728-MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """MirBuilder typed-value definition verification now
+has a DerivedShadow Hako artifact for the prepared minimal profile. The
+artifact materializes only the selected typed result value definition check and
+returns a TypedValueVerificationResultBox while current_function take, type
+propagation, PHI return/input work, module metadata publication, full
+finalize_module, mainline selection, and source selfhost remain non-claims. The
+semantic closure report now derives finalize_module.take_current_function as
+the first executable materialization gap. The next blocker is
+MIRBUILDER-CURRENT-FUNCTION-TAKE-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-TYPED-VALUE-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-CURRENT-FUNCTION-TAKE-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

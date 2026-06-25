@@ -1,0 +1,54 @@
+{
+  "checks": {
+    "current_function_take": 0,
+    "definition_sources": [
+      "compute_def_blocks(func)",
+      "func.params"
+    ],
+    "excluded_methods": [],
+    "excluded_value": "ValueId::INVALID",
+    "fail_fast_tag": "[freeze:contract][value_lifecycle/typed_without_def]",
+    "full_finalize_module": 0,
+    "minimal_path_expected_result": "Ok",
+    "runtime_fallback": 0,
+    "selected_body_count": "typed_value_verification_minimal_literal_success_only",
+    "type_propagation": 0,
+    "typed_value_verification_only": 1,
+    "typed_values": "builder.type_ctx.value_types"
+  },
+  "denied_boundaries": [
+    "current_function_take",
+    "type_propagation",
+    "type_hint_provision",
+    "phi_return_type_inference",
+    "phi_input_materialization",
+    "module_metadata_publication",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::typed_value_verification",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "TypedValueVerification_minimal_literal_success_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-typed-value-verification-plan-v0.json",
+  "source_plan": "mirbuilder-typed-value-verification-plan-v0.json",
+  "source_recipe": "mirbuilder-typed-value-verification-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.typed_value_verification",
+  "transport_notes": {
+    "current_function_take": 0,
+    "definition_sources": "DefBlocksPlusParamsShell",
+    "excluded_value": "ValueId::INVALID",
+    "full_finalize_module": 0,
+    "result_value_transport": "ValueIdAsI64",
+    "type_propagation": "unselected",
+    "typed_values_transport": "TypedValueSetShell"
+  },
+  "verified_operations": [
+    "IfElse",
+    "SetField",
+    "ReturnValue",
+    "TypedValueDefinitionVerificationShell"
+  ]
+}
