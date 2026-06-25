@@ -28,17 +28,25 @@ assert manifest["claims"]["rust_bootstrap_retained"] == 1
 assert manifest["claims"]["backend_behavior_changed"] == 0
 assert manifest["generator"]["version"] == "mirbuilder-easy-v0-ordered-map-bundle-v3"
 assert manifest["bundle_kind"] == "mirbuilder_easy_v0_ordered_map_bundle"
+assert manifest["bundle_contract_model"] == "membership_only_v1"
 assert manifest["bundle_members"] == [
-    "hakorune_mir_builder::binding_context",
-    "hakorune_mir_builder::context",
-    "hakorune_mir_builder::core_context.scalar_counters",
-    "hakorune_mir_builder::variable_context.simple_map",
-    "hakorune_mir_builder::variable_context.snapshot_restore",
+    "binding_context",
+    "box_compilation_context",
+    "core_context",
+    "variable_context_simple_map",
+    "variable_context_snapshot_restore",
 ]
+contract_refs = manifest["bundle_member_contracts"]
+assert len(contract_refs) == 5
+core_contract = [row for row in contract_refs if row["member"] == "core_context"]
+assert len(core_contract) == 1
+assert core_contract[0]["family_id"] == "hakorune_mir_builder::core_context"
+assert core_contract[0]["contract"]["kind"] == "VerifiedFamilyArtifactContractV1"
+assert core_contract[0]["contract"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json"
 assert manifest["exercised_capabilities"] == [
     "BindingContext.insert_lookup",
     "BoxCompilationContext.new_is_empty",
-    "CoreContext.scalar_counters",
+    "CoreContext.scalar_counters_and_id_generators",
     "VariableContext.simple_map.insert_lookup",
     "VariableContext.snapshot_owned_projection_set_get",
     "VariableContext.snapshot_restore",

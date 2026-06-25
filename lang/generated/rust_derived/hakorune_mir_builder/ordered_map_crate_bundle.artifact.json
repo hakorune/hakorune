@@ -1,11 +1,49 @@
 {
+  "bundle_contract_model": "membership_only_v1",
   "bundle_kind": "mirbuilder_easy_v0_ordered_map_bundle",
+  "bundle_member_contracts": [
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json",
+      "contract": null,
+      "family_id": "hakorune_mir_builder::binding_context",
+      "member": "binding_context"
+    },
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json",
+      "contract": null,
+      "family_id": "hakorune_mir_builder::context",
+      "member": "box_compilation_context"
+    },
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+      "contract": {
+        "family_id": "hakorune_mir_builder::core_context",
+        "kind": "VerifiedFamilyArtifactContractV1",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "schema_version": 0
+      },
+      "family_id": "hakorune_mir_builder::core_context",
+      "member": "core_context"
+    },
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
+      "contract": null,
+      "family_id": "hakorune_mir_builder::variable_context",
+      "member": "variable_context_simple_map"
+    },
+    {
+      "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json",
+      "contract": null,
+      "family_id": "hakorune_mir_builder::variable_context",
+      "member": "variable_context_snapshot_restore"
+    }
+  ],
   "bundle_members": [
-    "hakorune_mir_builder::binding_context",
-    "hakorune_mir_builder::context",
-    "hakorune_mir_builder::core_context.scalar_counters",
-    "hakorune_mir_builder::variable_context.simple_map",
-    "hakorune_mir_builder::variable_context.snapshot_restore"
+    "binding_context",
+    "box_compilation_context",
+    "core_context",
+    "variable_context_simple_map",
+    "variable_context_snapshot_restore"
   ],
   "claims": {
     "backend_behavior_changed": 0,
@@ -18,7 +56,7 @@
   "exercised_capabilities": [
     "BindingContext.insert_lookup",
     "BoxCompilationContext.new_is_empty",
-    "CoreContext.scalar_counters",
+    "CoreContext.scalar_counters_and_id_generators",
     "VariableContext.simple_map.insert_lookup",
     "VariableContext.snapshot_owned_projection_set_get",
     "VariableContext.snapshot_restore"
@@ -45,9 +83,15 @@
       },
       {
         "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "contract": {
+          "family_id": "hakorune_mir_builder::core_context",
+          "kind": "VerifiedFamilyArtifactContractV1",
+          "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+          "schema_version": 0
+        },
         "family_id": "hakorune_mir_builder::core_context",
         "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.hako",
-        "name": "core_context_scalar_counters"
+        "name": "core_context"
       },
       {
         "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/variable_context_simple_map.artifact.json",
@@ -66,7 +110,7 @@
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.hako",
-    "hako_sha256": "2ce0582e21596c8311bb562aac0de8bb7427eeffc719c385122ff36373a9473e"
+    "hako_sha256": "3cda777ed91f5d811290638ac2591a586476e7b809d4170735f92345ac52e6ed"
   },
   "pilot_scope": "MirBuilder_easy_v0_ordered_map_bundle",
   "schema_version": 0,

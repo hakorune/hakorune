@@ -13,7 +13,7 @@ from mirbuilder_family_artifacts import (
     variable_context_simple_map_spec,
     variable_context_snapshot_restore_spec,
 )
-from mirbuilder_core_context_artifacts import core_context_spec
+from mirbuilder_core_context_artifacts import core_context_contract, core_context_spec
 from shared_family_generator import build_rust_derived_hako_manifest, rust_manifest_file_entry, sha256_text, stable_json
 from shared_mirbuilder_emitter import render_main_operation
 from shared_mirbuilder_emitter_common import indent
@@ -104,30 +104,38 @@ def _bundle_main_operations() -> list[dict[str, Any]]:
         op("StaticCall", target="box_empty", callee="BoxCompilationContextApi.is_empty", args=["box_ctx"]).to_json(),
         op("AssertEq", left="box_empty", right=1, fail_message="ordered_map_bundle_box_compilation_context_new_empty=fail", fail_code=4).to_json(),
         op("NewBox", target="core_ctx", box="CoreContext").to_json(),
+        op("StaticCall", target="value0", callee="CoreContextApi.next_value", args=["core_ctx"]).to_json(),
+        op("AssertEq", left="value0", right=0, fail_message="ordered_map_bundle_core_context_next_value_0=fail", fail_code=5).to_json(),
+        op("StaticCall", target="peek_value1", callee="CoreContextApi.peek_next_value", args=["core_ctx"]).to_json(),
+        op("AssertEq", left="peek_value1", right=1, fail_message="ordered_map_bundle_core_context_peek_next_value_1=fail", fail_code=6).to_json(),
+        op("StaticCall", target="block0", callee="CoreContextApi.next_block", args=["core_ctx"]).to_json(),
+        op("AssertEq", left="block0", right=0, fail_message="ordered_map_bundle_core_context_next_block_0=fail", fail_code=7).to_json(),
+        op("StaticCall", target="peek_block1", callee="CoreContextApi.peek_next_block", args=["core_ctx"]).to_json(),
+        op("AssertEq", left="peek_block1", right=1, fail_message="ordered_map_bundle_core_context_peek_next_block_1=fail", fail_code=8).to_json(),
         op("StaticCall", target="binding0", callee="CoreContextApi.next_binding", args=["core_ctx"]).to_json(),
-        op("AssertEq", left="binding0", right=0, fail_message="ordered_map_bundle_core_context_next_binding_0=fail", fail_code=5).to_json(),
+        op("AssertEq", left="binding0", right=0, fail_message="ordered_map_bundle_core_context_next_binding_0=fail", fail_code=9).to_json(),
         op("StaticCall", target="binding1", callee="CoreContextApi.next_binding", args=["core_ctx"]).to_json(),
-        op("AssertEq", left="binding1", right=1, fail_message="ordered_map_bundle_core_context_next_binding_1=fail", fail_code=6).to_json(),
+        op("AssertEq", left="binding1", right=1, fail_message="ordered_map_bundle_core_context_next_binding_1=fail", fail_code=10).to_json(),
         op("StaticCall", target="temp0", callee="CoreContextApi.next_temp_slot", args=["core_ctx"]).to_json(),
-        op("AssertEq", left="temp0", right=0, fail_message="ordered_map_bundle_core_context_next_temp_slot_0=fail", fail_code=7).to_json(),
+        op("AssertEq", left="temp0", right=0, fail_message="ordered_map_bundle_core_context_next_temp_slot_0=fail", fail_code=11).to_json(),
         op("StaticCall", target="debug0", callee="CoreContextApi.next_debug_join", args=["core_ctx"]).to_json(),
-        op("AssertEq", left="debug0", right=0, fail_message="ordered_map_bundle_core_context_next_debug_join_0=fail", fail_code=8).to_json(),
+        op("AssertEq", left="debug0", right=0, fail_message="ordered_map_bundle_core_context_next_debug_join_0=fail", fail_code=12).to_json(),
         op("NewBox", target="variable_ctx", box="VariableContext").to_json(),
         op("StaticCall", target="variable_empty", callee="VariableContextApi.is_empty", args=["variable_ctx"]).to_json(),
-        op("AssertEq", left="variable_empty", right=1, fail_message="ordered_map_bundle_variable_context_new_empty=fail", fail_code=9).to_json(),
+        op("AssertEq", left="variable_empty", right=1, fail_message="ordered_map_bundle_variable_context_new_empty=fail", fail_code=13).to_json(),
         op("StaticCall", target="variable_inserted", callee="VariableContextApi.insert", args=["variable_ctx", {"literal": "y"}, 42]).to_json(),
-        op("AssertEq", left="variable_inserted", right=1, fail_message="ordered_map_bundle_variable_context_insert=fail", fail_code=10).to_json(),
+        op("AssertEq", left="variable_inserted", right=1, fail_message="ordered_map_bundle_variable_context_insert=fail", fail_code=14).to_json(),
         op("StaticCall", target="variable_lookup", callee="VariableContextApi.lookup", args=["variable_ctx", {"literal": "y"}]).to_json(),
-        op("AssertEq", left="variable_lookup", right=42, fail_message="ordered_map_bundle_variable_context_lookup=fail", fail_code=11).to_json(),
+        op("AssertEq", left="variable_lookup", right=42, fail_message="ordered_map_bundle_variable_context_lookup=fail", fail_code=15).to_json(),
         op("StaticCall", target="snapshot", callee="VariableContextApi.snapshot", args=["variable_ctx"]).to_json(),
         op("MethodCall", callee="snapshot_set", receiver="snapshot", method="set", args=[{"literal": "y"}, 7]).to_json(),
         op("MethodCall", target="snapshot_lookup", receiver="snapshot", method="get", args=[{"literal": "y"}]).to_json(),
-        op("AssertEq", left="snapshot_lookup", right=7, fail_message="ordered_map_bundle_variable_context_snapshot_get=fail", fail_code=12).to_json(),
+        op("AssertEq", left="snapshot_lookup", right=7, fail_message="ordered_map_bundle_variable_context_snapshot_get=fail", fail_code=16).to_json(),
         op("StaticCall", target="post_snapshot_mutation_lookup", callee="VariableContextApi.lookup", args=["variable_ctx", {"literal": "y"}]).to_json(),
-        op("AssertEq", left="post_snapshot_mutation_lookup", right=42, fail_message="ordered_map_bundle_variable_context_snapshot_alias=fail", fail_code=13).to_json(),
+        op("AssertEq", left="post_snapshot_mutation_lookup", right=42, fail_message="ordered_map_bundle_variable_context_snapshot_alias=fail", fail_code=17).to_json(),
         op("StaticCall", callee="VariableContextApi.restore", args=["variable_ctx", "snapshot"]).to_json(),
         op("StaticCall", target="lookup_after_restore", callee="VariableContextApi.lookup", args=["variable_ctx", {"literal": "y"}]).to_json(),
-        op("AssertEq", left="lookup_after_restore", right=7, fail_message="ordered_map_bundle_variable_context_restore=fail", fail_code=14).to_json(),
+        op("AssertEq", left="lookup_after_restore", right=7, fail_message="ordered_map_bundle_variable_context_restore=fail", fail_code=18).to_json(),
         op("Print", text="ordered_map_crate_bundle=ok").to_json(),
         op("ReturnI64", return_value=0).to_json(),
     ]
@@ -179,8 +187,47 @@ def build_ordered_map_crate_bundle_manifest_text(hako_text: str) -> str:
     binding_spec = binding_context_spec()
     box_spec = box_compilation_context_spec()
     core_spec = core_context_spec()
+    core_contract = core_context_contract()
     variable_spec = variable_context_simple_map_spec()
     snapshot_spec = variable_context_snapshot_restore_spec()
+    bundle_members = [
+        {
+            "name": "binding_context",
+            "family_id": binding_spec.family_id,
+            "artifact_manifest": binding_spec.artifact_manifest,
+            "hako_path": str(binding_spec.hako_path.relative_to(ROOT)),
+        },
+        {
+            "name": "box_compilation_context",
+            "family_id": box_spec.family_id,
+            "artifact_manifest": box_spec.artifact_manifest,
+            "hako_path": str(box_spec.hako_path.relative_to(ROOT)),
+        },
+        {
+            "name": "core_context",
+            "family_id": core_spec.family_id,
+            "artifact_manifest": core_spec.artifact_manifest,
+            "hako_path": str(core_spec.hako_path.relative_to(ROOT)),
+            "contract": {
+                "kind": "VerifiedFamilyArtifactContractV1",
+                "family_id": core_contract.family_id,
+                "manifest_path": core_contract.artifact.manifest_path,
+                "schema_version": core_contract.artifact.schema_version,
+            },
+        },
+        {
+            "name": "variable_context_simple_map",
+            "family_id": variable_spec.family_id,
+            "artifact_manifest": variable_spec.artifact_manifest,
+            "hako_path": str(variable_spec.hako_path.relative_to(ROOT)),
+        },
+        {
+            "name": "variable_context_snapshot_restore",
+            "family_id": snapshot_spec.family_id,
+            "artifact_manifest": snapshot_spec.artifact_manifest,
+            "hako_path": str(snapshot_spec.hako_path.relative_to(ROOT)),
+        },
+    ]
     manifest = build_rust_derived_hako_manifest(
         family_id="hakorune_mir_builder::ordered_map_bundle",
         state="DerivedShadow",
@@ -204,52 +251,25 @@ def build_ordered_map_crate_bundle_manifest_text(hako_text: str) -> str:
         pilot_scope="MirBuilder_easy_v0_ordered_map_bundle",
         inputs={
             "bundle_kind": "mirbuilder_easy_v0_ordered_map_bundle",
-            "bundle_members": [
-                {
-                    "name": "binding_context",
-                    "family_id": binding_spec.family_id,
-                    "artifact_manifest": binding_spec.artifact_manifest,
-                    "hako_path": str(binding_spec.hako_path.relative_to(ROOT)),
-                },
-                {
-                    "name": "box_compilation_context",
-                    "family_id": box_spec.family_id,
-                    "artifact_manifest": box_spec.artifact_manifest,
-                    "hako_path": str(box_spec.hako_path.relative_to(ROOT)),
-                },
-                {
-                    "name": "core_context_scalar_counters",
-                    "family_id": core_spec.family_id,
-                    "artifact_manifest": core_spec.artifact_manifest,
-                    "hako_path": str(core_spec.hako_path.relative_to(ROOT)),
-                },
-                {
-                    "name": "variable_context_simple_map",
-                    "family_id": variable_spec.family_id,
-                    "artifact_manifest": variable_spec.artifact_manifest,
-                    "hako_path": str(variable_spec.hako_path.relative_to(ROOT)),
-                },
-                {
-                    "name": "variable_context_snapshot_restore",
-                    "family_id": snapshot_spec.family_id,
-                    "artifact_manifest": snapshot_spec.artifact_manifest,
-                    "hako_path": str(snapshot_spec.hako_path.relative_to(ROOT)),
-                },
-            ],
+            "bundle_members": bundle_members,
         },
         extra_fields={
             "bundle_kind": "mirbuilder_easy_v0_ordered_map_bundle",
-            "bundle_members": [
-                "hakorune_mir_builder::binding_context",
-                "hakorune_mir_builder::context",
-                "hakorune_mir_builder::core_context.scalar_counters",
-                "hakorune_mir_builder::variable_context.simple_map",
-                "hakorune_mir_builder::variable_context.snapshot_restore",
+            "bundle_contract_model": "membership_only_v1",
+            "bundle_members": [member["name"] for member in bundle_members],
+            "bundle_member_contracts": [
+                {
+                    "member": member["name"],
+                    "family_id": member["family_id"],
+                    "contract": member.get("contract"),
+                    "artifact_manifest": member["artifact_manifest"],
+                }
+                for member in bundle_members
             ],
             "exercised_capabilities": [
                 "BindingContext.insert_lookup",
                 "BoxCompilationContext.new_is_empty",
-                "CoreContext.scalar_counters",
+                "CoreContext.scalar_counters_and_id_generators",
                 "VariableContext.simple_map.insert_lookup",
                 "VariableContext.snapshot_owned_projection_set_get",
                 "VariableContext.snapshot_restore",

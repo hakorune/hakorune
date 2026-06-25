@@ -20,21 +20,21 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001
+  MIRBUILDER-ALLOCATION-POLICY-SLICE-001
 
 current implementation task:
-  Select the first MirBuilder derived context bundle v1 boundary. Bundle
-  ownership must remain membership-only and reference family contracts rather
-  than copying selected methods, transports, or denials.
+  Select the higher-level MirBuilder allocation policy boundary after the
+  derived context bundle v1 closeout. This is not CoreContext generator
+  scalarization; it must cover reserved/function-local allocation policy.
 
 selected source slice:
-  explicit bundle membership over already accepted context-family artifacts
+  MirBuilder::next_value_id / related allocation policy surfaces
 
 selected lowering:
-  BundleSpec
-    -> family contract references
-    -> generated bundle manifest
-    -> composed generated artifact smoke
+  allocation facts
+    -> nominal ValueId transport
+    -> explicit reserved/function-local policy proof
+    -> focused generated artifact smoke
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -51,20 +51,24 @@ landed evidence:
   CoreContext artifact contract projection is green: VerifiedHakoFamilyIR plus
   stable Deny results plus artifact identity project the manifest, verifier
   expectation, and guard consumer through VerifiedFamilyArtifactContractV1.
+  MirBuilder derived context bundle v1 is green as a membership-only bundle:
+  ordered_map_crate_bundle now references CoreContext's
+  VerifiedFamilyArtifactContractV1, exercises scalar counters and ID
+  generators, and avoids copying family selected methods, semantic transports,
+  or denials.
 
 selected next owner:
-  MIRBUILDER-DERIVED-CONTEXT-BUNDLE-V1-001
+  MIRBUILDER-ALLOCATION-POLICY-SLICE-001
 
 current fail-fast boundary:
-  bundle manifests may own family membership and ordering only; they must not
-  restate family selected methods, semantic transports, denials, or behavioral
-  claims.
+  CoreContext generator state is not enough to claim MirBuilder allocation
+  semantics. Reserved IDs, function-local allocation policy, and invalid/sentinel
+  boundaries must be explicit or fail-fast.
 
 latest design decision:
-  CoreContext proved the projection seam: keep VerifiedHakoFamilyIR as family
-  semantic authority and use a thin verified family artifact contract to derive
-  manifest/verifier/guard expectations. Bundle v1 should consume family
-  contract references, not become a second semantic authority.
+  Bundle v1 proved the membership seam: bundle manifests own membership and
+  ordering only, while family contracts own selected methods, transports, and
+  denials. The next slice can now return to MirBuilder allocation semantics.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -81,6 +85,7 @@ CoreContext scalar-counter EXE/AOT green
 multi_carrier_exit_phi ArrayBox return selected to close matrix red edge
 multi_carrier_exit_phi ArrayBox return green
 core_context_artifact_contract_projection green
+mirbuilder_derived_context_bundle_v1 green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -95,6 +100,7 @@ same_module_uniform_mir_scalar_counter_emitter = landed
 same_module_arraybox_return_contract = landed
 newtype_id_generator_scalarization = landed
 core_context_artifact_contract_projection = landed
+mirbuilder_derived_context_bundle_v1 = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -104,17 +110,17 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirBuilder derived context bundle v1
+1. MirBuilder allocation policy slice
    status=selected
-   boundary=compose accepted context families without mainline selection
-   semantic_authority=explicit bundle membership plus family contract references
-   non_authority=copying family selected methods / transports / denials
-
-2. MirBuilder allocation policy slice
-   status=parked
    boundary=MirBuilder::next_value_id reserved/function-local policy
    semantic_authority=function allocation facts
    non_authority=CoreContext generator scalarization
+
+2. MirBuilder minimal execution path
+   status=parked until allocation policy is green
+   boundary=ValueId creation, block creation, Const/Copy/Return emission, module finalization
+   semantic_authority=focused call graph and generated context bundle
+   non_authority=crate-wide conversion coverage
 
 3. Additional family contract projection
    status=parked until bundle v1 exposes a concrete duplication point

@@ -306,59 +306,79 @@ static box Main {
             return 4
         }
         local core_ctx = new CoreContext()
+        local value0 = CoreContextApi.next_value(core_ctx)
+        if value0 != 0 {
+            print("ordered_map_bundle_core_context_next_value_0=fail")
+            return 5
+        }
+        local peek_value1 = CoreContextApi.peek_next_value(core_ctx)
+        if peek_value1 != 1 {
+            print("ordered_map_bundle_core_context_peek_next_value_1=fail")
+            return 6
+        }
+        local block0 = CoreContextApi.next_block(core_ctx)
+        if block0 != 0 {
+            print("ordered_map_bundle_core_context_next_block_0=fail")
+            return 7
+        }
+        local peek_block1 = CoreContextApi.peek_next_block(core_ctx)
+        if peek_block1 != 1 {
+            print("ordered_map_bundle_core_context_peek_next_block_1=fail")
+            return 8
+        }
         local binding0 = CoreContextApi.next_binding(core_ctx)
         if binding0 != 0 {
             print("ordered_map_bundle_core_context_next_binding_0=fail")
-            return 5
+            return 9
         }
         local binding1 = CoreContextApi.next_binding(core_ctx)
         if binding1 != 1 {
             print("ordered_map_bundle_core_context_next_binding_1=fail")
-            return 6
+            return 10
         }
         local temp0 = CoreContextApi.next_temp_slot(core_ctx)
         if temp0 != 0 {
             print("ordered_map_bundle_core_context_next_temp_slot_0=fail")
-            return 7
+            return 11
         }
         local debug0 = CoreContextApi.next_debug_join(core_ctx)
         if debug0 != 0 {
             print("ordered_map_bundle_core_context_next_debug_join_0=fail")
-            return 8
+            return 12
         }
         local variable_ctx = new VariableContext()
         local variable_empty = VariableContextApi.is_empty(variable_ctx)
         if variable_empty != 1 {
             print("ordered_map_bundle_variable_context_new_empty=fail")
-            return 9
+            return 13
         }
         local variable_inserted = VariableContextApi.insert(variable_ctx, "y", 42)
         if variable_inserted != 1 {
             print("ordered_map_bundle_variable_context_insert=fail")
-            return 10
+            return 14
         }
         local variable_lookup = VariableContextApi.lookup(variable_ctx, "y")
         if variable_lookup != 42 {
             print("ordered_map_bundle_variable_context_lookup=fail")
-            return 11
+            return 15
         }
         local snapshot = VariableContextApi.snapshot(variable_ctx)
         snapshot.set("y", 7)
         local snapshot_lookup = snapshot.get("y")
         if snapshot_lookup != 7 {
             print("ordered_map_bundle_variable_context_snapshot_get=fail")
-            return 12
+            return 16
         }
         local post_snapshot_mutation_lookup = VariableContextApi.lookup(variable_ctx, "y")
         if post_snapshot_mutation_lookup != 42 {
             print("ordered_map_bundle_variable_context_snapshot_alias=fail")
-            return 13
+            return 17
         }
         VariableContextApi.restore(variable_ctx, snapshot)
         local lookup_after_restore = VariableContextApi.lookup(variable_ctx, "y")
         if lookup_after_restore != 7 {
             print("ordered_map_bundle_variable_context_restore=fail")
-            return 14
+            return 18
         }
         print("ordered_map_crate_bundle=ok")
         return 0
