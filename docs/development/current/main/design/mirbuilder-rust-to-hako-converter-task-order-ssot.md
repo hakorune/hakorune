@@ -52,6 +52,9 @@ landed evidence:
   VerifiedFamilyArtifactContractV1, exercises scalar counters and ID
   generators, and avoids copying family selected methods, semantic transports,
   or denials.
+  The compiler library landing zone is documented under
+  lang/src/compiler/lib/README.md, and the parent compiler README points to
+  that library boundary.
   MirBuilder allocation policy facts are green: live source now projects to
   MirBuilderAllocationPolicyFactsV1, ResolvedValueAllocationPolicyV1, and an
   explicit DirectabilityDecision=Deny until current_function / reserved-set /
@@ -222,19 +225,19 @@ history, not in this task-order SSOT.
 
 ```text
 1. Python semantic projector growth freeze
-   status=selected
+   status=landed
    boundary=role-classify Python converter tooling and forbid new Python SemanticProjector growth
    semantic_authority=rust-to-hako-converter-implementation-role-ssot
    non_authority=deleting existing Python bootstrap/oracle tooling
 
 2. Hako compiler TextBuilder and CanonicalJson library
-   status=parked until Python growth freeze is green
+   status=selected
    boundary=ordinary Hako compiler library under lang/src/compiler/lib, no ABI surface
    semantic_authority=rust-to-hako-converter-implementation-role-ssot
    non_authority=TypeBox ABI, host ABI, distribution packaging, or language syntax
 
 3. Allocation-policy Hako adoption decision
-   status=parked until Python growth freeze is green
+   status=parked until compiler library landing zone is in place
    boundary=first HakoAdopted decision candidate from an already-DerivedMainline family
    semantic_authority=derived-to-native artifact model + allocation-policy route selection
    non_authority=ReturnEmission adoption or full minimal path mainline claim

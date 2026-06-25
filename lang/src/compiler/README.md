@@ -12,6 +12,9 @@ Structure (target)
 - emit/
   - mir_emitter_box.hako — high-level MIR emitter entry
   - common/ — shared emit helpers (mir_emit/json_emit/call_emit/header_emit/newbox_emit)
+- lib/
+  - ordinary Hako compiler libraries for text / JSON / projection helpers
+  - initial placement: `text_builder.hako`, `canonical_json.hako`, `projection_value.hako`
 - parser/ — lexer/parser (to be moved from apps/* in later steps)
 - builder/, ssa/, rewrite/, pipeline_v2/ — existing compiler stages (move gradually)
 

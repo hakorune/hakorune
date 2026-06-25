@@ -221,6 +221,106 @@ CI / fixture / diff / oracle Python use:
 The freeze checkpoint must not delete existing Python converter code. Deletion,
 retirement, or HakoMainline promotion is handled by later family-scoped cards.
 
+## Machine-Checkable Inventory Snapshot
+
+The current freeze inventory is stored as a structured JSON block in this
+document so the guard can compare it against the active converter surface
+without relying on handwritten prose.
+
+```json
+{
+  "schema_version": 0,
+  "kind": "PythonConverterRoleInventoryV1",
+  "checkpoint": "PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001",
+  "scope": "tools/rust_lifecycle",
+  "role_buckets": [
+    {
+      "role": "FactsAdapter",
+      "patterns": [
+        "tools/rust_lifecycle/context_fact_extraction.py",
+        "tools/rust_lifecycle/extract_*.py",
+        "tools/rust_lifecycle/mirbuilder_allocation_policy_facts.py"
+      ]
+    },
+    {
+      "role": "SemanticProjector",
+      "allowed_role": "bootstrap/oracle",
+      "patterns": [
+        "tools/rust_lifecycle/mirbuilder_*_artifacts.py",
+        "tools/rust_lifecycle/mirbuilder_*_converter.py",
+        "tools/rust_lifecycle/mirbuilder_*_selection.py",
+        "tools/rust_lifecycle/mirbuilder_*_composition.py",
+        "tools/rust_lifecycle/mirbuilder_*_lowering.py",
+        "tools/rust_lifecycle/mirbuilder_*_publication.py",
+        "tools/rust_lifecycle/mirbuilder_*_pipeline.py",
+        "tools/rust_lifecycle/mirbuilder_*_verification.py",
+        "tools/rust_lifecycle/mirbuilder_*_take.py",
+        "tools/rust_lifecycle/mirbuilder_*_refresh.py",
+        "tools/rust_lifecycle/mirbuilder_*_classifier.py",
+        "tools/rust_lifecycle/mirbuilder_borrow_use_classifier.py",
+        "tools/rust_lifecycle/mirbuilder_function_local_value_id_allocator.py",
+        "tools/rust_lifecycle/mirbuilder_reserved_value_exclusion_policy.py",
+        "tools/rust_lifecycle/mirbuilder_next_value_id_composition.py",
+        "tools/rust_lifecycle/mirbuilder_allocation_policy_mainline_selection.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_execution_path_selection.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_execution_path_semantic_closure_report.py",
+        "tools/rust_lifecycle/mirbuilder_condition_fn_injection.py",
+        "tools/rust_lifecycle/mirbuilder_direct_shape_lowerer.py",
+        "tools/rust_lifecycle/mirbuilder_mir_module_minimal_shell_transport.py",
+        "tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py",
+        "tools/rust_lifecycle/mirbuilder_type_hint_provision.py",
+        "tools/rust_lifecycle/mirbuilder_function_region_stack_pop.py",
+        "tools/rust_lifecycle/mirbuilder_slot_registry_release.py",
+        "tools/rust_lifecycle/mirbuilder_module_metadata_publication.py",
+        "tools/rust_lifecycle/mirbuilder_record_packed_layout_refresh.py",
+        "tools/rust_lifecycle/mirbuilder_typed_object_plan_refresh.py",
+        "tools/rust_lifecycle/mirbuilder_direct_state_plan_refresh.py",
+        "tools/rust_lifecycle/mirbuilder_all_functions_phi_materialization.py",
+        "tools/rust_lifecycle/mir_module_minimal_shell_artifacts.py",
+        "tools/rust_lifecycle/mir_function_constructor_artifacts.py",
+        "tools/rust_lifecycle/mirbuilder_prepared_state_install_artifacts.py",
+        "tools/rust_lifecycle/mirbuilder_next_value_id_prepared_state_kernel_artifacts.py",
+        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py"
+      ]
+    },
+    {
+      "role": "DeterministicEmitter",
+      "patterns": [
+        "tools/rust_lifecycle/generate_mirbuilder_ordered_map_crate_bundle.py",
+        "tools/rust_lifecycle/mirbuilder_family_artifacts.py",
+        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py"
+      ]
+    },
+    {
+      "role": "GuardOrchestrator",
+      "patterns": [
+        "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py",
+        "tools/rust_lifecycle/verify_*.py",
+        "tools/rust_lifecycle/*_inventory.py",
+        "tools/rust_lifecycle/*_readiness_inventory.py",
+        "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_*.py",
+        "tools/rust_lifecycle/*_runner.py",
+        "tools/rust_lifecycle/mirbuilder_family_validators.py",
+        "tools/rust_lifecycle/mirbuilder_generated_to_native_adoption_matrix.py"
+      ]
+    }
+  ],
+  "semantic_projector_follow_on_tokens": {
+    "mirbuilder-minimal-execution-path-selection": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SEMANTIC-CLOSURE-REPORT-001",
+    "mirbuilder-minimal-execution-path-semantic-closure-report": "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
+    "mirbuilder-next-value-id-prepared-state-kernel": "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001",
+    "mirbuilder-return-emission": "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001",
+    "mirbuilder-condition-fn-injection": "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
+  },
+  "non_claims": {
+    "new_python_semantic_projector_growth": 0,
+    "hako_adopted_python_write": 0,
+    "normal_selfhost_build_python_dependency": 0,
+    "runtime_fallback": 0
+  }
+}
+```
+
 ## First Adoption Candidate
 
 The first `HakoAdopted` decision should use an already-mainline derived family,
