@@ -90,6 +90,8 @@ def _bundle_header() -> list[str]:
         "",
         "using apps.lib.collections.ordered_map as OrderedMap",
         "",
+        "using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap",
+        "",
         "using selfhost.shared.common.box_helpers as BoxHelpers",
         "",
     ]

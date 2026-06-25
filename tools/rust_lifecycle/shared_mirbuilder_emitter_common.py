@@ -19,7 +19,7 @@ def render_initializer(box: Mapping[str, Any]) -> str:
     if operation.get("kind") == "NewOrderedMap":
         return "OrderedMap.create()"
     if operation.get("kind") == "NewValueIdOrderedMap":
-        return "OrderedMap.create()"
+        return "ValueIdOrderedMap.create()"
     raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")
 
 
@@ -30,7 +30,7 @@ def render_field_initializer(field: Mapping[str, Any]) -> str:
     if operation.get("kind") == "NewOrderedMap":
         return "OrderedMap.create()"
     if operation.get("kind") == "NewValueIdOrderedMap":
-        return "OrderedMap.create()"
+        return "ValueIdOrderedMap.create()"
     if operation.get("kind") == "NewMap":
         return "new MapBox()"
     raise ValueError(f"unsupported initializer operation: {operation.get('kind')}")

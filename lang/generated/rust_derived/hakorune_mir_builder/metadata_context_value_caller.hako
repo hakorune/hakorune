@@ -4,7 +4,7 @@
 // pilot-scope: MetadataContext_value_caller_and_origin_fold_only
 // manual-edit: forbidden
 
-using apps.lib.collections.value_id_ordered_map as OrderedMap
+using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap
 
 using selfhost.shared.common.box_helpers as BoxHelpers
 
@@ -12,7 +12,7 @@ box MetadataContext {
     value_origin_callers: ValueIdOrderedMapBox
 
     birth() {
-        me.value_origin_callers = OrderedMap.create()
+        me.value_origin_callers = ValueIdOrderedMap.create()
     }
 }
 
@@ -25,7 +25,7 @@ static box MetadataContextApi {
     }
 
     merge_value_origin_callers(source: ValueIdOrderedMapBox, base: ValueIdOrderedMapBox): ValueIdOrderedMapBox {
-        local merged = OrderedMap.create()
+        local merged = ValueIdOrderedMap.create()
         local merged_clone_total = base.length()
         local merged_clone_i = 0
         loop(merged_clone_i < merged_clone_total) {
@@ -74,7 +74,7 @@ static box Main {
         local fold_ctx = new MetadataContext()
         MetadataContextHarnessApi.prefill_value_caller(fold_ctx, 2, "source")
         MetadataContextHarnessApi.prefill_value_caller(fold_ctx, 7, "new")
-        local base = OrderedMap.create()
+        local base = ValueIdOrderedMap.create()
         base.set(1, "base")
         base.set(7, "old")
         local merged = MetadataContextApi.merge_value_origin_callers(fold_ctx.value_origin_callers, base)

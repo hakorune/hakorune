@@ -89,8 +89,8 @@ def metadata_value_caller_spec() -> FamilyArtifactSpec:
         generator_version="metadata-context-value-caller-direct-artifact-v0",
         artifact_manifest="lang/generated/rust_derived/hakorune_mir_builder/metadata_context_value_caller.artifact.json",
         family_comment="hakorune_mir_builder::metadata_context::MetadataContext.value_caller",
-        using_module="apps.lib.collections.value_id_ordered_map",
-        extra_using_modules=[],
+        using_module="",
+        extra_using_modules=["apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap"],
         box=BoxSpec(
             name="MetadataContext",
             fields=[FieldSpec(name="value_origin_callers", field_type="ValueIdOrderedMapBox", initializer_operation={"kind": "NewValueIdOrderedMap"})],

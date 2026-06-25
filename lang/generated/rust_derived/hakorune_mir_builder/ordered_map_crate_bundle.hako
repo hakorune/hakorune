@@ -6,6 +6,8 @@
 
 using apps.lib.collections.ordered_map as OrderedMap
 
+using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap
+
 using selfhost.shared.common.box_helpers as BoxHelpers
 
 box BindingContext {
@@ -197,10 +199,10 @@ box FunctionValueIdCounterState {
 }
 
 box ReservedValueIdMembershipView {
-    storage: OrderedMapBox
+    storage: ValueIdOrderedMapBox
 
     birth() {
-        me.storage = OrderedMap.create()
+        me.storage = ValueIdOrderedMap.create()
     }
 }
 

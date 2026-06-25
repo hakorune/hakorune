@@ -686,7 +686,7 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
                 index_var = f"{target}_clone_i"
                 total_var = f"{target}_clone_total"
                 return [
-                    "local " + target + " = OrderedMap.create()",
+                    "local " + target + " = ValueIdOrderedMap.create()",
                     f"local {total_var} = {source}.length()",
                     f"local {index_var} = 0",
                     f"loop({index_var} < {total_var}) {{",

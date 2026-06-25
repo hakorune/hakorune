@@ -15,6 +15,38 @@ MIR_JSON="$EXE.mir.json"
 
 python3 "$GENERATOR" --family "$FAMILY" --check
 
+python3 - <<'PY'
+from pathlib import Path
+
+hako = Path("lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.hako").read_text()
+required = [
+    "using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap",
+    "storage: ValueIdOrderedMapBox",
+    "me.storage = ValueIdOrderedMap.create()",
+    "ReservedValueIdMembershipViewApi.add(reserved_present, 2)",
+    "ReservedValueIdMembershipViewApi.add(reserved_present, 4)",
+    "if present2 != 5",
+    "if function_present.next_value_id != 6",
+]
+missing = [needle for needle in required if needle not in hako]
+if missing:
+    raise SystemExit(f"prepared-state transport alignment missing: {missing}")
+for forbidden in [
+    "storage: OrderedMapBox",
+    "me.storage = OrderedMap.create()",
+]:
+    if forbidden in hako:
+        raise SystemExit(f"prepared-state transport still uses OrderedMapBox substrate: {forbidden}")
+
+import json
+verifier = json.loads(Path("docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-verifier-result-v0.json").read_text())
+checks = verifier.get("checks") or {}
+if checks.get("reserved_membership_field_type") != "ValueIdOrderedMapBox":
+    raise SystemExit("verifier does not record ValueIdOrderedMapBox field type")
+if checks.get("reserved_membership_initializer") != "ValueIdOrderedMap.create":
+    raise SystemExit("verifier does not record ValueIdOrderedMap.create initializer")
+PY
+
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED" "$MIR_JSON"
 
 ./target/release/hakorune --emit-mir-json "$MIR_JSON" "$ARTIFACT" >/tmp/hako_mirbuilder_next_value_id_prepared_state_kernel.mir.log 2>&1
@@ -86,6 +118,8 @@ generated_hako_exe_aot=green
 full_mirbuilder_object_method=0
 scope_context_conversion=0
 compilation_context_conversion=0
+reserved_membership_transport=ValueIdOrderedMapBox
+reserved_membership_initializer=ValueIdOrderedMap.create
 runtime_fallback=0
 backend_behavior_changed=0
 summary=ok

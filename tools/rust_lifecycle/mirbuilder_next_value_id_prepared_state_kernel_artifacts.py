@@ -125,9 +125,9 @@ def build_oracle() -> dict[str, Any]:
                 "current_function_present": 1,
                 "initial_function_counter": 1,
                 "initial_core_context_value_counter": 100,
-                "reserved_values": [2],
-                "outputs": [1, 3, 4],
-                "final_function_counter": 5,
+                "reserved_values": [2, 4],
+                "outputs": [1, 3, 5],
+                "final_function_counter": 6,
                 "final_core_context_value_counter": 100,
             },
             {
@@ -312,7 +312,8 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
         generator_version="mirbuilder-next-value-id-prepared-state-kernel-v0",
         artifact_manifest=contract.artifact.manifest_path,
         family_comment="hakorune_mir_builder::next_value_id_prepared_state_kernel",
-        using_module="apps.lib.collections.ordered_map",
+        using_module="",
+        extra_using_modules=["apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap"],
         box=BoxSpec(name="MirBuilderAllocationPolicyKernel", fields=[]),
         additional_boxes=[
             core_spec.box,
@@ -325,7 +326,7 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
                 fields=[
                     FieldSpec(
                         name="storage",
-                        field_type="OrderedMapBox",
+                        field_type="ValueIdOrderedMapBox",
                         initializer_operation={"kind": "NewValueIdOrderedMap"},
                     )
                 ],
@@ -390,6 +391,7 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
             op("SetField", target="core_present", field="value_next_id", value=100),
             op("NewBox", target="reserved_present", box="ReservedValueIdMembershipView"),
             op("StaticCall", callee="ReservedValueIdMembershipViewApi.add", args=["reserved_present", 2]),
+            op("StaticCall", callee="ReservedValueIdMembershipViewApi.add", args=["reserved_present", 4]),
             op(
                 "StaticCall",
                 target="present0",
@@ -410,8 +412,8 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
                 callee="MirBuilderAllocationPolicyApi.next_value_id",
                 args=[1, "function_present", "core_present", "reserved_present"],
             ),
-            op("AssertEq", left="present2", right=4, fail_message="next_value_id_present2=fail", fail_code=3),
-            op("AssertEq", left="function_present.next_value_id", right=5, fail_message="next_value_id_present_function_final=fail", fail_code=4),
+            op("AssertEq", left="present2", right=5, fail_message="next_value_id_present2=fail", fail_code=3),
+            op("AssertEq", left="function_present.next_value_id", right=6, fail_message="next_value_id_present_function_final=fail", fail_code=4),
             op("AssertEq", left="core_present.value_next_id", right=100, fail_message="next_value_id_present_core_final=fail", fail_code=5),
             op("NewBox", target="function_absent", box="FunctionValueIdCounterState"),
             op("SetField", target="function_absent", field="next_value_id", value=100),
@@ -469,6 +471,8 @@ def prepared_state_kernel_spec() -> FamilyArtifactSpec:
                 "full_mirbuilder_object_method": 0,
                 "selector_per_candidate_attempt": 1,
                 "reserved_membership_only": 1,
+                "reserved_membership_field_type": "ValueIdOrderedMapBox",
+                "reserved_membership_initializer": "ValueIdOrderedMap.create",
                 "runtime_fallback": 0,
                 "backend_behavior_changed": 0,
             }

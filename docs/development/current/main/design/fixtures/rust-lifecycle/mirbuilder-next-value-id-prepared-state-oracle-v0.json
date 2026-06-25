@@ -6,17 +6,18 @@
     {
       "current_function_present": 1,
       "final_core_context_value_counter": 100,
-      "final_function_counter": 5,
+      "final_function_counter": 6,
       "initial_core_context_value_counter": 100,
       "initial_function_counter": 1,
       "name": "present_branch_reserved_gap",
       "outputs": [
         1,
         3,
-        4
+        5
       ],
       "reserved_values": [
-        2
+        2,
+        4
       ]
     },
     {

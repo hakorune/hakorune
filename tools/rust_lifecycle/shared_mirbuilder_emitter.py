@@ -32,7 +32,7 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if box_name == "OrderedMapBox":
             return [f"local {target} = OrderedMap.create()"]
         if box_name == "ValueIdOrderedMapBox":
-            return [f"local {target} = OrderedMap.create()"]
+            return [f"local {target} = ValueIdOrderedMap.create()"]
         return [f"local {target} = new {box_name}()"]
     if kind == "NewArray":
         target = operation.get("target")

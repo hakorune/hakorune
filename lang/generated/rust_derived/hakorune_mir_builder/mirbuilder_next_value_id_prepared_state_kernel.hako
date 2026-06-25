@@ -4,7 +4,7 @@
 // pilot-scope: PreparedStateMirBuilderNextValueIdKernel
 // manual-edit: forbidden
 
-using apps.lib.collections.ordered_map as OrderedMap
+using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap
 
 using selfhost.shared.common.box_helpers as BoxHelpers
 
@@ -39,10 +39,10 @@ box FunctionValueIdCounterState {
 
 
 box ReservedValueIdMembershipView {
-    storage: OrderedMapBox
+    storage: ValueIdOrderedMapBox
 
     birth() {
-        me.storage = OrderedMap.create()
+        me.storage = ValueIdOrderedMap.create()
     }
 }
 
@@ -113,6 +113,7 @@ static box Main {
         core_present.value_next_id = 100
         local reserved_present = new ReservedValueIdMembershipView()
         ReservedValueIdMembershipViewApi.add(reserved_present, 2)
+        ReservedValueIdMembershipViewApi.add(reserved_present, 4)
         local present0 = MirBuilderAllocationPolicyApi.next_value_id(1, function_present, core_present, reserved_present)
         if present0 != 1 {
             print("next_value_id_present0=fail")
@@ -124,11 +125,11 @@ static box Main {
             return 2
         }
         local present2 = MirBuilderAllocationPolicyApi.next_value_id(1, function_present, core_present, reserved_present)
-        if present2 != 4 {
+        if present2 != 5 {
             print("next_value_id_present2=fail")
             return 3
         }
-        if function_present.next_value_id != 5 {
+        if function_present.next_value_id != 6 {
             print("next_value_id_present_function_final=fail")
             return 4
         }

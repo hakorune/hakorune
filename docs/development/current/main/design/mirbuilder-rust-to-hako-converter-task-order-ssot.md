@@ -71,6 +71,8 @@ landed evidence:
   reserved retry oracle vectors.
   Prepared-state next_value_id Hako kernel is adopted into the ordered-map
   crate bundle as membership-only evidence and bundle-level EXE/AOT smoke.
+  Prepared-state reserved membership transport is aligned with its projection:
+  actual generated storage now uses ValueIdOrderedMapBox and ValueIdOrderedMap.
 
 selected next owner:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001
@@ -108,6 +110,7 @@ mirbuilder_next_value_id_composition green
 allocation_policy_execution_surface_selected=prepared_state_hako_kernel
 mirbuilder_next_value_id_prepared_state_kernel green
 mirbuilder_allocation_policy_bundle_adoption green
+mirbuilder_prepared_state_reserved_membership_transport_alignment green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -130,6 +133,7 @@ mirbuilder_next_value_id_composition = landed
 allocation_policy_execution_surface_consultation = landed
 mirbuilder_next_value_id_prepared_state_kernel = landed
 mirbuilder_allocation_policy_bundle_adoption = landed
+mirbuilder_prepared_state_reserved_membership_transport_alignment = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 

@@ -22,7 +22,7 @@
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-oracle-v0.json",
-      "sha256": "70ad7aa24c4b4d71793468a3c55fffa6823c5c8b6a982350060cae72252c7dd7"
+      "sha256": "e1e2e5823f60944b3c41d2724cbd7e9d28b58a910db6406570ab5efd813b2f3d"
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-execution-projection-v0.json",
@@ -34,13 +34,13 @@
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-next-value-id-prepared-state-verifier-result-v0.json",
-      "sha256": "6bd287130a66eb61214cd07b65b758ced260a01e1ad7f0e54effa1ee01f98128"
+      "sha256": "0de0acc89aa6ebf0d383706b839a530c31a372215b81a2b11703b0b6aaf33d1c"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.hako",
-    "hako_sha256": "428775a937c14eb632d7f2c17da36b690b4d3edaa8aa21551a082eaab8902451"
+    "hako_sha256": "e3fdf7c0a9c76c74911451ee8a8f374ff3ec93a0244fe5a22c682c5783156d0f"
   },
   "pilot_scope": "PreparedStateMirBuilderNextValueIdKernel",
   "schema_version": 0,

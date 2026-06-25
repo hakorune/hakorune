@@ -6,6 +6,8 @@
     "execution_projection": "verified",
     "full_mirbuilder_object_method": 0,
     "prepared_state_policy_kernel": 1,
+    "reserved_membership_field_type": "ValueIdOrderedMapBox",
+    "reserved_membership_initializer": "ValueIdOrderedMap.create",
     "reserved_membership_only": 1,
     "runtime_fallback": 0,
     "selected_body_count": "prepared_state_policy_kernel_methods_only",

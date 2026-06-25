@@ -52,8 +52,10 @@ assert "merge_value_origin_callers(source: ValueIdOrderedMapBox, base: ValueIdOr
 assert "local total = source.length()" in hako
 assert "local key = source.key_at(i)" in hako
 assert "local value = source.value_at(i)" in hako
-assert "using apps.lib.collections.value_id_ordered_map as OrderedMap" in hako
-assert "local merged = OrderedMap.create()" in hako
+assert "using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap" in hako
+assert "value_origin_callers: ValueIdOrderedMapBox" in hako
+assert "me.value_origin_callers = ValueIdOrderedMap.create()" in hako
+assert "local merged = ValueIdOrderedMap.create()" in hako
 assert "local merged_clone_total = base.length()" in hako
 assert "local merged_clone_key = base.key_at(merged_clone_i)" in hako
 assert "local merged_clone_value = base.value_at(merged_clone_i)" in hako
