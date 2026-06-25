@@ -215,6 +215,14 @@ def _contract(projection: dict[str, Any]) -> VerifiedFamilyArtifactContractV1:
     )
 
 
+def prepared_state_kernel_contract() -> VerifiedFamilyArtifactContractV1:
+    composition = read_json(COMPOSITION)
+    projection = build_execution_projection(composition)
+    oracle = build_oracle()
+    validate_projection(projection, oracle)
+    return _contract(projection)
+
+
 def _policy_kernel_operations() -> list[dict[str, Any]]:
     return [
         op("LocalI64", target="candidate", value=_i64(0)).to_json(),

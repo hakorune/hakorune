@@ -20,19 +20,19 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001
 
 current implementation task:
-  Adopt the prepared-state next_value_id policy kernel into the MirBuilder
-  derived context bundle.
+  Select the first minimal MirBuilder execution path after generated context
+  bundle membership is green.
 
 selected source slice:
-  membership-only bundle inclusion for the prepared-state policy kernel
+  first generated context call graph beyond standalone artifacts
 
 selected lowering:
-  prepared-state policy kernel artifact
-    -> explicit bundle membership
-    -> bundle-level smoke
+  artifact bundle evidence
+    -> first unsupported live edge
+    -> next semantic slice selection
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -69,20 +69,21 @@ landed evidence:
   now composes FunctionLocalValueIdAllocatorPlanV1 and
   ReservedValueExclusionPolicyPlanV1 into current_function selection plus
   reserved retry oracle vectors.
+  Prepared-state next_value_id Hako kernel is adopted into the ordered-map
+  crate bundle as membership-only evidence and bundle-level EXE/AOT smoke.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001
 
 current fail-fast boundary:
-  Bundle adoption may claim explicit artifact membership and smoke execution
-  only. It must not claim full MirBuilder, mainline selection, HakoAdopted
-  source authority, parameter fallback, invalid sentinel exclusion, overflow,
-  new backend route, ABI, or runtime fallback.
+  The next slice is selection-only until the first unsupported live edge is
+  named. It must not infer coverage from bundle size or silently promote a
+  generated artifact to mainline source authority.
 
 latest design decision:
-  Prepared-state Hako policy kernel is green through deterministic generation,
-  MIR emission, direct same-module route, and EXE/AOT smoke. Proceed to bundle
-  adoption as membership, not source authority.
+  Prepared-state Hako policy kernel bundle adoption is green as explicit
+  membership and smoke execution. Proceed to first live execution path
+  selection, not broad coverage expansion.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -106,6 +107,7 @@ reserved_value_exclusion_policy green
 mirbuilder_next_value_id_composition green
 allocation_policy_execution_surface_selected=prepared_state_hako_kernel
 mirbuilder_next_value_id_prepared_state_kernel green
+mirbuilder_allocation_policy_bundle_adoption green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -127,6 +129,7 @@ reserved_value_exclusion_policy = landed
 mirbuilder_next_value_id_composition = landed
 allocation_policy_execution_surface_consultation = landed
 mirbuilder_next_value_id_prepared_state_kernel = landed
+mirbuilder_allocation_policy_bundle_adoption = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -136,23 +139,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirBuilder allocation policy bundle adoption
+1. Minimal MirBuilder execution path selection
    status=selected
-   boundary=explicit bundle membership for prepared-state kernel
-   semantic_authority=artifact manifest + explicit bundle membership
-   non_authority=bundle size as conversion proof
-
-2. Minimal MirBuilder execution path selection
-   status=parked until bundle adoption is green
    boundary=first generated context call graph beyond standalone artifacts
    semantic_authority=first unsupported live edge
    non_authority=coverage percentage
 
-3. MirBuilder allocation policy mainline pilot
+2. MirBuilder allocation policy mainline pilot
    status=parked until minimal execution path is green
    boundary=explicit route selection between generated_hako and rust_bootstrap
    semantic_authority=DerivedMainline adoption policy
    non_authority=silent fallback
+
+3. Hako-adopted family selection
+   status=parked until a mainline pilot is green
+   boundary=choose one generated family for native-Hako authority review
+   semantic_authority=adoption evidence and frozen Rust compatibility
+   non_authority=generated artifact existence alone
 ```
 
 ## Landed Converter Capability Summary

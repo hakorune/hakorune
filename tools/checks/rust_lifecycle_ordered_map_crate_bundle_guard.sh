@@ -26,34 +26,41 @@ assert manifest["claims"]["generated_hako_manual_edit"] == 0
 assert manifest["claims"]["mainline_selected"] == 0
 assert manifest["claims"]["rust_bootstrap_retained"] == 1
 assert manifest["claims"]["backend_behavior_changed"] == 0
-assert manifest["generator"]["version"] == "mirbuilder-easy-v0-ordered-map-bundle-v3"
+assert manifest["generator"]["version"] == "mirbuilder-easy-v0-ordered-map-bundle-v4"
 assert manifest["bundle_kind"] == "mirbuilder_easy_v0_ordered_map_bundle"
 assert manifest["bundle_contract_model"] == "membership_only_v1"
 assert manifest["bundle_members"] == [
     "binding_context",
     "box_compilation_context",
     "core_context",
+    "mirbuilder_next_value_id_prepared_state_kernel",
     "variable_context_simple_map",
     "variable_context_snapshot_restore",
 ]
 contract_refs = manifest["bundle_member_contracts"]
-assert len(contract_refs) == 5
+assert len(contract_refs) == 6
 core_contract = [row for row in contract_refs if row["member"] == "core_context"]
 assert len(core_contract) == 1
 assert core_contract[0]["family_id"] == "hakorune_mir_builder::core_context"
 assert core_contract[0]["contract"]["kind"] == "VerifiedFamilyArtifactContractV1"
 assert core_contract[0]["contract"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json"
+allocation_contract = [row for row in contract_refs if row["member"] == "mirbuilder_next_value_id_prepared_state_kernel"]
+assert len(allocation_contract) == 1
+assert allocation_contract[0]["family_id"] == "hakorune_mir_builder::next_value_id_prepared_state_kernel"
+assert allocation_contract[0]["contract"]["kind"] == "VerifiedFamilyArtifactContractV1"
+assert allocation_contract[0]["contract"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json"
 assert manifest["exercised_capabilities"] == [
     "BindingContext.insert_lookup",
     "BoxCompilationContext.new_is_empty",
     "CoreContext.scalar_counters_and_id_generators",
+    "MirBuilderAllocationPolicy.prepared_state_next_value_id",
     "VariableContext.simple_map.insert_lookup",
     "VariableContext.snapshot_owned_projection_set_get",
     "VariableContext.snapshot_restore",
 ]
 assert manifest["deferred_capabilities"] == []
-assert len(manifest["source"]["rust_files"]) == 4
-assert len(manifest["inputs"]["bundle_members"]) == 5
+assert len(manifest["source"]["rust_files"]) == 5
+assert len(manifest["inputs"]["bundle_members"]) == 6
 PY
 
 rm -f "$EXE" "$RAW" "$OUT" "$EXPECTED"
@@ -70,7 +77,7 @@ EOF_EXPECTED
 diff -u "$EXPECTED" "$OUT"
 
 cat <<'REPORT'
-output_contract=rust-lifecycle-mirbuilder-easy-v0-ordered-map-bundle-v3
+output_contract=rust-lifecycle-mirbuilder-easy-v0-ordered-map-bundle-v4
 family_id=hakorune_mir_builder::ordered_map_bundle
 generated_hako_checked_in=1
 artifact_manifest_checked_in=1

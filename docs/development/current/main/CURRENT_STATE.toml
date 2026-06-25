@@ -265,18 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1687-MIRBUILDER-NEXT-VALUE-ID-PREPARED-STATE-HAKO-KERNEL-001.md"
-latest_card_summary = """Prepared-state Hako policy kernel is generated from
-MirBuilderNextValueIdCompositionPlanV1 through
-MirBuilderNextValueIdExecutionProjectionV1. The focused guard verifies
-deterministic regeneration, MIR emit, direct same-module scalar route metadata,
-and EXE/AOT output. Full MirBuilder object transport, ScopeContext,
+latest_card = "MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1688-MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001.md"
+latest_card_summary = """Prepared-state next_value_id policy kernel is adopted
+into the ordered-map context bundle as explicit membership. The bundle consumes
+the kernel artifact manifest and VerifiedFamilyArtifactContractV1 reference,
+exercises MirBuilderAllocationPolicy.prepared_state_next_value_id, and remains
+membership-only. Full MirBuilder object transport, ScopeContext,
 CompilationContext, parameter fallback, invalid sentinel exclusion, overflow,
-total termination, new backend route, ABI, runtime fallback, and mainline
-selection remain non-claims. The next blocker is explicit bundle adoption."""
+new backend route, ABI, runtime fallback, mainline selection, and source
+selfhost authority remain non-claims."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-BUNDLE-ADOPTION-001"
+current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
