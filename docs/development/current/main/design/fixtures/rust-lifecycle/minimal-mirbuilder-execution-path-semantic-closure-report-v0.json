@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 14,
+      "PlanOnly": 13,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 14
+      "VerifiedArtifact": 15
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 14,
-      "Missing": 14,
+      "ExecutableArtifactPresent": 15,
+      "Missing": 13,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 13,
+      "DerivedShadow": 14,
       "NotApplicable": 4,
-      "Unselected": 14
+      "Unselected": 13
     }
   },
   "edges": [
@@ -355,15 +355,15 @@
       "status": "Available",
       "required_capability": "MetadataValueTypePublication",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "MetadataValueTypePublication",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::metadata_value_type_publication",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-value-type-publication-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_metadata_value_type_publication.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.metadata_value_type_publication",
-    "callsite": "MirBuilder::finalize_module -> publish function.metadata.value_types",
-    "required_capability": "MetadataValueTypePublication",
-    "next_slice_token": "MIRBUILDER-METADATA-VALUE-TYPE-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.metadata_origin_caller_merge",
+    "callsite": "MirBuilder::finalize_module -> merge function.metadata.value_origin_callers",
+    "required_capability": "MetadataOriginCallerMerge",
+    "next_slice_token": "MIRBUILDER-METADATA-ORIGIN-CALLER-MERGE-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

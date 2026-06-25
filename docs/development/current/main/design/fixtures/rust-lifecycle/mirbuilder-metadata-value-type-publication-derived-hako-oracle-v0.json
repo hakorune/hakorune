@@ -1,0 +1,32 @@
+{
+  "kind": "MirBuilderMetadataValueTypePublicationDerivedHakoOracleV1",
+  "non_claims": {
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "metadata_origin_caller_merge": 0,
+    "module_function_insertion": 0,
+    "phi_input_materialization": 0,
+    "phi_return_type_inference": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module function.metadata.value_types publication",
+  "vectors": [
+    {
+      "expect": {
+        "clone_owned": 1,
+        "ok": 1,
+        "published_entries": 4,
+        "source_entries": 4,
+        "source_preserved": 1
+      },
+      "inputs": {
+        "function_transport": "MirFunctionPreparedMain",
+        "metadata_target": "function.metadata.value_types",
+        "source_value_type_entries": 4,
+        "value_types_source": "self.type_ctx.value_types"
+      },
+      "name": "minimal_literal_value_types_are_cloned_into_function_metadata"
+    }
+  ]
+}

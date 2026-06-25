@@ -16,6 +16,7 @@ from mirbuilder_family_artifacts import run_mirbuilder_family_artifact_generator
 from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_scalar_artifact_generator
 from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_parent_artifact_generator
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
+from mirbuilder_metadata_value_type_publication_artifacts import run_metadata_value_type_publication_artifact_generator
 from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_generator
 from mirbuilder_current_function_take_artifacts import run_current_function_take_artifact_generator
 from mirbuilder_current_module_take_artifacts import run_current_module_take_artifact_generator
@@ -48,6 +49,7 @@ FAMILY_GENERATORS = {
     "metadata-context-scalar-source-file": run_metadata_context_scalar_artifact_generator,
     "metadata-context-region-parent": run_metadata_region_parent_artifact_generator,
     "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
+    "mirbuilder-metadata-value-type-publication": run_metadata_value_type_publication_artifact_generator,
     "mir-function-constructor-shell": run_mir_function_constructor_shell_artifact_generator,
     "mir-module-minimal-shell": run_mir_module_minimal_shell_artifact_generator,
     "mirbuilder-prepared-state-install": run_prepared_state_install_artifact_generator,

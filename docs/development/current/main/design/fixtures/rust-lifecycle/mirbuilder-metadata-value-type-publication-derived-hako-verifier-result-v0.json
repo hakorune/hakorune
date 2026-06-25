@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "entrypoint": "function.metadata.value_types = self.type_ctx.value_types.clone()",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "metadata_origin_caller_merge": 0,
+    "metadata_target": "function.metadata.value_types",
+    "metadata_value_type_publication_only": 1,
+    "minimal_path_expected_result": "OkImplicitUnit",
+    "publication_operation": "CloneOwnedMap",
+    "runtime_fallback": 0,
+    "selected_body_count": "metadata_value_type_publication_minimal_literal_profile_only",
+    "value_types_source": "self.type_ctx.value_types"
+  },
+  "denied_boundaries": [
+    "metadata_origin_caller_merge",
+    "phi_return_type_inference",
+    "phi_input_materialization",
+    "module_function_insertion",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::metadata_value_type_publication",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MetadataValueTypePublication_minimal_literal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-metadata-value-type-publication-plan-v0.json",
+  "source_plan": "mirbuilder-metadata-value-type-publication-plan-v0.json",
+  "source_recipe": "mirbuilder-metadata-value-type-publication-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.metadata_value_type_publication",
+  "transport_notes": {
+    "full_finalize_module": 0,
+    "function_transport": "MirFunctionPreparedMain",
+    "metadata_origin_caller_merge": 0,
+    "metadata_target": "FunctionMetadataValueTypesShell",
+    "phi_return_type_inference": "unselected",
+    "publication_operation": "CloneOwnedMap",
+    "value_types_source": "TypeContextValueTypesShell"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "MetadataValueTypePublicationShell"
+  ]
+}
