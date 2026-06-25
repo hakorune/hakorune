@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-13
+Date: 2026-06-25
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -71,6 +71,33 @@ This diagnostic is a triage boundary inventory. It must not become C-shim shape
 policy, route selection, or `.hako` workaround logic. If `callee_symbol`,
 `first_op`, or `next_check_hint` are still absent/unknown, the next slice is to
 shorten the diagnostic distance before attempting a semantic fix.
+
+## Design Consultation Stop
+
+When `CURRENT_STATE.toml` or the active task-order SSOT marks the current
+blocker as a selection, design, consultation, or policy-boundary step, agents
+must not silently continue into implementation.
+
+Instead, first produce a compact design-stop brief:
+
+```text
+source authority
+non-authority
+fail-fast boundary
+candidate slices
+recommended next slice
+explicit non-claims
+```
+
+Do not promote a lower-level green fact into a higher-level policy claim. For
+example, CoreContext generator scalarization does not prove
+`MirBuilder::next_value_id` allocation policy; the latter also involves
+function-local allocation, reserved ValueId skipping, parameter reservation, and
+module-global fallback.
+
+If a user-scoped Codex goal explicitly says to stop at design consultation, the
+goal should be considered complete at this stop point after the brief is ready
+and the worktree is clean.
 
 ## Historical Sections
 
