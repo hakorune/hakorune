@@ -19,6 +19,11 @@ def _render_expr(expr: Any) -> str:
         return expr
     if not isinstance(expr, Mapping):
         return render_main_value(expr)
+    if "expr" in expr:
+        raw_expr = expr.get("expr")
+        if not isinstance(raw_expr, str):
+            raise ValueError("expr expression requires string")
+        return raw_expr
     kind = expr.get("kind")
     if kind == "Var":
         name = expr.get("name")

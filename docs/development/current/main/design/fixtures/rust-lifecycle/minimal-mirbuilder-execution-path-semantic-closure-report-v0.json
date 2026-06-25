@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 24,
+      "PlanOnly": 23,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 4
+      "VerifiedArtifact": 5
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 4,
-      "Missing": 24,
+      "ExecutableArtifactPresent": 5,
+      "Missing": 23,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 3,
+      "DerivedShadow": 4,
       "NotApplicable": 4,
-      "Unselected": 24
+      "Unselected": 23
     }
   },
   "edges": [
@@ -151,15 +151,15 @@
       "status": "Available",
       "required_capability": "PreparedStateInstall",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "PreparedStateInstall",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
-        "family_id": "hakorune_mir::MirFunction",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mir-function-constructor-composition-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::prepared_state_install",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "prepare_module.state_install",
-    "callsite": "MirBuilder::prepare_module -> current state install",
-    "required_capability": "PreparedStateInstall",
-    "next_slice_token": "MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "lower_root.literal_integer",
+    "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+    "required_capability": "LiteralIntegerLowering",
+    "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

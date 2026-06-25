@@ -1,0 +1,30 @@
+{
+  "family_id": "hakorune_mir_builder::prepared_state_install",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "PreparedScopeContextShellApi.create()",
+      "hako_operation": "NewBox + ReturnValue",
+      "id": "PreparedScopeContextShell::new",
+      "rust_operation": "ScopeContext prepared current_function state shell"
+    },
+    {
+      "emits": "PreparedMirBuilderStateShellApi.empty()",
+      "hako_operation": "NewBox + SetField + ReturnValue",
+      "id": "PreparedMirBuilderStateShell::empty",
+      "rust_operation": "prepared MirBuilder state before prepare_module install"
+    },
+    {
+      "emits": "PreparedMirBuilderStateShellApi.install(state, module, function, entry_block)",
+      "hako_operation": "SetSome + ReturnValue",
+      "id": "PreparedMirBuilderStateShell::install",
+      "rust_operation": "prepare_module current_module/current_function/current_block install"
+    }
+  ],
+  "pilot_scope": "PreparedStateInstall_only",
+  "schema_version": 0,
+  "selected_body_count": "prepared_state_install_only",
+  "source_oracle": "mirbuilder-prepared-state-install-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-prepared-state-install-plan-v0.json",
+  "subject": "MirBuilder::prepare_module.prepared_state_install"
+}

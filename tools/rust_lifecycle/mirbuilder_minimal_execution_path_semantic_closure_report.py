@@ -31,6 +31,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
     "MirFunctionConstructorTransport": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.artifact.json",
+    "PreparedStateInstall": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
 }
 
 
@@ -163,6 +165,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001"
     if capability == "PreparedStateInstall":
         return "MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "LiteralIntegerLowering":
+        return "MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -249,13 +253,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "prepare_module.state_install", "first materialization gap drift")
+    require(first_gap["edge_id"] == "lower_root.literal_integer", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "PreparedStateInstall",
+        first_gap["required_capability"] == "LiteralIntegerLowering",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:
@@ -289,7 +293,7 @@ def validate_report(report: dict[str, Any]) -> None:
 def run_drift_probes(report: dict[str, Any]) -> None:
     probes: list[tuple[str, list[Any], Any]] = [
         ("smoke treated as executable", ["edges"], None),
-        ("first gap hand-edited", ["first_executable_materialization_gap", "edge_id"], "prepare_module.function_new"),
+        ("first gap hand-edited", ["first_executable_materialization_gap", "edge_id"], "prepare_module.state_install"),
         ("full path mainline claim", ["closure", "full_path_mainline_eligible"], True),
         ("source selfhost claim", ["claims", "source_selfhost_claim"], 1),
     ]

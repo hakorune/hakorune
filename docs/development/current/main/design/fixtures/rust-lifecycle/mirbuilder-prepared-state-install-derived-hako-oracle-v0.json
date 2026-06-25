@@ -1,0 +1,30 @@
+{
+  "kind": "MirBuilderPreparedStateInstallDerivedHakoOracleV1",
+  "non_claims": {
+    "current_function_take": 0,
+    "current_module_take": 0,
+    "finalize_module": 0,
+    "lower_root": 0,
+    "mainline_selected": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::prepare_module prepared state install",
+  "vectors": [
+    {
+      "expect": {
+        "state_after_install_current_block_present": 1,
+        "state_after_install_current_function_present": 1,
+        "state_after_install_current_module_present": 1,
+        "state_initial_current_block_present": 0,
+        "state_initial_current_function_present": 0,
+        "state_initial_current_module_present": 0
+      },
+      "inputs": {
+        "entry_block": 0,
+        "function_name": "main",
+        "module_name": "main"
+      },
+      "name": "install_main_module_function_and_block"
+    }
+  ]
+}

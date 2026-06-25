@@ -265,19 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1721-MIR-FUNCTION-CONSTRUCTOR-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """MirFunction::new now has a bounded DerivedShadow Hako
-artifact for the constructor shell only. The artifact materializes prepared
-signature, entry-block-only table, nested BasicBlock constructor defaults,
-parameter ValueId prepopulation, next_value_id=max(param_count,1), and default
-metadata shell, while prepared-state install, function body lowering,
-instruction emission, full MirFunction conversion, mainline selection, and
-source selfhost remain non-claims. The semantic closure report now derives
-prepare_module.state_install as the first executable materialization gap. The
-next blocker is MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001."""
+latest_card = "MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1722-MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """MirBuilder::prepare_module current state install now
+has a bounded DerivedShadow Hako artifact. The artifact materializes
+current_module, scope_ctx.current_function, and current_block as presence-tagged
+prepared-state fields over the existing MirModule and MirFunction shell
+artifacts, while current-module/function take, lower_root, literal lowering,
+finalize, full MirBuilder object transport, mainline selection, and source
+selfhost remain non-claims. The semantic closure report now derives
+lower_root.literal_integer as the first executable materialization gap. The next
+blocker is MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-PREPARED-STATE-INSTALL-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

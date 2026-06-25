@@ -1,0 +1,63 @@
+{
+  "available_capabilities": [
+    "PreparedStateInstall"
+  ],
+  "inputs": {
+    "entry_block": "BasicBlockIdAsI64",
+    "function": "MirFunctionConstructorShell",
+    "module": "MirModuleMinimalShell"
+  },
+  "install_sequence": [
+    {
+      "operation": "self.current_module = Some(module)",
+      "source": "prepare_module",
+      "step": "install_current_module",
+      "transport": "PresenceTaggedMirModuleHandle"
+    },
+    {
+      "operation": "self.scope_ctx.current_function = Some(main_function)",
+      "source": "prepare_module",
+      "step": "install_current_function",
+      "transport": "PresenceTaggedMirFunctionHandle"
+    },
+    {
+      "operation": "self.current_block = Some(entry_block)",
+      "source": "prepare_module",
+      "step": "install_current_block",
+      "transport": "PresenceTaggedBasicBlockIdAsI64"
+    }
+  ],
+  "kind": "MirBuilderPreparedStateInstallPlanV1",
+  "non_claims": {
+    "abi_changed": 0,
+    "backend_route_changed": 0,
+    "current_function_take": 0,
+    "current_module_take": 0,
+    "finalize_module": 0,
+    "full_mirbuilder_object_transport": 0,
+    "literal_integer_lowering": 0,
+    "lower_root": 0,
+    "mainline_selected": 0,
+    "return_emission": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "result_contract": {
+    "block_transport": "BasicBlockIdAsI64",
+    "current_block": "Present",
+    "current_function": "Present",
+    "current_module": "Present",
+    "function_transport": "MirFunctionConstructorShell",
+    "module_transport": "MirModuleMinimalShell",
+    "state_transport": "PreparedMirBuilderStateShell"
+  },
+  "schema_version": 0,
+  "source_authority": {
+    "current_function_take_plan": "mirbuilder-current-function-take-plan-v0.json",
+    "current_module_take_plan": "mirbuilder-current-module-take-plan-v0.json",
+    "function_constructor_artifact": "mir_function_constructor_shell.artifact.json",
+    "module_shell_artifact": "mir_module_minimal_shell.artifact.json",
+    "prepare": "src/mir/builder/module_lifecycle.rs::MirBuilder::prepare_module"
+  },
+  "subject": "MirBuilder::prepare_module prepared current state install"
+}

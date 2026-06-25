@@ -1,0 +1,62 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "current_block_installed": 1,
+    "current_function_installed": 1,
+    "current_function_take": 0,
+    "current_module_installed": 1,
+    "current_module_take": 0,
+    "excluded_methods": [],
+    "finalize_module": 0,
+    "fresh_state_identity": 1,
+    "lower_root": 0,
+    "prepared_state_install_only": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "prepared_state_install_only",
+    "source_plan_input": "verified"
+  },
+  "denied_boundaries": [
+    "abi_changed",
+    "backend_route_changed",
+    "current_function_take",
+    "current_module_take",
+    "finalize_module",
+    "full_mirbuilder_object_transport",
+    "literal_integer_lowering",
+    "lower_root",
+    "mainline_selected",
+    "return_emission",
+    "runtime_fallback",
+    "source_selfhost_claim"
+  ],
+  "family_id": "hakorune_mir_builder::prepared_state_install",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "PreparedStateInstall_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-prepared-state-install-plan-v0.json",
+  "source_plan": "mirbuilder-prepared-state-install-plan-v0.json",
+  "source_recipe": "mirbuilder-prepared-state-install-derived-hako-recipe-v0.json",
+  "subject": "MirBuilder::prepare_module.prepared_state_install",
+  "transport_notes": {
+    "block_transport": "BasicBlockIdAsI64",
+    "current_block_transport": "PresenceTaggedBasicBlockIdAsI64",
+    "current_function_take": 0,
+    "current_function_transport": "PresenceTaggedMirFunctionHandle",
+    "current_module_take": 0,
+    "current_module_transport": "PresenceTaggedMirModuleHandle",
+    "full_mirbuilder_object_transport": 0,
+    "function_transport": "MirFunctionConstructorShell",
+    "module_transport": "MirModuleMinimalShell",
+    "observation": "install only; take and finalize remain non-claims",
+    "semantic_capability": "PreparedStateInstall",
+    "state_transport": "PreparedMirBuilderStateShell"
+  },
+  "verified_operations": [
+    "NewBox",
+    "SetField",
+    "PresenceTaggedSet",
+    "ReturnValue",
+    "PreparedStateInstall"
+  ]
+}
