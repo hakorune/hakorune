@@ -265,18 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1715-MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-001.md"
-latest_card_summary = """RecordAndPackedLayoutRefresh is now a source-derived
+latest_card = "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1716-MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001.md"
+latest_card_summary = """TypedObjectPlanRefresh is now a source-derived
 PlanOnly capability provider for the prepared-state minimal MirBuilder path.
-The plan fixes only refresh_module_record_and_packed_layout_plans and its
-ordered helper chain without claiming typed object plan refresh, direct state
-plan refresh, full finalize, generated Hako, backend routes, ABI changes,
-runtime fallback, or source selfhost. The frontier analyzer now advances to
-TypedObjectPlanRefreshRequired. The next blocker is
-MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001."""
+The plan fixes only refresh_module_typed_object_plans and typed_object_plans
+assignment without claiming direct state plan refresh, typed-object field value
+refresh, full finalize, generated Hako, backend routes, ABI changes, runtime
+fallback, or source selfhost. The frontier analyzer now advances to
+DirectStatePlanRefreshRequired. The next blocker is
+MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001."""
 
-current_blocker_token = "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001"
+current_blocker_token = "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

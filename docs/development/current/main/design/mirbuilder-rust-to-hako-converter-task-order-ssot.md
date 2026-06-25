@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001
 
 current implementation task:
-  Address the typed object plan refresh edge derived after RecordAndPackedLayoutRefresh became available.
+  Address the direct state plan refresh edge derived after TypedObjectPlanRefresh became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, and RecordAndPackedLayoutRefresh are green; the frontier now derives typed object plan refresh as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, and TypedObjectPlanRefresh are green; the frontier now derives direct state plan refresh as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  RecordAndPackedLayoutRefresh is green as a PlanOnly capability. Proceed to typed object plan refresh, not direct state refresh, all-functions PHI materialization, or full finalize.
+  TypedObjectPlanRefresh is green as a PlanOnly capability. Proceed to direct state plan refresh, not all-functions PHI materialization or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -120,7 +120,8 @@ mirbuilder_function_region_stack_pop green
 mirbuilder_slot_registry_release green
 mirbuilder_module_metadata_publication green
 mirbuilder_record_packed_layout_refresh green
-derived_first_red_edge=TypedObjectPlanRefreshRequired
+mirbuilder_typed_object_plan_refresh green
+derived_first_red_edge=DirectStatePlanRefreshRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -169,6 +170,7 @@ mirbuilder_function_region_stack_pop = landed
 mirbuilder_slot_registry_release = landed
 mirbuilder_module_metadata_publication = landed
 mirbuilder_record_packed_layout_refresh = landed
+mirbuilder_typed_object_plan_refresh = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -178,14 +180,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Typed object plan refresh edge
+1. Direct state plan refresh edge
    status=selected
-   boundary=finalize_module refresh_module_typed_object_plans
-   semantic_authority=frontier analyzer plus RecordAndPackedLayoutRefresh non_claim typed_object_plan_refresh=0
+   boundary=finalize_module refresh_module_direct_state_plans
+   semantic_authority=frontier analyzer plus TypedObjectPlanRefresh non_claim direct_state_plan_refresh=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after typed object plan refresh
-   status=parked until typed object plan refresh edge is green
+2. Next semantic owner after direct state plan refresh
+   status=parked until direct state plan refresh edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage

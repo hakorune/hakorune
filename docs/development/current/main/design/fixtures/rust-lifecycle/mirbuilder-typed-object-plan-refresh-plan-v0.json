@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderTypedObjectPlanRefreshPlanV1",
+  "subject": "MirBuilder::finalize_module typed object plan refresh",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "refresh_entrypoint": "src/mir/typed_object_plan.rs::refresh_module_typed_object_plans",
+    "predecessor_plan": "mirbuilder-record-packed-layout-refresh-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "module_transport": "MirModuleMinimalShell"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);",
+        "byte_offset": 10520
+      },
+      {
+        "marker": "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);",
+        "byte_offset": 10618
+      },
+      {
+        "marker": "crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);",
+        "byte_offset": 10705
+      }
+    ],
+    "refresh_entrypoint": [
+      {
+        "marker": "module.metadata.typed_object_plans = build_typed_object_plans(module);",
+        "byte_offset": 5
+      }
+    ],
+    "build_entrypoint": [
+      {
+        "marker": "storage_inference::build_typed_object_plans(module)",
+        "byte_offset": 5
+      }
+    ]
+  },
+  "refresh_policy": {
+    "entrypoint": "refresh_module_typed_object_plans",
+    "timing": "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh",
+    "operation": "AssignTypedObjectPlans",
+    "source": "build_typed_object_plans(module)",
+    "build_provider": "storage_inference::build_typed_object_plans",
+    "target": "module.metadata.typed_object_plans",
+    "module_arg": "&mut MirModule"
+  },
+  "available_capabilities": [
+    "TypedObjectPlanRefresh"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.metadata.typed_object_plans"
+    ],
+    "entrypoint": "typed_object_plan::refresh_module_typed_object_plans",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "typed_object_field_value_type_refresh": 0,
+    "typed_object_collection_field_element_refresh": 0,
+    "direct_state_plan_refresh": 0,
+    "full_semantic_refresh": 0,
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

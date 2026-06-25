@@ -99,6 +99,9 @@ MODULE_METADATA_PUBLICATION_PLAN = (
 RECORD_PACKED_LAYOUT_REFRESH_PLAN = (
     FIXTURES / "mirbuilder-record-packed-layout-refresh-plan-v0.json"
 )
+TYPED_OBJECT_PLAN_REFRESH_PLAN = (
+    FIXTURES / "mirbuilder-typed-object-plan-refresh-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -208,6 +211,7 @@ def contract_sources() -> list[dict[str, Any]]:
     slot_registry_release = read_json(SLOT_REGISTRY_RELEASE_PLAN)
     module_metadata_publication = read_json(MODULE_METADATA_PUBLICATION_PLAN)
     record_packed_layout_refresh = read_json(RECORD_PACKED_LAYOUT_REFRESH_PLAN)
+    typed_object_plan_refresh = read_json(TYPED_OBJECT_PLAN_REFRESH_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -734,6 +738,40 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if record_refresh_non_claims.get(key) != 0:
             raise SelectionError(f"record/packed layout refresh plan must keep {key}=0")
+    if typed_object_plan_refresh.get("kind") != "MirBuilderTypedObjectPlanRefreshPlanV1":
+        raise SelectionError("typed object plan refresh plan has wrong kind")
+    typed_object_caps = set(typed_object_plan_refresh.get("available_capabilities") or [])
+    if "TypedObjectPlanRefresh" not in typed_object_caps:
+        raise SelectionError("typed object plan refresh plan lacks TypedObjectPlanRefresh")
+    typed_object_refresh = typed_object_plan_refresh.get("refresh_policy") or {}
+    if typed_object_refresh.get("entrypoint") != "refresh_module_typed_object_plans":
+        raise SelectionError("typed object plan refresh entrypoint drift")
+    if (
+        typed_object_refresh.get("timing")
+        != "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh"
+    ):
+        raise SelectionError("typed object plan refresh timing drift")
+    if typed_object_refresh.get("operation") != "AssignTypedObjectPlans":
+        raise SelectionError("typed object plan refresh operation drift")
+    if (
+        typed_object_refresh.get("build_provider")
+        != "storage_inference::build_typed_object_plans"
+    ):
+        raise SelectionError("typed object plan refresh build provider drift")
+    if typed_object_refresh.get("target") != "module.metadata.typed_object_plans":
+        raise SelectionError("typed object plan refresh target drift")
+    typed_object_non_claims = typed_object_plan_refresh.get("non_claims") or {}
+    for key in [
+        "typed_object_field_value_type_refresh",
+        "typed_object_collection_field_element_refresh",
+        "direct_state_plan_refresh",
+        "full_semantic_refresh",
+        "all_functions_phi_materialization",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if typed_object_non_claims.get(key) != 0:
+            raise SelectionError(f"typed object plan refresh plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -929,6 +967,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
             "manifest_path": rel(RECORD_PACKED_LAYOUT_REFRESH_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "TypedObjectPlanRefresh",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
+            "manifest_path": rel(TYPED_OBJECT_PLAN_REFRESH_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1396,12 +1441,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.typed_object_plan_refresh",
             "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
             "required_capability": "TypedObjectPlanRefresh",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "TypedObjectPlanRefresh",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "TypedObjectPlanRefreshRequired",
                 "semantic_owner": "MirBuilder::finalize_module typed object plan refresh",
                 "next_slice_token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001",
+            },
+        },
+        {
+            "id": "finalize_module.direct_state_plan_refresh",
+            "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
+            "required_capability": "DirectStatePlanRefresh",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "DirectStatePlanRefreshRequired",
+                "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
+                "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
             },
         },
     ]
@@ -1595,6 +1655,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

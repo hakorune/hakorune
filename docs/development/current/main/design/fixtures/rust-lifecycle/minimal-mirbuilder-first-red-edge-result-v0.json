@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
-    "deny_detail": "TypedObjectPlanRefreshRequired",
+    "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
+    "deny_detail": "DirectStatePlanRefreshRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.typed_object_plan_refresh",
-    "next_slice_token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001",
-    "required_capability": "TypedObjectPlanRefresh",
-    "semantic_owner": "MirBuilder::finalize_module typed object plan refresh",
+    "edge_id": "finalize_module.direct_state_plan_refresh",
+    "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
+    "required_capability": "DirectStatePlanRefresh",
+    "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -414,12 +414,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
-      "deny_detail": "TypedObjectPlanRefreshRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "TypedObjectPlanRefresh",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-plan-v0.json"
+      },
       "edge_id": "finalize_module.typed_object_plan_refresh",
-      "next_slice_token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-001",
       "required_capability": "TypedObjectPlanRefresh",
-      "semantic_owner": "MirBuilder::finalize_module typed object plan refresh",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
+      "deny_detail": "DirectStatePlanRefreshRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.direct_state_plan_refresh",
+      "next_slice_token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-001",
+      "required_capability": "DirectStatePlanRefresh",
+      "semantic_owner": "MirBuilder::finalize_module direct state plan refresh",
       "status": "Unsupported"
     }
   ],
