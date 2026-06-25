@@ -20,19 +20,19 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001
+  MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001
 
 current implementation task:
-  Select the first minimal MirBuilder execution path after generated context
-  bundle membership is green.
+  Implement the minimal MirModule shell transport required by the derived first
+  red edge for PreparedMirBuilderStateV1 build_module(AST Literal Integer(0)).
 
 selected source slice:
-  first generated context call graph beyond standalone artifacts
+  MirBuilder::prepare_module -> MirModule::new
 
 selected lowering:
-  artifact bundle evidence
-    -> first unsupported live edge
-    -> next semantic slice selection
+  MirModule::new live constructor semantics
+    -> minimal module shell transport
+    -> prepared-state execution path frontier advancement
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -73,19 +73,24 @@ landed evidence:
   crate bundle as membership-only evidence and bundle-level EXE/AOT smoke.
   Prepared-state reserved membership transport is aligned with its projection:
   actual generated storage now uses ValueIdOrderedMapBox and ValueIdOrderedMap.
+  Minimal MirBuilder execution path selection is green: live Rust source order
+  plus explicit artifact contracts derive the first unsupported edge at
+  prepare_module -> MirModule::new without generated Hako, backend, ABI,
+  runtime fallback, or mainline-selection changes.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-SELECTION-001
+  MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001
 
 current fail-fast boundary:
-  The next slice is selection-only until the first unsupported live edge is
-  named. It must not infer coverage from bundle size or silently promote a
-  generated artifact to mainline source authority.
+  The next slice may only model the minimal MirModule shell required by the
+  derived frontier edge. It must not infer coverage from bundle size, widen to
+  full MirBuilder::new, or silently promote a generated artifact to mainline
+  source authority.
 
 latest design decision:
-  Prepared-state Hako policy kernel bundle adoption is green as explicit
-  membership and smoke execution. Proceed to first live execution path
-  selection, not broad coverage expansion.
+  Minimal execution path selection is green as analysis-only frontier
+  discovery. Proceed to MirModule minimal shell transport, not broad coverage
+  expansion.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -111,6 +116,8 @@ allocation_policy_execution_surface_selected=prepared_state_hako_kernel
 mirbuilder_next_value_id_prepared_state_kernel green
 mirbuilder_allocation_policy_bundle_adoption green
 mirbuilder_prepared_state_reserved_membership_transport_alignment green
+mirbuilder_minimal_execution_path_selection green
+derived_first_red_edge=MirBuilder::prepare_module -> MirModule::new
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -134,6 +141,7 @@ allocation_policy_execution_surface_consultation = landed
 mirbuilder_next_value_id_prepared_state_kernel = landed
 mirbuilder_allocation_policy_bundle_adoption = landed
 mirbuilder_prepared_state_reserved_membership_transport_alignment = landed
+mirbuilder_minimal_execution_path_selection = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -143,23 +151,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Minimal MirBuilder execution path selection
+1. MIR module minimal shell transport
    status=selected
-   boundary=first generated context call graph beyond standalone artifacts
-   semantic_authority=first unsupported live edge
-   non_authority=coverage percentage
+   boundary=MirModule::new minimal shell only
+   semantic_authority=MirModule constructor facts
+   non_authority=full module/finalize behavior
 
-2. MirBuilder allocation policy mainline pilot
-   status=parked until minimal execution path is green
-   boundary=explicit route selection between generated_hako and rust_bootstrap
-   semantic_authority=DerivedMainline adoption policy
-   non_authority=silent fallback
+2. MirFunction constructor composition
+   status=parked until module shell frontier advances
+   boundary=MirFunction::new plus nested entry BasicBlock
+   semantic_authority=function constructor facts
+   non_authority=separate block-only claim
 
-3. Hako-adopted family selection
-   status=parked until a mainline pilot is green
-   boundary=choose one generated family for native-Hako authority review
-   semantic_authority=adoption evidence and frozen Rust compatibility
-   non_authority=generated artifact existence alone
+3. Minimal literal const/return path
+   status=parked until function constructor frontier advances
+   boundary=integer Const plus Return emission
+   semantic_authority=literal emission facts
+   non_authority=finalize composition
 ```
 
 ## Landed Converter Capability Summary

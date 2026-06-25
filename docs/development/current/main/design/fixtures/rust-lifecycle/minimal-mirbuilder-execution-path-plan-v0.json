@@ -1,0 +1,213 @@
+{
+  "contract_sources": [
+    {
+      "artifact_state": "DerivedShadow",
+      "capability": "CoreContext.scalar_counters_and_id_generators",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "family_id": "hakorune_mir_builder::core_context",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json"
+    },
+    {
+      "artifact_state": "DerivedShadow",
+      "capability": "MirBuilderAllocationPolicy.prepared_state_next_value_id",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json"
+    },
+    {
+      "artifact_state": "DerivedShadow",
+      "capability": "MirBuilderBundle.membership_only",
+      "contract_kind": "BundleMembershipOnlyV1",
+      "family_id": "hakorune_mir_builder::ordered_map_bundle",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/ordered_map_crate_bundle.artifact.json"
+    }
+  ],
+  "entry_preconditions": [
+    "prepared generated contexts",
+    "no full MirBuilder::new claim",
+    "bundle membership is not capability proof by itself"
+  ],
+  "execution_profile": {
+    "builder_safepoint_entry": false,
+    "current_block": "Absent",
+    "current_function": "Absent",
+    "current_module": "Absent",
+    "dev_birth_verification": false,
+    "kind": "PreparedMirBuilderStateV1",
+    "reserved_value_ids": "Empty",
+    "runtime_fallback": false,
+    "source_file": null
+  },
+  "explicit_non_claims": {
+    "bundle_size_as_proof": 0,
+    "full_mirbuilder_new_claim": 0,
+    "generated_hako_change": 0,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "kind": "MinimalMirBuilderExecutionPathPlanV1",
+  "ordered_source_edges": [
+    {
+      "callsite": "PreparedMirBuilderStateV1",
+      "id": "entry.prepared_state_profile",
+      "provider": {
+        "kind": "ExecutionProfile"
+      },
+      "required_capability": "PreparedMirBuilderStateV1"
+    },
+    {
+      "callsite": "MirBuilder::build_module -> prepare_module",
+      "id": "build_module.prepare_module",
+      "provider": {
+        "facts": "build_module_order",
+        "kind": "LiveSourceOrder"
+      },
+      "required_capability": "RustSourceCallOrder"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> MirModule::new",
+      "id": "prepare_module.module_new",
+      "provider": null,
+      "required_capability": "MirModuleMinimalShellTransport",
+      "unsupported": {
+        "deny_detail": "MirModuleMinimalShellTransportRequired",
+        "deny_reason": "UnsupportedTypeTransport",
+        "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
+        "semantic_owner": "MirModule::new"
+      }
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> current_source_file",
+      "id": "prepare_module.source_file",
+      "provider": null,
+      "required_capability": "SourceFileOptionTransport",
+      "unsupported": {
+        "deny_detail": "SourceFileOptionTransportRequired",
+        "deny_reason": "UnsupportedTypeTransport",
+        "next_slice_token": "MIRBUILDER-SOURCE-FILE-OPTION-TRANSPORT-001",
+        "semantic_owner": "MirBuilder::current_source_file"
+      }
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
+      "id": "prepare_module.next_block",
+      "provider": {
+        "capability": "CoreContext.scalar_counters_and_id_generators",
+        "kind": "ArtifactContract"
+      },
+      "required_capability": "CoreContext.scalar_counters_and_id_generators"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+      "id": "prepare_module.function_new",
+      "provider": null,
+      "required_capability": "MirFunctionConstructorTransport",
+      "unsupported": {
+        "deny_detail": "MirFunctionConstructorTransportRequired",
+        "deny_reason": "UnsupportedTypeTransport",
+        "next_slice_token": "MIR-FUNCTION-CONSTRUCTOR-COMPOSITION-001",
+        "semantic_owner": "MirFunction::new"
+      }
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> current state install",
+      "id": "prepare_module.state_install",
+      "provider": null,
+      "required_capability": "PreparedStateInstall",
+      "unsupported": {
+        "deny_detail": "PreparedStateInstallRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-PREPARED-STATE-INSTALL-001",
+        "semantic_owner": "MirBuilder prepared state"
+      }
+    },
+    {
+      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+      "id": "lower_root.literal_integer",
+      "provider": null,
+      "required_capability": "LiteralIntegerLowering",
+      "unsupported": {
+        "deny_detail": "LiteralIntegerLoweringRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-LITERAL-INTEGER-LOWERING-001",
+        "semantic_owner": "MirBuilder::build_literal"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module",
+      "id": "finalize_module.composition",
+      "provider": null,
+      "required_capability": "FinalizeModuleComposition",
+      "unsupported": {
+        "deny_detail": "FinalizeModuleCompositionRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-FINALIZE-MODULE-COMPOSITION-001",
+        "semantic_owner": "MirBuilder::finalize_module"
+      }
+    }
+  ],
+  "source_entry": "MirBuilder::build_module",
+  "source_order_facts": {
+    "build_module_order": [
+      {
+        "byte_offset": 616,
+        "marker": "self.prepare_module()?;"
+      },
+      {
+        "byte_offset": 648,
+        "marker": "let result_value = self.lower_root(ast)?;"
+      },
+      {
+        "byte_offset": 698,
+        "marker": "self.finalize_module(result_value)"
+      }
+    ],
+    "kind": "MirBuilderMinimalPathSourceOrderFactsV1",
+    "prepare_module_order": [
+      {
+        "byte_offset": 2412,
+        "marker": "let mut module = MirModule::new(\"main\".to_string());"
+      },
+      {
+        "byte_offset": 2473,
+        "marker": "module.metadata.source_file = self.current_source_file();"
+      },
+      {
+        "byte_offset": 2745,
+        "marker": "let entry_block = self.next_block_id();"
+      },
+      {
+        "byte_offset": 2793,
+        "marker": "let mut main_function = self.new_function_with_metadata(main_signature, entry_block);"
+      },
+      {
+        "byte_offset": 2942,
+        "marker": "self.current_module = Some(module);"
+      },
+      {
+        "byte_offset": 3039,
+        "marker": "self.scope_ctx.current_function = Some(main_function);"
+      },
+      {
+        "byte_offset": 3102,
+        "marker": "self.current_block = Some(entry_block);"
+      }
+    ],
+    "source_files": [
+      {
+        "path": "src/mir/builder/builder_build.rs",
+        "sha256": "bd90d77f1d53aecdda9ebdcda5e2e71f0e91c01741860d0c23bf7e91d2c12242"
+      },
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  }
+}

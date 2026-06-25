@@ -1,0 +1,103 @@
+{
+  "claims": {
+    "entry_is_prepared_state": 1,
+    "first_edge_result_is_derived": 1,
+    "full_mirbuilder_new_claim": 0,
+    "generated_hako_change": 0,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "execution_profile": {
+    "builder_safepoint_entry": false,
+    "current_block": "Absent",
+    "current_function": "Absent",
+    "current_module": "Absent",
+    "dev_birth_verification": false,
+    "kind": "PreparedMirBuilderStateV1",
+    "reserved_value_ids": "Empty",
+    "runtime_fallback": false,
+    "source_file": null
+  },
+  "first_unsupported_edge": {
+    "callsite": "MirBuilder::prepare_module -> MirModule::new",
+    "deny_detail": "MirModuleMinimalShellTransportRequired",
+    "deny_reason": "UnsupportedTypeTransport",
+    "edge_id": "prepare_module.module_new",
+    "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
+    "required_capability": "MirModuleMinimalShellTransport",
+    "semantic_owner": "MirModule::new",
+    "status": "Unsupported"
+  },
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "kind": "MinimalMirBuilderFirstRedEdgeResultV1",
+  "not_reached_edges": [
+    {
+      "callsite": "MirBuilder::prepare_module -> current_source_file",
+      "edge_id": "prepare_module.source_file",
+      "status": "NotReached"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
+      "edge_id": "prepare_module.next_block",
+      "status": "NotReached"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+      "edge_id": "prepare_module.function_new",
+      "status": "NotReached"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> current state install",
+      "edge_id": "prepare_module.state_install",
+      "status": "NotReached"
+    },
+    {
+      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+      "edge_id": "lower_root.literal_integer",
+      "status": "NotReached"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module",
+      "edge_id": "finalize_module.composition",
+      "status": "NotReached"
+    }
+  ],
+  "profile_excluded_edges": [],
+  "reached_prefix": [
+    {
+      "callsite": "PreparedMirBuilderStateV1",
+      "edge_id": "entry.prepared_state_profile",
+      "provider": {
+        "kind": "ExecutionProfile"
+      },
+      "required_capability": "PreparedMirBuilderStateV1",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::build_module -> prepare_module",
+      "edge_id": "build_module.prepare_module",
+      "provider": {
+        "facts": "build_module_order",
+        "kind": "LiveSourceOrder"
+      },
+      "required_capability": "RustSourceCallOrder",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::prepare_module -> MirModule::new",
+      "deny_detail": "MirModuleMinimalShellTransportRequired",
+      "deny_reason": "UnsupportedTypeTransport",
+      "edge_id": "prepare_module.module_new",
+      "next_slice_token": "MIR-MODULE-MINIMAL-SHELL-TRANSPORT-001",
+      "required_capability": "MirModuleMinimalShellTransport",
+      "semantic_owner": "MirModule::new",
+      "status": "Unsupported"
+    }
+  ],
+  "source_entry": "MirBuilder::build_module"
+}
