@@ -15,6 +15,8 @@ Scope:
   - `text_builder.hako`
   - `canonical_json.hako`
   - `projection_value.hako`
+- first shadow-projector support library:
+  - `return_emission_projector.hako`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`

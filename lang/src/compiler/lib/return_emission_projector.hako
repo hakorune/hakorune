@@ -1,0 +1,275 @@
+// return_emission_projector.hako — ReturnEmissionHakoProjector
+//
+// Responsibility:
+// - project the ReturnEmission plan into typed projection values
+// - package shadow metadata for canonical JSON parity
+//
+// Non-responsibility:
+// - Python oracle generation
+// - Hako artifact emission
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+
+using lang.compiler.lib.canonical_json as CanonicalJsonWriterBox
+using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box ReturnEmissionHakoProjector {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" {
+      return "[freeze:contract][hako_mirbuilder]"
+    }
+    return "" + tag
+  }
+
+  _fail(tag, msg) {
+    tag = me._tag(tag)
+    return %{
+      "err" => 1,
+      "err_line" => tag + msg,
+      "shadow_record" => null,
+      "shadow_json" => ""
+    }
+  }
+
+  _ok(shadow_record) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_record" => shadow_record,
+      "shadow_json" => CanonicalJsonWriterBox.canonicalize(shadow_record)
+    }
+  }
+
+  _require_map(value, label, tag) {
+    if value == null || BoxHelpers.is_map(value) != 1 {
+      return me._fail(tag, "[" + label + "] expected MapBox")
+    }
+    return null
+  }
+
+  _require_array(value, label, tag) {
+    if value == null || BoxHelpers.is_array(value) != 1 {
+      return me._fail(tag, "[" + label + "] expected ArrayBox")
+    }
+    return null
+  }
+
+  _require_present(value, label, tag) {
+    if value == null {
+      return me._fail(tag, "[" + label + "] missing")
+    }
+    return null
+  }
+
+  _require_text(value, label, expected, tag) {
+    local actual = "" + value
+    if actual != expected {
+      return me._fail(tag, "[" + label + "] expected " + expected + ", got " + actual)
+    }
+    return null
+  }
+
+  _has_string_item(items, expected) {
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return false
+    }
+    local i = 0
+    local n = items.length()
+    loop(i < n) {
+      if "" + items.get(i) == expected {
+        return true
+      }
+      i = i + 1
+    }
+    return false
+  }
+
+  _copy_any(value) {
+    if value == null {
+      return CompilerProjectionValueBox.create_null()
+    }
+    if value == true || value == false {
+      return CompilerProjectionValueBox.create_bool(value)
+    }
+    if BoxHelpers.is_array(value) == 1 {
+      return me._copy_array(value)
+    }
+    if BoxHelpers.is_map(value) == 1 {
+      return me._copy_object(value)
+    }
+    local text = "" + value
+    if StringHelpers.is_numeric_str(text) == 1 {
+      return CompilerProjectionValueBox.create_i64(text)
+    }
+    return CompilerProjectionValueBox.create_string(text)
+  }
+
+  _copy_array(arr) {
+    local out = CompilerProjectionValueBox.create_array()
+    local i = 0
+    local n = arr.length()
+    loop(i < n) {
+      CompilerProjectionValueBox.array_push(out, me._copy_any(arr.get(i)))
+      i = i + 1
+    }
+    return out
+  }
+
+  _copy_object(obj) {
+    local out = CompilerProjectionValueBox.create_object()
+    if obj == null {
+      return out
+    }
+    local keys = obj.keys()
+    if keys == null {
+      return out
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      CompilerProjectionValueBox.object_set(out, key, me._copy_any(obj.get(key)))
+      i = i + 1
+    }
+    return out
+  }
+
+  _validate_plan(plan, tag) {
+    local err = me._require_map(plan, "plan", tag)
+    if err != null {
+      return err
+    }
+
+    err = me._require_text(BoxHelpers.map_get(plan, "kind"), "plan.kind", "MirBuilderReturnEmissionPlanV1", tag)
+    if err != null { return err }
+    err = me._require_present(BoxHelpers.map_get(plan, "subject"), "plan.subject", tag)
+    if err != null { return err }
+
+    local source_authority = BoxHelpers.map_get(plan, "source_authority")
+    err = me._require_map(source_authority, "plan.source_authority", tag)
+    if err != null { return err }
+    err = me._require_present(BoxHelpers.map_get(source_authority, "finalize"), "plan.source_authority.finalize", tag)
+    if err != null { return err }
+    err = me._require_present(BoxHelpers.map_get(source_authority, "basic_block"), "plan.source_authority.basic_block", tag)
+    if err != null { return err }
+    err = me._require_present(BoxHelpers.map_get(source_authority, "mir_instruction"), "plan.source_authority.mir_instruction", tag)
+    if err != null { return err }
+
+    local execution_profile = BoxHelpers.map_get(plan, "execution_profile")
+    err = me._require_map(execution_profile, "plan.execution_profile", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(execution_profile, "input"), "plan.execution_profile.input", "ASTNode::Literal(Integer(0))", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(execution_profile, "current_block"), "plan.execution_profile.current_block", "Present", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(execution_profile, "current_function"), "plan.execution_profile.current_function", "Present", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(execution_profile, "target_block"), "plan.execution_profile.target_block", "Present", tag)
+    if err != null { return err }
+    if BoxHelpers.map_get(execution_profile, "target_block_terminated") != false {
+      return me._fail(tag, "[plan.execution_profile.target_block_terminated] expected false")
+    }
+    err = me._require_text(BoxHelpers.map_get(execution_profile, "result_value_transport"), "plan.execution_profile.result_value_transport", "ValueIdAsI64", tag)
+    if err != null { return err }
+
+    err = me._require_array(BoxHelpers.map_get(plan, "observed_source_order"), "plan.observed_source_order", tag)
+    if err != null { return err }
+    err = me._require_array(BoxHelpers.map_get(plan, "emission_sequence"), "plan.emission_sequence", tag)
+    if err != null { return err }
+    err = me._require_array(BoxHelpers.map_get(plan, "available_capabilities"), "plan.available_capabilities", tag)
+    if err != null { return err }
+    if me._has_string_item(BoxHelpers.map_get(plan, "available_capabilities"), "ReturnEmission") != true {
+      return me._fail(tag, "[plan.available_capabilities] missing ReturnEmission")
+    }
+
+    local result_contract = BoxHelpers.map_get(plan, "result_contract")
+    err = me._require_map(result_contract, "plan.result_contract", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(result_contract, "terminator"), "plan.result_contract.terminator", "MirInstruction::Return", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(result_contract, "value"), "plan.result_contract.value", "Some(result_value)", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(result_contract, "value_transport"), "plan.result_contract.value_transport", "ValueIdAsI64", tag)
+    if err != null { return err }
+    err = me._require_text(BoxHelpers.map_get(result_contract, "successors"), "plan.result_contract.successors", "Empty", tag)
+    if err != null { return err }
+
+    local non_claims = BoxHelpers.map_get(plan, "non_claims")
+    err = me._require_map(non_claims, "plan.non_claims", tag)
+    if err != null { return err }
+    local keys = non_claims.keys()
+    if keys == null {
+      return me._fail(tag, "[plan.non_claims] missing keys")
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      if StringHelpers.to_i64(non_claims.get(key)) != 0 {
+        return me._fail(tag, "[plan.non_claims] non-zero claim: " + key)
+      }
+      i = i + 1
+    }
+
+    return null
+  }
+
+  _project_shadow_output(hako_shadow) {
+    return me._copy_any(hako_shadow)
+  }
+
+  project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local tag = me._tag(null)
+    local err = me._validate_plan(plan, tag)
+    if err != null {
+      return err
+    }
+    err = me._require_present(python_oracle, "python_oracle", tag)
+    if err != null { return err }
+    err = me._require_present(hako_shadow, "hako_shadow", tag)
+    if err != null { return err }
+    err = me._require_present(parity_gate, "parity_gate", tag)
+    if err != null { return err }
+    err = me._require_present(promotion_token, "promotion_token", tag)
+    if err != null { return err }
+    err = me._require_present(retirement_token, "retirement_token", tag)
+    if err != null { return err }
+
+    local shadow_record = CompilerProjectionValueBox.create_object()
+    CompilerProjectionValueBox.object_set(shadow_record, "schema_version", CompilerProjectionValueBox.create_i64(0))
+    CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("ReturnEmissionHakoShadowProjectorV1"))
+    CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::return_emission"))
+    CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("return_emission"))
+    CompilerProjectionValueBox.object_set(shadow_record, "subject", me._copy_any(BoxHelpers.map_get(plan, "subject")))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", me._copy_any(plan))
+    CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", me._copy_any(python_oracle))
+    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", me._copy_any(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", me._copy_any(parity_gate))
+    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", me._copy_any(promotion_token))
+    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", me._copy_any(retirement_token))
+    return me._ok(shadow_record)
+  }
+
+  project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local result = me.project_shadow_record(
+      plan,
+      python_oracle,
+      hako_shadow,
+      parity_gate,
+      promotion_token,
+      retirement_token,
+    )
+    if StringHelpers.to_i64(BoxHelpers.map_get(result, "err")) == 1 {
+      return result
+    }
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_json" => BoxHelpers.map_get(result, "shadow_json")
+    }
+  }
+}

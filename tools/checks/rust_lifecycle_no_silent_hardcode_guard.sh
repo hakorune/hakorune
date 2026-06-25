@@ -14,6 +14,7 @@ TARGET_PREFIXES = (
     "src/mir/ordered_map_origin_plan.rs",
     "src/mir/semantic_refresh.rs",
     "src/mir/user_box_method_route_plan.rs",
+    "lang/src/compiler/lib/",
     "tools/rust_lifecycle/",
 )
 

@@ -21,14 +21,15 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Project ReturnEmission facts/plan JSON into typed canonical projection and
-  emit the shadow Hako projector using the compiler library lane.
+  Project FunctionRegionStackPop facts/plan JSON into typed canonical
+  projection and emit the shadow Hako projector using the compiler library
+  lane.
 
 selected source slice:
-  ReturnEmission facts/plan JSON and canonical JSON writer surface
+  FunctionRegionStackPop facts/plan JSON and canonical JSON writer surface
 
 selected lowering:
   typed projection values -> canonical JSON -> shadow projector parity
@@ -53,6 +54,9 @@ landed evidence:
   VerifiedFamilyArtifactContractV1, exercises scalar counters and ID
   generators, and avoids copying family selected methods, semantic transports,
   or denials.
+  ReturnEmission Hako shadow projector is landed as an ordinary compiler
+  library module under lang/src/compiler/lib with explicit plan/input/output
+  parity packaging and no ABI surface.
   The compiler library landing zone is documented under
   lang/src/compiler/lib/README.md, the parent compiler README points to that
   library boundary, and the ordinary Hako compiler library modules are landed
@@ -84,20 +88,21 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives FunctionRegionStackPop as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only project existing ReturnEmission plan JSON into typed
-  values and canonical JSON through the ordinary Hako compiler library lane.
-  It must not add new Python SemanticProjector growth, invent a new ABI,
-  reopen host/TypeBox boundaries, materialize FunctionRegionStackPop, or claim
-  HakoAdopted/source selfhost.
+  The next slice may only project existing FunctionRegionStackPop plan JSON
+  into typed values and canonical JSON through the ordinary Hako compiler
+  library lane. It must not add new Python SemanticProjector growth, invent a
+  new ABI, reopen host/TypeBox boundaries, materialize
+  finalize_module.slot_registry_release, or claim HakoAdopted/source selfhost.
 
 latest design decision:
   The compiler library landing zone is now materialized as ordinary Hako
-  modules. The next executable owner is the ReturnEmission Hako shadow
-  projector; allocation-policy Hako adoption remains parked until that lane is
-  explicit.
+  modules. The ReturnEmission Hako shadow projector is now landed under
+  lang/src/compiler/lib. The next executable owner is the
+  FunctionRegionStackPop derived Hako artifact; allocation-policy Hako
+  adoption remains parked until that lane is explicit.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
