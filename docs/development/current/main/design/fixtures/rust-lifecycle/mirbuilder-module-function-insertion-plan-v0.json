@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderModuleFunctionInsertionPlanV1",
+  "subject": "MirBuilder::finalize_module module.add_function(function)",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "module_add_function": "src/mir/function/module_impl.rs::MirModule::add_function",
+    "predecessor_plan": "mirbuilder-dev-birth-verification-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "module_transport": "MirModuleMinimalShell",
+    "function_transport": "MirFunctionPreparedMain",
+    "context": "finalize_module"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "if crate::config::env::using_is_dev()",
+        "byte_offset": 3624
+      },
+      {
+        "marker": "module.add_function(function);",
+        "byte_offset": 8129
+      },
+      {
+        "marker": "if module.functions.get(\"condition_fn\").is_none()",
+        "byte_offset": 8570
+      }
+    ],
+    "module_add_function": [
+      {
+        "marker": "let name = function.signature.name.clone();",
+        "byte_offset": 9
+      },
+      {
+        "marker": "self.functions.insert(name, function);",
+        "byte_offset": 61
+      }
+    ]
+  },
+  "insertion": {
+    "callsite": "module.add_function(function)",
+    "inserted_function": "MirFunctionPreparedMain",
+    "key_source": "function.signature.name.clone()",
+    "container": "MirModule.functions",
+    "container_operation": "BTreeMap::insert",
+    "collision_policy": "ReplaceExistingByName"
+  },
+  "available_capabilities": [
+    "ModuleFunctionInsertion"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.functions"
+    ],
+    "entrypoint": "MirModule::add_function",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "condition_fn_injection": 0,
+    "all_functions_phi_materialization": 0,
+    "region_stack_pop": 0,
+    "slot_registry_release": 0,
+    "metadata_publication": 0,
+    "semantic_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

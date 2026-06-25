@@ -120,6 +120,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "ModuleFunctionInsertion",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::module_function_insertion",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-function-insertion-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -516,13 +523,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
       "id": "finalize_module.module_function_insertion",
-      "provider": null,
+      "provider": {
+        "capability": "ModuleFunctionInsertion",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "ModuleFunctionInsertion",
       "unsupported": {
         "deny_detail": "ModuleFunctionInsertionRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
         "semantic_owner": "MirBuilder::finalize_module module function insertion"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
+      "id": "finalize_module.condition_fn_injection",
+      "provider": null,
+      "required_capability": "ConditionFnInjection",
+      "unsupported": {
+        "deny_detail": "ConditionFnInjectionRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
+        "semantic_owner": "MirBuilder::finalize_module condition_fn injection"
       }
     }
   ],

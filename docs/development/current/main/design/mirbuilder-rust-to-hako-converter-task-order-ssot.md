@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-MODULE-FUNCTION-INSERTION-001
+  MIRBUILDER-CONDITION-FN-INJECTION-001
 
 current implementation task:
-  Address the module.add_function(function) edge derived after DevBirthVerification became available.
+  Address the condition_fn injection edge derived after ModuleFunctionInsertion became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, and DevBirthVerification are green; the frontier now derives module function insertion as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, and ModuleFunctionInsertion are green; the frontier now derives condition_fn injection as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-MODULE-FUNCTION-INSERTION-001
+  MIRBUILDER-CONDITION-FN-INJECTION-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  DevBirthVerification is green as a PlanOnly capability. Proceed to module function insertion, not condition_fn injection, all-functions PHI materialization, semantic refresh, or full finalize.
+  ModuleFunctionInsertion is green as a PlanOnly capability. Proceed to condition_fn injection, not all-functions PHI materialization, region cleanup, semantic refresh, or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -116,7 +116,7 @@ mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
-derived_first_red_edge=ModuleFunctionInsertionRequired
+derived_first_red_edge=ConditionFnInjectionRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -159,6 +159,7 @@ mirbuilder_metadata_origin_caller_merge = landed
 mirbuilder_phi_return_type_inference = landed
 mirbuilder_phi_input_materialization = landed
 mirbuilder_dev_birth_verification = landed
+mirbuilder_module_function_insertion = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -168,14 +169,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Module function insertion edge
+1. Condition_fn injection edge
    status=selected
-   boundary=finalize_module module.add_function(function)
-   semantic_authority=frontier analyzer plus DevBirthVerification non_claim module_function_insertion=0
+   boundary=finalize_module inject condition_fn when missing
+   semantic_authority=frontier analyzer plus ModuleFunctionInsertion non_claim condition_fn_injection=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after module function insertion
-   status=parked until module function insertion edge is green
+2. Next semantic owner after condition_fn injection
+   status=parked until condition_fn injection edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage

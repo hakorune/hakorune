@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
-    "deny_detail": "ModuleFunctionInsertionRequired",
+    "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
+    "deny_detail": "ConditionFnInjectionRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.module_function_insertion",
-    "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
-    "required_capability": "ModuleFunctionInsertion",
-    "semantic_owner": "MirBuilder::finalize_module module function insertion",
+    "edge_id": "finalize_module.condition_fn_injection",
+    "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
+    "required_capability": "ConditionFnInjection",
+    "semantic_owner": "MirBuilder::finalize_module condition_fn injection",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -336,12 +336,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
-      "deny_detail": "ModuleFunctionInsertionRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "ModuleFunctionInsertion",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::module_function_insertion",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-function-insertion-plan-v0.json"
+      },
       "edge_id": "finalize_module.module_function_insertion",
-      "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
       "required_capability": "ModuleFunctionInsertion",
-      "semantic_owner": "MirBuilder::finalize_module module function insertion",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
+      "deny_detail": "ConditionFnInjectionRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.condition_fn_injection",
+      "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
+      "required_capability": "ConditionFnInjection",
+      "semantic_owner": "MirBuilder::finalize_module condition_fn injection",
       "status": "Unsupported"
     }
   ],

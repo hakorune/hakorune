@@ -81,6 +81,9 @@ PHI_INPUT_MATERIALIZATION_PLAN = (
 DEV_BIRTH_VERIFICATION_PLAN = (
     FIXTURES / "mirbuilder-dev-birth-verification-plan-v0.json"
 )
+MODULE_FUNCTION_INSERTION_PLAN = (
+    FIXTURES / "mirbuilder-module-function-insertion-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -184,6 +187,7 @@ def contract_sources() -> list[dict[str, Any]]:
     phi_return_type_inference = read_json(PHI_RETURN_TYPE_INFERENCE_PLAN)
     phi_input_materialization = read_json(PHI_INPUT_MATERIALIZATION_PLAN)
     dev_birth_verification = read_json(DEV_BIRTH_VERIFICATION_PLAN)
+    module_function_insertion = read_json(MODULE_FUNCTION_INSERTION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -517,6 +521,33 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if dev_birth_non_claims.get(key) != 0:
             raise SelectionError(f"dev birth verification plan must keep {key}=0")
+    if module_function_insertion.get("kind") != "MirBuilderModuleFunctionInsertionPlanV1":
+        raise SelectionError("module function insertion plan has wrong kind")
+    module_function_caps = set(module_function_insertion.get("available_capabilities") or [])
+    if "ModuleFunctionInsertion" not in module_function_caps:
+        raise SelectionError("module function insertion plan lacks ModuleFunctionInsertion")
+    insertion = module_function_insertion.get("insertion") or {}
+    if insertion.get("callsite") != "module.add_function(function)":
+        raise SelectionError("module function insertion callsite drift")
+    if insertion.get("key_source") != "function.signature.name.clone()":
+        raise SelectionError("module function insertion key source drift")
+    if insertion.get("container_operation") != "BTreeMap::insert":
+        raise SelectionError("module function insertion operation drift")
+    if insertion.get("collision_policy") != "ReplaceExistingByName":
+        raise SelectionError("module function insertion collision policy drift")
+    module_function_non_claims = module_function_insertion.get("non_claims") or {}
+    for key in [
+        "condition_fn_injection",
+        "all_functions_phi_materialization",
+        "region_stack_pop",
+        "slot_registry_release",
+        "metadata_publication",
+        "semantic_refresh",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if module_function_non_claims.get(key) != 0:
+            raise SelectionError(f"module function insertion plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -670,6 +701,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::dev_birth_verification",
             "manifest_path": rel(DEV_BIRTH_VERIFICATION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "ModuleFunctionInsertion",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::module_function_insertion",
+            "manifest_path": rel(MODULE_FUNCTION_INSERTION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1047,12 +1085,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.module_function_insertion",
             "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
             "required_capability": "ModuleFunctionInsertion",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "ModuleFunctionInsertion",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "ModuleFunctionInsertionRequired",
                 "semantic_owner": "MirBuilder::finalize_module module function insertion",
                 "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
+            },
+        },
+        {
+            "id": "finalize_module.condition_fn_injection",
+            "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
+            "required_capability": "ConditionFnInjection",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "ConditionFnInjectionRequired",
+                "semantic_owner": "MirBuilder::finalize_module condition_fn injection",
+                "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
             },
         },
     ]
@@ -1246,6 +1299,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",
