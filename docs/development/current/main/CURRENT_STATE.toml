@@ -265,17 +265,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CONDITION-FN-INJECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1711-MIRBUILDER-CONDITION-FN-INJECTION-001.md"
-latest_card_summary = """ConditionFnInjection is now a source-derived
+latest_card = "MIRBUILDER-FUNCTION-REGION-STACK-POP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1712-MIRBUILDER-FUNCTION-REGION-STACK-POP-001.md"
+latest_card_summary = """FunctionRegionStackPop is now a source-derived
 PlanOnly capability provider for the prepared-state minimal MirBuilder path.
-The plan fixes the source-required condition_fn stub injection when missing
-without claiming region cleanup, metadata publication, full finalize,
-generated Hako, backend routes, ABI changes, runtime fallback, or source
-selfhost. The frontier analyzer now advances to FunctionRegionStackPopRequired.
-The next blocker is MIRBUILDER-FUNCTION-REGION-STACK-POP-001."""
+The plan fixes only the trace-gated pop_function_region edge without claiming
+SlotRegistry release, metadata publication, full finalize, generated Hako,
+backend routes, ABI changes, runtime fallback, or source selfhost. The frontier
+analyzer now advances to SlotRegistryReleaseRequired. The next blocker is
+MIRBUILDER-SLOT-REGISTRY-RELEASE-001."""
 
-current_blocker_token = "MIRBUILDER-FUNCTION-REGION-STACK-POP-001"
+current_blocker_token = "MIRBUILDER-SLOT-REGISTRY-RELEASE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

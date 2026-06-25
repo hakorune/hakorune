@@ -134,6 +134,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "FunctionRegionStackPop",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::function_region_stack_pop",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -560,13 +567,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
       "id": "finalize_module.region_stack_pop",
-      "provider": null,
+      "provider": {
+        "capability": "FunctionRegionStackPop",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "FunctionRegionStackPop",
       "unsupported": {
         "deny_detail": "FunctionRegionStackPopRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-001",
         "semantic_owner": "MirBuilder::finalize_module function region cleanup"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
+      "id": "finalize_module.slot_registry_release",
+      "provider": null,
+      "required_capability": "SlotRegistryRelease",
+      "unsupported": {
+        "deny_detail": "SlotRegistryReleaseRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-001",
+        "semantic_owner": "MirBuilder::finalize_module slot registry cleanup"
       }
     }
   ],

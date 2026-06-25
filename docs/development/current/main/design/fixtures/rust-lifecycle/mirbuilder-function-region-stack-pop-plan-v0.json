@@ -1,0 +1,86 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFunctionRegionStackPopPlanV1",
+  "subject": "MirBuilder::finalize_module function region stack pop",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "observer": "src/mir/region/observer.rs::pop_function_region",
+    "predecessor_plan": "mirbuilder-condition-fn-injection-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "region_trace": "NYASH_REGION_TRACE=1"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "module.add_function(f);",
+        "byte_offset": 9259
+      },
+      {
+        "marker": "crate::mir::region::observer::pop_function_region(self);",
+        "byte_offset": 9346
+      },
+      {
+        "marker": "self.comp_ctx.current_slot_registry = None;",
+        "byte_offset": 9457
+      }
+    ],
+    "pop_function_region": [
+      {
+        "marker": "if !is_region_trace_on()",
+        "byte_offset": 5
+      },
+      {
+        "marker": "return;",
+        "byte_offset": 40
+      },
+      {
+        "marker": "let _ = builder.metadata_ctx.pop_region();",
+        "byte_offset": 58
+      }
+    ],
+    "observe_function_region_push_counterpart": [
+      {
+        "marker": "if !is_region_trace_on()",
+        "byte_offset": 5
+      },
+      {
+        "marker": "builder.metadata_ctx.push_region(id);",
+        "byte_offset": 852
+      }
+    ]
+  },
+  "pop_policy": {
+    "callsite": "region::observer::pop_function_region(self)",
+    "guard": "NYASH_REGION_TRACE == 1",
+    "operation": "metadata_ctx.pop_region",
+    "result_ignored": true,
+    "tracing_disabled_effect": "NoOp",
+    "push_counterpart_observed": true
+  },
+  "available_capabilities": [
+    "FunctionRegionStackPop"
+  ],
+  "result_contract": {
+    "mutates_when_guard_enabled": [
+      "builder.metadata_ctx.current_region_stack"
+    ],
+    "entrypoint": "region::observer::pop_function_region",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "observe_function_region_claim": 0,
+    "slot_registry_release": 0,
+    "metadata_publication": 0,
+    "semantic_refresh": 0,
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

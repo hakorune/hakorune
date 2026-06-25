@@ -87,6 +87,9 @@ MODULE_FUNCTION_INSERTION_PLAN = (
 CONDITION_FN_INJECTION_PLAN = (
     FIXTURES / "mirbuilder-condition-fn-injection-plan-v0.json"
 )
+FUNCTION_REGION_STACK_POP_PLAN = (
+    FIXTURES / "mirbuilder-function-region-stack-pop-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -192,6 +195,7 @@ def contract_sources() -> list[dict[str, Any]]:
     dev_birth_verification = read_json(DEV_BIRTH_VERIFICATION_PLAN)
     module_function_insertion = read_json(MODULE_FUNCTION_INSERTION_PLAN)
     condition_fn_injection = read_json(CONDITION_FN_INJECTION_PLAN)
+    function_region_stack_pop = read_json(FUNCTION_REGION_STACK_POP_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -579,6 +583,39 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if condition_non_claims.get(key) != 0:
             raise SelectionError(f"condition_fn injection plan must keep {key}=0")
+    if function_region_stack_pop.get("kind") != "MirBuilderFunctionRegionStackPopPlanV1":
+        raise SelectionError("function-region stack pop plan has wrong kind")
+    region_pop_caps = set(function_region_stack_pop.get("available_capabilities") or [])
+    if "FunctionRegionStackPop" not in region_pop_caps:
+        raise SelectionError("function-region stack pop plan lacks FunctionRegionStackPop")
+    pop_policy = function_region_stack_pop.get("pop_policy") or {}
+    if pop_policy.get("callsite") != "region::observer::pop_function_region(self)":
+        raise SelectionError("function-region stack pop callsite drift")
+    if pop_policy.get("guard") != "NYASH_REGION_TRACE == 1":
+        raise SelectionError("function-region stack pop guard drift")
+    if pop_policy.get("operation") != "metadata_ctx.pop_region":
+        raise SelectionError("function-region stack pop operation drift")
+    if pop_policy.get("tracing_disabled_effect") != "NoOp":
+        raise SelectionError("function-region stack pop disabled effect drift")
+    region_pop_contract = function_region_stack_pop.get("result_contract") or {}
+    if region_pop_contract.get("entrypoint") != "region::observer::pop_function_region":
+        raise SelectionError("function-region stack pop entrypoint drift")
+    if region_pop_contract.get("mutates_when_guard_enabled") != [
+        "builder.metadata_ctx.current_region_stack"
+    ]:
+        raise SelectionError("function-region stack pop mutation frame drift")
+    region_pop_non_claims = function_region_stack_pop.get("non_claims") or {}
+    for key in [
+        "observe_function_region_claim",
+        "slot_registry_release",
+        "metadata_publication",
+        "semantic_refresh",
+        "all_functions_phi_materialization",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if region_pop_non_claims.get(key) != 0:
+            raise SelectionError(f"function-region stack pop plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -746,6 +783,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::condition_fn_injection",
             "manifest_path": rel(CONDITION_FN_INJECTION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "FunctionRegionStackPop",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::function_region_stack_pop",
+            "manifest_path": rel(FUNCTION_REGION_STACK_POP_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1153,12 +1197,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.region_stack_pop",
             "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
             "required_capability": "FunctionRegionStackPop",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "FunctionRegionStackPop",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "FunctionRegionStackPopRequired",
                 "semantic_owner": "MirBuilder::finalize_module function region cleanup",
                 "next_slice_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-001",
+            },
+        },
+        {
+            "id": "finalize_module.slot_registry_release",
+            "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
+            "required_capability": "SlotRegistryRelease",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "SlotRegistryReleaseRequired",
+                "semantic_owner": "MirBuilder::finalize_module slot registry cleanup",
+                "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-001",
             },
         },
     ]
@@ -1352,6 +1411,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",
