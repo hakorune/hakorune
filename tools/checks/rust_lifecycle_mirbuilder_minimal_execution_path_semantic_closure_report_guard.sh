@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.composition"
-assert gap["callsite"] == "MirBuilder::finalize_module"
-assert gap["required_capability"] == "FinalizeModuleComposition"
-assert gap["next_slice_token"] == "MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.return_emission"
+assert gap["callsite"] == "MirBuilder::finalize_module -> append Return(result_value)"
+assert gap["required_capability"] == "ReturnEmission"
+assert gap["next_slice_token"] == "MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -57,6 +57,13 @@ assert literal_edge["evidence_tier"] == "VerifiedArtifact"
 assert literal_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert literal_edge["route_state"] == "DerivedShadow"
 assert literal_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json"
+finalize_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.composition"]
+assert len(finalize_edges) == 1
+finalize_edge = finalize_edges[0]
+assert finalize_edge["evidence_tier"] == "VerifiedArtifact"
+assert finalize_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert finalize_edge["route_state"] == "DerivedShadow"
+assert finalize_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_bounded_finalize_composition.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

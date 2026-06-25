@@ -265,19 +265,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1723-MIRBUILDER-LITERAL-INTEGER-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """MirBuilder literal integer lowering now has a bounded
-DerivedShadow Hako artifact. The artifact allocates a ValueId through the
-prepared-state allocation-policy dependency, emits a ConstValue::Integer shell,
-publishes a MirType::Integer shell, and returns the allocated ValueId while
-typed literals, non-integer literals, return emission, finalize, full
-expression lowering, mainline selection, and source selfhost remain non-claims.
-The semantic closure report now derives finalize_module.composition as the first
-executable materialization gap. The next blocker is
-MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001."""
+latest_card = "MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1724-MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """MirBuilder bounded finalize composition now has a
+DerivedShadow Hako artifact for the prepared minimal profile. The artifact
+connects the return shell, publishes the integer return type shell, injects the
+condition_fn shell, publishes metadata and semantic-refresh subset shells, and
+clears prepared state presence tags while full finalize_module, full
+build_module execution, reusable child artifacts, mainline selection, and source
+selfhost remain non-claims. The semantic closure report now derives
+finalize_module.return_emission as the first executable materialization gap. The
+next blocker is MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

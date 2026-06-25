@@ -1,0 +1,58 @@
+{
+  "checks": {
+    "bounded_finalize_composition_only": 1,
+    "condition_fn_injection_source_required": 1,
+    "excluded_methods": [],
+    "full_build_module_execution": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "metadata_publication_shell": 1,
+    "module_function_count_includes_condition_fn": 1,
+    "return_instruction_shell_connected": 1,
+    "return_type_integer_published": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "bounded_finalize_composition_prepared_minimal_profile_only",
+    "semantic_refresh_subset_shell": 1,
+    "state_take_presence_tags_cleared": 1
+  },
+  "denied_boundaries": [
+    "full_finalize_module",
+    "full_build_module_execution",
+    "reusable_return_emission",
+    "reusable_type_publication",
+    "current_module_take_artifact",
+    "current_function_take_artifact",
+    "mainline_selected",
+    "source_selfhost_claim",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::bounded_finalize_composition",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "BoundedFinalizeComposition_prepared_minimal_profile",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-bounded-finalize-composition-plan-v0.json",
+  "source_plan": "mirbuilder-bounded-finalize-composition-plan-v0.json",
+  "source_recipe": "mirbuilder-bounded-finalize-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.prepared_minimal_profile",
+  "transport_notes": {
+    "block_transport": "FinalizedBasicBlockShell",
+    "current_function_take_transport": "presence tag cleared; payload not canonical Option",
+    "current_module_take_transport": "presence tag cleared; payload not canonical Option",
+    "full_finalize_module": 0,
+    "function_transport": "FinalizedMirFunctionShell",
+    "literal_result_transport": "LiteralIntegerLoweringResultShell",
+    "mainline_selected": 0,
+    "module_transport": "FinalizedMirModuleShell",
+    "result_transport": "FinalizedMirModuleShell",
+    "return_emission_artifact": "unselected",
+    "state_transport": "PreparedFinalizeStateShell"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "BoundedReturnInstructionShell",
+    "BoundedConditionFnInjectionShell",
+    "BoundedSemanticRefreshSubsetShell"
+  ]
+}

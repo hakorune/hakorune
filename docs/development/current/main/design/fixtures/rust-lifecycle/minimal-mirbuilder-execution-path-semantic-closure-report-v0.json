@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 22,
+      "PlanOnly": 21,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 6
+      "VerifiedArtifact": 7
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 6,
-      "Missing": 22,
+      "ExecutableArtifactPresent": 7,
+      "Missing": 21,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 5,
+      "DerivedShadow": 6,
       "NotApplicable": 4,
-      "Unselected": 22
+      "Unselected": 21
     }
   },
   "edges": [
@@ -185,15 +185,15 @@
       "status": "Available",
       "required_capability": "FinalizeModuleComposition",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "FinalizeModuleComposition",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
-        "family_id": "hakorune_mir_builder::bounded_finalize",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-composition-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::bounded_finalize_composition",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_bounded_finalize_composition.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.composition",
-    "callsite": "MirBuilder::finalize_module",
-    "required_capability": "FinalizeModuleComposition",
-    "next_slice_token": "MIRBUILDER-BOUNDED-FINALIZE-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.return_emission",
+    "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
+    "required_capability": "ReturnEmission",
+    "next_slice_token": "MIRBUILDER-RETURN-EMISSION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

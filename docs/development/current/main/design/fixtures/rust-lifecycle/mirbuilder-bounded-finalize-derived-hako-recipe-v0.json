@@ -1,0 +1,24 @@
+{
+  "family_id": "hakorune_mir_builder::bounded_finalize_composition",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "PreparedFinalizeStateShellBox birth + Main setup",
+      "hako_operation": "NewBox + SetField",
+      "id": "PreparedFinalizeStateShell::new",
+      "rust_operation": "prepared minimal current module/function/block state"
+    },
+    {
+      "emits": "BoundedFinalizeCompositionApi.finalize(state, module, func, block, result_value, published_type)",
+      "hako_operation": "SetField + ReturnValue",
+      "id": "BoundedFinalizeComposition::finalize",
+      "rust_operation": "MirBuilder::finalize_module bounded minimal profile"
+    }
+  ],
+  "pilot_scope": "BoundedFinalizeComposition_prepared_minimal_profile",
+  "schema_version": 0,
+  "selected_body_count": "bounded_finalize_composition_prepared_minimal_profile_only",
+  "source_oracle": "mirbuilder-bounded-finalize-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-bounded-finalize-composition-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.prepared_minimal_profile"
+}

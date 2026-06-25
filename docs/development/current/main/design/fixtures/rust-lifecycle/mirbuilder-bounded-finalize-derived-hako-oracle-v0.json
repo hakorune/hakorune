@@ -1,0 +1,39 @@
+{
+  "kind": "MirBuilderBoundedFinalizeDerivedHakoOracleV1",
+  "non_claims": {
+    "current_function_take_artifact": 0,
+    "current_module_take_artifact": 0,
+    "full_build_module_execution": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "reusable_return_emission": 0,
+    "reusable_type_publication": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module prepared minimal profile",
+  "vectors": [
+    {
+      "expect": {
+        "condition_fn_present": 1,
+        "main_block_terminated": 1,
+        "main_function_return_type_integer": 1,
+        "module_function_count": 2,
+        "module_metadata_published": 1,
+        "return_value": 1,
+        "semantic_refresh_subset_applied": 1,
+        "state_current_block_present": 0,
+        "state_current_function_present": 0,
+        "state_current_module_present": 0
+      },
+      "inputs": {
+        "initial_current_block_present": 1,
+        "initial_current_function_present": 1,
+        "initial_current_module_present": 1,
+        "published_type_is_integer": 1,
+        "result_value": 1
+      },
+      "name": "literal_integer_module_finalization"
+    }
+  ]
+}
