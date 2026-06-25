@@ -16,6 +16,7 @@ from mirbuilder_family_artifacts import run_mirbuilder_family_artifact_generator
 from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_scalar_artifact_generator
 from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_parent_artifact_generator
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
+from mir_function_constructor_artifacts import run_mir_function_constructor_shell_artifact_generator
 from mir_module_minimal_shell_artifacts import run_mir_module_minimal_shell_artifact_generator
 from mirbuilder_multi_exit_phi_artifacts import run_multi_exit_phi_artifact_generator
 from mirbuilder_next_value_id_prepared_state_kernel_artifacts import run_prepared_state_kernel_generator
@@ -37,6 +38,7 @@ FAMILY_GENERATORS = {
     "metadata-context-scalar-source-file": run_metadata_context_scalar_artifact_generator,
     "metadata-context-region-parent": run_metadata_region_parent_artifact_generator,
     "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
+    "mir-function-constructor-shell": run_mir_function_constructor_shell_artifact_generator,
     "mir-module-minimal-shell": run_mir_module_minimal_shell_artifact_generator,
     "mirbuilder-next-value-id-prepared-state-kernel": run_prepared_state_kernel_generator,
     "multi-carrier-exit-phi": run_multi_exit_phi_artifact_generator,

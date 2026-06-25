@@ -1,0 +1,36 @@
+{
+  "family_id": "hakorune_mir::MirFunctionConstructorShell",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "FunctionSignaturePreparedApi.create(name, param_count)",
+      "hako_operation": "NewBox + SetField + ReturnValue",
+      "id": "FunctionSignaturePrepared::create",
+      "rust_operation": "prepared FunctionSignature input surface"
+    },
+    {
+      "emits": "BasicBlockConstructorShellApi.create(entry_block)",
+      "hako_operation": "NewBox + SetField + ReturnValue",
+      "id": "BasicBlockConstructorShell::create",
+      "rust_operation": "BasicBlock::new constructor defaults"
+    },
+    {
+      "emits": "FunctionBlockTableShellApi.create(entry_block)",
+      "hako_operation": "EntryBlockOnlyFunctionBlockTable",
+      "id": "FunctionBlockTableShell::create",
+      "rust_operation": "HashMap::new plus entry BasicBlock insertion"
+    },
+    {
+      "emits": "MirFunctionConstructorShellApi.create(signature, entry_block)",
+      "hako_operation": "StructuredLoop + NewBox + SetField + ReturnValue",
+      "id": "MirFunctionConstructorShell::create",
+      "rust_operation": "MirFunction::new constructor composition"
+    }
+  ],
+  "pilot_scope": "MirFunctionConstructorShell_new_only",
+  "schema_version": 0,
+  "selected_body_count": "mir_function_constructor_shell_only",
+  "source_oracle": "mir-function-constructor-derived-hako-oracle-v0.json",
+  "source_plan": "mir-function-constructor-composition-plan-v0.json",
+  "subject": "hakorune_mir::MirFunction::new.constructor_shell"
+}

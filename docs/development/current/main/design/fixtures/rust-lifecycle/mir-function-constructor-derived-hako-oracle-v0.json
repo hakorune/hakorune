@@ -1,0 +1,53 @@
+{
+  "kind": "MirFunctionConstructorDerivedHakoOracleV1",
+  "non_claims": {
+    "function_body_lowering": 0,
+    "function_finalization": 0,
+    "instruction_emission": 0,
+    "mainline_selected": 0,
+    "parameter_setup_compatibility_fallback": 0,
+    "reserve_parameter_value_ids_call": 0,
+    "separate_block_only_claim": 0
+  },
+  "schema_version": 0,
+  "subject": "hakorune_mir::MirFunction::new",
+  "vectors": [
+    {
+      "expect": {
+        "block_table_len": 1,
+        "entry_block": 0,
+        "entry_block_instruction_len": 0,
+        "entry_block_reachable": 0,
+        "entry_block_sealed": 0,
+        "entry_block_terminator": "Option::None",
+        "next_value_id": 1,
+        "param_len": 0
+      },
+      "inputs": {
+        "entry_block": 0,
+        "name": "main",
+        "param_count": 0
+      },
+      "name": "zero_param_entry_block_zero"
+    },
+    {
+      "expect": {
+        "block_table_len": 1,
+        "entry_block": 7,
+        "next_value_id": 3,
+        "param_len": 3,
+        "params": [
+          0,
+          1,
+          2
+        ]
+      },
+      "inputs": {
+        "entry_block": 7,
+        "name": "with_params",
+        "param_count": 3
+      },
+      "name": "three_params_entry_block_seven"
+    }
+  ]
+}

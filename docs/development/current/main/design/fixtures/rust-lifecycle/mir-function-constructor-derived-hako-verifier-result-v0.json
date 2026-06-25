@@ -1,0 +1,61 @@
+{
+  "checks": {
+    "backend_behavior_changed": 0,
+    "basic_block_child_constructor": 1,
+    "constructor_shell_only": 1,
+    "entry_block_only_table": 1,
+    "excluded_methods": [],
+    "fresh_entry_block_instruction_identity": 1,
+    "fresh_params_identity": 1,
+    "function_body_lowering": 0,
+    "instruction_emission": 0,
+    "next_value_id_seed_max_param_count_1": 1,
+    "params_prepopulated": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "mir_function_constructor_shell_only",
+    "source_plan_input": "verified"
+  },
+  "denied_boundaries": [
+    "separate_block_only_claim",
+    "function_body_lowering",
+    "instruction_emission",
+    "parameter_setup_compatibility_fallback",
+    "reserve_parameter_value_ids_call",
+    "function_finalization",
+    "generated_hako_artifact",
+    "backend_route_changed",
+    "abi_changed",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir::MirFunctionConstructorShell",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MirFunctionConstructorShell_new_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mir-function-constructor-composition-plan-v0.json",
+  "source_plan": "mir-function-constructor-composition-plan-v0.json",
+  "source_recipe": "mir-function-constructor-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir::MirFunction::new.constructor_shell",
+  "transport_notes": {
+    "basic_block_observation": "constructor defaults only",
+    "basic_block_transport": "BasicBlockConstructorShell",
+    "block_table_observation": "entry-block-only",
+    "block_table_transport": "EntryBlockOnlyFunctionBlockTable",
+    "entry_block_transport": "BasicBlockIdAsI64",
+    "full_mir_function_conversion": 0,
+    "function_signature_surface": "name + param_count only",
+    "function_signature_transport": "FunctionSignaturePrepared",
+    "function_transport": "MirFunctionConstructorShell",
+    "next_value_id_transport": "ValueIdCounterAsI64",
+    "params_transport": "ValueIdAsI64Array",
+    "semantic_capability": "MirFunctionConstructorTransport"
+  },
+  "verified_operations": [
+    "NewBox",
+    "SetField",
+    "StructuredLoop",
+    "ArrayPush",
+    "ReturnValue",
+    "BasicBlock::new defaults"
+  ]
+}

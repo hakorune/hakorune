@@ -54,6 +54,13 @@ def _render_expr(expr: Any) -> str:
         if not isinstance(callee, str) or not isinstance(args, list):
             raise ValueError("CallStatic expression requires callee and args")
         return f"{callee}({', '.join(_render_expr(arg) for arg in args)})"
+    if kind == "NewArray":
+        return "new ArrayBox()"
+    if kind == "NewBoxExpr":
+        box_name = expr.get("box")
+        if not isinstance(box_name, str):
+            raise ValueError("NewBoxExpr requires box")
+        return f"new {box_name}()"
     raise ValueError(f"unsupported Hako expression: {kind}")
 
 
