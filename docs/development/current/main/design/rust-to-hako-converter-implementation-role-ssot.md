@@ -271,11 +271,28 @@ tooling layer at once.
 When `.hako` projector work exposes missing ergonomics, add compiler-library
 support before language syntax.
 
+Boundary rule:
+
+```text
+compiler meaning / JSON generation / text formatting:
+  ordinary .hako module or library
+
+OS, filesystem, environment, process, hash:
+  Hako facade -> host C ABI
+
+values crossing Hako <-> host/plugin:
+  TypeBox ABI v2 + value-repr manifest
+```
+
+TypeBox ABI is not a convenience extension point for compiler libraries. It is
+the representation and ownership contract for values crossing a host/plugin
+boundary.
+
 Priority:
 
 ```text
-1. CanonicalJsonValue / CanonicalJsonWriter
-2. TextBuilderBox / StringBufferBox
+1. TextBuilderBox / StringBufferBox
+2. CanonicalJsonValue / CanonicalJsonWriter
 3. DiagnosticBuilder
 4. typed Array / OrderedMap helpers
 5. narrow File / Path / Env / SHA256 host APIs
@@ -285,6 +302,87 @@ Priority:
 Do not grow Python because `.hako` lacks convenience. Either add a small Hako
 library/host boundary or keep Python as an oracle while the Hako projector
 surface matures.
+
+Initial compiler-library stack:
+
+```text
+ReturnEmissionHakoProjector
+  -> CompilerProjectionValueBox
+  -> CanonicalJsonWriterBox
+  -> TextBuilderBox
+  -> StringBox / ArrayBox / OrderedMapBox
+```
+
+`CompilerProjectionValueBox` is internal to compiler tooling. It should model:
+
+```text
+Null
+Bool
+I64
+String
+Array
+Object
+```
+
+It is not public TypeBox ABI and does not need a host boundary.
+
+`CanonicalJsonWriterBox` owns:
+
+```text
+string escaping
+i64 / bool / null serialization
+array serialization
+object key ordering
+stable whitespace policy
+```
+
+`TextBuilderBox` starts as ordinary Hako data:
+
+```text
+chunks: ArrayBox
+
+append(text)
+append_i64(value)
+append_json_string(value)
+finish()
+```
+
+Do not introduce `hako.buf`, Core C ABI, or TypeBox ABI for this v0. If
+profiling later proves TextBuilder hot, replace its internal implementation
+with `hako.buf`-backed storage behind the same Hako library API.
+
+Host facades are allowed only for substrate-bound operations:
+
+```text
+FileFacade:
+  read / write
+
+PathFacade:
+  directory walk / path normalization
+
+EnvFacade:
+  environment lookup
+
+ProcessFacade:
+  explicit process execution
+
+HashFacade:
+  SHA-256
+```
+
+Host facades must not decide:
+
+```text
+which family is selected
+which transport is adopted
+what is directable
+how VerifiedHakoFamilyIR is built
+```
+
+Language syntax/spec additions are last resort. A helper graduates from
+library to language only when multiple compiler families require it, the
+library cannot preserve type safety or optimization semantics, and VM/AOT
+behavior must be fixed as language meaning.
 
 ## Non-Claims
 

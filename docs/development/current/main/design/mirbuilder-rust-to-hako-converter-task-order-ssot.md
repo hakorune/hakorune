@@ -234,10 +234,10 @@ history, not in this task-order SSOT.
    non_authority=ReturnEmission adoption or full minimal path mainline claim
 
 3. ReturnEmission Hako shadow projector
-   status=parked until adoption decision checkpoint
+   status=parked until Hako compiler TextBuilder/CanonicalJson library support exists
    boundary=first Hako SemanticProjector shadow over canonical ReturnEmission plan
-   semantic_authority=Python oracle plus Hako projector parity
-   non_authority=Rust source rescan or emitter rewrite
+   semantic_authority=Python oracle plus Hako projector parity over JSON seam
+   non_authority=Rust source rescan, emitter rewrite, TypeBox ABI, or host ABI
 ```
 
 ## Landed Converter Capability Summary
