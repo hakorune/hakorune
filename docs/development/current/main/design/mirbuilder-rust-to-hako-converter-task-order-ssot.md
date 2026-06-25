@@ -21,16 +21,17 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
+  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
 
 current implementation task:
-  Classify Python converter tool roles and freeze new Python SemanticProjector growth before widening derived artifact expansion.
+  Project ReturnEmission facts/plan JSON into typed canonical projection and
+  emit the shadow Hako projector using the compiler library lane.
 
 selected source slice:
-  prepared-state build_module(AST Literal Integer(0)) execution surface
+  ReturnEmission facts/plan JSON and canonical JSON writer surface
 
 selected lowering:
-  explicit artifact contracts -> frontier analyzer -> next unsupported edge
+  typed projection values -> canonical JSON -> shadow projector parity
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -53,8 +54,10 @@ landed evidence:
   generators, and avoids copying family selected methods, semantic transports,
   or denials.
   The compiler library landing zone is documented under
-  lang/src/compiler/lib/README.md, and the parent compiler README points to
-  that library boundary.
+  lang/src/compiler/lib/README.md, the parent compiler README points to that
+  library boundary, and the ordinary Hako compiler library modules are landed
+  under lang/src/compiler/lib/ with text_builder / projection_value /
+  canonical_json exports wired.
   MirBuilder allocation policy facts are green: live source now projects to
   MirBuilderAllocationPolicyFactsV1, ResolvedValueAllocationPolicyV1, and an
   explicit DirectabilityDecision=Deny until current_function / reserved-set /
@@ -81,13 +84,20 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives FunctionRegionStackPop as the next executable materialization gap.
 
 selected next owner:
-  PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
+  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
 
 current fail-fast boundary:
-  The next slice may only classify Python converter tooling roles and forbid new Python SemanticProjector growth. It must keep Python/Hako seams JSON-backed with one selected authority per stage. It must not delete existing Python bootstrap/oracle tooling, rewrite converter implementation, materialize FunctionRegionStackPop, or claim HakoAdopted/source selfhost.
+  The next slice may only project existing ReturnEmission plan JSON into typed
+  values and canonical JSON through the ordinary Hako compiler library lane.
+  It must not add new Python SemanticProjector growth, invent a new ABI,
+  reopen host/TypeBox boundaries, materialize FunctionRegionStackPop, or claim
+  HakoAdopted/source selfhost.
 
 latest design decision:
-  ConditionFnInjection is now an executable DerivedShadow artifact. The semantic closure report advances the executable materialization gap to finalize_module.region_stack_pop, but task-order intentionally stops widening Python semantic projection growth first: classify Python converter roles, freeze new Python SemanticProjector growth, then select allocation-policy Hako adoption and ReturnEmission Hako shadow projector follow-ons.
+  The compiler library landing zone is now materialized as ordinary Hako
+  modules. The next executable owner is the ReturnEmission Hako shadow
+  projector; allocation-policy Hako adoption remains parked until that lane is
+  explicit.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -231,16 +241,16 @@ history, not in this task-order SSOT.
    non_authority=deleting existing Python bootstrap/oracle tooling
 
 2. Hako compiler TextBuilder and CanonicalJson library
-   status=selected
+   status=landed
    boundary=ordinary Hako compiler library under lang/src/compiler/lib, no ABI surface
    semantic_authority=rust-to-hako-converter-implementation-role-ssot
    non_authority=TypeBox ABI, host ABI, distribution packaging, or language syntax
 
-3. Allocation-policy Hako adoption decision
-   status=parked until compiler library landing zone is in place
-   boundary=first HakoAdopted decision candidate from an already-DerivedMainline family
-   semantic_authority=derived-to-native artifact model + allocation-policy route selection
-   non_authority=ReturnEmission adoption or full minimal path mainline claim
+3. MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001
+   status=selected
+   boundary=ReturnEmission facts/plan JSON into typed projection and canonical JSON
+   semantic_authority=rust-to-hako-converter-implementation-role-ssot
+   non_authority=adding new Python SemanticProjector growth or new ABI
 ```
 
 ## Landed Converter Capability Summary

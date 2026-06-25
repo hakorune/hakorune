@@ -1,0 +1,177 @@
+// canonical_json.hako — CanonicalJsonWriterBox
+//
+// Responsibility:
+// - deterministic canonical JSON emission for compiler-facing projection values
+// - string escaping, array serialization, and stable object key ordering
+//
+// Non-responsibility:
+// - TypeBox ABI
+// - host ABI
+// - distribution/package ABI
+
+using lang.compiler.lib.text_builder as TextBuilder
+using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using apps.lib.collections.text_order as TextOrder
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box CanonicalJsonWriterBox {
+  canonicalize(value) {
+    return me.write(value)
+  }
+
+  write(value) {
+    local builder = TextBuilder.create()
+    me.write_into(builder, value)
+    return builder.finish()
+  }
+
+  write_into(builder, value) {
+    me._append_any(builder, value)
+    return builder
+  }
+
+  _append_any(builder, value) {
+    if value == null {
+      builder.append_null()
+      return builder
+    }
+
+    if value == true || value == false {
+      builder.append_bool(value)
+      return builder
+    }
+
+    if BoxHelpers.is_array(value) {
+      me._append_array(builder, value)
+      return builder
+    }
+
+    if BoxHelpers.is_map(value) {
+      local kind = CompilerProjectionValueBox.kind(value)
+      if kind == "Null" {
+        builder.append_null()
+        return builder
+      }
+      if kind == "Bool" {
+        builder.append_bool(CompilerProjectionValueBox.value(value))
+        return builder
+      }
+      if kind == "I64" {
+        builder.append_i64(CompilerProjectionValueBox.value(value))
+        return builder
+      }
+      if kind == "String" {
+        builder.append_json_string(CompilerProjectionValueBox.value(value))
+        return builder
+      }
+      if kind == "Array" {
+        me._append_array(builder, CompilerProjectionValueBox.items(value))
+        return builder
+      }
+      if kind == "Object" {
+        me._append_object(builder, CompilerProjectionValueBox.fields(value))
+        return builder
+      }
+      me._append_object(builder, value)
+      return builder
+    }
+
+    local text = "" + value
+    if text == "null" {
+      builder.append_null()
+      return builder
+    }
+    if text == "true" {
+      builder.append_bool(true)
+      return builder
+    }
+    if text == "false" {
+      builder.append_bool(false)
+      return builder
+    }
+    if StringHelpers.is_numeric_str(text) == 1 {
+      builder.append(text)
+      return builder
+    }
+    builder.append_json_string(text)
+    return builder
+  }
+
+  _append_array(builder, arr) {
+    if arr == null {
+      builder.append("[]")
+      return builder
+    }
+    local n = arr.length()
+    builder.append("[")
+    local i = 0
+    loop(i < n) {
+      if i > 0 {
+        builder.append(",")
+      }
+      me._append_any(builder, arr.get(i))
+      i = i + 1
+    }
+    builder.append("]")
+    return builder
+  }
+
+  _append_object(builder, obj) {
+    if obj == null {
+      builder.append("{}")
+      return builder
+    }
+    local keys = me._sorted_keys(obj)
+    builder.append("{")
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      if i > 0 {
+        builder.append(",")
+      }
+      local key = "" + keys.get(i)
+      builder.append_json_string(key)
+      builder.append(":")
+      me._append_any(builder, obj.get(key))
+      i = i + 1
+    }
+    builder.append("}")
+    return builder
+  }
+
+  _sorted_keys(obj) {
+    local out = new ArrayBox()
+    if obj == null {
+      return out
+    }
+    local keys = obj.keys()
+    if keys == null {
+      return out
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      local inserted = 0
+      local next = new ArrayBox()
+      local j = 0
+      local m = out.length()
+      loop(j < m) {
+        local existing = "" + out.get(j)
+        if inserted == 0 && TextOrder.compare_rust_string_v1(key, existing) < 0 {
+          next.push(key)
+          inserted = 1
+        }
+        next.push(existing)
+        j = j + 1
+      }
+      if inserted == 0 {
+        next.push(key)
+      }
+      out = next
+      i = i + 1
+    }
+    return out
+  }
+}

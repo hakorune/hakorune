@@ -1,0 +1,100 @@
+// text_builder.hako — compiler-facing TextBuilderBox
+//
+// Responsibility:
+// - ordinary Hako text accumulation for compiler-facing emitters and writers
+// - deterministic chunk accumulation with no ABI surface
+//
+// Non-responsibility:
+// - host I/O
+// - TypeBox ABI
+// - `hako.buf` backing in v0
+
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box TextBuilder {
+  create() {
+    local builder = new TextBuilderBox()
+    builder.chunks = new ArrayBox()
+    return builder
+  }
+
+  from_text(text) {
+    local builder = me.create()
+    builder.append(text)
+    return builder
+  }
+}
+
+box TextBuilderBox {
+  chunks: ArrayBox
+
+  _ensure_chunks() {
+    if me.chunks == null {
+      me.chunks = new ArrayBox()
+    }
+    return me.chunks
+  }
+
+  clear() {
+    me.chunks = new ArrayBox()
+    return me
+  }
+
+  append(text) {
+    local chunks = me._ensure_chunks()
+    local out = ""
+    if text != null {
+      out = "" + text
+    }
+    chunks.push(out)
+    return me
+  }
+
+  append_raw(text) {
+    return me.append(text)
+  }
+
+  append_i64(value) {
+    return me.append(StringHelpers.int_to_str(value))
+  }
+
+  append_bool(value) {
+    if value == true || "" + value == "true" {
+      return me.append("true")
+    }
+    return me.append("false")
+  }
+
+  append_null() {
+    return me.append("null")
+  }
+
+  append_json_string(text) {
+    local out = ""
+    if text != null {
+      out = "" + text
+    }
+    return me.append(StringHelpers.json_quote(out))
+  }
+
+  length() {
+    if me.chunks == null {
+      return 0
+    }
+    return me.chunks.length()
+  }
+
+  finish() {
+    if me.chunks == null {
+      return ""
+    }
+    local out = ""
+    local i = 0
+    local n = me.chunks.length()
+    loop(i < n) {
+      out = out + "" + me.chunks.get(i)
+      i = i + 1
+    }
+    return out
+  }
+}

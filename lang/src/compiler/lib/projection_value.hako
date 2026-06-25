@@ -1,0 +1,184 @@
+// projection_value.hako — CompilerProjectionValueBox
+//
+// Responsibility:
+// - internal compiler-tooling projection values for typed JSON/text emission
+// - Null / Bool / I64 / String / Array / Object model
+//
+// Non-responsibility:
+// - TypeBox ABI
+// - host ABI
+// - syntax/spec promotion
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box CompilerProjectionValueBox {
+  create_null() {
+    local value = new MapBox()
+    value.set("kind", "Null")
+    return value
+  }
+
+  create_bool(val) {
+    local value = new MapBox()
+    value.set("kind", "Bool")
+    value.set("value", me._as_bool(val))
+    return value
+  }
+
+  create_i64(val) {
+    local value = new MapBox()
+    value.set("kind", "I64")
+    value.set("value", StringHelpers.to_i64(val))
+    return value
+  }
+
+  create_string(val) {
+    local value = new MapBox()
+    value.set("kind", "String")
+    value.set("value", me._as_string(val))
+    return value
+  }
+
+  create_array() {
+    local value = new MapBox()
+    value.set("kind", "Array")
+    value.set("items", new ArrayBox())
+    return value
+  }
+
+  create_object() {
+    local value = new MapBox()
+    value.set("kind", "Object")
+    value.set("fields", new MapBox())
+    return value
+  }
+
+  _as_bool(val) {
+    if val == true || "" + val == "true" {
+      return true
+    }
+    return false
+  }
+
+  _as_string(val) {
+    if val == null {
+      return ""
+    }
+    return "" + val
+  }
+
+  kind(value) {
+    if !BoxHelpers.is_map(value) {
+      return ""
+    }
+    local kind = value.get("kind")
+    if kind == null {
+      return ""
+    }
+    return "" + kind
+  }
+
+  is_kind(value, expected) {
+    return me.kind(value) == expected
+  }
+
+  value(value) {
+    if !BoxHelpers.is_map(value) {
+      return null
+    }
+    return value.get("value")
+  }
+
+  items(value) {
+    if !BoxHelpers.is_map(value) {
+      return null
+    }
+    return value.get("items")
+  }
+
+  fields(value) {
+    if !BoxHelpers.is_map(value) {
+      return null
+    }
+    return value.get("fields")
+  }
+
+  ensure_items(value) {
+    if !BoxHelpers.is_map(value) {
+      return value
+    }
+    local items = value.get("items")
+    if items == null {
+      items = new ArrayBox()
+      value.set("items", items)
+    }
+    return items
+  }
+
+  ensure_fields(value) {
+    if !BoxHelpers.is_map(value) {
+      return value
+    }
+    local fields = value.get("fields")
+    if fields == null {
+      fields = new MapBox()
+      value.set("fields", fields)
+    }
+    return fields
+  }
+
+  array_push(value, item) {
+    if me.is_kind(value, "Array") != 1 {
+      return value
+    }
+    local items = me.ensure_items(value)
+    items.push(item)
+    return value
+  }
+
+  object_set(value, key, item) {
+    if me.is_kind(value, "Object") != 1 {
+      return value
+    }
+    local safe_key = me._as_string(key)
+    local fields = me.ensure_fields(value)
+    fields.set(safe_key, item)
+    return value
+  }
+
+  object_get(value, key) {
+    if me.is_kind(value, "Object") != 1 {
+      return null
+    }
+    local fields = me.fields(value)
+    if fields == null {
+      return null
+    }
+    return fields.get(me._as_string(key))
+  }
+
+  object_has(value, key) {
+    if me.is_kind(value, "Object") != 1 {
+      return false
+    }
+    local fields = me.fields(value)
+    if fields == null {
+      return false
+    }
+    local safe_key = me._as_string(key)
+    local keys = fields.keys()
+    if keys == null {
+      return false
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      if "" + keys.get(i) == safe_key {
+        return true
+      }
+      i = i + 1
+    }
+    return false
+  }
+}
