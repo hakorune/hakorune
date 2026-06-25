@@ -1,0 +1,84 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNextValueIdCompositionPlanV1",
+  "subject": "hakorune_mir_builder::MirBuilder::next_value_id",
+  "source_facts": "MirBuilderAllocationPolicyFactsV1.resolved_policy",
+  "subplans": {
+    "function_local": "FunctionLocalValueIdAllocatorPlanV1",
+    "reserved_exclusion": "ReservedValueExclusionPolicyPlanV1"
+  },
+  "allocator_selector": "CurrentFunctionPresent",
+  "candidate_producers": [
+    {
+      "when": "present",
+      "producer": "MirFunctionNextValueId",
+      "state": "MirFunction.next_value_id",
+      "operation": "TakeThenIncrement"
+    },
+    {
+      "when": "absent",
+      "producer": "CoreContextNextValue",
+      "state": "CoreContext.value_gen",
+      "operation": "GeneratorNext"
+    }
+  ],
+  "acceptance_predicate": "CandidateNotInReservedSet",
+  "rejection": {
+    "effect": "Consumed",
+    "retry": "GenerateNextCandidate"
+  },
+  "result_transport": "ValueIdAsI64",
+  "oracle_vectors": [
+    {
+      "current_function": "Present",
+      "candidate_sequence": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reserved_values": [
+        2
+      ],
+      "accepted_values": [
+        1,
+        3,
+        4
+      ],
+      "rejected_consumed_values": [
+        2
+      ]
+    },
+    {
+      "current_function": "Absent",
+      "candidate_sequence": [
+        0,
+        1,
+        2
+      ],
+      "reserved_values": [
+        1
+      ],
+      "accepted_values": [
+        0,
+        2
+      ],
+      "rejected_consumed_values": [
+        1
+      ]
+    }
+  ],
+  "directability": {
+    "decision": "PlanOnly",
+    "allowed_claim": "MirBuilderNextValueIdCompositionOnly"
+  },
+  "non_claims": {
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "formal_invalid_sentinel_exclusion": 0,
+    "overflow_policy": 0,
+    "silent_fallback": 0,
+    "runtime_fallback": 0
+  }
+}

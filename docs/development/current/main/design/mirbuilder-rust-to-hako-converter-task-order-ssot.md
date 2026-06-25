@@ -20,20 +20,18 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001
+  MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001
 
 current implementation task:
-  Select the full MirBuilder::next_value_id composition now that
-  function-local allocation and reserved exclusion policy are closed.
+  Stop for design consultation before choosing how the resolved allocation
+  policy becomes executable.
 
 selected source slice:
-  MirBuilder::next_value_id allocator selection, reserved membership retry,
-  and accepted candidate return
+  execution surface selection for the already-resolved allocation policy
 
 selected lowering:
-  ResolvedValueAllocationPolicyV1
-    -> composed next_value_id policy
-    -> focused plan/oracle guard
+  MirBuilderNextValueIdCompositionPlanV1
+    -> design choice: generated artifact vs backend consumer
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -66,20 +64,23 @@ landed evidence:
   now project to membership-only rejection with PHI destinations plus JoinIR
   function parameters, consumed rejected candidates, and GenerateNextCandidate
   retry. Concrete representation remains unselected.
+  MirBuilder next_value_id composition is green: ResolvedValueAllocationPolicyV1
+  now composes FunctionLocalValueIdAllocatorPlanV1 and
+  ReservedValueExclusionPolicyPlanV1 into current_function selection plus
+  reserved retry oracle vectors.
 
 selected next owner:
-  MIRBUILDER-NEXT-VALUE-ID-COMPOSITION-001
+  MIRBUILDER-ALLOCATION-POLICY-EXECUTION-SURFACE-CONSULTATION-001
 
 current fail-fast boundary:
-  Composition may claim allocator selection plus reserved retry only if it
-  consumes FunctionLocalValueIdAllocatorPlanV1 and
-  ReservedValueExclusionPolicyPlanV1. It must not claim generated Hako,
-  backend routes, invalid sentinel exclusion, overflow, or silent fallback.
+  Do not implement the executable surface until design consultation chooses
+  generated Hako artifact, backend consumer, or another explicit boundary.
+  No silent fallback, ad hoc Hako shape, or runtime patch is allowed.
 
 latest design decision:
-  Function-local allocation and reserved exclusion are closed as separate
-  plan/oracle projections. Proceed to full MirBuilder::next_value_id
-  composition without re-deriving their sub-policies.
+  Allocation facts, function-local subplan, reserved-exclusion subplan, and
+  full composition plan are closed. The remaining question is the execution
+  surface owner.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -100,6 +101,7 @@ mirbuilder_derived_context_bundle_v1 green
 mirbuilder_allocation_policy_facts green
 function_local_value_id_allocator green
 reserved_value_exclusion_policy green
+mirbuilder_next_value_id_composition green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -118,6 +120,7 @@ mirbuilder_derived_context_bundle_v1 = landed
 mirbuilder_allocation_policy_facts = landed
 function_local_value_id_allocator = landed
 reserved_value_exclusion_policy = landed
+mirbuilder_next_value_id_composition = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -127,23 +130,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MirBuilder next_value_id composition
+1. MirBuilder allocation policy execution surface consultation
    status=selected
-   boundary=current_function selection plus retry composition
-   semantic_authority=ResolvedValueAllocationPolicyV1
-   non_authority=module-global CoreContext branch alone
+   boundary=choose generated artifact vs backend consumer
+   semantic_authority=MirBuilderNextValueIdCompositionPlanV1
+   non_authority=ad hoc Hako shape or runtime fallback
 
 2. MirBuilder allocation policy executable smoke
-   status=parked until composition is green
+   status=parked until design consultation resolves execution surface
    boundary=generated artifact or backend consumer using the resolved policy
    semantic_authority=MirBuilder allocation policy plan
    non_authority=CoreContext generator behavior alone
 
-3. MirBuilder allocation policy design consultation
-   status=parked until composition plan proves executable surface is needed
-   boundary=choose generated artifact vs backend consumer for policy execution
-   semantic_authority=resolved allocation policy plus prior sub-plans
-   non_authority=ad hoc Hako shape or runtime fallback
+3. MirBuilder allocation policy adoption into bundle
+   status=parked until executable smoke is green
+   boundary=compose allocation policy with existing context bundle
+   semantic_authority=explicit artifact or backend-consumer membership
+   non_authority=bundle size as conversion proof
 ```
 
 ## Landed Converter Capability Summary
