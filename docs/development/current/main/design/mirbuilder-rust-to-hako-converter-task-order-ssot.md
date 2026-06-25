@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the next executable gap: finalize_module dev birth verification.
+  Materialize the next executable gap: finalize_module module function insertion.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, and PhiInputMaterialization are now DerivedShadow executable Hako artifacts, and the semantic closure report derives DevBirthVerification as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, and DevBirthVerification are now DerivedShadow executable Hako artifacts, and the semantic closure report derives ModuleFunctionInsertion as the next executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The next slice may only materialize dev birth verification as a reusable generated Hako artifact for the prepared minimal profile. It must not claim module function insertion, full finalize_module, mainline selection, or source selfhost.
+  The next slice may only materialize module function insertion as a reusable generated Hako artifact for the prepared minimal profile. It must not claim condition_fn injection, full finalize_module, mainline selection, or source selfhost.
 
 latest design decision:
-  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.dev_birth_verification, so proceed to dev birth verification artifact materialization.
+  Semantic closure is Closed, but executable Hako closure is Open. The first remaining executable materialization gap is finalize_module.module_function_insertion, so proceed to module function insertion artifact materialization.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -140,8 +140,9 @@ mirbuilder_metadata_value_type_publication_derived_hako_artifact green
 mirbuilder_metadata_origin_caller_merge_derived_hako_artifact green
 mirbuilder_phi_return_type_inference_derived_hako_artifact green
 mirbuilder_phi_input_materialization_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.dev_birth_verification
-next_slice=MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001
+mirbuilder_dev_birth_verification_derived_hako_artifact green
+first_executable_materialization_gap=finalize_module.module_function_insertion
+next_slice=MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -214,14 +215,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Dev birth verification derived Hako artifact
+1. Module function insertion derived Hako artifact
    status=selected
-   boundary=materialize optional dev birth verification after PHI input materialization
+   boundary=materialize module.add_function(function) after dev birth verification
    semantic_authority=semantic closure report first_executable_materialization_gap
-   non_authority=module insertion, full finalize, or mainline claim
+   non_authority=condition_fn injection, full finalize, or mainline claim
 
 2. Next executable materialization gap
-   status=parked until dev birth verification artifact is green
+   status=parked until module function insertion artifact is green
    boundary=source-order earliest remaining executable gap
    semantic_authority=semantic closure report regenerated after artifact
    non_authority=coverage percentage or bundle size

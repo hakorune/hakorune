@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 10,
+      "PlanOnly": 9,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 18
+      "VerifiedArtifact": 19
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 18,
-      "Missing": 10,
+      "ExecutableArtifactPresent": 19,
+      "Missing": 9,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 17,
+      "DerivedShadow": 18,
       "NotApplicable": 4,
-      "Unselected": 10
+      "Unselected": 9
     }
   },
   "edges": [
@@ -423,15 +423,15 @@
       "status": "Available",
       "required_capability": "DevBirthVerification",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "DevBirthVerification",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::dev_birth_verification",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_dev_birth_verification.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.dev_birth_verification",
-    "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
-    "required_capability": "DevBirthVerification",
-    "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.module_function_insertion",
+    "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
+    "required_capability": "ModuleFunctionInsertion",
+    "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

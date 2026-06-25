@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::dev_birth_verification",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "DevBirthVerificationApi.run(fn_state)",
+      "hako_operation": "GuardConditionFlags + VerificationStepCount + ReturnValue",
+      "id": "DevBirthVerification::run",
+      "rust_operation": "MirBuilder::finalize_module dev birth verification block"
+    }
+  ],
+  "pilot_scope": "DevBirthVerification_minimal_literal_profile",
+  "schema_version": 0,
+  "selected_body_count": "dev_birth_verification_minimal_literal_profile_only",
+  "source_oracle": "mirbuilder-dev-birth-verification-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-dev-birth-verification-plan-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.dev_birth_verification"
+}

@@ -59,6 +59,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_return_type_inference.artifact.json",
     "PhiInputMaterialization": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_input_materialization.artifact.json",
+    "DevBirthVerification": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_dev_birth_verification.artifact.json",
 }
 
 
@@ -219,6 +221,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-PHI-INPUT-MATERIALIZATION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "DevBirthVerification":
         return "MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "ModuleFunctionInsertion":
+        return "MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -305,13 +309,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.dev_birth_verification", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.module_function_insertion", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "DevBirthVerification",
+        first_gap["required_capability"] == "ModuleFunctionInsertion",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:

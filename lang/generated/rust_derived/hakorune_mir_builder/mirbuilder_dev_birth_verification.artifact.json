@@ -1,0 +1,65 @@
+{
+  "claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "condition_fn_injection": 0,
+    "dev_birth_verification": 1,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "module_function_insertion": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "region_stack_pop": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::dev_birth_verification",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-dev-birth-verification",
+    "version": "mirbuilder-dev-birth-verification-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json",
+      "sha256": "e656a2c024d0746e7d860606ce7bc00a8ddeb74546fe586a04cd0892c096c1b6"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-derived-hako-oracle-v0.json",
+      "sha256": "c80634ec4abcdb7a63620d88f997d49b13ecc511ee7b8a18fccc6cd1b4b35389"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json",
+      "sha256": "e656a2c024d0746e7d860606ce7bc00a8ddeb74546fe586a04cd0892c096c1b6"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-derived-hako-recipe-v0.json",
+      "sha256": "923c314feee3e4178484fdd0a9f9d9536178ccda6cb56856f8b632242049366b"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-derived-hako-verifier-result-v0.json",
+      "sha256": "003522fb1d8101ecd9a51065759d797b6239c98de3d44d18c2b218a0e838d1b6"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_dev_birth_verification.hako",
+    "hako_sha256": "42eae5b67a42296c182983f215477bff307feac10e937e7e86968599ecc12bf0"
+  },
+  "pilot_scope": "DevBirthVerification_minimal_literal_profile",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}
