@@ -22,13 +22,13 @@
     "source_file": null
   },
   "first_unsupported_edge": {
-    "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
-    "deny_detail": "DevBirthVerificationRequired",
+    "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
+    "deny_detail": "ModuleFunctionInsertionRequired",
     "deny_reason": "UnsupportedDirectShape",
-    "edge_id": "finalize_module.dev_birth_verification",
-    "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
-    "required_capability": "DevBirthVerification",
-    "semantic_owner": "MirBuilder::finalize_module dev birth verification",
+    "edge_id": "finalize_module.module_function_insertion",
+    "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
+    "required_capability": "ModuleFunctionInsertion",
+    "semantic_owner": "MirBuilder::finalize_module module function insertion",
     "status": "Unsupported"
   },
   "input_profile": {
@@ -323,12 +323,25 @@
     },
     {
       "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
-      "deny_detail": "DevBirthVerificationRequired",
-      "deny_reason": "UnsupportedDirectShape",
+      "contract_reference": {
+        "artifact_state": "PlanOnly",
+        "capability": "DevBirthVerification",
+        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "family_id": "hakorune_mir_builder::dev_birth_verification",
+        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json"
+      },
       "edge_id": "finalize_module.dev_birth_verification",
-      "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
       "required_capability": "DevBirthVerification",
-      "semantic_owner": "MirBuilder::finalize_module dev birth verification",
+      "status": "Available"
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
+      "deny_detail": "ModuleFunctionInsertionRequired",
+      "deny_reason": "UnsupportedDirectShape",
+      "edge_id": "finalize_module.module_function_insertion",
+      "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
+      "required_capability": "ModuleFunctionInsertion",
+      "semantic_owner": "MirBuilder::finalize_module module function insertion",
       "status": "Unsupported"
     }
   ],

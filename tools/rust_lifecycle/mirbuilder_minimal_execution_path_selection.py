@@ -78,6 +78,9 @@ PHI_RETURN_TYPE_INFERENCE_PLAN = (
 PHI_INPUT_MATERIALIZATION_PLAN = (
     FIXTURES / "mirbuilder-phi-input-materialization-plan-v0.json"
 )
+DEV_BIRTH_VERIFICATION_PLAN = (
+    FIXTURES / "mirbuilder-dev-birth-verification-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -180,6 +183,7 @@ def contract_sources() -> list[dict[str, Any]]:
     metadata_origin_caller_merge = read_json(METADATA_ORIGIN_CALLER_MERGE_PLAN)
     phi_return_type_inference = read_json(PHI_RETURN_TYPE_INFERENCE_PLAN)
     phi_input_materialization = read_json(PHI_INPUT_MATERIALIZATION_PLAN)
+    dev_birth_verification = read_json(DEV_BIRTH_VERIFICATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -475,6 +479,44 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if phi_input_non_claims.get(key) != 0:
             raise SelectionError(f"PHI input materialization plan must keep {key}=0")
+    if dev_birth_verification.get("kind") != "MirBuilderDevBirthVerificationPlanV1":
+        raise SelectionError("dev birth verification plan has wrong kind")
+    dev_birth_caps = set(dev_birth_verification.get("available_capabilities") or [])
+    if "DevBirthVerification" not in dev_birth_caps:
+        raise SelectionError("dev birth verification plan lacks DevBirthVerification")
+    if dev_birth_verification.get("guard_conditions") != [
+        "using_is_dev",
+        "stageb_dev_verify_enabled",
+        "cli_verbose_enabled",
+    ]:
+        raise SelectionError("dev birth verification guard condition drift")
+    if dev_birth_verification.get("verification_steps") != [
+        "IterateFunctionBlocks",
+        "ScanNewBoxInstructions",
+        "SkipStageBDriverBox",
+        "SkipStringBox",
+        "ExpectBirthTailByBoxTypeAndArity",
+        "LookAheadThreeInstructions",
+        "AcceptMethodBirthOnSameReceiver",
+        "AcceptConstStringGlobalCompatibilityPath",
+        "WarnOnMissingBirth",
+        "WarnSummaryWhenAnyMissing",
+    ]:
+        raise SelectionError("dev birth verification step order drift")
+    dev_birth_contract = dev_birth_verification.get("result_contract") or {}
+    if dev_birth_contract.get("side_effect") != "dev_warning_only":
+        raise SelectionError("dev birth verification side effect drift")
+    dev_birth_non_claims = dev_birth_verification.get("non_claims") or {}
+    for key in [
+        "module_function_insertion",
+        "condition_fn_injection",
+        "all_functions_phi_materialization",
+        "semantic_refresh",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if dev_birth_non_claims.get(key) != 0:
+            raise SelectionError(f"dev birth verification plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -621,6 +663,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::phi_input_materialization",
             "manifest_path": rel(PHI_INPUT_MATERIALIZATION_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "DevBirthVerification",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::dev_birth_verification",
+            "manifest_path": rel(DEV_BIRTH_VERIFICATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -983,12 +1032,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.dev_birth_verification",
             "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
             "required_capability": "DevBirthVerification",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "DevBirthVerification",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "DevBirthVerificationRequired",
                 "semantic_owner": "MirBuilder::finalize_module dev birth verification",
                 "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
+            },
+        },
+        {
+            "id": "finalize_module.module_function_insertion",
+            "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
+            "required_capability": "ModuleFunctionInsertion",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "ModuleFunctionInsertionRequired",
+                "semantic_owner": "MirBuilder::finalize_module module function insertion",
+                "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
             },
         },
     ]
@@ -1182,6 +1246,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

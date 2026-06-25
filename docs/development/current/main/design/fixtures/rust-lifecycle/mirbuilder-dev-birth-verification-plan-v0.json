@@ -1,0 +1,129 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderDevBirthVerificationPlanV1",
+  "subject": "MirBuilder::finalize_module dev NewBox birth verification",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "predecessor_plan": "mirbuilder-phi-input-materialization-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "function_transport": "MirFunctionPreparedMain",
+    "context": "finalize_module"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "phi_input_materializer::materialize_all_phi_inputs",
+        "byte_offset": 3173
+      },
+      {
+        "marker": "if crate::config::env::using_is_dev()",
+        "byte_offset": 3624
+      },
+      {
+        "marker": "&& config::env::stageb_dev_verify_enabled()",
+        "byte_offset": 3674
+      },
+      {
+        "marker": "&& crate::config::env::cli_verbose_enabled()",
+        "byte_offset": 3730
+      },
+      {
+        "marker": "module.add_function(function);",
+        "byte_offset": 8129
+      }
+    ],
+    "warning_pass": [
+      {
+        "marker": "let mut warn_count = 0usize;",
+        "byte_offset": 3797
+      },
+      {
+        "marker": "for (_bid, bb) in function.blocks.iter()",
+        "byte_offset": 3838
+      },
+      {
+        "marker": "if let MirInstruction::NewBox",
+        "byte_offset": 4027
+      },
+      {
+        "marker": "if box_type == \"StageBDriverBox\"",
+        "byte_offset": 4436
+      },
+      {
+        "marker": "if box_type != \"StringBox\"",
+        "byte_offset": 4667
+      },
+      {
+        "marker": "let expect_tail = format!(\"{}.birth/{}\", box_type, args.len());",
+        "byte_offset": 4724
+      },
+      {
+        "marker": "while j < insns.len() && j <= idx + 3",
+        "byte_offset": 5205
+      },
+      {
+        "marker": "method == \"birth\" && recv == dst",
+        "byte_offset": 5972
+      },
+      {
+        "marker": "last_const_name = Some(s.clone());",
+        "byte_offset": 6400
+      },
+      {
+        "marker": "prev == &expect_tail",
+        "byte_offset": 6827
+      },
+      {
+        "marker": "[warn] dev verify: NewBox",
+        "byte_offset": 7532
+      },
+      {
+        "marker": "[warn] dev verify: NewBox\u2192birth invariant warnings:",
+        "byte_offset": 7988
+      }
+    ]
+  },
+  "guard_conditions": [
+    "using_is_dev",
+    "stageb_dev_verify_enabled",
+    "cli_verbose_enabled"
+  ],
+  "verification_steps": [
+    "IterateFunctionBlocks",
+    "ScanNewBoxInstructions",
+    "SkipStageBDriverBox",
+    "SkipStringBox",
+    "ExpectBirthTailByBoxTypeAndArity",
+    "LookAheadThreeInstructions",
+    "AcceptMethodBirthOnSameReceiver",
+    "AcceptConstStringGlobalCompatibilityPath",
+    "WarnOnMissingBirth",
+    "WarnSummaryWhenAnyMissing"
+  ],
+  "available_capabilities": [
+    "DevBirthVerification"
+  ],
+  "result_contract": {
+    "mutates": [],
+    "side_effect": "dev_warning_only",
+    "entrypoint": "MirBuilder::finalize_module dev birth verification block",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "module_function_insertion": 0,
+    "condition_fn_injection": 0,
+    "all_functions_phi_materialization": 0,
+    "region_stack_pop": 0,
+    "slot_registry_release": 0,
+    "metadata_publication": 0,
+    "semantic_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}

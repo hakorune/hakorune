@@ -113,6 +113,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-input-materialization-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "DevBirthVerification",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::dev_birth_verification",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-dev-birth-verification-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -494,13 +501,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> dev NewBox birth verification",
       "id": "finalize_module.dev_birth_verification",
-      "provider": null,
+      "provider": {
+        "capability": "DevBirthVerification",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "DevBirthVerification",
       "unsupported": {
         "deny_detail": "DevBirthVerificationRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-DEV-BIRTH-VERIFICATION-001",
         "semantic_owner": "MirBuilder::finalize_module dev birth verification"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> module.add_function(function)",
+      "id": "finalize_module.module_function_insertion",
+      "provider": null,
+      "required_capability": "ModuleFunctionInsertion",
+      "unsupported": {
+        "deny_detail": "ModuleFunctionInsertionRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-MODULE-FUNCTION-INSERTION-001",
+        "semantic_owner": "MirBuilder::finalize_module module function insertion"
       }
     }
   ],
