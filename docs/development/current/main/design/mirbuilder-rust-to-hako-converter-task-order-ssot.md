@@ -21,18 +21,18 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  Project ModuleMetadataPublication facts/plan JSON into typed canonical
-  projection and emit the shadow Hako projector using the compiler library
-  lane.
+  Hold the minimal execution path at the explicit design stop and choose the
+  next executable owner only after frontier review.
 
 selected source slice:
-  ModuleMetadataPublication facts/plan JSON and canonical JSON writer surface
+  Minimal execution path semantic closure report and the explicit
+  design-stop result
 
 selected lowering:
-  typed projection values -> canonical JSON -> shadow projector parity
+  semantic closure report -> design review stop
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -93,24 +93,23 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives FunctionRegionStackPop as the next executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives minimal_path.completion_design_stop as the next frontier result.
 
 selected next owner:
-  MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current fail-fast boundary:
-  The next slice may only project existing ModuleMetadataPublication plan JSON
-  into typed values and canonical JSON through the ordinary Hako compiler
-  library lane. It must not add new Python SemanticProjector growth, invent a
-  new ABI, reopen host/TypeBox boundaries, or claim HakoAdopted/source
-  selfhost.
+  The next slice may only resolve the explicit design stop from the current
+  frontier result. It must not claim a new executable artifact, new backend
+  route, ABI change, runtime fallback, or source selfhost.
 
 latest design decision:
   The compiler library landing zone is now materialized as ordinary Hako
   modules. The ReturnEmission, FunctionRegionStackPop, and SlotRegistryRelease
-  Hako shadow projectors are landed under lang/src/compiler/lib. The next
-  executable owner is the ModuleMetadataPublication derived Hako artifact;
-  allocation-policy Hako adoption remains parked until that lane is explicit.
+  Hako shadow projectors are landed under lang/src/compiler/lib. The minimal
+  execution path has reached an explicit design stop after
+  AllFunctionsPhiMaterialization; the next executable owner is intentionally
+  not selected until review resolves the stop.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -170,8 +169,8 @@ mirbuilder_phi_input_materialization_derived_hako_artifact green
 mirbuilder_dev_birth_verification_derived_hako_artifact green
 mirbuilder_module_function_insertion_derived_hako_artifact green
 mirbuilder_condition_fn_injection_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.slot_registry_release
-next_slice=MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001
+first_executable_materialization_gap=minimal_path.completion_design_stop
+next_slice=MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 full converter matrix green
 task-order remains under 800 lines

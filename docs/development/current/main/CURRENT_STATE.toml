@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-25"
+date = "2026-06-26"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROJECTOR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1744-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROJECTOR-001.md"
-latest_card_summary = """The third Hako shadow projector support module is
-now materialized under lang/src/compiler/lib. The landing surface keeps
-SlotRegistryRelease plan JSON, typed Hako shadow projection, Python oracle,
-and canonical JSON parity separate. The next blocker is the
-ModuleMetadataPublication derived Hako artifact."""
+latest_card = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1745-MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.md"
+latest_card_summary = """The minimal MirBuilder execution path has
+reached the explicit design stop after all-functions PHI materialization.
+The frontier result is now a review boundary rather than a new executable
+artifact, and the next owner remains intentionally unselected until the stop
+is resolved."""
 
-current_blocker_token = "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
