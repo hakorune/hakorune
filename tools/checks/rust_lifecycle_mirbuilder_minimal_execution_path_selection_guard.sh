@@ -29,11 +29,11 @@ if plan.get("explicit_non_claims", {}).get("bundle_size_as_proof") != 0:
 
 first = result.get("first_unsupported_edge") or {}
 expected = {
-    "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
+    "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
     "deny_reason": "UnsupportedDirectShape",
-    "deny_detail": "ConditionFnInjectionRequired",
-    "semantic_owner": "MirBuilder::finalize_module condition_fn injection",
-    "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
+    "deny_detail": "FunctionRegionStackPopRequired",
+    "semantic_owner": "MirBuilder::finalize_module function region cleanup",
+    "next_slice_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-001",
 }
 for key, value in expected.items():
     if first.get(key) != value:
@@ -41,7 +41,7 @@ for key, value in expected.items():
 
 reached = result.get("reached_prefix") or []
 statuses = [row.get("status") for row in reached]
-if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
+if statuses != ["Available", "Available", "Available", "ProfileExcluded", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Available", "Unsupported"]:
     raise SystemExit(f"unexpected reached statuses: {statuses}")
 for row in reached:
     if row.get("status") == "Available" and "contract_reference" in row:

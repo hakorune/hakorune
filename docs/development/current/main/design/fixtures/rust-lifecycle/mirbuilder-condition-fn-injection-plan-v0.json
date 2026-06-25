@@ -1,0 +1,107 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderConditionFnInjectionPlanV1",
+  "subject": "MirBuilder::finalize_module condition_fn injection",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "predecessor_plan": "mirbuilder-module-function-insertion-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "module_transport": "MirModuleMinimalShell",
+    "condition_fn_initially_missing": true,
+    "context": "finalize_module"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "module.add_function(function);",
+        "byte_offset": 8129
+      },
+      {
+        "marker": "if module.functions.get(\"condition_fn\").is_none()",
+        "byte_offset": 8570
+      },
+      {
+        "marker": "name: \"condition_fn\".to_string(),",
+        "byte_offset": 8680
+      },
+      {
+        "marker": "params: vec![MirType::Integer]",
+        "byte_offset": 8730
+      },
+      {
+        "marker": "return_type: MirType::Integer",
+        "byte_offset": 8805
+      },
+      {
+        "marker": "effects: EffectMask::PURE",
+        "byte_offset": 8852
+      },
+      {
+        "marker": "let entry = BasicBlockId::new(0);",
+        "byte_offset": 8906
+      },
+      {
+        "marker": "let mut f = self.new_function_with_metadata(sig, entry);",
+        "byte_offset": 8952
+      },
+      {
+        "marker": "crate::mir::function_emission::emit_const_integer(&mut f, entry, 1);",
+        "byte_offset": 9096
+      },
+      {
+        "marker": "crate::mir::function_emission::emit_return_value(&mut f, entry, one);",
+        "byte_offset": 9177
+      },
+      {
+        "marker": "module.add_function(f);",
+        "byte_offset": 9259
+      },
+      {
+        "marker": "crate::mir::region::observer::pop_function_region(self);",
+        "byte_offset": 9346
+      }
+    ]
+  },
+  "injection": {
+    "predicate": "module.functions.get(\"condition_fn\").is_none()",
+    "function_name": "condition_fn",
+    "params": [
+      "MirType::Integer"
+    ],
+    "return_type": "MirType::Integer",
+    "effects": "EffectMask::PURE",
+    "entry_block": "BasicBlockId(0)",
+    "body": [
+      "ConstInteger(1)",
+      "ReturnValue(one)"
+    ],
+    "insert_operation": "module.add_function(f)",
+    "required_by_source": true
+  },
+  "available_capabilities": [
+    "ConditionFnInjection"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.functions"
+    ],
+    "entrypoint": "MirBuilder::finalize_module condition_fn injection block",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "condition_fn_policy_generalization": 0,
+    "region_stack_pop": 0,
+    "slot_registry_release": 0,
+    "metadata_publication": 0,
+    "semantic_refresh": 0,
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0
+  }
+}
