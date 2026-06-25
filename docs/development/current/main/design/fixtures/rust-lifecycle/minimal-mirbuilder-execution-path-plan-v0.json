@@ -176,6 +176,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "AllFunctionsPhiMaterialization",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::all_functions_phi_materialization",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -692,13 +699,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
       "id": "finalize_module.all_functions_phi_materialization",
-      "provider": null,
+      "provider": {
+        "capability": "AllFunctionsPhiMaterialization",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "AllFunctionsPhiMaterialization",
       "unsupported": {
         "deny_detail": "AllFunctionsPhiMaterializationRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001",
         "semantic_owner": "MirBuilder::finalize_module all-functions PHI materialization"
+      }
+    },
+    {
+      "callsite": "MinimalMirBuilderExecutionPath -> post-finalize completion design stop",
+      "id": "minimal_path.completion_design_stop",
+      "provider": null,
+      "required_capability": "MinimalExecutionPathCompletionDesignReview",
+      "unsupported": {
+        "deny_detail": "MinimalExecutionPathCompletionDesignReviewRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+        "semantic_owner": "Minimal MirBuilder execution path completion review"
       }
     }
   ],

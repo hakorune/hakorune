@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  Address the all-functions PHI materialization edge derived after DirectStatePlanRefresh became available.
+  Stop for design review after all selected minimal-path finalize edges became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, and DirectStatePlanRefresh are green; the frontier now derives all-functions PHI materialization as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green; the frontier now derives the minimal execution path completion design stop.
 
 selected next owner:
-  MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current fail-fast boundary:
-  The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
+  The next action is a design review stop. Do not implement the next semantic slice until the completion/design direction is selected.
 
 latest design decision:
-  DirectStatePlanRefresh is green as a PlanOnly capability. Proceed to all-functions PHI materialization, not direct-state lowering, route selection, or full finalize.
+  All selected minimal-path finalize edges are available as PlanOnly capabilities. Stop for completion design review before adding executable artifacts or claiming mainline/source selfhost.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -122,7 +122,8 @@ mirbuilder_module_metadata_publication green
 mirbuilder_record_packed_layout_refresh green
 mirbuilder_typed_object_plan_refresh green
 mirbuilder_direct_state_plan_refresh green
-derived_first_red_edge=AllFunctionsPhiMaterializationRequired
+mirbuilder_all_functions_phi_materialization green
+derived_first_red_edge=MinimalExecutionPathCompletionDesignReviewRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -173,6 +174,7 @@ mirbuilder_module_metadata_publication = landed
 mirbuilder_record_packed_layout_refresh = landed
 mirbuilder_typed_object_plan_refresh = landed
 mirbuilder_direct_state_plan_refresh = landed
+mirbuilder_all_functions_phi_materialization = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -182,17 +184,17 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. All-functions PHI materialization edge
+1. Minimal execution path completion design stop
    status=selected
-   boundary=finalize_module materialize_all_phi_inputs over module.functions
-   semantic_authority=frontier analyzer plus DirectStatePlanRefresh non_claim all_functions_phi_materialization=0
-   non_authority=manual next-edge selection
+   boundary=post-finalize completion review
+   semantic_authority=frontier analyzer plus all selected minimal-path edges available
+   non_authority=automatic mainline/source-selfhost claim
 
-2. Next semantic owner after all-functions PHI materialization
-   status=parked until all-functions PHI materialization edge is green
-   boundary=first unsupported edge only
-   semantic_authority=live source order plus contracts
-   non_authority=coverage percentage
+2. Next semantic owner after design review
+   status=parked until completion direction is selected
+   boundary=one selected owner only
+   semantic_authority=design card outcome
+   non_authority=coverage percentage or artifact existence
 
 3. Wider minimal path mainline
    status=parked until all selected edges have executable artifacts

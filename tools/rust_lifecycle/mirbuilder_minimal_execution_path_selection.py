@@ -105,6 +105,9 @@ TYPED_OBJECT_PLAN_REFRESH_PLAN = (
 DIRECT_STATE_PLAN_REFRESH_PLAN = (
     FIXTURES / "mirbuilder-direct-state-plan-refresh-plan-v0.json"
 )
+ALL_FUNCTIONS_PHI_MATERIALIZATION_PLAN = (
+    FIXTURES / "mirbuilder-all-functions-phi-materialization-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -216,6 +219,7 @@ def contract_sources() -> list[dict[str, Any]]:
     record_packed_layout_refresh = read_json(RECORD_PACKED_LAYOUT_REFRESH_PLAN)
     typed_object_plan_refresh = read_json(TYPED_OBJECT_PLAN_REFRESH_PLAN)
     direct_state_plan_refresh = read_json(DIRECT_STATE_PLAN_REFRESH_PLAN)
+    all_functions_phi_materialization = read_json(ALL_FUNCTIONS_PHI_MATERIALIZATION_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -819,6 +823,37 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if direct_state_non_claims.get(key) != 0:
             raise SelectionError(f"direct state plan refresh plan must keep {key}=0")
+    if (
+        all_functions_phi_materialization.get("kind")
+        != "MirBuilderAllFunctionsPhiMaterializationPlanV1"
+    ):
+        raise SelectionError("all-functions PHI materialization plan has wrong kind")
+    all_functions_caps = set(all_functions_phi_materialization.get("available_capabilities") or [])
+    if "AllFunctionsPhiMaterialization" not in all_functions_caps:
+        raise SelectionError(
+            "all-functions PHI materialization plan lacks AllFunctionsPhiMaterialization"
+        )
+    sweep = all_functions_phi_materialization.get("sweep_policy") or {}
+    if sweep.get("iteration") != "for function in module.functions.values_mut()":
+        raise SelectionError("all-functions PHI sweep iteration drift")
+    if sweep.get("delegate") != "phi_input_materializer::materialize_all_phi_inputs":
+        raise SelectionError("all-functions PHI sweep delegate drift")
+    if sweep.get("delegate_context") != "finalize_module_all_functions":
+        raise SelectionError("all-functions PHI sweep context drift")
+    if sweep.get("delegate_capability") != "PhiInputMaterialization":
+        raise SelectionError("all-functions PHI delegate capability drift")
+    all_functions_non_claims = all_functions_phi_materialization.get("non_claims") or {}
+    for key in [
+        "full_finalize_module",
+        "generated_hako_artifact",
+        "backend_route_changed",
+        "abi_changed",
+        "runtime_fallback",
+        "mainline_selected",
+        "source_selfhost_claim",
+    ]:
+        if all_functions_non_claims.get(key) != 0:
+            raise SelectionError(f"all-functions PHI plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -1028,6 +1063,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
             "manifest_path": rel(DIRECT_STATE_PLAN_REFRESH_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "AllFunctionsPhiMaterialization",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::all_functions_phi_materialization",
+            "manifest_path": rel(ALL_FUNCTIONS_PHI_MATERIALIZATION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1525,12 +1567,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.all_functions_phi_materialization",
             "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
             "required_capability": "AllFunctionsPhiMaterialization",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "AllFunctionsPhiMaterialization",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "AllFunctionsPhiMaterializationRequired",
                 "semantic_owner": "MirBuilder::finalize_module all-functions PHI materialization",
                 "next_slice_token": "MIRBUILDER-ALL-FUNCTIONS-PHI-MATERIALIZATION-001",
+            },
+        },
+        {
+            "id": "minimal_path.completion_design_stop",
+            "callsite": "MinimalMirBuilderExecutionPath -> post-finalize completion design stop",
+            "required_capability": "MinimalExecutionPathCompletionDesignReview",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "MinimalExecutionPathCompletionDesignReviewRequired",
+                "semantic_owner": "Minimal MirBuilder execution path completion review",
+                "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
             },
         },
     ]
@@ -1724,6 +1781,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

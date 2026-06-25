@@ -1,0 +1,67 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAllFunctionsPhiMaterializationPlanV1",
+  "subject": "MirBuilder::finalize_module all-functions PHI materialization",
+  "source_authority": {
+    "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+    "delegate_plan": "mirbuilder-phi-input-materialization-plan-v0.json",
+    "predecessor_plan": "mirbuilder-direct-state-plan-refresh-plan-v0.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "context": "finalize_module",
+    "module_transport": "MirModuleMinimalShell",
+    "function_collection": "module.functions.values_mut()"
+  },
+  "observed_source_order": {
+    "finalize_module": [
+      {
+        "marker": "crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);",
+        "byte_offset": 10705
+      },
+      {
+        "marker": "for function in module.functions.values_mut()",
+        "byte_offset": 10792
+      },
+      {
+        "marker": "crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs",
+        "byte_offset": 10852
+      },
+      {
+        "marker": "\"finalize_module_all_functions\"",
+        "byte_offset": 10972
+      },
+      {
+        "marker": "Ok(module)",
+        "byte_offset": 11040
+      }
+    ]
+  },
+  "sweep_policy": {
+    "iteration": "for function in module.functions.values_mut()",
+    "delegate": "phi_input_materializer::materialize_all_phi_inputs",
+    "delegate_context": "finalize_module_all_functions",
+    "delegate_capability": "PhiInputMaterialization",
+    "error_transport": "ResultPropagatedByQuestionMark"
+  },
+  "available_capabilities": [
+    "AllFunctionsPhiMaterialization"
+  ],
+  "result_contract": {
+    "mutates": [
+      "module.functions[*].blocks",
+      "module.functions[*].next_value_id"
+    ],
+    "entrypoint": "MirBuilder::finalize_module all-functions PHI materialization sweep",
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0,
+    "mainline_selected": 0,
+    "source_selfhost_claim": 0
+  }
+}
