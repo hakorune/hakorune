@@ -59,16 +59,16 @@ if claims.get("generated_hako_change") != 0:
     raise SystemExit("selection must not change generated Hako")
 if claims.get("new_backend_route") != 0:
     raise SystemExit("selection must not add backend routes")
-PY
 
-cat <<'REPORT'
-output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-selection-guard-v0
-selection_guard=green
-entry_is_prepared_state=1
-first_unsupported_edge=MirBuilder::finalize_module -> append Return(result_value)
-deny_detail=ReturnEmissionRequired
-next_slice_token=MIRBUILDER-RETURN-EMISSION-001
-generated_hako_change=0
-runtime_fallback=0
-summary=ok
-REPORT
+# Report is derived from the result fixture (no hardcoded echo) so it never
+# goes stale when the frontier edge changes.
+print("output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-selection-guard-v0")
+print("selection_guard=green")
+print("entry_is_prepared_state=1")
+print(f"first_unsupported_edge={first['callsite']}")
+print(f"deny_detail={first['deny_detail']}")
+print(f"next_slice_token={first['next_slice_token']}")
+print("generated_hako_change=0")
+print("runtime_fallback=0")
+print("summary=ok")
+PY

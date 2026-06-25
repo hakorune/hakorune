@@ -641,12 +641,20 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
     if plan["explicit_non_claims"].get("bundle_size_as_proof") != 0:
         raise SelectionError("bundle size must not be a capability proof")
     first = result["first_unsupported_edge"]
+    # Derive the expected frontier from the first provider=None edge (SSOT),
+    # so this check self-tracks edge changes. The guard holds the independent pin.
+    frontier_edge = next(
+        (e for e in plan["ordered_source_edges"] if e.get("provider") is None), None
+    )
+    if frontier_edge is None:
+        raise SelectionError("ordered_source_edges has no provider=None frontier edge")
+    unsupported = frontier_edge["unsupported"]
     expected = {
-        "callsite": "MirBuilder::finalize_module -> append Return(result_value)",
-        "deny_reason": "UnsupportedDirectShape",
-        "deny_detail": "ReturnEmissionRequired",
-        "semantic_owner": "MirBuilder::finalize_module return emission",
-        "next_slice_token": "MIRBUILDER-RETURN-EMISSION-001",
+        "callsite": frontier_edge["callsite"],
+        "deny_reason": unsupported["deny_reason"],
+        "deny_detail": unsupported["deny_detail"],
+        "semantic_owner": unsupported["semantic_owner"],
+        "next_slice_token": unsupported["next_slice_token"],
     }
     for key, value in expected.items():
         if first.get(key) != value:
