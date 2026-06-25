@@ -265,18 +265,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ALLOCATION-POLICY-FACTS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1682-MIRBUILDER-ALLOCATION-POLICY-FACTS-001.md"
-latest_card_summary = """MirBuilder allocation policy facts are implemented
-and green. Live source now extracts to MirBuilderAllocationPolicyFactsV1,
-resolves to ResolvedValueAllocationPolicyV1, and records
-DirectabilityDecision=Deny until current_function transport, reserved-set
-transport, parameter compatibility fallback, sentinel, and overflow boundaries
-are selected. Generated Hako, CoreContext artifacts, backend routes, ABI,
-runtime, and bundle membership remain unchanged. The next blocker is the
-function-local ValueId allocator slice."""
+latest_card = "FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1683-FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001.md"
+latest_card_summary = """Function-local ValueId allocator is implemented
+as a plan/oracle projection from MirBuilderAllocationPolicyFactsV1.
+FunctionLocalValueIdAllocatorPlanV1 fixes MirFunction parameter
+prepopulation, max(param_count, 1) counter seed, TakeThenIncrement behavior,
+and ValueIdAsI64 transport. Reserved exclusion retry, current_function
+composition, module-global fallback, invalid sentinel exclusion, overflow,
+generated Hako, backend routes, ABI, and runtime behavior remain unclaimed.
+The next blocker is the reserved ValueId exclusion policy slice."""
 
-current_blocker_token = "FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001"
+current_blocker_token = "RESERVED-VALUE-EXCLUSION-POLICY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

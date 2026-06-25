@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "FunctionLocalValueIdAllocatorPlanV1",
+  "subject": "hakorune_mir::MirFunction::next_value_id",
+  "source_facts": "MirBuilderAllocationPolicyFactsV1.function_allocator",
+  "state": "MirFunction.next_value_id",
+  "parameter_prepopulation": {
+    "id_range": "[0, param_count)",
+    "transport": "ValueIdAsI64"
+  },
+  "counter_seed": {
+    "expression": "max(param_count, 1)",
+    "zero_parameter_floor": 1,
+    "zero_reserved_by_function_constructor_policy": true
+  },
+  "next_operation": {
+    "operation": "TakeThenIncrement",
+    "result_transport": "ValueIdAsI64",
+    "mutation": "IncrementAfterTake"
+  },
+  "oracle_vectors": [
+    {
+      "param_count": 0,
+      "prepopulated_params": [],
+      "initial_counter": 1,
+      "next_results": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "param_count": 1,
+      "prepopulated_params": [
+        0
+      ],
+      "initial_counter": 1,
+      "next_results": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "param_count": 3,
+      "prepopulated_params": [
+        0,
+        1,
+        2
+      ],
+      "initial_counter": 3,
+      "next_results": [
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "directability": {
+    "decision": "PlanOnly",
+    "allowed_claim": "FunctionLocalAllocatorOnly"
+  },
+  "non_claims": {
+    "reserved_exclusion_set_retry": 0,
+    "current_function_composition": 0,
+    "module_global_fallback": 0,
+    "formal_invalid_sentinel_exclusion": 0,
+    "overflow_policy": 0,
+    "generated_hako_artifact": 0,
+    "backend_route_changed": 0,
+    "abi_changed": 0,
+    "runtime_fallback": 0
+  }
+}

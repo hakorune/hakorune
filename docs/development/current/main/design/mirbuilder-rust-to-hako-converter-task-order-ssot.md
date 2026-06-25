@@ -20,21 +20,20 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001
+  RESERVED-VALUE-EXCLUSION-POLICY-001
 
 current implementation task:
-  Select the function-local ValueId allocator boundary after allocation-policy
-  facts closeout. Keep reserved exclusion-set transport and full
-  MirBuilder::next_value_id composition parked.
+  Select the reserved ValueId exclusion policy after function-local allocator
+  closeout. Keep full MirBuilder::next_value_id composition parked.
 
 selected source slice:
-  MirFunction::new parameter prepopulation / counter seed and
-  MirFunction::next_value_id take-then-increment
+  CompilationContext reserved_value_ids plus JoinIR header PHI prebuild
+  ReplaceSnapshot producer and MirBuilder::next_value_id membership consumer
 
 selected lowering:
-  FunctionAllocatorFacts
-    -> function-local ValueIdAsI64 allocator plan
-    -> focused generated artifact smoke
+  ReservedValueExclusionSetFacts
+    -> membership-only exclusion policy
+    -> focused plan/oracle guard
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -60,20 +59,23 @@ landed evidence:
   MirBuilderAllocationPolicyFactsV1, ResolvedValueAllocationPolicyV1, and an
   explicit DirectabilityDecision=Deny until current_function / reserved-set /
   parameter fallback / sentinel / overflow boundaries are selected.
+  Function-local ValueId allocator is green: FunctionAllocatorFacts now project
+  to FunctionLocalValueIdAllocatorPlanV1 with param_count seeded state,
+  ValueIdAsI64 result transport, and oracle vectors for param_count 0/1/3.
 
 selected next owner:
-  FUNCTION-LOCAL-VALUE-ID-ALLOCATOR-001
+  RESERVED-VALUE-EXCLUSION-POLICY-001
 
 current fail-fast boundary:
-  Function-local allocator may claim MirFunction parameter-seeded counter and
-  take-then-increment behavior only. It must not claim reserved exclusion-set
-  retry, current_function composition, module-global fallback, or invalid
-  sentinel exclusion.
+  Reserved exclusion policy may claim membership-only rejection, consumed
+  rejected candidates, and GenerateNextCandidate retry only. It must not claim
+  current_function composition, module-global fallback, invalid sentinel
+  exclusion, or a concrete ordered map/set representation.
 
 latest design decision:
-  Allocation policy facts proved the source authority split. Proceed one layer
-  down the follow-on order: function-local allocator first, then reserved
-  exclusion, then full MirBuilder::next_value_id composition.
+  Function-local allocation is closed as a plan/oracle projection, not a full
+  MirBuilder allocation implementation. Proceed to reserved exclusion policy,
+  then full MirBuilder::next_value_id composition.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -92,6 +94,7 @@ multi_carrier_exit_phi ArrayBox return green
 core_context_artifact_contract_projection green
 mirbuilder_derived_context_bundle_v1 green
 mirbuilder_allocation_policy_facts green
+function_local_value_id_allocator green
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -108,6 +111,7 @@ newtype_id_generator_scalarization = landed
 core_context_artifact_contract_projection = landed
 mirbuilder_derived_context_bundle_v1 = landed
 mirbuilder_allocation_policy_facts = landed
+function_local_value_id_allocator = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -117,23 +121,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Function-local ValueId allocator
+1. Reserved ValueId exclusion policy
    status=selected
-   boundary=MirFunction next counter and parameter-seeded initial state
-   semantic_authority=FunctionAllocatorFacts
-   non_authority=reserved exclusion-set handling or current_function composition
-
-2. Reserved ValueId exclusion policy
-   status=parked until function-local allocator is green
    boundary=reserved exclusion set transport and retry policy
    semantic_authority=ReservedValueExclusionSetFacts
    non_authority=PHI-dst-only naming or ordered-map representation
 
-3. MirBuilder next_value_id composition
+2. MirBuilder next_value_id composition
    status=parked until reserved exclusion policy is green
    boundary=current_function selection plus retry composition
    semantic_authority=ResolvedValueAllocationPolicyV1
    non_authority=module-global CoreContext branch alone
+
+3. MirBuilder allocation policy executable smoke
+   status=parked until composition is green
+   boundary=generated artifact or backend consumer using the resolved policy
+   semantic_authority=MirBuilder allocation policy plan
+   non_authority=CoreContext generator behavior alone
 ```
 
 ## Landed Converter Capability Summary
