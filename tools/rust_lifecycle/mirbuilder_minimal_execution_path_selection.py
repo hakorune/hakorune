@@ -72,6 +72,9 @@ METADATA_VALUE_TYPE_PUBLICATION_PLAN = (
 METADATA_ORIGIN_CALLER_MERGE_PLAN = (
     FIXTURES / "mirbuilder-metadata-origin-caller-merge-plan-v0.json"
 )
+PHI_RETURN_TYPE_INFERENCE_PLAN = (
+    FIXTURES / "mirbuilder-phi-return-type-inference-plan-v0.json"
+)
 MINIMAL_SMOKE_RESULT = (
     FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
 )
@@ -172,6 +175,7 @@ def contract_sources() -> list[dict[str, Any]]:
     type_hint_provision = read_json(TYPE_HINT_PROVISION_PLAN)
     metadata_value_type_publication = read_json(METADATA_VALUE_TYPE_PUBLICATION_PLAN)
     metadata_origin_caller_merge = read_json(METADATA_ORIGIN_CALLER_MERGE_PLAN)
+    phi_return_type_inference = read_json(PHI_RETURN_TYPE_INFERENCE_PLAN)
     minimal_smoke = read_json(MINIMAL_SMOKE_RESULT)
     mainline_route = read_json(MAINLINE_ROUTE)
 
@@ -410,6 +414,31 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if metadata_origin_non_claims.get(key) != 0:
             raise SelectionError(f"metadata origin-caller merge plan must keep {key}=0")
+    if phi_return_type_inference.get("kind") != "MirBuilderPhiReturnTypeInferencePlanV1":
+        raise SelectionError("PHI return-type inference plan has wrong kind")
+    phi_return_caps = set(phi_return_type_inference.get("available_capabilities") or [])
+    if "PhiReturnTypeInference" not in phi_return_caps:
+        raise SelectionError("PHI return-type inference plan lacks PhiReturnTypeInference")
+    if phi_return_type_inference.get("resolver_chain") != [
+        "SkipConcreteReturnType",
+        "TerminatorReturnOnly",
+        "DirectValueTypesLookup",
+        "TypeHintPolicyExtract",
+        "MethodReturnHintBox",
+        "PhiTypeResolver",
+        "GenericTypeResolver",
+        "UnknownFallbackOutsideDebug",
+    ]:
+        raise SelectionError("PHI return-type inference resolver chain drift")
+    phi_return_non_claims = phi_return_type_inference.get("non_claims") or {}
+    for key in [
+        "phi_input_materialization",
+        "module_function_insertion",
+        "full_finalize_module",
+        "generated_hako_artifact",
+    ]:
+        if phi_return_non_claims.get(key) != 0:
+            raise SelectionError(f"PHI return-type inference plan must keep {key}=0")
     if minimal_smoke.get("kind") != "MinimalMirBuilderExecutionPathSmokeResultV1":
         raise SelectionError("minimal execution smoke result has wrong kind")
     smoke_caps = set(minimal_smoke.get("available_capabilities") or [])
@@ -542,6 +571,13 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::metadata_origin_caller_merge",
             "manifest_path": rel(METADATA_ORIGIN_CALLER_MERGE_PLAN),
+            "artifact_state": "PlanOnly",
+        },
+        {
+            "capability": "PhiReturnTypeInference",
+            "contract_kind": "SourceDerivedCapabilityPlanV1",
+            "family_id": "hakorune_mir_builder::phi_return_type_inference",
+            "manifest_path": rel(PHI_RETURN_TYPE_INFERENCE_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -874,12 +910,27 @@ def build_plan() -> dict[str, Any]:
             "id": "finalize_module.phi_return_type_inference",
             "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
             "required_capability": "PhiReturnTypeInference",
-            "provider": None,
+            "provider": {
+                "kind": "CapabilityPlan",
+                "capability": "PhiReturnTypeInference",
+            },
             "unsupported": {
                 "deny_reason": "UnsupportedDirectShape",
                 "deny_detail": "PhiReturnTypeInferenceRequired",
                 "semantic_owner": "MirBuilder::finalize_module PHI return type inference",
                 "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001",
+            },
+        },
+        {
+            "id": "finalize_module.phi_input_materialization",
+            "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
+            "required_capability": "PhiInputMaterialization",
+            "provider": None,
+            "unsupported": {
+                "deny_reason": "UnsupportedDirectShape",
+                "deny_detail": "PhiInputMaterializationRequired",
+                "semantic_owner": "MirBuilder::finalize_module PHI input materialization",
+                "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001",
             },
         },
     ]
@@ -1073,6 +1124,7 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         "Available",
         "Available",
         "ProfileExcluded",
+        "Available",
         "Available",
         "Available",
         "Available",

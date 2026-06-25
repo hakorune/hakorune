@@ -99,6 +99,13 @@
       "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-origin-caller-merge-plan-v0.json"
     },
     {
+      "artifact_state": "PlanOnly",
+      "capability": "PhiReturnTypeInference",
+      "contract_kind": "SourceDerivedCapabilityPlanV1",
+      "family_id": "hakorune_mir_builder::phi_return_type_inference",
+      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json"
+    },
+    {
       "artifact_state": "Observed",
       "capability": "MinimalExecutionPathSmoke",
       "contract_kind": "SmokeResultV1",
@@ -450,13 +457,28 @@
     {
       "callsite": "MirBuilder::finalize_module -> infer return type from PHI",
       "id": "finalize_module.phi_return_type_inference",
-      "provider": null,
+      "provider": {
+        "capability": "PhiReturnTypeInference",
+        "kind": "CapabilityPlan"
+      },
       "required_capability": "PhiReturnTypeInference",
       "unsupported": {
         "deny_detail": "PhiReturnTypeInferenceRequired",
         "deny_reason": "UnsupportedDirectShape",
         "next_slice_token": "MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001",
         "semantic_owner": "MirBuilder::finalize_module PHI return type inference"
+      }
+    },
+    {
+      "callsite": "MirBuilder::finalize_module -> materialize all PHI inputs",
+      "id": "finalize_module.phi_input_materialization",
+      "provider": null,
+      "required_capability": "PhiInputMaterialization",
+      "unsupported": {
+        "deny_detail": "PhiInputMaterializationRequired",
+        "deny_reason": "UnsupportedDirectShape",
+        "next_slice_token": "MIRBUILDER-PHI-INPUT-MATERIALIZATION-001",
+        "semantic_owner": "MirBuilder::finalize_module PHI input materialization"
       }
     }
   ],

@@ -20,10 +20,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001
+  MIRBUILDER-PHI-INPUT-MATERIALIZATION-001
 
 current implementation task:
-  Address the PHI return-type inference edge derived after MetadataOriginCallerMerge became available.
+  Address the PHI input materialization edge derived after PhiReturnTypeInference became available.
 
 selected source slice:
   prepared-state build_module(AST Literal Integer(0)) execution surface
@@ -74,16 +74,16 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, and MetadataOriginCallerMerge are green; the frontier now derives PHI return-type inference as the next unsupported edge.
+  MirModule shell, MirFunction constructor, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, and PhiReturnTypeInference are green; the frontier now derives PHI input materialization as the next unsupported edge.
 
 selected next owner:
-  MIRBUILDER-PHI-RETURN-TYPE-INFERENCE-001
+  MIRBUILDER-PHI-INPUT-MATERIALIZATION-001
 
 current fail-fast boundary:
   The next slice may only derive the next unsupported live edge. It must not add routes, widen source authority, or add runtime fallback.
 
 latest design decision:
-  MetadataOriginCallerMerge is green as a PlanOnly capability. Proceed to PHI return-type inference, not PHI input materialization, module insertion, or full finalize.
+  PhiReturnTypeInference is green as a PlanOnly capability. Proceed to PHI input materialization, not module insertion, condition_fn injection, or full finalize.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -116,7 +116,7 @@ mirbuilder_literal_integer_lowering green
 mirbuilder_bounded_finalize_composition green
 mirbuilder_minimal_execution_path_smoke green
 mirbuilder_allocation_policy_mainline_pilot green
-derived_first_red_edge=PhiReturnTypeInferenceRequired
+derived_first_red_edge=PhiInputMaterializationRequired
 full converter matrix green
 task-order remains under 800 lines
 ```
@@ -156,6 +156,7 @@ mirbuilder_type_propagation_pipeline = landed
 mirbuilder_type_hint_provision = landed
 mirbuilder_metadata_value_type_publication = landed
 mirbuilder_metadata_origin_caller_merge = landed
+mirbuilder_phi_return_type_inference = landed
 selfhost_checkpoint_lane = artifact_selfhost
 ```
 
@@ -165,14 +166,14 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. PHI return-type inference edge
+1. PHI input materialization edge
    status=selected
-   boundary=finalize_module phi_type_inference::infer_return_type_from_phi
-   semantic_authority=frontier analyzer plus MetadataOriginCallerMerge non_claim phi_return_type_inference=0
+   boundary=finalize_module phi_input_materializer::materialize_all_phi_inputs
+   semantic_authority=frontier analyzer plus PhiReturnTypeInference non_claim phi_input_materialization=0
    non_authority=manual next-edge selection
 
-2. Next semantic owner after PHI return-type inference
-   status=parked until PHI return-type inference edge is green
+2. Next semantic owner after PHI input materialization
+   status=parked until PHI input materialization edge is green
    boundary=first unsupported edge only
    semantic_authority=live source order plus contracts
    non_authority=coverage percentage
