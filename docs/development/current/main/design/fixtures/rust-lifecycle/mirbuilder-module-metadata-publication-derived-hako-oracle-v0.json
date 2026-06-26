@@ -1,0 +1,40 @@
+{
+  "kind": "MirBuilderModuleMetadataPublicationDerivedHakoOracleV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_plan_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "module_function_insertion": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "record_and_packed_layout_refresh": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0,
+    "typed_object_plan_refresh": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module module metadata publication",
+  "vectors": [
+    {
+      "expect": {
+        "canonical_json_parity": 1,
+        "mutation_target_count": 4,
+        "shadow_candidate_family": "hakorune_mir_builder::module_metadata_publication",
+        "shadow_candidate_kind": "ModuleMetadataPublicationShadowCandidateV1",
+        "shadow_candidate_stage": "module_metadata_publication"
+      },
+      "inputs": {
+        "entrypoint": "MirBuilder::finalize_module module metadata publication",
+        "plan_subject": "MirBuilder::finalize_module module metadata publication",
+        "projected_fields": 3,
+        "publication_targets": 4
+      },
+      "name": "python_oracle_and_hako_shadow_match"
+    }
+  ]
+}

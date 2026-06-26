@@ -1,0 +1,49 @@
+{
+  "kind": "MirBuilderModuleMetadataPublicationDerivedHakoShadowResultV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_plan_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "module_function_insertion": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "record_and_packed_layout_refresh": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0,
+    "typed_object_plan_refresh": 0
+  },
+  "result": {
+    "err": 0,
+    "err_line": "",
+    "shadow_json": "{\n  \"entrypoint\": \"MirBuilder::finalize_module module metadata publication\",\n  \"family_id\": \"hakorune_mir_builder::module_metadata_publication\",\n  \"kind\": \"ModuleMetadataPublicationShadowCandidateV1\",\n  \"mutation_target_count\": 4,\n  \"projected_fields\": [\n    \"name\",\n    \"declared_type_name\",\n    \"is_weak\"\n  ],\n  \"publication_targets\": [\n    \"module.metadata.user_box_decls\",\n    \"module.metadata.user_box_field_decls\",\n    \"module.metadata.record_decls\",\n    \"module.metadata.enum_decls\"\n  ],\n  \"publication_timing\": \"AfterSlotRegistryReleaseBeforeSemanticRefresh\",\n  \"schema_version\": 0,\n  \"source_authority\": \"src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module\",\n  \"stage_id\": \"module_metadata_publication\",\n  \"subject\": \"MirBuilder::finalize_module module metadata publication\"\n}\n",
+    "shadow_record": {
+      "entrypoint": "MirBuilder::finalize_module module metadata publication",
+      "family_id": "hakorune_mir_builder::module_metadata_publication",
+      "kind": "ModuleMetadataPublicationShadowCandidateV1",
+      "mutation_target_count": 4,
+      "projected_fields": [
+        "name",
+        "declared_type_name",
+        "is_weak"
+      ],
+      "publication_targets": [
+        "module.metadata.user_box_decls",
+        "module.metadata.user_box_field_decls",
+        "module.metadata.record_decls",
+        "module.metadata.enum_decls"
+      ],
+      "publication_timing": "AfterSlotRegistryReleaseBeforeSemanticRefresh",
+      "schema_version": 0,
+      "source_authority": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+      "stage_id": "module_metadata_publication",
+      "subject": "MirBuilder::finalize_module module metadata publication"
+    }
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module module metadata publication"
+}

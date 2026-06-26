@@ -17,6 +17,7 @@ from mirbuilder_metadata_context_scalar_artifacts import run_metadata_context_sc
 from mirbuilder_metadata_origin_caller_merge_artifacts import run_metadata_origin_caller_merge_artifact_generator
 from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_parent_artifact_generator
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
+from mirbuilder_module_metadata_publication_artifacts import run_module_metadata_publication_artifact_generator
 from mirbuilder_metadata_value_type_publication_artifacts import run_metadata_value_type_publication_artifact_generator
 from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_generator
 from mirbuilder_current_function_take_artifacts import run_current_function_take_artifact_generator
@@ -58,6 +59,7 @@ FAMILY_GENERATORS = {
     "metadata-context-region-parent": run_metadata_region_parent_artifact_generator,
     "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
     "mirbuilder-metadata-origin-caller-merge": run_metadata_origin_caller_merge_artifact_generator,
+    "mirbuilder-module-metadata-publication": run_module_metadata_publication_artifact_generator,
     "mirbuilder-metadata-value-type-publication": run_metadata_value_type_publication_artifact_generator,
     "mirbuilder-phi-input-materialization": run_phi_input_materialization_artifact_generator,
     "mirbuilder-phi-return-type-inference": run_phi_return_type_inference_artifact_generator,

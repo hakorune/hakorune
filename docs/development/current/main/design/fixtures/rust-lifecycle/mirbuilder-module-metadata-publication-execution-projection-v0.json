@@ -1,0 +1,55 @@
+{
+  "behavior": {
+    "projector_validation": "Yes",
+    "shadow_projection": "CanonicalJsonParity",
+    "shadow_result_published": "Yes"
+  },
+  "directability": {
+    "full_metadata_context": "Deny",
+    "host_env_lookup": "Deny",
+    "prepared_shadow_projection": "Allow"
+  },
+  "execution_scope": "PreparedModuleMetadataPublicationShadowState",
+  "inputs": {
+    "hako_shadow_transport": "MapBox",
+    "parity_gate_transport": "MapBox",
+    "plan_transport": "MapBox",
+    "promotion_token_transport": "MapBox",
+    "python_oracle_transport": "MapBox",
+    "retirement_token_transport": "MapBox"
+  },
+  "kind": "ModuleMetadataPublicationExecutionProjectionV1",
+  "methods": {
+    "build_plan": "StaticCall + MethodCall + ReturnValue",
+    "build_shadow_candidate": "StaticCall + MethodCall + ReturnValue",
+    "project_shadow_record": "StaticCall + SetField + ReturnValue"
+  },
+  "mutation_frame": {
+    "hako_shadow": "read-only",
+    "oracle": "read-only",
+    "plan": "read-only",
+    "shadow_json": "exclusive local result",
+    "shadow_record": "exclusive local result"
+  },
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_plan_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "module_function_insertion": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "record_and_packed_layout_refresh": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0,
+    "typed_object_plan_refresh": 0
+  },
+  "result_semantics": "ShadowRecord",
+  "result_transport": "ModuleMetadataPublicationResultBox",
+  "schema_version": 0,
+  "source_plan": "MirBuilderModuleMetadataPublicationPlanV1"
+}

@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::module_metadata_publication",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "ModuleMetadataPublicationApi.project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
+      "hako_operation": "StaticCall + SetField + ReturnValue",
+      "id": "ModuleMetadataPublicationApi::project_shadow_record",
+      "rust_operation": "MirBuilder::finalize_module module metadata publication shadow projection"
+    }
+  ],
+  "pilot_scope": "ModuleMetadataPublication_prepared_module_metadata_publication_only",
+  "schema_version": 0,
+  "selected_body_count": "module_metadata_publication_prepared_module_metadata_publication_only",
+  "source_oracle": "mirbuilder-module-metadata-publication-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-module-metadata-publication-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.module_metadata_publication"
+}

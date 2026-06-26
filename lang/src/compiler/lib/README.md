@@ -21,6 +21,8 @@ Scope:
   - `function_region_stack_pop_projector.hako`
 - third shadow-projector support library:
   - `slot_registry_release_projector.hako`
+- fourth shadow-projector support library:
+  - `module_metadata_publication_projector.hako`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`
