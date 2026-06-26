@@ -112,6 +112,50 @@ Immediate cleanup policy for phase-296x:
 - classify old per-row guards as legacy traceability unless they are part of a
   reusable bucket guard.
 
+## Docs Loop Breaker Policy
+
+Docs-first means contract-first. It does not mean docs-only iteration can keep
+the active blocker open indefinitely.
+
+After a docs-only decision, consultation summary, frontier refresh, or design
+stop, the next active blocker must be one of:
+
+- implementation or generated artifact materialization;
+- executable Hako projector / verifier / guard work;
+- a code-facing guard consolidation that removes duplicated expectations;
+- a measured perf or smoke result that changes the selected owner;
+- an explicit closeout that parks the lane.
+
+Do not create a second consecutive docs-only card for the same blocker unless
+one of these is true:
+
+- the previous docs card changed the durable policy owner;
+- new source evidence invalidated the selected implementation owner;
+- a reviewer found a concrete contradiction in the acceptance contract;
+- the lane is being explicitly parked or closed.
+
+When a card exists only to document a design stop, it must also name the next
+code-facing owner and a fail-fast boundary. The next card may refine the
+implementation shape, but it must not repeat the same design consultation as a
+new task.
+
+Implementation cards should include this acceptance line when applicable:
+
+```text
+docs_only_closeout = forbidden
+code_or_artifact_delta_required = 1
+```
+
+Allowed documentation during an implementation card is limited to:
+
+- the active phase card closeout;
+- the owning SSOT when the contract changed;
+- `CURRENT_STATE.toml` pointer fields;
+- thin task-order pointer updates when the active blocker changes.
+
+Everything else is a Ghost Task or commit-message note unless it changes a
+durable contract.
+
 ## Workstream Card / Ghost Task Policy
 
 Docs-first means contract-first, not row-first.
