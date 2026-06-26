@@ -38,77 +38,10 @@ selected evidence:
     -> explicit design-stop frontier
     -> next executable owner intentionally unresolved
 
-landed evidence:
-  Same-module scalar-counter helper execution is green for CoreContextApi
-  next_binding / next_temp_slot / next_debug_join through GlobalCallRoute plus
-  SameModuleDefinitionPlan.
-  Borrow read-fold owned-map merge is green and uses ValueIdOrderedMapBox for
-  ValueId/i64 keys. OrderedMapBox remains String-key only.
-  Same-module ArrayBox return is green for MultiCarrierExitPhi via
-  source-derived default_exit facts, body-wide ObjectHandle return contract,
-  SameModuleDefinitionPlan, and backend-ready semantic refresh before ny-llvmc.
-  CoreContext ID generators are green through GeneratorStateFacts,
-  NominalIdTransportPlan, value_next_id/block_next_id scalar fields, and
-  ValueIdAsI64 / BasicBlockIdAsI64 verifier metadata.
-  CoreContext artifact contract projection is green: VerifiedHakoFamilyIR plus
-  stable Deny results plus artifact identity project the manifest, verifier
-  expectation, and guard consumer through VerifiedFamilyArtifactContractV1.
-  MirBuilder derived context bundle v1 is green as a membership-only bundle:
-  ordered_map_crate_bundle now references CoreContext's
-  VerifiedFamilyArtifactContractV1, exercises scalar counters and ID
-  generators, and avoids copying family selected methods, semantic transports,
-  or denials.
-  RecordAndPackedLayoutRefresh decomposition is green: the semantic closure
-  report now exposes finalize_module.typed_object_plan_refresh as the first
-  leaf owner under the composite gap.
-  TypedObjectPlanRefresh is landed as a DerivedShadow executable Hako
-  artifact, finalize_module.direct_state_plan_refresh is landed, and
-  finalize_module.all_functions_phi_materialization is landed; the semantic
-  closure report now ends at the explicit design-stop frontier instead of
-  naming finalize_module.record_packed_layout_refresh as a new executable
-  owner.
-  ReturnEmission Hako shadow projector is landed as an ordinary compiler
-  library module under lang/src/compiler/lib with explicit plan/input/output
-  parity packaging and no ABI surface.
-  The compiler library landing zone is documented under
-  lang/src/compiler/lib/README.md, the parent compiler README points to that
-  library boundary, and the ordinary Hako compiler library modules are landed
-  under lang/src/compiler/lib/ with text_builder / projection_value /
-  canonical_json exports wired.
-  FunctionRegionStackPop shadow projector support is landed under
-  lang/src/compiler/lib/function_region_stack_pop_projector.hako, keeping
-  plan JSON, typed shadow projection, Python oracle, and canonical JSON
-  parity separate with no ABI surface.
-  SlotRegistryRelease shadow projector support is landed under
-  lang/src/compiler/lib/slot_registry_release_projector.hako, keeping plan
-  JSON, typed shadow projection, Python oracle, and canonical JSON parity
-  separate with no ABI surface.
-  MirBuilder allocation policy facts are green: live source now projects to
-  MirBuilderAllocationPolicyFactsV1, ResolvedValueAllocationPolicyV1, and an
-  explicit DirectabilityDecision=Deny until current_function / reserved-set /
-  parameter fallback / sentinel / overflow boundaries are selected.
-  Function-local ValueId allocator is green: FunctionAllocatorFacts now project
-  to FunctionLocalValueIdAllocatorPlanV1 with param_count seeded state,
-  ValueIdAsI64 result transport, and oracle vectors for param_count 0/1/3.
-  Reserved ValueId exclusion policy is green: ReservedValueExclusionSetFacts
-  now project to membership-only rejection with PHI destinations plus JoinIR
-  function parameters, consumed rejected candidates, and GenerateNextCandidate
-  retry. Concrete representation remains unselected.
-  MirBuilder next_value_id composition is green: ResolvedValueAllocationPolicyV1
-  now composes FunctionLocalValueIdAllocatorPlanV1 and
-  ReservedValueExclusionPolicyPlanV1 into current_function selection plus
-  reserved retry oracle vectors.
-  Prepared-state next_value_id Hako kernel is adopted into the ordered-map
-  crate bundle as membership-only evidence and bundle-level EXE/AOT smoke.
-  Prepared-state reserved membership transport is aligned with its projection:
-  actual generated storage now uses ValueIdOrderedMapBox and ValueIdOrderedMap.
-  Prepared-state allocation-policy Hako adoption decision is deferred because
-  the family has no native .hako source owner yet.
-  Minimal MirBuilder execution path selection is green: live Rust source order
-  plus explicit artifact contracts derive the first unsupported edge at
-  prepare_module -> MirModule::new without generated Hako, backend, ABI,
-  runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report currently ends at the explicit design-stop frontier instead of naming finalize_module.record_packed_layout_refresh as a new executable owner.
+landed evidence pointer:
+  Detailed landed rows live in the semantic closure report, phase cards, and
+  git history. This task-order only keeps the active blocker, fail-fast
+  boundary, and Active Next 3.
 
 selected next owner:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
@@ -133,127 +66,20 @@ forbidden:
   new canonical MIR instruction; runtime fallback
 ```
 
-Recent acceptance evidence:
+## Evidence Pointers
 
 ```text
-same_module_scalar_counter_routes=green
-same_module_scalar_counter_definitions=green
-CoreContext scalar-counter EXE/AOT green
-multi_carrier_exit_phi ArrayBox return selected to close matrix red edge
-multi_carrier_exit_phi ArrayBox return green
-core_context_artifact_contract_projection green
-mirbuilder_derived_context_bundle_v1 green
-mirbuilder_allocation_policy_facts green
-function_local_value_id_allocator green
-reserved_value_exclusion_policy green
-mirbuilder_next_value_id_composition green
-allocation_policy_execution_surface_selected=prepared_state_hako_kernel
-mirbuilder_next_value_id_prepared_state_kernel green
-mirbuilder_allocation_policy_bundle_adoption green
-mirbuilder_prepared_state_reserved_membership_transport_alignment green
-mirbuilder_minimal_execution_path_selection green
-mir_module_minimal_shell_transport green
-mir_function_constructor_composition green
-mirbuilder_literal_integer_lowering green
-mirbuilder_bounded_finalize_composition green
-mirbuilder_minimal_execution_path_smoke green
-mirbuilder_allocation_policy_mainline_pilot green
-mirbuilder_function_region_stack_pop green
-mirbuilder_slot_registry_release green
-mirbuilder_module_metadata_publication green
-mirbuilder_record_packed_layout_refresh green
-mirbuilder_typed_object_plan_refresh green
-mirbuilder_direct_state_plan_refresh green
-mirbuilder_all_functions_phi_materialization green
-mirbuilder_minimal_execution_path_semantic_closure_report green
-mir_module_minimal_shell_derived_hako_artifact green
-mir_function_constructor_derived_hako_artifact green
-mirbuilder_prepared_state_install_derived_hako_artifact green
-mirbuilder_literal_integer_derived_hako_artifact green
-mirbuilder_bounded_finalize_derived_hako_artifact green
-mirbuilder_return_emission_derived_hako_artifact green
-mirbuilder_return_type_publication_derived_hako_artifact green
-mirbuilder_current_module_take_derived_hako_artifact green
-mirbuilder_typed_value_verification_derived_hako_artifact green
-mirbuilder_current_function_take_derived_hako_artifact green
-mirbuilder_type_propagation_pipeline_derived_hako_artifact green
-mirbuilder_type_hint_provision_derived_hako_artifact green
-mirbuilder_metadata_value_type_publication_derived_hako_artifact green
-mirbuilder_metadata_origin_caller_merge_derived_hako_artifact green
-mirbuilder_phi_return_type_inference_derived_hako_artifact green
-mirbuilder_phi_input_materialization_derived_hako_artifact green
-mirbuilder_dev_birth_verification_derived_hako_artifact green
-mirbuilder_module_function_insertion_derived_hako_artifact green
-mirbuilder_condition_fn_injection_derived_hako_artifact green
-first_executable_materialization_gap=minimal_path.completion_design_stop
-next_slice=MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
-post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
-full converter matrix green
-task-order remains under 800 lines
-```
+semantic_closure_report =
+  docs/development/current/main/design/fixtures/rust-lifecycle/
+  minimal-mirbuilder-execution-path-semantic-closure-report-v0.json
 
-Current mechanical status:
+latest_frontier_card =
+  docs/development/current/main/phases/phase-296x/
+  296x-1745-MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.md
 
-```text
-borrow_read_fold_owned_map_merge = landed
-boxed_sum_variant_make_site_fact_normalization = landed
-metadata_context_region_parent_backend = green
-same_module_uniform_mir_scalar_counter_emitter = landed
-same_module_arraybox_return_contract = landed
-newtype_id_generator_scalarization = landed
-core_context_artifact_contract_projection = landed
-mirbuilder_derived_context_bundle_v1 = landed
-mirbuilder_allocation_policy_facts = landed
-function_local_value_id_allocator = landed
-reserved_value_exclusion_policy = landed
-mirbuilder_next_value_id_composition = landed
-allocation_policy_execution_surface_consultation = landed
-mirbuilder_next_value_id_prepared_state_kernel = landed
-mirbuilder_allocation_policy_bundle_adoption = landed
-mirbuilder_prepared_state_reserved_membership_transport_alignment = landed
-mirbuilder_minimal_execution_path_selection = landed
-mir_module_minimal_shell_transport = landed
-mir_function_constructor_composition = landed
-mirbuilder_literal_integer_lowering = landed
-mirbuilder_bounded_finalize_composition = landed
-mirbuilder_minimal_execution_path_smoke = landed
-mirbuilder_allocation_policy_mainline_pilot = landed
-mirbuilder_return_emission = landed
-mirbuilder_return_type_publication = landed
-mirbuilder_current_module_take = landed
-mirbuilder_typed_value_verification = landed
-mirbuilder_current_function_take = landed
-mirbuilder_type_propagation_pipeline = landed
-mirbuilder_type_hint_provision = landed
-mirbuilder_metadata_value_type_publication = landed
-mirbuilder_metadata_origin_caller_merge = landed
-mirbuilder_phi_return_type_inference = landed
-mirbuilder_phi_input_materialization = landed
-mirbuilder_dev_birth_verification = landed
-mirbuilder_module_function_insertion = landed
-mirbuilder_condition_fn_injection = landed
-mirbuilder_function_region_stack_pop = landed
-mirbuilder_slot_registry_release = landed
-mirbuilder_module_metadata_publication = landed
-mirbuilder_record_packed_layout_refresh = landed
-mirbuilder_typed_object_plan_refresh = landed
-mirbuilder_direct_state_plan_refresh = landed
-mirbuilder_all_functions_phi_materialization = landed
-mirbuilder_minimal_execution_path_semantic_closure_report = landed
-mir_module_minimal_shell_derived_hako_artifact = landed
-mir_function_constructor_derived_hako_artifact = landed
-mirbuilder_prepared_state_install_derived_hako_artifact = landed
-mirbuilder_literal_integer_derived_hako_artifact = landed
-mirbuilder_bounded_finalize_derived_hako_artifact = landed
-mirbuilder_return_emission_derived_hako_artifact = landed
-mirbuilder_return_type_publication_derived_hako_artifact = landed
-mirbuilder_current_module_take_derived_hako_artifact = landed
-mirbuilder_typed_value_verification_derived_hako_artifact = landed
-mirbuilder_current_function_take_derived_hako_artifact = landed
-mirbuilder_type_propagation_pipeline_derived_hako_artifact = landed
-selfhost_checkpoint_lane = artifact_selfhost
-mirbuilder_module_function_insertion_derived_hako_artifact = landed
-mirbuilder_condition_fn_injection_derived_hako_artifact = landed
+latest_integration_card =
+  docs/development/current/main/phases/phase-296x/
+  296x-1756-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001.md
 ```
 
 ## Active Next 3
@@ -545,7 +371,7 @@ Keep this lane separate from semantic converter slices:
 ```text
 landed: guard表示の false-green 修正
 landed: current docs を thin pointer 化
-queued: task-order SSOT を active next 3 + parked index へ圧縮
+landed: task-order SSOT を active next 3 + parked index へ圧縮
   boundary=keep task-order as pointer; detailed artifact/evidence rows belong
   to semantic closure reports, phase cards, and git history
 landed: compiler projector helper support box v0
