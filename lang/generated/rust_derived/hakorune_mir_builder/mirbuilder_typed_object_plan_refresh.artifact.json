@@ -1,0 +1,64 @@
+{
+  "claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_plan_refresh": 0,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "source_selfhost_claim": 0,
+    "typed_object_collection_field_element_refresh": 0,
+    "typed_object_field_value_type_refresh": 0,
+    "typed_object_plan_refresh": 1
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-typed-object-plan-refresh",
+    "version": "mirbuilder-typed-object-plan-refresh-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-plan-v0.json",
+      "sha256": "0f71058a769b74df0dcbac834f7634d479a065fd6d775c9345f33057dbf7e30c"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-derived-hako-oracle-v0.json",
+      "sha256": "ba6fa5d5c379579ebc3bccd521b36a2984d35a33ac5fdb5409d0b5b9cf99d22a"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-execution-projection-v0.json",
+      "sha256": "c94f12308d0a2d3fdbc75338a75b317846d1060133c60abbff5077464ced72f6"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-derived-hako-recipe-v0.json",
+      "sha256": "924ac2ce467b3432020994d3a3341f63910e248c1e6e82f80d68d117eb1a2fcb"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-derived-hako-verifier-result-v0.json",
+      "sha256": "d0a23af09c2e96b068232ec18fb63d70855fe6702df32b46ec18eda4fd629239"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_object_plan_refresh.hako",
+    "hako_sha256": "20ba532c6ea4a19b381e1f6279ea766c6d0026dd8cc188543aaf78b48f2b384b"
+  },
+  "pilot_scope": "TypedObjectPlanRefresh_prepared_typed_object_plan_refresh_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/typed_object_plan.rs",
+        "sha256": "c1bf0d80f037e70516ab94f201bf7d4e076fb99a0f7359d73f7063748be0f473"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

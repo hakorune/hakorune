@@ -26,9 +26,13 @@ lib.text_builder = "lib/text_builder.hako"
 lib.canonical_json = "lib/canonical_json.hako"
 lib.projection_value = "lib/projection_value.hako"
 lib.module_metadata_publication_projector = "lib/module_metadata_publication_projector.hako"
+lib.record_packed_layout_refresh = "lib/record_packed_layout_refresh_projector.hako"
 lib.return_emission_projector = "lib/return_emission_projector.hako"
 lib.function_region_stack_pop_projector = "lib/function_region_stack_pop_projector.hako"
 lib.slot_registry_release_projector = "lib/slot_registry_release_projector.hako"
+lib.typed_object_plan_refresh = "lib/typed_object_plan_refresh_projector.hako"
+lib.direct_state_plan_refresh = "lib/direct_state_plan_refresh_projector.hako"
+lib.all_functions_phi_materialization = "lib/all_functions_phi_materialization_projector.hako"
 
 # Pipeline v2 (emit only)
 pipeline_v2.flow_entry = "pipeline_v2/flow_entry.hako"

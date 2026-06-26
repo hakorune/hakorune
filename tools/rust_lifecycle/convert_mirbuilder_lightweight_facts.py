@@ -18,6 +18,7 @@ from mirbuilder_metadata_origin_caller_merge_artifacts import run_metadata_origi
 from mirbuilder_metadata_region_parent_artifacts import run_metadata_region_parent_artifact_generator
 from mirbuilder_metadata_value_caller_artifacts import run_metadata_value_caller_artifact_generator
 from mirbuilder_module_metadata_publication_artifacts import run_module_metadata_publication_artifact_generator
+from mirbuilder_record_packed_layout_refresh_artifacts import run_record_packed_layout_refresh_artifact_generator
 from mirbuilder_metadata_value_type_publication_artifacts import run_metadata_value_type_publication_artifact_generator
 from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_generator
 from mirbuilder_current_function_take_artifacts import run_current_function_take_artifact_generator
@@ -33,6 +34,7 @@ from mirbuilder_return_emission_artifacts import run_return_emission_artifact_ge
 from mirbuilder_return_type_publication_artifacts import run_return_type_publication_artifact_generator
 from mirbuilder_slot_registry_release_artifacts import run_slot_registry_release_artifact_generator
 from mirbuilder_typed_value_verification_artifacts import run_typed_value_verification_artifact_generator
+from mirbuilder_typed_object_plan_refresh_artifacts import run_typed_object_plan_refresh_artifact_generator
 from mirbuilder_type_hint_provision_artifacts import run_type_hint_provision_artifact_generator
 from mirbuilder_type_propagation_pipeline_artifacts import run_type_propagation_pipeline_artifact_generator
 from mir_function_constructor_artifacts import run_mir_function_constructor_shell_artifact_generator
@@ -42,6 +44,8 @@ from mirbuilder_multi_exit_phi_artifacts import run_multi_exit_phi_artifact_gene
 from mirbuilder_next_value_id_prepared_state_kernel_artifacts import run_prepared_state_kernel_generator
 from mirbuilder_region_observer_artifacts import run_region_observer_artifact_generator
 from mirbuilder_single_scalar_loop_carrier_artifacts import run_single_scalar_loop_carrier_artifact_generator
+from mirbuilder_direct_state_plan_refresh_artifacts import run_direct_state_plan_refresh_artifact_generator
+from mirbuilder_all_functions_phi_materialization_artifacts import run_all_functions_phi_materialization_artifact_generator
 from mirbuilder_structured_loop_artifacts import run_structured_loop_artifact_generator
 from mirbuilder_type_context_origin_map_artifacts import run_type_context_origin_map_artifact_generator
 from mirbuilder_type_context_string_literal_artifacts import run_type_context_string_literal_artifact_generator
@@ -60,6 +64,7 @@ FAMILY_GENERATORS = {
     "metadata-context-value-caller": run_metadata_value_caller_artifact_generator,
     "mirbuilder-metadata-origin-caller-merge": run_metadata_origin_caller_merge_artifact_generator,
     "mirbuilder-module-metadata-publication": run_module_metadata_publication_artifact_generator,
+    "mirbuilder-record-packed-layout-refresh": run_record_packed_layout_refresh_artifact_generator,
     "mirbuilder-metadata-value-type-publication": run_metadata_value_type_publication_artifact_generator,
     "mirbuilder-phi-input-materialization": run_phi_input_materialization_artifact_generator,
     "mirbuilder-phi-return-type-inference": run_phi_return_type_inference_artifact_generator,
@@ -79,6 +84,9 @@ FAMILY_GENERATORS = {
     "mirbuilder-return-type-publication": run_return_type_publication_artifact_generator,
     "mirbuilder-slot-registry-release": run_slot_registry_release_artifact_generator,
     "mirbuilder-typed-value-verification": run_typed_value_verification_artifact_generator,
+    "mirbuilder-typed-object-plan-refresh": run_typed_object_plan_refresh_artifact_generator,
+    "mirbuilder-direct-state-plan-refresh": run_direct_state_plan_refresh_artifact_generator,
+    "mirbuilder-all-functions-phi-materialization": run_all_functions_phi_materialization_artifact_generator,
     "mirbuilder-type-hint-provision": run_type_hint_provision_artifact_generator,
     "mirbuilder-type-propagation-pipeline": run_type_propagation_pipeline_artifact_generator,
     "multi-carrier-exit-phi": run_multi_exit_phi_artifact_generator,

@@ -273,6 +273,7 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/mirbuilder_slot_registry_release.py",
         "tools/rust_lifecycle/mirbuilder_module_metadata_publication.py",
         "tools/rust_lifecycle/mirbuilder_record_packed_layout_refresh.py",
+        "tools/rust_lifecycle/mirbuilder_record_packed_layout_refresh_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_typed_object_plan_refresh.py",
         "tools/rust_lifecycle/mirbuilder_direct_state_plan_refresh.py",
         "tools/rust_lifecycle/mirbuilder_all_functions_phi_materialization.py",
@@ -310,6 +311,7 @@ without relying on handwritten prose.
     "mirbuilder-minimal-execution-path-semantic-closure-report": "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
     "mirbuilder-next-value-id-prepared-state-kernel": "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001",
     "mirbuilder-return-emission": "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001",
+    "mirbuilder-record-packed-layout-refresh": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-DERIVED-HAKO-ARTIFACT-001",
     "mirbuilder-condition-fn-injection": "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
   },
   "non_claims": {
@@ -443,6 +445,7 @@ lang/src/compiler/lib/canonical_json.hako
 lang/src/compiler/lib/return_emission_projector.hako
 lang/src/compiler/lib/function_region_stack_pop_projector.hako
 lang/src/compiler/lib/slot_registry_release_projector.hako
+lang/src/compiler/lib/typed_object_plan_refresh_projector.hako
 ```
 
 Promotion rule:

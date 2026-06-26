@@ -1,0 +1,36 @@
+{
+  "kind": "MirBuilderDirectStatePlanRefreshDerivedHakoOracleV1",
+  "non_claims": {
+    "abi_changed": 0,
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_collection_field_element_refresh": 0,
+    "direct_state_field_value_type_refresh": 0,
+    "full_finalize_module": 0,
+    "full_semantic_refresh": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module direct state plan refresh",
+  "vectors": [
+    {
+      "expect": {
+        "canonical_json_parity": 1,
+        "mutation_target_count": 1,
+        "shadow_candidate_family": "hakorune_mir_builder::direct_state_plan_refresh",
+        "shadow_candidate_kind": "DirectStatePlanRefreshShadowCandidateV1",
+        "shadow_candidate_stage": "direct_state_plan_refresh"
+      },
+      "inputs": {
+        "entrypoint": "direct_state_plan::refresh_module_direct_state_plans",
+        "plan_subject": "MirBuilder::finalize_module direct state plan refresh",
+        "projected_field_count": 8,
+        "publication_target_count": 1
+      },
+      "name": "direct_state_shadow_candidate_canonical_parity"
+    }
+  ]
+}

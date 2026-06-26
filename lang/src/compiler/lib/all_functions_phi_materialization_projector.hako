@@ -1,0 +1,611 @@
+// all_functions_phi_materialization_projector.hako — AllFunctionsPhiMaterializationHakoProjector
+//
+// Responsibility:
+// - project all-functions PHI materialization facts into a bounded shadow candidate
+// - package shadow metadata for canonical JSON parity
+//
+// Non-responsibility:
+// - Python oracle generation
+// - Hako artifact emission
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+
+using lang.compiler.lib.canonical_json as CanonicalJsonWriterBox
+using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box AllFunctionsPhiMaterializationHakoProjector {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" {
+      return "[freeze:contract][hako_mirbuilder]"
+    }
+    return "" + tag
+  }
+
+  _fail(tag, msg) {
+    tag = me._tag(tag)
+    return %{
+      "err" => 1,
+      "err_line" => tag + msg,
+      "shadow_record" => null,
+      "shadow_json" => ""
+    }
+  }
+
+  _ok(shadow_record, shadow_json) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_record" => shadow_record,
+      "shadow_json" => shadow_json
+    }
+  }
+
+  _require_map(value, label, tag) {
+    if value == null || BoxHelpers.is_map(value) != 1 {
+      return me._fail(tag, "[" + label + "] expected MapBox")
+    }
+    return null
+  }
+
+  _require_array(value, label, tag) {
+    if value == null || BoxHelpers.is_array(value) != 1 {
+      return me._fail(tag, "[" + label + "] expected ArrayBox")
+    }
+    return null
+  }
+
+  _require_present(value, label, tag) {
+    if value == null {
+      return me._fail(tag, "[" + label + "] missing")
+    }
+    return null
+  }
+
+  _require_text(value, label, expected, tag) {
+    local actual = "" + value
+    if actual != expected {
+      return me._fail(tag, "[" + label + "] expected " + expected + ", got " + actual)
+    }
+    return null
+  }
+
+  _has_string_item(items, expected) {
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return false
+    }
+    local i = 0
+    local n = items.length()
+    loop(i < n) {
+      if "" + items.get(i) == expected {
+        return true
+      }
+      i = i + 1
+    }
+    return false
+  }
+
+  _copy_any(value) {
+    if value == null {
+      return CompilerProjectionValueBox.create_null()
+    }
+    if value == true || value == false {
+      return CompilerProjectionValueBox.create_bool(value)
+    }
+    if BoxHelpers.is_array(value) == 1 {
+      return me._copy_array(value)
+    }
+    if BoxHelpers.is_map(value) == 1 {
+      return me._copy_object(value)
+    }
+    local text = "" + value
+    if StringHelpers.is_numeric_str(text) == 1 {
+      return CompilerProjectionValueBox.create_i64(text)
+    }
+    return CompilerProjectionValueBox.create_string(text)
+  }
+
+  _copy_array(arr) {
+    local out = CompilerProjectionValueBox.create_array()
+    local i = 0
+    local n = arr.length()
+    loop(i < n) {
+      CompilerProjectionValueBox.array_push(out, me._copy_any(arr.get(i)))
+      i = i + 1
+    }
+    return out
+  }
+
+  _copy_object(obj) {
+    local out = CompilerProjectionValueBox.create_object()
+    if obj == null {
+      return out
+    }
+    local keys = obj.keys()
+    if keys == null {
+      return out
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      CompilerProjectionValueBox.object_set(out, key, me._copy_any(obj.get(key)))
+      i = i + 1
+    }
+    return out
+  }
+
+  _validate_plan(plan_box, tag) {
+    local err = me._require_map(plan_box, "plan", tag)
+    if err != null {
+      return err
+    }
+    err = me._require_text(
+      BoxHelpers.map_get(plan_box.payload, "kind"),
+      "plan.kind",
+      "MirBuilderAllFunctionsPhiMaterializationPlanV1",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(plan_box.payload, "subject"),
+      "plan.subject",
+      "MirBuilder::finalize_module all-functions PHI materialization",
+      tag,
+    )
+    if err != null { return err }
+
+    local source_authority = BoxHelpers.map_get(plan_box.payload, "source_authority")
+    err = me._require_map(source_authority, "plan.source_authority", tag)
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(source_authority, "finalize"),
+      "plan.source_authority.finalize",
+      "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(source_authority, "delegate_plan"),
+      "plan.source_authority.delegate_plan",
+      "mirbuilder-phi-input-materialization-plan-v0.json",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(source_authority, "predecessor_plan"),
+      "plan.source_authority.predecessor_plan",
+      "mirbuilder-direct-state-plan-refresh-plan-v0.json",
+      tag,
+    )
+    if err != null { return err }
+
+    local execution_profile = BoxHelpers.map_get(plan_box.payload, "execution_profile")
+    err = me._require_map(execution_profile, "plan.execution_profile", tag)
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(execution_profile, "input"),
+      "plan.execution_profile.input",
+      "ASTNode::Literal(Integer(0))",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(execution_profile, "context"),
+      "plan.execution_profile.context",
+      "finalize_module",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(execution_profile, "module_transport"),
+      "plan.execution_profile.module_transport",
+      "MirModuleMinimalShell",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(execution_profile, "function_collection"),
+      "plan.execution_profile.function_collection",
+      "module.functions.values_mut()",
+      tag,
+    )
+    if err != null { return err }
+
+    local sweep_policy = BoxHelpers.map_get(plan_box.payload, "sweep_policy")
+    err = me._require_map(sweep_policy, "plan.sweep_policy", tag)
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(sweep_policy, "iteration"),
+      "plan.sweep_policy.iteration",
+      "for function in module.functions.values_mut()",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(sweep_policy, "delegate"),
+      "plan.sweep_policy.delegate",
+      "phi_input_materializer::materialize_all_phi_inputs",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(sweep_policy, "delegate_context"),
+      "plan.sweep_policy.delegate_context",
+      "finalize_module_all_functions",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(sweep_policy, "delegate_capability"),
+      "plan.sweep_policy.delegate_capability",
+      "PhiInputMaterialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(sweep_policy, "error_transport"),
+      "plan.sweep_policy.error_transport",
+      "ResultPropagatedByQuestionMark",
+      tag,
+    )
+    if err != null { return err }
+
+    local available_capabilities = BoxHelpers.map_get(plan_box.payload, "available_capabilities")
+    err = me._require_array(available_capabilities, "plan.available_capabilities", tag)
+    if err != null { return err }
+    if me._has_string_item(available_capabilities, "AllFunctionsPhiMaterialization") != true {
+      return me._fail(tag, "[plan.available_capabilities] missing AllFunctionsPhiMaterialization")
+    }
+
+    local result_contract = BoxHelpers.map_get(plan_box.payload, "result_contract")
+    err = me._require_map(result_contract, "plan.result_contract", tag)
+    if err != null { return err }
+    local mutates = BoxHelpers.map_get(result_contract, "mutates")
+    err = me._require_array(mutates, "plan.result_contract.mutates", tag)
+    if err != null { return err }
+    if mutates.length() != 2 {
+      return me._fail(tag, "[plan.result_contract.mutates] expected 2 entries")
+    }
+    err = me._require_text(
+      mutates.get(0),
+      "plan.result_contract.mutates[0]",
+      "module.functions[*].blocks",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      mutates.get(1),
+      "plan.result_contract.mutates[1]",
+      "module.functions[*].next_value_id",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(result_contract, "entrypoint"),
+      "plan.result_contract.entrypoint",
+      "MirBuilder::finalize_module all-functions PHI materialization sweep",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(result_contract, "minimal_path_expected_result"),
+      "plan.result_contract.minimal_path_expected_result",
+      "NoErrorReturn",
+      tag,
+    )
+    if err != null { return err }
+
+    err = me._require_text(
+      plan_box.shadow_json,
+      "plan.shadow_json",
+      CanonicalJsonWriterBox.canonicalize(plan_box.payload),
+      tag,
+    )
+    if err != null { return err }
+
+    local non_claims = BoxHelpers.map_get(plan_box.payload, "non_claims")
+    err = me._require_map(non_claims, "plan.non_claims", tag)
+    if err != null { return err }
+    local keys = non_claims.keys()
+    if keys == null {
+      return me._fail(tag, "[plan.non_claims] missing keys")
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      if StringHelpers.to_i64(non_claims.get(key)) != 0 {
+        return me._fail(tag, "[plan.non_claims] non-zero claim: " + key)
+      }
+      i = i + 1
+    }
+
+    return null
+  }
+
+  _validate_candidate(candidate_box, tag) {
+    local err = me._require_map(candidate_box, "candidate", tag)
+    if err != null {
+      return err
+    }
+    err = me._require_text(
+      BoxHelpers.map_get(candidate_box.payload, "kind"),
+      "candidate.kind",
+      "AllFunctionsPhiMaterializationShadowCandidateV1",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(candidate_box.payload, "family_id"),
+      "candidate.family_id",
+      "hakorune_mir_builder::all_functions_phi_materialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(candidate_box.payload, "stage_id"),
+      "candidate.stage_id",
+      "all_functions_phi_materialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(candidate_box.payload, "source_authority"),
+      "candidate.source_authority",
+      "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(candidate_box.payload, "refresh_timing"),
+      "candidate.refresh_timing",
+      "AfterTypedObjectPlanRefreshBeforeAllFunctionsPhiMaterialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(candidate_box.payload, "entrypoint"),
+      "candidate.entrypoint",
+      "MirBuilder::finalize_module all-functions PHI materialization sweep",
+      tag,
+    )
+    if err != null { return err }
+
+    local publication_targets = BoxHelpers.map_get(candidate_box.payload, "publication_targets")
+    err = me._require_array(publication_targets, "candidate.publication_targets", tag)
+    if err != null { return err }
+    if publication_targets.length() != 1 {
+      return me._fail(tag, "[candidate.publication_targets] expected 1 publication target")
+    }
+    err = me._require_text(
+      publication_targets.get(0),
+      "candidate.publication_targets[0]",
+      "module.functions.values_mut()",
+      tag,
+    )
+    if err != null { return err }
+
+    local projected_fields = BoxHelpers.map_get(candidate_box.payload, "projected_fields")
+    err = me._require_array(projected_fields, "candidate.projected_fields", tag)
+    if err != null { return err }
+    if projected_fields.length() != 8 {
+      return me._fail(tag, "[candidate.projected_fields] expected 8 fields")
+    }
+    err = me._require_text(projected_fields.get(0), "candidate.projected_fields[0]", "iteration", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(1), "candidate.projected_fields[1]", "delegate", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(2), "candidate.projected_fields[2]", "delegate_context", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(3), "candidate.projected_fields[3]", "delegate_capability", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(4), "candidate.projected_fields[4]", "error_transport", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(5), "candidate.projected_fields[5]", "function_collection", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(6), "candidate.projected_fields[6]", "module_transport", tag)
+    if err != null { return err }
+    err = me._require_text(projected_fields.get(7), "candidate.projected_fields[7]", "entrypoint", tag)
+    if err != null { return err }
+
+    if StringHelpers.to_i64(BoxHelpers.map_get(candidate_box.payload, "mutation_target_count")) != 1 {
+      return me._fail(tag, "[candidate.mutation_target_count] expected 1")
+    }
+
+    err = me._require_text(
+      candidate_box.shadow_json,
+      "candidate.shadow_json",
+      CanonicalJsonWriterBox.canonicalize(candidate_box.payload),
+      tag,
+    )
+    if err != null { return err }
+    return null
+  }
+
+  _validate_parity_gate(parity_gate, tag) {
+    local err = me._require_map(parity_gate, "parity_gate", tag)
+    if err != null {
+      return err
+    }
+    err = me._require_text(
+      BoxHelpers.map_get(parity_gate.payload, "kind"),
+      "parity_gate.kind",
+      "AllFunctionsPhiMaterializationParityGateV1",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(parity_gate.payload, "family_id"),
+      "parity_gate.family_id",
+      "hakorune_mir_builder::all_functions_phi_materialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(parity_gate.payload, "stage_id"),
+      "parity_gate.stage_id",
+      "all_functions_phi_materialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(parity_gate.payload, "comparison"),
+      "parity_gate.comparison",
+      "canonical_json",
+      tag,
+    )
+    if err != null { return err }
+    if StringHelpers.to_i64(BoxHelpers.map_get(parity_gate.payload, "expected_match")) != 1 {
+      return me._fail(tag, "[parity_gate.expected_match] expected 1")
+    }
+    err = me._require_text(
+      parity_gate.shadow_json,
+      "parity_gate.shadow_json",
+      CanonicalJsonWriterBox.canonicalize(parity_gate.payload),
+      tag,
+    )
+    if err != null { return err }
+    return null
+  }
+
+  _validate_token(token, label, expected_kind, expected_value, tag) {
+    local err = me._require_map(token, label, tag)
+    if err != null {
+      return err
+    }
+    err = me._require_text(
+      BoxHelpers.map_get(token.payload, "kind"),
+      label + ".kind",
+      expected_kind,
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(token.payload, "family_id"),
+      label + ".family_id",
+      "hakorune_mir_builder::all_functions_phi_materialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(token.payload, "stage_id"),
+      label + ".stage_id",
+      "all_functions_phi_materialization",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      BoxHelpers.map_get(token.payload, "value"),
+      label + ".value",
+      expected_value,
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      token.shadow_json,
+      label + ".shadow_json",
+      CanonicalJsonWriterBox.canonicalize(token.payload),
+      tag,
+    )
+    if err != null { return err }
+    return null
+  }
+
+  _project_shadow_output(hako_shadow_box) {
+    return me._copy_any(hako_shadow_box.payload)
+  }
+
+  project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local tag = me._tag(null)
+    local err = me._validate_plan(plan, tag)
+    if err != null {
+      return err
+    }
+    err = me._require_present(python_oracle, "python_oracle", tag)
+    if err != null { return err }
+    err = me._require_present(hako_shadow, "hako_shadow", tag)
+    if err != null { return err }
+    err = me._require_present(parity_gate, "parity_gate", tag)
+    if err != null { return err }
+    err = me._require_present(promotion_token, "promotion_token", tag)
+    if err != null { return err }
+    err = me._require_present(retirement_token, "retirement_token", tag)
+    if err != null { return err }
+
+    err = me._validate_candidate(python_oracle, tag)
+    if err != null { return err }
+    err = me._validate_candidate(hako_shadow, tag)
+    if err != null { return err }
+    err = me._validate_parity_gate(parity_gate, tag)
+    if err != null { return err }
+    err = me._validate_token(
+      promotion_token,
+      "promotion_token",
+      "AllFunctionsPhiMaterializationPromotionTokenV1",
+      "promotion",
+      tag,
+    )
+    if err != null { return err }
+    err = me._validate_token(
+      retirement_token,
+      "retirement_token",
+      "AllFunctionsPhiMaterializationRetirementTokenV1",
+      "retirement",
+      tag,
+    )
+    if err != null { return err }
+    err = me._require_text(
+      python_oracle.shadow_json,
+      "python_oracle.shadow_json",
+      hako_shadow.shadow_json,
+      tag,
+    )
+    if err != null { return err }
+
+    local shadow_record = CompilerProjectionValueBox.create_object()
+    CompilerProjectionValueBox.object_set(shadow_record, "schema_version", CompilerProjectionValueBox.create_i64(0))
+    CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("AllFunctionsPhiMaterializationShadowCandidateV1"))
+    CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::all_functions_phi_materialization"))
+    CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("all_functions_phi_materialization"))
+    CompilerProjectionValueBox.object_set(shadow_record, "subject", me._copy_any(BoxHelpers.map_get(plan.payload, "subject")))
+    CompilerProjectionValueBox.object_set(shadow_record, "source_authority", me._copy_any(BoxHelpers.map_get(plan.payload, "source_authority")))
+    CompilerProjectionValueBox.object_set(shadow_record, "refresh_timing", CompilerProjectionValueBox.create_string("AfterTypedObjectPlanRefreshBeforeAllFunctionsPhiMaterialization"))
+    CompilerProjectionValueBox.object_set(shadow_record, "publication_targets", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "publication_targets")))
+    CompilerProjectionValueBox.object_set(shadow_record, "iteration", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "iteration")))
+    CompilerProjectionValueBox.object_set(shadow_record, "delegate", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "delegate")))
+    CompilerProjectionValueBox.object_set(shadow_record, "delegate_context", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "delegate_context")))
+    CompilerProjectionValueBox.object_set(shadow_record, "delegate_capability", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "delegate_capability")))
+    CompilerProjectionValueBox.object_set(shadow_record, "error_transport", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "error_transport")))
+    CompilerProjectionValueBox.object_set(shadow_record, "function_collection", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "function_collection")))
+    CompilerProjectionValueBox.object_set(shadow_record, "module_transport", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "module_transport")))
+    CompilerProjectionValueBox.object_set(shadow_record, "entrypoint", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "entrypoint")))
+    CompilerProjectionValueBox.object_set(shadow_record, "projected_fields", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "projected_fields")))
+    CompilerProjectionValueBox.object_set(shadow_record, "mutation_target_count", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "mutation_target_count")))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", me._copy_any(plan.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", me._copy_any(python_oracle.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", me._copy_any(hako_shadow.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", me._copy_any(parity_gate.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", me._copy_any(promotion_token.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", me._copy_any(retirement_token.payload))
+    return me._ok(shadow_record, hako_shadow.shadow_json)
+  }
+
+  project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local result = me.project_shadow_record(
+      plan,
+      python_oracle,
+      hako_shadow,
+      parity_gate,
+      promotion_token,
+      retirement_token,
+    )
+    if result.err != 0 {
+      return result.shadow_json
+    }
+    return result.shadow_json
+  }
+}

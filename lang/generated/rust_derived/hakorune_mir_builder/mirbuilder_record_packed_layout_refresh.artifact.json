@@ -1,0 +1,63 @@
+{
+  "claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "record_packed_layout_collection_field_element_refresh": 0,
+    "record_packed_layout_field_value_type_refresh": 0,
+    "record_packed_layout_refresh": 1,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-record-packed-layout-refresh",
+    "version": "mirbuilder-record-packed-layout-refresh-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-plan-v0.json",
+      "sha256": "016935902c10219215e98b224c0c76306df88c00a59e1ff274f68e005e23e682"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-derived-hako-oracle-v0.json",
+      "sha256": "be657f3f0f31ca006dc7df379dbbac8309d7ff324079ba58e8f9d95fc9263719"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-execution-projection-v0.json",
+      "sha256": "4829d2acc33a214b411850ab6a13f4af70a894e31052001587f1ddef76439414"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-derived-hako-recipe-v0.json",
+      "sha256": "0a0d930aa6ad0639130dc2eea608b5344847957ac8f08b990aacb747da17e0ed"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-derived-hako-verifier-result-v0.json",
+      "sha256": "261a39e139859013a550a1e0cbee025b4e3d1eed5e007c04f6c0a869d440a698"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_record_packed_layout_refresh.hako",
+    "hako_sha256": "9ac6ab79fdb986618371ff3f5d23f02405ed7b2d10a86ca8e907b2de0519c10f"
+  },
+  "pilot_scope": "RecordPackedLayoutRefresh_prepared_record_packed_layout_refresh_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/semantic_refresh.rs",
+        "sha256": "893393873d7c6731f01a3831cea9c12c4d2c5787865b2897beefe86e0001815b"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

@@ -84,6 +84,45 @@ semantic families such as parser policy, resolution, lifecycle policy,
 FlowPlanner, recipe/verifier, loop/PHI policy, and canonical lowering require a
 Hako-native adoption decision before Source Selfhost is claimed.
 
+## Frontier and Directability
+
+The semantic frontier and the materialization decision are separate. The
+frontier chooses the next source edge; directability chooses whether that edge
+is a leaf that can be materialized now or a composite owner that must be
+decomposed first.
+
+Use these outcomes explicitly:
+
+```text
+AllowLeafArtifact:
+  the analyzer points at a leaf owner and the child authority is explicit
+
+DenyCompositeNeedsDecomposition:
+  the analyzer still points at a composite owner
+
+DenyMissingChildAuthority:
+  a child owner exists, but no directability evidence exists yet
+```
+
+Do not hand-pin the next edge in task-order when the analyzer can derive it.
+Do not turn a composite owner into one large derived artifact just because the
+frontier reports it next. The slice shape comes from directability, not from
+the frontier token alone.
+
+Example:
+
+```text
+finalize_module.record_packed_layout_refresh:
+  composite owner -> decompose first
+
+finalize_module.typed_object_plan_refresh:
+  first leaf owner under that composite -> may be materialized
+```
+
+Hako adoption is a separate axis from materialization. A family can be a
+selected generated artifact, a derived mainline artifact, or a Hako-adopted
+native source owner. Those states do not change the frontier rule above.
+
 ## Authority Vocabulary
 
 During Derived phases:

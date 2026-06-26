@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Landed
 Date: 2026-06-26
 Card: MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-DERIVED-HAKO-ARTIFACT-001
 ---

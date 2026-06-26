@@ -1,0 +1,63 @@
+{
+  "claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_collection_field_element_refresh": 0,
+    "direct_state_field_value_type_refresh": 0,
+    "direct_state_plan_refresh": 1,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-direct-state-plan-refresh",
+    "version": "mirbuilder-direct-state-plan-refresh-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-plan-v0.json",
+      "sha256": "b985a7837527aba6ac1f566de931ccb700a018c9b9ef6647eda267278ed49cd9"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-oracle-v0.json",
+      "sha256": "acb9e819da9191a23bbcda9a6bb1887e25376b37f5ec46a7e51e0b0b9ed781f5"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-execution-projection-v0.json",
+      "sha256": "5e290d38c09b26c29ac7d902c6f3203dbea214f66d88e29052882d9ca6493650"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-recipe-v0.json",
+      "sha256": "dda8a0971f89b82887114fb6394cab0f3ade7149fa15f1c9658118728c3932c5"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-verifier-result-v0.json",
+      "sha256": "76f99b1ecce1d1a35bfdfe54c9a12879301e6997b3c966132ef53487294675ad"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.hako",
+    "hako_sha256": "d4a9aa6e7d5114721a61d15b7c4ca9415c1e8571ede3b69caebf275a7cd8e5d9"
+  },
+  "pilot_scope": "DirectStatePlanRefresh_prepared_direct_state_plan_refresh_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/direct_state_plan.rs",
+        "sha256": "c8d49def750f85ad1b99d9dad8bb35427c53bb18fc2df6c83584ea5f7ed33c25"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

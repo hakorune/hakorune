@@ -23,6 +23,14 @@ Scope:
   - `slot_registry_release_projector.hako`
 - fourth shadow-projector support library:
   - `module_metadata_publication_projector.hako`
+- fifth shadow-projector support library:
+  - `record_packed_layout_refresh_projector.hako`
+- sixth shadow-projector support library:
+  - `typed_object_plan_refresh_projector.hako`
+- seventh shadow-projector support library:
+  - `direct_state_plan_refresh_projector.hako`
+- eighth shadow-projector support library:
+  - `all_functions_phi_materialization_projector.hako`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`

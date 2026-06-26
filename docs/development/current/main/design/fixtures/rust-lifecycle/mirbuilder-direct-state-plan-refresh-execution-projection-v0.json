@@ -1,0 +1,62 @@
+{
+  "behavior": {
+    "projector_validation": "Yes",
+    "shadow_projection": "CanonicalJsonParity",
+    "shadow_result_published": "Yes"
+  },
+  "directability": {
+    "direct_state_plan_refresh": "Allow",
+    "full_metadata_context": "Deny",
+    "host_env_lookup": "Deny",
+    "prepared_shadow_projection": "Allow"
+  },
+  "execution_scope": "PreparedDirectStatePlanRefreshState",
+  "inputs": {
+    "hako_shadow_transport": "MapBox",
+    "parity_gate_transport": "MapBox",
+    "plan_transport": "MapBox",
+    "promotion_token_transport": "MapBox",
+    "python_oracle_transport": "MapBox",
+    "retirement_token_transport": "MapBox"
+  },
+  "kind": "DirectStatePlanRefreshExecutionProjectionV1",
+  "methods": {
+    "build_plan": "StaticCall + MethodCall + ReturnValue",
+    "build_shadow_candidate": "StaticCall + MethodCall + ReturnValue",
+    "project_shadow_record": "StaticCall + SetField + ReturnValue"
+  },
+  "mutation_frame": {
+    "hako_shadow": "read-only",
+    "oracle": "read-only",
+    "parity_gate": "read-only",
+    "plan": "read-only",
+    "promotion_token": "read-only",
+    "retirement_token": "read-only",
+    "shadow_json": "exclusive local result",
+    "shadow_record": "exclusive local result"
+  },
+  "non_claims": {
+    "abi_changed": 0,
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "direct_state_collection_field_element_refresh": 0,
+    "direct_state_field_value_type_refresh": 0,
+    "full_finalize_module": 0,
+    "full_semantic_refresh": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "runtime_fallback": 0
+  },
+  "result_contract": {
+    "entrypoint": "direct_state_plan::refresh_module_direct_state_plans",
+    "minimal_path_expected_result": "NoErrorReturn",
+    "mutates": [
+      "module.metadata.direct_state_plans"
+    ]
+  },
+  "result_semantics": "ShadowRecord",
+  "result_transport": "DirectStatePlanRefreshResultBox",
+  "schema_version": 0,
+  "source_plan": "MirBuilderDirectStatePlanRefreshPlanV1"
+}
