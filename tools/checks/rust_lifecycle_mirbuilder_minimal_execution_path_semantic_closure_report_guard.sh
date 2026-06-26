@@ -25,20 +25,15 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.record_packed_layout_refresh"
-assert gap["callsite"] == "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans"
-assert gap["required_capability"] == "RecordAndPackedLayoutRefresh"
-assert gap["next_slice_token"] == "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001"
+assert gap["edge_id"] == "minimal_path.completion_design_stop"
+assert gap["callsite"] == "MinimalMirBuilderExecutionPath -> post-finalize completion design stop"
+assert gap["required_capability"] == "MinimalExecutionPathCompletionDesignReviewRequired"
+assert gap["next_slice_token"] == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 decomposition = report["materialization_decomposition"]
-assert decomposition["owner_kind"] == "CompositeOwnerNeedsDecomposition"
+assert decomposition["owner_kind"] == "CompletionDesignStopReached"
 assert decomposition["composite_owner"]["edge_id"] == gap["edge_id"]
-edge_index = next(i for i, edge in enumerate(report["edges"]) if edge["edge_id"] == gap["edge_id"])
-expected_children = report["edges"][edge_index + 1 :]
-assert expected_children, "composite decomposition must expose child owners"
-assert [child["edge_id"] for child in decomposition["ordered_child_owners"]] == [
-    edge["edge_id"] for edge in expected_children
-]
-assert decomposition["first_leaf_owner"]["edge_id"] == expected_children[0]["edge_id"]
+assert decomposition["ordered_child_owners"] == []
+assert decomposition["first_leaf_owner"]["edge_id"] == gap["edge_id"]
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -193,6 +188,20 @@ assert module_metadata_publication_edge["evidence_tier"] == "VerifiedArtifact"
 assert module_metadata_publication_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert module_metadata_publication_edge["route_state"] == "DerivedShadow"
 assert module_metadata_publication_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_metadata_publication.artifact.json"
+typed_object_plan_refresh_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.typed_object_plan_refresh"]
+assert len(typed_object_plan_refresh_edges) == 1
+typed_object_plan_refresh_edge = typed_object_plan_refresh_edges[0]
+assert typed_object_plan_refresh_edge["evidence_tier"] == "VerifiedArtifact"
+assert typed_object_plan_refresh_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert typed_object_plan_refresh_edge["route_state"] == "DerivedShadow"
+assert typed_object_plan_refresh_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_object_plan_refresh.artifact.json"
+direct_state_plan_refresh_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.direct_state_plan_refresh"]
+assert len(direct_state_plan_refresh_edges) == 1
+direct_state_plan_refresh_edge = direct_state_plan_refresh_edges[0]
+assert direct_state_plan_refresh_edge["evidence_tier"] == "VerifiedArtifact"
+assert direct_state_plan_refresh_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert direct_state_plan_refresh_edge["route_state"] == "DerivedShadow"
+assert direct_state_plan_refresh_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

@@ -71,6 +71,14 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
     "ModuleMetadataPublication": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_metadata_publication.artifact.json",
+    "TypedObjectPlanRefresh": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_object_plan_refresh.artifact.json",
+    "DirectStatePlanRefresh": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.artifact.json",
+    "RecordAndPackedLayoutRefresh": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_record_packed_layout_refresh.artifact.json",
+    "AllFunctionsPhiMaterialization": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_all_functions_phi_materialization.artifact.json",
 }
 
 
@@ -178,7 +186,7 @@ def _classify_edge(row: dict[str, Any], artifact_contracts: dict[str, dict[str, 
     return classified
 
 
-def _first_executable_gap(edges: list[dict[str, Any]]) -> dict[str, Any]:
+def _first_executable_gap(edges: list[dict[str, Any]], design_stop: dict[str, Any]) -> dict[str, Any]:
     for edge in edges:
         if edge["semantic_status"] != "Available":
             continue
@@ -193,10 +201,35 @@ def _first_executable_gap(edges: list[dict[str, Any]]) -> dict[str, Any]:
             "next_slice_token": _materialization_slice_for(edge["required_capability"]),
             "reason": "Earliest source-order PlanOnly edge without executable Hako artifact",
         }
-    raise AssertionError("no executable materialization gap found")
+    return {
+        "edge_id": design_stop["edge_id"],
+        "callsite": design_stop["callsite"],
+        "required_capability": design_stop["deny_detail"],
+        "next_slice_token": design_stop["next_slice_token"],
+        "reason": "Selected source edges reached the explicit completion design stop",
+    }
 
 
 def _materialization_decomposition(edges: list[dict[str, Any]], first_gap: dict[str, Any]) -> dict[str, Any]:
+    if first_gap["edge_id"] == "minimal_path.completion_design_stop":
+        return {
+            "owner_kind": "CompletionDesignStopReached",
+            "composite_owner": {
+                "edge_id": first_gap["edge_id"],
+                "callsite": first_gap["callsite"],
+                "required_capability": first_gap["required_capability"],
+                "next_slice_token": first_gap["next_slice_token"],
+            },
+            "ordered_child_owners": [],
+            "first_leaf_owner": {
+                "edge_id": first_gap["edge_id"],
+                "callsite": first_gap["callsite"],
+                "required_capability": first_gap["required_capability"],
+                "evidence_tier": "Unsupported",
+                "artifact_materialization": "NotApplicable",
+                "route_state": "NotApplicable",
+            },
+        }
     gap_index = next(
         index for index, edge in enumerate(edges) if edge["edge_id"] == first_gap["edge_id"]
     )
@@ -301,7 +334,7 @@ def build_report() -> dict[str, Any]:
 
     artifact_contracts = _executable_artifact_contracts()
     edges = [_classify_edge(edge, artifact_contracts) for edge in selected_edges]
-    first_gap = _first_executable_gap(edges)
+    first_gap = _first_executable_gap(edges, result["first_unsupported_edge"])
     decomposition = _materialization_decomposition(edges, first_gap)
     counts = {
         "evidence_tier": dict(sorted(Counter(edge["evidence_tier"] for edge in edges).items())),
@@ -361,40 +394,29 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.record_packed_layout_refresh", "first materialization gap drift")
+    require(first_gap["edge_id"] == "minimal_path.completion_design_stop", "design stop frontier drift")
     require(
-        first_gap["required_capability"] == "RecordAndPackedLayoutRefresh",
-        "first materialization gap capability drift",
+        first_gap["required_capability"] == "MinimalExecutionPathCompletionDesignReviewRequired",
+        "design stop capability drift",
     )
     require(
         first_gap["next_slice_token"]
-        == "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001",
-        "first materialization gap next slice drift",
+        == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+        "design stop next slice drift",
     )
     decomposition = report["materialization_decomposition"]
     require(
-        decomposition["owner_kind"] == "CompositeOwnerNeedsDecomposition",
-        "composite materialization owner kind drift",
+        decomposition["owner_kind"] == "CompletionDesignStopReached",
+        "design stop owner kind drift",
     )
     require(
         decomposition["composite_owner"]["edge_id"] == first_gap["edge_id"],
-        "composite materialization owner drift",
+        "design stop owner drift",
     )
-    gap_index = next(
-        index
-        for index, edge in enumerate(report["edges"])
-        if edge["edge_id"] == first_gap["edge_id"]
-    )
-    expected_children = report["edges"][gap_index + 1 :]
-    require(expected_children, "composite materialization decomposition must expose children")
+    require(decomposition["ordered_child_owners"] == [], "design stop should not expose child owners")
     require(
-        [child["edge_id"] for child in decomposition["ordered_child_owners"]]
-        == [edge["edge_id"] for edge in expected_children],
-        "composite child owner order drift",
-    )
-    require(
-        decomposition["first_leaf_owner"]["edge_id"] == expected_children[0]["edge_id"],
-        "first leaf owner drift",
+        decomposition["first_leaf_owner"]["edge_id"] == first_gap["edge_id"],
+        "design stop first leaf drift",
     )
     slot_registry_release = next(
         edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.slot_registry_release"
@@ -415,6 +437,66 @@ def validate_report(report: dict[str, Any]) -> None:
         slot_registry_release.get("provider_reference", {}).get("manifest_path")
         == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
         "slot registry release provider reference drift",
+    )
+    typed_object_plan_refresh = next(
+        edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.typed_object_plan_refresh"
+    )
+    require(
+        typed_object_plan_refresh["evidence_tier"] == "VerifiedArtifact",
+        "typed object plan refresh evidence tier drift",
+    )
+    require(
+        typed_object_plan_refresh["artifact_materialization"] == "ExecutableArtifactPresent",
+        "typed object plan refresh materialization drift",
+    )
+    require(
+        typed_object_plan_refresh["route_state"] == "DerivedShadow",
+        "typed object plan refresh route state drift",
+    )
+    require(
+        typed_object_plan_refresh.get("provider_reference", {}).get("manifest_path")
+        == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_object_plan_refresh.artifact.json",
+        "typed object plan refresh provider reference drift",
+    )
+    direct_state_plan_refresh = next(
+        edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.direct_state_plan_refresh"
+    )
+    require(
+        direct_state_plan_refresh["evidence_tier"] == "VerifiedArtifact",
+        "direct state plan refresh evidence tier drift",
+    )
+    require(
+        direct_state_plan_refresh["artifact_materialization"] == "ExecutableArtifactPresent",
+        "direct state plan refresh materialization drift",
+    )
+    require(
+        direct_state_plan_refresh["route_state"] == "DerivedShadow",
+        "direct state plan refresh route state drift",
+    )
+    require(
+        direct_state_plan_refresh.get("provider_reference", {}).get("manifest_path")
+        == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.artifact.json",
+        "direct state plan refresh provider reference drift",
+    )
+    all_functions_phi_materialization = next(
+        edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.all_functions_phi_materialization"
+    )
+    require(
+        all_functions_phi_materialization["evidence_tier"] == "VerifiedArtifact",
+        "all-functions PHI evidence tier drift",
+    )
+    require(
+        all_functions_phi_materialization["artifact_materialization"] == "ExecutableArtifactPresent",
+        "all-functions PHI materialization drift",
+    )
+    require(
+        all_functions_phi_materialization["route_state"] == "DerivedShadow",
+        "all-functions PHI route state drift",
+    )
+    require(
+        all_functions_phi_materialization.get("provider_reference", {}).get("manifest_path")
+        == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_all_functions_phi_materialization.artifact.json",
+        "all-functions PHI provider reference drift",
     )
     for edge in report["edges"]:
         require(edge["semantic_status"] in {"Available", "ProfileExcluded"}, "non-closed edge in report")
@@ -448,7 +530,7 @@ def run_drift_probes(report: dict[str, Any]) -> None:
     probes: list[tuple[str, list[Any], Any]] = [
         ("smoke treated as executable", ["edges"], None),
         ("first gap hand-edited", ["first_executable_materialization_gap", "edge_id"], "prepare_module.state_install"),
-        ("decomposition child order drift", ["materialization_decomposition", "ordered_child_owners"], []),
+        ("design stop child order drift", ["materialization_decomposition", "ordered_child_owners"], [{"edge_id": "bogus"}]),
         ("first leaf owner drift", ["materialization_decomposition", "first_leaf_owner", "edge_id"], "prepare_module.state_install"),
         ("full path mainline claim", ["closure", "full_path_mainline_eligible"], True),
         ("source selfhost claim", ["claims", "source_selfhost_claim"], 1),
