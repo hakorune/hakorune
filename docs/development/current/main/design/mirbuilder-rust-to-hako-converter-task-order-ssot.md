@@ -548,9 +548,10 @@ landed: current docs を thin pointer 化
 queued: task-order SSOT を active next 3 + parked index へ圧縮
   boundary=keep task-order as pointer; detailed artifact/evidence rows belong
   to semantic closure reports, phase cards, and git history
-queued: compiler projector helper support box
-  boundary=small lang/src/compiler/lib helper only (_tag/_fail/require/copy);
-  no projector framework or semantic DSL
+landed: compiler projector helper support box v0
+  boundary=small lang/src/compiler/lib helper only (_tag/fail/require/copy);
+  first users are ReturnEmission, FunctionRegionStackPop, and
+  SlotRegistryRelease projectors; no projector framework or semantic DSL
 landed: Python semantic projector freeze reverse coverage hardening
   boundary=reverse-enumerate tools/rust_lifecycle/*.py roles and require
   exception tokens for new SemanticProjector files

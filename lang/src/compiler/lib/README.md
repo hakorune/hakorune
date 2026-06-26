@@ -15,6 +15,7 @@ Scope:
   - `text_builder.hako`
   - `canonical_json.hako`
   - `projection_value.hako`
+  - `projector_support.hako`
 - first shadow-projector support library:
   - `return_emission_projector.hako`
 - second shadow-projector support library:
