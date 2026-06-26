@@ -123,6 +123,47 @@ Hako adoption is a separate axis from materialization. A family can be a
 selected generated artifact, a derived mainline artifact, or a Hako-adopted
 native source owner. Those states do not change the frontier rule above.
 
+## Composition Integration Owners
+
+Composition closure cards are integration owners, not semantic family owners.
+They may wire existing artifacts together, validate manifest / contract
+closure, observe same-state handoff, and report the first stable composition
+red edge.
+
+They must not own or recopy family semantics:
+
+```text
+owned:
+  artifact call graph order
+  state handoff wiring
+  manifest / contract closure checks
+  same-state execution smoke
+  first composition red edge detection
+
+not owned:
+  ReturnEmission semantics
+  ModuleMetadataPublication semantics
+  refresh-family semantics
+  allocation policy semantics
+  new transport policy
+  route fallback policy
+```
+
+Required acceptance for such cards:
+
+```text
+semantic_recipe_recopy = 0
+new_semantic_projection = 0
+existing_contracts_consumed = 1
+same_state_handoff_observed = 1
+first_red_edge_if_any_is_stable = 1
+standalone_smoke_aggregation_as_success = 0
+```
+
+If a composition owner exposes a red edge, the next owner comes from that
+observed edge plus directability classification. Do not use the composition
+owner as permission to create a larger semantic artifact.
+
 ## Authority Vocabulary
 
 During Derived phases:

@@ -267,14 +267,18 @@ history, not in this task-order SSOT.
    boundary=review the explicit design-stop frontier and derive the next
    executable owner only after the frontier review names one
    semantic_authority=semantic closure frontier plus the design-stop card
-   non_authority=standalone smoke aggregation or full minimal-path mainline
+   required_shape=integration owner only; consume existing contracts and
+   observe same-state handoff without recopying family semantics
+   non_authority=standalone smoke aggregation, new semantic projection, or
+   full minimal-path mainline
 
 2. First composed red edge
    status=derived by the composed harness/guard, not hand-selected
    boundary=stable state/transport/linkage mismatch if the frontier review
    resolves to a composite owner
    semantic_authority=executable composed result
-   non_authority=manual next-owner selection
+   non_authority=manual next-owner selection or using the composed closure as
+   permission for a larger semantic artifact
 
 3. Next executable owner selection
    status=parked until the frontier review names one
@@ -542,6 +546,14 @@ Keep this lane separate from semantic converter slices:
 landed: guard表示の false-green 修正
 landed: current docs を thin pointer 化
 queued: task-order SSOT を active next 3 + parked index へ圧縮
+  boundary=keep task-order as pointer; detailed artifact/evidence rows belong
+  to semantic closure reports, phase cards, and git history
+queued: compiler projector helper support box
+  boundary=small lang/src/compiler/lib helper only (_tag/_fail/require/copy);
+  no projector framework or semantic DSL
+queued: Python semantic projector freeze reverse coverage hardening
+  boundary=reverse-enumerate tools/rust_lifecycle/*.py roles and require
+  exception tokens for new SemanticProjector files
 queued: mirbuilder_family_artifacts.py 分割
   boundary=behavior_preserving_split_only
 queued: leaf projection validator 二重化を整理
