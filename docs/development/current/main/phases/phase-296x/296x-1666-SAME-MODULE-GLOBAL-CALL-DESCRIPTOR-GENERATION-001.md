@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Superseded by 296x-1670, 296x-1673, and 296x-1674
 Date: 2026-06-24
 Scope: Select the next descriptor-generation owner after extern route need rows.
 ---

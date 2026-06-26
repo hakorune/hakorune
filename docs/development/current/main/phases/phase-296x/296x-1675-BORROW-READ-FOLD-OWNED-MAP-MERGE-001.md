@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Superseded by 296x-1706 and 296x-1733
 Date: 2026-06-24
 Scope: Promote the first owned read-fold consumer into direct lowering.
 ---
