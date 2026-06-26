@@ -110,12 +110,12 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.record_packed_layout_refresh as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
-  The record/packed layout artifact is landed. The next stop is the explicit
-  minimal-path completion review; do not invent a new executable owner before
-  the frontier resolves. Full minimal-path mainline selection, backend route,
+  The composed execution route is landed. The next stop is the explicit
+  adoption-decision revisit; do not invent a new executable owner before the
+  frontier resolves. Full minimal-path mainline selection, backend route,
   ABI, runtime fallback, and source selfhost remain unselected.
 
 latest design decision:

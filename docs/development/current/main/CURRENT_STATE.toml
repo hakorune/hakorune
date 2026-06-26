@@ -267,12 +267,12 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1756-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001.md"
-latest_card_summary = """Next implementation blocker: connect the landed
-minimal-path derived artifacts through one prepared-state Hako call graph.
-Docs-only closeout is forbidden; a code/artifact delta and same-state handoff
-observation are required."""
+latest_card_summary = """Composed execution route landed as a same-state
+handoff over existing minimal-path derived artifacts. The next decision
+revisits allocation-policy Hako adoption; docs-only closeout remains
+forbidden."""
 
-current_blocker_token = "MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001"
+current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

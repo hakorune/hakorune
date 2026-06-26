@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Landed
 Date: 2026-06-27
 Card: MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001
 ---
@@ -103,3 +103,9 @@ MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
 
 If red, the next owner is the stable composition red edge emitted by this
 card's harness or guard.
+
+## Closeout
+
+The composed route guard landed and proved same-state handoff across the
+existing prepared-state artifacts without introducing a new backend route,
+ABI, or runtime fallback.
