@@ -15,6 +15,7 @@ from family_artifact_builders import (
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
+from mirbuilder_optional_map_converter import require_immutable_leaf_projection_plan
 from shared_family_generator import read_json, run_validated_family_generator, stable_json, write_if_changed
 from verified_hako_family_ir import op
 
@@ -41,9 +42,11 @@ def validate_type_context_string_literal(facts: dict[str, Any], plan: dict[str, 
         raise SystemExit("TypeContext.string_literals transport mismatch")
     if field.get("iteration_observed") is not False or field.get("map_identity_escapes") is not False:
         raise SystemExit("TypeContext.string_literals must be point-lookup only")
-    plans = {row["id"]: row for row in plan["plans"]}
-    if plans["TypeContext.string_literals"].get("shape_rule") != "map.immutable_leaf_projection":
-        raise SystemExit("TypeContext.string_literals must use map.immutable_leaf_projection")
+    require_immutable_leaf_projection_plan(
+        plan,
+        plan_id="TypeContext.string_literals",
+        error_type=SystemExit,
+    )
     body_facts = {row["id"]: row for row in facts["body_facts"]}
     if body_facts.get("map_value::string_literal", {}).get("value_projection") != "ImmutableStringAtom":
         raise SystemExit("TypeContext string_literal projection mismatch")

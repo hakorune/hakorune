@@ -13,6 +13,9 @@ from mirbuilder_storage_access_facts import (
 from verified_hako_family_ir import HakoMethodIR, op
 
 
+IMMUTABLE_LEAF_PROJECTION_RULE = "map.immutable_leaf_projection"
+
+
 def _body_facts_by_id(facts: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {row["id"]: row for row in facts.get("body_facts", [])}
 
@@ -31,6 +34,29 @@ def _require_body(
         raise ValueError(f"Deny(UnsupportedResolvedCallTarget): {method_id}")
     if body_fact.get("selected_field") != field:
         raise ValueError(f"Deny(UnsupportedDirectShape): {method_id} selected field")
+
+
+def require_immutable_leaf_projection_plan(
+    plan: dict[str, Any],
+    *,
+    plan_id: str,
+    expected_plan_kind: str | None = None,
+    expected_value_transport: str | None = None,
+    error_type: type[BaseException] = ValueError,
+) -> dict[str, Any]:
+    """Return the plan row that owns immutable leaf projection acceptance."""
+
+    plan_entries = {row["id"]: row for row in plan.get("plans", [])}
+    field_plan = plan_entries.get(plan_id)
+    if field_plan is None:
+        raise error_type(f"Deny(UnsupportedDirectShape): missing plan {plan_id}")
+    if expected_plan_kind is not None and field_plan.get("plan_kind") != expected_plan_kind:
+        raise error_type(f"Deny(UnsupportedTypeTransport): expected {expected_plan_kind} field plan")
+    if field_plan.get("shape_rule") != IMMUTABLE_LEAF_PROJECTION_RULE:
+        raise error_type(f"Deny(UnsupportedDirectShape): expected {IMMUTABLE_LEAF_PROJECTION_RULE}")
+    if expected_value_transport is not None and field_plan.get("value_transport") != expected_value_transport:
+        raise error_type(f"Deny(UnsupportedTypeTransport): expected {expected_value_transport} plan")
+    return field_plan
 
 
 def compile_optional_copy_default_map_methods(
@@ -282,14 +308,12 @@ def compile_immutable_leaf_projection_map_methods(
     if field_fact.get("map_identity_escapes") is not False:
         raise ValueError("Deny(ReturnedReadBorrow): map identity must not escape")
 
-    plan_entries = {row["id"]: row for row in plan.get("plans", [])}
-    field_plan = plan_entries.get(f"{type_name}.{field_name}")
-    if field_plan is None or field_plan.get("plan_kind") != "MapBox":
-        raise ValueError("Deny(UnsupportedTypeTransport): expected MapBox field plan")
-    if field_plan.get("shape_rule") != "map.immutable_leaf_projection":
-        raise ValueError("Deny(UnsupportedDirectShape): expected map.immutable_leaf_projection")
-    if field_plan.get("value_transport") != "ImmutableStringAtom":
-        raise ValueError("Deny(UnsupportedTypeTransport): expected ImmutableStringAtom plan")
+    require_immutable_leaf_projection_plan(
+        plan,
+        plan_id=f"{type_name}.{field_name}",
+        expected_plan_kind="MapBox",
+        expected_value_transport="ImmutableStringAtom",
+    )
 
     return [
         HakoMethodIR(

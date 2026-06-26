@@ -383,7 +383,7 @@ landed: Python semantic projector freeze reverse coverage hardening
   exception tokens for new SemanticProjector files
 landed: mirbuilder_family_artifacts.py 分割
   boundary=behavior_preserving_split_only
-queued: leaf projection validator 二重化を整理
+landed: leaf projection validator 二重化を整理
   boundary=one validator owns map.immutable_leaf_projection acceptance
 ```
 
