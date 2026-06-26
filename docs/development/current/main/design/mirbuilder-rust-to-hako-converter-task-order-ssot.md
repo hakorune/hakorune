@@ -551,7 +551,7 @@ queued: task-order SSOT を active next 3 + parked index へ圧縮
 queued: compiler projector helper support box
   boundary=small lang/src/compiler/lib helper only (_tag/_fail/require/copy);
   no projector framework or semantic DSL
-queued: Python semantic projector freeze reverse coverage hardening
+landed: Python semantic projector freeze reverse coverage hardening
   boundary=reverse-enumerate tools/rust_lifecycle/*.py roles and require
   exception tokens for new SemanticProjector files
 queued: mirbuilder_family_artifacts.py 分割

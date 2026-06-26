@@ -233,13 +233,23 @@ without relying on handwritten prose.
   "kind": "PythonConverterRoleInventoryV1",
   "checkpoint": "PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001",
   "scope": "tools/rust_lifecycle",
+  "active_python_file_count": 160,
+  "role_file_counts": {
+    "DeterministicEmitter": 9,
+    "FactsAdapter": 23,
+    "GuardOrchestrator": 34,
+    "SemanticProjector": 98
+  },
   "role_buckets": [
     {
       "role": "FactsAdapter",
       "patterns": [
         "tools/rust_lifecycle/context_fact_extraction.py",
         "tools/rust_lifecycle/extract_*.py",
-        "tools/rust_lifecycle/mirbuilder_allocation_policy_facts.py"
+        "tools/rust_lifecycle/mirbuilder_allocation_policy_facts.py",
+        "tools/rust_lifecycle/mirbuilder_storage_access_facts.py",
+        "tools/rust_lifecycle/mirbuilder_type_context_bounded_map_slice_facts_pilot.py",
+        "tools/rust_lifecycle/rustc_adapter_preflight.py"
       ]
     },
     {
@@ -266,8 +276,14 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/mirbuilder_minimal_execution_path_semantic_closure_report.py",
         "tools/rust_lifecycle/mirbuilder_condition_fn_injection.py",
         "tools/rust_lifecycle/mirbuilder_direct_shape_lowerer.py",
+        "tools/rust_lifecycle/mirbuilder_metadata_origin_caller_merge.py",
         "tools/rust_lifecycle/mirbuilder_mir_module_minimal_shell_transport.py",
+        "tools/rust_lifecycle/mirbuilder_module_function_insertion.py",
+        "tools/rust_lifecycle/mirbuilder_ordering_capability.py",
+        "tools/rust_lifecycle/mirbuilder_phi_input_materialization.py",
+        "tools/rust_lifecycle/mirbuilder_phi_return_type_inference.py",
         "tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py",
+        "tools/rust_lifecycle/mirbuilder_return_emission.py",
         "tools/rust_lifecycle/mirbuilder_type_hint_provision.py",
         "tools/rust_lifecycle/mirbuilder_function_region_stack_pop.py",
         "tools/rust_lifecycle/mirbuilder_slot_registry_release.py",
@@ -281,15 +297,23 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/mir_function_constructor_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_prepared_state_install_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_next_value_id_prepared_state_kernel_artifacts.py",
-        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py"
+        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py",
+        "tools/rust_lifecycle/verified_family_artifact_contract.py",
+        "tools/rust_lifecycle/verified_hako_family_ir.py"
       ]
     },
     {
       "role": "DeterministicEmitter",
       "patterns": [
+        "tools/rust_lifecycle/family_artifact_builders.py",
+        "tools/rust_lifecycle/family_artifact_spec.py",
         "tools/rust_lifecycle/generate_mirbuilder_ordered_map_crate_bundle.py",
         "tools/rust_lifecycle/mirbuilder_family_artifacts.py",
-        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py"
+        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py",
+        "tools/rust_lifecycle/shared_family_generator.py",
+        "tools/rust_lifecycle/shared_mirbuilder_emitter.py",
+        "tools/rust_lifecycle/shared_mirbuilder_emitter_common.py",
+        "tools/rust_lifecycle/shared_mirbuilder_operation_emitter.py"
       ]
     },
     {
@@ -300,12 +324,33 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/*_inventory.py",
         "tools/rust_lifecycle/*_readiness_inventory.py",
         "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_*.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_execution_path_smoke.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution.py",
+        "tools/rust_lifecycle/mirbuilder_negative_converter_fixtures.py",
         "tools/rust_lifecycle/*_runner.py",
         "tools/rust_lifecycle/mirbuilder_family_validators.py",
         "tools/rust_lifecycle/mirbuilder_generated_to_native_adoption_matrix.py"
       ]
     }
   ],
+  "allowed_role_overlaps": {
+    "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_harness_owner_selection.py": [
+      "GuardOrchestrator",
+      "SemanticProjector"
+    ],
+    "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_selection.py": [
+      "GuardOrchestrator",
+      "SemanticProjector"
+    ],
+    "tools/rust_lifecycle/mirbuilder_family_artifacts.py": [
+      "DeterministicEmitter",
+      "SemanticProjector"
+    ],
+    "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py": [
+      "DeterministicEmitter",
+      "SemanticProjector"
+    ]
+  },
   "semantic_projector_follow_on_tokens": {
     "mirbuilder-minimal-execution-path-selection": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SEMANTIC-CLOSURE-REPORT-001",
     "mirbuilder-minimal-execution-path-semantic-closure-report": "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
