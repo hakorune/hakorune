@@ -381,7 +381,7 @@ landed: compiler projector helper support box v0
 landed: Python semantic projector freeze reverse coverage hardening
   boundary=reverse-enumerate tools/rust_lifecycle/*.py roles and require
   exception tokens for new SemanticProjector files
-queued: mirbuilder_family_artifacts.py 分割
+landed: mirbuilder_family_artifacts.py 分割
   boundary=behavior_preserving_split_only
 queued: leaf projection validator 二重化を整理
   boundary=one validator owns map.immutable_leaf_projection acceptance

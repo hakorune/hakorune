@@ -21,13 +21,8 @@ from extract_variable_context_simple_map_facts import (
 from extract_variable_context_snapshot_restore_facts import (
     extract_facts as extract_variable_context_snapshot_restore_facts,
 )
-from family_artifact_builders import (
-    build_family_artifact_hako_text,
-    build_family_artifact_manifest_text,
-    build_family_artifact_recipe_text,
-    build_family_artifact_verifier_text,
-)
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
+from mirbuilder_family_artifact_runtime import FamilyArtifactGenerator, run_family_artifact_generator_from_registry
 from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
 from mirbuilder_core_context_artifacts import (
     CORE_CONTEXT_SOURCE,
@@ -43,7 +38,7 @@ from mirbuilder_family_validators import (
     validate_variable_context_snapshot_restore,
 )
 from verified_hako_family_ir import op
-from shared_family_generator import read_json, run_validated_family_generator
+from shared_family_generator import read_json
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -397,44 +392,44 @@ def variable_context_snapshot_restore_spec() -> FamilyArtifactSpec:
 
 
 _GENERATORS = {
-    "binding_context": (binding_context_spec, validate_binding_context, lambda spec: extract_binding_context_facts(BINDING_CONTEXT_SOURCE), "generated_binding_context_artifact=unchanged"),
-    "box_compilation_context": (box_compilation_context_spec, validate_box_compilation_context, lambda spec: extract_box_compilation_context_facts(BOX_COMPILATION_CONTEXT_SOURCE), "generated_box_compilation_context_artifact=unchanged"),
-    "core_context": (core_context_spec, validate_core_context, lambda spec: extract_core_context_facts(CORE_CONTEXT_SOURCE), "generated_core_context_artifact=unchanged"),
-    "variable_context_simple_map": (variable_context_simple_map_spec, validate_variable_context_simple_map, lambda spec: extract_variable_context_simple_map_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE), "generated_variable_context_simple_map_artifact=unchanged"),
-    "variable_context_immutable_borrow": (variable_context_immutable_borrow_spec, validate_variable_context_immutable_borrow, lambda spec: read_json(spec.facts_path), "generated_variable_context_immutable_borrow_artifact=unchanged"),
-    "variable_context_snapshot_restore": (variable_context_snapshot_restore_spec, validate_variable_context_snapshot_restore, lambda spec: extract_variable_context_snapshot_restore_facts(VARIABLE_CONTEXT_SOURCE), "generated_variable_context_snapshot_restore_artifact=unchanged"),
+    "binding_context": FamilyArtifactGenerator(
+        binding_context_spec,
+        validate_binding_context,
+        lambda spec: extract_binding_context_facts(BINDING_CONTEXT_SOURCE),
+        "generated_binding_context_artifact=unchanged",
+    ),
+    "box_compilation_context": FamilyArtifactGenerator(
+        box_compilation_context_spec,
+        validate_box_compilation_context,
+        lambda spec: extract_box_compilation_context_facts(BOX_COMPILATION_CONTEXT_SOURCE),
+        "generated_box_compilation_context_artifact=unchanged",
+    ),
+    "core_context": FamilyArtifactGenerator(
+        core_context_spec,
+        validate_core_context,
+        lambda spec: extract_core_context_facts(CORE_CONTEXT_SOURCE),
+        "generated_core_context_artifact=unchanged",
+    ),
+    "variable_context_simple_map": FamilyArtifactGenerator(
+        variable_context_simple_map_spec,
+        validate_variable_context_simple_map,
+        lambda spec: extract_variable_context_simple_map_facts(VARIABLE_CONTEXT_SIMPLE_MAP_SOURCE),
+        "generated_variable_context_simple_map_artifact=unchanged",
+    ),
+    "variable_context_immutable_borrow": FamilyArtifactGenerator(
+        variable_context_immutable_borrow_spec,
+        validate_variable_context_immutable_borrow,
+        lambda spec: read_json(spec.facts_path),
+        "generated_variable_context_immutable_borrow_artifact=unchanged",
+    ),
+    "variable_context_snapshot_restore": FamilyArtifactGenerator(
+        variable_context_snapshot_restore_spec,
+        validate_variable_context_snapshot_restore,
+        lambda spec: extract_variable_context_snapshot_restore_facts(VARIABLE_CONTEXT_SOURCE),
+        "generated_variable_context_snapshot_restore_artifact=unchanged",
+    ),
 }
 
 
 def run_mirbuilder_family_artifact_generator(name: str, *, check: bool) -> None:
-    try:
-        spec_factory, validator, facts_loader, unchanged_label = _GENERATORS[name]
-    except KeyError as exc:
-        raise SystemExit(f"unknown MirBuilder family artifact generator: {name}") from exc
-
-    spec = spec_factory()
-    recipe_text = build_family_artifact_recipe_text(spec)
-    verifier_text = build_family_artifact_verifier_text(spec)
-    hako_text = build_family_artifact_hako_text(spec)
-    manifest_text = build_family_artifact_manifest_text(
-        spec,
-        hako_text=hako_text,
-        recipe_text=recipe_text,
-        verifier_text=verifier_text,
-    )
-    outputs: list[tuple[Path, str]] = []
-    if recipe_text is not None and spec.recipe_path is not None:
-        outputs.append((spec.recipe_path, recipe_text))
-    if verifier_text is not None and spec.verifier_path is not None:
-        outputs.append((spec.verifier_path, verifier_text))
-    outputs.extend([(spec.hako_path, hako_text), (OUT_DIR / Path(spec.artifact_manifest).name, manifest_text)])
-    run_validated_family_generator(
-        check=check,
-        root=ROOT,
-        unchanged_label=unchanged_label,
-        load_facts=lambda: facts_loader(spec),
-        plan_path=spec.plan_path,
-        oracle_path=spec.oracle_path,
-        validate_inputs=validator,
-        outputs_factory=lambda: outputs,
-    )
+    run_family_artifact_generator_from_registry(name=name, check=check, generators=_GENERATORS)

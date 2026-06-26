@@ -233,9 +233,9 @@ without relying on handwritten prose.
   "kind": "PythonConverterRoleInventoryV1",
   "checkpoint": "PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001",
   "scope": "tools/rust_lifecycle",
-  "active_python_file_count": 160,
+  "active_python_file_count": 161,
   "role_file_counts": {
-    "DeterministicEmitter": 9,
+    "DeterministicEmitter": 10,
     "FactsAdapter": 23,
     "GuardOrchestrator": 34,
     "SemanticProjector": 98
@@ -308,6 +308,7 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/family_artifact_builders.py",
         "tools/rust_lifecycle/family_artifact_spec.py",
         "tools/rust_lifecycle/generate_mirbuilder_ordered_map_crate_bundle.py",
+        "tools/rust_lifecycle/mirbuilder_family_artifact_runtime.py",
         "tools/rust_lifecycle/mirbuilder_family_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py",
         "tools/rust_lifecycle/shared_family_generator.py",
