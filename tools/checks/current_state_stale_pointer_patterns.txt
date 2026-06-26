@@ -112,3 +112,4 @@ phase-29ci emit-program-json-v0 helper-owned keepers pending
 # explicit completion design stop and must not reappear in current/restart docs.
 first_executable_materialization_gap=MirModule::new
 next_slice=MIRBUILDER-MIRMODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
+MIRBUILDER-MIRMODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
