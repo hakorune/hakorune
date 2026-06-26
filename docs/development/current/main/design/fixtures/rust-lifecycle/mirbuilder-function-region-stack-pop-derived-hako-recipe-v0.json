@@ -1,0 +1,24 @@
+{
+  "family_id": "hakorune_mir_builder::function_region_stack_pop",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "FunctionRegionStackPopApi.pop_option(stack)",
+      "hako_operation": "SequencePopOption",
+      "id": "FunctionRegionStackPopApi::pop_option",
+      "rust_operation": "trace-gated region stack pop helper"
+    },
+    {
+      "emits": "FunctionRegionStackPopApi.apply(state)",
+      "hako_operation": "MethodCall + SetField + IfElse + StaticCall + ReturnI64",
+      "id": "FunctionRegionStackPopApi::apply",
+      "rust_operation": "MirBuilder::finalize_module trace-gated region stack pop"
+    }
+  ],
+  "pilot_scope": "FunctionRegionStackPop_prepared_region_trace_only",
+  "schema_version": 0,
+  "selected_body_count": "function_region_stack_pop_prepared_region_trace_only",
+  "source_oracle": "mirbuilder-function-region-stack-pop-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-function-region-stack-pop-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.region_stack_pop"
+}

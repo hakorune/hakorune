@@ -266,14 +266,15 @@ taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-be
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
 latest_card = "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1746-MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1747-MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001.md"
 latest_card_summary = """The minimal MirBuilder execution path design stop is
 resolved against the current public-main frontier. MirModule, MirFunction,
-CurrentModuleTake, and ReturnEmission executable artifacts are already present,
-so the next selected owner is the first remaining materialization gap:
-finalize_module.region_stack_pop / FunctionRegionStackPop."""
+CurrentModuleTake, ReturnEmission, and FunctionRegionStackPop executable
+artifacts are already present, so the next selected owner is the first
+remaining materialization gap: finalize_module.slot_registry_release /
+SlotRegistryRelease."""
 
-current_blocker_token = "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

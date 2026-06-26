@@ -65,6 +65,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_function_insertion.artifact.json",
     "ConditionFnInjection": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json",
+    "FunctionRegionStackPop": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.artifact.json",
 }
 
 
@@ -231,6 +233,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "FunctionRegionStackPop":
         return "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "SlotRegistryRelease":
+        return "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -317,13 +321,13 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.region_stack_pop", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.slot_registry_release", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "FunctionRegionStackPop",
+        first_gap["required_capability"] == "SlotRegistryRelease",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
     )
     for edge in report["edges"]:

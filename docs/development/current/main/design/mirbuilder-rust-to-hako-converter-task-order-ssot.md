@@ -21,20 +21,20 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
   Materialize the first current public-main executable gap from the minimal
-  execution path report: FunctionRegionStackPop.
+  execution path report: SlotRegistryRelease.
 
 selected source slice:
   MirBuilder::finalize_module
-    -> region::observer::pop_function_region
+    -> current_slot_registry = None
 
 selected lowering:
-  FunctionRegionStackPopPlanV1
-    -> prepared trace-flag projection
-    -> SequencePopOption
+  SlotRegistryReleasePlanV1
+    -> prepared slot registry projection
+    -> clear-slot mutation
     -> generated Hako artifact
 
 landed evidence:
@@ -247,23 +247,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Function region stack pop Derived Hako artifact
+1. Slot registry release Derived Hako artifact
    status=selected
-   boundary=prepared trace flag plus current_region_stack pop/discard
-   semantic_authority=MirBuilderFunctionRegionStackPopPlanV1
-   non_authority=host env lookup or full MetadataContext conversion
-
-2. Slot registry release Derived Hako artifact
-   status=parked until frontier advances after region stack pop
    boundary=release current function slot registry at finalize_module timing
    semantic_authority=SlotRegistryReleasePlanV1
    non_authority=prewriting analyzer result before regeneration
 
-3. Minimal execution path report regeneration
+2. Minimal execution path report regeneration
    status=parked until selected artifact green
    boundary=derive the next materialization gap from updated artifact contracts
    semantic_authority=minimal execution path analyzer
    non_authority=coverage percentage or bundle size
+
+3. Next executable gap after report regeneration
+   status=parked until refreshed frontier is available
+   boundary=analyzer-derived follow-on selection
+   semantic_authority=minimal execution path analyzer
+   non_authority=prewriting future frontier
 ```
 
 ## Landed Converter Capability Summary

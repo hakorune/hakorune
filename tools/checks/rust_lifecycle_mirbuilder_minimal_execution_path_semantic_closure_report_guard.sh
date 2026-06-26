@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.region_stack_pop"
-assert gap["callsite"] == "MirBuilder::finalize_module -> region::observer::pop_function_region"
-assert gap["required_capability"] == "FunctionRegionStackPop"
-assert gap["next_slice_token"] == "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.slot_registry_release"
+assert gap["callsite"] == "MirBuilder::finalize_module -> current_slot_registry = None"
+assert gap["required_capability"] == "SlotRegistryRelease"
+assert gap["next_slice_token"] == "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -162,6 +162,13 @@ assert condition_fn_edge["evidence_tier"] == "VerifiedArtifact"
 assert condition_fn_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert condition_fn_edge["route_state"] == "DerivedShadow"
 assert condition_fn_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json"
+function_region_stack_pop_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.region_stack_pop"]
+assert len(function_region_stack_pop_edges) == 1
+function_region_stack_pop_edge = function_region_stack_pop_edges[0]
+assert function_region_stack_pop_edge["evidence_tier"] == "VerifiedArtifact"
+assert function_region_stack_pop_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert function_region_stack_pop_edge["route_state"] == "DerivedShadow"
+assert function_region_stack_pop_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]

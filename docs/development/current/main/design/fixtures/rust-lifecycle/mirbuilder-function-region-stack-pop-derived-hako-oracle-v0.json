@@ -1,0 +1,76 @@
+{
+  "kind": "MirBuilderFunctionRegionStackPopDerivedHakoOracleV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "host_env_lookup": 0,
+    "metadata_publication": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module trace-gated region stack pop",
+  "vectors": [
+    {
+      "expect": {
+        "final_stack_size": 0,
+        "first_pop": 20,
+        "second_pop": 10,
+        "third_pop_is_none": 1
+      },
+      "inputs": {
+        "initial_stack": [
+          10,
+          20
+        ]
+      },
+      "name": "direct_pop_option_lifo"
+    },
+    {
+      "expect": {
+        "pop_attempted": 0,
+        "return_value": 0,
+        "stack_size_after": 2,
+        "stack_size_before": 2
+      },
+      "inputs": {
+        "initial_stack": [
+          10,
+          20
+        ],
+        "trace_enabled": 0
+      },
+      "name": "trace_disabled_apply_keeps_stack"
+    },
+    {
+      "expect": {
+        "pop_attempted": 1,
+        "return_value": 0,
+        "stack_size_after": 1,
+        "stack_size_before": 2
+      },
+      "inputs": {
+        "initial_stack": [
+          10,
+          20
+        ],
+        "trace_enabled": 1
+      },
+      "name": "trace_enabled_apply_pops_once"
+    },
+    {
+      "expect": {
+        "pop_attempted": 1,
+        "return_value": 0,
+        "stack_size_after": 0,
+        "stack_size_before": 0
+      },
+      "inputs": {
+        "initial_stack": [],
+        "trace_enabled": 1
+      },
+      "name": "trace_enabled_empty_safe"
+    }
+  ]
+}

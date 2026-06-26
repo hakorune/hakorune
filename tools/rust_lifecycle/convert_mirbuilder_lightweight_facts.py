@@ -24,6 +24,7 @@ from mirbuilder_current_module_take_artifacts import run_current_module_take_art
 from mirbuilder_condition_fn_injection_artifacts import run_condition_fn_injection_artifact_generator
 from mirbuilder_dev_birth_verification_artifacts import run_dev_birth_verification_artifact_generator
 from mirbuilder_literal_integer_artifacts import run_literal_integer_lowering_artifact_generator
+from mirbuilder_function_region_stack_pop_artifacts import run_function_region_stack_pop_artifact_generator
 from mirbuilder_module_function_insertion_artifacts import run_module_function_insertion_artifact_generator
 from mirbuilder_phi_input_materialization_artifacts import run_phi_input_materialization_artifact_generator
 from mirbuilder_phi_return_type_inference_artifacts import run_phi_return_type_inference_artifact_generator
@@ -68,6 +69,7 @@ FAMILY_GENERATORS = {
     "mirbuilder-condition-fn-injection": run_condition_fn_injection_artifact_generator,
     "mirbuilder-dev-birth-verification": run_dev_birth_verification_artifact_generator,
     "mirbuilder-literal-integer-lowering": run_literal_integer_lowering_artifact_generator,
+    "mirbuilder-function-region-stack-pop": run_function_region_stack_pop_artifact_generator,
     "mirbuilder-module-function-insertion": run_module_function_insertion_artifact_generator,
     "mirbuilder-next-value-id-prepared-state-kernel": run_prepared_state_kernel_generator,
     "mirbuilder-return-emission": run_return_emission_artifact_generator,

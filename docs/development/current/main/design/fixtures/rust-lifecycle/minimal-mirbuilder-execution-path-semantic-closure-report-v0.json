@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 7,
+      "PlanOnly": 6,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 21
+      "VerifiedArtifact": 22
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 21,
-      "Missing": 7,
+      "ExecutableArtifactPresent": 22,
+      "Missing": 6,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 20,
+      "DerivedShadow": 21,
       "NotApplicable": 4,
-      "Unselected": 7
+      "Unselected": 6
     }
   },
   "edges": [
@@ -474,15 +474,15 @@
       "status": "Available",
       "required_capability": "FunctionRegionStackPop",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "FunctionRegionStackPop",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::function_region_stack_pop",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.region_stack_pop",
-    "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
-    "required_capability": "FunctionRegionStackPop",
-    "next_slice_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.slot_registry_release",
+    "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
+    "required_capability": "SlotRegistryRelease",
+    "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

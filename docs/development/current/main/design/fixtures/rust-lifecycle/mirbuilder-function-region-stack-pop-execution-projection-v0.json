@@ -1,0 +1,46 @@
+{
+  "behavior": {
+    "empty_stack": "SafeNoErrorReturn",
+    "trace_disabled": "NoOp",
+    "trace_enabled": "PopAndDiscard"
+  },
+  "directability": {
+    "full_metadata_context": "Deny",
+    "host_env_lookup": "Deny",
+    "prepared_trace_projection": "Allow"
+  },
+  "execution_scope": "PreparedRegionTraceState",
+  "inputs": {
+    "current_region_stack_element_transport": "RegionIdAsI64",
+    "current_region_stack_transport": "ArrayBox",
+    "trace_flag_transport": "RegionTraceEnabledI64BoolV0"
+  },
+  "kind": "FunctionRegionStackPopExecutionProjectionV1",
+  "methods": {
+    "apply": "IfElse + StaticCall + MethodCall + SetField + ReturnI64",
+    "pop_option": "SequencePopOption"
+  },
+  "mutation_frame": {
+    "current_region_stack": "exclusive",
+    "pop_attempted": "published by apply",
+    "stack_size_after": "published by apply",
+    "stack_size_before": "published by apply",
+    "trace_enabled": "read-only guard input"
+  },
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "host_env_lookup": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 0
+  },
+  "result_semantics": "Unit",
+  "result_transport": "ScalarI64",
+  "schema_version": 0,
+  "source_plan": "MirBuilderFunctionRegionStackPopPlanV1"
+}

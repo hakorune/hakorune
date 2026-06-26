@@ -648,7 +648,8 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             "if n == 0 {",
             "    return Option::None()",
             "}",
-            f"local value = {source}.pop()",
+            f"local value = BoxHelpers.array_get({source}, n - 1)",
+            f"{source}.remove(n - 1)",
             "return Option::Some(value)",
         ]
     if kind == "SequenceLastOption":
