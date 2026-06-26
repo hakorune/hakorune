@@ -69,6 +69,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.artifact.json",
     "SlotRegistryRelease": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
+    "ModuleMetadataPublication": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_metadata_publication.artifact.json",
 }
 
 
@@ -239,6 +241,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
     if capability == "ModuleMetadataPublication":
         return "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "RecordAndPackedLayoutRefresh":
+        return "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -325,13 +329,14 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.module_metadata_publication", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.record_packed_layout_refresh", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "ModuleMetadataPublication",
+        first_gap["required_capability"] == "RecordAndPackedLayoutRefresh",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"]
+        == "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001",
         "first materialization gap next slice drift",
     )
     slot_registry_release = next(

@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 5,
+      "PlanOnly": 4,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 23
+      "VerifiedArtifact": 24
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 23,
-      "Missing": 5,
+      "ExecutableArtifactPresent": 24,
+      "Missing": 4,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 22,
+      "DerivedShadow": 23,
       "NotApplicable": 4,
-      "Unselected": 5
+      "Unselected": 4
     }
   },
   "edges": [
@@ -508,15 +508,15 @@
       "status": "Available",
       "required_capability": "ModuleMetadataPublication",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "ModuleMetadataPublication",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::module_metadata_publication",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-module-metadata-publication-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_metadata_publication.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.module_metadata_publication",
-    "callsite": "MirBuilder::finalize_module -> publish module metadata",
-    "required_capability": "ModuleMetadataPublication",
-    "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.record_packed_layout_refresh",
+    "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
+    "required_capability": "RecordAndPackedLayoutRefresh",
+    "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

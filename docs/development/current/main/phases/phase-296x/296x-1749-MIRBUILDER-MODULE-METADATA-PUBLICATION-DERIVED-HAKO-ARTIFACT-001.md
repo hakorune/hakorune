@@ -1,10 +1,25 @@
 ---
-Status: Selected
+Status: Landed
 Date: 2026-06-26
 Card: MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
 ---
 
 # MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
+
+## Closeout
+
+The derived artifact is checked in and the semantic-closure report now treats
+`ModuleMetadataPublication` as executable artifact evidence.
+
+The regenerated report advances the first executable materialization gap to:
+
+```text
+edge_id: finalize_module.record_packed_layout_refresh
+next_slice: MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
+```
+
+The immediate follow-up is the allocation-policy Hako adoption decision. The
+record/packed refresh edge remains parked until that decision is recorded.
 
 ## Summary
 

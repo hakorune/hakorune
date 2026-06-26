@@ -265,18 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1749-MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """The next task card is selected and strengthened for
-the analyzer-derived first executable materialization gap:
-finalize_module.module_metadata_publication. The existing PlanOnly
-ModuleMetadataPublication authority remains the source; the selected work is
-to project it through child publication projections, Hako shadow semantic
-parity, a checked-in derived Hako artifact, and semantic-closure report
-regeneration. The D+ follow-on is allocation-policy Hako adoption decision,
-then refresh-class decomposition before any large refresh artifact."""
+latest_card = "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1750-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """ModuleMetadataPublication is now executable artifact
+evidence and the semantic-closure report advances the materialization frontier
+to finalize_module.record_packed_layout_refresh. The selected blocker is the
+allocation-policy Hako adoption decision for the existing narrow
+DerivedMainline prepared-state kernel. It must return Adopt, Defer(reason), or
+Reject(reason) before refresh-class decomposition resumes."""
 
-current_blocker_token = "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

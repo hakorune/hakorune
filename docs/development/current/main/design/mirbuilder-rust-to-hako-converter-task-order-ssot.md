@@ -21,22 +21,22 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
 
 current implementation task:
-  Materialize the next current public-main executable gap from the updated
-  minimal execution path report: ModuleMetadataPublication.
+  Record Adopt / Defer / Reject for the existing DerivedMainline
+  prepared-state allocation-policy kernel before entering refresh-class
+  decomposition.
 
-selected source slice:
-  MirBuilder::finalize_module
-    -> module.metadata publication
+selected decision slice:
+  hakorune_mir_builder::next_value_id_prepared_state_kernel
+    -> HakoAdopted decision
 
-selected lowering:
-  ModuleMetadataPublicationPlanV1
-    -> child publication projections
-    -> Hako shadow semantic projector
-    -> declaration inventory publication
-    -> generated Hako artifact
+selected evidence:
+  allocation-policy mainline selection plan
+    -> DerivedMainline route evidence
+    -> prepared-state generated Hako artifact
+    -> derived-to-native Hako artifact model
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -97,25 +97,23 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, and SlotRegistryRelease are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.module_metadata_publication as the first executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.record_packed_layout_refresh as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
-  SlotRegistryRelease is already checked in. Host env lookup, region stack
-  pop, full MetadataContext, backend route, ABI, runtime fallback, and source
-  selfhost remain unselected.
+  The decision may only classify the narrow prepared-state allocation-policy
+  kernel. Full minimal-path mainline selection, RecordAndPackedLayoutRefresh
+  implementation, backend route, ABI, runtime fallback, and source selfhost
+  remain unselected.
 
 latest design decision:
-  Frontier review resolves the prior design stop against current public-main:
-  MirModule, MirFunction, CurrentModuleTake, ReturnEmission,
-  FunctionRegionStackPop, and SlotRegistryRelease executable artifacts are
-  already present. The next owner is the analyzer-derived first
-  PlanOnly/Missing edge, ModuleMetadataPublication. Consultation selects D+:
-  close ModuleMetadataPublication, regenerate the frontier, run the
-  allocation-policy Hako adoption decision, then decompose refresh-class edges
-  before materializing any large refresh artifact.
+  ModuleMetadataPublication is now executable artifact evidence and the
+  regenerated semantic-closure report advances the materialization frontier to
+  RecordAndPackedLayoutRefresh. Consultation selects D+: before decomposing that
+  composite refresh edge, run the allocation-policy Hako adoption decision for
+  the existing narrow DerivedMainline family.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -175,8 +173,8 @@ mirbuilder_phi_input_materialization_derived_hako_artifact green
 mirbuilder_dev_birth_verification_derived_hako_artifact green
 mirbuilder_module_function_insertion_derived_hako_artifact green
 mirbuilder_condition_fn_injection_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.region_stack_pop
-next_slice=MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+first_executable_materialization_gap=finalize_module.record_packed_layout_refresh
+next_slice=MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
 post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 full converter matrix green
 task-order remains under 800 lines
@@ -252,23 +250,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Module metadata publication Derived Hako artifact
+1. Allocation-policy Hako adoption decision
    status=selected
-   boundary=publish four module metadata fields through child projections and Hako shadow parity
-   semantic_authority=ModuleMetadataPublicationPlanV1
-   non_authority=new Python semantic projector or refresh behavior
-
-2. Allocation-policy Hako adoption decision
-   status=parked until selected artifact green and frontier regenerated
    boundary=decide Adopt/Defer/Reject for the narrow DerivedMainline allocation-policy kernel
    semantic_authority=derived-to-native artifact model plus allocation-policy route evidence
    non_authority=full minimal path mainline selection
 
-3. Record/packed refresh decomposition
+2. Record/packed refresh decomposition
    status=parked until adoption decision completes and frontier still selects refresh-class work
    boundary=split composite refresh edge into child source-order capabilities
    semantic_authority=directability/decomposition analysis
    non_authority=one giant RecordAndPackedLayoutRefresh artifact
+
+3. First decomposed refresh child artifact
+   status=parked until decomposition derives a leaf owner
+   boundary=Hako shadow projector plus derived artifact for the first child capability
+   semantic_authority=decomposition result plus child source facts
+   non_authority=full refresh family artifact
 ```
 
 ## Landed Converter Capability Summary

@@ -25,10 +25,10 @@ assert closure["generated_hako_executable_closure"] == "Open"
 assert closure["full_path_mainline_eligible"] is False
 assert closure["source_selfhost_eligible"] is False
 gap = report["first_executable_materialization_gap"]
-assert gap["edge_id"] == "finalize_module.module_metadata_publication"
-assert gap["callsite"] == "MirBuilder::finalize_module -> publish module metadata"
-assert gap["required_capability"] == "ModuleMetadataPublication"
-assert gap["next_slice_token"] == "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+assert gap["edge_id"] == "finalize_module.record_packed_layout_refresh"
+assert gap["callsite"] == "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans"
+assert gap["required_capability"] == "RecordAndPackedLayoutRefresh"
+assert gap["next_slice_token"] == "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001"
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -176,6 +176,13 @@ assert slot_registry_release_edge["evidence_tier"] == "VerifiedArtifact"
 assert slot_registry_release_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert slot_registry_release_edge["route_state"] == "DerivedShadow"
 assert slot_registry_release_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json"
+module_metadata_publication_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.module_metadata_publication"]
+assert len(module_metadata_publication_edges) == 1
+module_metadata_publication_edge = module_metadata_publication_edges[0]
+assert module_metadata_publication_edge["evidence_tier"] == "VerifiedArtifact"
+assert module_metadata_publication_edge["artifact_materialization"] == "ExecutableArtifactPresent"
+assert module_metadata_publication_edge["route_state"] == "DerivedShadow"
+assert module_metadata_publication_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_metadata_publication.artifact.json"
 for edge in report["edges"]:
     if edge["evidence_tier"] == "PlanOnly":
         assert edge["artifact_materialization"] == "Missing", edge["edge_id"]
