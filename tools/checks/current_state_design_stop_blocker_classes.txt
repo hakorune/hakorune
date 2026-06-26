@@ -1,3 +1,0 @@
-# Blocker classes that trigger the design-stop pause contract.
-# Keep this fixture guard-owned so the shell script does not hardcode blocker tokens.
-DESIGN-STOP

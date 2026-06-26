@@ -13,8 +13,7 @@ POLICY_DOC="$ROOT_DIR/docs/development/current/main/design/current-docs-update-p
 PHASE137X_README="$ROOT_DIR/docs/development/current/main/phases/phase-137x/README.md"
 PHASE137X_TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 STALE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_stale_pointer_patterns.txt"
-DESIGN_STOP_PAUSE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_design_stop_pause_patterns.txt"
-DESIGN_STOP_BLOCKER_CLASSES_FILE="$ROOT_DIR/tools/checks/current_state_design_stop_blocker_classes.txt"
+DESIGN_STOP_CONTRACT_FILE="$ROOT_DIR/tools/checks/current_state_design_stop_contract.txt"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" sed
@@ -28,8 +27,7 @@ guard_require_files "$TAG" \
   "$PHASE137X_README" \
   "$PHASE137X_TASKBOARD" \
   "$STALE_PATTERNS_FILE" \
-  "$DESIGN_STOP_PAUSE_PATTERNS_FILE" \
-  "$DESIGN_STOP_BLOCKER_CLASSES_FILE"
+  "$DESIGN_STOP_CONTRACT_FILE"
 
 toml_scalar() {
   local key="$1"
@@ -95,38 +93,28 @@ if [[ "$latest_card_path" != *"$latest_card"* ]]; then
   guard_fail "$TAG" "latest_card_path does not contain latest_card: $latest_card -> $latest_card_path"
 fi
 
-design_stop_blocker=false
-while IFS= read -r blocker_class; do
-  [[ -z "$blocker_class" ]] && continue
-  [[ "$blocker_class" = \#* ]] && continue
-  if [[ "$blocker_token" == *"$blocker_class"* ]]; then
-    design_stop_blocker=true
-    break
-  fi
-done < "$DESIGN_STOP_BLOCKER_CLASSES_FILE"
-
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$doc"
   expect_fixed "active_lane" "$doc"
   expect_fixed "current_blocker_token" "$doc"
 done
 
-if [[ "$design_stop_blocker" == true ]]; then
-  while IFS= read -r entry; do
-    [[ -z "$entry" ]] && continue
-    [[ "$entry" = \#* ]] && continue
-    if [[ "$entry" != *"|"* ]]; then
-      guard_fail "$TAG" "invalid design-stop pause entry: $entry"
-    fi
-    target="${entry%%|*}"
-    pattern="${entry#*|}"
-    if [[ "$target" = /* ]]; then
-      guard_fail "$TAG" "design-stop pause target must be repo-relative: $target"
-    fi
-    require_repo_file "$target" "design-stop pause target"
-    expect_fixed "$pattern" "$ROOT_DIR/$target"
-  done < "$DESIGN_STOP_PAUSE_PATTERNS_FILE"
-fi
+while IFS= read -r entry; do
+  [[ -z "$entry" ]] && continue
+  [[ "$entry" = \#* ]] && continue
+  IFS='|' read -r blocker_class target pattern <<<"$entry"
+  if [[ -z "$blocker_class" || -z "$target" || -z "$pattern" ]]; then
+    guard_fail "$TAG" "invalid design-stop contract entry: $entry"
+  fi
+  if [[ "$blocker_token" != *"$blocker_class"* ]]; then
+    continue
+  fi
+  if [[ "$target" = /* ]]; then
+    guard_fail "$TAG" "design-stop pause target must be repo-relative: $target"
+  fi
+  require_repo_file "$target" "design-stop pause target"
+  expect_fixed "$pattern" "$ROOT_DIR/$target"
+done < "$DESIGN_STOP_CONTRACT_FILE"
 
 expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
 expect_fixed "active_lane" "$PHASE137X_README"

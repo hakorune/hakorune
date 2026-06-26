@@ -1,7 +1,0 @@
-# Patterns that must appear when the current blocker is the explicit design-stop frontier.
-# Keep this fixture guard-owned so the restart/policy/current-task wording stays centralized.
-CURRENT_TASK.md|invent a new executable owner from historical mirrors.
-CURRENT_TASK.md|keep the goal open until the frontier names a concrete next
-docs/development/current/main/05-Restart-Quick-Resume.md|goal-driven execution loop here and review the frontier card before
-docs/development/current/main/design/current-docs-update-policy-ssot.md|pause point for goal-driven execution: do not invent a fresh executable owner
-docs/development/current/main/design/current-docs-update-policy-ssot.md|do not use docs-only follow-ups to keep the same
