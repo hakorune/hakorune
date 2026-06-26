@@ -108,3 +108,7 @@ phase-291x runtime/meta MirCallRoutePolicy owner audit pending
 phase-291x MirCallRoutePolicy export quarantine pending
 phase-29ci Program(JSON v0) public compat retirement
 phase-29ci emit-program-json-v0 helper-owned keepers pending
+# Pre-design-stop minimal-path frontier snapshots. These were superseded by the
+# explicit completion design stop and must not reappear in current/restart docs.
+first_executable_materialization_gap=MirModule::new
+next_slice=MIRBUILDER-MIRMODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001
