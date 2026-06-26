@@ -139,6 +139,11 @@ code-facing owner and a fail-fast boundary. The next card may refine the
 implementation shape, but it must not repeat the same design consultation as a
 new task.
 
+If the active blocker is the explicit design-stop frontier, treat that as a
+pause point for goal-driven execution: do not invent a fresh executable owner
+from historical mirrors, and do not use docs-only follow-ups to keep the same
+goal moving without a new frontier result.
+
 Implementation cards should include this acceptance line when applicable:
 
 ```text
