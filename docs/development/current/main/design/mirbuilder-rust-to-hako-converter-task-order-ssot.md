@@ -64,8 +64,9 @@ landed evidence:
   TypedObjectPlanRefresh is landed as a DerivedShadow executable Hako
   artifact, finalize_module.direct_state_plan_refresh is landed, and
   finalize_module.all_functions_phi_materialization is landed; the semantic
-  closure report still exposes finalize_module.record_packed_layout_refresh
-  as the first executable materialization gap.
+  closure report now ends at the explicit design-stop frontier instead of
+  naming finalize_module.record_packed_layout_refresh as a new executable
+  owner.
   ReturnEmission Hako shadow projector is landed as an ordinary compiler
   library module under lang/src/compiler/lib with explicit plan/input/output
   parity packaging and no ABI surface.
@@ -107,7 +108,7 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.record_packed_layout_refresh as the first executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report currently ends at the explicit design-stop frontier instead of naming finalize_module.record_packed_layout_refresh as a new executable owner.
 
 selected next owner:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
@@ -121,12 +122,10 @@ current fail-fast boundary:
 latest design decision:
   ModuleMetadataPublication is now executable artifact evidence and the
   regenerated semantic-closure report advances the materialization frontier to
-  RecordAndPackedLayoutRefresh. The report decomposes that composite and
-  exposes finalize_module.typed_object_plan_refresh as the first leaf owner;
-  the landed typed-object, direct-state, and all-functions leaves are now
-  checked in, and the next blocker is materializing
-  finalize_module.record_packed_layout_refresh as a checked-in derived Hako
-  artifact.
+  RecordAndPackedLayoutRefresh. The report decomposes that composite and then
+  reaches the explicit design-stop frontier; the landed typed-object,
+  direct-state, and all-functions leaves remain checked in, and the next
+  blocker is the design-stop frontier review.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -186,8 +185,8 @@ mirbuilder_phi_input_materialization_derived_hako_artifact green
 mirbuilder_dev_birth_verification_derived_hako_artifact green
 mirbuilder_module_function_insertion_derived_hako_artifact green
 mirbuilder_condition_fn_injection_derived_hako_artifact green
-first_executable_materialization_gap=finalize_module.record_packed_layout_refresh
-next_slice=MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
+first_executable_materialization_gap=minimal_path.completion_design_stop
+next_slice=MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 post_condition_fn_checkpoint=PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001
 full converter matrix green
 task-order remains under 800 lines
