@@ -11,145 +11,25 @@
 // - host ABI
 // - runtime fallback
 
-using lang.compiler.lib.canonical_json as CanonicalJsonWriterBox
 using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using lang.compiler.lib.projector_support as CompilerProjectorSupportBox
 using selfhost.shared.common.box_helpers as BoxHelpers
 using selfhost.shared.common.string_helpers as StringHelpers
 
 static box TypedObjectPlanRefreshHakoProjector {
-  _tag(tag) {
-    if tag == null || ("" + tag) == "" {
-      return "[freeze:contract][hako_mirbuilder]"
-    }
-    return "" + tag
-  }
-
-  _fail(tag, msg) {
-    tag = me._tag(tag)
-    return %{
-      "err" => 1,
-      "err_line" => tag + msg,
-      "shadow_record" => null,
-      "shadow_json" => ""
-    }
-  }
-
-  _ok(shadow_record, shadow_json) {
-    return %{
-      "err" => 0,
-      "err_line" => "",
-      "shadow_record" => shadow_record,
-      "shadow_json" => shadow_json
-    }
-  }
-
-  _require_map(value, label, tag) {
-    if value == null || BoxHelpers.is_map(value) != 1 {
-      return me._fail(tag, "[" + label + "] expected MapBox")
-    }
-    return null
-  }
-
-  _require_array(value, label, tag) {
-    if value == null || BoxHelpers.is_array(value) != 1 {
-      return me._fail(tag, "[" + label + "] expected ArrayBox")
-    }
-    return null
-  }
-
-  _require_present(value, label, tag) {
-    if value == null {
-      return me._fail(tag, "[" + label + "] missing")
-    }
-    return null
-  }
-
-  _require_text(value, label, expected, tag) {
-    local actual = "" + value
-    if actual != expected {
-      return me._fail(tag, "[" + label + "] expected " + expected + ", got " + actual)
-    }
-    return null
-  }
-
-  _has_string_item(items, expected) {
-    if items == null || BoxHelpers.is_array(items) != 1 {
-      return false
-    }
-    local i = 0
-    local n = items.length()
-    loop(i < n) {
-      if "" + items.get(i) == expected {
-        return true
-      }
-      i = i + 1
-    }
-    return false
-  }
-
-  _copy_any(value) {
-    if value == null {
-      return CompilerProjectionValueBox.create_null()
-    }
-    if value == true || value == false {
-      return CompilerProjectionValueBox.create_bool(value)
-    }
-    if BoxHelpers.is_array(value) == 1 {
-      return me._copy_array(value)
-    }
-    if BoxHelpers.is_map(value) == 1 {
-      return me._copy_object(value)
-    }
-    local text = "" + value
-    if StringHelpers.is_numeric_str(text) == 1 {
-      return CompilerProjectionValueBox.create_i64(text)
-    }
-    return CompilerProjectionValueBox.create_string(text)
-  }
-
-  _copy_array(arr) {
-    local out = CompilerProjectionValueBox.create_array()
-    local i = 0
-    local n = arr.length()
-    loop(i < n) {
-      CompilerProjectionValueBox.array_push(out, me._copy_any(arr.get(i)))
-      i = i + 1
-    }
-    return out
-  }
-
-  _copy_object(obj) {
-    local out = CompilerProjectionValueBox.create_object()
-    if obj == null {
-      return out
-    }
-    local keys = obj.keys()
-    if keys == null {
-      return out
-    }
-    local i = 0
-    local n = keys.length()
-    loop(i < n) {
-      local key = "" + keys.get(i)
-      CompilerProjectionValueBox.object_set(out, key, me._copy_any(obj.get(key)))
-      i = i + 1
-    }
-    return out
-  }
-
   _validate_plan(plan_box, tag) {
-    local err = me._require_map(plan_box, "plan", tag)
+    local err = CompilerProjectorSupportBox.require_map(plan_box, "plan", tag)
     if err != null {
       return err
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(plan_box.payload, "kind"),
       "plan.kind",
       "MirBuilderTypedObjectPlanRefreshPlanV1",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(plan_box.payload, "subject"),
       "plan.subject",
       "MirBuilder::finalize_module typed object plan refresh",
@@ -158,23 +38,23 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local source_authority = BoxHelpers.map_get(plan_box.payload, "source_authority")
-    err = me._require_map(source_authority, "plan.source_authority", tag)
+    err = CompilerProjectorSupportBox.require_map(source_authority, "plan.source_authority", tag)
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(source_authority, "finalize"),
       "plan.source_authority.finalize",
       "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(source_authority, "refresh_entrypoint"),
       "plan.source_authority.refresh_entrypoint",
       "src/mir/typed_object_plan.rs::refresh_module_typed_object_plans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(source_authority, "predecessor_plan"),
       "plan.source_authority.predecessor_plan",
       "mirbuilder-record-packed-layout-refresh-plan-v0.json",
@@ -183,23 +63,23 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local execution_profile = BoxHelpers.map_get(plan_box.payload, "execution_profile")
-    err = me._require_map(execution_profile, "plan.execution_profile", tag)
+    err = CompilerProjectorSupportBox.require_map(execution_profile, "plan.execution_profile", tag)
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(execution_profile, "input"),
       "plan.execution_profile.input",
       "ASTNode::Literal(Integer(0))",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(execution_profile, "context"),
       "plan.execution_profile.context",
       "finalize_module",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(execution_profile, "module_transport"),
       "plan.execution_profile.module_transport",
       "MirModuleMinimalShell",
@@ -208,51 +88,51 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local refresh_policy = BoxHelpers.map_get(plan_box.payload, "refresh_policy")
-    err = me._require_map(refresh_policy, "plan.refresh_policy", tag)
+    err = CompilerProjectorSupportBox.require_map(refresh_policy, "plan.refresh_policy", tag)
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "entrypoint"),
       "plan.refresh_policy.entrypoint",
       "refresh_module_typed_object_plans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "timing"),
       "plan.refresh_policy.timing",
       "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "operation"),
       "plan.refresh_policy.operation",
       "AssignTypedObjectPlans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "source"),
       "plan.refresh_policy.source",
       "build_typed_object_plans(module)",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "build_provider"),
       "plan.refresh_policy.build_provider",
       "storage_inference::build_typed_object_plans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "target"),
       "plan.refresh_policy.target",
       "module.metadata.typed_object_plans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(refresh_policy, "module_arg"),
       "plan.refresh_policy.module_arg",
       "&mut MirModule",
@@ -261,36 +141,36 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local available_capabilities = BoxHelpers.map_get(plan_box.payload, "available_capabilities")
-    err = me._require_array(available_capabilities, "plan.available_capabilities", tag)
+    err = CompilerProjectorSupportBox.require_array(available_capabilities, "plan.available_capabilities", tag)
     if err != null { return err }
-    if me._has_string_item(available_capabilities, "TypedObjectPlanRefresh") != true {
-      return me._fail(tag, "[plan.available_capabilities] missing TypedObjectPlanRefresh")
+    if CompilerProjectorSupportBox.has_string_item(available_capabilities, "TypedObjectPlanRefresh") != true {
+      return CompilerProjectorSupportBox.fail(tag, "[plan.available_capabilities] missing TypedObjectPlanRefresh")
     }
 
     local result_contract = BoxHelpers.map_get(plan_box.payload, "result_contract")
-    err = me._require_map(result_contract, "plan.result_contract", tag)
+    err = CompilerProjectorSupportBox.require_map(result_contract, "plan.result_contract", tag)
     if err != null { return err }
     local mutates = BoxHelpers.map_get(result_contract, "mutates")
-    err = me._require_array(mutates, "plan.result_contract.mutates", tag)
+    err = CompilerProjectorSupportBox.require_array(mutates, "plan.result_contract.mutates", tag)
     if err != null { return err }
     if mutates.length() != 1 {
-      return me._fail(tag, "[plan.result_contract.mutates] expected 1 entry")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.result_contract.mutates] expected 1 entry")
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       mutates.get(0),
       "plan.result_contract.mutates[0]",
       "module.metadata.typed_object_plans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(result_contract, "entrypoint"),
       "plan.result_contract.entrypoint",
       "typed_object_plan::refresh_module_typed_object_plans",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(result_contract, "minimal_path_expected_result"),
       "plan.result_contract.minimal_path_expected_result",
       "NoErrorReturn",
@@ -298,7 +178,7 @@ static box TypedObjectPlanRefreshHakoProjector {
     )
     if err != null { return err }
 
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       plan_box.shadow_json,
       "plan.shadow_json",
       CanonicalJsonWriterBox.canonicalize(plan_box.payload),
@@ -307,18 +187,18 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local non_claims = BoxHelpers.map_get(plan_box.payload, "non_claims")
-    err = me._require_map(non_claims, "plan.non_claims", tag)
+    err = CompilerProjectorSupportBox.require_map(non_claims, "plan.non_claims", tag)
     if err != null { return err }
     local keys = non_claims.keys()
     if keys == null {
-      return me._fail(tag, "[plan.non_claims] missing keys")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.non_claims] missing keys")
     }
     local i = 0
     local n = keys.length()
     loop(i < n) {
       local key = "" + keys.get(i)
       if StringHelpers.to_i64(non_claims.get(key)) != 0 {
-        return me._fail(tag, "[plan.non_claims] non-zero claim: " + key)
+        return CompilerProjectorSupportBox.fail(tag, "[plan.non_claims] non-zero claim: " + key)
       }
       i = i + 1
     }
@@ -327,46 +207,46 @@ static box TypedObjectPlanRefreshHakoProjector {
   }
 
   _validate_candidate(candidate_box, tag) {
-    local err = me._require_map(candidate_box, "candidate", tag)
+    local err = CompilerProjectorSupportBox.require_map(candidate_box, "candidate", tag)
     if err != null {
       return err
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(candidate_box.payload, "kind"),
       "candidate.kind",
       "TypedObjectPlanRefreshShadowCandidateV1",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(candidate_box.payload, "family_id"),
       "candidate.family_id",
       "hakorune_mir_builder::typed_object_plan_refresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(candidate_box.payload, "stage_id"),
       "candidate.stage_id",
       "typed_object_plan_refresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(candidate_box.payload, "source_authority"),
       "candidate.source_authority",
       "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(candidate_box.payload, "refresh_timing"),
       "candidate.refresh_timing",
       "AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(candidate_box.payload, "entrypoint"),
       "candidate.entrypoint",
       "typed_object_plan::refresh_module_typed_object_plans",
@@ -375,12 +255,12 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local publication_targets = BoxHelpers.map_get(candidate_box.payload, "publication_targets")
-    err = me._require_array(publication_targets, "candidate.publication_targets", tag)
+    err = CompilerProjectorSupportBox.require_array(publication_targets, "candidate.publication_targets", tag)
     if err != null { return err }
     if publication_targets.length() != 1 {
-      return me._fail(tag, "[candidate.publication_targets] expected 1 publication target")
+      return CompilerProjectorSupportBox.fail(tag, "[candidate.publication_targets] expected 1 publication target")
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       publication_targets.get(0),
       "candidate.publication_targets[0]",
       "module.metadata.typed_object_plans",
@@ -389,27 +269,27 @@ static box TypedObjectPlanRefreshHakoProjector {
     if err != null { return err }
 
     local projected_fields = BoxHelpers.map_get(candidate_box.payload, "projected_fields")
-    err = me._require_array(projected_fields, "candidate.projected_fields", tag)
+    err = CompilerProjectorSupportBox.require_array(projected_fields, "candidate.projected_fields", tag)
     if err != null { return err }
     if projected_fields.length() != 5 {
-      return me._fail(tag, "[candidate.projected_fields] expected 5 fields")
+      return CompilerProjectorSupportBox.fail(tag, "[candidate.projected_fields] expected 5 fields")
     }
-    err = me._require_text(projected_fields.get(0), "candidate.projected_fields[0]", "box_name", tag)
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(0), "candidate.projected_fields[0]", "box_name", tag)
     if err != null { return err }
-    err = me._require_text(projected_fields.get(1), "candidate.projected_fields[1]", "type_id", tag)
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(1), "candidate.projected_fields[1]", "type_id", tag)
     if err != null { return err }
-    err = me._require_text(projected_fields.get(2), "candidate.projected_fields[2]", "layout_kind", tag)
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(2), "candidate.projected_fields[2]", "layout_kind", tag)
     if err != null { return err }
-    err = me._require_text(projected_fields.get(3), "candidate.projected_fields[3]", "field_count", tag)
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(3), "candidate.projected_fields[3]", "field_count", tag)
     if err != null { return err }
-    err = me._require_text(projected_fields.get(4), "candidate.projected_fields[4]", "fields", tag)
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(4), "candidate.projected_fields[4]", "fields", tag)
     if err != null { return err }
 
     if StringHelpers.to_i64(BoxHelpers.map_get(candidate_box.payload, "mutation_target_count")) != 1 {
-      return me._fail(tag, "[candidate.mutation_target_count] expected 1")
+      return CompilerProjectorSupportBox.fail(tag, "[candidate.mutation_target_count] expected 1")
     }
 
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       candidate_box.shadow_json,
       "candidate.shadow_json",
       CanonicalJsonWriterBox.canonicalize(candidate_box.payload),
@@ -420,32 +300,32 @@ static box TypedObjectPlanRefreshHakoProjector {
   }
 
   _validate_parity_gate(parity_gate, tag) {
-    local err = me._require_map(parity_gate, "parity_gate", tag)
+    local err = CompilerProjectorSupportBox.require_map(parity_gate, "parity_gate", tag)
     if err != null {
       return err
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(parity_gate.payload, "kind"),
       "parity_gate.kind",
       "TypedObjectPlanRefreshParityGateV1",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(parity_gate.payload, "family_id"),
       "parity_gate.family_id",
       "hakorune_mir_builder::typed_object_plan_refresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(parity_gate.payload, "stage_id"),
       "parity_gate.stage_id",
       "typed_object_plan_refresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(parity_gate.payload, "comparison"),
       "parity_gate.comparison",
       "canonical_json",
@@ -453,9 +333,9 @@ static box TypedObjectPlanRefreshHakoProjector {
     )
     if err != null { return err }
     if StringHelpers.to_i64(BoxHelpers.map_get(parity_gate.payload, "expected_match")) != 1 {
-      return me._fail(tag, "[parity_gate.expected_match] expected 1")
+      return CompilerProjectorSupportBox.fail(tag, "[parity_gate.expected_match] expected 1")
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       parity_gate.shadow_json,
       "parity_gate.shadow_json",
       CanonicalJsonWriterBox.canonicalize(parity_gate.payload),
@@ -466,39 +346,39 @@ static box TypedObjectPlanRefreshHakoProjector {
   }
 
   _validate_token(token, label, expected_kind, expected_value, tag) {
-    local err = me._require_map(token, label, tag)
+    local err = CompilerProjectorSupportBox.require_map(token, label, tag)
     if err != null {
       return err
     }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(token.payload, "kind"),
       label + ".kind",
       expected_kind,
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(token.payload, "family_id"),
       label + ".family_id",
       "hakorune_mir_builder::typed_object_plan_refresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(token.payload, "stage_id"),
       label + ".stage_id",
       "typed_object_plan_refresh",
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       BoxHelpers.map_get(token.payload, "value"),
       label + ".value",
       expected_value,
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       token.shadow_json,
       label + ".shadow_json",
       CanonicalJsonWriterBox.canonicalize(token.payload),
@@ -509,24 +389,24 @@ static box TypedObjectPlanRefreshHakoProjector {
   }
 
   _project_shadow_output(hako_shadow_box) {
-    return me._copy_any(hako_shadow_box.payload)
+    return CompilerProjectorSupportBox.copy_any(hako_shadow_box.payload)
   }
 
   project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
-    local tag = me._tag(null)
+    local tag = CompilerProjectorSupportBox.tag(null)
     local err = me._validate_plan(plan, tag)
     if err != null {
       return err
     }
-    err = me._require_present(python_oracle, "python_oracle", tag)
+    err = CompilerProjectorSupportBox.require_present(python_oracle, "python_oracle", tag)
     if err != null { return err }
-    err = me._require_present(hako_shadow, "hako_shadow", tag)
+    err = CompilerProjectorSupportBox.require_present(hako_shadow, "hako_shadow", tag)
     if err != null { return err }
-    err = me._require_present(parity_gate, "parity_gate", tag)
+    err = CompilerProjectorSupportBox.require_present(parity_gate, "parity_gate", tag)
     if err != null { return err }
-    err = me._require_present(promotion_token, "promotion_token", tag)
+    err = CompilerProjectorSupportBox.require_present(promotion_token, "promotion_token", tag)
     if err != null { return err }
-    err = me._require_present(retirement_token, "retirement_token", tag)
+    err = CompilerProjectorSupportBox.require_present(retirement_token, "retirement_token", tag)
     if err != null { return err }
 
     err = me._validate_candidate(python_oracle, tag)
@@ -551,7 +431,7 @@ static box TypedObjectPlanRefreshHakoProjector {
       tag,
     )
     if err != null { return err }
-    err = me._require_text(
+    err = CompilerProjectorSupportBox.require_text(
       python_oracle.shadow_json,
       "python_oracle.shadow_json",
       hako_shadow.shadow_json,
@@ -564,21 +444,21 @@ static box TypedObjectPlanRefreshHakoProjector {
     CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("TypedObjectPlanRefreshShadowCandidateV1"))
     CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::typed_object_plan_refresh"))
     CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("typed_object_plan_refresh"))
-    CompilerProjectionValueBox.object_set(shadow_record, "subject", me._copy_any(BoxHelpers.map_get(plan.payload, "subject")))
-    CompilerProjectionValueBox.object_set(shadow_record, "source_authority", me._copy_any(BoxHelpers.map_get(plan.payload, "source_authority")))
+    CompilerProjectionValueBox.object_set(shadow_record, "subject", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(plan.payload, "subject")))
+    CompilerProjectionValueBox.object_set(shadow_record, "source_authority", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(plan.payload, "source_authority")))
     CompilerProjectionValueBox.object_set(shadow_record, "refresh_timing", CompilerProjectionValueBox.create_string("AfterRecordPackedLayoutRefreshBeforeDirectStateRefresh"))
-    CompilerProjectionValueBox.object_set(shadow_record, "publication_targets", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "publication_targets")))
-    CompilerProjectionValueBox.object_set(shadow_record, "projected_fields", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "projected_fields")))
-    CompilerProjectionValueBox.object_set(shadow_record, "mutation_target_count", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "mutation_target_count")))
-    CompilerProjectionValueBox.object_set(shadow_record, "entrypoint", me._copy_any(BoxHelpers.map_get(hako_shadow.payload, "entrypoint")))
-    CompilerProjectionValueBox.object_set(shadow_record, "input_json", me._copy_any(plan.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "publication_targets", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(hako_shadow.payload, "publication_targets")))
+    CompilerProjectionValueBox.object_set(shadow_record, "projected_fields", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(hako_shadow.payload, "projected_fields")))
+    CompilerProjectionValueBox.object_set(shadow_record, "mutation_target_count", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(hako_shadow.payload, "mutation_target_count")))
+    CompilerProjectionValueBox.object_set(shadow_record, "entrypoint", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(hako_shadow.payload, "entrypoint")))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", CompilerProjectorSupportBox.copy_any(plan.payload))
     CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
-    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", me._copy_any(python_oracle.payload))
-    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", me._copy_any(hako_shadow.payload))
-    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", me._copy_any(parity_gate.payload))
-    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", me._copy_any(promotion_token.payload))
-    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", me._copy_any(retirement_token.payload))
-    return me._ok(shadow_record, hako_shadow.shadow_json)
+    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", CompilerProjectorSupportBox.copy_any(python_oracle.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", CompilerProjectorSupportBox.copy_any(hako_shadow.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", CompilerProjectorSupportBox.copy_any(parity_gate.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", CompilerProjectorSupportBox.copy_any(promotion_token.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", CompilerProjectorSupportBox.copy_any(retirement_token.payload))
+    return CompilerProjectorSupportBox.ok_with_json(shadow_record, hako_shadow.shadow_json)
   }
 
   project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {

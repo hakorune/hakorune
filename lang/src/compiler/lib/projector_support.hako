@@ -43,6 +43,15 @@ static box CompilerProjectorSupportBox {
     }
   }
 
+  ok_with_json(shadow_record, shadow_json) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_record" => shadow_record,
+      "shadow_json" => "" + shadow_json
+    }
+  }
+
   require_map(value, label, tag) {
     if value == null || BoxHelpers.is_map(value) != 1 {
       return me.fail(tag, "[" + label + "] expected MapBox")
