@@ -100,23 +100,23 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
 done
 
 if [[ "$blocker_token" == *"DESIGN-STOP"* ]]; then
-  while IFS= read -r pattern; do
-    [[ -z "$pattern" ]] && continue
-    [[ "$pattern" = \#* ]] && continue
-    case "$pattern" in
-      *"goal-driven execution loop here and review the frontier card before"*)
-        expect_fixed "$pattern" "$RESTART_DOC"
-        ;;
-      *"pause point for goal-driven execution: do not invent a fresh executable owner"*)
-        expect_fixed "$pattern" "$POLICY_DOC"
-        ;;
-      *"do not use docs-only follow-ups to keep the same"*)
-        expect_fixed "$pattern" "$POLICY_DOC"
-        ;;
-      *)
-        expect_fixed "$pattern" "$CURRENT_TASK_DOC"
-        ;;
-    esac
+  declare -A design_stop_docs=(
+    [CURRENT_TASK_DOC]="$CURRENT_TASK_DOC"
+    [RESTART_DOC]="$RESTART_DOC"
+    [POLICY_DOC]="$POLICY_DOC"
+  )
+  while IFS= read -r entry; do
+    [[ -z "$entry" ]] && continue
+    [[ "$entry" = \#* ]] && continue
+    if [[ "$entry" != *"|"* ]]; then
+      guard_fail "$TAG" "invalid design-stop pause entry: $entry"
+    fi
+    target="${entry%%|*}"
+    pattern="${entry#*|}"
+    if [[ -z "${design_stop_docs[$target]+x}" ]]; then
+      guard_fail "$TAG" "unknown design-stop pause target: $target"
+    fi
+    expect_fixed "$pattern" "${design_stop_docs[$target]}"
   done < "$DESIGN_STOP_PAUSE_PATTERNS_FILE"
 fi
 
