@@ -33,7 +33,8 @@ selected source slice:
 
 selected lowering:
   ModuleMetadataPublicationPlanV1
-    -> prepared module metadata projection
+    -> child publication projections
+    -> Hako shadow semantic projector
     -> declaration inventory publication
     -> generated Hako artifact
 
@@ -111,7 +112,10 @@ latest design decision:
   MirModule, MirFunction, CurrentModuleTake, ReturnEmission,
   FunctionRegionStackPop, and SlotRegistryRelease executable artifacts are
   already present. The next owner is the analyzer-derived first
-  PlanOnly/Missing edge, ModuleMetadataPublication.
+  PlanOnly/Missing edge, ModuleMetadataPublication. Consultation selects D+:
+  close ModuleMetadataPublication, regenerate the frontier, run the
+  allocation-policy Hako adoption decision, then decompose refresh-class edges
+  before materializing any large refresh artifact.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -250,21 +254,21 @@ history, not in this task-order SSOT.
 ```text
 1. Module metadata publication Derived Hako artifact
    status=selected
-   boundary=publish module declaration inventory before semantic refresh
+   boundary=publish four module metadata fields through child projections and Hako shadow parity
    semantic_authority=ModuleMetadataPublicationPlanV1
-   non_authority=prewriting analyzer result before regeneration
+   non_authority=new Python semantic projector or refresh behavior
 
-2. Minimal execution path report regeneration
-   status=parked until selected artifact green
-   boundary=derive the next materialization gap from updated artifact contracts
-   semantic_authority=minimal execution path analyzer
-   non_authority=coverage percentage or bundle size
+2. Allocation-policy Hako adoption decision
+   status=parked until selected artifact green and frontier regenerated
+   boundary=decide Adopt/Defer/Reject for the narrow DerivedMainline allocation-policy kernel
+   semantic_authority=derived-to-native artifact model plus allocation-policy route evidence
+   non_authority=full minimal path mainline selection
 
-3. Next executable gap after report regeneration
-   status=parked until refreshed frontier is available
-   boundary=analyzer-derived follow-on selection
-   semantic_authority=minimal execution path analyzer
-   non_authority=prewriting future frontier
+3. Record/packed refresh decomposition
+   status=parked until adoption decision completes and frontier still selects refresh-class work
+   boundary=split composite refresh edge into child source-order capabilities
+   semantic_authority=directability/decomposition analysis
+   non_authority=one giant RecordAndPackedLayoutRefresh artifact
 ```
 
 ## Landed Converter Capability Summary
