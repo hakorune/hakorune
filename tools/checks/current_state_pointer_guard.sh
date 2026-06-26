@@ -9,6 +9,7 @@ STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CURRENT_TASK_DOC="$ROOT_DIR/CURRENT_TASK.md"
 NOW_DOC="$ROOT_DIR/docs/development/current/main/10-Now.md"
 RESTART_DOC="$ROOT_DIR/docs/development/current/main/05-Restart-Quick-Resume.md"
+POLICY_DOC="$ROOT_DIR/docs/development/current/main/design/current-docs-update-policy-ssot.md"
 PHASE137X_README="$ROOT_DIR/docs/development/current/main/phases/phase-137x/README.md"
 PHASE137X_TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 STALE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_stale_pointer_patterns.txt"
@@ -21,6 +22,7 @@ guard_require_files "$TAG" \
   "$CURRENT_TASK_DOC" \
   "$NOW_DOC" \
   "$RESTART_DOC" \
+  "$POLICY_DOC" \
   "$PHASE137X_README" \
   "$PHASE137X_TASKBOARD" \
   "$STALE_PATTERNS_FILE"
@@ -94,6 +96,14 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   expect_fixed "active_lane" "$doc"
   expect_fixed "current_blocker_token" "$doc"
 done
+
+if [[ "$blocker_token" == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001" ]]; then
+  expect_fixed "invent a new executable owner from historical mirrors." "$CURRENT_TASK_DOC"
+  expect_fixed "keep the goal open until the frontier names a concrete next" "$CURRENT_TASK_DOC"
+  expect_fixed "goal-driven execution loop here and review the frontier card before" "$RESTART_DOC"
+  expect_fixed "pause point for goal-driven execution: do not invent a fresh executable owner" "$POLICY_DOC"
+  expect_fixed "do not use docs-only follow-ups to keep the same" "$POLICY_DOC"
+fi
 
 expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
 expect_fixed "active_lane" "$PHASE137X_README"
