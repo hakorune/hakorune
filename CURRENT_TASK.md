@@ -28,5 +28,10 @@ Read these fields in `docs/development/current/main/CURRENT_STATE.toml`:
 - `latest_card_path`
 - `current_blocker_token`
 
+If `current_blocker_token` names the explicit design-stop frontier, do not
+invent a new executable owner from historical mirrors. Review the frontier
+card first and keep the goal open until the frontier names a concrete next
+owner.
+
 Current implementation details, acceptance, parked items, and non-claims live in
 the active card and task-order SSOT. Do not duplicate them here.
