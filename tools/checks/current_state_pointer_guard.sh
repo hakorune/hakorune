@@ -99,35 +99,7 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   expect_fixed "current_blocker_token" "$doc"
 done
 
-design_stop_blocker_class=""
-while IFS= read -r entry; do
-  [[ -z "$entry" ]] && continue
-  [[ "$entry" = \#* ]] && continue
-  if [[ "$entry" == blocker_token_contains=* ]]; then
-    design_stop_blocker_class="${entry#blocker_token_contains=}"
-    if [[ -z "$design_stop_blocker_class" ]]; then
-      guard_fail "$TAG" "design-stop contract missing blocker token class"
-    fi
-    continue
-  fi
-  IFS='|' read -r target pattern <<<"$entry"
-  if [[ -z "$target" || -z "$pattern" ]]; then
-    guard_fail "$TAG" "invalid design-stop contract entry: $entry"
-  fi
-  if [[ "$target" = /* ]]; then
-    guard_fail "$TAG" "design-stop pause target must be repo-relative: $target"
-  fi
-  require_repo_file "$target" "design-stop pause target"
-  expect_fixed "$pattern" "$ROOT_DIR/$target"
-done < "$DESIGN_STOP_CONTRACT_FILE"
-
-if [[ -z "$design_stop_blocker_class" ]]; then
-  guard_fail "$TAG" "design-stop contract missing blocker token class"
-fi
-
-if [[ "$blocker_token" != *"$design_stop_blocker_class"* ]]; then
-  guard_fail "$TAG" "design-stop contract not active for current blocker token: $blocker_token"
-fi
+guard_require_design_stop_pause_contract "$TAG" "$ROOT_DIR" "$blocker_token" "$DESIGN_STOP_CONTRACT_FILE"
 
 expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
 expect_fixed "active_lane" "$PHASE137X_README"
