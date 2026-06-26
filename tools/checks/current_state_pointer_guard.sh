@@ -50,6 +50,14 @@ expect_fixed() {
   fi
 }
 
+require_design_stop_pause_contract() {
+  expect_fixed "invent a new executable owner from historical mirrors." "$CURRENT_TASK_DOC"
+  expect_fixed "keep the goal open until the frontier names a concrete next" "$CURRENT_TASK_DOC"
+  expect_fixed "goal-driven execution loop here and review the frontier card before" "$RESTART_DOC"
+  expect_fixed "pause point for goal-driven execution: do not invent a fresh executable owner" "$POLICY_DOC"
+  expect_fixed "do not use docs-only follow-ups to keep the same" "$POLICY_DOC"
+}
+
 active_lane="$(require_scalar active_lane)"
 active_phase="$(require_scalar active_phase)"
 phase_status="$(require_scalar phase_status)"
@@ -98,11 +106,7 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
 done
 
 if [[ "$blocker_token" == *"DESIGN-STOP"* ]]; then
-  expect_fixed "invent a new executable owner from historical mirrors." "$CURRENT_TASK_DOC"
-  expect_fixed "keep the goal open until the frontier names a concrete next" "$CURRENT_TASK_DOC"
-  expect_fixed "goal-driven execution loop here and review the frontier card before" "$RESTART_DOC"
-  expect_fixed "pause point for goal-driven execution: do not invent a fresh executable owner" "$POLICY_DOC"
-  expect_fixed "do not use docs-only follow-ups to keep the same" "$POLICY_DOC"
+  require_design_stop_pause_contract
 fi
 
 expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
