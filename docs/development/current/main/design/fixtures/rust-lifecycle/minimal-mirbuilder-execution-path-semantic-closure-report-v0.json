@@ -595,6 +595,49 @@
     "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
+  "materialization_decomposition": {
+    "owner_kind": "CompositeOwnerNeedsDecomposition",
+    "composite_owner": {
+      "edge_id": "finalize_module.record_packed_layout_refresh",
+      "callsite": "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans",
+      "required_capability": "RecordAndPackedLayoutRefresh",
+      "next_slice_token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001"
+    },
+    "ordered_child_owners": [
+      {
+        "edge_id": "finalize_module.typed_object_plan_refresh",
+        "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
+        "required_capability": "TypedObjectPlanRefresh",
+        "evidence_tier": "PlanOnly",
+        "artifact_materialization": "Missing",
+        "route_state": "Unselected"
+      },
+      {
+        "edge_id": "finalize_module.direct_state_plan_refresh",
+        "callsite": "MirBuilder::finalize_module -> refresh_module_direct_state_plans",
+        "required_capability": "DirectStatePlanRefresh",
+        "evidence_tier": "PlanOnly",
+        "artifact_materialization": "Missing",
+        "route_state": "Unselected"
+      },
+      {
+        "edge_id": "finalize_module.all_functions_phi_materialization",
+        "callsite": "MirBuilder::finalize_module -> materialize_all_phi_inputs for all functions",
+        "required_capability": "AllFunctionsPhiMaterialization",
+        "evidence_tier": "PlanOnly",
+        "artifact_materialization": "Missing",
+        "route_state": "Unselected"
+      }
+    ],
+    "first_leaf_owner": {
+      "edge_id": "finalize_module.typed_object_plan_refresh",
+      "callsite": "MirBuilder::finalize_module -> refresh_module_typed_object_plans",
+      "required_capability": "TypedObjectPlanRefresh",
+      "evidence_tier": "PlanOnly",
+      "artifact_materialization": "Missing",
+      "route_state": "Unselected"
+    }
+  },
   "claims": {
     "semantic_closure_report": 1,
     "generated_hako_change": 0,

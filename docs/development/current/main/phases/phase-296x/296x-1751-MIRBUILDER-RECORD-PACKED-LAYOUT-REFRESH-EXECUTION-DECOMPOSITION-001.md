@@ -1,10 +1,17 @@
 ---
-Status: Selected
+Status: Landed
 Date: 2026-06-26
 Card: MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
 ---
 
 # MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
+
+## Closeout
+
+The semantic-closure report and guard now decompose the composite
+`finalize_module.record_packed_layout_refresh` edge into ordered child owners.
+`finalize_module.typed_object_plan_refresh` is exposed as the first leaf owner,
+and the next selected card is the typed-object derived artifact slice.
 
 ## Summary
 

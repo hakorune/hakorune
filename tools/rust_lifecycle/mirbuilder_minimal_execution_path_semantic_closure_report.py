@@ -196,6 +196,36 @@ def _first_executable_gap(edges: list[dict[str, Any]]) -> dict[str, Any]:
     raise AssertionError("no executable materialization gap found")
 
 
+def _materialization_decomposition(edges: list[dict[str, Any]], first_gap: dict[str, Any]) -> dict[str, Any]:
+    gap_index = next(
+        index for index, edge in enumerate(edges) if edge["edge_id"] == first_gap["edge_id"]
+    )
+    child_owners = []
+    for edge in edges[gap_index + 1 :]:
+        child_owners.append(
+            {
+                "edge_id": edge["edge_id"],
+                "callsite": edge["callsite"],
+                "required_capability": edge["required_capability"],
+                "evidence_tier": edge["evidence_tier"],
+                "artifact_materialization": edge["artifact_materialization"],
+                "route_state": edge["route_state"],
+            }
+        )
+    require(child_owners, "composite materialization gap must expose child owners")
+    return {
+        "owner_kind": "CompositeOwnerNeedsDecomposition",
+        "composite_owner": {
+            "edge_id": first_gap["edge_id"],
+            "callsite": first_gap["callsite"],
+            "required_capability": first_gap["required_capability"],
+            "next_slice_token": first_gap["next_slice_token"],
+        },
+        "ordered_child_owners": child_owners,
+        "first_leaf_owner": child_owners[0],
+    }
+
+
 def _materialization_slice_for(capability: str | None) -> str:
     if capability == "MirModuleMinimalShellTransport":
         return "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001"
@@ -272,6 +302,7 @@ def build_report() -> dict[str, Any]:
     artifact_contracts = _executable_artifact_contracts()
     edges = [_classify_edge(edge, artifact_contracts) for edge in selected_edges]
     first_gap = _first_executable_gap(edges)
+    decomposition = _materialization_decomposition(edges, first_gap)
     counts = {
         "evidence_tier": dict(sorted(Counter(edge["evidence_tier"] for edge in edges).items())),
         "artifact_materialization": dict(
@@ -303,6 +334,7 @@ def build_report() -> dict[str, Any]:
         "edge_counts": counts,
         "edges": edges,
         "first_executable_materialization_gap": first_gap,
+        "materialization_decomposition": decomposition,
         "claims": {
             "semantic_closure_report": 1,
             "generated_hako_change": 0,
@@ -338,6 +370,31 @@ def validate_report(report: dict[str, Any]) -> None:
         first_gap["next_slice_token"]
         == "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001",
         "first materialization gap next slice drift",
+    )
+    decomposition = report["materialization_decomposition"]
+    require(
+        decomposition["owner_kind"] == "CompositeOwnerNeedsDecomposition",
+        "composite materialization owner kind drift",
+    )
+    require(
+        decomposition["composite_owner"]["edge_id"] == first_gap["edge_id"],
+        "composite materialization owner drift",
+    )
+    gap_index = next(
+        index
+        for index, edge in enumerate(report["edges"])
+        if edge["edge_id"] == first_gap["edge_id"]
+    )
+    expected_children = report["edges"][gap_index + 1 :]
+    require(expected_children, "composite materialization decomposition must expose children")
+    require(
+        [child["edge_id"] for child in decomposition["ordered_child_owners"]]
+        == [edge["edge_id"] for edge in expected_children],
+        "composite child owner order drift",
+    )
+    require(
+        decomposition["first_leaf_owner"]["edge_id"] == expected_children[0]["edge_id"],
+        "first leaf owner drift",
     )
     slot_registry_release = next(
         edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.slot_registry_release"
@@ -391,6 +448,8 @@ def run_drift_probes(report: dict[str, Any]) -> None:
     probes: list[tuple[str, list[Any], Any]] = [
         ("smoke treated as executable", ["edges"], None),
         ("first gap hand-edited", ["first_executable_materialization_gap", "edge_id"], "prepare_module.state_install"),
+        ("decomposition child order drift", ["materialization_decomposition", "ordered_child_owners"], []),
+        ("first leaf owner drift", ["materialization_decomposition", "first_leaf_owner", "edge_id"], "prepare_module.state_install"),
         ("full path mainline claim", ["closure", "full_path_mainline_eligible"], True),
         ("source selfhost claim", ["claims", "source_selfhost_claim"], 1),
     ]
@@ -402,6 +461,10 @@ def run_drift_probes(report: dict[str, Any]) -> None:
                     edge["artifact_materialization"] = "ExecutableArtifactPresent"
                     edge["route_state"] = "DerivedMainline"
                     break
+        elif label == "decomposition child order drift":
+            mutated["materialization_decomposition"]["ordered_child_owners"] = list(
+                reversed(mutated["materialization_decomposition"]["ordered_child_owners"])
+            )
         else:
             cursor: Any = mutated
             for key in path[:-1]:
@@ -439,6 +502,8 @@ def main() -> int:
             ("full_path_mainline_eligible", "0"),
             ("first_executable_materialization_gap", report["first_executable_materialization_gap"]["edge_id"]),
             ("next_slice_token", report["first_executable_materialization_gap"]["next_slice_token"]),
+            ("materialization_decomposition_owner", report["materialization_decomposition"]["composite_owner"]["edge_id"]),
+            ("first_leaf_owner", report["materialization_decomposition"]["first_leaf_owner"]["edge_id"]),
             ("generated_hako_change", "0"),
             ("runtime_fallback", "0"),
         ],

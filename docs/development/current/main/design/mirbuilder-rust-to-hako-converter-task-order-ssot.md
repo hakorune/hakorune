@@ -21,16 +21,17 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Decompose the composite record/packed layout frontier before any one-artifact
-  landing. The prepared-state allocation-policy Hako adoption decision is
-  recorded as Defer because no native .hako source owner exists yet.
+  Materialize the analyzer-derived first leaf owner under the record/packed
+  layout composite boundary. The landed typed-object plan refresh capability is
+  projected into a checked-in derived Hako artifact before touching
+  direct-state refresh.
 
 selected decision slice:
-  finalize_module.record_packed_layout_refresh
-    -> composite owner decomposition
+  finalize_module.typed_object_plan_refresh
+    -> first leaf owner after composite decomposition
 
 selected evidence:
   semantic closure frontier
@@ -58,6 +59,9 @@ landed evidence:
   VerifiedFamilyArtifactContractV1, exercises scalar counters and ID
   generators, and avoids copying family selected methods, semantic transports,
   or denials.
+  RecordAndPackedLayoutRefresh decomposition is green: the semantic closure
+  report now exposes finalize_module.typed_object_plan_refresh as the first
+  leaf owner under the composite gap.
   ReturnEmission Hako shadow projector is landed as an ordinary compiler
   library module under lang/src/compiler/lib with explicit plan/input/output
   parity packaging and no ABI surface.
@@ -102,19 +106,22 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.record_packed_layout_refresh as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The composite record/packed layout frontier may not be materialized as one
-  artifact. Full minimal-path mainline selection, backend route, ABI, runtime
-  fallback, and source selfhost remain unselected.
+  The record/packed layout frontier remains composite. The first leaf owner is
+  typed-object plan refresh, and it may not be skipped, fused into direct-state
+  refresh, or materialized as one composite artifact. Full minimal-path
+  mainline selection, backend route, ABI, runtime fallback, and source
+  selfhost remain unselected.
 
 latest design decision:
   ModuleMetadataPublication is now executable artifact evidence and the
   regenerated semantic-closure report advances the materialization frontier to
-  RecordAndPackedLayoutRefresh. The allocation-policy Hako adoption decision is
-  recorded as Defer because no native .hako source owner exists yet; the next
-  blocker is composite record/packed layout decomposition.
+  RecordAndPackedLayoutRefresh. The report decomposes that composite and
+  exposes finalize_module.typed_object_plan_refresh as the first leaf owner;
+  the next blocker is materializing that leaf as a checked-in derived Hako
+  artifact.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -251,23 +258,26 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Allocation-policy Hako adoption decision
+1. TypedObjectPlanRefresh derived Hako artifact
    status=selected
-   boundary=decide Adopt/Defer/Reject for the narrow DerivedMainline allocation-policy kernel
-   semantic_authority=derived-to-native artifact model plus allocation-policy route evidence
-   non_authority=full minimal path mainline selection
+   boundary=materialize the first leaf owner under the record/packed
+   layout decomposition
+   semantic_authority=typed object plan facts plus decomposition result
+   non_authority=direct-state refresh or full refresh family artifact
 
-2. Record/packed refresh decomposition
-   status=parked until adoption decision completes and frontier still selects refresh-class work
-   boundary=split composite refresh edge into child source-order capabilities
-   semantic_authority=directability/decomposition analysis
-   non_authority=one giant RecordAndPackedLayoutRefresh artifact
+2. DirectStatePlanRefresh derived Hako artifact
+   status=parked until typed-object leaf lands
+   boundary=materialize the next leaf owner under the same composite
+   decomposition
+   semantic_authority=direct-state plan facts plus decomposition result
+   non_authority=all-functions PHI or full refresh family artifact
 
-3. First decomposed refresh child artifact
-   status=parked until decomposition derives a leaf owner
-   boundary=Hako shadow projector plus derived artifact for the first child capability
-   semantic_authority=decomposition result plus child source facts
-   non_authority=full refresh family artifact
+3. AllFunctionsPhiMaterialization derived Hako artifact
+   status=parked until direct-state leaf lands
+   boundary=materialize the third leaf owner under the same composite
+   decomposition
+   semantic_authority=all-functions PHI facts plus decomposition result
+   non_authority=full finalize_module artifact
 ```
 
 ## Landed Converter Capability Summary

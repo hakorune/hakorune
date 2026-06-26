@@ -29,6 +29,16 @@ assert gap["edge_id"] == "finalize_module.record_packed_layout_refresh"
 assert gap["callsite"] == "MirBuilder::finalize_module -> refresh_module_record_and_packed_layout_plans"
 assert gap["required_capability"] == "RecordAndPackedLayoutRefresh"
 assert gap["next_slice_token"] == "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001"
+decomposition = report["materialization_decomposition"]
+assert decomposition["owner_kind"] == "CompositeOwnerNeedsDecomposition"
+assert decomposition["composite_owner"]["edge_id"] == gap["edge_id"]
+edge_index = next(i for i, edge in enumerate(report["edges"]) if edge["edge_id"] == gap["edge_id"])
+expected_children = report["edges"][edge_index + 1 :]
+assert expected_children, "composite decomposition must expose child owners"
+assert [child["edge_id"] for child in decomposition["ordered_child_owners"]] == [
+    edge["edge_id"] for edge in expected_children
+]
+assert decomposition["first_leaf_owner"]["edge_id"] == expected_children[0]["edge_id"]
 module_edges = [edge for edge in report["edges"] if edge["edge_id"] == "prepare_module.module_new"]
 assert len(module_edges) == 1
 module_edge = module_edges[0]
@@ -210,6 +220,8 @@ print("semantic_plan_closure=Closed")
 print("generated_hako_executable_closure=Open")
 print(f"first_executable_materialization_gap={gap['edge_id']}")
 print(f"next_slice_token={gap['next_slice_token']}")
+print(f"materialization_decomposition_owner={decomposition['composite_owner']['edge_id']}")
+print(f"first_leaf_owner={decomposition['first_leaf_owner']['edge_id']}")
 print("full_path_mainline_eligible=0")
 print("runtime_fallback=0")
 print("summary=ok")
