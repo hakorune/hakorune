@@ -45,3 +45,6 @@ cargo check -q
   active; resume only through the return lane named by the active taskboard
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
+- if the current blocker token names the explicit design-stop frontier, stop
+  the goal-driven execution loop here and review the frontier card before
+  naming a new executable owner
