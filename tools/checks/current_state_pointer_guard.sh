@@ -13,6 +13,7 @@ POLICY_DOC="$ROOT_DIR/docs/development/current/main/design/current-docs-update-p
 PHASE137X_README="$ROOT_DIR/docs/development/current/main/phases/phase-137x/README.md"
 PHASE137X_TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 STALE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_stale_pointer_patterns.txt"
+DESIGN_STOP_PAUSE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_design_stop_pause_patterns.txt"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" sed
@@ -25,7 +26,8 @@ guard_require_files "$TAG" \
   "$POLICY_DOC" \
   "$PHASE137X_README" \
   "$PHASE137X_TASKBOARD" \
-  "$STALE_PATTERNS_FILE"
+  "$STALE_PATTERNS_FILE" \
+  "$DESIGN_STOP_PAUSE_PATTERNS_FILE"
 
 toml_scalar() {
   local key="$1"
@@ -48,14 +50,6 @@ expect_fixed() {
   if ! rg -Fq "$needle" "$file"; then
     guard_fail "$TAG" "$(realpath --relative-to="$ROOT_DIR" "$file") missing CURRENT_STATE token: $needle"
   fi
-}
-
-require_design_stop_pause_contract() {
-  expect_fixed "invent a new executable owner from historical mirrors." "$CURRENT_TASK_DOC"
-  expect_fixed "keep the goal open until the frontier names a concrete next" "$CURRENT_TASK_DOC"
-  expect_fixed "goal-driven execution loop here and review the frontier card before" "$RESTART_DOC"
-  expect_fixed "pause point for goal-driven execution: do not invent a fresh executable owner" "$POLICY_DOC"
-  expect_fixed "do not use docs-only follow-ups to keep the same" "$POLICY_DOC"
 }
 
 active_lane="$(require_scalar active_lane)"
@@ -106,7 +100,24 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
 done
 
 if [[ "$blocker_token" == *"DESIGN-STOP"* ]]; then
-  require_design_stop_pause_contract
+  while IFS= read -r pattern; do
+    [[ -z "$pattern" ]] && continue
+    [[ "$pattern" = \#* ]] && continue
+    case "$pattern" in
+      *"goal-driven execution loop here and review the frontier card before"*)
+        expect_fixed "$pattern" "$RESTART_DOC"
+        ;;
+      *"pause point for goal-driven execution: do not invent a fresh executable owner"*)
+        expect_fixed "$pattern" "$POLICY_DOC"
+        ;;
+      *"do not use docs-only follow-ups to keep the same"*)
+        expect_fixed "$pattern" "$POLICY_DOC"
+        ;;
+      *)
+        expect_fixed "$pattern" "$CURRENT_TASK_DOC"
+        ;;
+    esac
+  done < "$DESIGN_STOP_PAUSE_PATTERNS_FILE"
 fi
 
 expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
