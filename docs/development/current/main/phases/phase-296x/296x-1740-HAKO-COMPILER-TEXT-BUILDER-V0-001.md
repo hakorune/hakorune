@@ -1,6 +1,6 @@
 # HAKO-COMPILER-TEXT-BUILDER-V0-001
 
-Status: Selected
+Status: Superseded by 296x-1741
 Date: 2026-06-26
 Scope: Docs-only placement card for the first compiler-library landing zone.
 

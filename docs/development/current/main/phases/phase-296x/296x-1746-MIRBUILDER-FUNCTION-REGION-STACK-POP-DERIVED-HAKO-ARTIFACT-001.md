@@ -1,5 +1,5 @@
 ---
-Status: Selected
+Status: Superseded by 296x-1747
 Date: 2026-06-26
 Card: MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
 ---
