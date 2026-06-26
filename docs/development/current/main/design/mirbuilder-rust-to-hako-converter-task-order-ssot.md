@@ -21,22 +21,22 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  Connect the landed minimal-path derived artifacts through one prepared-state
-  Hako call graph. This is an implementation card: docs-only closeout is
-  forbidden and a code/artifact delta is required.
+  Review the explicit design-stop frontier and derive the next executable
+  owner only after the frontier review names one. Docs-only closeout remains
+  forbidden.
 
 selected decision slice:
-  minimal_path.composed_execution_closure
-    -> same-state handoff across landed derived artifacts
+  minimal_path.completion_design_stop
+    -> frontier review before the next executable owner is named
 
 selected evidence:
   semantic closure frontier
     -> landed record/packed artifact
-    -> docs-loop breaker policy
-    -> composed execution closure selected as the next code-facing owner
+    -> explicit design-stop frontier
+    -> next executable owner intentionally unresolved
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -110,12 +110,12 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.record_packed_layout_refresh as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current fail-fast boundary:
   The composed execution route is landed. The next stop is the explicit
-  adoption-decision revisit; do not invent a new executable owner before the
-  frontier resolves. Full minimal-path mainline selection, backend route,
+  design-stop frontier review; do not invent a new executable owner before
+  the frontier resolves. Full minimal-path mainline selection, backend route,
   ABI, runtime fallback, and source selfhost remain unselected.
 
 latest design decision:
@@ -265,23 +265,22 @@ history, not in this task-order SSOT.
 ```text
 1. Minimal path composed execution closure
    status=selected
-   boundary=connect landed derived artifacts through one prepared-state Hako
-   call graph and observe same-state handoff
-   semantic_authority=semantic closure frontier plus referenced artifact
-   contracts
+   boundary=review the explicit design-stop frontier and derive the next
+   executable owner only after the frontier review names one
+   semantic_authority=semantic closure frontier plus the design-stop card
    non_authority=standalone smoke aggregation or full minimal-path mainline
 
 2. First composed red edge
    status=derived by the composed harness/guard, not hand-selected
-   boundary=stable state/transport/linkage mismatch if full prefix cannot run
+   boundary=stable state/transport/linkage mismatch if the frontier review
+   resolves to a composite owner
    semantic_authority=executable composed result
    non_authority=manual next-owner selection
 
-3. Allocation-policy Hako adoption decision
-   status=parked until composed closure produces a green prefix or stable red
-   edge
-   boundary=DerivedMainline narrow-family adoption decision
-   semantic_authority=family route state plus adoption model
+3. Next executable owner selection
+   status=parked until the frontier review names one
+   boundary=post-design-stop materialization owner
+   semantic_authority=the frontier report plus the selected next owner
    non_authority=full minimal-path source selfhost claim
 ```
 

@@ -95,14 +95,11 @@ runtime try-Hako-then-Rust fallback = 0
 
 ## Next
 
-If green, the next decision can revisit:
+The next blocker is the explicit design-stop frontier review:
 
 ```text
-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 ```
-
-If red, the next owner is the stable composition red edge emitted by this
-card's harness or guard.
 
 ## Closeout
 
