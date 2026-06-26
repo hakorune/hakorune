@@ -265,12 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1748-MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """The minimal MirBuilder execution path report now
-advances past the finalized SlotRegistryRelease artifact. The first remaining
-materialization gap is finalize_module.module_metadata_publication, and the
-next selected owner is MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001."""
+latest_card = "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1749-MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001.md"
+latest_card_summary = """The next task card is selected for the analyzer-derived
+first executable materialization gap:
+finalize_module.module_metadata_publication. The existing PlanOnly
+ModuleMetadataPublication authority remains the source; the selected work is
+only to project it into a checked-in derived Hako artifact and regenerate the
+semantic-closure report."""
 
 current_blocker_token = "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
