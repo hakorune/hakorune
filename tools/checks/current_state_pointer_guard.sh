@@ -97,7 +97,7 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   expect_fixed "current_blocker_token" "$doc"
 done
 
-if [[ "$blocker_token" == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001" ]]; then
+if [[ "$blocker_token" == *"DESIGN-STOP"* ]]; then
   expect_fixed "invent a new executable owner from historical mirrors." "$CURRENT_TASK_DOC"
   expect_fixed "keep the goal open until the frontier names a concrete next" "$CURRENT_TASK_DOC"
   expect_fixed "goal-driven execution loop here and review the frontier card before" "$RESTART_DOC"
