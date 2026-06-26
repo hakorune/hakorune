@@ -44,6 +44,7 @@ bash tools/checks/rust_lifecycle_ordered_map_crate_bundle_guard.sh
 bash tools/checks/rust_lifecycle_explicit_phi_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_metadata_context_region_parent_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_metadata_context_value_caller_derived_artifact_guard.sh
+bash tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_derived_artifact_guard.sh
 python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family region-observer-slot-metadata --check
 bash tools/checks/rust_lifecycle_multi_carrier_exit_phi_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_single_scalar_loop_carrier_derived_artifact_guard.sh
@@ -77,6 +78,7 @@ variable_context_snapshot_restore=green
 variable_context_carrier_snapshot=green
 variable_context_explicit_carrier_snapshot=green
 ordered_map_crate_bundle=green
+slot_registry_release=green
 negative_converter_fixtures=green
 no_silent_hardcode=green
 shared_emitter=green

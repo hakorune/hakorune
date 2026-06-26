@@ -1,0 +1,45 @@
+{
+  "behavior": {
+    "prepared_slot_registry": "Present",
+    "release_clears_state": "Yes",
+    "released_value_published": "Yes"
+  },
+  "directability": {
+    "full_metadata_context": "Deny",
+    "host_env_lookup": "Deny",
+    "prepared_slot_registry_projection": "Allow"
+  },
+  "execution_scope": "PreparedSlotRegistryReleaseState",
+  "inputs": {
+    "slot_registry_presence_transport": "I64BoolV0",
+    "slot_registry_transport": "FunctionSlotRegistryPreparedBox"
+  },
+  "kind": "SlotRegistryReleaseExecutionProjectionV1",
+  "methods": {
+    "apply": "StaticCall + ReturnI64",
+    "release": "Assign + SetField + ReturnValue"
+  },
+  "mutation_frame": {
+    "current_slot_registry": "exclusive",
+    "released_registry_present": "published by release",
+    "slot_registry_released": "published by release"
+  },
+  "non_claims": {
+    "abi_changed": 0,
+    "all_functions_phi_materialization": 0,
+    "backend_route_changed": 0,
+    "full_finalize_module": 0,
+    "function_region_stack_pop": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "module_metadata_publication": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_metadata_classification": 0
+  },
+  "result_semantics": "Unit",
+  "result_transport": "ScalarI64",
+  "schema_version": 0,
+  "source_plan": "MirBuilderSlotRegistryReleasePlanV1"
+}

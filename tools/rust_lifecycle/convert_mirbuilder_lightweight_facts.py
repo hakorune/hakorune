@@ -30,6 +30,7 @@ from mirbuilder_phi_input_materialization_artifacts import run_phi_input_materia
 from mirbuilder_phi_return_type_inference_artifacts import run_phi_return_type_inference_artifact_generator
 from mirbuilder_return_emission_artifacts import run_return_emission_artifact_generator
 from mirbuilder_return_type_publication_artifacts import run_return_type_publication_artifact_generator
+from mirbuilder_slot_registry_release_artifacts import run_slot_registry_release_artifact_generator
 from mirbuilder_typed_value_verification_artifacts import run_typed_value_verification_artifact_generator
 from mirbuilder_type_hint_provision_artifacts import run_type_hint_provision_artifact_generator
 from mirbuilder_type_propagation_pipeline_artifacts import run_type_propagation_pipeline_artifact_generator
@@ -74,6 +75,7 @@ FAMILY_GENERATORS = {
     "mirbuilder-next-value-id-prepared-state-kernel": run_prepared_state_kernel_generator,
     "mirbuilder-return-emission": run_return_emission_artifact_generator,
     "mirbuilder-return-type-publication": run_return_type_publication_artifact_generator,
+    "mirbuilder-slot-registry-release": run_slot_registry_release_artifact_generator,
     "mirbuilder-typed-value-verification": run_typed_value_verification_artifact_generator,
     "mirbuilder-type-hint-provision": run_type_hint_provision_artifact_generator,
     "mirbuilder-type-propagation-pipeline": run_type_propagation_pipeline_artifact_generator,

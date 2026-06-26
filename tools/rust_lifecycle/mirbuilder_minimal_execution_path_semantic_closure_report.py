@@ -67,6 +67,8 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json",
     "FunctionRegionStackPop": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.artifact.json",
+    "SlotRegistryRelease": ROOT
+    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
 }
 
 
@@ -235,6 +237,8 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
     if capability == "SlotRegistryRelease":
         return "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001"
+    if capability == "ModuleMetadataPublication":
+        return "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001"
     return f"{capability or 'UNKNOWN'}-DERIVED-HAKO-ARTIFACT-001"
 
 
@@ -321,14 +325,34 @@ def validate_report(report: dict[str, Any]) -> None:
     require(closure["full_path_mainline_eligible"] is False, "mainline eligibility claim drift")
     require(closure["source_selfhost_eligible"] is False, "source selfhost eligibility drift")
     first_gap = report["first_executable_materialization_gap"]
-    require(first_gap["edge_id"] == "finalize_module.slot_registry_release", "first materialization gap drift")
+    require(first_gap["edge_id"] == "finalize_module.module_metadata_publication", "first materialization gap drift")
     require(
-        first_gap["required_capability"] == "SlotRegistryRelease",
+        first_gap["required_capability"] == "ModuleMetadataPublication",
         "first materialization gap capability drift",
     )
     require(
-        first_gap["next_slice_token"] == "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001",
+        first_gap["next_slice_token"] == "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
         "first materialization gap next slice drift",
+    )
+    slot_registry_release = next(
+        edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.slot_registry_release"
+    )
+    require(
+        slot_registry_release["evidence_tier"] == "VerifiedArtifact",
+        "slot registry release evidence tier drift",
+    )
+    require(
+        slot_registry_release["artifact_materialization"] == "ExecutableArtifactPresent",
+        "slot registry release materialization drift",
+    )
+    require(
+        slot_registry_release["route_state"] == "DerivedShadow",
+        "slot registry release route state drift",
+    )
+    require(
+        slot_registry_release.get("provider_reference", {}).get("manifest_path")
+        == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
+        "slot registry release provider reference drift",
     )
     for edge in report["edges"]:
         require(edge["semantic_status"] in {"Available", "ProfileExcluded"}, "non-closed edge in report")

@@ -34,21 +34,21 @@
   "edge_counts": {
     "evidence_tier": {
       "Observed": 1,
-      "PlanOnly": 6,
+      "PlanOnly": 5,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 22
+      "VerifiedArtifact": 23
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 22,
-      "Missing": 6,
+      "ExecutableArtifactPresent": 23,
+      "Missing": 5,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 21,
+      "DerivedShadow": 22,
       "NotApplicable": 4,
-      "Unselected": 6
+      "Unselected": 5
     }
   },
   "edges": [
@@ -491,15 +491,15 @@
       "status": "Available",
       "required_capability": "SlotRegistryRelease",
       "semantic_status": "Available",
-      "evidence_tier": "PlanOnly",
-      "artifact_materialization": "Missing",
-      "route_state": "Unselected",
+      "evidence_tier": "VerifiedArtifact",
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "route_state": "DerivedShadow",
       "provider_reference": {
         "capability": "SlotRegistryRelease",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::slot_registry_release",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-plan-v0.json",
-        "artifact_state": "PlanOnly"
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
+        "artifact_state": "DerivedShadow"
       }
     },
     {
@@ -589,10 +589,10 @@
     }
   ],
   "first_executable_materialization_gap": {
-    "edge_id": "finalize_module.slot_registry_release",
-    "callsite": "MirBuilder::finalize_module -> current_slot_registry = None",
-    "required_capability": "SlotRegistryRelease",
-    "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001",
+    "edge_id": "finalize_module.module_metadata_publication",
+    "callsite": "MirBuilder::finalize_module -> publish module metadata",
+    "required_capability": "ModuleMetadataPublication",
+    "next_slice_token": "MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001",
     "reason": "Earliest source-order PlanOnly edge without executable Hako artifact"
   },
   "claims": {

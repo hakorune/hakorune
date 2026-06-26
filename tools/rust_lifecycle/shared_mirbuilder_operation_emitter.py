@@ -86,6 +86,8 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
         value = operation.get("value")
         if not isinstance(target, str) or value is None:
             raise ValueError("Assign requires target and value")
+        if operation.get("declaration") == "local":
+            return [f"local {target} = {_render_expr(value)}"]
         return [f"{target} = {_render_expr(value)}"]
     if kind == "NewBox":
         target = operation.get("target")

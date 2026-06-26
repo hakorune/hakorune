@@ -1,0 +1,62 @@
+{
+  "claims": {
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "full_finalize_module": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "metadata_publication": 0,
+    "module_metadata_publication": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_registry_release": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::slot_registry_release",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-slot-registry-release",
+    "version": "mirbuilder-slot-registry-release-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-plan-v0.json",
+      "sha256": "3b0dfab30590af49558e630583be4a798603ca69c2dfa5ece5e54f824d70fa0e"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-oracle-v0.json",
+      "sha256": "ba92bbe9d2a9318bc55acf5064645856d22445b3070d96ff1f4ae5afdf83f380"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-execution-projection-v0.json",
+      "sha256": "ed69bb81cccfaae24923d56de9384089b27dcfb30416cb49abf6a66c5e3feeaa"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-recipe-v0.json",
+      "sha256": "34e856b55bdd167332f39c5d2b25444ac78d233929f02eb10406296547ad8af5"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-verifier-result-v0.json",
+      "sha256": "3f12a0f2b8ba0871463bf0aa4f66b9cbd9e4998da7f46695c68a4489561bad73"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.hako",
+    "hako_sha256": "4f8e37559e3164736a571182ccee018c248b0900f59b1c4a9473ed99b7f02e40"
+  },
+  "pilot_scope": "SlotRegistryRelease_prepared_slot_registry_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

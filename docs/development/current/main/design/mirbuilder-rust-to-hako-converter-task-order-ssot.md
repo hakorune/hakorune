@@ -21,20 +21,20 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-SLOT-REGISTRY-RELEASE-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
 
 current implementation task:
-  Materialize the first current public-main executable gap from the minimal
-  execution path report: SlotRegistryRelease.
+  Materialize the next current public-main executable gap from the updated
+  minimal execution path report: ModuleMetadataPublication.
 
 selected source slice:
   MirBuilder::finalize_module
-    -> current_slot_registry = None
+    -> module.metadata publication
 
 selected lowering:
-  SlotRegistryReleasePlanV1
-    -> prepared slot registry projection
-    -> clear-slot mutation
+  ModuleMetadataPublicationPlanV1
+    -> prepared module metadata projection
+    -> declaration inventory publication
     -> generated Hako artifact
 
 landed evidence:
@@ -96,21 +96,22 @@ landed evidence:
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
   runtime fallback, or mainline-selection changes.
-  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, and ConditionFnInjection are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.region_stack_pop as the first executable materialization gap.
+  MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, and SlotRegistryRelease are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.module_metadata_publication as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001
+  MIRBUILDER-MODULE-METADATA-PUBLICATION-DERIVED-HAKO-ARTIFACT-001
 
 current fail-fast boundary:
-  The slice may only materialize prepared-state region stack pop. Host env
-  lookup, region push/logging, SlotRegistryRelease, full MetadataContext,
-  backend route, ABI, runtime fallback, and source selfhost remain unselected.
+  SlotRegistryRelease is already checked in. Host env lookup, region stack
+  pop, full MetadataContext, backend route, ABI, runtime fallback, and source
+  selfhost remain unselected.
 
 latest design decision:
   Frontier review resolves the prior design stop against current public-main:
-  MirModule, MirFunction, CurrentModuleTake, and ReturnEmission executable
-  artifacts are already present. The next owner is the analyzer-derived first
-  PlanOnly/Missing edge, FunctionRegionStackPop.
+  MirModule, MirFunction, CurrentModuleTake, ReturnEmission,
+  FunctionRegionStackPop, and SlotRegistryRelease executable artifacts are
+  already present. The next owner is the analyzer-derived first
+  PlanOnly/Missing edge, ModuleMetadataPublication.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -247,10 +248,10 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Slot registry release Derived Hako artifact
+1. Module metadata publication Derived Hako artifact
    status=selected
-   boundary=release current function slot registry at finalize_module timing
-   semantic_authority=SlotRegistryReleasePlanV1
+   boundary=publish module declaration inventory before semantic refresh
+   semantic_authority=ModuleMetadataPublicationPlanV1
    non_authority=prewriting analyzer result before regeneration
 
 2. Minimal execution path report regeneration
