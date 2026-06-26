@@ -21,22 +21,22 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
 
 current implementation task:
-  Record Adopt / Defer / Reject for the existing DerivedMainline
-  prepared-state allocation-policy kernel before entering refresh-class
-  decomposition.
+  Decompose the composite record/packed layout frontier before any one-artifact
+  landing. The prepared-state allocation-policy Hako adoption decision is
+  recorded as Defer because no native .hako source owner exists yet.
 
 selected decision slice:
-  hakorune_mir_builder::next_value_id_prepared_state_kernel
-    -> HakoAdopted decision
+  finalize_module.record_packed_layout_refresh
+    -> composite owner decomposition
 
 selected evidence:
-  allocation-policy mainline selection plan
-    -> DerivedMainline route evidence
-    -> prepared-state generated Hako artifact
-    -> derived-to-native Hako artifact model
+  semantic closure frontier
+    -> composite owner boundary
+    -> leaf directability classification
+    -> analyzer-derived first child owner
 
 landed evidence:
   Same-module scalar-counter helper execution is green for CoreContextApi
@@ -93,6 +93,8 @@ landed evidence:
   crate bundle as membership-only evidence and bundle-level EXE/AOT smoke.
   Prepared-state reserved membership transport is aligned with its projection:
   actual generated storage now uses ValueIdOrderedMapBox and ValueIdOrderedMap.
+  Prepared-state allocation-policy Hako adoption decision is deferred because
+  the family has no native .hako source owner yet.
   Minimal MirBuilder execution path selection is green: live Rust source order
   plus explicit artifact contracts derive the first unsupported edge at
   prepare_module -> MirModule::new without generated Hako, backend, ABI,
@@ -100,20 +102,19 @@ landed evidence:
   MirModule shell, MirFunction constructor, prepared-state install, literal integer lowering, bounded finalize composition, minimal execution smoke, allocation-policy mainline pilot, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, ModuleMetadataPublication, RecordAndPackedLayoutRefresh, TypedObjectPlanRefresh, DirectStatePlanRefresh, and AllFunctionsPhiMaterialization are green as semantic evidence. MirModuleMinimalShell, MirFunctionConstructorShell, PreparedStateInstall, LiteralIntegerLowering, BoundedFinalizeComposition, ReturnEmission, ReturnTypePublication, CurrentModuleTake, TypedValueDefinitionVerification, CurrentFunctionTake, TypePropagationPipelineExecution, TypeHintProvision, MetadataValueTypePublication, MetadataOriginCallerMerge, PhiReturnTypeInference, PhiInputMaterialization, DevBirthVerification, ModuleFunctionInsertion, ConditionFnInjection, FunctionRegionStackPop, SlotRegistryRelease, and ModuleMetadataPublication are now DerivedShadow executable Hako artifacts, and the semantic closure report derives finalize_module.record_packed_layout_refresh as the first executable materialization gap.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-EXECUTION-DECOMPOSITION-001
 
 current fail-fast boundary:
-  The decision may only classify the narrow prepared-state allocation-policy
-  kernel. Full minimal-path mainline selection, RecordAndPackedLayoutRefresh
-  implementation, backend route, ABI, runtime fallback, and source selfhost
-  remain unselected.
+  The composite record/packed layout frontier may not be materialized as one
+  artifact. Full minimal-path mainline selection, backend route, ABI, runtime
+  fallback, and source selfhost remain unselected.
 
 latest design decision:
   ModuleMetadataPublication is now executable artifact evidence and the
   regenerated semantic-closure report advances the materialization frontier to
-  RecordAndPackedLayoutRefresh. Consultation selects D+: before decomposing that
-  composite refresh edge, run the allocation-policy Hako adoption decision for
-  the existing narrow DerivedMainline family.
+  RecordAndPackedLayoutRefresh. The allocation-policy Hako adoption decision is
+  recorded as Defer because no native .hako source owner exists yet; the next
+  blocker is composite record/packed layout decomposition.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
