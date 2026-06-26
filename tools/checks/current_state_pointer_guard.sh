@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="current-state-pointer-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+MAX_TASK_ORDER_LINES=800
 
 STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CURRENT_TASK_DOC="$ROOT_DIR/CURRENT_TASK.md"
@@ -18,6 +19,7 @@ DESIGN_STOP_CONTRACT_FILE="$ROOT_DIR/tools/checks/current_state_design_stop_cont
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" sed
 guard_require_command "$TAG" awk
+guard_require_command "$TAG" wc
 guard_require_files "$TAG" \
   "$STATE_DOC" \
   "$CURRENT_TASK_DOC" \
@@ -77,6 +79,12 @@ require_repo_file "$method_anchor" "method_anchor"
 require_repo_file "$taskboard" "taskboard"
 if [[ -n "$latest_workstream_card" ]]; then
   require_repo_file "$latest_workstream_card" "latest_workstream_card"
+  if [[ "$latest_workstream_card" == *task-order* ]]; then
+    task_order_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
+    if (( task_order_lines > MAX_TASK_ORDER_LINES )); then
+      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINES} lines: $latest_workstream_card has $task_order_lines"
+    fi
+  fi
 fi
 require_repo_file "$latest_card_path" "latest_card_path"
 require_repo_file "$current_update_policy" "current_update_policy"
