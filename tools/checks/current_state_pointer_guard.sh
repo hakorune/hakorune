@@ -100,11 +100,6 @@ for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
 done
 
 if [[ "$blocker_token" == *"DESIGN-STOP"* ]]; then
-  declare -A design_stop_docs=(
-    [CURRENT_TASK_DOC]="$CURRENT_TASK_DOC"
-    [RESTART_DOC]="$RESTART_DOC"
-    [POLICY_DOC]="$POLICY_DOC"
-  )
   while IFS= read -r entry; do
     [[ -z "$entry" ]] && continue
     [[ "$entry" = \#* ]] && continue
@@ -113,10 +108,11 @@ if [[ "$blocker_token" == *"DESIGN-STOP"* ]]; then
     fi
     target="${entry%%|*}"
     pattern="${entry#*|}"
-    if [[ -z "${design_stop_docs[$target]+x}" ]]; then
-      guard_fail "$TAG" "unknown design-stop pause target: $target"
+    if [[ "$target" = /* ]]; then
+      guard_fail "$TAG" "design-stop pause target must be repo-relative: $target"
     fi
-    expect_fixed "$pattern" "${design_stop_docs[$target]}"
+    require_repo_file "$target" "design-stop pause target"
+    expect_fixed "$pattern" "$ROOT_DIR/$target"
   done < "$DESIGN_STOP_PAUSE_PATTERNS_FILE"
 fi
 
