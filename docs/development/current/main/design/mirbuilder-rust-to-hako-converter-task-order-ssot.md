@@ -87,7 +87,7 @@ latest_frontier_card =
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1758-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002.md
+  296x-1759-MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001.md
 
 frontier_resolution_card =
   docs/development/current/main/phases/phase-296x/

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-28
 Card: MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001
 ---
