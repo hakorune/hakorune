@@ -37,6 +37,8 @@ Scope:
   - `all_functions_phi_materialization_projector.hako`
 - executable placement guard:
   - `tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh`
+- executable inventory guard:
+  - `tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`

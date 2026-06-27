@@ -24,24 +24,29 @@ active blocker:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-GUARD-001.
-  Keep the canonical JSON writer as ordinary compiler-library code under
-  lang/src/compiler/lib/ and machine-check the placement with an executable
-  guard instead of promoting it to TypeBox ABI, host ABI, or syntax/spec.
+  HAKO-SHADOW-PROJECTOR-STAGE-STATE-INVENTORY-001.
+  Keep the Hako shadow projector support lane ordinary compiler-library code
+  under lang/src/compiler/lib/ and machine-check the stage-state inventory
+  instead of promoting it to TypeBox ABI, host ABI, or syntax/spec.
 
 selected decision slice:
-  compiler_library.canonical_json_writer
+  compiler_library.hako_shadow_projector_stage_state_inventory
     -> selected_route = ordinary_hako_library
     -> no_abi_surface = 1
-    -> HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-GUARD-001
+    -> HAKO-SHADOW-PROJECTOR-STAGE-STATE-INVENTORY-001
 
 selected evidence:
   compiler library placement inventory
-    -> canonical_json.hako
-    -> projection_value.hako
-    -> text_builder.hako
+    -> return_emission_projector.hako
+    -> function_region_stack_pop_projector.hako
+    -> slot_registry_release_projector.hako
+    -> module_metadata_publication_projector.hako
+    -> record_packed_layout_refresh_projector.hako
+    -> typed_object_plan_refresh_projector.hako
+    -> direct_state_plan_refresh_projector.hako
+    -> all_functions_phi_materialization_projector.hako
     -> lang/src/compiler/lib/README.md
-    -> tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh
+    -> tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
     -> design consultation inventory
     -> role SSOT follow-on token
 
@@ -59,9 +64,9 @@ current fail-fast boundary:
   distribution ABI, or syntax/spec.
 
 latest design decision:
-  The canonical JSON writer remains in lang/src/compiler/lib/ as ordinary
-  compiler-library code; the executable guard now verifies the landing zone
-  and keeps the ABI discussion closed.
+  The Hako shadow projector lane remains in lang/src/compiler/lib/ as
+  ordinary compiler-library code; the executable inventory guard now
+  verifies the landing zone and keeps the ABI discussion closed.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code

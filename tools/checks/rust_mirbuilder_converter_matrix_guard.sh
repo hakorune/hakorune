@@ -63,6 +63,7 @@ bash tools/checks/rust_lifecycle_type_context_string_literal_derived_artifact_gu
 
 bash tools/checks/rust_mirbuilder_negative_converter_fixtures_guard.sh
 bash tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh
+bash tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
 bash tools/checks/rust_lifecycle_no_silent_hardcode_guard.sh
 
 cat <<'REPORT'
@@ -98,6 +99,7 @@ composed_execution_closure=green
 minimal_path_mainline_pilot=green
 negative_converter_fixtures=green
 compiler_library_canonical_json_value_writer=green
+shadow_projector_stage_state_inventory=green
 no_silent_hardcode=green
 shared_emitter=green
 summary=ok
