@@ -86,6 +86,33 @@ work is family adoption and library/consultation gating.
 The remaining selfhost work is now a bounded inventory, not a new semantic
 owner.
 
+## Current Family Status
+
+These family/stage checkpoints are already green or intentionally parked.
+They are listed here so the next owner is selected from the remaining work,
+not from memory.
+
+```text
+prepared-state allocation-policy kernel:
+  HakoAdopted decision complete
+  native source owner present
+  derived mainline retained
+
+ReturnEmission projector:
+  HakoShadow parity complete
+  ordinary compiler-library landing
+  no adoption claim
+
+FunctionRegionStackPop:
+  derived artifact and HakoShadow parity complete
+  no Source Selfhost claim
+
+Canonical JSON / TextBuilder compiler library:
+  landed support lane
+  guard green
+  no ABI / syntax promotion
+```
+
 ```text
 1. Keep the Python SemanticProjector growth freeze in force.
    No new Python semantic projector growth unless an exception card is
