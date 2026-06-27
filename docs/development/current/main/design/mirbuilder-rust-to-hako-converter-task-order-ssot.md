@@ -21,50 +21,47 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.
-  Resolve the explicit design-stop frontier mechanically and keep the
-  minimal execution path parked there until the analyzer-derived next owner
-  is selected; do not leave a completed support-lane parity card as the live
-  owner.
+  MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.
+  BindingContext adoption is landed and the next family-specific adoption
+  candidate is now the remaining narrowed pool; do not reopen the completed
+  support-lane parity cards as the live owner.
 
 selected decision slice:
-  minimal_execution_path.completion_design_stop
-    -> selected_route = explicit_design_stop
-    -> no_new_owner_selected = 1
-    -> MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  selfhost_candidate_pool.context
+    -> selected_route = derived_hako
+    -> selected_on_mainline = 1
+    -> MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001
 
 selected evidence:
-  semantic closure report
-    -> minimal-mirbuilder-execution-path-semantic-closure-report-v0.json
-    -> docs/development/current/main/phases/phase-296x/296x-1745-MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
+  route manifest / adoption evidence
+    -> lang/generated/rust_derived/hakorune_mir_builder/family_routes.json
+    -> docs/development/current/main/phases/phase-296x/296x-1769-MIRBUILDER-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
+    -> docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
     -> docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
     -> design consultation inventory
     -> role SSOT follow-on token
 
 landed evidence pointer:
-  Detailed landed rows live in the semantic closure report, phase cards, and
+  Detailed landed rows live in the adoption decision card, route manifest, and
   git history. This task-order only keeps the active blocker, fail-fast
   boundary, and Active Next 3.
 
 selected next owner:
-  intentionally unresolved
+  context adoption decision candidate
 
 current fail-fast boundary:
-  The explicit design-stop frontier stays live.
-  Do not replace it with a completed support-lane parity card.
+  The BindingContext family has been consumed into the adoption lane.
+  Do not reopen support-lane parity cards as the live owner.
 
 latest design decision:
-  The minimal execution path remains parked at the explicit design-stop
-  frontier; completed support-lane parity cards do not replace the live
-  frontier, and the next owner must still be derived mechanically.
+  BindingContext is now the consumed narrow-family adoption decision.
+  The next family-specific candidate must come from the narrowed pool, not
+  from memory or a completed parity lane.
 
 ## Composed Prefix Evidence
 

@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md"
-latest_card_summary = """The latest card pins the ReturnEmission Hako shadow projector support lane
+latest_card = "MIRBUILDER-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1769-MIRBUILDER-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts the BindingContext family as a narrow HakoAdopted candidate
 with a dedicated shadow-result parity fixture and canonical JSON parity
 guard. The ordinary Hako library landing stays under lang/src/compiler/lib/
 and no new ABI or syntax surface is opened."""
 
-current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

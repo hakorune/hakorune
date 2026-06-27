@@ -98,6 +98,11 @@ prepared-state allocation-policy kernel:
   native source owner present
   derived mainline retained
 
+BindingContext:
+  HakoAdopted decision complete
+  native source owner present
+  derived mainline retained
+
 ReturnEmission projector:
   HakoShadow parity complete
   ordinary compiler-library landing
@@ -122,7 +127,6 @@ support-lane projector inventory.
 Current route-manifest candidates:
 
 ```text
-binding_context
 context
 minimal_path_composed_execution_closure
 ```
@@ -131,6 +135,9 @@ Explicitly excluded from this pool:
 
 ```text
 allocation_policy_prepared_state_next_value_id
+  already HakoAdopted; not a next-candidate row
+
+binding_context
   already HakoAdopted; not a next-candidate row
 
 variable_context_immutable_borrow
