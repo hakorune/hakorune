@@ -265,14 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md"
-latest_card_summary = """The latest card is the code-facing frontier
-resolver. It is landed and consumes the semantic closure report, composed
-execution evidence, artifact manifests/contracts, route selections, and the
-task-order pointer to derive the next owner mechanically. The current
-resolution is Blocked on the explicit design-stop pause contract, and manual
-next-owner selection remains forbidden."""
+latest_card = "MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1758-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002.md"
+latest_card_summary = """The latest card is the composed-execution
+continuation. It is integration-only and consumes the semantic closure
+report, composed execution evidence, artifact manifests/contracts, route
+selections, and the task-order pointer to derive the next composed step
+mechanically without hand-picking a semantic owner."""
 
 current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

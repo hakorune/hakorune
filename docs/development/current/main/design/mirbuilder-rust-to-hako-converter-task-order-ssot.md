@@ -24,21 +24,23 @@ Detailed historical rows live in phase cards and git history.
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  Resolve the explicit design-stop frontier mechanically. The frontier
-  resolver is landed and currently resolves the explicit design-stop frontier
-  as Blocked from the semantic closure report, composed execution evidence,
-  artifact manifests/contracts, route selections, and the task-order
-  pointer. Do not hand-pick the next executable owner.
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002.
+  Continue the composed execution prefix as a code-facing integration card.
+  The frontier resolver is landed and the explicit design-stop frontier is
+  still active, but the next step is the composed-execution continuation:
+  derive a stable red edge or green prefix from the same-state composed
+  evidence instead of hand-picking a new semantic owner.
 
 selected decision slice:
-  minimal_path.frontier_resolution
-    -> code-facing resolver before the next executable owner is named
+  minimal_path.composed_execution_prefix
+    -> code-facing continuation before any new semantic owner is named
 
 selected evidence:
   semantic closure frontier
     -> landed record/packed artifact
     -> composed execution evidence
     -> explicit design-stop frontier
+    -> same-state composed continuation evidence
     -> next executable owner intentionally unresolved
 
 landed evidence pointer:
@@ -47,19 +49,21 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002
 
 current fail-fast boundary:
-  The composed execution route is landed. Do not invent a new executable owner
-  before the frontier resolver derives one. Full minimal-path mainline
+  The explicit design-stop contract remains active. Do not invent a new
+  semantic owner before the composed execution continuation derives one
+  mechanically from the same-state evidence. Full minimal-path mainline
   selection, backend route, ABI, runtime fallback, and source selfhost remain
   unselected.
 
 latest design decision:
   The composed execution route landed as same-state handoff evidence. The
-  frontier resolver is landed and currently resolves the explicit
-  design-stop frontier as Blocked. The design-stop pause contract remains
-  active until future evidence changes the frontier.
+  frontier resolver is landed and the explicit design-stop pause contract
+  remains active. The next concrete task is the composed-execution
+  continuation card, which must derive a stable first composition red edge or
+  green prefix from the existing evidence set.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -80,7 +84,7 @@ latest_frontier_card =
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1756-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-001.md
+  296x-1758-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002.md
 
 frontier_resolution_card =
   docs/development/current/main/phases/phase-296x/
@@ -93,30 +97,30 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Minimal execution path frontier resolution
+1. Minimal path composed execution closure continuation
    status=selected
-   boundary=derive the next executable owner mechanically from the explicit
-   design-stop frontier and existing evidence
+   boundary=derive a stable first composition red edge or green prefix from
+   the same-state composed execution evidence
    semantic_authority=semantic closure frontier plus composed execution
-   evidence and route selections
-   required_shape=code-facing resolver/guard only; consume existing contracts
+   evidence, manifest/contracts, and route selections
+   required_shape=code-facing continuation card; consume existing contracts
    and derive one stable next-slice token without hand-picking
    non_authority=standalone smoke aggregation, new semantic projection, or
    full minimal-path mainline
 
 2. First composed red edge
-   status=derived by the resolver/composed harness, not hand-selected
-   boundary=stable state/transport/linkage mismatch if the resolver exposes
-   one
-   semantic_authority=executable composed result plus frontier resolver
-   output
-   non_authority=manual next-owner selection or using the resolver as
-   permission for a larger semantic artifact
+   status=derived by the continuation card, not hand-selected
+   boundary=stable state/transport/linkage mismatch if the same-state evidence
+   exposes one
+   semantic_authority=executable composed result plus continuation output
+   non_authority=manual next-owner selection or using the card as permission
+   for a larger semantic artifact
 
 3. Next executable owner selection
-   status=parked until the frontier resolver names one
+   status=parked until the continuation names one mechanically
    boundary=post-design-stop materialization owner
-   semantic_authority=the frontier report plus the selected next owner
+   semantic_authority=the frontier report plus the composed continuation
+   result
    non_authority=full minimal-path source selfhost claim
 ```
 
