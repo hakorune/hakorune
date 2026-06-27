@@ -113,6 +113,43 @@ Canonical JSON / TextBuilder compiler library:
   no ABI / syntax promotion
 ```
 
+## Next Candidate Pool
+
+The next family-specific `HakoAdopted` decision must be selected from the
+currently selected `DerivedMainline` route manifest entries, not from the
+support-lane projector inventory.
+
+Current route-manifest candidates:
+
+```text
+binding_context
+context
+minimal_path_composed_execution_closure
+```
+
+Explicitly excluded from this pool:
+
+```text
+allocation_policy_prepared_state_next_value_id
+  already HakoAdopted; not a next-candidate row
+
+variable_context_immutable_borrow
+  Denied; replacement row only
+
+variable_context
+  currently parked until the full variable_context route matrix is green
+  in the generated-to-native adoption matrix
+
+ReturnEmission
+FunctionRegionStackPop
+compiler-library helpers
+  support-lane / shadow-lane families, not yet the next adoption pool
+```
+
+This inventory is a consultation aid, not the adoption decision itself. The
+next checkpoint still requires a concrete `HakoAdopted` decision card, but
+the candidate set is now explicit and does not rely on memory.
+
 ```text
 1. Keep the Python SemanticProjector growth freeze in force.
    No new Python semantic projector growth unless an exception card is
