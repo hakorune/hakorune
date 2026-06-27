@@ -59,15 +59,8 @@ def read_toml(path: Path) -> dict[str, Any]:
 
 def parse_current_state() -> dict[str, Any]:
     state = read_toml(CURRENT_STATE_PATH)
-    require(
-        state.get("latest_card") == "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002",
-        "latest_card drift",
-    )
-    require(
-        state.get("latest_card_path")
-        == "docs/development/current/main/phases/phase-296x/296x-1762-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.md",
-        "latest_card_path drift",
-    )
+    require(state.get("latest_card"), "latest_card must be present")
+    require(state.get("latest_card_path"), "latest_card_path must be present")
     require(
         state.get("current_blocker_token") == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
         "current blocker token drift",

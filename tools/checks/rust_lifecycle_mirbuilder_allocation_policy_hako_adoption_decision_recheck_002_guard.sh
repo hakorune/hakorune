@@ -25,7 +25,7 @@ import tomllib
 
 state = tomllib.loads(Path("docs/development/current/main/CURRENT_STATE.toml").read_text())
 assert state["latest_card"] == "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002"
-assert state["current_blocker_token"] == "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002"
+assert state["current_blocker_token"] == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 
 prefix = json.loads(Path("docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-prefix-advance-v1.json").read_text())
 assert prefix["prefix_advance"]["prefix_state"] == "Green"
