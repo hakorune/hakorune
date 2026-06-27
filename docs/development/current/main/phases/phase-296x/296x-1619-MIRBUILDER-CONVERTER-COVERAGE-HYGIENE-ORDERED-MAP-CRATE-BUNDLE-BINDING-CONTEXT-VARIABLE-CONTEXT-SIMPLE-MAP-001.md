@@ -1,6 +1,6 @@
 # 296x-1619 MIRBUILDER-CONVERTER-COVERAGE-HYGIENE-ORDERED-MAP-CRATE-BUNDLE-BINDING-CONTEXT-VARIABLE-CONTEXT-SIMPLE-MAP-001
 
-Status: Active
+Status: Landed
 Date: 2026-06-22
 
 ## Purpose
@@ -89,4 +89,18 @@ do_not_add_runtime_fallback=1
 do_not_open_new_family_selection=1
 do_not_open_new_route_selection=1
 do_not_start_unbounded_crate_coverage=1
+```
+
+## Closeout
+
+```text
+output_contract=rust-lifecycle-mirbuilder-easy-v0-ordered-map-bundle-v4
+family_id=hakorune_mir_builder::ordered_map_bundle
+generated_hako_checked_in=1
+artifact_manifest_checked_in=1
+deterministic_regeneration=green
+generated_hako_parse=green
+generated_hako_mir_emit=green
+generated_hako_exe_aot=green
+summary=ok
 ```

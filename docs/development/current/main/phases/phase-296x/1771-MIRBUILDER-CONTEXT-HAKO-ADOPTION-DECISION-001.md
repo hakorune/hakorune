@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: accepted
 Date: 2026-06-28
 Scope: Adopt the BoxCompilationContext family as the next narrow HakoAdopted

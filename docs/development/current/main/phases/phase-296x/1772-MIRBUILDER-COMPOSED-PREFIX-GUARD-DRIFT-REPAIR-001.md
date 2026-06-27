@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-28
 Card: MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001
 ---
@@ -90,3 +90,20 @@ no full minimal-path mainline claim
 
 After the guard family is green, resume with the existing minimal-path
 mainline pilot route if the readiness resolver stays Ready.
+
+## Closeout
+
+```text
+output_contract=rust-lifecycle-mirbuilder-composed-prefix-guard-drift-repair-v0
+no_exact_current_blocker_token_pin=1
+current_state_pointer_guard=green
+adoption_recheck_guards=green
+frontier_resolution_guard=green
+readiness_resolver_guard=green
+runtime_fallback=0
+new_backend_route=0
+new_abi=0
+source_selfhost_claim=0
+manual_next_owner_selection=0
+summary=ok
+```
