@@ -184,9 +184,9 @@
     },
     "current_state": {
       "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-      "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001",
+      "latest_card": "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "14c6b6c72b7369da7b29a0a7fa352a6053dc1437ee7b49d9d0f6292b04fab074"
+      "sha256": "d22938ddbe8ec5a8f40b16a25bdfb600d0ed03df278c35603cdcf94c1c296364"
     },
     "design_stop_contract": {
       "path": "tools/checks/current_state_design_stop_contract.txt",
@@ -202,7 +202,7 @@
     },
     "task_order_pointer": {
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "f5f28b5f484530d5cdc767879cba19365bcb66521bf2e0a8b8fabbc0c1bfc113"
+      "sha256": "88c8b15f05e024775be07cd937861f8af8ab7bbd2c235ba6421d4bc9ec09b1ed"
     }
   }
 }

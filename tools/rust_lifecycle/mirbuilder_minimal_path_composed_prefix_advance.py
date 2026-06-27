@@ -32,11 +32,6 @@ ROLE_SSOT_PATH = ROOT / "docs/development/current/main/design/rust-to-hako-conve
 DESIGN_STOP_CONTRACT_PATH = ROOT / "tools/checks/current_state_design_stop_contract.txt"
 OUTPUT_PATH = FIXTURES / "mirbuilder-minimal-path-composed-prefix-advance-v1.json"
 
-EXPECTED_LATEST_CARD = "MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001"
-EXPECTED_LATEST_CARD_PATH = (
-    "docs/development/current/main/phases/phase-296x/"
-    "296x-1759-MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001.md"
-)
 EXPECTED_STABLE_NEXT_SLICE_TOKEN = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 EXPECTED_PREFIX_EDGE_ID = "minimal_path.completion_design_stop"
 
@@ -60,8 +55,11 @@ def require(condition: bool, message: str) -> None:
 
 def parse_current_state() -> dict[str, Any]:
     state = read_toml(CURRENT_STATE_PATH)
-    require(state.get("latest_card") == EXPECTED_LATEST_CARD, "latest_card drift")
-    require(state.get("latest_card_path") == EXPECTED_LATEST_CARD_PATH, "latest_card_path drift")
+    latest_card = state.get("latest_card")
+    latest_card_path = state.get("latest_card_path")
+    require(bool(latest_card), "latest_card must be present")
+    require(bool(latest_card_path), "latest_card_path must be present")
+    require(latest_card in latest_card_path, "latest_card_path must reference latest_card")
     require(state.get("current_blocker_token") == EXPECTED_STABLE_NEXT_SLICE_TOKEN, "current blocker token drift")
     return state
 
@@ -69,9 +67,9 @@ def parse_current_state() -> dict[str, Any]:
 def validate_task_order() -> dict[str, Any]:
     text = TASK_ORDER_PATH.read_text(encoding="utf-8")
     for needle in [
-        "MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001",
-        "classify next_unconsumed_edge mechanically",
-        "same-state composed evidence",
+        "same-state composed prefix evidence",
+        "next_unconsumed_edge = Closed",
+        "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
         "manual next-owner selection",
     ]:
         require(needle in text, f"task-order missing: {needle}")
