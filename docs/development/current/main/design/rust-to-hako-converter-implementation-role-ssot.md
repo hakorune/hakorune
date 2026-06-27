@@ -233,11 +233,11 @@ without relying on handwritten prose.
   "kind": "PythonConverterRoleInventoryV1",
   "checkpoint": "PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001",
   "scope": "tools/rust_lifecycle",
-  "active_python_file_count": 161,
+  "active_python_file_count": 163,
   "role_file_counts": {
     "DeterministicEmitter": 10,
     "FactsAdapter": 23,
-    "GuardOrchestrator": 34,
+    "GuardOrchestrator": 36,
     "SemanticProjector": 98
   },
   "role_buckets": [
@@ -326,7 +326,9 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/*_readiness_inventory.py",
         "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_*.py",
         "tools/rust_lifecycle/mirbuilder_minimal_execution_path_smoke.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_execution_path_frontier_resolution.py",
         "tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution_continuation.py",
         "tools/rust_lifecycle/mirbuilder_negative_converter_fixtures.py",
         "tools/rust_lifecycle/*_runner.py",
         "tools/rust_lifecycle/mirbuilder_family_validators.py",

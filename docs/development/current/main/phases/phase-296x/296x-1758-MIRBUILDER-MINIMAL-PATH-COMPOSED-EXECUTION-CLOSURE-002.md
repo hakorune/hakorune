@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-06-27
 Card: MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002
 ---
@@ -113,3 +113,9 @@ If the composed continuation exposes a stable red edge, follow the
 analyzer-derived child owner. If it stays green, keep the integration card
 narrow and let the resolver derive the next slice mechanically.
 
+## Closeout
+
+The composed continuation tool, guard, and fixture landed. The same-state
+prepared/module/function handoff remains green, the stable next slice token
+remains the explicit design-stop frontier, and no new semantic owner was
+selected from the evidence set.
