@@ -21,29 +21,27 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001.
-  Continue the composed execution prefix as a code-facing integration card.
-  The frontier resolver and composed continuation are landed, the explicit
-  design-stop frontier is still active, and the next step is the composed-
-  prefix advance: classify the next unconsumed edge from the same-state
-  composed evidence instead of hand-picking a new semantic owner.
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001.
+  Recheck the prepared-state allocation-policy Hako adoption decision after
+  the composed prefix reached Green/Closed. The prior adoption decision
+  deferred because no native `.hako` source owner existed; this card must
+  produce a machine-checkable Adopt/Defer/Reject result.
 
 selected decision slice:
-  minimal_path.composed_execution_prefix
-    -> continue prefix and classify next_unconsumed_edge mechanically before
-       any new semantic owner is named
+  allocation_policy.prepared_state_next_value_id
+    -> decide whether the narrow DerivedMainline family can move toward
+       HakoAdopted or must remain deferred/rejected with a stable reason
 
 selected evidence:
   semantic closure frontier
-    -> landed record/packed artifact
     -> composed execution evidence
     -> composed continuation evidence
-    -> explicit design-stop frontier
     -> same-state composed prefix evidence
-    -> next executable owner intentionally unresolved
+    -> next_unconsumed_edge = Closed
+    -> allocation-policy DerivedMainline route closure
 
 landed evidence pointer:
   Detailed landed rows live in the semantic closure report, phase cards, and
@@ -51,22 +49,18 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001
 
 current fail-fast boundary:
-  The explicit design-stop contract remains active. Do not invent a new
-  semantic owner before the composed prefix advance classifies the next
-  unconsumed edge mechanically from the same-state evidence. Full
-  minimal-path mainline selection, backend route, ABI, runtime fallback, and
-  source selfhost remain unselected.
+  The adoption recheck is family-scoped to
+  `hakorune_mir_builder::next_value_id_prepared_state_kernel`. Do not claim
+  full minimal-path mainline, Source Selfhost, Rust deletion, backend route,
+  ABI, or runtime fallback.
 
 latest design decision:
-  The composed execution route landed as same-state handoff evidence. The
-  frontier resolver and composed continuation are landed and the explicit
-  design-stop pause contract remains active. The next concrete task is the
-  composed-prefix advance card, which must classify the next unconsumed edge
-  and derive a stable first composition red edge or green prefix from the
-  existing evidence set.
+  The composed prefix advance landed with prefix_state=Green and
+  next_unconsumed_edge=Closed. The next axis is the first narrow Hako
+  adoption decision recheck for an already DerivedMainline family.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -89,6 +83,10 @@ latest_integration_card =
   docs/development/current/main/phases/phase-296x/
   296x-1759-MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001.md
 
+latest_adoption_card =
+  docs/development/current/main/phases/phase-296x/
+  296x-1760-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001.md
+
 frontier_resolution_card =
   docs/development/current/main/phases/phase-296x/
   296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md
@@ -100,31 +98,25 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Minimal path composed prefix advance
+1. Allocation policy Hako adoption decision recheck
    status=selected
-   boundary=continue the composed prefix and classify the next unconsumed
-   edge from the same-state composed evidence
-   semantic_authority=semantic closure frontier plus composed execution
-   evidence, continuation evidence, manifest/contracts, and route selections
-   required_shape=code-facing continuation card; consume existing contracts
-   and derive one stable next-slice token without hand-picking
-   non_authority=standalone smoke aggregation, new semantic projection, or
-   full minimal-path mainline
+   boundary=Adopt | Defer | Reject for the prepared-state allocation-policy
+   kernel after composed prefix Green/Closed
+   semantic_authority=adoption decision fixture plus route/artifact manifests
+   non_authority=Source Selfhost, Rust deletion, full minimal-path mainline
 
-2. First composed red edge
-   status=derived by the prefix advance card, not hand-selected
-   boundary=stable state/transport/linkage mismatch if the same-state evidence
-   exposes one
-   semantic_authority=executable composed result plus prefix advance output
-   non_authority=manual next-owner selection or using the card as permission
-   for a larger semantic artifact
+2. Native source / defer reason
+   status=derived by the adoption decision result
+   boundary=native `.hako` source authority if Adopt, stable reason if Defer
+   or Reject
+   semantic_authority=machine-checkable decision output
+   non_authority=manual generator overwrite of adopted source
 
-3. Next executable owner selection
-   status=parked until the prefix advance names one mechanically
-   boundary=post-design-stop materialization owner
-   semantic_authority=the frontier report plus the composed prefix advance
-   result
-   non_authority=full minimal-path source selfhost claim
+3. Post-adoption lane
+   status=parked until adoption recheck lands
+   boundary=follow Adopt/Defer/Reject result
+   semantic_authority=the adoption decision result
+   non_authority=coverage percentage or bundle size
 ```
 
 ## Landed Converter Capability Summary

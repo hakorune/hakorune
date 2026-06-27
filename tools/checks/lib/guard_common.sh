@@ -92,6 +92,22 @@ guard_require_design_stop_pause_contract() {
             if [[ -z "$blocker_class" ]]; then
                 guard_fail "$tag" "design-stop contract missing blocker token class"
             fi
+            break
+        fi
+    done < "$contract_file"
+
+    if [[ -z "$blocker_class" ]]; then
+        guard_fail "$tag" "design-stop contract missing blocker token class"
+    fi
+
+    if [[ "$blocker_token" != *"$blocker_class"* ]]; then
+        return 0
+    fi
+
+    while IFS= read -r entry; do
+        [[ -z "$entry" ]] && continue
+        [[ "$entry" = \#* ]] && continue
+        if [[ "$entry" == blocker_token_contains=* ]]; then
             continue
         fi
         IFS='|' read -r target pattern <<<"$entry"
@@ -109,13 +125,6 @@ guard_require_design_stop_pause_contract() {
         fi
     done < "$contract_file"
 
-    if [[ -z "$blocker_class" ]]; then
-        guard_fail "$tag" "design-stop contract missing blocker token class"
-    fi
-
-    if [[ "$blocker_token" != *"$blocker_class"* ]]; then
-        guard_fail "$tag" "design-stop contract not active for current blocker token: $blocker_token"
-    fi
 }
 
 guard_require_docs_slim_no_move_stop_line() {
