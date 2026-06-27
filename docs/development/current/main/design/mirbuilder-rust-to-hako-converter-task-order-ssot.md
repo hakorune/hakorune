@@ -21,13 +21,12 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.
-  Re-evaluate the prepared-state allocation-policy kernel adoption decision
-  after the native `.hako` source owner exists, and lock the result as
-  machine-checkable Adopt.
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.
+  Keep the minimal execution path paused at the explicit completion design
+  stop until a new concrete next owner is selected from the resolver output.
 
 selected decision slice:
   allocation_policy.prepared_state_next_value_id
@@ -49,17 +48,17 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002
+  intentionally unresolved
 
 current fail-fast boundary:
-  The native source owner is family-scoped to
-  `hakorune_mir_builder::next_value_id_prepared_state_kernel`. Do not claim
-  full minimal-path mainline, Source Selfhost, Rust deletion, backend route,
-  ABI, or runtime fallback.
+  The semantic closure report stops at
+  `minimal_path.completion_design_stop`. Do not claim full minimal-path
+  mainline, Source Selfhost, Rust deletion, backend route, ABI, or runtime
+  fallback.
 
 latest design decision:
-  The native source owner has landed. The next axis is the adoption decision
-  recheck for the first narrow Hako adoption candidate.
+  The native source owner has landed, the adoption recheck is Adopt, and the
+  remaining boundary is the explicit completion design stop.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -104,16 +103,18 @@ history, not in this task-order SSOT.
    semantic_authority=owner file, module export, and adoption guard fixture
    non_authority=Source Selfhost, Rust deletion, full minimal-path mainline
 
-2. Adoption decision follow-up
+2. Explicit completion design stop
    status=selected
-   boundary=Adopt / Defer / Reject once the native owner is in place
-   semantic_authority=machine-checkable decision output
-   non_authority=manual generator overwrite of adopted source
+   boundary=the semantic closure report stops at
+   `minimal_path.completion_design_stop`
+   semantic_authority=the explicit design-stop report and resolver output
+   non_authority=manual next-owner selection or silent continuation
 
 3. Post-adoption lane
    status=parked until the new adoption result lands
-   boundary=follow Adopt/Defer/Reject result
-   semantic_authority=the adoption decision result
+   boundary=follow the explicit design-stop result and the next resolver
+   output
+   semantic_authority=the next resolver result
    non_authority=coverage percentage or bundle size
 ```
 

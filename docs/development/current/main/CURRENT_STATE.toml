@@ -270,11 +270,12 @@ latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1762-MI
 latest_card_summary = """The latest card rechecks the prepared-state
 allocation-policy adoption decision after the native Hako source owner has
 landed. The narrow DerivedMainline family now has machine-checkable native
-source authority and the adoption decision resolves Adopt, but Source
+source authority and the adoption decision resolves Adopt, but the minimal
+execution path still terminates at the explicit completion design stop. Source
 Selfhost, runtime fallback, backend routes, ABI changes, Rust deletion, and
 full minimal-path mainline selection remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002"
+current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
