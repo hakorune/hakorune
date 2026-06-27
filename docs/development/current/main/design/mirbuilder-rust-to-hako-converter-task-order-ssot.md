@@ -24,16 +24,18 @@ active blocker:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.
-  Resolve the explicit design-stop frontier mechanically using the resolver
-  output. Keep the minimal execution path paused at the explicit completion
-  design stop until a new concrete next owner is selected from the resolver
-  output.
+  MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.
+  Resolve the explicit design-stop frontier mechanically from the composed
+  prefix, the explicit design-stop frontier, and the allocation-policy
+  adoption evidence. Keep the readiness lane blocked until the generated
+  Hako executable closure is patched or the resolver names a concrete next
+  owner.
 
 selected decision slice:
-  allocation_policy.prepared_state_next_value_id
-    -> establish native source ownership for the narrow DerivedMainline
-       family and make the adoption decision machine-checkable
+  minimal_path.mainline_readiness
+    -> generated Hako executable closure = Open
+    -> NeedExecutableClosurePatch
+    -> MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-003
 
 selected evidence:
   semantic closure frontier
@@ -43,6 +45,7 @@ selected evidence:
     -> next_unconsumed_edge = Closed
     -> allocation-policy DerivedMainline route closure
     -> native source owner present
+    -> generated Hako executable closure = Open
 
 landed evidence pointer:
   Detailed landed rows live in the semantic closure report, phase cards, and
@@ -59,8 +62,10 @@ current fail-fast boundary:
   fallback.
 
 latest design decision:
-  The native source owner has landed, the adoption recheck is Adopt, and the
-  remaining boundary is the explicit completion design stop.
+  The native source owner has landed, the adoption recheck is Adopt, the
+  composed prefix remains green, and the remaining boundary is the explicit
+  completion design stop while the generated Hako executable closure stays
+  open.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -81,7 +86,7 @@ latest_frontier_card =
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1759-MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001.md
+  296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
 
 latest_adoption_card =
   docs/development/current/main/phases/phase-296x/

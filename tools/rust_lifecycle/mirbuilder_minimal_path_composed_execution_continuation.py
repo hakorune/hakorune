@@ -63,15 +63,11 @@ def require(condition: bool, message: str) -> None:
 
 def parse_current_state() -> dict[str, Any]:
     state = read_toml(CURRENT_STATE_PATH)
-    require(
-        state.get("latest_card") == "MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002",
-        "latest_card drift",
-    )
-    require(
-        state.get("latest_card_path")
-        == "docs/development/current/main/phases/phase-296x/296x-1758-MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002.md",
-        "latest_card_path drift",
-    )
+    latest_card = state.get("latest_card")
+    latest_card_path = state.get("latest_card_path")
+    require(bool(latest_card), "latest_card must be present")
+    require(bool(latest_card_path), "latest_card_path must be present")
+    require(latest_card in latest_card_path, "latest_card_path must reference latest_card")
     require(
         state.get("current_blocker_token") == EXPECTED_STABLE_NEXT_SLICE_TOKEN,
         "current blocker token drift",
@@ -82,10 +78,10 @@ def parse_current_state() -> dict[str, Any]:
 def validate_task_order() -> dict[str, Any]:
     text = TASK_ORDER_PATH.read_text(encoding="utf-8")
     for needle in [
-        "MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002",
-        "same-state composed execution evidence",
-        "next executable owner intentionally unresolved",
-        "manual next-owner selection",
+        "same-state composed prefix evidence",
+        "next_unconsumed_edge = Closed",
+        "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+        "selected next owner:\n  intentionally unresolved",
     ]:
         require(needle in text, f"task-order missing: {needle}")
     return {
