@@ -75,6 +75,24 @@ coverage rows.
    Promote only families whose native .hako source becomes edit authority.
 ```
 
+## Consultation-Gated Inventory
+
+The following boundary questions should be answered in a design consultation
+before any new compiler-library ABI or syntax growth is started:
+
+```text
+TypeBox ABI exposure for compiler libraries
+host ABI facade for JSON/Text/projector semantics
+promotion from lang/src/compiler/lib to lang/src/shared/**
+promotion from library helper to language syntax/spec
+distribution/package ABI for compiler libraries
+hako.buf-backed TextBuilder implementation
+```
+
+These are not active implementation tasks yet. They are the points where the
+converter bridge would stop being a narrow bridge and start becoming a new
+public surface, so they stay consultation-gated.
+
 ## Taskization
 
 Treat this roadmap as checkpoint planning, not as the active implementation
