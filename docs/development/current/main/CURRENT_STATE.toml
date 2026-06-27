@@ -265,13 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1765-HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001.md"
-latest_card_summary = """The latest card records the canonical JSON writer
-as an ordinary compiler-library placement under lang/src/compiler/lib/ and
-keeps the next implementation step ABI-free. The placement is docs-only and
-does not claim TypeBox ABI, host ABI, package ABI, syntax promotion, or
-hako.buf backing. Source selfhost remains unclaimed."""
+latest_card = "HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-GUARD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1766-HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-GUARD-001.md"
+latest_card_summary = """The latest card records an executable guard for
+the compiler-facing canonical JSON writer lane. The guard keeps
+lang/src/compiler/lib/ ordinary Hako library code machine-checked and
+ABI-free while verifying canonical_json.hako, projection_value.hako, and
+text_builder.hako together with the placement README. Source selfhost
+remains unclaimed."""
 
 current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -35,6 +35,8 @@ Scope:
   - `direct_state_plan_refresh_projector.hako`
 - eighth shadow-projector support library:
   - `all_functions_phi_materialization_projector.hako`
+- executable placement guard:
+  - `tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`
