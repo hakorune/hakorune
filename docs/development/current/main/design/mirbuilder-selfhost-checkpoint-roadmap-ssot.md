@@ -103,6 +103,11 @@ BindingContext:
   native source owner present
   derived mainline retained
 
+BoxCompilationContext / context:
+  DerivedMainline selected
+  native source owner pending
+  generated artifact retained
+
 ReturnEmission projector:
   HakoShadow parity complete
   ordinary compiler-library landing
@@ -128,7 +133,6 @@ Current route-manifest candidates:
 
 ```text
 context
-minimal_path_composed_execution_closure
 ```
 
 Explicitly excluded from this pool:
@@ -151,11 +155,17 @@ ReturnEmission
 FunctionRegionStackPop
 compiler-library helpers
   support-lane / shadow-lane families, not yet the next adoption pool
+
+minimal_path_composed_execution_closure
+  already selected on the mainline pilot and closed by the composed-prefix
+  readiness resolver; not a current candidate row
 ```
 
 This inventory is a consultation aid, not the adoption decision itself. The
 next checkpoint still requires a concrete `HakoAdopted` decision card, but
-the candidate set is now explicit and does not rely on memory.
+the candidate set is now explicit and does not rely on memory. The selected
+`context` route-manifest entry still needs a native source owner card before
+an adoption recheck can land.
 
 ```text
 1. Keep the Python SemanticProjector growth freeze in force.

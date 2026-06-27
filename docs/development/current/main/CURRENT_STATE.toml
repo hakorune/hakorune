@@ -272,7 +272,7 @@ with a dedicated shadow-result parity fixture and canonical JSON parity
 guard. The ordinary Hako library landing stays under lang/src/compiler/lib/
 and no new ABI or syntax surface is opened."""
 
-current_blocker_token = "MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001"
+current_blocker_token = "MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
