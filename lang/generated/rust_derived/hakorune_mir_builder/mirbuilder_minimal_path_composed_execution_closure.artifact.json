@@ -1,0 +1,61 @@
+{
+  "claims": {
+    "backend_behavior_changed": 0,
+    "generated_hako_change": 1,
+    "generated_hako_executable_closure": 1,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "route_chain_closed": 1,
+    "runtime_fallback": 0,
+    "same_state_handoff_observed": 1,
+    "selected_existing_contracts_consumed": 1,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-minimal-path-composed-execution-closure",
+    "version": "mirbuilder-minimal-path-composed-execution-closure-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-plan-v0.json",
+      "sha256": "affd2f9e8534e864c26c764362aaacaa7c3ca7b7c942e43736693b726c64306f"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-oracle-v0.json",
+      "sha256": "09cfc6275fe304a44ce56f8c283361dfe11ace0337b30973fe7e51247e2df9a1"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-execution-projection-v0.json",
+      "sha256": "c60f7f02b2e7ed2f46088c3e9ddd9ff6eeb46d1c7de89819c3082b231533f5b9"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-recipe-v0.json",
+      "sha256": "c6fb5a113ac7c034ba735dcffb9303036b6c1aa019409237239b24b88de624ff"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-verifier-result-v0.json",
+      "sha256": "9add3cb095365f552062ad842e1b7c857d22025947bc65518fd378e8258f1331"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.hako",
+    "hako_sha256": "169b2110cb0cf6528e0f3aa646b44bb810f4f14c8ccd25d1aeb9cbb968c5d780"
+  },
+  "pilot_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  },
+  "state": "DerivedMainline"
+}

@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "MinimalPathComposedExecutionClosureApi.seal(state)",
+      "hako_operation": "SetField + ReturnValue",
+      "id": "MinimalPathComposedExecutionClosure::seal",
+      "rust_operation": "MinimalMirBuilder composed execution closure seal"
+    }
+  ],
+  "pilot_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+  "schema_version": 0,
+  "selected_body_count": "minimal_path_composed_execution_closure_prepared_state_only",
+  "source_oracle": "mirbuilder-minimal-path-composed-execution-closure-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-minimal-path-composed-execution-closure-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MinimalMirBuilder.composed_execution_closure"
+}

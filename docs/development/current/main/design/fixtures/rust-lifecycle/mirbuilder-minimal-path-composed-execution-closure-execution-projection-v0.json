@@ -1,0 +1,44 @@
+{
+  "behavior": {
+    "generated_hako_executable_closure": "Closed",
+    "route_chain_closed": "Yes",
+    "same_state_handoff_observed": "Yes",
+    "selected_existing_contracts_consumed": "Yes"
+  },
+  "directability": {
+    "full_mirbuilder_object_method": "Deny",
+    "prepared_closure_projection": "Allow"
+  },
+  "execution_scope": "PreparedMirBuilderStateShell",
+  "inputs": {
+    "route_transport": "MinimalMirBuilderComposedExecutionRouteV1",
+    "same_state_handoff_transport": "PreparedMirBuilderStateShell",
+    "selected_existing_contracts_transport": "RouteEvidenceOnly"
+  },
+  "kind": "MirBuilderMinimalPathComposedExecutionClosureExecutionProjectionV1",
+  "methods": {
+    "apply": "StaticCall + AssertEq + ReturnI64",
+    "seal": "SetField + ReturnValue"
+  },
+  "mutation_frame": {
+    "generated_hako_executable_closure_closed": "exclusive",
+    "route_chain_closed": "exclusive",
+    "same_state_handoff_observed": "read-only",
+    "selected_existing_contracts_consumed": "read-only"
+  },
+  "non_claims": {
+    "full_minimal_path_mainline_selected": 0,
+    "generated_hako_artifact": 0,
+    "hako_adopted": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "rust_bootstrap_retirement": 0,
+    "semantic_plan_closure": 0,
+    "source_selfhost_claim": 0
+  },
+  "result_semantics": "Unit",
+  "result_transport": "ScalarI64",
+  "schema_version": 0,
+  "source_plan": "MirBuilderMinimalPathComposedExecutionClosurePlanV1"
+}

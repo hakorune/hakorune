@@ -25,6 +25,8 @@ FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 
 REPORT_PATH = FIXTURES / "minimal-mirbuilder-execution-path-semantic-closure-report-v0.json"
 CONTINUATION_PATH = FIXTURES / "mirbuilder-minimal-path-composed-execution-continuation-v2.json"
+COMPOSED_CLOSURE_ARTIFACT_PATH = ROOT / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json"
+COMPOSED_CLOSURE_VERIFIER_PATH = FIXTURES / "mirbuilder-minimal-path-composed-execution-closure-derived-hako-verifier-result-v0.json"
 FRONTIER_PATH = FIXTURES / "mirbuilder-minimal-execution-path-frontier-resolution-v0.json"
 ADOPTION_RECHECK_PATH = FIXTURES / "mirbuilder-allocation-policy-hako-adoption-decision-recheck-v1.json"
 CURRENT_STATE_PATH = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
@@ -34,6 +36,7 @@ DESIGN_STOP_CONTRACT_PATH = ROOT / "tools/checks/current_state_design_stop_contr
 OUTPUT_PATH = FIXTURES / "mirbuilder-minimal-path-mainline-readiness-resolution-v0.json"
 
 EXPECTED_STABLE_NEXT_SLICE_TOKEN = "MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-003"
+EXPECTED_MAINLINE_PILOT_TOKEN = "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001"
 
 
 class MainlineReadinessError(RuntimeError):
@@ -67,8 +70,9 @@ def validate_task_order() -> dict[str, Any]:
     for needle in [
         "same-state composed prefix evidence",
         "next_unconsumed_edge = Closed",
-        "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-        "selected next owner:\n  intentionally unresolved",
+        "generated Hako executable closure = Closed",
+        "ReadyForMinimalPathMainlinePilot",
+        "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001",
     ]:
         require(needle in text, f"task-order missing: {needle}")
     return {
@@ -160,6 +164,93 @@ def validate_continuation() -> dict[str, Any]:
     }
 
 
+def validate_composed_execution_closure() -> dict[str, Any]:
+    verifier = read_json(COMPOSED_CLOSURE_VERIFIER_PATH)
+    require(
+        verifier.get("kind") == "DerivedHakoArtifactVerifierResult",
+        "composed execution closure has wrong verifier kind",
+    )
+    require(
+        verifier.get("family_id") == "hakorune_mir_builder::minimal_path_composed_execution_closure",
+        "composed execution closure family drift",
+    )
+    require(verifier.get("pilot_scope") == "MinimalMirBuilderComposedExecutionClosure_prepared_state_only", "composed execution closure scope drift")
+    require(verifier.get("result") == "VerifiedHakoFamilyIR", "composed execution closure must remain verified")
+    checks = verifier.get("checks") or {}
+    require(checks.get("generated_hako_change") == 1, "composed execution closure must claim generated_hako_change")
+    require(checks.get("generated_hako_executable_closure_closed") == 1, "composed execution closure must seal executable closure")
+    require(checks.get("same_state_handoff_observed") == 1, "composed execution closure must observe same-state handoff")
+    require(checks.get("selected_existing_contracts_consumed") == 1, "composed execution closure must consume existing contracts")
+    require(checks.get("route_chain_closed") == 1, "composed execution closure must close route chain")
+    require(checks.get("source_selfhost_claim") == 0, "composed execution closure must not claim source selfhost")
+    require(checks.get("runtime_fallback") == 0, "composed execution closure must keep fallback off")
+    require(checks.get("new_backend_route") == 0, "composed execution closure must keep backend route off")
+    require(checks.get("new_abi") == 0, "composed execution closure must keep ABI off")
+    denied_boundaries = verifier.get("denied_boundaries") or []
+    require(
+        denied_boundaries
+        == [
+            "semantic_plan_closure",
+            "full_minimal_path_mainline_selected",
+            "hako_adopted",
+            "rust_bootstrap_retirement",
+            "new_backend_route",
+            "new_abi",
+            "runtime_fallback",
+            "source_selfhost_claim",
+        ],
+        "composed execution closure denied boundaries drift",
+    )
+    transport_notes = verifier.get("transport_notes") or {}
+    require(
+        transport_notes.get("generated_hako_executable_closure") == "Closed",
+        "composed execution closure transport drift",
+    )
+    require(
+        transport_notes.get("route_chain_closed") == 1,
+        "composed execution closure route transport drift",
+    )
+    artifact = read_json(COMPOSED_CLOSURE_ARTIFACT_PATH)
+    require(
+        artifact.get("kind") == "RustDerivedHakoArtifact",
+        "composed execution closure artifact has wrong kind",
+    )
+    require(
+        artifact.get("family_id") == "hakorune_mir_builder::minimal_path_composed_execution_closure",
+        "composed execution closure artifact family drift",
+    )
+    require(artifact.get("state") == "DerivedMainline", "composed execution closure artifact state drift")
+    claims = artifact.get("claims") or {}
+    require(claims.get("generated_hako_change") == 1, "composed execution closure artifact must claim generated_hako_change")
+    require(claims.get("generated_hako_executable_closure") == 1, "composed execution closure artifact must claim executable closure")
+    require(claims.get("same_state_handoff_observed") == 1, "composed execution closure artifact must observe same-state handoff")
+    require(claims.get("selected_existing_contracts_consumed") == 1, "composed execution closure artifact must consume existing contracts")
+    require(claims.get("route_chain_closed") == 1, "composed execution closure artifact must close route chain")
+    require(claims.get("generated_hako_manual_edit") == 0, "composed execution closure artifact must keep manual edit off")
+    require(claims.get("mainline_selected") == 1, "composed execution closure artifact must stay mainline selected")
+    require(claims.get("runtime_fallback") == 0, "composed execution closure artifact must keep fallback off")
+    require(claims.get("new_backend_route") == 0, "composed execution closure artifact must keep backend route off")
+    require(claims.get("new_abi") == 0, "composed execution closure artifact must keep ABI off")
+    require(claims.get("source_selfhost_claim") == 0, "composed execution closure artifact must not claim source selfhost")
+    output = artifact.get("output") or {}
+    hako_path = ROOT / output.get("hako_path", "")
+    require(output.get("hako_path"), "composed execution closure missing hako output path")
+    require(hako_path.exists(), f"composed execution closure hako output missing: {hako_path}")
+    require(output.get("hako_sha256") == sha256_file(hako_path), "composed execution closure hako hash stale")
+    return {
+        "verifier_path": rel(COMPOSED_CLOSURE_VERIFIER_PATH),
+        "verifier_sha256": sha256_file(COMPOSED_CLOSURE_VERIFIER_PATH),
+        "artifact_path": rel(COMPOSED_CLOSURE_ARTIFACT_PATH),
+        "artifact_sha256": sha256_file(COMPOSED_CLOSURE_ARTIFACT_PATH),
+        "verifier": verifier,
+        "artifact": artifact,
+        "checks": checks,
+        "transport_notes": transport_notes,
+        "output": output,
+        "claims": claims,
+    }
+
+
 def validate_frontier_resolution() -> dict[str, Any]:
     resolution = read_json(FRONTIER_PATH)
     require(
@@ -198,10 +289,17 @@ def validate_adoption_recheck() -> dict[str, Any]:
     }
 
 
-def classify_readiness(report: dict[str, Any], continuation: dict[str, Any], frontier: dict[str, Any], adoption: dict[str, Any]) -> dict[str, Any]:
+def classify_readiness(
+    report: dict[str, Any],
+    continuation: dict[str, Any],
+    composed_closure: dict[str, Any],
+    frontier: dict[str, Any],
+    adoption: dict[str, Any],
+) -> dict[str, Any]:
     closure = report["closure"]
     prefix = continuation["prefix"]
     same_state = continuation["same_state"]
+    closure_checks = composed_closure["checks"]
     decision = frontier["decision"]
     input_evidence = adoption["input_evidence"]
 
@@ -209,9 +307,9 @@ def classify_readiness(report: dict[str, Any], continuation: dict[str, Any], fro
     decision_kind = "ReadyForMinimalPathMainlinePilot"
     reason_token = "GeneratedHakoExecutableClosureClosed"
     reason = "generated Hako executable closure is closed and the mainline pilot can proceed"
-    next_slice_token = "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001"
+    next_slice_token = EXPECTED_MAINLINE_PILOT_TOKEN
 
-    if closure.get("generated_hako_executable_closure") == "Open":
+    if closure.get("generated_hako_executable_closure") == "Open" and closure_checks.get("generated_hako_executable_closure_closed") != 1:
         readiness_state = "NotReady"
         decision_kind = "NeedExecutableClosurePatch"
         reason_token = "GeneratedHakoExecutableClosureOpen"
@@ -234,7 +332,7 @@ def classify_readiness(report: dict[str, Any], continuation: dict[str, Any], fro
         "semantic_plan_closure": closure.get("semantic_plan_closure"),
         "composed_prefix_state": prefix.get("prefix_state"),
         "next_unconsumed_edge_classification": "Closed" if decision.get("kind") == "Blocked" else "Unknown",
-        "generated_hako_executable_closure": closure.get("generated_hako_executable_closure"),
+        "generated_hako_executable_closure": "Closed" if closure_checks.get("generated_hako_executable_closure_closed") == 1 else closure.get("generated_hako_executable_closure"),
         "allocation_policy_adoption": adoption["adoption"].get("decision"),
         "full_path_mainline_eligible": closure.get("full_path_mainline_eligible"),
         "source_selfhost_eligible": closure.get("source_selfhost_eligible"),
@@ -250,6 +348,14 @@ def classify_readiness(report: dict[str, Any], continuation: dict[str, Any], fro
         "source_authority": {
             "semantic_closure_report": {"path": rel(REPORT_PATH), "sha256": sha256_file(REPORT_PATH)},
             "composed_execution_continuation": {"path": rel(CONTINUATION_PATH), "sha256": sha256_file(CONTINUATION_PATH)},
+            "composed_execution_closure_verifier": {
+                "path": rel(COMPOSED_CLOSURE_VERIFIER_PATH),
+                "sha256": sha256_file(COMPOSED_CLOSURE_VERIFIER_PATH),
+            },
+            "composed_execution_closure_artifact": {
+                "path": rel(COMPOSED_CLOSURE_ARTIFACT_PATH),
+                "sha256": sha256_file(COMPOSED_CLOSURE_ARTIFACT_PATH),
+            },
             "frontier_resolution": {"path": rel(FRONTIER_PATH), "sha256": sha256_file(FRONTIER_PATH)},
             "adoption_recheck": {"path": rel(ADOPTION_RECHECK_PATH), "sha256": sha256_file(ADOPTION_RECHECK_PATH)},
             "current_state": {"path": rel(CURRENT_STATE_PATH), "sha256": sha256_file(CURRENT_STATE_PATH)},
@@ -268,6 +374,10 @@ def classify_readiness(report: dict[str, Any], continuation: dict[str, Any], fro
             "fallback_to_standalone_harness": same_state.get("fallback_to_standalone_harness"),
             "generated_hako_change": same_state.get("generated_hako_change"),
         },
+        "composed_execution_closure": {
+            "generated_hako_executable_closure_closed": closure_checks.get("generated_hako_executable_closure_closed"),
+            "route_chain_closed": closure_checks.get("route_chain_closed"),
+        },
         "mainline_readiness": mainline_readiness,
         "decision": {
             "kind": decision_kind,
@@ -279,6 +389,16 @@ def classify_readiness(report: dict[str, Any], continuation: dict[str, Any], fro
         "selected_evidence": [
             {"kind": "semantic_closure_report", "path": rel(REPORT_PATH), "sha256": sha256_file(REPORT_PATH)},
             {"kind": "composed_execution_continuation", "path": rel(CONTINUATION_PATH), "sha256": sha256_file(CONTINUATION_PATH)},
+            {
+                "kind": "composed_execution_closure_verifier",
+                "path": rel(COMPOSED_CLOSURE_VERIFIER_PATH),
+                "sha256": sha256_file(COMPOSED_CLOSURE_VERIFIER_PATH),
+            },
+            {
+                "kind": "composed_execution_closure_artifact",
+                "path": rel(COMPOSED_CLOSURE_ARTIFACT_PATH),
+                "sha256": sha256_file(COMPOSED_CLOSURE_ARTIFACT_PATH),
+            },
             {"kind": "frontier_resolution", "path": rel(FRONTIER_PATH), "sha256": sha256_file(FRONTIER_PATH)},
             {"kind": "adoption_recheck", "path": rel(ADOPTION_RECHECK_PATH), "sha256": sha256_file(ADOPTION_RECHECK_PATH)},
             {"kind": "current_state", "path": rel(CURRENT_STATE_PATH), "sha256": sha256_file(CURRENT_STATE_PATH)},
@@ -313,13 +433,14 @@ def build_resolution() -> dict[str, Any]:
     state = parse_current_state()
     report_info = validate_semantic_closure_report()
     continuation_info = validate_continuation()
+    composed_closure_info = validate_composed_execution_closure()
     frontier_info = validate_frontier_resolution()
     adoption_info = validate_adoption_recheck()
     task_order = validate_task_order()
     role_ssot = validate_role_ssot()
     design_stop = validate_design_stop_contract()
 
-    resolution = classify_readiness(report_info, continuation_info, frontier_info, adoption_info)
+    resolution = classify_readiness(report_info, continuation_info, composed_closure_info, frontier_info, adoption_info)
     resolution["source_authority"]["current_state"]["latest_card"] = state.get("latest_card")
     resolution["source_authority"]["current_state"]["latest_card_path"] = state.get("latest_card_path")
     resolution["source_authority"]["current_state"]["current_blocker_token"] = state.get("current_blocker_token")

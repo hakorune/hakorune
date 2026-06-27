@@ -24,6 +24,9 @@ from mirbuilder_bounded_finalize_artifacts import run_bounded_finalize_artifact_
 from mirbuilder_current_function_take_artifacts import run_current_function_take_artifact_generator
 from mirbuilder_current_module_take_artifacts import run_current_module_take_artifact_generator
 from mirbuilder_condition_fn_injection_artifacts import run_condition_fn_injection_artifact_generator
+from mirbuilder_minimal_path_composed_execution_closure_artifacts import (
+    run as run_minimal_path_composed_execution_closure_artifact_generator,
+)
 from mirbuilder_dev_birth_verification_artifacts import run_dev_birth_verification_artifact_generator
 from mirbuilder_literal_integer_artifacts import run_literal_integer_lowering_artifact_generator
 from mirbuilder_function_region_stack_pop_artifacts import run_function_region_stack_pop_artifact_generator
@@ -75,6 +78,7 @@ FAMILY_GENERATORS = {
     "mirbuilder-current-function-take": run_current_function_take_artifact_generator,
     "mirbuilder-current-module-take": run_current_module_take_artifact_generator,
     "mirbuilder-condition-fn-injection": run_condition_fn_injection_artifact_generator,
+    "mirbuilder-minimal-path-composed-execution-closure": run_minimal_path_composed_execution_closure_artifact_generator,
     "mirbuilder-dev-birth-verification": run_dev_birth_verification_artifact_generator,
     "mirbuilder-literal-integer-lowering": run_literal_integer_lowering_artifact_generator,
     "mirbuilder-function-region-stack-pop": run_function_region_stack_pop_artifact_generator,

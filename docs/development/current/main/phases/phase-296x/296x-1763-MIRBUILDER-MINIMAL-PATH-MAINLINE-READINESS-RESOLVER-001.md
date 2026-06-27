@@ -10,9 +10,9 @@ Card: MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001
 
 Resolve the minimal-path mainline readiness mechanically from the semantic
 closure report, the composed continuation evidence, the explicit design-stop
-frontier resolution, the allocation-policy adoption recheck, the current-state
-pointer, the task-order pointer, the role/adoption SSOT, and the design-stop
-pause contract.
+frontier resolution, the composed execution closure artifact, the
+allocation-policy adoption recheck, the current-state pointer, the task-order
+pointer, the role/adoption SSOT, and the design-stop pause contract.
 
 This is a code-facing readiness resolver, not a new semantic projector. It
 keeps the design stop explicit and derives the next slice token without hand-
@@ -25,11 +25,11 @@ semantic_plan_closure = Closed
 composed_prefix_state = Green
 next_unconsumed_edge_classification = Closed
 allocation_policy_adoption = Adopt
-generated_hako_executable_closure = Open
+generated_hako_executable_closure = Closed
 ```
 
-That means the readiness decision is `NeedExecutableClosurePatch`, not full
-mainline selection.
+That means the readiness decision is `ReadyForMinimalPathMainlinePilot`, not
+full mainline selection.
 
 ```text
 docs_only_closeout = forbidden
@@ -87,9 +87,9 @@ new_semantic_projection = 0
 next_unconsumed_edge_classification = 1
 stable_next_slice_token = 1
 first_red_edge_if_any_is_stable = 1
-generated_hako_executable_closure = Open
-readiness_state = NotReady
-decision = NeedExecutableClosurePatch | ReadyForMinimalPathMainlinePilot | Blocked
+generated_hako_executable_closure = Closed
+readiness_state = Ready
+decision = ReadyForMinimalPathMainlinePilot | Blocked
 reason_token_required = 1
 runtime_fallback = 0
 new_backend_route = 0
@@ -114,24 +114,22 @@ standalone smoke aggregation = 0
 
 ## Next
 
-If the resolver returns `NeedExecutableClosurePatch`, keep the composed
-execution lane on `MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-003`
-until the open executable closure is patched. If it returns
-`ReadyForMinimalPathMainlinePilot`, proceed to the minimal-path mainline
-pilot. If it returns `Blocked`, keep the design stop explicit and fail fast.
+If it returns `ReadyForMinimalPathMainlinePilot`, proceed to the minimal-path
+mainline pilot. If it returns `Blocked`, keep the design stop explicit and
+fail fast.
 
 ## Closeout
 
 ```text
 output_contract=rust-lifecycle-mirbuilder-minimal-path-mainline-readiness-resolution-v0
-decision=NeedExecutableClosurePatch
-reason_token=GeneratedHakoExecutableClosureOpen
-next_slice_token=MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-003
-readiness_state=NotReady
+decision=ReadyForMinimalPathMainlinePilot
+reason_token=GeneratedHakoExecutableClosureClosed
+next_slice_token=MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
+readiness_state=Ready
 semantic_plan_closure=Closed
 composed_prefix_state=Green
 next_unconsumed_edge_classification=Closed
-generated_hako_executable_closure=Open
+generated_hako_executable_closure=Closed
 allocation_policy_adoption=Adopt
 same_state_handoff_observed=1
 manual_next_owner_selection=0

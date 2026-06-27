@@ -1,0 +1,50 @@
+{
+  "checks": {
+    "excluded_methods": [],
+    "generated_hako_change": 1,
+    "generated_hako_executable_closure_closed": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "route_chain_closed": 1,
+    "runtime_fallback": 0,
+    "same_state_handoff_observed": 1,
+    "selected_body_count": "minimal_path_composed_execution_closure_prepared_state_only",
+    "selected_existing_contracts_consumed": 1,
+    "source_selfhost_claim": 0
+  },
+  "denied_boundaries": [
+    "semantic_plan_closure",
+    "full_minimal_path_mainline_selected",
+    "hako_adopted",
+    "rust_bootstrap_retirement",
+    "new_backend_route",
+    "new_abi",
+    "runtime_fallback",
+    "source_selfhost_claim"
+  ],
+  "family_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-minimal-path-composed-execution-closure-plan-v0.json",
+  "source_plan": "mirbuilder-minimal-path-composed-execution-closure-execution-projection-v0.json",
+  "source_recipe": "mirbuilder-minimal-path-composed-execution-closure-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MinimalMirBuilder.composed_execution_closure",
+  "transport_notes": {
+    "full_mirbuilder_object_method": "Deny",
+    "generated_hako_executable_closure": "Closed",
+    "route_chain_closed": 1,
+    "route_transport": "MinimalMirBuilderComposedExecutionRouteV1",
+    "same_state_handoff_observed": "read-only",
+    "same_state_handoff_transport": "PreparedMirBuilderStateShell",
+    "selected_existing_contracts_consumed": "read-only",
+    "selected_existing_contracts_transport": "RouteEvidenceOnly"
+  },
+  "verified_operations": [
+    "SetField",
+    "ReturnValue",
+    "PreparedComposedExecutionClosureStateShellBox",
+    "MinimalPathComposedExecutionClosureApi"
+  ]
+}
