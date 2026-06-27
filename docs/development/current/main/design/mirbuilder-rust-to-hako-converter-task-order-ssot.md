@@ -24,23 +24,25 @@ Detailed historical rows live in phase cards and git history.
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002.
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001.
   Continue the composed execution prefix as a code-facing integration card.
-  The frontier resolver is landed and the explicit design-stop frontier is
-  still active, but the next step is the composed-execution continuation:
-  derive a stable red edge or green prefix from the same-state composed
-  evidence instead of hand-picking a new semantic owner.
+  The frontier resolver and composed continuation are landed, the explicit
+  design-stop frontier is still active, and the next step is the composed-
+  prefix advance: classify the next unconsumed edge from the same-state
+  composed evidence instead of hand-picking a new semantic owner.
 
 selected decision slice:
   minimal_path.composed_execution_prefix
-    -> code-facing continuation before any new semantic owner is named
+    -> continue prefix and classify next_unconsumed_edge mechanically before
+       any new semantic owner is named
 
 selected evidence:
   semantic closure frontier
     -> landed record/packed artifact
     -> composed execution evidence
+    -> composed continuation evidence
     -> explicit design-stop frontier
-    -> same-state composed continuation evidence
+    -> same-state composed prefix evidence
     -> next executable owner intentionally unresolved
 
 landed evidence pointer:
@@ -49,21 +51,22 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-EXECUTION-CLOSURE-002
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-PREFIX-ADVANCE-001
 
 current fail-fast boundary:
   The explicit design-stop contract remains active. Do not invent a new
-  semantic owner before the composed execution continuation derives one
-  mechanically from the same-state evidence. Full minimal-path mainline
-  selection, backend route, ABI, runtime fallback, and source selfhost remain
-  unselected.
+  semantic owner before the composed prefix advance classifies the next
+  unconsumed edge mechanically from the same-state evidence. Full
+  minimal-path mainline selection, backend route, ABI, runtime fallback, and
+  source selfhost remain unselected.
 
 latest design decision:
   The composed execution route landed as same-state handoff evidence. The
-  frontier resolver is landed and the explicit design-stop pause contract
-  remains active. The next concrete task is the composed-execution
-  continuation card, which must derive a stable first composition red edge or
-  green prefix from the existing evidence set.
+  frontier resolver and composed continuation are landed and the explicit
+  design-stop pause contract remains active. The next concrete task is the
+  composed-prefix advance card, which must classify the next unconsumed edge
+  and derive a stable first composition red edge or green prefix from the
+  existing evidence set.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -97,29 +100,29 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Minimal path composed execution closure continuation
+1. Minimal path composed prefix advance
    status=selected
-   boundary=derive a stable first composition red edge or green prefix from
-   the same-state composed execution evidence
+   boundary=continue the composed prefix and classify the next unconsumed
+   edge from the same-state composed evidence
    semantic_authority=semantic closure frontier plus composed execution
-   evidence, manifest/contracts, and route selections
+   evidence, continuation evidence, manifest/contracts, and route selections
    required_shape=code-facing continuation card; consume existing contracts
    and derive one stable next-slice token without hand-picking
    non_authority=standalone smoke aggregation, new semantic projection, or
    full minimal-path mainline
 
 2. First composed red edge
-   status=derived by the continuation card, not hand-selected
+   status=derived by the prefix advance card, not hand-selected
    boundary=stable state/transport/linkage mismatch if the same-state evidence
    exposes one
-   semantic_authority=executable composed result plus continuation output
+   semantic_authority=executable composed result plus prefix advance output
    non_authority=manual next-owner selection or using the card as permission
    for a larger semantic artifact
 
 3. Next executable owner selection
-   status=parked until the continuation names one mechanically
+   status=parked until the prefix advance names one mechanically
    boundary=post-design-stop materialization owner
-   semantic_authority=the frontier report plus the composed continuation
+   semantic_authority=the frontier report plus the composed prefix advance
    result
    non_authority=full minimal-path source selfhost claim
 ```
