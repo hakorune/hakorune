@@ -265,14 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md"
-latest_card_summary = """The latest card repairs stale current-state exact pins in the
-minimal-path composed-prefix / continuation / frontier / readiness guard
-family so the existing design-stop evidence stays green after CURRENT_STATE
-advances. This is a guard-drift repair, not a new semantic owner."""
+latest_card = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md"
+latest_card_summary = """The latest card is the converter next-slice design stop.
+It asks for a deliberate choice before adding more converter behavior, after
+the guard-drift repair and adoption cards landed."""
 
-current_blocker_token = "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001"
+current_blocker_token = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

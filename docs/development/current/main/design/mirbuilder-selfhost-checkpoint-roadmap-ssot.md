@@ -104,7 +104,7 @@ BindingContext:
   derived mainline retained
 
 BoxCompilationContext / context:
-  DerivedMainline selected
+  HakoAdopted decision complete
   native source owner present
   generated artifact retained
 
@@ -132,12 +132,15 @@ support-lane projector inventory.
 Current route-manifest candidates:
 
 ```text
-context
+none
 ```
 
 Explicitly excluded from this pool:
 
 ```text
+context
+  already HakoAdopted; not a next-candidate row
+
 allocation_policy_prepared_state_next_value_id
   already HakoAdopted; not a next-candidate row
 
@@ -162,10 +165,9 @@ minimal_path_composed_execution_closure
 ```
 
 This inventory is a consultation aid, not the adoption decision itself. The
-next checkpoint still requires a concrete `HakoAdopted` decision card, but
-the candidate set is now explicit and does not rely on memory. The selected
-`context` route-manifest entry still needs a native source owner card before
-an adoption recheck can land.
+remaining family-by-family `HakoAdopted` decisions now come from the parked
+derived families that are still on the route manifest, not from the already
+adopted `context` entry.
 
 ```text
 1. Keep the Python SemanticProjector growth freeze in force.

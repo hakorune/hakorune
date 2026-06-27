@@ -21,63 +21,56 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001
+  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.
-  The composed-prefix / continuation / frontier / readiness / adoption-recheck
-  guards still pin historical current-state values. Repair the stale
-  current-state exact pinning first, then rerun the resolver family before
-  touching any new semantic owner.
+  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.
+  The guard-drift repair, adoption decision, and ordered-map crate-bundle
+  cards are landed. The next move is a deliberate design consultation for the
+  next converter slice; do not invent a fresh executable owner from history.
 
 selected decision slice:
-  composed_prefix.current_state
+  design_stop.current_state
     -> latest_card/latest_card_path presence only
-    -> no exact current_blocker_token pin
-    -> MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001
+    -> no exact historical owner pin
+    -> MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
 
 selected evidence:
-  guard repair evidence
-    -> tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution_continuation.py
-    -> tools/rust_lifecycle/mirbuilder_minimal_path_composed_prefix_advance.py
-    -> tools/rust_lifecycle/mirbuilder_minimal_execution_path_frontier_resolution.py
-    -> tools/rust_lifecycle/mirbuilder_minimal_path_mainline_readiness_resolver.py
-    -> tools/checks/rust_lifecycle_mirbuilder_allocation_policy_hako_adoption_decision_recheck_guard.sh
-    -> tools/checks/rust_lifecycle_mirbuilder_allocation_policy_hako_adoption_decision_recheck_002_guard.sh
+  design stop evidence
+    -> docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md
     -> docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md
     -> docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
     -> docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
     -> tools/checks/current_state_pointer_guard.sh
     -> design consultation inventory
 
 landed evidence pointer:
-  Detailed landed rows live in the guard repair card, readiness resolver,
-  and git history. This task-order only keeps the active blocker, fail-fast
+  Detailed landed rows live in the guard repair card, adoption cards, and
+  git history. This task-order only keeps the active blocker, fail-fast
   boundary, and Active Next 3.
 
 selected next owner:
-  composed-prefix guard drift repair candidate
+  design consultation candidate
 
 current fail-fast boundary:
-  The minimal-path composed-prefix / continuation / frontier / readiness /
-  adoption-recheck family still carries stale current-state exact pins.
-  De-drift those guards before resuming the already-ready mainline pilot.
+  The ordered-map bundle, adoption decision, and composed-prefix repair are
+  landed. Stop here and select the next converter slice deliberately; do not
+  keep the same goal moving with another docs-only loop.
 
 latest design decision:
-  Guard drift, not a new semantic owner, is the current blocker. The next
-  concrete route after the repair is the already-ready mainline pilot.
+  Design stop, not a new semantic owner, is the current blocker. The next
+  concrete route is the consultation for the next hard-tier direct conversion
+  slice.
 
-## Composed Prefix Evidence
+## Design Stop Evidence
 
 ```text
-same-state composed prefix evidence
-next_unconsumed_edge = Closed
-generated Hako executable closure = Closed
-ReadyForMinimalPathMainlinePilot
-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
+selected design-stop candidate
+MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
+current_state.latest_card_path = 1650 design stop
+goal-driven execution pause point
 ```
 
 forbidden:
@@ -95,7 +88,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1745-MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.md
+  296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -112,10 +105,6 @@ latest_adoption_card =
 latest_native_owner_card =
   docs/development/current/main/phases/phase-296x/
   1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
-
-frontier_resolution_card =
-  docs/development/current/main/phases/phase-296x/
-  296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md
 ```
 
 ## Active Next 3
@@ -124,24 +113,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Composed-prefix guard drift repair
+1. Design consultation for the next converter slice
    status=selected
-   boundary=stale current-state exact pins in the composed-prefix family
-   semantic_authority=current-state pointer existence, semantic closure report,
-   and route evidence
-   non_authority=historical current_blocker_token exact matches
+   boundary=the next hard-tier direct conversion slice must be chosen
+   semantic_authority=the design-stop card plus the active task-order SSOT
+   non_authority=manual next-owner selection from historical mirrors
 
-2. Resolver family rerun after the guard repair
-   status=parked until the repair lands
-   boundary=continue, frontier, and readiness checks rerun on the current state
-   semantic_authority=the existing resolver fixtures
-   non_authority=manual next-owner selection
+2. Resume semantic converter work from the active task-order SSOT
+   status=parked until consultation lands
+   boundary=only after the next slice is chosen deliberately
+   semantic_authority=the active task-order SSOT
+   non_authority=docs-only loop continuation
 
-3. Minimal-path mainline pilot
-   status=parked until readiness stays green after the repair
-   boundary=the already-ready minimal-path route remains the next concrete lane
-   semantic_authority=readiness resolver plus composed execution closure
-   non_authority=Source Selfhost, Rust deletion, new semantic owner selection
+3. Keep structural cleanup only if a fresh BoxShape blocker appears
+   status=parked
+   boundary=guard drift and adoption cleanup are already landed
+   semantic_authority=the current blocker token and active card
+   non_authority=more cleanup for its own sake
 ```
 
 ## Landed Converter Capability Summary
