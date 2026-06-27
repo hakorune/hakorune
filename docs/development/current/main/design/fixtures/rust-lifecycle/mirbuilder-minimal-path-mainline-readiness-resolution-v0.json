@@ -27,8 +27,8 @@
   },
   "current_state": {
     "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-    "latest_card": "MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md"
+    "latest_card": "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md"
   },
   "decision": {
     "kind": "ReadyForMinimalPathMainlinePilot",
@@ -84,7 +84,7 @@
     {
       "kind": "frontier_resolution",
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-frontier-resolution-v0.json",
-      "sha256": "9f87d1e03c07b41cabe0882e0b6418ed225843ec3a4803a6b9798f7d1d4f3349"
+      "sha256": "63bfe8e83977c69604742dfb8d1016b912b79db3ad896c5237c4010aae7a4c8e"
     },
     {
       "kind": "adoption_recheck",
@@ -94,12 +94,12 @@
     {
       "kind": "current_state",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "a35e75666ad255d02c6272f43106e6dc5317290b9f0d7aed5607204aee30e07a"
+      "sha256": "cc0fe19699f32d4a26b7da92471a7f589fc5792413adc82c308642d455593d10"
     },
     {
       "kind": "task_order_pointer",
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "5b8ebb69c4c4d840c2977e1d73cf00772ceefead47b0715008882011fc40f277"
+      "sha256": "9dfbd5e5b28384be228f779adf65f73af59264794cdd048e163266155ba0c423"
     }
   ],
   "source_authority": {
@@ -121,10 +121,10 @@
     },
     "current_state": {
       "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-      "latest_card": "MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001",
-      "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md",
+      "latest_card": "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001",
+      "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "a35e75666ad255d02c6272f43106e6dc5317290b9f0d7aed5607204aee30e07a"
+      "sha256": "cc0fe19699f32d4a26b7da92471a7f589fc5792413adc82c308642d455593d10"
     },
     "design_stop_contract": {
       "path": "tools/checks/current_state_design_stop_contract.txt",
@@ -132,7 +132,7 @@
     },
     "frontier_resolution": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-frontier-resolution-v0.json",
-      "sha256": "9f87d1e03c07b41cabe0882e0b6418ed225843ec3a4803a6b9798f7d1d4f3349"
+      "sha256": "63bfe8e83977c69604742dfb8d1016b912b79db3ad896c5237c4010aae7a4c8e"
     },
     "role_ssot": {
       "path": "docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md",
@@ -144,7 +144,7 @@
     },
     "task_order_pointer": {
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "5b8ebb69c4c4d840c2977e1d73cf00772ceefead47b0715008882011fc40f277"
+      "sha256": "9dfbd5e5b28384be228f779adf65f73af59264794cdd048e163266155ba0c423"
     }
   }
 }

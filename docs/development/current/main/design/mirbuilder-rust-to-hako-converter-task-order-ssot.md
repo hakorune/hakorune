@@ -24,33 +24,28 @@ active blocker:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.
-  Keep the ReturnEmission shadow projector support lane ordinary
-  compiler-library code under lang/src/compiler/lib/ and machine-check the
-  shadow-result canonical JSON parity instead of promoting it to TypeBox ABI,
-  host ABI, or syntax/spec.
+  MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.
+  Resolve the explicit design-stop frontier mechanically and keep the
+  minimal execution path parked there until the analyzer-derived next owner
+  is selected; do not leave a completed support-lane parity card as the live
+  owner.
 
 selected decision slice:
-  compiler_library.return_emission_hako_shadow_parity
-    -> selected_route = ordinary_hako_library
-    -> no_abi_surface = 1
-    -> MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001
+  minimal_execution_path.completion_design_stop
+    -> selected_route = explicit_design_stop
+    -> no_new_owner_selected = 1
+    -> MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 selected evidence:
-  compiler library placement inventory
-    -> return_emission_projector.hako
-    -> projector_support.hako
-    -> mirbuilder-return-emission-hako-shadow-result-v0.json
-    -> tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh
-    -> function_region_stack_pop_projector.hako
-    -> slot_registry_release_projector.hako
-    -> module_metadata_publication_projector.hako
-    -> record_packed_layout_refresh_projector.hako
-    -> typed_object_plan_refresh_projector.hako
-    -> direct_state_plan_refresh_projector.hako
-    -> all_functions_phi_materialization_projector.hako
-    -> lang/src/compiler/lib/README.md
-    -> tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
+  semantic closure report
+    -> minimal-mirbuilder-execution-path-semantic-closure-report-v0.json
+    -> docs/development/current/main/phases/phase-296x/296x-1745-MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md
+    -> docs/development/current/main/CURRENT_STATE.toml
+    -> docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
     -> design consultation inventory
     -> role SSOT follow-on token
 
@@ -63,15 +58,23 @@ selected next owner:
   intentionally unresolved
 
 current fail-fast boundary:
-  The compiler-library placement stays ordinary Hako library code.
-  Do not promote canonical JSON semantics to TypeBox ABI, host ABI,
-  distribution ABI, or syntax/spec.
+  The explicit design-stop frontier stays live.
+  Do not replace it with a completed support-lane parity card.
 
 latest design decision:
-  The Hako shadow projector lane remains in lang/src/compiler/lib/ as
-  ordinary compiler-library code; the ReturnEmission parity guard now
-  verifies the canonical JSON shadow-result boundary and keeps the ABI
-  discussion closed.
+  The minimal execution path remains parked at the explicit design-stop
+  frontier; completed support-lane parity cards do not replace the live
+  frontier, and the next owner must still be derived mechanically.
+
+## Composed Prefix Evidence
+
+```text
+same-state composed prefix evidence
+next_unconsumed_edge = Closed
+generated Hako executable closure = Closed
+ReadyForMinimalPathMainlinePilot
+MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
+```
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
