@@ -24,31 +24,24 @@ active blocker:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.
-  Select the composed-execution closure artifact as the explicit
-  derived_hako mainline route, consuming the readiness decision, the route
-  manifest, and the composed-execution closure artifact without inventing a
-  broader minimal-path mainline claim.
+  HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001.
+  Keep the canonical JSON writer as an ordinary compiler-library placement
+  under lang/src/compiler/lib/ and do not promote it to TypeBox ABI, host
+  ABI, or syntax/spec.
 
 selected decision slice:
-  minimal_path.mainline_pilot
-    -> selected_route = derived_hako
-    -> route_state = DerivedMainline
-    -> selected_on_mainline = 1
-    -> MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
+  compiler_library.canonical_json_writer
+    -> selected_route = ordinary_hako_library
+    -> no_abi_surface = 1
+    -> HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001
 
 selected evidence:
-  semantic closure frontier
-    -> composed execution evidence
-    -> composed continuation evidence
-    -> composed execution closure evidence
-    -> same-state composed prefix evidence
-    -> next_unconsumed_edge = Closed
-    -> allocation-policy DerivedMainline route closure
-    -> native source owner present
-    -> generated Hako executable closure = Closed
-    -> family route manifest
-    -> route seam SSOT
+  compiler library placement inventory
+    -> canonical_json.hako
+    -> projection_value.hako
+    -> lang/src/compiler/lib/README.md
+    -> design consultation inventory
+    -> role SSOT follow-on token
 
 landed evidence pointer:
   Detailed landed rows live in the semantic closure report, phase cards, and
@@ -59,16 +52,14 @@ selected next owner:
   intentionally unresolved
 
 current fail-fast boundary:
-  The semantic closure report stops at
-  `minimal_path.completion_design_stop`. Do not claim full minimal-path
-  mainline, Source Selfhost, Rust deletion, backend route, ABI, or runtime
-  fallback.
+  The compiler-library placement stays ordinary Hako library code.
+  Do not promote canonical JSON semantics to TypeBox ABI, host ABI,
+  distribution ABI, or syntax/spec.
 
 latest design decision:
-  The native source owner has landed, the adoption recheck is Adopt, the
-  composed prefix remains green, the composed execution closure is sealed,
-  and the minimal-path mainline pilot selects the composed-execution closure
-  route on the mainline seam while the semantic report still remains open.
+  The canonical JSON writer remains in lang/src/compiler/lib/ as an ordinary
+  compiler-library module; the next implementation step stays narrow and
+  does not reopen the ABI discussion.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code

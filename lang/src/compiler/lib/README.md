@@ -5,6 +5,7 @@ modules.
 
 Placement SSOT:
 - `docs/development/current/main/phases/phase-296x/296x-1740-HAKO-COMPILER-TEXT-BUILDER-V0-001.md`
+- `docs/development/current/main/phases/phase-296x/296x-1765-HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001.md`
 - `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`
 - `docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md`
 
