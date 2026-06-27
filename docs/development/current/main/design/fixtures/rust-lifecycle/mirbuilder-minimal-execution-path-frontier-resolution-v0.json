@@ -1,0 +1,109 @@
+{
+  "claims": {
+    "existing_evidence_consumed": 1,
+    "generated_hako_change": 0,
+    "manual_next_edge_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "resolver_output_is_derived": 1,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "composed_execution": {
+    "fallback_to_standalone_harness": 0,
+    "same_state_handoff_observed": 1,
+    "selected_existing_contracts_consumed": 1
+  },
+  "current_state": {
+    "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+    "latest_card": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md"
+  },
+  "decision": {
+    "kind": "Blocked",
+    "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+    "owner_scope": "integration",
+    "reason": "MinimalExecutionPathCompletionDesignReviewRequired",
+    "reason_detail": "Selected source edges reached the explicit completion design stop"
+  },
+  "kind": "MinimalMirBuilderExecutionPathFrontierResolutionV1",
+  "resolution_scope": "DesignStopFrontier",
+  "selected_evidence": [
+    {
+      "edge_id": "minimal_path.completion_design_stop",
+      "kind": "semantic_closure_report",
+      "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
+    },
+    {
+      "kind": "composed_execution_route",
+      "observed": 1,
+      "state_transport": "PreparedMirBuilderStateShell"
+    },
+    {
+      "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+      "kind": "current_state",
+      "latest_card": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001"
+    },
+    {
+      "kind": "task_order_pointer",
+      "latest_workstream_card": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+    },
+    {
+      "kind": "role_ssot",
+      "python_semantic_projector_growth_freeze": "forbidden_by_default"
+    }
+  ],
+  "source_authority": {
+    "composed_execution_route": {
+      "claims": {
+        "fallback_to_standalone_harness": 0,
+        "generated_hako_change": 0,
+        "generated_route_change": 1,
+        "manual_next_edge_selection": 0,
+        "new_abi": 0,
+        "new_backend_route": 0,
+        "runtime_fallback": 0,
+        "same_state_handoff_observed": 1,
+        "selected_existing_contracts_consumed": 1,
+        "semantic_recipe_recopy": 0,
+        "source_selfhost_claim": 0
+      },
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution.route.json",
+      "same_state_handoff": {
+        "fallback_to_standalone_harness": 0,
+        "generated_hako_change": 0,
+        "observed": 1,
+        "selected_existing_contracts_consumed": 1,
+        "state_transport": "PreparedMirBuilderStateShell"
+      },
+      "sha256": "8d71868d58ccef5070bd8dd69ce3b83530bd865e77d20f3ab58c7699456d1eda"
+    },
+    "current_state": {
+      "path": "docs/development/current/main/CURRENT_STATE.toml",
+      "sha256": "d74364793eed6dc3f3baa49c4a1a710d1a8b7e7d2a14e67c5442c2f9b5a209b6"
+    },
+    "design_stop": {
+      "callsite": "MinimalMirBuilderExecutionPath -> post-finalize completion design stop",
+      "edge_id": "minimal_path.completion_design_stop",
+      "next_slice_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
+      "reason": "Selected source edges reached the explicit completion design stop"
+    },
+    "design_stop_contract": {
+      "path": "tools/checks/current_state_design_stop_contract.txt",
+      "sha256": "a407353d95bb7efebc75a09ef3f9ed1946407d645af1e7bb2636b21439366077"
+    },
+    "role_ssot": {
+      "path": "docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md",
+      "sha256": "60c7adbe82f700af391130403ca8915c6dc15081d0dde88872713db2d529b6e8"
+    },
+    "semantic_closure_report": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
+      "reason": "Selected source edges reached the explicit completion design stop",
+      "sha256": "77bd29e2e005a65746660b551124b3a09d29af9805dfc48e61dd9b0eaee413e2"
+    },
+    "task_order_pointer": {
+      "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+      "sha256": "4255feac812412715879e52de7f5974079a5d39d405f38cf0191adf060b7a2e6"
+    }
+  }
+}
