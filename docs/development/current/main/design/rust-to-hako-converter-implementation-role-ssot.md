@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-26
+Date: 2026-06-28
 Scope: Rust-to-Hako converter implementation roles and Python growth control.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -30,6 +30,56 @@ Converter implementation:
 family. A converter implementation migration makes the tool that projects
 facts/plans into typed artifact IR run in `.hako`. These are related but not
 the same task.
+
+## Converter Completion Stop-Line
+
+The converter exists to build a verified bridge into selfhost. Completing more
+converter machinery is not, by itself, the selfhost objective.
+
+Allowed converter work must serve at least one of these outcomes:
+
+```text
+semantic parity:
+  narrow Rust behavior into facts / plans / verifier evidence
+
+artifact execution:
+  produce generated Hako that parses, emits MIR, and runs under selected gates
+
+composition:
+  connect generated artifacts through the same prepared state instead of
+  isolated per-family smokes
+
+adoption:
+  move a mature narrow family toward HakoAdopted or explicitly defer it
+
+converter retirement:
+  move a SemanticProjector stage from PythonBootstrap to HakoShadow,
+  HakoMainline, PythonFrozen, or Retired
+```
+
+Forbidden steady states:
+
+```text
+converter_forever:
+  artifact generation continues without composed execution or adoption
+
+python_semantics_forever:
+  Python keeps growing directability, transport, recipe, or IR-construction
+  authority after the freeze checkpoint
+
+generated_source_as_source_selfhost:
+  generated Hako is counted as native Hako edit authority without
+  HakoAdopted
+
+backend_semantic_consumer:
+  backend/interpreter directly interprets compiler policy facts as a second
+  semantic owner
+```
+
+When choosing the next task, prefer the first action that reduces one of those
+risks: composed execution closure, a narrow HakoAdopted decision, Hako shadow
+projector parity, Python SemanticProjector retirement, or composite-owner
+decomposition.
 
 ## Role Classification
 

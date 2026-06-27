@@ -1,7 +1,7 @@
 # Derived-to-Native Hako Artifact Model
 
 Status: SSOT
-Date: 2026-06-20
+Date: 2026-06-28
 Scope: How Rust compiler-family sources migrate through generated Hako
 artifacts before becoming native Hako source.
 
@@ -42,6 +42,49 @@ Source Selfhost:
 
 The derived model helps reach Artifact Selfhost and Mainline Selfhost. It does
 not by itself prove Source Selfhost.
+
+## Converter Bridge Stop-Line
+
+The converter path is the selected bridge for moving complex Rust compiler
+families toward selfhost. It is not the destination.
+
+This is intentional:
+
+```text
+Rust source / facts
+  -> plan / verifier
+  -> generated Hako artifact
+  -> composed execution evidence
+  -> route selection
+  -> HakoAdopted decision
+```
+
+The converter is correct when it narrows semantic parity and produces
+machine-checkable execution artifacts. It becomes a design risk when producing
+more converter output becomes the goal and no family moves toward
+`HakoAdopted`.
+
+Therefore:
+
+```text
+converter artifact growth:
+  allowed only as a bridge toward executable evidence or adoption decisions
+
+generated artifact:
+  execution artifact; not final semantic/edit authority
+
+Source Selfhost:
+  requires native Hako source for compiler semantic families
+
+Rust after adoption:
+  bootstrap / platform / oracle / explicit compat only
+```
+
+Do not count converter completion as Source Selfhost. Do not treat a large set
+of generated artifacts as a substitute for native Hako ownership. The expected
+progression is to connect generated artifacts through composed execution, then
+run narrow family adoption decisions before the derived lane becomes a steady
+state.
 
 ## Family State Machine
 
