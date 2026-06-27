@@ -1,0 +1,79 @@
+{
+  "kind": "MirBuilderReturnEmissionDerivedHakoShadowResultV1",
+  "non_claims": {
+    "already_terminated_block_behavior": 0,
+    "full_finalize_module": 0,
+    "mainline_selected": 0,
+    "return_type_publication": 0,
+    "runtime_fallback": 0
+  },
+  "result": {
+    "err": 0,
+    "err_line": "",
+    "shadow_json": "{\n  \"available_capabilities\": [\n    \"ReturnEmission\"\n  ],\n  \"emission_sequence\": [\n    {\n      \"source\": \"self.current_block\",\n      \"step\": \"select_current_block\",\n      \"transport\": \"BasicBlockIdAsI64\"\n    },\n    {\n      \"observation\": \"presence_and_mutable_payload\",\n      \"source\": \"self.scope_ctx.current_function\",\n      \"step\": \"select_current_function\"\n    },\n    {\n      \"operation\": \"function.get_block_mut(block_id)\",\n      \"step\": \"select_target_block\"\n    },\n    {\n      \"predicate\": \"not block.is_terminated()\",\n      \"step\": \"guard_unterminated\"\n    },\n    {\n      \"operation\": \"block.add_instruction(MirInstruction::Return)\",\n      \"step\": \"append_return\",\n      \"value\": \"Some(result_value)\"\n    },\n    {\n      \"owner\": \"BasicBlock::add_instruction_with_span\",\n      \"step\": \"publish_terminator\",\n      \"terminator\": \"MirInstruction::Return\"\n    }\n  ],\n  \"execution_profile\": {\n    \"current_block\": \"Present\",\n    \"current_function\": \"Present\",\n    \"input\": \"ASTNode::Literal(Integer(0))\",\n    \"result_value_transport\": \"ValueIdAsI64\",\n    \"target_block\": \"Present\",\n    \"target_block_terminated\": false\n  },\n  \"family_id\": \"hakorune_mir_builder::return_emission\",\n  \"kind\": \"ReturnEmissionShadowCandidateV1\",\n  \"non_claims\": {\n    \"already_terminated_block_behavior\": 0,\n    \"full_finalize_module\": 0,\n    \"mainline_selected\": 0,\n    \"return_type_publication\": 0,\n    \"runtime_fallback\": 0\n  },\n  \"result_contract\": {\n    \"successors\": \"Empty\",\n    \"terminator\": \"MirInstruction::Return\",\n    \"value\": \"Some(result_value)\",\n    \"value_transport\": \"ValueIdAsI64\"\n  },\n  \"schema_version\": 0,\n  \"source_authority\": \"src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module\",\n  \"stage_id\": \"return_emission\",\n  \"subject\": \"MirBuilder::finalize_module append Return(result_value)\"\n}\n",
+    "shadow_record": {
+      "available_capabilities": [
+        "ReturnEmission"
+      ],
+      "emission_sequence": [
+        {
+          "source": "self.current_block",
+          "step": "select_current_block",
+          "transport": "BasicBlockIdAsI64"
+        },
+        {
+          "observation": "presence_and_mutable_payload",
+          "source": "self.scope_ctx.current_function",
+          "step": "select_current_function"
+        },
+        {
+          "operation": "function.get_block_mut(block_id)",
+          "step": "select_target_block"
+        },
+        {
+          "predicate": "not block.is_terminated()",
+          "step": "guard_unterminated"
+        },
+        {
+          "operation": "block.add_instruction(MirInstruction::Return)",
+          "step": "append_return",
+          "value": "Some(result_value)"
+        },
+        {
+          "owner": "BasicBlock::add_instruction_with_span",
+          "step": "publish_terminator",
+          "terminator": "MirInstruction::Return"
+        }
+      ],
+      "execution_profile": {
+        "current_block": "Present",
+        "current_function": "Present",
+        "input": "ASTNode::Literal(Integer(0))",
+        "result_value_transport": "ValueIdAsI64",
+        "target_block": "Present",
+        "target_block_terminated": false
+      },
+      "family_id": "hakorune_mir_builder::return_emission",
+      "kind": "ReturnEmissionShadowCandidateV1",
+      "non_claims": {
+        "already_terminated_block_behavior": 0,
+        "full_finalize_module": 0,
+        "mainline_selected": 0,
+        "return_type_publication": 0,
+        "runtime_fallback": 0
+      },
+      "result_contract": {
+        "successors": "Empty",
+        "terminator": "MirInstruction::Return",
+        "value": "Some(result_value)",
+        "value_transport": "ValueIdAsI64"
+      },
+      "schema_version": 0,
+      "source_authority": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
+      "stage_id": "return_emission",
+      "subject": "MirBuilder::finalize_module append Return(result_value)"
+    }
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module append Return(result_value)"
+}

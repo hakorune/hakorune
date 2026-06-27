@@ -22,9 +22,46 @@ FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 OUT_DIR = ROOT / "lang/generated/rust_derived/hakorune_mir_builder"
 SOURCE = ROOT / "src/mir/builder/module_lifecycle.rs"
 PLAN = FIXTURES / "mirbuilder-return-emission-plan-v0.json"
+SHADOW_RESULT = FIXTURES / "mirbuilder-return-emission-hako-shadow-result-v0.json"
 ORACLE = FIXTURES / "mirbuilder-return-emission-derived-hako-oracle-v0.json"
 RECIPE = FIXTURES / "mirbuilder-return-emission-derived-hako-recipe-v0.json"
 VERIFIER = FIXTURES / "mirbuilder-return-emission-derived-hako-verifier-result-v0.json"
+
+
+def _shadow_candidate(plan: dict[str, object]) -> dict[str, object]:
+    execution_profile = plan.get("execution_profile") or {}
+    result_contract = plan.get("result_contract") or {}
+    return {
+        "schema_version": 0,
+        "kind": "ReturnEmissionShadowCandidateV1",
+        "family_id": "hakorune_mir_builder::return_emission",
+        "stage_id": "return_emission",
+        "subject": plan["subject"],
+        "source_authority": plan["source_authority"]["finalize"],
+        "execution_profile": {
+            "input": execution_profile.get("input"),
+            "current_block": execution_profile.get("current_block"),
+            "current_function": execution_profile.get("current_function"),
+            "target_block": execution_profile.get("target_block"),
+            "target_block_terminated": execution_profile.get("target_block_terminated"),
+            "result_value_transport": execution_profile.get("result_value_transport"),
+        },
+        "emission_sequence": plan["emission_sequence"],
+        "available_capabilities": plan["available_capabilities"],
+        "result_contract": {
+            "terminator": result_contract.get("terminator"),
+            "value": result_contract.get("value"),
+            "value_transport": result_contract.get("value_transport"),
+            "successors": result_contract.get("successors"),
+        },
+        "non_claims": {
+            "return_type_publication": 0,
+            "full_finalize_module": 0,
+            "already_terminated_block_behavior": 0,
+            "mainline_selected": 0,
+            "runtime_fallback": 0,
+        },
+    }
 
 
 def build_oracle() -> dict[str, object]:
@@ -44,6 +81,29 @@ def build_oracle() -> dict[str, object]:
                 },
             }
         ],
+        "non_claims": {
+            "return_type_publication": 0,
+            "full_finalize_module": 0,
+            "already_terminated_block_behavior": 0,
+            "mainline_selected": 0,
+            "runtime_fallback": 0,
+        },
+    }
+
+
+def build_shadow_result() -> dict[str, object]:
+    plan = read_json(PLAN)
+    candidate = _shadow_candidate(plan)
+    return {
+        "schema_version": 0,
+        "kind": "MirBuilderReturnEmissionDerivedHakoShadowResultV1",
+        "subject": plan["subject"],
+        "result": {
+            "err": 0,
+            "err_line": "",
+            "shadow_record": candidate,
+            "shadow_json": stable_json(candidate),
+        },
         "non_claims": {
             "return_type_publication": 0,
             "full_finalize_module": 0,
@@ -236,9 +296,12 @@ def return_emission_spec() -> FamilyArtifactSpec:
 
 
 def _outputs() -> list[tuple[Path, str]]:
+    shadow_result = build_shadow_result()
     oracle_text = stable_json(build_oracle())
     if not ORACLE.exists():
         raise FileNotFoundError(f"{ORACLE} must be written before manifest hashing")
+    if not SHADOW_RESULT.exists():
+        raise FileNotFoundError(f"{SHADOW_RESULT} must be written before manifest hashing")
     spec = return_emission_spec()
     recipe_text = build_family_artifact_recipe_text(spec)
     verifier_text = build_family_artifact_verifier_text(spec)
@@ -250,6 +313,7 @@ def _outputs() -> list[tuple[Path, str]]:
         verifier_text=verifier_text,
     )
     outputs: list[tuple[Path, str]] = [(ORACLE, oracle_text)]
+    outputs.append((SHADOW_RESULT, stable_json(shadow_result)))
     if recipe_text is not None:
         outputs.append((RECIPE, recipe_text))
     if verifier_text is not None:
@@ -265,6 +329,7 @@ def _outputs() -> list[tuple[Path, str]]:
 
 def run_return_emission_artifact_generator(*, check: bool) -> None:
     if not check:
+        write_if_changed(SHADOW_RESULT, stable_json(build_shadow_result()))
         write_if_changed(ORACLE, stable_json(build_oracle()))
     run_family_generator(
         check=check,

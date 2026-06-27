@@ -39,6 +39,8 @@ Scope:
   - `tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh`
 - executable inventory guard:
   - `tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh`
+- first shadow parity guard:
+  - `tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`

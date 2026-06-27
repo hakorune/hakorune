@@ -24,20 +24,24 @@ active blocker:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  HAKO-SHADOW-PROJECTOR-STAGE-STATE-INVENTORY-001.
-  Keep the Hako shadow projector support lane ordinary compiler-library code
-  under lang/src/compiler/lib/ and machine-check the stage-state inventory
-  instead of promoting it to TypeBox ABI, host ABI, or syntax/spec.
+  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.
+  Keep the ReturnEmission shadow projector support lane ordinary
+  compiler-library code under lang/src/compiler/lib/ and machine-check the
+  shadow-result canonical JSON parity instead of promoting it to TypeBox ABI,
+  host ABI, or syntax/spec.
 
 selected decision slice:
-  compiler_library.hako_shadow_projector_stage_state_inventory
+  compiler_library.return_emission_hako_shadow_parity
     -> selected_route = ordinary_hako_library
     -> no_abi_surface = 1
-    -> HAKO-SHADOW-PROJECTOR-STAGE-STATE-INVENTORY-001
+    -> MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001
 
 selected evidence:
   compiler library placement inventory
     -> return_emission_projector.hako
+    -> projector_support.hako
+    -> mirbuilder-return-emission-hako-shadow-result-v0.json
+    -> tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh
     -> function_region_stack_pop_projector.hako
     -> slot_registry_release_projector.hako
     -> module_metadata_publication_projector.hako
@@ -65,8 +69,9 @@ current fail-fast boundary:
 
 latest design decision:
   The Hako shadow projector lane remains in lang/src/compiler/lib/ as
-  ordinary compiler-library code; the executable inventory guard now
-  verifies the landing zone and keeps the ABI discussion closed.
+  ordinary compiler-library code; the ReturnEmission parity guard now
+  verifies the canonical JSON shadow-result boundary and keeps the ABI
+  discussion closed.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
