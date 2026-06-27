@@ -54,7 +54,7 @@ bash tools/checks/rust_lifecycle_mirbuilder_all_functions_phi_materialization_de
 python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-direct-state-plan-refresh --check
 bash tools/checks/rust_lifecycle_mirbuilder_direct_state_plan_refresh_derived_artifact_guard.sh
 python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-minimal-path-composed-execution-closure --check
-bash tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_execution_closure_guard.sh
+bash tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_pilot_guard.sh
 python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family region-observer-slot-metadata --check
 bash tools/checks/rust_lifecycle_multi_carrier_exit_phi_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_single_scalar_loop_carrier_derived_artifact_guard.sh
@@ -94,6 +94,7 @@ typed_object_plan_refresh=green
 record_packed_layout_refresh=green
 direct_state_plan_refresh=green
 composed_execution_closure=green
+minimal_path_mainline_pilot=green
 negative_converter_fixtures=green
 no_silent_hardcode=green
 shared_emitter=green

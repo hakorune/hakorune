@@ -24,17 +24,17 @@ active blocker:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.
-  Resolve the explicit design-stop frontier mechanically from the composed
-  prefix, the explicit design-stop frontier, the allocation-policy adoption
-  evidence, and the composed-execution closure artifact. Keep the readiness
-  lane advancing once the generated Hako executable closure is closed and
-  the resolver names the mainline pilot.
+  MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.
+  Select the composed-execution closure artifact as the explicit
+  derived_hako mainline route, consuming the readiness decision, the route
+  manifest, and the composed-execution closure artifact without inventing a
+  broader minimal-path mainline claim.
 
 selected decision slice:
-  minimal_path.mainline_readiness
-    -> generated Hako executable closure = Closed
-    -> ReadyForMinimalPathMainlinePilot
+  minimal_path.mainline_pilot
+    -> selected_route = derived_hako
+    -> route_state = DerivedMainline
+    -> selected_on_mainline = 1
     -> MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
 
 selected evidence:
@@ -47,6 +47,8 @@ selected evidence:
     -> allocation-policy DerivedMainline route closure
     -> native source owner present
     -> generated Hako executable closure = Closed
+    -> family route manifest
+    -> route seam SSOT
 
 landed evidence pointer:
   Detailed landed rows live in the semantic closure report, phase cards, and
@@ -54,7 +56,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
+  intentionally unresolved
 
 current fail-fast boundary:
   The semantic closure report stops at
@@ -65,8 +67,8 @@ current fail-fast boundary:
 latest design decision:
   The native source owner has landed, the adoption recheck is Adopt, the
   composed prefix remains green, the composed execution closure is sealed,
-  and the next boundary is the minimal-path mainline pilot while the semantic
-  report still remains open.
+  and the minimal-path mainline pilot selects the composed-execution closure
+  route on the mainline seam while the semantic report still remains open.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code

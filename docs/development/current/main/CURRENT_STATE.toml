@@ -265,16 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md"
-latest_card_summary = """The latest card rechecks the prepared-state
-allocation-policy adoption decision after the native Hako source owner has
-landed. The narrow DerivedMainline family now has machine-checkable native
-source authority and the adoption decision resolves Adopt. The composed
-execution closure artifact seals the generated Hako executable closure, but
-the semantic report still terminates at the explicit completion design stop.
-Source Selfhost, runtime fallback, backend routes, ABI changes, Rust
-deletion, and full minimal-path mainline selection remain unclaimed."""
+latest_card = "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md"
+latest_card_summary = """The latest card selects the composed-execution
+closure artifact as the explicit derived_hako mainline route after the
+readiness resolver reports the generated Hako executable closure sealed.
+The narrow DerivedMainline family remains bootstrap-retained and source
+selfhost is still unclaimed. The semantic report still terminates at the
+explicit completion design stop, and the route seam stays family-scoped
+without claiming full minimal-path mainline, backend changes, ABI changes,
+or Rust deletion."""
 
 current_blocker_token = "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
