@@ -16,8 +16,8 @@
   },
   "current_state": {
     "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-    "latest_card": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1757-MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001.md"
+    "latest_card": "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/296x-1762-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.md"
   },
   "decision": {
     "kind": "Blocked",
@@ -42,7 +42,7 @@
     {
       "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
       "kind": "current_state",
-      "latest_card": "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001"
+      "latest_card": "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002"
     },
     {
       "kind": "task_order_pointer",
@@ -80,7 +80,7 @@
     },
     "current_state": {
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "d74364793eed6dc3f3baa49c4a1a710d1a8b7e7d2a14e67c5442c2f9b5a209b6"
+      "sha256": "d22938ddbe8ec5a8f40b16a25bdfb600d0ed03df278c35603cdcf94c1c296364"
     },
     "design_stop": {
       "callsite": "MinimalMirBuilderExecutionPath -> post-finalize completion design stop",
@@ -94,7 +94,7 @@
     },
     "role_ssot": {
       "path": "docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md",
-      "sha256": "60c7adbe82f700af391130403ca8915c6dc15081d0dde88872713db2d529b6e8"
+      "sha256": "2c8bc4fe0c56d8baca54d3ecc0b737136e29e3797d78462958174719fda9c4f1"
     },
     "semantic_closure_report": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
@@ -103,7 +103,7 @@
     },
     "task_order_pointer": {
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "4255feac812412715879e52de7f5974079a5d39d405f38cf0191adf060b7a2e6"
+      "sha256": "88c8b15f05e024775be07cd937861f8af8ab7bbd2c235ba6421d4bc9ec09b1ed"
     }
   }
 }

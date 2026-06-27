@@ -25,8 +25,10 @@ active blocker:
 
 current implementation task:
   MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001.
-  Keep the minimal execution path paused at the explicit completion design
-  stop until a new concrete next owner is selected from the resolver output.
+  Resolve the explicit design-stop frontier mechanically using the resolver
+  output. Keep the minimal execution path paused at the explicit completion
+  design stop until a new concrete next owner is selected from the resolver
+  output.
 
 selected decision slice:
   allocation_policy.prepared_state_next_value_id
