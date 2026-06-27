@@ -21,55 +21,54 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001
+  MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001
 
 current implementation task:
-  MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.
-  BindingContext adoption is landed. The next family-specific task is to
-  materialize the native source owner for the remaining narrowed pool entry
-  (`context` / `BoxCompilationContext`), not to reopen the completed support-
-  lane parity cards as the live owner.
+  MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.
+  The composed-prefix / continuation / frontier / readiness / adoption-recheck
+  guards still pin historical current-state values. Repair the stale
+  current-state exact pinning first, then rerun the resolver family before
+  touching any new semantic owner.
 
 selected decision slice:
-  selfhost_candidate_pool.context
-    -> selected_route = derived_hako
-    -> selected_on_mainline = 1
-    -> MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001
+  composed_prefix.current_state
+    -> latest_card/latest_card_path presence only
+    -> no exact current_blocker_token pin
+    -> MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001
 
 selected evidence:
-  route manifest / adoption evidence
-    -> lang/generated/rust_derived/hakorune_mir_builder/family_routes.json
-    -> lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json
-    -> tools/checks/rust_lifecycle_box_compilation_context_derived_artifact_guard.sh
-    -> tools/checks/rust_lifecycle_box_compilation_context_derived_route_selection_guard.sh
+  guard repair evidence
+    -> tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution_continuation.py
+    -> tools/rust_lifecycle/mirbuilder_minimal_path_composed_prefix_advance.py
+    -> tools/rust_lifecycle/mirbuilder_minimal_execution_path_frontier_resolution.py
+    -> tools/rust_lifecycle/mirbuilder_minimal_path_mainline_readiness_resolver.py
+    -> tools/checks/rust_lifecycle_mirbuilder_allocation_policy_hako_adoption_decision_recheck_guard.sh
+    -> tools/checks/rust_lifecycle_mirbuilder_allocation_policy_hako_adoption_decision_recheck_002_guard.sh
+    -> docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md
+    -> docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1769-MIRBUILDER-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
-    -> docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
     -> docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
+    -> tools/checks/current_state_pointer_guard.sh
     -> design consultation inventory
-    -> role SSOT follow-on token
 
 landed evidence pointer:
-  Detailed landed rows live in the adoption decision card, route manifest, and
-  git history. This task-order only keeps the active blocker, fail-fast
+  Detailed landed rows live in the guard repair card, readiness resolver,
+  and git history. This task-order only keeps the active blocker, fail-fast
   boundary, and Active Next 3.
 
 selected next owner:
-  context native source owner candidate
+  composed-prefix guard drift repair candidate
 
 current fail-fast boundary:
-  The `context` route-manifest entry is selected on mainline, but the native
-  `BoxCompilationContext` source owner is still absent. Do not reopen the
-  completed minimal-path closure or support-lane parity cards as the live
-  owner.
+  The minimal-path composed-prefix / continuation / frontier / readiness /
+  adoption-recheck family still carries stale current-state exact pins.
+  De-drift those guards before resuming the already-ready mainline pilot.
 
 latest design decision:
-  BindingContext is now the consumed narrow-family adoption decision. The
-  next family-specific candidate must come from the narrowed pool, not from
-  memory or a completed parity lane, and it now needs a native source owner
-  card before any adoption recheck.
+  Guard drift, not a new semantic owner, is the current blocker. The next
+  concrete route after the repair is the already-ready mainline pilot.
 
 ## Composed Prefix Evidence
 
@@ -102,9 +101,13 @@ latest_integration_card =
   docs/development/current/main/phases/phase-296x/
   296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
 
+latest_guard_repair_card =
+  docs/development/current/main/phases/phase-296x/
+  1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md
+
 latest_adoption_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1762-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.md
+  1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
 
 latest_native_owner_card =
   docs/development/current/main/phases/phase-296x/
@@ -121,25 +124,24 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. BoxCompilationContext native source owner materialization
+1. Composed-prefix guard drift repair
    status=selected
-   boundary=the `context` route-manifest entry is still generated-only and
-   needs a native `.hako` owner for `BoxCompilationContext`
-   semantic_authority=owner file, module export, and native guard fixture
-   non_authority=Source Selfhost, Rust deletion, full minimal-path mainline
+   boundary=stale current-state exact pins in the composed-prefix family
+   semantic_authority=current-state pointer existence, semantic closure report,
+   and route evidence
+   non_authority=historical current_blocker_token exact matches
 
-2. Explicit adoption recheck after native owner lands
-   status=parked
-   boundary=follow the native owner result and re-evaluate the narrow family
-   semantic_authority=the adoption recheck fixture
-   non_authority=coverage percentage or bundle size
-
-3. Post-adoption lane
-   status=parked until the recheck result lands
-   boundary=follow the explicit native owner result and the next resolver
-   output
-   semantic_authority=the next resolver result
+2. Resolver family rerun after the guard repair
+   status=parked until the repair lands
+   boundary=continue, frontier, and readiness checks rerun on the current state
+   semantic_authority=the existing resolver fixtures
    non_authority=manual next-owner selection
+
+3. Minimal-path mainline pilot
+   status=parked until readiness stays green after the repair
+   boundary=the already-ready minimal-path route remains the next concrete lane
+   semantic_authority=readiness resolver plus composed execution closure
+   non_authority=Source Selfhost, Rust deletion, new semantic owner selection
 ```
 
 ## Landed Converter Capability Summary

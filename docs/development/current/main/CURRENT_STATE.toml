@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1769-MIRBUILDER-BINDING-CONTEXT-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts the BindingContext family as a narrow HakoAdopted candidate
-with a dedicated shadow-result parity fixture and canonical JSON parity
-guard. The ordinary Hako library landing stays under lang/src/compiler/lib/
-and no new ABI or syntax surface is opened."""
+latest_card = "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md"
+latest_card_summary = """The latest card repairs stale current-state exact pins in the
+minimal-path composed-prefix / continuation / frontier / readiness guard
+family so the existing design-stop evidence stays green after CURRENT_STATE
+advances. This is a guard-drift repair, not a new semantic owner."""
 
-current_blocker_token = "MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001"
+current_blocker_token = "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

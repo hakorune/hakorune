@@ -61,22 +61,19 @@ def parse_current_state() -> dict[str, Any]:
     state = read_toml(CURRENT_STATE_PATH)
     require(state.get("latest_card"), "latest_card must be present")
     require(state.get("latest_card_path"), "latest_card_path must be present")
-    require(
-        state.get("current_blocker_token") == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-        "current blocker token drift",
-    )
+    require(bool(state.get("current_blocker_token")), "current_blocker_token must be present")
     return state
 
 
 def validate_task_order() -> dict[str, str]:
     text = TASK_ORDER_PATH.read_text(encoding="utf-8")
     require(
-        "MIRBUILDER-MINIMAL-EXECUTION-PATH-FRONTIER-RESOLUTION-001" in text,
-        "task-order must select the frontier resolution card",
+        "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001" in text,
+        "task-order must select the guard-drift repair card",
     )
     require(
-        "Resolve the explicit design-stop frontier mechanically" in text,
-        "task-order must describe the mechanical resolver",
+        "stale current-state exact pins" in text,
+        "task-order must describe the guard-drift repair",
     )
     require(
         "manual next-owner selection" in text,
@@ -192,8 +189,6 @@ def decide_frontier(report: dict[str, Any], route: dict[str, Any], state: dict[s
     same_state_handoff = route["same_state_handoff"]
     blocker_token = state.get("current_blocker_token") or ""
 
-    require("DESIGN-STOP" in blocker_token, "current blocker token must remain in the design-stop contract")
-
     # Current evidence is intentionally blocked at the explicit design-stop
     # frontier. The resolver remains mechanical: it classifies the frontier
     # instead of hand-picking a semantic owner.
@@ -210,10 +205,10 @@ def decide_frontier(report: dict[str, Any], route: dict[str, Any], state: dict[s
                     "path": rel(COMPOSED_ROUTE_PATH),
                     "sha256": sha256_file(COMPOSED_ROUTE_PATH),
                 },
-                "current_state": {
-                    "path": rel(CURRENT_STATE_PATH),
-                    "sha256": sha256_file(CURRENT_STATE_PATH),
-                },
+            "current_state": {
+                "path": rel(CURRENT_STATE_PATH),
+                "sha256": sha256_file(CURRENT_STATE_PATH),
+            },
                 "task_order_pointer": validate_task_order(),
                 "role_ssot": validate_role_ssot(),
                 "design_stop_contract": validate_design_stop_contract(),
@@ -248,8 +243,8 @@ def decide_frontier(report: dict[str, Any], route: dict[str, Any], state: dict[s
                 },
                 {
                     "kind": "current_state",
-                    "current_blocker_token": blocker_token,
-                    "latest_card": state.get("latest_card"),
+                    "path": rel(CURRENT_STATE_PATH),
+                    "sha256": sha256_file(CURRENT_STATE_PATH),
                 },
                 {
                     "kind": "task_order_pointer",

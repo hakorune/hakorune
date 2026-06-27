@@ -164,7 +164,7 @@
       "kind": "composed_execution_continuation",
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-continuation-v2.json",
       "prefix_state": "Green",
-      "sha256": "69b5cc60a43c50e9f7a70ca21caf689bd8bbdd47f51911ebad05cc9cf61282dc"
+      "sha256": "82c7ad62d0faeb5396f83d5fc0cfcd17437b029fd13855db662fc425ad3ac752"
     },
     {
       "kind": "composed_execution_route",
@@ -176,17 +176,17 @@
   "source_authority": {
     "composed_execution_continuation": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-continuation-v2.json",
-      "sha256": "69b5cc60a43c50e9f7a70ca21caf689bd8bbdd47f51911ebad05cc9cf61282dc"
+      "sha256": "82c7ad62d0faeb5396f83d5fc0cfcd17437b029fd13855db662fc425ad3ac752"
     },
     "composed_execution_route": {
       "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution.route.json",
       "sha256": "8d71868d58ccef5070bd8dd69ce3b83530bd865e77d20f3ab58c7699456d1eda"
     },
     "current_state": {
-      "current_blocker_token": "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001",
-      "latest_card": "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001",
+      "current_blocker_token": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
+      "latest_card": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "cc0fe19699f32d4a26b7da92471a7f589fc5792413adc82c308642d455593d10"
+      "sha256": "cd642918a96efceeddfff5e0ffb801066ef0817f29fecf32ec5ec83712656beb"
     },
     "design_stop_contract": {
       "path": "tools/checks/current_state_design_stop_contract.txt",
@@ -202,7 +202,7 @@
     },
     "task_order_pointer": {
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "9dfbd5e5b28384be228f779adf65f73af59264794cdd048e163266155ba0c423"
+      "sha256": "8a53669eea9ffe4a0ca38a48818587718b7c114234165481fb949ff0c608ff49"
     }
   }
 }

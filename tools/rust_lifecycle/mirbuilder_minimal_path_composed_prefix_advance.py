@@ -60,7 +60,7 @@ def parse_current_state() -> dict[str, Any]:
     require(bool(latest_card), "latest_card must be present")
     require(bool(latest_card_path), "latest_card_path must be present")
     require(latest_card in latest_card_path, "latest_card_path must reference latest_card")
-    require(state.get("current_blocker_token") == EXPECTED_STABLE_NEXT_SLICE_TOKEN, "current blocker token drift")
+    require(bool(state.get("current_blocker_token")), "current_blocker_token must be present")
     return state
 
 

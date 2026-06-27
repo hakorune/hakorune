@@ -145,7 +145,7 @@
         "source_selfhost_eligible": false
       },
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json",
-      "sha256": "af5ac1540e6c986f437240c8ce7898006a1211a187428ea9e7240dcda45feb70"
+      "sha256": "7b433535b06039fe7b6f82a5304301b5b4f1401077ef712f3e8213a4342e1fa6"
     },
     "route_manifest": {
       "claims": {

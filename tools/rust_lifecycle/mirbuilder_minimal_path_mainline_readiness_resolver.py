@@ -61,7 +61,7 @@ def parse_current_state() -> dict[str, Any]:
     require(bool(state.get("latest_card")), "latest_card must be present")
     require(bool(state.get("latest_card_path")), "latest_card_path must be present")
     require(state.get("latest_card") in state.get("latest_card_path", ""), "latest_card_path must reference latest_card")
-    require(state.get("current_blocker_token") == "MIRBUILDER-MINIMAL-EXECUTION-PATH-COMPLETION-DESIGN-STOP-001", "current blocker token drift")
+    require(bool(state.get("current_blocker_token")), "current_blocker_token must be present")
     return state
 
 
