@@ -20,14 +20,14 @@ Detailed historical rows live in phase cards and git history.
 ## Current Target
 
 ```text
-  active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001
+active blocker:
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002
 
 current implementation task:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001.
-  Materialize the native `.hako` source owner for the prepared-state
-  allocation-policy kernel so the adoption lane can move beyond the prior
-  Defer result with machine-checkable ownership.
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.
+  Re-evaluate the prepared-state allocation-policy kernel adoption decision
+  after the native `.hako` source owner exists, and lock the result as
+  machine-checkable Adopt.
 
 selected decision slice:
   allocation_policy.prepared_state_next_value_id
@@ -41,7 +41,7 @@ selected evidence:
     -> same-state composed prefix evidence
     -> next_unconsumed_edge = Closed
     -> allocation-policy DerivedMainline route closure
-    -> native source owner candidate present
+    -> native source owner present
 
 landed evidence pointer:
   Detailed landed rows live in the semantic closure report, phase cards, and
@@ -49,7 +49,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002
 
 current fail-fast boundary:
   The native source owner is family-scoped to
@@ -58,9 +58,8 @@ current fail-fast boundary:
   ABI, or runtime fallback.
 
 latest design decision:
-  The composed prefix advance landed with prefix_state=Green and
-  next_unconsumed_edge=Closed. The next axis is native source ownership for
-  the first narrow Hako adoption candidate.
+  The native source owner has landed. The next axis is the adoption decision
+  recheck for the first narrow Hako adoption candidate.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -85,7 +84,7 @@ latest_integration_card =
 
 latest_adoption_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1760-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001.md
+  296x-1762-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.md
 
 frontier_resolution_card =
   docs/development/current/main/phases/phase-296x/
@@ -99,14 +98,14 @@ history, not in this task-order SSOT.
 
 ```text
 1. Native source owner materialization
-   status=selected
-   boundary=materialize the native `.hako` source owner for the prepared-state
-   allocation-policy kernel
+   status=completed
+   boundary=the native `.hako` source owner for the prepared-state
+   allocation-policy kernel already exists
    semantic_authority=owner file, module export, and adoption guard fixture
    non_authority=Source Selfhost, Rust deletion, full minimal-path mainline
 
 2. Adoption decision follow-up
-   status=derived by the adoption decision result
+   status=selected
    boundary=Adopt / Defer / Reject once the native owner is in place
    semantic_authority=machine-checkable decision output
    non_authority=manual generator overwrite of adopted source

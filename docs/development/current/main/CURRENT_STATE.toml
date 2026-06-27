@@ -265,16 +265,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1761-MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001.md"
-latest_card_summary = """The latest card materializes the prepared-state
-allocation-policy native Hako source owner so the family can move beyond the
-prior Defer result. The narrow DerivedMainline family now has a native source
-authority candidate and the adoption guard resolves Adopt, but Source
+latest_card = "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1762-MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002.md"
+latest_card_summary = """The latest card rechecks the prepared-state
+allocation-policy adoption decision after the native Hako source owner has
+landed. The narrow DerivedMainline family now has machine-checkable native
+source authority and the adoption decision resolves Adopt, but Source
 Selfhost, runtime fallback, backend routes, ABI changes, Rust deletion, and
 full minimal-path mainline selection remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001"
+current_blocker_token = "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
