@@ -25,9 +25,11 @@ replace the task-order SSOT.
    Compiler meaning and edit authority move from Rust to native .hako.
 ```
 
-Current work is still in the Artifact selfhost lane. Single-family artifacts
-are strong enough to expose integration edges, but the composed execution graph
-is not closed yet.
+Current work is still in the Artifact selfhost lane, but the narrow
+prepared-state allocation-policy family is already adopted and the minimal-path
+pilot is green. The remaining work is now the family-by-family move from
+artifact selfhost to mainline selfhost and then source selfhost, not another
+generic support-lane parity pass.
 
 ## Current Transition
 
@@ -54,6 +56,10 @@ coverage rows.
 
 ## Near-Term Route
 
+The list below is the progression that brought the lane to the current
+checkpoint. Most of the support-lane items are already green; the remaining
+work is family adoption and library/consultation gating.
+
 ```text
 1. Same-module ArrayBox return contract
    Close MultiCarrierExitPhi ArrayBox return and restore full matrix green.
@@ -73,6 +79,30 @@ coverage rows.
 
 6. HakoAdopted decision
    Promote only families whose native .hako source becomes edit authority.
+```
+
+## Current Remaining Work
+
+The remaining selfhost work is now a bounded inventory, not a new semantic
+owner.
+
+```text
+1. Keep the Python SemanticProjector growth freeze in force.
+   No new Python semantic projector growth unless an exception card is
+   opened.
+
+2. Continue family-by-family HakoAdopted decisions for mature narrow
+   derived families.
+   Native .hako source is the goal for selected semantic families; the
+   converter bridge is not the destination.
+
+3. Add compiler-library support first when Hako ergonomics block progress.
+   TextBuilder, CanonicalJson, projector helpers, and other small helper
+   libraries stay under lang/src/compiler/lib/.
+
+4. Keep TypeBox ABI / host ABI / syntax / distribution packaging decisions
+   consultation-gated.
+   Those are explicit design decisions, not default follow-on tasks.
 ```
 
 ## Consultation-Gated Inventory
@@ -124,13 +154,13 @@ converter family coverage:
   substantial, but not sufficient for selfhost
 
 artifact selfhost:
-  entered; composed execution edges are the active work
+  entered; composed execution and adoption are the active work
 
 mainline selfhost:
-  not selected yet
+  selected for the minimal path; wider routes remain consultation-gated
 
 source selfhost:
-  future phase
+  future phase, still blocked on native Hako adoption breadth
 ```
 
 Do not use broad coverage count as proof of selfhost. Use explicit composed
@@ -169,14 +199,13 @@ Do:
 
 ## Next Checkpoint
 
-The next meaningful checkpoint is:
+The next meaningful checkpoint is the first new family-specific HakoAdopted
+decision outside the already-adopted allocation-policy kernel, while keeping
+the composed execution graph green and the Python semantic freeze in force.
 
 ```text
-full converter matrix green
-same-module scalar helper green
-same-module ArrayBox helper green
-ID generators green
-derived context bundle v1 green
+family-by-family HakoAdopted decisions
+HakoShadow promotion / retirement token closure
+compiler-library support only when ergonomics require it
+consultation-gated ABI / syntax boundaries
 ```
-
-After that, the project can select the first minimal MirBuilder execution path.
