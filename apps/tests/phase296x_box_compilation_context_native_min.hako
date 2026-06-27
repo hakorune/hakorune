@@ -1,0 +1,20 @@
+using apps.lib.hakorune_mir_builder.box_compilation_context as BoxCompilationContextNativeApi
+
+static box Main {
+    main() {
+        local ctx = new BoxCompilationContextNative()
+        if BoxCompilationContextNativeApi.is_empty(ctx) != 1 {
+            print("box_compilation_context_native_new_empty=fail")
+            return 1
+        }
+
+        ctx.variable_map.set("x", 0)
+        if BoxCompilationContextNativeApi.is_empty(ctx) != 0 {
+            print("box_compilation_context_native_after_set=fail")
+            return 2
+        }
+
+        print("box_compilation_context_native=ok")
+        return 0
+    }
+}

@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: accepted
 Date: 2026-06-28
 Scope: Materialize the native `.hako` source owner for the BoxCompilationContext
@@ -95,3 +95,17 @@ Reject:
   keep the family generated and record why it should remain derived
 ```
 
+## Closeout
+
+```text
+output_contract=rust-mirbuilder-box-compilation-context-native-v0
+source=apps/lib/hakorune_mir_builder/box_compilation_context.hako
+smoke=apps/tests/phase296x_box_compilation_context_native_min.hako
+native_source_owner_present=1
+native_source_owner_shape=1
+generator_overwrite_guard=1
+emit_exe=green
+runtime_smoke=green
+native_behavior_exe_guard=green
+summary=ok
+```

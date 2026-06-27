@@ -1,0 +1,19 @@
+{
+  "box_compilation_context_current_state": "DerivedMainline",
+  "decision": "Adopt",
+  "generator_overwrite_guard": 1,
+  "input_evidence": {
+    "generated_artifact_manual_edit": 0,
+    "native_hako_source_owner_present": 1,
+    "route_selection_present": 1
+  },
+  "kind": "MirBuilderBoxCompilationContextAdoptionDecision",
+  "reason_token": "",
+  "rust_bootstrap_retained": 1,
+  "rust_oracle_retained": 1,
+  "schema_version": 0,
+  "selected_next_route": "native_hako_source_owner",
+  "source_selfhost_claim": 0,
+  "target_family_is_derived_mainline": 1,
+  "target_scope_is_narrow": 1
+}

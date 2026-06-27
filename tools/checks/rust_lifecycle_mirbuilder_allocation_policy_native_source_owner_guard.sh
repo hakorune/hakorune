@@ -21,11 +21,6 @@ guard_require_files "$TAG" "$STATE" "$CARD" "$NATIVE_OWNER" "$GENERATED_OWNER" "
 python3 - <<'PY'
 import json
 from pathlib import Path
-import tomllib
-
-state = tomllib.loads(Path("docs/development/current/main/CURRENT_STATE.toml").read_text())
-assert state["latest_card"] == "MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001"
-assert state["current_blocker_token"] == "MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001"
 
 native_owner = Path("lang/src/compiler/lib/next_value_id_prepared_state_kernel.hako").read_text()
 generated_owner = Path("lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.hako").read_text()

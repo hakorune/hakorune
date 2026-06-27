@@ -105,7 +105,7 @@ BindingContext:
 
 BoxCompilationContext / context:
   DerivedMainline selected
-  native source owner pending
+  native source owner present
   generated artifact retained
 
 ReturnEmission projector:
