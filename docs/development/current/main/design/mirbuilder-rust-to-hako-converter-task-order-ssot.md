@@ -21,19 +21,18 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
   active blocker:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001
 
 current implementation task:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001.
-  Recheck the prepared-state allocation-policy Hako adoption decision after
-  the composed prefix reached Green/Closed. The prior adoption decision
-  deferred because no native `.hako` source owner existed; this card must
-  produce a machine-checkable Adopt/Defer/Reject result.
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001.
+  Materialize the native `.hako` source owner for the prepared-state
+  allocation-policy kernel so the adoption lane can move beyond the prior
+  Defer result with machine-checkable ownership.
 
 selected decision slice:
   allocation_policy.prepared_state_next_value_id
-    -> decide whether the narrow DerivedMainline family can move toward
-       HakoAdopted or must remain deferred/rejected with a stable reason
+    -> establish native source ownership for the narrow DerivedMainline
+       family and make the adoption decision machine-checkable
 
 selected evidence:
   semantic closure frontier
@@ -42,6 +41,7 @@ selected evidence:
     -> same-state composed prefix evidence
     -> next_unconsumed_edge = Closed
     -> allocation-policy DerivedMainline route closure
+    -> native source owner candidate present
 
 landed evidence pointer:
   Detailed landed rows live in the semantic closure report, phase cards, and
@@ -49,18 +49,18 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-RECHECK-001
+  MIRBUILDER-ALLOCATION-POLICY-HAKO-NATIVE-SOURCE-OWNER-001
 
 current fail-fast boundary:
-  The adoption recheck is family-scoped to
+  The native source owner is family-scoped to
   `hakorune_mir_builder::next_value_id_prepared_state_kernel`. Do not claim
   full minimal-path mainline, Source Selfhost, Rust deletion, backend route,
   ABI, or runtime fallback.
 
 latest design decision:
   The composed prefix advance landed with prefix_state=Green and
-  next_unconsumed_edge=Closed. The next axis is the first narrow Hako
-  adoption decision recheck for an already DerivedMainline family.
+  next_unconsumed_edge=Closed. The next axis is native source ownership for
+  the first narrow Hako adoption candidate.
 
 forbidden:
   callee-name branches; C-side ArrayBox inference; scalar fail-code
@@ -98,22 +98,21 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Allocation policy Hako adoption decision recheck
+1. Native source owner materialization
    status=selected
-   boundary=Adopt | Defer | Reject for the prepared-state allocation-policy
-   kernel after composed prefix Green/Closed
-   semantic_authority=adoption decision fixture plus route/artifact manifests
+   boundary=materialize the native `.hako` source owner for the prepared-state
+   allocation-policy kernel
+   semantic_authority=owner file, module export, and adoption guard fixture
    non_authority=Source Selfhost, Rust deletion, full minimal-path mainline
 
-2. Native source / defer reason
+2. Adoption decision follow-up
    status=derived by the adoption decision result
-   boundary=native `.hako` source authority if Adopt, stable reason if Defer
-   or Reject
+   boundary=Adopt / Defer / Reject once the native owner is in place
    semantic_authority=machine-checkable decision output
    non_authority=manual generator overwrite of adopted source
 
 3. Post-adoption lane
-   status=parked until adoption recheck lands
+   status=parked until the new adoption result lands
    boundary=follow Adopt/Defer/Reject result
    semantic_authority=the adoption decision result
    non_authority=coverage percentage or bundle size
