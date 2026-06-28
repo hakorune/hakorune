@@ -46,12 +46,46 @@ tools/checks/rust_mirbuilder_carrier_info_native_snapshot_guard.sh
 tools/checks/rust_lifecycle_variable_context_explicit_mutation_api_projection_guard.sh
 ```
 
+## Decision
+
+```text
+target_family:
+  hakorune_mir_builder::variable_context
+
+target_surface:
+  VariableContextNativeSurfaceExplicitMutationApiOnlyV1
+
+decision:
+  Adopt
+
+reason:
+  NativeSurfaceOwnerPresentAndExplicitMutationGreen
+```
+
+## Included Surface
+
+```text
+VariableContext_simple_map_only
+VariableContext_snapshot_restore_only
+VariableContext_carrier_snapshot_only
+VariableContext_explicit_carrier_snapshot_only
+VariableContext_immutable_borrow_repaired_as_owned_snapshot
+VariableContext_mutable_returned_borrow_repaired_as_explicit_mutation
+```
+
+## Excluded Surface
+
+```text
+VariableContext_mutable_returned_borrow:
+  ReturnedMutableBorrow
+```
+
 ## Acceptance
 
 ```text
 decision = Adopt
 surface_id = VariableContextNativeSurfaceExplicitMutationApiOnlyV1
-included_scopes are all DerivedMainline or repaired bounded surface scopes
+included_scope_count = 6
 native_hako_source_owner_present = 1
 native_behavior_guard_green = 1
 explicit_mutation_api_projection_green = 1
