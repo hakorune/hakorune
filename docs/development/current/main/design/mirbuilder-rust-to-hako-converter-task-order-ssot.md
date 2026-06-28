@@ -21,14 +21,14 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
+  SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
 
 current implementation task:
-  MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.
-  Resolve whether `entries_snapshot` is required for the adopted bounded
-  VariableContext native surface without claiming full Rust VariableContext
-  parity or Source Selfhost.
-  output_contract = rust-lifecycle-variable-context-entries-snapshot-need-resolution-v0
+  SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.
+  Classify route-family rows after the bounded VariableContext closeout and
+  machine-select whether the next selfhost action is native adoption, route
+  repair, projector promotion, or consultation-gated stop.
+  output_contract = rust-lifecycle-source-selfhost-next-route-family-selection-policy-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -53,6 +53,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
     -> MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
     -> MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
+    -> SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
 
 selected evidence:
   adoption-plan evidence
@@ -76,6 +77,8 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
     -> docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md
     -> docs/development/current/main/phases/phase-296x/1796-MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.md
+    -> docs/development/current/main/phases/phase-296x/1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md
+    -> docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -89,7 +92,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  VariableContext entries_snapshot need resolver
+  Source Selfhost next route-family selection policy
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -104,7 +107,10 @@ current fail-fast boundary:
   projection, not Rust syntax one-to-one translation. The current readiness
   decision is bounded-consumer readiness only; `entries_snapshot` is not
   required for current bounded consumers, `snapshot_owned` and `restore_owned`
-  remain naming cleanup only, and MutLease remains a follow-up lane.
+  remain naming cleanup only, and MutLease remains a follow-up lane. The next
+  policy does not select a family by hand: it classifies route-family rows and
+  blocks with recovery guidance when no machine-derived native adoption
+  candidate remains.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -128,8 +134,11 @@ latest design decision:
   native consumers, while full VariableContext and Source Selfhost remain
   closed. `entries_snapshot` is not required for the current bounded
   consumers, so the next machine-derived step is NextRouteFamilySelectionPolicy,
-  not a new projection lane. Reason token:
-  `NoCurrentConsumerRequiresEntriesSnapshot`.
+  not a new projection lane. That policy now classifies the current rows and
+  keeps Source Selfhost stopped because no eligible native adoption candidate
+  remains after excluding already adopted, bounded-only, support-lane, and
+  consultation-gated rows. Reason token:
+  `NoEligibleNativeAdoptionCandidate`.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -160,6 +169,12 @@ bounded_native_surface_readiness = ReadyForBoundedVariableContextNativeSurfaceCo
   bounded_native_surface_readiness_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
   bounded_native_surface_selected = VariableContextNativeSurfaceExplicitMutationApiOnlyV1
 entries_snapshot_state = NotNeededForBoundedNativeSurface
+next_route_family_selection_policy = SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
+next_route_family_selection_decision = KeepSourceSelfhostStopped
+next_route_family_selection_reason = NoEligibleNativeAdoptionCandidate
+next_route_family_selection_recovery = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+classification_partition_complete = 1
+support_lane_projector_as_adoption_candidate = 0
 mut_lease_state = DeferredUntilLiveNeed
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
@@ -180,8 +195,8 @@ route_matrix_rerun_002 = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
 replace_owned_map_native_api = 1
 explicit_mutation_surface_state = Adopt
 post_explicit_mutation_resolution_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
-next_action = MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
-resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
+next_action = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+resume_condition = ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair
 old_1650_design_stop = provenance_only
 ```
 
@@ -200,7 +215,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md
+  1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -243,11 +258,11 @@ history, not in this task-order SSOT.
    semantic_authority=route matrix rerun 002 fixture, explicit mutation API projection guard, explicit mutation adoption guard
    non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 
-4. VariableContext bounded native surface readiness resolver
+4. Source Selfhost next route-family selection policy
    status=active
-   boundary=adopted explicit-mutation surface is ready for bounded native consumers only
-   semantic_authority=bounded readiness fixture and guard
-   non_authority=full VariableContext, Source Selfhost, entries_snapshot implementation, MutLease
+   boundary=classify route-family rows and block with recovery guidance when no machine-derived native adoption candidate remains
+   semantic_authority=route matrix fixtures, HakoAdopted decision fixtures, projector stage-state fixtures, roadmap/model SSOTs
+   non_authority=manual family selection, Source Selfhost claim, Rust deletion, runtime fallback
 ```
 
 ## Landed Converter Capability Summary

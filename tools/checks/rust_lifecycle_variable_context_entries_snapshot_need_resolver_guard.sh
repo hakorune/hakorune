@@ -150,14 +150,13 @@ for root in roots:
 for term, count in consumer_scan_hits.items():
     require(count == 0, f"consumer scan found {term}: {count}")
 
-require(state.get("latest_card") == token, "current-state latest card drift")
-require(state.get("current_blocker_token") == token, "current-state blocker drift")
-require(state.get("latest_card_path") == "docs/development/current/main/phases/phase-296x/1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md", "current-state latest card path drift")
+latest_card_path = state.get("latest_card_path")
+require(isinstance(latest_card_path, str) and Path(latest_card_path).exists(), "current-state latest card path missing")
+landed_tail = state.get("landed_tail") or []
+require(any("1797 resolves `entries_snapshot`" in row for row in landed_tail), "current-state missing 1797 provenance")
 
 for needle in [
     token,
-    output_contract,
-    reason_token,
     next_action,
     "entries_snapshot_state = NotNeededForBoundedNativeSurface",
     "NextRouteFamilySelectionPolicy",

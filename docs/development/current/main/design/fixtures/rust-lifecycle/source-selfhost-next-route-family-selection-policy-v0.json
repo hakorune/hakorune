@@ -1,0 +1,160 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostNextRouteFamilySelectionPolicyV1",
+  "output_contract": "rust-lifecycle-source-selfhost-next-route-family-selection-policy-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001"
+  },
+  "input_authority": {
+    "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json",
+    "route_matrix_fixtures": [
+      "docs/development/current/main/design/fixtures/rust-lifecycle/next-hako-adoption-candidate-selection-v0.json",
+      "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-rerun-002-v0.json"
+    ],
+    "hako_adopted_decision_fixtures": [
+      "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-hako-adoption-decision-recheck-v1.json",
+      "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-native-surface-hako-adoption-decision-v0.json",
+      "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-owned-read-snapshot-hako-adoption-decision-v0.json",
+      "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-mutation-api-hako-adoption-decision-v0.json"
+    ],
+    "hako_projector_stage_state_fixtures": [
+      "docs/development/current/main/design/fixtures/rust-lifecycle/return-emission-hako-shadow-promotion-decision-v0.json",
+      "docs/development/current/main/design/fixtures/rust-lifecycle/function-region-stack-pop-hako-shadow-promotion-decision-v0.json",
+      "docs/development/current/main/design/fixtures/rust-lifecycle/slot-registry-release-hako-shadow-promotion-decision-v0.json"
+    ],
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "roadmap": "docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md"
+  },
+  "pointer_only": [
+    "docs/development/current/main/CURRENT_STATE.toml",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  ],
+  "classification_policy": {
+    "classifications": [
+      "AlreadyAdopted",
+      "BoundedSurfaceAdopted",
+      "SupportLaneOnly",
+      "NeedsRouteRepair",
+      "NeedsNativeAdoptionDecision",
+      "NeedsHakoProjectorPromotion",
+      "ConsultationGated",
+      "NoEligibleCandidate"
+    ],
+    "subclassifications": [
+      "ParkedFullClaim",
+      "ParkedMutLeaseRequired",
+      "ParkedWiderRouteRequired"
+    ]
+  },
+  "family_classifications": [
+    {
+      "family_id": "allocation_policy_prepared_state_next_value_id",
+      "classification": "AlreadyAdopted",
+      "reason_token": "AllocationPolicyAlreadyHakoAdopted",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "binding_context",
+      "classification": "AlreadyAdopted",
+      "reason_token": "BindingContextAlreadyHakoAdopted",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "context",
+      "classification": "AlreadyAdopted",
+      "reason_token": "ContextAlreadyHakoAdopted",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "variable_context",
+      "classification": "BoundedSurfaceAdopted",
+      "subclassification": "ParkedFullClaim",
+      "reason_token": "VariableContextBoundedSurfaceAdoptedFullClaimParked",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "variable_context_immutable_borrow",
+      "classification": "BoundedSurfaceAdopted",
+      "subclassification": "ParkedFullClaim",
+      "reason_token": "VariableContextImmutableBorrowCoveredByOwnedSnapshotSurface",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "ReturnEmission",
+      "classification": "SupportLaneOnly",
+      "reason_token": "SupportLaneProjectorNotNativeAdoptionCandidate",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "FunctionRegionStackPop",
+      "classification": "SupportLaneOnly",
+      "reason_token": "SupportLaneProjectorNotNativeAdoptionCandidate",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "SlotRegistryRelease",
+      "classification": "SupportLaneOnly",
+      "reason_token": "SupportLaneProjectorNotNativeAdoptionCandidate",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "compiler-library helpers",
+      "classification": "SupportLaneOnly",
+      "reason_token": "CompilerLibraryHelpersAreNotFamilyAdoptionCandidates",
+      "eligible_for_next_adoption": false,
+      "next_action": "None"
+    },
+    {
+      "family_id": "minimal_path_composed_execution_closure",
+      "classification": "ConsultationGated",
+      "subclassification": "ParkedWiderRouteRequired",
+      "reason_token": "WiderRouteSelectionConsultationGated",
+      "eligible_for_next_adoption": false,
+      "next_action": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+    }
+  ],
+  "candidate_pool": {
+    "state": "Blocked",
+    "eligible_count": 0,
+    "blocked_count": 0,
+    "support_lane_count": 4,
+    "consultation_gated_count": 1
+  },
+  "decision": {
+    "kind": "KeepSourceSelfhostStopped",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "next_action": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "recovery_message": "Open a consultation-gated wider-route selection or provide a machine-derived route repair fixture that makes one family CandidateEligible."
+  },
+  "selection_rules": {
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "bundle_size_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "route_repair_precedes_adoption_selection": 1
+  },
+  "claims": {
+    "classification_partition_complete": 1,
+    "exactly_one_decision": 1,
+    "blocked_result_has_recovery_message": 1,
+    "new_hako_adopted_family": 0,
+    "full_variable_context_claim": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "rust_deletion": 0
+  }
+}
