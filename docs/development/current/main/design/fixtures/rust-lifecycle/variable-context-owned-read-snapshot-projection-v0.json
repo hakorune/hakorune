@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextOwnedReadSnapshotProjectionV1",
+  "output_contract": "rust-lifecycle-variable-context-owned-read-snapshot-projection-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1786-MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001"
+  },
+  "input_route": {
+    "token": "MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001",
+    "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-returned-read-snapshot-route-v0.json",
+    "selected_repair": "OwnedReadSnapshotProjection"
+  },
+  "projection": {
+    "source_method": "VariableContext::variable_map",
+    "rust_return": "&BTreeMap<String, ValueId>",
+    "selected_hako_api": "VariableContextNativeApi.snapshot",
+    "result_transport": "OrderedMapBox",
+    "owned_clone_required": 1
+  },
+  "oracle_vectors": [
+    {
+      "name": "nonempty_snapshot",
+      "source_before": [
+        ["a", 10],
+        ["b", 20]
+      ],
+      "snapshot": [
+        ["a", 10],
+        ["b", 20]
+      ]
+    },
+    {
+      "name": "source_mutation_after_snapshot",
+      "source_after": [
+        ["a", 10],
+        ["b", 20],
+        ["c", 30]
+      ],
+      "snapshot_after": [
+        ["a", 10],
+        ["b", 20]
+      ]
+    },
+    {
+      "name": "snapshot_mutation_after_snapshot",
+      "source_after": [
+        ["a", 10],
+        ["b", 20],
+        ["c", 30]
+      ],
+      "snapshot_after": [
+        ["b", 20]
+      ]
+    }
+  ],
+  "proof": {
+    "source_to_snapshot_alias": 0,
+    "snapshot_to_source_alias": 0,
+    "deterministic_order_preserved": 1,
+    "raw_variable_map_alias_emitted": 0,
+    "variable_map_mut_selected": 0
+  },
+  "candidate_recovery": {
+    "next_action": "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001",
+    "candidate_pool_state_after_this_card": "BlockedUntilRouteMatrixRerun"
+  },
+  "claims": {
+    "borrow_view_implementation": 0,
+    "returned_mutable_borrow_repair": 0,
+    "full_variable_context_claim": 0,
+    "candidate_pool_eligible": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "manual_family_selection": 0
+  }
+}

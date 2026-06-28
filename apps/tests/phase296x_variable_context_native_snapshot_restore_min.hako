@@ -3,17 +3,29 @@ using apps.lib.hakorune_mir_builder.variable_context as VariableContextNativeApi
 static box Main {
     main() {
         local ctx = new VariableContextNative()
-        VariableContextNativeApi.insert(ctx, "x", 1)
+        VariableContextNativeApi.insert(ctx, "a", 10)
+        VariableContextNativeApi.insert(ctx, "b", 20)
 
         local snapshot: OrderedMapBox = VariableContextNativeApi.snapshot(ctx)
         VariableContextNativeApi.restore(ctx, snapshot)
-        if VariableContextNativeApi.lookup(ctx, "x") != 1 {
+        if VariableContextNativeApi.lookup(ctx, "a") != 10 {
             print("variable_context_native_restore_snapshot_value=fail")
             return 1
         }
 
-        VariableContextNativeApi.insert(ctx, "x", 2)
-        if snapshot.get("x") != 1 {
+        VariableContextNativeApi.insert(ctx, "c", 30)
+        if snapshot.get("c") != null {
+            print("snapshot_has_c_after_source_mutation=fail")
+            return 1
+        }
+
+        snapshot.remove("a")
+        if VariableContextNativeApi.lookup(ctx, "a") != 10 {
+            print("source_has_a_after_snapshot_mutation=fail")
+            return 1
+        }
+
+        if snapshot.get("a") != null {
             print("variable_context_native_snapshot_alias_proof=fail")
             return 1
         }

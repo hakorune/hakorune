@@ -1,0 +1,77 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextReturnedReadSnapshotRouteV1",
+  "output_contract": "rust-lifecycle-variable-context-returned-read-snapshot-route-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1785-MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001"
+  },
+  "family_id": "hakorune_mir_builder::variable_context",
+  "blocked_input": {
+    "candidate_pool_state": "Blocked",
+    "reason_token": "NoRemainingMachineDerivedNativeSurfaceCandidate",
+    "parked_reason": "ReturnedReadBorrow",
+    "replacement_policy": "OwnedReadSnapshotProjection"
+  },
+  "source_methods": {
+    "variable_map": {
+      "rust_return": "&BTreeMap<String, ValueId>",
+      "selected": false,
+      "deny_reason": "ReturnedReadBorrow",
+      "replacement": "VariableMapOwnedReadSnapshot"
+    },
+    "variable_map_mut": {
+      "rust_return": "&mut BTreeMap<String, ValueId>",
+      "selected": false,
+      "deny_reason": "ReturnedMutableBorrow",
+      "replacement": "ExplicitMutationOperationsOnly"
+    },
+    "snapshot": {
+      "rust_operation": "CloneOwnedMap",
+      "selected": true,
+      "hako_operation": "CloneOwnedMap"
+    },
+    "restore": {
+      "rust_operation": "ReplaceOwnedMap",
+      "selected": true,
+      "hako_operation": "ReplaceOwnedMap"
+    }
+  },
+  "selected_replacement_surface": {
+    "read": [
+      "lookup",
+      "contains",
+      "len",
+      "is_empty",
+      "entries_snapshot",
+      "owned_read_snapshot"
+    ],
+    "write": [
+      "insert",
+      "remove",
+      "restore"
+    ],
+    "denied": [
+      "raw_variable_map_alias",
+      "raw_variable_map_mut_alias",
+      "returned_borrow_escape",
+      "returned_mut_borrow_escape"
+    ]
+  },
+  "candidate_recovery": {
+    "next_action": "MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001",
+    "candidate_pool_state_after_this_card": "BlockedUntilRouteMatrixRerun"
+  },
+  "claims": {
+    "full_variable_context_claim": 0,
+    "returned_borrow_selected": 0,
+    "mutable_returned_borrow_selected": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "manual_family_selection": 0
+  }
+}
