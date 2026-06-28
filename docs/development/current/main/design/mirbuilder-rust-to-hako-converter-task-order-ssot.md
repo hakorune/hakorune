@@ -21,13 +21,14 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
+  MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
 
 current implementation task:
-  MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.
-  Fix the VariableContext Rust-reference projection contract as semantic
-  one-to-one verified projection instead of Rust syntax one-to-one translation.
-  output_contract = rust-lifecycle-variable-context-reference-projection-contract-v0
+  MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.
+  Resolve the adopted VariableContext surface as ready for bounded native
+  consumers without claiming full Rust VariableContext parity or Source
+  Selfhost.
+  output_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -50,6 +51,7 @@ selected decision slice:
     -> VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001
     -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
     -> MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
+    -> MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
 
 selected evidence:
   adoption-plan evidence
@@ -72,6 +74,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
     -> docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md
+    -> docs/development/current/main/phases/phase-296x/1796-MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -85,7 +88,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  VariableContext reference projection contract
+  VariableContext bounded native surface readiness resolver
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -97,7 +100,9 @@ current fail-fast boundary:
   explicit-mutation adoption target. Returned mutable borrow is replaced by
   explicit mutation APIs, and `replace_owned_map` is the owned-map replacement
   hook. The reference projection contract is semantic one-to-one verified
-  projection, not Rust syntax one-to-one translation.
+  projection, not Rust syntax one-to-one translation. The current readiness
+  decision is bounded-consumer readiness only; `entries_snapshot`,
+  `snapshot_owned`, `restore_owned`, and MutLease remain follow-up lanes.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -117,6 +122,9 @@ latest design decision:
   verified projection contract: `variable_map()` remains an owned read
   snapshot projection, `variable_map_mut()` remains explicit mutation APIs, and
   Rust lifetime syntax / raw borrow alias transport are not target authority.
+  The adopted explicit-mutation surface is now resolved as ready for bounded
+  native consumers, while full VariableContext and Source Selfhost remain
+  closed.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -138,10 +146,16 @@ post_owned_snapshot_resolution_reason = ReturnedMutableBorrowPolicyRequired
 returned_mutable_borrow_policy = ExplicitMutationApiOnly
 returned_mutable_borrow_owner_kind = VariableContextReturnedMutableBorrowPolicyDecision
 reference_projection_contract = MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
+reference_projection_contract_output = rust-lifecycle-variable-context-reference-projection-contract-v0
 projection_model = SemanticOneToOneVerifiedProjection
 syntax_one_to_one_required = 0
 variable_map_projection = OwnedReadSnapshotProjection
 variable_map_mut_projection = ExplicitMutationApiOnly
+bounded_native_surface_readiness = ReadyForBoundedVariableContextNativeSurfaceConsumer
+bounded_native_surface_readiness_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
+bounded_native_surface_selected = VariableContextNativeSurfaceExplicitMutationApiOnlyV1
+entries_snapshot_state = FutureConsumerNeedOnly
+mut_lease_state = DeferredUntilLiveNeed
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
@@ -161,7 +175,7 @@ route_matrix_rerun_002 = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
 replace_owned_map_native_api = 1
 explicit_mutation_surface_state = Adopt
 post_explicit_mutation_resolution_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
-next_action = MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
+next_action = MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
 resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
 old_1650_design_stop = provenance_only
 ```
@@ -181,7 +195,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md
+  1796-MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -224,11 +238,11 @@ history, not in this task-order SSOT.
    semantic_authority=route matrix rerun 002 fixture, explicit mutation API projection guard, explicit mutation adoption guard
    non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 
-4. VariableContext reference projection contract
+4. VariableContext bounded native surface readiness resolver
    status=active
-   boundary=semantic one-to-one verified projection for Rust reference surfaces
-   semantic_authority=reference projection fixture and guard
-   non_authority=syntax one-to-one, raw borrow alias, MutLease, source selfhost
+   boundary=adopted explicit-mutation surface is ready for bounded native consumers only
+   semantic_authority=bounded readiness fixture and guard
+   non_authority=full VariableContext, Source Selfhost, entries_snapshot implementation, MutLease
 ```
 
 ## Landed Converter Capability Summary
