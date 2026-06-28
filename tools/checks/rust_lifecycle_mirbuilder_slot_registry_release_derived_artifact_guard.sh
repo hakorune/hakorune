@@ -158,6 +158,8 @@ for boundary in [
         raise SystemExit(f"slot registry release denied boundary missing: {boundary}")
 PY
 
+rm -f "$MIR_JSON" "$EXE" "$RAW" "$OUT"
+
 ./target/release/hakorune --emit-mir-json "$MIR_JSON" "$ARTIFACT" >/tmp/hako_mirbuilder_slot_registry_release.mir.log 2>&1
 
 python3 - <<'PY'

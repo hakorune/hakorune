@@ -40,7 +40,7 @@
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-verifier-result-v0.json",
-      "sha256": "3f12a0f2b8ba0871463bf0aa4f66b9cbd9e4998da7f46695c68a4489561bad73"
+      "sha256": "02089ed4fe0141cddc9cae89fa3a73b649d92cb2615488312e61c762c550de5f"
     }
   },
   "kind": "RustDerivedHakoArtifact",

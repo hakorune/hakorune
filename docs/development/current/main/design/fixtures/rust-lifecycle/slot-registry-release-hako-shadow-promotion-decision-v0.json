@@ -1,0 +1,34 @@
+{
+  "claims": {
+    "hako_adopted": 0,
+    "host_env_lookup": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "python_semantic_projector_growth": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "current_stage": "HakoShadow",
+  "decision": {
+    "kind": "Promote",
+    "next_slice_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001",
+    "owner_scope": "integration",
+    "reason": "SlotRegistryRelease HakoShadow parity is green and the stage-state inventory keeps promotion and retirement tokens explicit.",
+    "reason_token": "SlotRegistryReleaseHakoShadowParityGreen"
+  },
+  "family_id": "hakorune_mir_builder::slot_registry_release",
+  "hako_shadow_retained": 1,
+  "input_evidence": {
+    "derived_artifact_guard": "tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_derived_artifact_guard.sh",
+    "derived_hako_verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-verifier-result-v0.json",
+    "stage_state_inventory_guard": "tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh"
+  },
+  "kind": "MirBuilderSlotRegistryReleaseHakoShadowPromotionDecisionV1",
+  "output_contract": "rust-lifecycle-slot-registry-release-hako-shadow-promotion-decision-v0",
+  "promotion_token": "SlotRegistryReleaseHakoShadowPromotionTokenV1",
+  "python_oracle_retained": 1,
+  "retirement_token": "SlotRegistryReleaseHakoShadowRetirementTokenV1",
+  "schema_version": 0,
+  "selected_stage": "HakoMainline",
+  "stage_id": "slot_registry_release"
+}

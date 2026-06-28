@@ -7,6 +7,8 @@
     "current_slot_registry_transport": "FunctionSlotRegistryPreparedBox",
     "excluded_methods": [],
     "full_finalize_module": 0,
+    "host_env_lookup": 0,
+    "metadata_publication": 0,
     "module_metadata_publication": 0,
     "release_result_transport": "FunctionSlotRegistryPreparedBox",
     "released_registry_present": 1,
