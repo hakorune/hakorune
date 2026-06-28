@@ -1,0 +1,47 @@
+{
+  "kind": "SourceSelfhostPostVariableContextSurfaceResolutionV1",
+  "output_contract": "rust-lifecycle-source-selfhost-post-variable-context-surface-resolution-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1784-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001"
+  },
+  "last_adoption": {
+    "token": "VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001",
+    "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-native-surface-hako-adoption-decision-v0.json",
+    "decision": "Adopt",
+    "surface_id": "VariableContextNativeSurfaceNoReturnedBorrowV1"
+  },
+  "remaining_boundary": {
+    "candidate_pool_state": "Blocked",
+    "reason_token": "NoRemainingMachineDerivedNativeSurfaceCandidate",
+    "parked_family": "hakorune_mir_builder::variable_context",
+    "parked_reason": "ReturnedReadBorrow",
+    "full_variable_context_claim": 0,
+    "returned_borrow_selected": 0
+  },
+  "recovery": {
+    "next_action": "DesignConsultationRequired",
+    "allowed_next_owner_kinds": [
+      "VariableContextReturnedBorrowRepairDecision",
+      "NextRouteFamilySelectionPolicy",
+      "ExplicitSourceSelfhostStopLine"
+    ],
+    "forbidden_next_owner_kinds": [
+      "ManualFamilySelection",
+      "SupportLaneProjectionAsAdoptionCandidate",
+      "RuntimeFallback",
+      "NewBackendRoute",
+      "NewAbi",
+      "NewPythonSemanticProjector"
+    ]
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "source_selfhost_claim": 0
+  }
+}

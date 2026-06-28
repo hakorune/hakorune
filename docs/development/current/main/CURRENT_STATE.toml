@@ -265,14 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-ADOPTION-PLAN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md"
-latest_card_summary = """The latest card makes the source-selfhost adoption
-plan explicit as a machine-checkable family-breadth gate. The artifact-selfhost
-checkpoint and minimal-path mainline pilot are provenance, and the next family
-selection remains machine-derived from route-matrix evidence."""
+latest_card = "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1784-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001.md"
+latest_card_summary = """The latest card resolves the queue after the
+VariableContext native surface adoption and stops at a design consultation
+boundary for the remaining source-selfhost path."""
 
-current_blocker_token = "SOURCE-SELFHOST-ADOPTION-PLAN-001"
+current_blocker_token = "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -281,6 +280,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-28: 1784 resolves the post-VariableContext-surface queue and stops at a source-selfhost design consultation boundary.",
+  "2026-06-28: 1783 adopts the VariableContext no-returned-borrow native surface while keeping full VariableContext parked.",
+  "2026-06-28: 1782 selects a VariableContext native surface without returned borrow routes as the next machine-derived adoption candidate.",
+  "2026-06-28: 1781 adds a recovery diagnostic for the blocked source-selfhost adoption pool, preserving Blocked while naming the resume condition.",
   "2026-06-28: 1780 advances the queue from artifact-selfhost checkpoint to source-selfhost adoption planning after the minimal-path mainline pilot and checkpoint are preserved as provenance.",
   "2026-06-28: 1779 makes the artifact-selfhost checkpoint explicit as a machine-checkable boundary and keeps the blocked derived-mainline candidate pool as provenance.",
   "2026-06-28: 1778 closes SlotRegistryRelease support-lane promotion as provenance and hands the queue to the artifact-selfhost checkpoint after the derived-mainline candidate pool stays blocked.",

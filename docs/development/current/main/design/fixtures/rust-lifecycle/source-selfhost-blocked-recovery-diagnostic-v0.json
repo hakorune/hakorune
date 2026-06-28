@@ -1,0 +1,50 @@
+{
+  "kind": "SourceSelfhostBlockedRecoveryDiagnosticV1",
+  "output_contract": "rust-lifecycle-source-selfhost-blocked-recovery-diagnostic-v0",
+  "source_selfhost_adoption_plan": "SOURCE-SELFHOST-ADOPTION-PLAN-001",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1781-SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001"
+  },
+  "blocked_evidence": {
+    "candidate_pool_state": "Blocked",
+    "eligible_candidate_count": 0,
+    "blocked_reason_token": "NoEligibleDerivedMainlineRouteCandidate",
+    "candidate_selection_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/next-hako-adoption-candidate-selection-v0.json",
+    "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json"
+  },
+  "parked_family": {
+    "family_id": "hakorune_mir_builder::variable_context",
+    "family_state": "Parked",
+    "parked_reason": "ReturnedReadBorrow",
+    "replacement_policy": "OwnedReadSnapshotProjection",
+    "route_matrix_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-closeout-v0.json"
+  },
+  "recovery": {
+    "next_action": "DesignConsultationRequired",
+    "resume_condition": "MachineDerivedRepairLaneOrNewEligibleRoute",
+    "allowed_next_owner_kinds": [
+      "MachineDerivedRepairLane",
+      "NewEligibleDerivedMainlineRoute",
+      "ExplicitDesignStopCloseout"
+    ],
+    "forbidden_next_owner_kinds": [
+      "ManualFamilySelection",
+      "SupportLaneProjectionAsAdoptionCandidate",
+      "RuntimeFallback",
+      "NewBackendRoute",
+      "NewAbi",
+      "NewPythonSemanticProjector"
+    ]
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted": 0
+  }
+}

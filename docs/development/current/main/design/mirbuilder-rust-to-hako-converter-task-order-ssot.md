@@ -21,13 +21,12 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SOURCE-SELFHOST-ADOPTION-PLAN-001
+  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001
 
 current implementation task:
-  SOURCE-SELFHOST-ADOPTION-PLAN-001.
-  Make the source-selfhost adoption plan explicit as a machine-checkable
-  family-breadth gate, keep the checkpoint and mainline pilot as provenance,
-  and keep the next family-specific HakoAdopted decision machine-derived.
+  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001.
+  Resolve the queue after the VariableContext native surface adoption and
+  stop at the next source-selfhost design consultation boundary.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -35,6 +34,10 @@ selected decision slice:
     -> mainline pilot provenance
     -> route-matrix evidence
     -> SOURCE-SELFHOST-ADOPTION-PLAN-001
+    -> SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001
+    -> VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001
+    -> VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001
+    -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001
 
 selected evidence:
   adoption-plan evidence
@@ -42,6 +45,10 @@ selected evidence:
     -> docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
     -> docs/development/current/main/phases/phase-296x/1779-ARTIFACT-SELFHOST-CHECKPOINT-001.md
     -> docs/development/current/main/phases/phase-296x/1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md
+    -> docs/development/current/main/phases/phase-296x/1781-SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001.md
+    -> docs/development/current/main/phases/phase-296x/1782-VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001.md
+    -> docs/development/current/main/phases/phase-296x/1783-VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001.md
+    -> docs/development/current/main/phases/phase-296x/1784-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -55,30 +62,42 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Source selfhost adoption plan
+  Source selfhost post-VariableContext-surface resolution
 
 current fail-fast boundary:
-  Do not hand-pin a new family or support-lane projector while the candidate
-  pool is blocked. Keep family-by-family HakoAdopted decisions machine-derived
-  from route-matrix evidence, and keep Python as oracle/bootstrap only.
+  Do not select another family by hand after the VariableContext surface
+  adoption. The remaining source-selfhost path must choose, by consultation,
+  between returned-borrow repair, a route-family selection policy, or an
+  explicit source-selfhost stop line.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
   selection, the artifact-selfhost checkpoint, and the minimal-path mainline
   pilot are closed as provenance. The ReturnEmission, FunctionRegionStackPop,
   and SlotRegistryRelease promotion decisions are closed as provenance. The
-  next bounded queue item is the source-selfhost adoption plan from the
-  roadmap.
+  VariableContext native surface that excludes returned borrow routes is
+  adopted, and the queue now stops at a source-selfhost design consultation
+  boundary.
 
 ## Source Selfhost Adoption Plan Evidence
 
 ```text
 candidate_pool_state = Blocked
+native_surface_candidate_state = CandidateEligible
+native_surface_id = VariableContextNativeSurfaceNoReturnedBorrowV1
+native_surface_adoption_decision = Adopt
+post_variable_context_surface_resolution = DesignConsultationRequired
+post_variable_context_surface_reason = NoRemainingMachineDerivedNativeSurfaceCandidate
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
 source_selfhost_adoption_plan = SOURCE-SELFHOST-ADOPTION-PLAN-001
-next_task = SOURCE-SELFHOST-ADOPTION-PLAN-001
+blocked_recovery_diagnostic = SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001
+native_surface_selection = VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001
+native_surface_adoption = VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001
+post_surface_resolution = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001
+next_action = DesignConsultationRequired
+resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
 old_1650_design_stop = provenance_only
 ```
 
@@ -97,7 +116,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md
+  1784-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -134,11 +153,11 @@ history, not in this task-order SSOT.
    semantic_authority=readiness resolver, route manifest, mainline pilot guard
    non_authority=full minimal-path mainline, HakoAdopted decision
 
-3. Source-selfhost adoption plan
+3. Post-VariableContext-surface source-selfhost resolution
    status=active
-   boundary=family-by-family HakoAdopted decisions must stay machine-derived
-   semantic_authority=route-matrix evidence, adoption plan fixture, adoption plan guard
-   non_authority=manual family selection, runtime fallback, new ABI
+   boundary=DesignConsultationRequired after the no-returned-borrow surface adoption
+   semantic_authority=post-surface resolution fixture and guard
+   non_authority=manual family selection, returned borrow repair, runtime fallback
 ```
 
 ## Landed Converter Capability Summary

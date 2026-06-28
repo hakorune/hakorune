@@ -277,6 +277,39 @@ Past row guards must not pin `CURRENT_STATE.latest_card`,
 that the row landed. Use the row card, durable SSOT, check-script index,
 fixtures, or an explicit phase-card resolver instead.
 
+### Provenance Guard Rule
+
+Historical row guards should stay useful after the current blocker advances.
+They must validate the row's own durable evidence, not demand that the row is
+still the current pointer.
+
+Required pattern:
+
+```text
+row-owned evidence:
+  card token
+  fixture kind / output_contract
+  durable SSOT references
+  check-script index entry
+
+current-state evidence:
+  latest_card_path exists
+  current token is either this row or a known follow-on row
+```
+
+Forbidden pattern:
+
+```text
+CURRENT_STATE.latest_card == this row token
+CURRENT_STATE.current_blocker_token == this row token
+CURRENT_STATE.landed_tail contains this row text
+```
+
+When a follow-on card advances the lane, update older row guards only if they
+would otherwise false-red on current pointer drift. The update should add the
+follow-on token to an explicit allow-list and must not weaken the row-owned
+fixture or SSOT assertions.
+
 ## Non-Goals
 
 - no generated-doc helper in this card

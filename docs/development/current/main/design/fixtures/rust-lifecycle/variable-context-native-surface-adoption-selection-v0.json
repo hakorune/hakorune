@@ -1,0 +1,56 @@
+{
+  "kind": "VariableContextNativeSurfaceAdoptionSelectionV1",
+  "output_contract": "rust-lifecycle-variable-context-native-surface-adoption-selection-v0",
+  "current_state": {
+    "latest_card": "VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1782-VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001.md",
+    "current_blocker_token": "VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001"
+  },
+  "source_selfhost_candidate_pool": {
+    "state": "Blocked",
+    "blocked_reason_token": "NoEligibleDerivedMainlineRouteCandidate",
+    "blocked_recovery_diagnostic": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-blocked-recovery-diagnostic-v0.json"
+  },
+  "family": {
+    "family_id": "hakorune_mir_builder::variable_context",
+    "full_family_state": "Parked",
+    "parked_reason": "ReturnedReadBorrow",
+    "replacement_policy": "OwnedReadSnapshotProjection",
+    "full_variable_context_claim": 0
+  },
+  "native_surface": {
+    "surface_id": "VariableContextNativeSurfaceNoReturnedBorrowV1",
+    "candidate_state": "CandidateEligible",
+    "included_scopes": [
+      "VariableContext_simple_map_only",
+      "VariableContext_snapshot_restore_only",
+      "VariableContext_carrier_snapshot_only",
+      "VariableContext_explicit_carrier_snapshot_only"
+    ],
+    "excluded_scopes": [
+      {
+        "scope": "VariableContext_immutable_borrow_only",
+        "reason": "ReturnedReadBorrow"
+      },
+      {
+        "scope": "VariableContext_mutable_returned_borrow",
+        "reason": "ReturnedMutableBorrow"
+      }
+    ]
+  },
+  "decision": {
+    "next_action": "VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "EligibleNoReturnedBorrowNativeSurface",
+    "manual_family_selection": 0
+  },
+  "claims": {
+    "returned_borrow_selected": 0,
+    "borrow_view_implementation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted": 0
+  }
+}
