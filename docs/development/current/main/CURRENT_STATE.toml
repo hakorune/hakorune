@@ -265,13 +265,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1778-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001.md"
-latest_card_summary = """The latest card closes the SlotRegistryRelease
-HakoShadow stage-state by promoting the support-lane projector to
-HakoMainline while keeping Python as explicit oracle/bootstrap. The prior
-FunctionRegionStackPop and ReturnEmission promotion decisions are now
-provenance only."""
+latest_card = "ARTIFACT-SELFHOST-CHECKPOINT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1779-ARTIFACT-SELFHOST-CHECKPOINT-001.md"
+latest_card_summary = """The latest card makes the artifact-selfhost
+checkpoint explicit as a machine-checkable execution-graph boundary. The
+derived-mainline candidate pool remains blocked as provenance, and the next
+queue item is still machine-derived from the checkpoint roadmap."""
 
 current_blocker_token = "ARTIFACT-SELFHOST-CHECKPOINT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

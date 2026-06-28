@@ -1,0 +1,26 @@
+{
+  "kind": "ArtifactSelfhostCheckpointV1",
+  "output_contract": "rust-lifecycle-artifact-selfhost-checkpoint-v0",
+  "artifact_selfhost_checkpoint_token": "ARTIFACT-SELFHOST-CHECKPOINT-001",
+  "roadmap": "docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md",
+  "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+  "current_state": {
+    "latest_card": "ARTIFACT-SELFHOST-CHECKPOINT-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1779-ARTIFACT-SELFHOST-CHECKPOINT-001.md",
+    "current_blocker_token": "ARTIFACT-SELFHOST-CHECKPOINT-001"
+  },
+  "checkpoint": {
+    "candidate_pool_state": "Blocked",
+    "composed_execution_evidence_consumed": 1,
+    "same_state_handoff_observed": 1,
+    "generated_hako_executable_closure": "Closed",
+    "next_queue_item_machine_derived": 1
+  },
+  "claims": {
+    "manual_next_owner_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "source_selfhost_claim": 0
+  }
+}
