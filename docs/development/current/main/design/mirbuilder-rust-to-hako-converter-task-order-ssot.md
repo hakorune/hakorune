@@ -21,59 +21,54 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  CURRENT-STATE-POINTER-REALIGN-001
+  MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
 
 current implementation task:
-  CURRENT-STATE-POINTER-REALIGN-001.
-  The old 1650 design stop has been passed by readiness, mainline-pilot,
-  Hako shadow, and adoption cards. Realign the active pointer first so the
-  next Source Selfhost task is selected from current route/adoption evidence.
+  MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001.
+  The VariableContext family still has one denied replacement row, so close
+  out the matrix before the next HakoAdopted candidate selection consumes
+  the route manifest.
 
 selected decision slice:
-  pointer_realign.current_state
-    -> latest_card/latest_card_path presence only
-    -> stale design-stop token retained as provenance only
-    -> CURRENT-STATE-POINTER-REALIGN-001
+  variable_context.route_matrix_closeout
+    -> family_routes.json route-state inventory
+    -> parked / candidate-eligible / repair classification
+    -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
 
 selected evidence:
-  pointer realign evidence
+  route matrix evidence
+    -> lang/generated/rust_derived/hakorune_mir_builder/family_routes.json
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-closeout-v0.json
+    -> tools/checks/rust_lifecycle_variable_context_route_matrix_closeout_guard.sh
     -> docs/development/current/main/phases/phase-296x/1773-CURRENT-STATE-POINTER-REALIGN-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md
-    -> docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md
-    -> docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
-    -> docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
-    -> docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
-    -> tools/checks/current_state_pointer_guard.sh
-    -> design consultation inventory
 
 landed evidence pointer:
-  Detailed landed rows live in the guard repair card, adoption cards, and
+  Detailed landed rows live in the route-selection guards, adoption cards, and
   git history. This task-order only keeps the active blocker, fail-fast
   boundary, and Active Next 3.
 
 selected next owner:
-  current-state pointer realignment
+  VariableContext route matrix closeout
 
 current fail-fast boundary:
-  The current pointer must not present the old 1650 design stop as the active
-  blocker after the later readiness, mainline-pilot, Hako shadow, and adoption
-  cards have landed.
+  The VariableContext family remains parked until the route matrix closeout
+  fixture proves which rows are derived mainline, denied, and replacement.
+  Do not hand-pin the next HakoAdopted candidate from route membership alone.
 
 latest design decision:
-  Pointer realignment, not a semantic owner, is the current blocker. The next
-  concrete route after this repair is the VariableContext route matrix
-  closeout.
+  Pointer realignment is closed as provenance. The current blocker is the
+  VariableContext route matrix closeout, which will close the family state
+  before next HakoAdopted candidate selection.
 
-## Pointer Realign Evidence
+## VariableContext Route Matrix Evidence
 
 ```text
-selected repair candidate
-CURRENT-STATE-POINTER-REALIGN-001
+selected closeout candidate
+MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
+route_matrix_state = Parked
 old_1650_design_stop = provenance_only
-next_task = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
+next_task = MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001
 ```
 
 forbidden:
@@ -91,7 +86,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1773-CURRENT-STATE-POINTER-REALIGN-001.md
+  1774-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -117,15 +112,15 @@ history, not in this task-order SSOT.
 
 ```text
 1. Current-state pointer realignment
-   status=selected
+   status=closed
    boundary=old 1650 design stop retained as provenance, not active blocker
    semantic_authority=CURRENT_STATE, task-order SSOT, roadmap, and pointer guard
    non_authority=Source Selfhost, Rust deletion, backend route, ABI
 
 2. VariableContext route matrix closeout
-   status=parked until pointer realign lands
+   status=selected
    boundary=resolve parked/eligible/repair state before adoption selection
-   semantic_authority=family_routes.json plus roadmap candidate evidence
+   semantic_authority=family_routes.json plus closeout fixture evidence
    non_authority=manual HakoAdopted candidate selection
 
 3. Next HakoAdopted candidate selection

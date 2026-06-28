@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "CURRENT-STATE-POINTER-REALIGN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1773-CURRENT-STATE-POINTER-REALIGN-001.md"
-latest_card_summary = """The latest card realigns the current-state and
-task-order pointers after the design-stop, readiness, mainline-pilot, Hako
-shadow, and adoption cards landed. The old converter next-slice design stop is
-provenance, not the active blocker."""
+latest_card = "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1774-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001.md"
+latest_card_summary = """The latest card closes out the VariableContext
+route matrix as parked, not candidate-eligible, so the next HakoAdopted
+candidate selection must consume the closeout fixture instead of handwritten
+membership truth."""
 
-current_blocker_token = "CURRENT-STATE-POINTER-REALIGN-001"
+current_blocker_token = "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -281,6 +281,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-28: 1773 realigns the current-state pointer and hands the next blocker to VariableContext route matrix closeout.",
   "2026-06-19: rust-subset source-shape coverage batch is closed; source transport waits for a new real input blocker.",
   "2026-06-19: generic_loop_v1 accepts scanner multi-exit loop bodies via ThenOnlyExit.",
   "2026-06-19: continue-in-staged-loop is promoted green through edge-local ContinueWithPhiArgs.",
