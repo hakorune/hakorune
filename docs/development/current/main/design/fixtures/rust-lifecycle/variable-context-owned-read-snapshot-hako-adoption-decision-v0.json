@@ -1,0 +1,66 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextOwnedReadSnapshotHakoAdoptionDecisionV1",
+  "output_contract": "rust-lifecycle-variable-context-owned-read-snapshot-hako-adoption-decision-v0",
+  "current_state": {
+    "latest_card": "VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md",
+    "current_blocker_token": "VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001"
+  },
+  "selection_evidence": {
+    "route_matrix_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-rerun-v0.json",
+    "surface_id": "VariableContextNativeSurfaceOwnedReadSnapshotV1",
+    "candidate_pool_state": "CandidateEligible"
+  },
+  "target": {
+    "family_id": "hakorune_mir_builder::variable_context",
+    "surface_id": "VariableContextNativeSurfaceOwnedReadSnapshotV1",
+    "full_family_state": "Parked",
+    "full_variable_context_claim": 0
+  },
+  "included_scopes": [
+    "VariableContext_simple_map_only",
+    "VariableContext_snapshot_restore_only",
+    "VariableContext_carrier_snapshot_only",
+    "VariableContext_explicit_carrier_snapshot_only",
+    "VariableContext_immutable_borrow_repaired_as_owned_snapshot"
+  ],
+  "excluded_scopes": [
+    {
+      "scope": "VariableContext_mutable_returned_borrow",
+      "reason": "ReturnedMutableBorrow"
+    }
+  ],
+  "native_source_owners": [
+    "apps/lib/hakorune_mir_builder/variable_context.hako",
+    "apps/lib/hakorune_mir_builder/carrier_info.hako"
+  ],
+  "native_behavior_guards": [
+    "tools/checks/rust_mirbuilder_variable_context_native_simple_map_guard.sh",
+    "tools/checks/rust_mirbuilder_variable_context_native_snapshot_restore_guard.sh",
+    "tools/checks/rust_mirbuilder_carrier_info_native_snapshot_guard.sh",
+    "tools/checks/rust_lifecycle_variable_context_owned_read_snapshot_projection_guard.sh"
+  ],
+  "decision": {
+    "value": "Adopt",
+    "reason_token": "NativeSurfaceOwnerPresentAndOwnedReadSnapshotGreen",
+    "selected_next_route": "native_hako_source_owner"
+  },
+  "claims": {
+    "native_hako_source_owner_present": 1,
+    "native_behavior_guard_green": 1,
+    "owned_read_snapshot_projection_green": 1,
+    "generator_overwrite_guard": 1,
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1,
+    "generated_artifact_manual_edit": 0,
+    "full_variable_context_claim": 0,
+    "returned_mutable_borrow_selected": 0,
+    "raw_variable_map_alias_selected": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "hako_adopted": 1
+  }
+}

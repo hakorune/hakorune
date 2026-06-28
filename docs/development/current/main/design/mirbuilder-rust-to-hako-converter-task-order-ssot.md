@@ -21,12 +21,12 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
+  VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
 
 current implementation task:
-  MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001.
-  Re-run the VariableContext route matrix after the owned read snapshot
-  projection repair and derive the next native surface candidate.
+  VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.
+  Adopt the bounded VariableContext native surface that includes the owned
+  read snapshot projection without opening full VariableContext.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -41,6 +41,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001
     -> MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001
     -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
+    -> VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
 
 selected evidence:
   adoption-plan evidence
@@ -55,6 +56,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1785-MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001.md
     -> docs/development/current/main/phases/phase-296x/1786-MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001.md
     -> docs/development/current/main/phases/phase-296x/1787-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001.md
+    -> docs/development/current/main/phases/phase-296x/1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -68,13 +70,14 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  VariableContext owned-read snapshot HakoAdopted decision
+  Source selfhost post-VariableContext-owned-snapshot resolution
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
-  projection is implemented as an owned native snapshot; the route-matrix
-  rerun may only select a bounded native surface and must keep full
-  VariableContext / mutable returned borrow parked.
+  projection is adopted only as a bounded native surface. Full VariableContext,
+  mutable returned borrow, Rust deletion, and source selfhost claims remain
+  parked until a machine-derived post-adoption resolution selects the next
+  owner.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -83,8 +86,8 @@ latest design decision:
   and SlotRegistryRelease promotion decisions are closed as provenance. The
   VariableContext native surface that excludes returned borrow routes is
   adopted. The returned read borrow repair lane now has an owned read snapshot
-  projection, and the route matrix rerun derives a bounded owned-read snapshot
-  native surface candidate.
+  projection, the route matrix rerun derives a bounded owned-read snapshot
+  native surface candidate, and that surface is adopted.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -99,6 +102,8 @@ returned_read_repair_route = OwnedReadSnapshotProjection
 owned_read_snapshot_projection = OwnedReadSnapshotProjection
 returned_read_route_candidate_state = CandidateEligible
 route_matrix_rerun_surface = VariableContextNativeSurfaceOwnedReadSnapshotV1
+owned_read_snapshot_surface_adoption_decision = Adopt
+decision=Adopt
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
@@ -110,7 +115,8 @@ post_surface_resolution = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTI
 returned_read_snapshot_route = MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001
 owned_read_snapshot_projection_card = MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001
 route_matrix_rerun = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
-next_action = VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
+owned_read_snapshot_surface_adoption = VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
+next_action = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
 resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
 old_1650_design_stop = provenance_only
 ```
@@ -130,7 +136,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1787-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001.md
+  1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -167,11 +173,11 @@ history, not in this task-order SSOT.
    semantic_authority=readiness resolver, route manifest, mainline pilot guard
    non_authority=full minimal-path mainline, HakoAdopted decision
 
-3. VariableContext route matrix rerun
+3. VariableContext owned-read snapshot HakoAdopted decision
    status=active
-   boundary=owned-read snapshot native surface candidate derived; adoption decision still next
-   semantic_authority=route-matrix rerun fixture and guard
-   non_authority=full VariableContext, mutable returned borrow, runtime fallback
+   boundary=bounded owned-read snapshot native surface adopted; post-adoption resolution still next
+   semantic_authority=owned-read snapshot adoption fixture and guard
+   non_authority=full VariableContext, mutable returned borrow, source selfhost
 ```
 
 ## Landed Converter Capability Summary
