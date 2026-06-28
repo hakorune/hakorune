@@ -265,13 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md"
-latest_card_summary = """The latest card resolves the queue after the
-VariableContext owned-read snapshot surface adoption and stops at a design
-consultation boundary for returned mutable borrow policy."""
+latest_card = "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md"
+latest_card_summary = """The latest card selects ExplicitMutationApiOnly as
+the VariableContext returned mutable borrow replacement policy and hands the
+next action to explicit mutation API projection."""
 
-current_blocker_token = "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001"
+current_blocker_token = "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -280,6 +280,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1790 selects ExplicitMutationApiOnly for VariableContext returned mutable borrow and hands the next action to explicit mutation API projection.",
   "2026-06-29: 1789 resolves the post-VariableContext-owned-snapshot queue and stops at a returned mutable borrow policy consultation boundary.",
   "2026-06-29: 1788 adopts the bounded VariableContext owned-read snapshot native surface while keeping full VariableContext and mutable returned borrow parked.",
   "2026-06-29: 1787 reruns the VariableContext route matrix after owned-read snapshot projection and derives an owned-read snapshot native surface candidate.",

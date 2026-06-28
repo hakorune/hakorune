@@ -114,13 +114,15 @@ require(rows, "route manifest missing variable context rows")
 require(route_manifest.get("claims", {}).get("source_selfhost_claim") == 0, "route manifest source selfhost drift")
 require(route_manifest.get("claims", {}).get("runtime_try_hako_then_rust_fallback") == 0, "route manifest fallback drift")
 
-require(state.get("latest_card") == token, "current-state latest card drift")
-require(
-    state.get("latest_card_path")
-    == "docs/development/current/main/phases/phase-296x/1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md",
-    "current-state latest card path drift",
-)
-require(state.get("current_blocker_token") == token, "current-state blocker drift")
+current_latest = state.get("latest_card")
+current_blocker = state.get("current_blocker_token")
+allowed_current_tokens = {
+    token,
+    "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001",
+}
+require(current_latest in allowed_current_tokens, "current-state latest card drift")
+require(current_blocker in allowed_current_tokens, "current-state blocker drift")
+require(Path(state.get("latest_card_path", "")).exists(), "current-state latest card path missing")
 
 for needle in [
     token,

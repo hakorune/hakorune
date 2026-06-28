@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextExplicitMutationSurfaceSelectionV1",
+  "output_contract": "rust-lifecycle-variable-context-explicit-mutation-surface-selection-v0",
+  "family_id": "hakorune_mir_builder::variable_context",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001",
+    "last_adopted_surface": "VariableContextNativeSurfaceOwnedReadSnapshotV1",
+    "remaining_boundary": "VariableContext_mutable_returned_borrow",
+    "reason_token": "ReturnedMutableBorrowPolicyRequired"
+  },
+  "selected_policy": {
+    "owner_kind": "VariableContextReturnedMutableBorrowPolicyDecision",
+    "policy": "ExplicitMutationApiOnly",
+    "variable_map_mut": {
+      "rust_return": "&mut BTreeMap<String, ValueId>",
+      "selected": false,
+      "deny_reason": "ReturnedMutableBorrow",
+      "replacement": "ExplicitMutationOperations"
+    }
+  },
+  "selected_mutation_operations": [
+    {
+      "name": "insert",
+      "source_method": "VariableContext::insert",
+      "operation": "MapSet",
+      "mutates": ["variable_map"]
+    },
+    {
+      "name": "remove",
+      "source_method": "VariableContext::remove",
+      "operation": "MapRemove",
+      "mutates": ["variable_map"]
+    },
+    {
+      "name": "restore",
+      "source_method": "VariableContext::restore",
+      "operation": "ReplaceOwnedMap",
+      "mutates": ["variable_map"]
+    },
+    {
+      "name": "replace_owned_map",
+      "source_method": "VariableContext::restore-equivalent",
+      "operation": "ReplaceOwnedMap",
+      "mutates": ["variable_map"]
+    }
+  ],
+  "explicitly_denied": [
+    "raw_variable_map_mut_alias",
+    "returned_mutable_borrow_escape",
+    "borrow_lifetime_inference",
+    "implicit_commit_discard_mut_lease"
+  ],
+  "candidate_recovery": {
+    "candidate_pool_state_after_this_card": "BlockedUntilExplicitMutationProjection",
+    "next_action": "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001"
+  },
+  "claims": {
+    "full_variable_context_claim": 0,
+    "returned_mutable_borrow_selected": 0,
+    "mut_lease_selected": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "manual_family_selection": 0
+  }
+}

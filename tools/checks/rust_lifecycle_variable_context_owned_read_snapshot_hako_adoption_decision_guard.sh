@@ -159,6 +159,7 @@ current_blocker = state.get("current_blocker_token")
 allowed_current_tokens = {
     token,
     "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001",
+    "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001",
 }
 require(current_latest in allowed_current_tokens, "current-state latest card drift")
 require(current_blocker in allowed_current_tokens, "current-state blocker drift")

@@ -21,12 +21,12 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
+  MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
 
 current implementation task:
-  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.
-  Resolve the queue after the owned-read snapshot surface adoption and stop at
-  returned mutable borrow policy consultation.
+  MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.
+  Select ExplicitMutationApiOnly as the returned mutable borrow replacement
+  policy without exposing `variable_map_mut()` as a raw mutable alias.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -43,6 +43,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
     -> VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
     -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
+    -> MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
 
 selected evidence:
   adoption-plan evidence
@@ -59,6 +60,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1787-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001.md
     -> docs/development/current/main/phases/phase-296x/1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md
+    -> docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -72,14 +74,13 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Design consultation: returned mutable borrow policy
+  VariableContext explicit mutation API projection
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
   projection is adopted only as a bounded native surface. Full VariableContext,
-  mutable returned borrow, Rust deletion, and source selfhost claims remain
-  parked. The current boundary is design consultation for returned mutable
-  borrow policy.
+  returned mutable borrow, MutLease, Rust deletion, and source selfhost claims
+  remain parked. Returned mutable borrow is replaced by explicit mutation APIs.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -90,7 +91,8 @@ latest design decision:
   adopted. The returned read borrow repair lane now has an owned read snapshot
   projection, the route matrix rerun derives a bounded owned-read snapshot
   native surface candidate, that surface is adopted, and the queue stops at
-  returned mutable borrow policy consultation.
+  returned mutable borrow policy consultation. ExplicitMutationApiOnly is now
+  selected as the replacement policy.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -109,6 +111,9 @@ owned_read_snapshot_surface_adoption_decision = Adopt
 decision=Adopt
 post_owned_snapshot_resolution = DesignConsultationRequired
 post_owned_snapshot_resolution_reason = ReturnedMutableBorrowPolicyRequired
+returned_mutable_borrow_policy = ExplicitMutationApiOnly
+returned_mutable_borrow_owner_kind = VariableContextReturnedMutableBorrowPolicyDecision
+explicit_mutation_surface_state = BlockedUntilExplicitMutationProjection
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
@@ -122,7 +127,8 @@ owned_read_snapshot_projection_card = MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNA
 route_matrix_rerun = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
 owned_read_snapshot_surface_adoption = VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
 post_owned_snapshot_resolution_card = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
-next_action = DesignConsultationRequired
+explicit_mutation_surface_selection = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
+next_action = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
 resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
 old_1650_design_stop = provenance_only
 ```
@@ -142,7 +148,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md
+  1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -179,11 +185,11 @@ history, not in this task-order SSOT.
    semantic_authority=readiness resolver, route manifest, mainline pilot guard
    non_authority=full minimal-path mainline, HakoAdopted decision
 
-3. Post VariableContext owned-read snapshot resolution
+3. VariableContext explicit mutation surface selection
    status=active
-   boundary=DesignConsultationRequired for returned mutable borrow policy
-   semantic_authority=post-owned-snapshot resolution fixture and guard
-   non_authority=manual family selection, runtime fallback, source selfhost
+   boundary=ExplicitMutationApiOnly selected; projection implementation still next
+   semantic_authority=explicit mutation surface selection fixture and guard
+   non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 ```
 
 ## Landed Converter Capability Summary
