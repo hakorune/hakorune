@@ -265,13 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1792-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002.md"
-latest_card_summary = """The latest card reruns the VariableContext route
-matrix after the ExplicitMutationApiOnly repair and hands the next action to
-explicit-mutation Hako adoption decision."""
+latest_card = "VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts the machine-derived
+VariableContext explicit-mutation native surface after route-matrix rerun
+002 and keeps full VariableContext parked."""
 
-current_blocker_token = "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002"
+current_blocker_token = "VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -280,6 +280,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1793 adopts the VariableContext explicit-mutation native surface after route-matrix rerun 002 and keeps full VariableContext parked.",
   "2026-06-29: 1792 reruns the VariableContext route matrix after explicit mutation repair and derives a candidate-eligible bounded native surface.",
   "2026-06-29: 1791 materializes ExplicitMutationApiOnly as a bounded native VariableContext surface via replace_owned_map and hands the queue to route-matrix rerun 002.",
   "2026-06-29: 1790 selects ExplicitMutationApiOnly for VariableContext returned mutable borrow and hands the next action to explicit mutation API projection.",
