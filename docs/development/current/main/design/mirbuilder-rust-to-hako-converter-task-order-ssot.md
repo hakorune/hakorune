@@ -21,29 +21,27 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001
+  ARTIFACT-SELFHOST-CHECKPOINT-001
 
 current implementation task:
-  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001.
-  Close the SlotRegistryRelease HakoShadow stage by promoting the
-  support-lane projector to HakoMainline while keeping Python as explicit
-  oracle / bootstrap.
+  ARTIFACT-SELFHOST-CHECKPOINT-001.
+  Close the artifact-selfhost checkpoint by keeping the composed execution
+  graph explicit, the derived-mainline candidate pool blocked, and the
+  next queue item machine-derived from the roadmap checkpoint taskization.
 
 selected decision slice:
-  slot_registry_release.hako_shadow_promotion
-    -> derived Hako verifier result
-    -> stage-state inventory / token closure
-    -> HakoMainline promotion / defer classification
-    -> MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001
+  artifact_selfhost.checkpoint
+    -> composed execution evidence
+    -> readiness resolver output
+    -> roadmap checkpoint taskization
+    -> ARTIFACT-SELFHOST-CHECKPOINT-001
 
 selected evidence:
-  support-lane promotion evidence
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-verifier-result-v0.json
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/slot-registry-release-hako-shadow-promotion-decision-v0.json
-    -> tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_derived_artifact_guard.sh
-    -> tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
-    -> tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_hako_shadow_promotion_decision_guard.sh
-    -> docs/development/current/main/phases/phase-296x/1777-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001.md
+  checkpoint evidence
+    -> docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
+    -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
+    -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
 
 landed evidence pointer:
@@ -52,29 +50,29 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SlotRegistryRelease HakoShadow promotion decision
+  Artifact selfhost checkpoint
 
 current fail-fast boundary:
-  Do not hand-pin a support-lane family or a manual next owner. Promote the
-  SlotRegistryRelease HakoShadow stage only when verifier evidence and
-  stage-state inventory remain explicit, and keep Python as oracle/bootstrap
-  only.
+  Do not hand-pin a new family or support-lane projector while the candidate
+  pool is blocked. Promote the artifact-selfhost checkpoint only when the
+  roadmap and readiness resolver remain explicit, and keep Python as
+  oracle/bootstrap only.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, and the blocked candidate
   selection are closed as provenance. The ReturnEmission and
   FunctionRegionStackPop promotion decisions are closed as provenance. The
-  current blocker is the SlotRegistryRelease HakoShadow promotion decision.
+  SlotRegistryRelease promotion decision is closed as provenance. The next
+  bounded queue item is the artifact-selfhost checkpoint from the roadmap.
 
-## VariableContext Route Matrix Evidence
+## Artifact Selfhost Checkpoint Evidence
 
 ```text
-selected closeout candidate
-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001
-current_stage = HakoShadow
-selected_stage = HakoMainline
+candidate_pool_state = Blocked
+mainline_readiness = Ready
+artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
+next_task = ARTIFACT-SELFHOST-CHECKPOINT-001
 old_1650_design_stop = provenance_only
-next_task = MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001
 ```
 
 forbidden:

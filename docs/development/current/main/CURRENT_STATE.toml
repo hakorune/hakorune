@@ -273,7 +273,7 @@ HakoMainline while keeping Python as explicit oracle/bootstrap. The prior
 FunctionRegionStackPop and ReturnEmission promotion decisions are now
 provenance only."""
 
-current_blocker_token = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001"
+current_blocker_token = "ARTIFACT-SELFHOST-CHECKPOINT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -282,6 +282,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-28: 1778 closes SlotRegistryRelease support-lane promotion as provenance and hands the queue to the artifact-selfhost checkpoint after the derived-mainline candidate pool stays blocked.",
   "2026-06-28: 1777 closes the FunctionRegionStackPop support-lane promotion as provenance and hands the next blocker to SlotRegistryRelease HakoShadow promotion decision.",
   "2026-06-28: 1776 closes the ReturnEmission support-lane promotion as provenance and hands the next blocker to FunctionRegionStackPop HakoShadow promotion decision.",
   "2026-06-28: 1775 proves the HakoAdopted candidate pool is empty and hands the next blocker to ReturnEmission HakoShadow promotion decision.",
