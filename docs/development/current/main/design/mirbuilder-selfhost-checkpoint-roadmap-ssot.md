@@ -129,10 +129,11 @@ The next family-specific `HakoAdopted` decision must be selected from the
 currently selected `DerivedMainline` route manifest entries, not from the
 support-lane projector inventory.
 
-Current route-manifest candidates:
+Current route-manifest candidate source:
 
 ```text
-none
+MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
+  derives Closed | Parked(reason) | CandidateEligible | NeedsRouteRepair
 ```
 
 Explicitly excluded from this pool:
@@ -165,9 +166,8 @@ minimal_path_composed_execution_closure
 ```
 
 This inventory is a consultation aid, not the adoption decision itself. The
-remaining family-by-family `HakoAdopted` decisions now come from the parked
-derived families that are still on the route manifest, not from the already
-adopted `context` entry.
+next candidate list must be derived from the route matrix closeout fixture,
+not from a handwritten `none` row or route-manifest membership alone.
 
 ```text
 1. Keep the Python SemanticProjector growth freeze in force.

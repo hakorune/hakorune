@@ -265,13 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md"
-latest_card_summary = """The latest card is the converter next-slice design stop.
-It asks for a deliberate choice before adding more converter behavior, after
-the guard-drift repair and adoption cards landed."""
+latest_card = "CURRENT-STATE-POINTER-REALIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1773-CURRENT-STATE-POINTER-REALIGN-001.md"
+latest_card_summary = """The latest card realigns the current-state and
+task-order pointers after the design-stop, readiness, mainline-pilot, Hako
+shadow, and adoption cards landed. The old converter next-slice design stop is
+provenance, not the active blocker."""
 
-current_blocker_token = "MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001"
+current_blocker_token = "CURRENT-STATE-POINTER-REALIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

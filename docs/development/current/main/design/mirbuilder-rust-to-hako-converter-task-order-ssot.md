@@ -21,23 +21,26 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
+  CURRENT-STATE-POINTER-REALIGN-001
 
 current implementation task:
-  MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.
-  The guard-drift repair, adoption decision, and ordered-map crate-bundle
-  cards are landed. The next move is a deliberate design consultation for the
-  next converter slice; do not invent a fresh executable owner from history.
+  CURRENT-STATE-POINTER-REALIGN-001.
+  The old 1650 design stop has been passed by readiness, mainline-pilot,
+  Hako shadow, and adoption cards. Realign the active pointer first so the
+  next Source Selfhost task is selected from current route/adoption evidence.
 
 selected decision slice:
-  design_stop.current_state
+  pointer_realign.current_state
     -> latest_card/latest_card_path presence only
-    -> no exact historical owner pin
-    -> MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
+    -> stale design-stop token retained as provenance only
+    -> CURRENT-STATE-POINTER-REALIGN-001
 
 selected evidence:
-  design stop evidence
+  pointer realign evidence
+    -> docs/development/current/main/phases/phase-296x/1773-CURRENT-STATE-POINTER-REALIGN-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
+    -> docs/development/current/main/phases/phase-296x/296x-1768-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PARITY-001.md
     -> docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md
     -> docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
@@ -52,25 +55,25 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  design consultation candidate
+  current-state pointer realignment
 
 current fail-fast boundary:
-  The ordered-map bundle, adoption decision, and composed-prefix repair are
-  landed. Stop here and select the next converter slice deliberately; do not
-  keep the same goal moving with another docs-only loop.
+  The current pointer must not present the old 1650 design stop as the active
+  blocker after the later readiness, mainline-pilot, Hako shadow, and adoption
+  cards have landed.
 
 latest design decision:
-  Design stop, not a new semantic owner, is the current blocker. The next
-  concrete route is the consultation for the next hard-tier direct conversion
-  slice.
+  Pointer realignment, not a semantic owner, is the current blocker. The next
+  concrete route after this repair is the VariableContext route matrix
+  closeout.
 
-## Design Stop Evidence
+## Pointer Realign Evidence
 
 ```text
-selected design-stop candidate
-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
-current_state.latest_card_path = 1650 design stop
-goal-driven execution pause point
+selected repair candidate
+CURRENT-STATE-POINTER-REALIGN-001
+old_1650_design_stop = provenance_only
+next_task = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
 ```
 
 forbidden:
@@ -88,7 +91,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  296x-1650-MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001.md
+  1773-CURRENT-STATE-POINTER-REALIGN-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -113,23 +116,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Design consultation for the next converter slice
+1. Current-state pointer realignment
    status=selected
-   boundary=the next hard-tier direct conversion slice must be chosen
-   semantic_authority=the design-stop card plus the active task-order SSOT
-   non_authority=manual next-owner selection from historical mirrors
+   boundary=old 1650 design stop retained as provenance, not active blocker
+   semantic_authority=CURRENT_STATE, task-order SSOT, roadmap, and pointer guard
+   non_authority=Source Selfhost, Rust deletion, backend route, ABI
 
-2. Resume semantic converter work from the active task-order SSOT
-   status=parked until consultation lands
-   boundary=only after the next slice is chosen deliberately
-   semantic_authority=the active task-order SSOT
-   non_authority=docs-only loop continuation
+2. VariableContext route matrix closeout
+   status=parked until pointer realign lands
+   boundary=resolve parked/eligible/repair state before adoption selection
+   semantic_authority=family_routes.json plus roadmap candidate evidence
+   non_authority=manual HakoAdopted candidate selection
 
-3. Keep structural cleanup only if a fresh BoxShape blocker appears
+3. Next HakoAdopted candidate selection
    status=parked
-   boundary=guard drift and adoption cleanup are already landed
-   semantic_authority=the current blocker token and active card
-   non_authority=more cleanup for its own sake
+   boundary=select only after route matrix closeout
+   semantic_authority=machine-checkable eligible/excluded family fixture
+   non_authority=support-lane projector parity
 ```
 
 ## Landed Converter Capability Summary
