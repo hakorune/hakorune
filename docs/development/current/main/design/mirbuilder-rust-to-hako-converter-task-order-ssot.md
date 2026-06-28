@@ -21,13 +21,13 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
+  MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
 
 current implementation task:
-  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.
-  Resolve the source-selfhost queue after the explicit-mutation native surface
-  adoption and stop at a design consultation boundary.
-  output_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
+  MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.
+  Fix the VariableContext Rust-reference projection contract as semantic
+  one-to-one verified projection instead of Rust syntax one-to-one translation.
+  output_contract = rust-lifecycle-variable-context-reference-projection-contract-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -49,6 +49,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
     -> VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001
     -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
+    -> MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
 
 selected evidence:
   adoption-plan evidence
@@ -70,6 +71,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1792-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002.md
     -> docs/development/current/main/phases/phase-296x/1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
+    -> docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -83,7 +85,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SourceSelfhost post-variable-context explicit mutation resolution
+  VariableContext reference projection contract
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -94,8 +96,8 @@ current fail-fast boundary:
   `VariableContextNativeSurfaceExplicitMutationApiOnlyV1` is the bounded
   explicit-mutation adoption target. Returned mutable borrow is replaced by
   explicit mutation APIs, and `replace_owned_map` is the owned-map replacement
-  hook. The queue now stops at a design consultation boundary instead of
-  selecting a new family by hand.
+  hook. The reference projection contract is semantic one-to-one verified
+  projection, not Rust syntax one-to-one translation.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -111,7 +113,10 @@ latest design decision:
   projection materializes replace_owned_map as the bounded owned-map
   replacement hook before route-matrix rerun 002 derives the repaired
   explicit-mutation surface, which is then adopted as native Hako authority.
-  The next step is a design consultation stop, not another family selection.
+  VariableContext reference projection is now fixed as a semantic one-to-one
+  verified projection contract: `variable_map()` remains an owned read
+  snapshot projection, `variable_map_mut()` remains explicit mutation APIs, and
+  Rust lifetime syntax / raw borrow alias transport are not target authority.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -132,6 +137,11 @@ post_owned_snapshot_resolution = DesignConsultationRequired
 post_owned_snapshot_resolution_reason = ReturnedMutableBorrowPolicyRequired
 returned_mutable_borrow_policy = ExplicitMutationApiOnly
 returned_mutable_borrow_owner_kind = VariableContextReturnedMutableBorrowPolicyDecision
+reference_projection_contract = MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
+projection_model = SemanticOneToOneVerifiedProjection
+syntax_one_to_one_required = 0
+variable_map_projection = OwnedReadSnapshotProjection
+variable_map_mut_projection = ExplicitMutationApiOnly
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
@@ -150,7 +160,8 @@ explicit_mutation_projection = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API
 route_matrix_rerun_002 = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
 replace_owned_map_native_api = 1
 explicit_mutation_surface_state = Adopt
-next_action = VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001
+post_explicit_mutation_resolution_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
+next_action = MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
 resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
 old_1650_design_stop = provenance_only
 ```
@@ -170,7 +181,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
+  1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -213,11 +224,11 @@ history, not in this task-order SSOT.
    semantic_authority=route matrix rerun 002 fixture, explicit mutation API projection guard, explicit mutation adoption guard
    non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 
-4. SourceSelfhost post-variable-context explicit mutation resolution
+4. VariableContext reference projection contract
    status=active
-   boundary=explicit-mutation adoption is closed and the queue stops at a design consultation boundary
-   semantic_authority=post-resolution fixture and guard
-   non_authority=manual family selection, runtime fallback, new ABI, new backend route
+   boundary=semantic one-to-one verified projection for Rust reference surfaces
+   semantic_authority=reference projection fixture and guard
+   non_authority=syntax one-to-one, raw borrow alias, MutLease, source selfhost
 ```
 
 ## Landed Converter Capability Summary

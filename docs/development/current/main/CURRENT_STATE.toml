@@ -265,13 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md"
-latest_card_summary = """The latest card resolves the queue after the
-VariableContext explicit-mutation native surface adoption and stops at the
-design consultation boundary."""
+latest_card = "MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md"
+latest_card_summary = """The latest card fixes the VariableContext reference
+projection contract as semantic one-to-one verified projection, not Rust syntax
+one-to-one translation."""
 
-current_blocker_token = "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001"
+current_blocker_token = "MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -280,6 +280,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1795 fixes the VariableContext reference projection contract as semantic one-to-one verified projection and keeps syntax one-to-one, raw borrow aliases, and Source Selfhost claims closed.",
   "2026-06-29: 1794 resolves the source-selfhost queue after explicit-mutation adoption and stops at a design consultation boundary.",
   "2026-06-29: 1793 adopts the VariableContext explicit-mutation native surface after route-matrix rerun 002 and keeps full VariableContext parked.",
   "2026-06-29: 1792 reruns the VariableContext route matrix after explicit mutation repair and derives a candidate-eligible bounded native surface.",

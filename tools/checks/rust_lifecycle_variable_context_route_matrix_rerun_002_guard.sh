@@ -160,6 +160,7 @@ allowed_current_tokens = {
     token,
     "VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001",
     "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001",
+    "MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001",
 }
 require(state.get("latest_card") in allowed_current_tokens, "current-state latest card drift")
 require(state.get("current_blocker_token") in allowed_current_tokens, "current-state blocker drift")
@@ -167,6 +168,7 @@ allowed_current_paths = {
     "docs/development/current/main/phases/phase-296x/1792-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002.md",
     "docs/development/current/main/phases/phase-296x/1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md",
     "docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md",
+    "docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md",
 }
 require(state.get("latest_card_path") in allowed_current_paths, "current-state latest card path drift")
 

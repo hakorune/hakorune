@@ -1,0 +1,96 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextReferenceProjectionContractV1",
+  "output_contract": "rust-lifecycle-variable-context-reference-projection-contract-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001"
+  },
+  "family_id": "hakorune_mir_builder::variable_context",
+  "input_state": {
+    "prior_boundary": "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001",
+    "last_adopted_surface": "VariableContextNativeSurfaceExplicitMutationApiOnlyV1",
+    "projection_model": "SemanticOneToOneVerifiedProjection",
+    "syntax_one_to_one_required": 0
+  },
+  "rust_surfaces": {
+    "variable_map": {
+      "rust_return": "&BTreeMap<String, ValueId>",
+      "hako_projection": "OwnedReadSnapshotProjection",
+      "raw_alias_selected": false,
+      "borrow_view_required": false
+    },
+    "variable_map_mut": {
+      "rust_return": "&mut BTreeMap<String, ValueId>",
+      "hako_projection": "ExplicitMutationApiOnly",
+      "raw_mutable_alias_selected": false,
+      "mut_lease_selected": false
+    },
+    "snapshot": {
+      "rust_operation": "CloneOwnedMap",
+      "current_hako_api": "snapshot",
+      "hako_operation": "CloneOwnedMap"
+    },
+    "restore": {
+      "rust_operation": "ReplaceOwnedMap",
+      "current_hako_api": "restore",
+      "hako_operation": "ReplaceOwnedMap"
+    },
+    "insert": {
+      "hako_operation": "insert",
+      "mutation_frame": ["variable_map"]
+    },
+    "remove": {
+      "hako_operation": "remove",
+      "mutation_frame": ["variable_map"]
+    },
+    "replace_owned_map": {
+      "hako_operation": "replace_owned_map",
+      "mutation_frame": ["variable_map"]
+    }
+  },
+  "current_native_api": [
+    "lookup",
+    "contains",
+    "len",
+    "is_empty",
+    "snapshot",
+    "restore",
+    "replace_owned_map",
+    "insert",
+    "remove"
+  ],
+  "future_native_api_candidates": [
+    "entries_snapshot",
+    "snapshot_owned",
+    "restore_owned"
+  ],
+  "denied": [
+    "raw_variable_map_alias",
+    "raw_variable_map_mut_alias",
+    "returned_mutable_borrow_escape",
+    "rust_lifetime_syntax_in_hako",
+    "runtime_fallback"
+  ],
+  "acceptance": {
+    "selected_rust_surfaces_classified": 1,
+    "replacement_policies_explicit": 1,
+    "native_hako_api_has_no_raw_borrow_alias": 1,
+    "alias_isolation_guarded": 1,
+    "mutation_frame_guarded": 1,
+    "restore_replace_not_merge": 1,
+    "deterministic_iteration_preserved": 1,
+    "emitter_policy_free": 1
+  },
+  "claims": {
+    "syntax_one_to_one_claim": 0,
+    "full_variable_context_claim": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "manual_family_selection": 0
+  }
+}
