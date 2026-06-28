@@ -21,12 +21,13 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001
+  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
 
 current implementation task:
-  VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.
-  Adopt the machine-derived VariableContext explicit-mutation native surface
-  after route-matrix rerun 002 while keeping `variable_map_mut()` denied.
+  SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.
+  Resolve the source-selfhost queue after the explicit-mutation native surface
+  adoption and stop at a design consultation boundary.
+  output_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -47,6 +48,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
     -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
     -> VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001
+    -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
 
 selected evidence:
   adoption-plan evidence
@@ -67,6 +69,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1791-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001.md
     -> docs/development/current/main/phases/phase-296x/1792-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002.md
     -> docs/development/current/main/phases/phase-296x/1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md
+    -> docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -80,7 +83,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  VariableContext explicit mutation API Hako adoption decision
+  SourceSelfhost post-variable-context explicit mutation resolution
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -91,7 +94,8 @@ current fail-fast boundary:
   `VariableContextNativeSurfaceExplicitMutationApiOnlyV1` is the bounded
   explicit-mutation adoption target. Returned mutable borrow is replaced by
   explicit mutation APIs, and `replace_owned_map` is the owned-map replacement
-  hook.
+  hook. The queue now stops at a design consultation boundary instead of
+  selecting a new family by hand.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -107,6 +111,7 @@ latest design decision:
   projection materializes replace_owned_map as the bounded owned-map
   replacement hook before route-matrix rerun 002 derives the repaired
   explicit-mutation surface, which is then adopted as native Hako authority.
+  The next step is a design consultation stop, not another family selection.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -165,7 +170,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md
+  1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -203,16 +208,16 @@ history, not in this task-order SSOT.
    non_authority=full minimal-path mainline, HakoAdopted decision
 
 3. VariableContext explicit mutation API Hako adoption decision
-   status=active
+   status=closed
    boundary=ExplicitMutationApiOnly materialized; rerun 002 derives the candidate eligible surface and this card adopts it as Hako authority
    semantic_authority=route matrix rerun 002 fixture, explicit mutation API projection guard, explicit mutation adoption guard
    non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 
-4. VariableContext explicit mutation API Hako adoption decision
+4. SourceSelfhost post-variable-context explicit mutation resolution
    status=active
-   boundary=selected bounded native surface is adopted as Hako authority
-   semantic_authority=explicit mutation adoption fixture and guard
-   non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
+   boundary=explicit-mutation adoption is closed and the queue stops at a design consultation boundary
+   semantic_authority=post-resolution fixture and guard
+   non_authority=manual family selection, runtime fallback, new ABI, new backend route
 ```
 
 ## Landed Converter Capability Summary
