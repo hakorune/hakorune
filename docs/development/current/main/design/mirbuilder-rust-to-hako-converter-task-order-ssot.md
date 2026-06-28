@@ -21,14 +21,14 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
+  MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
 
 current implementation task:
-  MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.
-  Resolve the adopted VariableContext surface as ready for bounded native
-  consumers without claiming full Rust VariableContext parity or Source
-  Selfhost.
-  output_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
+  MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.
+  Resolve whether `entries_snapshot` is required for the adopted bounded
+  VariableContext native surface without claiming full Rust VariableContext
+  parity or Source Selfhost.
+  output_contract = rust-lifecycle-variable-context-entries-snapshot-need-resolution-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -52,6 +52,7 @@ selected decision slice:
     -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
     -> MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
     -> MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
+    -> MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
 
 selected evidence:
   adoption-plan evidence
@@ -88,7 +89,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  VariableContext bounded native surface readiness resolver
+  VariableContext entries_snapshot need resolver
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -101,8 +102,9 @@ current fail-fast boundary:
   explicit mutation APIs, and `replace_owned_map` is the owned-map replacement
   hook. The reference projection contract is semantic one-to-one verified
   projection, not Rust syntax one-to-one translation. The current readiness
-  decision is bounded-consumer readiness only; `entries_snapshot`,
-  `snapshot_owned`, `restore_owned`, and MutLease remain follow-up lanes.
+  decision is bounded-consumer readiness only; `entries_snapshot` is not
+  required for current bounded consumers, `snapshot_owned` and `restore_owned`
+  remain naming cleanup only, and MutLease remains a follow-up lane.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -124,7 +126,10 @@ latest design decision:
   Rust lifetime syntax / raw borrow alias transport are not target authority.
   The adopted explicit-mutation surface is now resolved as ready for bounded
   native consumers, while full VariableContext and Source Selfhost remain
-  closed.
+  closed. `entries_snapshot` is not required for the current bounded
+  consumers, so the next machine-derived step is NextRouteFamilySelectionPolicy,
+  not a new projection lane. Reason token:
+  `NoCurrentConsumerRequiresEntriesSnapshot`.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -152,9 +157,9 @@ syntax_one_to_one_required = 0
 variable_map_projection = OwnedReadSnapshotProjection
 variable_map_mut_projection = ExplicitMutationApiOnly
 bounded_native_surface_readiness = ReadyForBoundedVariableContextNativeSurfaceConsumer
-bounded_native_surface_readiness_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
-bounded_native_surface_selected = VariableContextNativeSurfaceExplicitMutationApiOnlyV1
-entries_snapshot_state = FutureConsumerNeedOnly
+  bounded_native_surface_readiness_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
+  bounded_native_surface_selected = VariableContextNativeSurfaceExplicitMutationApiOnlyV1
+entries_snapshot_state = NotNeededForBoundedNativeSurface
 mut_lease_state = DeferredUntilLiveNeed
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
@@ -195,7 +200,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1796-MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.md
+  1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

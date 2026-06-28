@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextEntriesSnapshotNeedResolutionV1",
+  "output_contract": "rust-lifecycle-variable-context-entries-snapshot-need-resolution-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001"
+  },
+  "family_id": "hakorune_mir_builder::variable_context",
+  "input_state": {
+    "bounded_readiness_card": "MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001",
+    "bounded_readiness_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-bounded-native-surface-readiness-resolution-v0.json",
+    "projection_contract_card": "MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001",
+    "projection_contract_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-reference-projection-contract-v0.json",
+    "entries_snapshot_state": "FutureConsumerNeedOnly",
+    "snapshot_owned_state": "NamingCompatibilityCleanupOnly",
+    "restore_owned_state": "NamingCompatibilityCleanupOnly",
+    "mut_lease_state": "DeferredUntilLiveNeed"
+  },
+  "consumed_evidence": {
+    "bounded_ready": 1,
+    "bounded_current_api": [
+      "lookup",
+      "contains",
+      "len",
+      "is_empty",
+      "snapshot",
+      "restore",
+      "replace_owned_map",
+      "insert",
+      "remove"
+    ],
+    "native_source": "apps/lib/hakorune_mir_builder/variable_context.hako",
+    "consumer_scan_roots": [
+      "src",
+      "apps",
+      "tests"
+    ],
+    "consumer_hits": {
+      "entries_snapshot": 0,
+      "snapshot_owned": 0,
+      "restore_owned": 0
+    }
+  },
+  "decision": {
+    "kind": "EntriesSnapshotNotNeededForBoundedNativeSurface",
+    "need_state": "NotNeeded",
+    "reason_token": "NoCurrentConsumerRequiresEntriesSnapshot",
+    "next_action": "NextRouteFamilySelectionPolicy"
+  },
+  "non_requirements": {
+    "entries_snapshot_implemented": 0,
+    "snapshot_owned_implemented": 0,
+    "restore_owned_implemented": 0,
+    "mut_lease_selected": 0
+  },
+  "claims": {
+    "entries_snapshot_needed": 0,
+    "entries_snapshot_implemented": 0,
+    "snapshot_owned_implemented": 0,
+    "restore_owned_implemented": 0,
+    "full_variable_context_claim": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "manual_family_selection": 0
+  }
+}
