@@ -8,31 +8,27 @@ CARD="docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-C
 FIXTURE="docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-mutation-surface-selection-v0.json"
 POST_RESOLUTION="docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-post-variable-context-owned-snapshot-resolution-v0.json"
 NATIVE_SOURCE="apps/lib/hakorune_mir_builder/variable_context.hako"
-STATE="docs/development/current/main/CURRENT_STATE.toml"
 TASK_ORDER="docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 
-python3 - "$CARD" "$FIXTURE" "$POST_RESOLUTION" "$NATIVE_SOURCE" "$STATE" "$TASK_ORDER" "$INDEX" <<'PY'
+python3 - "$CARD" "$FIXTURE" "$POST_RESOLUTION" "$NATIVE_SOURCE" "$TASK_ORDER" "$INDEX" <<'PY'
 from __future__ import annotations
 
 import json
 import sys
-import tomllib
 from pathlib import Path
 
 card_path = Path(sys.argv[1])
 fixture_path = Path(sys.argv[2])
 post_resolution_path = Path(sys.argv[3])
 native_source_path = Path(sys.argv[4])
-state_path = Path(sys.argv[5])
-task_order_path = Path(sys.argv[6])
-index_path = Path(sys.argv[7])
+task_order_path = Path(sys.argv[5])
+index_path = Path(sys.argv[6])
 
 card = card_path.read_text(encoding="utf-8")
 fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
 post_resolution = json.loads(post_resolution_path.read_text(encoding="utf-8"))
 native_source = native_source_path.read_text(encoding="utf-8")
-state = tomllib.loads(state_path.read_text(encoding="utf-8"))
 task_order = task_order_path.read_text(encoding="utf-8")
 index = index_path.read_text(encoding="utf-8")
 
@@ -126,15 +122,7 @@ for needle in [
 ]:
     require(needle in native_source, f"native source missing existing API: {needle}")
 require("variable_map_mut" not in native_source, "native source must not expose variable_map_mut")
-require("replace_owned_map" not in native_source, "replace_owned_map must remain for projection card")
-
-require(state.get("latest_card") == token, "current-state latest card drift")
-require(
-    state.get("latest_card_path")
-    == "docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md",
-    "current-state latest card path drift",
-)
-require(state.get("current_blocker_token") == token, "current-state blocker drift")
+require("replace_owned_map native API = 0" in card, "card non-claim drift")
 
 for needle in [
     token,

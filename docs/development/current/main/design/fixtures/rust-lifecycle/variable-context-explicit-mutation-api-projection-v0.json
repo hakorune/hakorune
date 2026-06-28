@@ -1,0 +1,111 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextExplicitMutationApiProjectionV1",
+  "output_contract": "rust-lifecycle-variable-context-explicit-mutation-api-projection-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1791-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001"
+  },
+  "input_state": {
+    "current_blocker": "MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001",
+    "last_adopted_surface": "VariableContextNativeSurfaceOwnedReadSnapshotV1",
+    "remaining_boundary": "VariableContext_mutable_returned_borrow",
+    "reason_token": "ReturnedMutableBorrowPolicyRequired",
+    "selected_policy": "ExplicitMutationApiOnly"
+  },
+  "projection": {
+    "source_method": "VariableContext::variable_map_mut",
+    "rust_return": "&mut BTreeMap<String, ValueId>",
+    "selected_policy": "ExplicitMutationApiOnly",
+    "selected_hako_apis": [
+      "VariableContextNativeApi.insert",
+      "VariableContextNativeApi.remove",
+      "VariableContextNativeApi.restore",
+      "VariableContextNativeApi.replace_owned_map"
+    ],
+    "owned_map_transport": "OrderedMapBox",
+    "raw_variable_map_mut_alias_emitted": 0,
+    "variable_map_mut_selected": 0,
+    "replace_owned_map_native_api": 1,
+    "insert_native_api": 1,
+    "remove_native_api": 1,
+    "restore_native_api": 1
+  },
+  "oracle_vectors": [
+    {
+      "name": "replace_owned_map_overwrites_seed",
+      "source_before": [
+        ["seed", 1]
+      ],
+      "owned_after_replace": [
+        ["a", 10],
+        ["b", 20]
+      ],
+      "source_after": [
+        ["a", 10],
+        ["b", 20]
+      ]
+    },
+    {
+      "name": "owned_alias_isolation_after_replace",
+      "owned_after_mutation": [
+        ["a", 10],
+        ["b", 20],
+        ["c", 30]
+      ],
+      "source_after": [
+        ["a", 10],
+        ["b", 20]
+      ]
+    },
+    {
+      "name": "restore_alias_isolation_after_snapshot",
+      "snapshot_after_mutation": [
+        ["a", 10],
+        ["b", 20],
+        ["e", 50]
+      ],
+      "source_after_restore": [
+        ["a", 10],
+        ["b", 20],
+        ["e", 50]
+      ],
+      "snapshot_after_remove": [
+        ["b", 20],
+        ["e", 50]
+      ],
+      "source_after_snapshot_remove": [
+        ["a", 10],
+        ["b", 20],
+        ["e", 50]
+      ]
+    }
+  ],
+  "proof": {
+    "source_to_owned_alias": 0,
+    "owned_to_source_alias": 0,
+    "raw_variable_map_mut_alias_emitted": 0,
+    "variable_map_mut_selected": 0,
+    "replace_owned_map_native_api": 1,
+    "insert_native_api": 1,
+    "remove_native_api": 1,
+    "restore_native_api": 1,
+    "deterministic_order_preserved": 1
+  },
+  "candidate_recovery": {
+    "candidate_pool_state_after_this_card": "BlockedUntilRouteMatrixRerun",
+    "next_action": "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002"
+  },
+  "claims": {
+    "full_variable_context_claim": 0,
+    "returned_mutable_borrow_selected": 0,
+    "mut_lease_selected": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "manual_family_selection": 0
+  }
+}

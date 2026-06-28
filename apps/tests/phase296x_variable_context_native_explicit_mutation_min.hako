@@ -1,0 +1,70 @@
+using apps.lib.collections.ordered_map as OrderedMap
+using apps.lib.hakorune_mir_builder.variable_context as VariableContextNativeApi
+
+static box Main {
+    main() {
+        local ctx = new VariableContextNative()
+        VariableContextNativeApi.insert(ctx, "seed", 1)
+
+        local owned = OrderedMap.create()
+        owned.set("a", 10)
+        owned.set("b", 20)
+        VariableContextNativeApi.replace_owned_map(ctx, owned)
+
+        if VariableContextNativeApi.lookup(ctx, "seed") != null {
+            print("variable_context_native_replace_owned_map_seed=fail")
+            return 1
+        }
+        if VariableContextNativeApi.lookup(ctx, "a") != 10 {
+            print("variable_context_native_replace_owned_map_a=fail")
+            return 2
+        }
+        if VariableContextNativeApi.lookup(ctx, "b") != 20 {
+            print("variable_context_native_replace_owned_map_b=fail")
+            return 3
+        }
+
+        owned.set("c", 30)
+        if VariableContextNativeApi.lookup(ctx, "c") != null {
+            print("variable_context_native_owned_alias=fail")
+            return 4
+        }
+
+        if VariableContextNativeApi.insert(ctx, "d", 40) != 0 {
+            print("variable_context_native_insert_return=fail")
+            return 5
+        }
+        if VariableContextNativeApi.lookup(ctx, "d") != 40 {
+            print("variable_context_native_insert_lookup=fail")
+            return 6
+        }
+        if VariableContextNativeApi.remove(ctx, "d") != 40 {
+            print("variable_context_native_remove_return=fail")
+            return 7
+        }
+        if VariableContextNativeApi.lookup(ctx, "d") != null {
+            print("variable_context_native_remove_lookup=fail")
+            return 8
+        }
+
+        local snapshot: OrderedMapBox = VariableContextNativeApi.snapshot(ctx)
+        snapshot.set("e", 50)
+        if VariableContextNativeApi.lookup(ctx, "e") != null {
+            print("variable_context_native_snapshot_alias=fail")
+            return 9
+        }
+        VariableContextNativeApi.restore(ctx, snapshot)
+        if VariableContextNativeApi.lookup(ctx, "e") != 50 {
+            print("variable_context_native_restore_lookup=fail")
+            return 10
+        }
+        snapshot.remove("a")
+        if VariableContextNativeApi.lookup(ctx, "a") != 10 {
+            print("variable_context_native_restore_snapshot_alias=fail")
+            return 11
+        }
+
+        print("variable_context_native_explicit_mutation=ok")
+        return 0
+    }
+}

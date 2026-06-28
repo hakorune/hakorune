@@ -21,12 +21,12 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
+  MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
 
 current implementation task:
-  MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.
-  Select ExplicitMutationApiOnly as the returned mutable borrow replacement
-  policy without exposing `variable_map_mut()` as a raw mutable alias.
+  MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001.
+  Materialize ExplicitMutationApiOnly with insert / remove / restore /
+  replace_owned_map while keeping `variable_map_mut()` denied.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -44,6 +44,7 @@ selected decision slice:
     -> VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
     -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
     -> MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
+    -> MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
 
 selected evidence:
   adoption-plan evidence
@@ -61,6 +62,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/phases/phase-296x/1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md
     -> docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md
+    -> docs/development/current/main/phases/phase-296x/1791-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -80,7 +82,8 @@ current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
   projection is adopted only as a bounded native surface. Full VariableContext,
   returned mutable borrow, MutLease, Rust deletion, and source selfhost claims
-  remain parked. Returned mutable borrow is replaced by explicit mutation APIs.
+  remain parked. Returned mutable borrow is replaced by explicit mutation APIs,
+  and `replace_owned_map` is the owned-map replacement hook.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -92,7 +95,9 @@ latest design decision:
   projection, the route matrix rerun derives a bounded owned-read snapshot
   native surface candidate, that surface is adopted, and the queue stops at
   returned mutable borrow policy consultation. ExplicitMutationApiOnly is now
-  selected as the replacement policy.
+  selected as the replacement policy, and the explicit mutation API
+  projection materializes replace_owned_map as the bounded owned-map
+  replacement hook before the route-matrix rerun.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -113,7 +118,6 @@ post_owned_snapshot_resolution = DesignConsultationRequired
 post_owned_snapshot_resolution_reason = ReturnedMutableBorrowPolicyRequired
 returned_mutable_borrow_policy = ExplicitMutationApiOnly
 returned_mutable_borrow_owner_kind = VariableContextReturnedMutableBorrowPolicyDecision
-explicit_mutation_surface_state = BlockedUntilExplicitMutationProjection
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
@@ -128,7 +132,9 @@ route_matrix_rerun = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
 owned_read_snapshot_surface_adoption = VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
 post_owned_snapshot_resolution_card = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
 explicit_mutation_surface_selection = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
-next_action = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
+replace_owned_map_native_api = 1
+explicit_mutation_surface_state = BlockedUntilRouteMatrixRerun
+next_action = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
 resume_condition = MachineDerivedRepairLaneOrNewEligibleRoute
 old_1650_design_stop = provenance_only
 ```
@@ -148,7 +154,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md
+  1791-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -185,10 +191,10 @@ history, not in this task-order SSOT.
    semantic_authority=readiness resolver, route manifest, mainline pilot guard
    non_authority=full minimal-path mainline, HakoAdopted decision
 
-3. VariableContext explicit mutation surface selection
+3. VariableContext explicit mutation API projection
    status=active
-   boundary=ExplicitMutationApiOnly selected; projection implementation still next
-   semantic_authority=explicit mutation surface selection fixture and guard
+   boundary=ExplicitMutationApiOnly selected; replace_owned_map projection is active
+   semantic_authority=explicit mutation API projection fixture and guard
    non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 ```
 

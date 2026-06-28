@@ -13,6 +13,11 @@ static box VariableContextNativeApi {
         return ctx.variable_map.clone_owned()
     }
 
+    replace_owned_map(ctx: VariableContextNative, owned_map: OrderedMapBox): i64 {
+        ctx.variable_map = owned_map.clone_owned()
+        return 0
+    }
+
     restore(ctx: VariableContextNative, snapshot: OrderedMapBox) {
         ctx.variable_map = snapshot.clone_owned()
     }
