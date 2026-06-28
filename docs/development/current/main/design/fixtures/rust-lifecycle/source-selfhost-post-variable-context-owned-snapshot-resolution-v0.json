@@ -1,0 +1,46 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostPostVariableContextOwnedSnapshotResolutionV1",
+  "output_contract": "rust-lifecycle-source-selfhost-post-variable-context-owned-snapshot-resolution-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001"
+  },
+  "input_evidence": {
+    "last_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-owned-read-snapshot-hako-adoption-decision-v0.json",
+    "route_matrix_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-rerun-v0.json",
+    "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json"
+  },
+  "last_adopted_surface": {
+    "surface_id": "VariableContextNativeSurfaceOwnedReadSnapshotV1",
+    "decision": "Adopt",
+    "included_scope_count": 5,
+    "full_variable_context_claim": 0
+  },
+  "remaining_boundary": {
+    "scope": "VariableContext_mutable_returned_borrow",
+    "reason": "ReturnedMutableBorrow",
+    "selected": false,
+    "policy_required": true
+  },
+  "resolution": {
+    "next_action": "DesignConsultationRequired",
+    "reason_token": "ReturnedMutableBorrowPolicyRequired",
+    "allowed_next_owner_kinds": [
+      "ReturnedMutableBorrowPolicyDecision",
+      "ExplicitSourceSelfhostStopLine",
+      "NextRouteFamilySelectionPolicy"
+    ]
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "full_variable_context_claim": 0,
+    "returned_mutable_borrow_selected": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0
+  }
+}

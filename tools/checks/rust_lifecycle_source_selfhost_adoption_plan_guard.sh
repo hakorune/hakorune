@@ -103,6 +103,7 @@ allowed_current_tokens = {
     "MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001",
     "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001",
     "VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001",
+    "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001",
 }
 require(current_latest in allowed_current_tokens, "current-state latest card drift")
 require(current_blocker in allowed_current_tokens, "current-state blocker drift")

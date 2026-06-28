@@ -154,13 +154,15 @@ require(denied.get("state") == "Denied", "route manifest immutable borrow state 
 require(denied.get("deny_reason") == "ReturnedReadBorrow", "route manifest immutable borrow reason drift")
 require(denied.get("replacement_policy") == "OwnedReadSnapshotProjection", "route manifest immutable borrow replacement drift")
 
-require(state.get("latest_card") == token, "current-state latest card drift")
-require(
-    state.get("latest_card_path")
-    == "docs/development/current/main/phases/phase-296x/1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md",
-    "current-state latest card path drift",
-)
-require(state.get("current_blocker_token") == token, "current-state blocker drift")
+current_latest = state.get("latest_card")
+current_blocker = state.get("current_blocker_token")
+allowed_current_tokens = {
+    token,
+    "SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001",
+}
+require(current_latest in allowed_current_tokens, "current-state latest card drift")
+require(current_blocker in allowed_current_tokens, "current-state blocker drift")
+require(Path(state.get("latest_card_path", "")).exists(), "current-state latest card path missing")
 
 for needle in [
     token,
