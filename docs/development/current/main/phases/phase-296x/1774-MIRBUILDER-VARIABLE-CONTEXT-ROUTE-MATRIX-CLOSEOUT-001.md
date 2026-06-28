@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-06-28
 Card: MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
 ---
@@ -83,4 +83,11 @@ runtime_fallback=0
 new_backend_route=0
 new_abi=0
 summary=ok
+```
+
+## Closed
+
+```text
+closed_by=MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001
+old_1650_design_stop=provenance_only
 ```

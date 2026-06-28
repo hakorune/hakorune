@@ -21,26 +21,29 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
+  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
 
 current implementation task:
-  MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001.
-  The VariableContext family still has one denied replacement row, so close
-  out the matrix before the next HakoAdopted candidate selection consumes
-  the route manifest.
+  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.
+  Close the ReturnEmission HakoShadow stage by promoting the support-lane
+  projector to HakoMainline while keeping Python as explicit oracle /
+  bootstrap.
 
 selected decision slice:
-  variable_context.route_matrix_closeout
-    -> family_routes.json route-state inventory
-    -> parked / candidate-eligible / repair classification
-    -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
+  return_emission.hako_shadow_promotion
+    -> HakoShadow parity result
+    -> stage-state inventory / token closure
+    -> HakoMainline promotion / defer classification
+    -> MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
 
 selected evidence:
-  route matrix evidence
-    -> lang/generated/rust_derived/hakorune_mir_builder/family_routes.json
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-closeout-v0.json
-    -> tools/checks/rust_lifecycle_variable_context_route_matrix_closeout_guard.sh
-    -> docs/development/current/main/phases/phase-296x/1773-CURRENT-STATE-POINTER-REALIGN-001.md
+  support-lane promotion evidence
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-shadow-result-v0.json
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/return-emission-hako-shadow-promotion-decision-v0.json
+    -> tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh
+    -> tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
+    -> tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_promotion_decision_guard.sh
+    -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
 
 landed evidence pointer:
@@ -49,26 +52,27 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  VariableContext route matrix closeout
+  ReturnEmission HakoShadow promotion decision
 
 current fail-fast boundary:
-  The VariableContext family remains parked until the route matrix closeout
-  fixture proves which rows are derived mainline, denied, and replacement.
-  Do not hand-pin the next HakoAdopted candidate from route membership alone.
+  Do not hand-pin a support-lane family or a manual next owner. Promote the
+  ReturnEmission HakoShadow stage only when parity and stage-state inventory
+  remain explicit, and keep Python as oracle/bootstrap only.
 
 latest design decision:
-  Pointer realignment is closed as provenance. The current blocker is the
-  VariableContext route matrix closeout, which will close the family state
-  before next HakoAdopted candidate selection.
+  Pointer realignment, VariableContext closeout, and the blocked candidate
+  selection are closed as provenance. The current blocker is the
+  ReturnEmission HakoShadow promotion decision.
 
 ## VariableContext Route Matrix Evidence
 
 ```text
 selected closeout candidate
-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001
-route_matrix_state = Parked
+MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
+current_stage = HakoShadow
+selected_stage = HakoMainline
 old_1650_design_stop = provenance_only
-next_task = MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001
+next_task = MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
 ```
 
 forbidden:
@@ -86,7 +90,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1774-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001.md
+  1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -118,16 +122,16 @@ history, not in this task-order SSOT.
    non_authority=Source Selfhost, Rust deletion, backend route, ABI
 
 2. VariableContext route matrix closeout
-   status=selected
-   boundary=resolve parked/eligible/repair state before adoption selection
+   status=closed
+   boundary=parked/eligible/repair state is closed as provenance
    semantic_authority=family_routes.json plus closeout fixture evidence
    non_authority=manual HakoAdopted candidate selection
 
-3. Next HakoAdopted candidate selection
-   status=parked
-   boundary=select only after route matrix closeout
-   semantic_authority=machine-checkable eligible/excluded family fixture
-   non_authority=support-lane projector parity
+3. ReturnEmission HakoShadow promotion decision
+   status=active
+   boundary=select HakoMainline only when parity and stage-state inventory are explicit
+   semantic_authority=shadow parity result plus stage-state inventory
+   non_authority=manual support-lane promotion
 ```
 
 ## Landed Converter Capability Summary
