@@ -129,6 +129,7 @@ current_blocker = state.get("current_blocker_token")
 allowed_current_tokens = {
     token,
     "MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001",
+    "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001",
 }
 require(current_latest in allowed_current_tokens, "current-state latest card drift")
 require(current_blocker in allowed_current_tokens, "current-state blocker drift")
