@@ -1,0 +1,32 @@
+{
+  "kind": "SourceSelfhostAdoptionPlanV1",
+  "output_contract": "rust-lifecycle-source-selfhost-adoption-plan-v0",
+  "source_selfhost_adoption_plan_token": "SOURCE-SELFHOST-ADOPTION-PLAN-001",
+  "roadmap": "docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md",
+  "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-ADOPTION-PLAN-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-ADOPTION-PLAN-001"
+  },
+  "provenance": {
+    "artifact_selfhost_checkpoint": "ARTIFACT-SELFHOST-CHECKPOINT-001",
+    "mainline_pilot": "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001",
+    "route_matrix_closeout": "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001",
+    "candidate_selection": "MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001"
+  },
+  "plan": {
+    "candidate_pool_state": "Blocked",
+    "manual_family_selection": 0,
+    "next_family_specific_hakoadopted_decision_machine_derived": 1,
+    "python_oracle_retained": 1,
+    "rust_compat_reference_retained": 1
+  },
+  "claims": {
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted": 0
+  }
+}

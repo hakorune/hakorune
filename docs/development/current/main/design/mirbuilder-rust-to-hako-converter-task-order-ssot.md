@@ -21,28 +21,32 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  ARTIFACT-SELFHOST-CHECKPOINT-001
+  SOURCE-SELFHOST-ADOPTION-PLAN-001
 
 current implementation task:
-  ARTIFACT-SELFHOST-CHECKPOINT-001.
-  Close the artifact-selfhost checkpoint by keeping the composed execution
-  graph explicit, the derived-mainline candidate pool blocked, and the
-  next queue item machine-derived from the roadmap checkpoint taskization.
+  SOURCE-SELFHOST-ADOPTION-PLAN-001.
+  Make the source-selfhost adoption plan explicit as a machine-checkable
+  family-breadth gate, keep the checkpoint and mainline pilot as provenance,
+  and keep the next family-specific HakoAdopted decision machine-derived.
 
 selected decision slice:
-  artifact_selfhost.checkpoint
-    -> composed execution evidence
-    -> readiness resolver output
-    -> roadmap checkpoint taskization
-    -> ARTIFACT-SELFHOST-CHECKPOINT-001
+  source_selfhost.adoption_plan
+    -> artifact-selfhost checkpoint provenance
+    -> mainline pilot provenance
+    -> route-matrix evidence
+    -> SOURCE-SELFHOST-ADOPTION-PLAN-001
 
 selected evidence:
-  checkpoint evidence
+  adoption-plan evidence
     -> docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
+    -> docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
     -> docs/development/current/main/phases/phase-296x/1779-ARTIFACT-SELFHOST-CHECKPOINT-001.md
+    -> docs/development/current/main/phases/phase-296x/1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
+    -> docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
+    -> docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
 
 landed evidence pointer:
@@ -51,28 +55,30 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Artifact selfhost checkpoint
+  Source selfhost adoption plan
 
 current fail-fast boundary:
   Do not hand-pin a new family or support-lane projector while the candidate
-  pool is blocked. Promote the artifact-selfhost checkpoint only when the
-  roadmap and readiness resolver remain explicit, and keep Python as
-  oracle/bootstrap only.
+  pool is blocked. Keep family-by-family HakoAdopted decisions machine-derived
+  from route-matrix evidence, and keep Python as oracle/bootstrap only.
 
 latest design decision:
-  Pointer realignment, VariableContext closeout, and the blocked candidate
-  selection are closed as provenance. The ReturnEmission and
-  FunctionRegionStackPop promotion decisions are closed as provenance. The
-  SlotRegistryRelease promotion decision is closed as provenance. The next
-  bounded queue item is the artifact-selfhost checkpoint from the roadmap.
+  Pointer realignment, VariableContext closeout, the blocked candidate
+  selection, the artifact-selfhost checkpoint, and the minimal-path mainline
+  pilot are closed as provenance. The ReturnEmission, FunctionRegionStackPop,
+  and SlotRegistryRelease promotion decisions are closed as provenance. The
+  next bounded queue item is the source-selfhost adoption plan from the
+  roadmap.
 
-## Artifact Selfhost Checkpoint Evidence
+## Source Selfhost Adoption Plan Evidence
 
 ```text
 candidate_pool_state = Blocked
 mainline_readiness = Ready
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
-next_task = ARTIFACT-SELFHOST-CHECKPOINT-001
+mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
+source_selfhost_adoption_plan = SOURCE-SELFHOST-ADOPTION-PLAN-001
+next_task = SOURCE-SELFHOST-ADOPTION-PLAN-001
 old_1650_design_stop = provenance_only
 ```
 
@@ -91,7 +97,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1778-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001.md
+  1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -116,23 +122,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Current-state pointer realignment
+1. Artifact-selfhost checkpoint
    status=closed
-   boundary=old 1650 design stop retained as provenance, not active blocker
-   semantic_authority=CURRENT_STATE, task-order SSOT, roadmap, and pointer guard
+   boundary=execution-graph checkpoint is explicit and machine-checkable
+   semantic_authority=roadmap, checkpoint fixture, checkpoint guard
    non_authority=Source Selfhost, Rust deletion, backend route, ABI
 
-2. VariableContext route matrix closeout
+2. Minimal-path mainline pilot
    status=closed
-   boundary=parked/eligible/repair state is closed as provenance
-   semantic_authority=family_routes.json plus closeout fixture evidence
-   non_authority=manual HakoAdopted candidate selection
+   boundary=derived_hako mainline route selected for the composed execution closure
+   semantic_authority=readiness resolver, route manifest, mainline pilot guard
+   non_authority=full minimal-path mainline, HakoAdopted decision
 
-3. SlotRegistryRelease HakoShadow promotion decision
+3. Source-selfhost adoption plan
    status=active
-   boundary=select HakoMainline only when parity and stage-state inventory are explicit
-   semantic_authority=derived Hako verifier result plus stage-state inventory
-   non_authority=manual support-lane promotion
+   boundary=family-by-family HakoAdopted decisions must stay machine-derived
+   semantic_authority=route-matrix evidence, adoption plan fixture, adoption plan guard
+   non_authority=manual family selection, runtime fallback, new ABI
 ```
 
 ## Landed Converter Capability Summary
