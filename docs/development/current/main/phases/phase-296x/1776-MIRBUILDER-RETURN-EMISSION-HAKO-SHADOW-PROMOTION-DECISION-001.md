@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-06-28
 Card: MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
 ---
@@ -89,4 +89,11 @@ new_backend_route=0
 new_abi=0
 source_selfhost_claim=0
 summary=ok
+```
+
+## Closed
+
+```text
+closed_by=MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001
+support_lane_promotion_closed_as_provenance=1
 ```

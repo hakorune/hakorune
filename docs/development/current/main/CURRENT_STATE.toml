@@ -265,14 +265,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1776-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.md"
-latest_card_summary = """The latest card closes the ReturnEmission
+latest_card = "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1777-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001.md"
+latest_card_summary = """The latest card closes the FunctionRegionStackPop
 HakoShadow stage-state by promoting the support-lane projector to
-HakoMainline while keeping Python as explicit oracle/bootstrap. The previous
-candidate-selection pool remained empty and is now provenance only."""
+HakoMainline while keeping Python as explicit oracle/bootstrap. The prior
+ReturnEmission promotion decision is now provenance only."""
 
-current_blocker_token = "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001"
+current_blocker_token = "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -281,6 +281,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-28: 1776 closes the ReturnEmission support-lane promotion as provenance and hands the next blocker to FunctionRegionStackPop HakoShadow promotion decision.",
   "2026-06-28: 1775 proves the HakoAdopted candidate pool is empty and hands the next blocker to ReturnEmission HakoShadow promotion decision.",
   "2026-06-28: 1774 closes the VariableContext route matrix as parked and hands the next blocker to machine-derived candidate selection.",
   "2026-06-28: 1773 realigns the current-state pointer and hands the next blocker to VariableContext route matrix closeout.",

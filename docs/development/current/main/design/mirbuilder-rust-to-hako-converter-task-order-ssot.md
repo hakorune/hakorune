@@ -21,29 +21,29 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001
 
 current implementation task:
-  MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.
-  Close the ReturnEmission HakoShadow stage by promoting the support-lane
-  projector to HakoMainline while keeping Python as explicit oracle /
-  bootstrap.
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001.
+  Close the FunctionRegionStackPop HakoShadow stage by promoting the
+  support-lane projector to HakoMainline while keeping Python as explicit
+  oracle / bootstrap.
 
 selected decision slice:
-  return_emission.hako_shadow_promotion
-    -> HakoShadow parity result
+  function_region_stack_pop.hako_shadow_promotion
+    -> derived Hako verifier result
     -> stage-state inventory / token closure
     -> HakoMainline promotion / defer classification
-    -> MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
+    -> MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001
 
 selected evidence:
   support-lane promotion evidence
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-shadow-result-v0.json
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/return-emission-hako-shadow-promotion-decision-v0.json
-    -> tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-derived-hako-verifier-result-v0.json
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/function-region-stack-pop-hako-shadow-promotion-decision-v0.json
+    -> tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_derived_artifact_guard.sh
     -> tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
-    -> tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_promotion_decision_guard.sh
-    -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
+    -> tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_hako_shadow_promotion_decision_guard.sh
+    -> docs/development/current/main/phases/phase-296x/1776-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.md
     -> docs/development/current/main/CURRENT_STATE.toml
 
 landed evidence pointer:
@@ -52,27 +52,29 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  ReturnEmission HakoShadow promotion decision
+  FunctionRegionStackPop HakoShadow promotion decision
 
 current fail-fast boundary:
   Do not hand-pin a support-lane family or a manual next owner. Promote the
-  ReturnEmission HakoShadow stage only when parity and stage-state inventory
+  FunctionRegionStackPop HakoShadow stage only when verifier evidence and
+  stage-state inventory
   remain explicit, and keep Python as oracle/bootstrap only.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, and the blocked candidate
-  selection are closed as provenance. The current blocker is the
-  ReturnEmission HakoShadow promotion decision.
+  selection are closed as provenance. The ReturnEmission promotion decision is
+  closed as provenance. The current blocker is the FunctionRegionStackPop
+  HakoShadow promotion decision.
 
 ## VariableContext Route Matrix Evidence
 
 ```text
 selected closeout candidate
-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
+MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001
 current_stage = HakoShadow
 selected_stage = HakoMainline
 old_1650_design_stop = provenance_only
-next_task = MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001
+next_task = MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001
 ```
 
 forbidden:
@@ -90,7 +92,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
+  1776-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -127,10 +129,10 @@ history, not in this task-order SSOT.
    semantic_authority=family_routes.json plus closeout fixture evidence
    non_authority=manual HakoAdopted candidate selection
 
-3. ReturnEmission HakoShadow promotion decision
+3. FunctionRegionStackPop HakoShadow promotion decision
    status=active
    boundary=select HakoMainline only when parity and stage-state inventory are explicit
-   semantic_authority=shadow parity result plus stage-state inventory
+   semantic_authority=derived Hako verifier result plus stage-state inventory
    non_authority=manual support-lane promotion
 ```
 
