@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "VariableContextRouteMatrixRerunV2",
+  "output_contract": "rust-lifecycle-variable-context-route-matrix-rerun-v1",
+  "current_state": {
+    "latest_card": "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1792-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002.md",
+    "current_blocker_token": "MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002"
+  },
+  "inputs": {
+    "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json",
+    "prior_route_matrix_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-rerun-v0.json",
+    "explicit_mutation_surface_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-mutation-surface-selection-v0.json",
+    "explicit_mutation_api_projection": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-explicit-mutation-api-projection-v0.json"
+  },
+  "prior_state": {
+    "candidate_pool_state": "Blocked",
+    "parked_reason": "ReturnedMutableBorrow",
+    "replacement_policy": "ExplicitMutationApiOnly",
+    "denied_route": "VariableContext_mutable_returned_borrow"
+  },
+  "repair_evidence": {
+    "projection": "ExplicitMutationApiOnly",
+    "replace_owned_map_native_api": 1,
+    "raw_variable_map_mut_alias_emitted": 0,
+    "variable_map_mut_selected": 0
+  },
+  "rerun_result": {
+    "candidate_pool_state": "CandidateEligible",
+    "family_id": "hakorune_mir_builder::variable_context",
+    "selected_surface_id": "VariableContextNativeSurfaceExplicitMutationApiOnlyV1",
+    "reason_token": "ReturnedMutableBorrowRepairedByExplicitMutationApiOnly",
+    "next_action": "VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001"
+  },
+  "included_scopes": [
+    "VariableContext_simple_map_only",
+    "VariableContext_snapshot_restore_only",
+    "VariableContext_carrier_snapshot_only",
+    "VariableContext_explicit_carrier_snapshot_only",
+    "VariableContext_immutable_borrow_repaired_as_owned_snapshot",
+    "VariableContext_mutable_returned_borrow_repaired_as_explicit_mutation"
+  ],
+  "excluded_scopes": [
+    {
+      "scope": "VariableContext_mutable_returned_borrow",
+      "reason": "ReturnedMutableBorrow"
+    }
+  ],
+  "claims": {
+    "route_matrix_rerun": 1,
+    "manual_family_selection": 0,
+    "raw_variable_map_alias_selected": 0,
+    "variable_map_mut_selected": 0,
+    "full_variable_context_claim": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "hako_adopted": 0
+  }
+}
