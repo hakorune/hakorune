@@ -15,9 +15,9 @@ route = routes["routes"][0]
 assert route["family_id"] == "hakorune_mir_builder::binding_context"
 assert route["mainline_selection_scope"] == "BindingContext_only"
 assert route["route"] == "derived_hako"
-assert route["state"] == "DerivedMainline_candidate"
-assert route["selected_on_mainline"] is False
-assert route["not_selected_reason"] == "no_selfhost_family_artifact_route_seam"
+assert route["state"] == "DerivedMainline"
+assert route["selected_on_mainline"] is True
+assert "not_selected_reason" not in route
 assert route["fallback_policy"] == "forbidden"
 assert route["rust_bootstrap_route"] == "retained"
 assert route["rust_oracle_route"] == "retained"
@@ -37,8 +37,9 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-binding-context-route-seam-v0
 binding_context_route_seam_defined=1
 mainline_selection_scope=BindingContext_only
-selected_route=not_selected_with_reason
-not_selected_reason=no_selfhost_family_artifact_route_seam
+selected_route=derived_hako
+route_state=DerivedMainline
+selected_on_mainline=1
 rust_bootstrap_retained=1
 rust_oracle_retained=1
 runtime_try_hako_then_rust_fallback=0

@@ -1,0 +1,36 @@
+{
+  "kind": "MirBuilderRecordPackedLayoutRefreshDerivedHakoOracleV1",
+  "non_claims": {
+    "abi_changed": 0,
+    "all_functions_phi_materialization": 0,
+    "backend_behavior_changed": 0,
+    "full_finalize_module": 0,
+    "full_semantic_refresh": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "module_metadata_publication": 0,
+    "record_packed_layout_collection_field_element_refresh": 0,
+    "record_packed_layout_field_value_type_refresh": 0,
+    "runtime_fallback": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module record/packed layout refresh",
+  "vectors": [
+    {
+      "expect": {
+        "canonical_json_parity": 1,
+        "mutation_target_count": 9,
+        "shadow_candidate_family": "hakorune_mir_builder::record_packed_layout_refresh",
+        "shadow_candidate_kind": "RecordPackedLayoutRefreshShadowCandidateV1",
+        "shadow_candidate_stage": "record_packed_layout_refresh"
+      },
+      "inputs": {
+        "entrypoint": "semantic_refresh::refresh_module_record_and_packed_layout_plans",
+        "plan_subject": "MirBuilder::finalize_module record/packed layout refresh",
+        "projected_field_count": 9,
+        "publication_target_count": 9
+      },
+      "name": "record_packed_layout_shadow_candidate_canonical_parity"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "claims": {
+    "existing_evidence_consumed": 1,
+    "first_red_edge_if_any_is_stable": 1,
+    "full_minimal_path_mainline_selected": 0,
+    "generated_hako_change": 0,
+    "hako_adopted": 0,
+    "manual_next_owner_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_semantic_projection": 0,
+    "runtime_fallback": 0,
+    "same_state_handoff_observed": 1,
+    "semantic_recipe_recopy": 0,
+    "source_selfhost_claim": 0,
+    "stable_next_slice_token": 1
+  },
+  "composed_execution": {
+    "fallback_to_standalone_harness": 0,
+    "generated_hako_change": 0,
+    "same_state_handoff_observed": 1,
+    "selected_existing_contracts_consumed": 1
+  },
+  "composed_execution_closure": {
+    "generated_hako_executable_closure_closed": 1,
+    "route_chain_closed": 1
+  },
+  "current_state": {
+    "current_blocker_token": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
+    "latest_card": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md"
+  },
+  "decision": {
+    "kind": "ReadyForMinimalPathMainlinePilot",
+    "next_slice_token": "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001",
+    "owner_scope": "integration",
+    "reason": "generated Hako executable closure is closed and the mainline pilot can proceed",
+    "reason_token": "GeneratedHakoExecutableClosureClosed"
+  },
+  "evidence_flags": {
+    "allocation_policy_adoption": "Adopt",
+    "generated_hako_executable_closure": "Open",
+    "generator_overwrite_guard": 1,
+    "native_source_owner_present": 1
+  },
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "kind": "MinimalMirBuilderExecutionPathMainlineReadinessResolutionV1",
+  "mainline_readiness": {
+    "allocation_policy_adoption": "Adopt",
+    "artifact_selfhost_checkpoint_complete": false,
+    "composed_prefix_state": "Green",
+    "full_path_mainline_eligible": false,
+    "generated_hako_executable_closure": "Closed",
+    "next_unconsumed_edge_classification": "Closed",
+    "readiness_state": "Ready",
+    "semantic_plan_closure": "Closed",
+    "source_selfhost_eligible": false
+  },
+  "readiness_scope": "MinimalPathMainline",
+  "schema_version": 0,
+  "selected_evidence": [
+    {
+      "kind": "semantic_closure_report",
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
+      "sha256": "77bd29e2e005a65746660b551124b3a09d29af9805dfc48e61dd9b0eaee413e2"
+    },
+    {
+      "kind": "composed_execution_continuation",
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-continuation-v2.json",
+      "sha256": "82c7ad62d0faeb5396f83d5fc0cfcd17437b029fd13855db662fc425ad3ac752"
+    },
+    {
+      "kind": "composed_execution_closure_verifier",
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-verifier-result-v0.json",
+      "sha256": "9add3cb095365f552062ad842e1b7c857d22025947bc65518fd378e8258f1331"
+    },
+    {
+      "kind": "composed_execution_closure_artifact",
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json",
+      "sha256": "48df92ed373d354d009e0621348ff916d9bea6fe7d9810a3f39a091356547628"
+    },
+    {
+      "kind": "frontier_resolution",
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-frontier-resolution-v0.json",
+      "sha256": "c3e4543b524e799a1262522feed5679bfed13f7e4aae2d613fafe50a92557629"
+    },
+    {
+      "kind": "adoption_recheck",
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-hako-adoption-decision-recheck-v1.json",
+      "sha256": "d700c7e4f37f0f1dfee3e34a596deff5c4d5ac82bb6e8bd6d3bdfd0c51349f02"
+    },
+    {
+      "kind": "current_state",
+      "path": "docs/development/current/main/CURRENT_STATE.toml",
+      "sha256": "cd642918a96efceeddfff5e0ffb801066ef0817f29fecf32ec5ec83712656beb"
+    },
+    {
+      "kind": "task_order_pointer",
+      "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+      "sha256": "8a53669eea9ffe4a0ca38a48818587718b7c114234165481fb949ff0c608ff49"
+    }
+  ],
+  "source_authority": {
+    "adoption_recheck": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-hako-adoption-decision-recheck-v1.json",
+      "sha256": "d700c7e4f37f0f1dfee3e34a596deff5c4d5ac82bb6e8bd6d3bdfd0c51349f02"
+    },
+    "composed_execution_closure_artifact": {
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json",
+      "sha256": "48df92ed373d354d009e0621348ff916d9bea6fe7d9810a3f39a091356547628"
+    },
+    "composed_execution_closure_verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-verifier-result-v0.json",
+      "sha256": "9add3cb095365f552062ad842e1b7c857d22025947bc65518fd378e8258f1331"
+    },
+    "composed_execution_continuation": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-continuation-v2.json",
+      "sha256": "82c7ad62d0faeb5396f83d5fc0cfcd17437b029fd13855db662fc425ad3ac752"
+    },
+    "current_state": {
+      "current_blocker_token": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
+      "latest_card": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
+      "latest_card_path": "docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md",
+      "path": "docs/development/current/main/CURRENT_STATE.toml",
+      "sha256": "cd642918a96efceeddfff5e0ffb801066ef0817f29fecf32ec5ec83712656beb"
+    },
+    "design_stop_contract": {
+      "path": "tools/checks/current_state_design_stop_contract.txt",
+      "sha256": "a407353d95bb7efebc75a09ef3f9ed1946407d645af1e7bb2636b21439366077"
+    },
+    "frontier_resolution": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-frontier-resolution-v0.json",
+      "sha256": "c3e4543b524e799a1262522feed5679bfed13f7e4aae2d613fafe50a92557629"
+    },
+    "role_ssot": {
+      "path": "docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md",
+      "sha256": "2c8bc4fe0c56d8baca54d3ecc0b737136e29e3797d78462958174719fda9c4f1"
+    },
+    "semantic_closure_report": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
+      "sha256": "77bd29e2e005a65746660b551124b3a09d29af9805dfc48e61dd9b0eaee413e2"
+    },
+    "task_order_pointer": {
+      "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+      "sha256": "8a53669eea9ffe4a0ca38a48818587718b7c114234165481fb949ff0c608ff49"
+    }
+  }
+}

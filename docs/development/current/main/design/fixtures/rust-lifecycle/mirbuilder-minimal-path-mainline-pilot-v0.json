@@ -1,0 +1,182 @@
+{
+  "artifact": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.hako",
+    "hako_sha256": "169b2110cb0cf6528e0f3aa646b44bb810f4f14c8ccd25d1aeb9cbb968c5d780",
+    "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json",
+    "manifest_sha256": "48df92ed373d354d009e0621348ff916d9bea6fe7d9810a3f39a091356547628",
+    "state": "DerivedMainline"
+  },
+  "claims": {
+    "backend_behavior_changed": 0,
+    "full_minimal_path_mainline_selected": 0,
+    "generated_artifact_manual_edit": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "readiness_resolution_verified": 1,
+    "route_manifest_verified": 1,
+    "runtime_try_hako_then_rust_fallback": 0,
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1,
+    "selected_on_mainline": 1,
+    "source_selfhost_claim": 0
+  },
+  "fallback_policy": "forbidden",
+  "family_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "kind": "MinimalMirBuilderMainlinePilotSelectionV1",
+  "route": {
+    "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json",
+    "guard_command": "bash tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_pilot_guard.sh",
+    "mainline_selection_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+    "rust_bootstrap_route": "retained",
+    "rust_oracle_route": "retained"
+  },
+  "route_state": "DerivedMainline",
+  "schema_version": 0,
+  "selected_on_mainline": 1,
+  "selected_route": "derived_hako",
+  "selected_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+  "source_authority": {
+    "closure_artifact": {
+      "artifact": {
+        "claims": {
+          "backend_behavior_changed": 0,
+          "generated_hako_change": 1,
+          "generated_hako_executable_closure": 1,
+          "generated_hako_manual_edit": 0,
+          "mainline_selected": 1,
+          "new_abi": 0,
+          "new_backend_route": 0,
+          "new_canonical_mir_instruction": 0,
+          "route_chain_closed": 1,
+          "runtime_fallback": 0,
+          "same_state_handoff_observed": 1,
+          "selected_existing_contracts_consumed": 1,
+          "source_selfhost_claim": 0
+        },
+        "excluded_methods": [],
+        "family_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+        "generator": {
+          "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-minimal-path-composed-execution-closure",
+          "version": "mirbuilder-minimal-path-composed-execution-closure-derived-hako-v0"
+        },
+        "inputs": {
+          "facts": {
+            "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-plan-v0.json",
+            "sha256": "affd2f9e8534e864c26c764362aaacaa7c3ca7b7c942e43736693b726c64306f"
+          },
+          "oracle": {
+            "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-oracle-v0.json",
+            "sha256": "09cfc6275fe304a44ce56f8c283361dfe11ace0337b30973fe7e51247e2df9a1"
+          },
+          "plan": {
+            "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-execution-projection-v0.json",
+            "sha256": "c60f7f02b2e7ed2f46088c3e9ddd9ff6eeb46d1c7de89819c3082b231533f5b9"
+          },
+          "recipe": {
+            "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-recipe-v0.json",
+            "sha256": "c6fb5a113ac7c034ba735dcffb9303036b6c1aa019409237239b24b88de624ff"
+          },
+          "verifier": {
+            "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-execution-closure-derived-hako-verifier-result-v0.json",
+            "sha256": "9add3cb095365f552062ad842e1b7c857d22025947bc65518fd378e8258f1331"
+          }
+        },
+        "kind": "RustDerivedHakoArtifact",
+        "output": {
+          "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.hako",
+          "hako_sha256": "169b2110cb0cf6528e0f3aa646b44bb810f4f14c8ccd25d1aeb9cbb968c5d780"
+        },
+        "pilot_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+        "schema_version": 0,
+        "source": {
+          "rust_files": [
+            {
+              "path": "src/mir/builder/module_lifecycle.rs",
+              "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+            }
+          ]
+        },
+        "state": "DerivedMainline"
+      },
+      "claims": {
+        "backend_behavior_changed": 0,
+        "generated_hako_change": 1,
+        "generated_hako_executable_closure": 1,
+        "generated_hako_manual_edit": 0,
+        "mainline_selected": 1,
+        "new_abi": 0,
+        "new_backend_route": 0,
+        "new_canonical_mir_instruction": 0,
+        "route_chain_closed": 1,
+        "runtime_fallback": 0,
+        "same_state_handoff_observed": 1,
+        "selected_existing_contracts_consumed": 1,
+        "source_selfhost_claim": 0
+      },
+      "kind": "RustDerivedHakoArtifact",
+      "output": {
+        "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.hako",
+        "hako_sha256": "169b2110cb0cf6528e0f3aa646b44bb810f4f14c8ccd25d1aeb9cbb968c5d780"
+      },
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json",
+      "sha256": "48df92ed373d354d009e0621348ff916d9bea6fe7d9810a3f39a091356547628"
+    },
+    "readiness_resolution": {
+      "decision": {
+        "kind": "ReadyForMinimalPathMainlinePilot",
+        "next_slice_token": "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001",
+        "owner_scope": "integration",
+        "reason": "generated Hako executable closure is closed and the mainline pilot can proceed",
+        "reason_token": "GeneratedHakoExecutableClosureClosed"
+      },
+      "kind": "MinimalMirBuilderExecutionPathMainlineReadinessResolutionV1",
+      "mainline_readiness": {
+        "allocation_policy_adoption": "Adopt",
+        "artifact_selfhost_checkpoint_complete": false,
+        "composed_prefix_state": "Green",
+        "full_path_mainline_eligible": false,
+        "generated_hako_executable_closure": "Closed",
+        "next_unconsumed_edge_classification": "Closed",
+        "readiness_state": "Ready",
+        "semantic_plan_closure": "Closed",
+        "source_selfhost_eligible": false
+      },
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json",
+      "sha256": "7b433535b06039fe7b6f82a5304301b5b4f1401077ef712f3e8213a4342e1fa6"
+    },
+    "route_manifest": {
+      "claims": {
+        "backend_behavior_changed": 0,
+        "full_variable_context_claim": 0,
+        "minimal_path_composed_execution_closure_selected": 1,
+        "mirbuilder_wide_claim": 0,
+        "runtime_try_hako_then_rust_fallback": 0,
+        "source_selfhost_claim": 0,
+        "variable_context_carrier_snapshot_selected": 1,
+        "variable_context_explicit_carrier_snapshot_selected": 1,
+        "variable_context_immutable_borrow_selected": 0,
+        "variable_context_selected": 0,
+        "variable_context_simple_map_selected": 1,
+        "variable_context_snapshot_restore_selected": 1
+      },
+      "kind": "RustDerivedHakoFamilyRouteManifest",
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json",
+      "route": {
+        "artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json",
+        "fallback_policy": "forbidden",
+        "family_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+        "guard_command": "bash tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_pilot_guard.sh",
+        "mainline_selection_scope": "MinimalMirBuilderComposedExecutionClosure_prepared_state_only",
+        "route": "derived_hako",
+        "rust_bootstrap_route": "retained",
+        "rust_oracle_route": "retained",
+        "selected_on_mainline": true,
+        "state": "DerivedMainline"
+      },
+      "sha256": "8b62e48c12fa36309eadc7808d1d00b798ca7dd0c602d93031ee4f612e087195"
+    }
+  }
+}

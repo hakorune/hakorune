@@ -1,0 +1,27 @@
+{
+  "candidate_pool_state": "Parked",
+  "denied_routes": [
+    "VariableContext_immutable_borrow_only"
+  ],
+  "family_id": "hakorune_mir_builder::variable_context",
+  "family_state": "Parked",
+  "kind": "VariableContextRouteMatrixCloseoutV1",
+  "manual_HakoAdopted_candidate_selection": 0,
+  "next_action": "MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001",
+  "new_backend_route": 0,
+  "new_abi": 0,
+  "output_contract": "rust-lifecycle-variable-context-route-matrix-closeout-v0",
+  "parked_reason": "ReturnedReadBorrow",
+  "replacement_policy": "OwnedReadSnapshotProjection",
+  "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json",
+  "runtime_fallback": 0,
+  "selected_mainline_routes": [
+    "VariableContext_simple_map_only",
+    "VariableContext_snapshot_restore_only",
+    "VariableContext_carrier_snapshot_only",
+    "VariableContext_explicit_carrier_snapshot_only"
+  ],
+  "selected_on_mainline_count": 4,
+  "denied_route_count": 1,
+  "source_selfhost_claim": 0
+}

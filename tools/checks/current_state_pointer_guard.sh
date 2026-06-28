@@ -4,26 +4,32 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="current-state-pointer-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+MAX_TASK_ORDER_LINES=800
 
 STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CURRENT_TASK_DOC="$ROOT_DIR/CURRENT_TASK.md"
 NOW_DOC="$ROOT_DIR/docs/development/current/main/10-Now.md"
 RESTART_DOC="$ROOT_DIR/docs/development/current/main/05-Restart-Quick-Resume.md"
+POLICY_DOC="$ROOT_DIR/docs/development/current/main/design/current-docs-update-policy-ssot.md"
 PHASE137X_README="$ROOT_DIR/docs/development/current/main/phases/phase-137x/README.md"
 PHASE137X_TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 STALE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_stale_pointer_patterns.txt"
+DESIGN_STOP_CONTRACT_FILE="$ROOT_DIR/tools/checks/current_state_design_stop_contract.txt"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" sed
 guard_require_command "$TAG" awk
+guard_require_command "$TAG" wc
 guard_require_files "$TAG" \
   "$STATE_DOC" \
   "$CURRENT_TASK_DOC" \
   "$NOW_DOC" \
   "$RESTART_DOC" \
+  "$POLICY_DOC" \
   "$PHASE137X_README" \
   "$PHASE137X_TASKBOARD" \
-  "$STALE_PATTERNS_FILE"
+  "$STALE_PATTERNS_FILE" \
+  "$DESIGN_STOP_CONTRACT_FILE"
 
 toml_scalar() {
   local key="$1"
@@ -38,14 +44,6 @@ require_scalar() {
     guard_fail "$TAG" "CURRENT_STATE.toml missing scalar: $key"
   fi
   printf '%s' "$value"
-}
-
-expect_fixed() {
-  local needle="$1"
-  local file="$2"
-  if ! rg -Fq "$needle" "$file"; then
-    guard_fail "$TAG" "$(realpath --relative-to="$ROOT_DIR" "$file") missing CURRENT_STATE token: $needle"
-  fi
 }
 
 active_lane="$(require_scalar active_lane)"
@@ -81,6 +79,12 @@ require_repo_file "$method_anchor" "method_anchor"
 require_repo_file "$taskboard" "taskboard"
 if [[ -n "$latest_workstream_card" ]]; then
   require_repo_file "$latest_workstream_card" "latest_workstream_card"
+  if [[ "$latest_workstream_card" == *task-order* ]]; then
+    task_order_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
+    if (( task_order_lines > MAX_TASK_ORDER_LINES )); then
+      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINES} lines: $latest_workstream_card has $task_order_lines"
+    fi
+  fi
 fi
 require_repo_file "$latest_card_path" "latest_card_path"
 require_repo_file "$current_update_policy" "current_update_policy"
@@ -90,18 +94,20 @@ if [[ "$latest_card_path" != *"$latest_card"* ]]; then
 fi
 
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
-  expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$doc"
-  expect_fixed "active_lane" "$doc"
-  expect_fixed "current_blocker_token" "$doc"
+  guard_expect_fixed_in_file "$TAG" "docs/development/current/main/CURRENT_STATE.toml" "$doc" "$(realpath --relative-to="$ROOT_DIR" "$doc") missing CURRENT_STATE token: docs/development/current/main/CURRENT_STATE.toml"
+  guard_expect_fixed_in_file "$TAG" "active_lane" "$doc" "$(realpath --relative-to="$ROOT_DIR" "$doc") missing CURRENT_STATE token: active_lane"
+  guard_expect_fixed_in_file "$TAG" "current_blocker_token" "$doc" "$(realpath --relative-to="$ROOT_DIR" "$doc") missing CURRENT_STATE token: current_blocker_token"
 done
 
-expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README"
-expect_fixed "active_lane" "$PHASE137X_README"
-expect_fixed "current_blocker_token" "$PHASE137X_README"
+guard_require_design_stop_pause_contract "$TAG" "$ROOT_DIR" "$blocker_token" "$DESIGN_STOP_CONTRACT_FILE"
 
-expect_fixed "$pre_perf_gate" "$PHASE137X_TASKBOARD"
-expect_fixed "$pre_perf_gate_status" "$PHASE137X_TASKBOARD"
-expect_fixed "$optimization_return_lane" "$PHASE137X_TASKBOARD"
+guard_expect_fixed_in_file "$TAG" "docs/development/current/main/CURRENT_STATE.toml" "$PHASE137X_README" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_README") missing CURRENT_STATE token: docs/development/current/main/CURRENT_STATE.toml"
+guard_expect_fixed_in_file "$TAG" "active_lane" "$PHASE137X_README" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_README") missing CURRENT_STATE token: active_lane"
+guard_expect_fixed_in_file "$TAG" "current_blocker_token" "$PHASE137X_README" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_README") missing CURRENT_STATE token: current_blocker_token"
+
+guard_expect_fixed_in_file "$TAG" "$pre_perf_gate" "$PHASE137X_TASKBOARD" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_TASKBOARD") missing CURRENT_STATE token: $pre_perf_gate"
+guard_expect_fixed_in_file "$TAG" "$pre_perf_gate_status" "$PHASE137X_TASKBOARD" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_TASKBOARD") missing CURRENT_STATE token: $pre_perf_gate_status"
+guard_expect_fixed_in_file "$TAG" "$optimization_return_lane" "$PHASE137X_TASKBOARD" "$(realpath --relative-to="$ROOT_DIR" "$PHASE137X_TASKBOARD") missing CURRENT_STATE token: $optimization_return_lane"
 
 while IFS= read -r pattern; do
   [[ -z "$pattern" ]] && continue

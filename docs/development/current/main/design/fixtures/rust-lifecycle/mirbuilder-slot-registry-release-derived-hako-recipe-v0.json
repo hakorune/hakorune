@@ -1,0 +1,24 @@
+{
+  "family_id": "hakorune_mir_builder::slot_registry_release",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "SlotRegistryReleaseApi.release(state)",
+      "hako_operation": "Assign + SetField + ReturnValue",
+      "id": "SlotRegistryReleaseApi::release",
+      "rust_operation": "MirBuilder::finalize_module current_slot_registry = None"
+    },
+    {
+      "emits": "SlotRegistryReleaseApi.apply(state)",
+      "hako_operation": "StaticCall + ReturnI64",
+      "id": "SlotRegistryReleaseApi::apply",
+      "rust_operation": "MirBuilder::finalize_module current_slot_registry = None"
+    }
+  ],
+  "pilot_scope": "SlotRegistryRelease_prepared_slot_registry_only",
+  "schema_version": 0,
+  "selected_body_count": "slot_registry_release_prepared_slot_registry_only",
+  "source_oracle": "mirbuilder-slot-registry-release-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-slot-registry-release-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.current_slot_registry_release"
+}

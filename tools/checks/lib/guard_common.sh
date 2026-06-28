@@ -74,6 +74,59 @@ guard_expect_fixed_in_file() {
     fi
 }
 
+guard_require_design_stop_pause_contract() {
+    local tag="$1"
+    local root_dir="$2"
+    local blocker_token="$3"
+    local contract_file="$4"
+
+    local blocker_class=""
+    local entry
+    local target
+    local pattern
+    while IFS= read -r entry; do
+        [[ -z "$entry" ]] && continue
+        [[ "$entry" = \#* ]] && continue
+        if [[ "$entry" == blocker_token_contains=* ]]; then
+            blocker_class="${entry#blocker_token_contains=}"
+            if [[ -z "$blocker_class" ]]; then
+                guard_fail "$tag" "design-stop contract missing blocker token class"
+            fi
+            break
+        fi
+    done < "$contract_file"
+
+    if [[ -z "$blocker_class" ]]; then
+        guard_fail "$tag" "design-stop contract missing blocker token class"
+    fi
+
+    if [[ "$blocker_token" != *"$blocker_class"* ]]; then
+        return 0
+    fi
+
+    while IFS= read -r entry; do
+        [[ -z "$entry" ]] && continue
+        [[ "$entry" = \#* ]] && continue
+        if [[ "$entry" == blocker_token_contains=* ]]; then
+            continue
+        fi
+        IFS='|' read -r target pattern <<<"$entry"
+        if [[ -z "$target" || -z "$pattern" ]]; then
+            guard_fail "$tag" "invalid design-stop contract entry: $entry"
+        fi
+        if [[ "$target" = /* ]]; then
+            guard_fail "$tag" "design-stop pause target must be repo-relative: $target"
+        fi
+        if [[ ! -f "$root_dir/$target" ]]; then
+            guard_fail "$tag" "design-stop pause target points to missing file: $target"
+        fi
+        if ! rg -Fq "$pattern" "$root_dir/$target"; then
+            guard_fail "$tag" "$(realpath --relative-to="$root_dir" "$root_dir/$target") missing CURRENT_STATE token: $pattern"
+        fi
+    done < "$contract_file"
+
+}
+
 guard_require_docs_slim_no_move_stop_line() {
     local tag="$1"
     local card="$2"

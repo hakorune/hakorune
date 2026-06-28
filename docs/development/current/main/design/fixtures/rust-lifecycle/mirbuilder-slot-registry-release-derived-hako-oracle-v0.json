@@ -1,0 +1,46 @@
+{
+  "kind": "MirBuilderSlotRegistryReleaseDerivedHakoOracleV1",
+  "non_claims": {
+    "all_functions_phi_materialization": 0,
+    "full_finalize_module": 0,
+    "function_region_stack_pop": 0,
+    "metadata_publication": 0,
+    "module_metadata_publication": 0,
+    "runtime_fallback": 0,
+    "semantic_refresh": 0,
+    "slot_metadata_classification": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module current_slot_registry = None",
+  "vectors": [
+    {
+      "expect": {
+        "current_slot_registry_is_null": 1,
+        "current_slot_registry_present": 0,
+        "released_registry_present": 1,
+        "slot_registry_released": 1
+      },
+      "inputs": {
+        "initial_current_slot_registry_present": 1,
+        "initial_released_registry_present": 0,
+        "initial_slot_registry_released": 0
+      },
+      "name": "release_clears_current_slot_registry"
+    },
+    {
+      "expect": {
+        "current_slot_registry_is_null": 1,
+        "current_slot_registry_present": 0,
+        "released_registry_present": 1,
+        "return_value": 0,
+        "slot_registry_released": 1
+      },
+      "inputs": {
+        "initial_current_slot_registry_present": 1,
+        "initial_released_registry_present": 0,
+        "initial_slot_registry_released": 0
+      },
+      "name": "apply_clears_current_slot_registry"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-06-26"
+date = "2026-06-28"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Exact-AOT fastpath optimization is paused: no fresh
@@ -265,15 +265,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/296x-1746-MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001.md"
-latest_card_summary = """The minimal MirBuilder execution path design stop is
-resolved against the current public-main frontier. MirModule, MirFunction,
-CurrentModuleTake, and ReturnEmission executable artifacts are already present,
-so the next selected owner is the first remaining materialization gap:
-finalize_module.region_stack_pop / FunctionRegionStackPop."""
+latest_card = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1778-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001.md"
+latest_card_summary = """The latest card closes the SlotRegistryRelease
+HakoShadow stage-state by promoting the support-lane projector to
+HakoMainline while keeping Python as explicit oracle/bootstrap. The prior
+FunctionRegionStackPop and ReturnEmission promotion decisions are now
+provenance only."""
 
-current_blocker_token = "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -282,6 +282,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-28: 1777 closes the FunctionRegionStackPop support-lane promotion as provenance and hands the next blocker to SlotRegistryRelease HakoShadow promotion decision.",
+  "2026-06-28: 1776 closes the ReturnEmission support-lane promotion as provenance and hands the next blocker to FunctionRegionStackPop HakoShadow promotion decision.",
+  "2026-06-28: 1775 proves the HakoAdopted candidate pool is empty and hands the next blocker to ReturnEmission HakoShadow promotion decision.",
+  "2026-06-28: 1774 closes the VariableContext route matrix as parked and hands the next blocker to machine-derived candidate selection.",
+  "2026-06-28: 1773 realigns the current-state pointer and hands the next blocker to VariableContext route matrix closeout.",
   "2026-06-19: rust-subset source-shape coverage batch is closed; source transport waits for a new real input blocker.",
   "2026-06-19: generic_loop_v1 accepts scanner multi-exit loop bodies via ThenOnlyExit.",
   "2026-06-19: continue-in-staged-loop is promoted green through edge-local ContinueWithPhiArgs.",

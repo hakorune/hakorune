@@ -1,0 +1,13 @@
+{
+  "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+  "input_evidence": {
+    "derived_mainline_route_closed": 1,
+    "generator_overwrite_guard": 1,
+    "native_hako_source_owner_path": "lang/src/compiler/lib/next_value_id_prepared_state_kernel.hako",
+    "native_hako_source_owner_present": 1,
+    "previous_decision": "Defer"
+  },
+  "decision": "Adopt",
+  "reason_token": "",
+  "summary": "ok"
+}

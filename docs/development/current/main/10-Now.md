@@ -17,6 +17,10 @@ Related:
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
+- selfhost roadmap: `docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md`
+  now narrows the remaining work to family-by-family `HakoAdopted` decisions,
+  the Python SemanticProjector freeze, and consultation-gated ABI / syntax
+  boundaries.
 
 ## Rule
 

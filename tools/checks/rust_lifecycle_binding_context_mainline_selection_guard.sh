@@ -34,15 +34,19 @@ assert claims["runtime_try_hako_then_rust_fallback"] == 0
 assert claims["variable_context_selected"] == 0
 assert claims["mirbuilder_wide_claim"] == 0
 
-route_entries = routes["routes"]
+route_entries = [
+    route
+    for route in routes["routes"]
+    if route["artifact_manifest"] == str(artifact_path)
+]
 assert len(route_entries) == 1
 route = route_entries[0]
 
 assert route["family_id"] == "hakorune_mir_builder::binding_context"
 assert route["route"] == "derived_hako"
-assert route["state"] == "DerivedMainline_candidate"
+assert route["state"] == "DerivedMainline"
 assert route["mainline_selection_scope"] == "BindingContext_only"
-assert route["selected_on_mainline"] is False
+assert route["selected_on_mainline"] is True
 assert route["artifact_manifest"] == str(artifact_path)
 assert route["rust_bootstrap_route"] == "retained"
 assert route["rust_oracle_route"] == "retained"
@@ -59,7 +63,7 @@ PY
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-binding-context-mainline-selection-v0
-binding_context_artifact_state=DerivedMainline_candidate
+binding_context_artifact_state=DerivedMainline
 mainline_selection_scope=BindingContext_only
 generated_artifact_manifest_verified=1
 rust_bootstrap_retained=1
@@ -68,6 +72,6 @@ silent_fallback=0
 runtime_try_hako_then_rust_fallback=0
 source_selfhost_claim=0
 backend_behavior_changed=0
-selected_on_mainline=0
+selected_on_mainline=1
 summary=ok
 REPORT

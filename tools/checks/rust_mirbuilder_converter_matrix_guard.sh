@@ -44,6 +44,17 @@ bash tools/checks/rust_lifecycle_ordered_map_crate_bundle_guard.sh
 bash tools/checks/rust_lifecycle_explicit_phi_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_metadata_context_region_parent_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_metadata_context_value_caller_derived_artifact_guard.sh
+bash tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_derived_artifact_guard.sh
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-typed-object-plan-refresh --check
+bash tools/checks/rust_lifecycle_mirbuilder_typed_object_plan_refresh_derived_artifact_guard.sh
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-record-packed-layout-refresh --check
+bash tools/checks/rust_lifecycle_mirbuilder_record_packed_layout_refresh_derived_artifact_guard.sh
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-all-functions-phi-materialization --check
+bash tools/checks/rust_lifecycle_mirbuilder_all_functions_phi_materialization_derived_artifact_guard.sh
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-direct-state-plan-refresh --check
+bash tools/checks/rust_lifecycle_mirbuilder_direct_state_plan_refresh_derived_artifact_guard.sh
+python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-minimal-path-composed-execution-closure --check
+bash tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_pilot_guard.sh
 python3 tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family region-observer-slot-metadata --check
 bash tools/checks/rust_lifecycle_multi_carrier_exit_phi_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_single_scalar_loop_carrier_derived_artifact_guard.sh
@@ -51,6 +62,9 @@ bash tools/checks/rust_lifecycle_structured_loop_derived_artifact_guard.sh
 bash tools/checks/rust_lifecycle_type_context_string_literal_derived_artifact_guard.sh
 
 bash tools/checks/rust_mirbuilder_negative_converter_fixtures_guard.sh
+bash tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh
+bash tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh
+bash tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh
 bash tools/checks/rust_lifecycle_no_silent_hardcode_guard.sh
 
 cat <<'REPORT'
@@ -62,6 +76,7 @@ metadata_context_scalar_source_file=green
 metadata_context_region_parent=green
 metadata_context_region_parent_backend=green
 metadata_context_value_caller=green
+all_functions_phi_materialization=green
 region_observer_slot_metadata=green
 multi_carrier_exit_phi=green
 single_scalar_loop_carrier=green
@@ -77,7 +92,16 @@ variable_context_snapshot_restore=green
 variable_context_carrier_snapshot=green
 variable_context_explicit_carrier_snapshot=green
 ordered_map_crate_bundle=green
+slot_registry_release=green
+typed_object_plan_refresh=green
+record_packed_layout_refresh=green
+direct_state_plan_refresh=green
+composed_execution_closure=green
+minimal_path_mainline_pilot=green
 negative_converter_fixtures=green
+compiler_library_canonical_json_value_writer=green
+shadow_projector_stage_state_inventory=green
+return_emission_hako_shadow_parity=green
 no_silent_hardcode=green
 shared_emitter=green
 summary=ok

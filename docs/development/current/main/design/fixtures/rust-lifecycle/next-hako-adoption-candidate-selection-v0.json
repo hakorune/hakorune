@@ -1,0 +1,50 @@
+{
+  "candidate_pool_state": "Blocked",
+  "claims": {
+    "hako_adopted": 0,
+    "manual_next_owner_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "support_lane_projection_as_candidate": 0
+  },
+  "current_state": {
+    "current_blocker_token": "MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001",
+    "latest_card": "MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001",
+    "path": "docs/development/current/main/CURRENT_STATE.toml"
+  },
+  "decision": {
+    "kind": "Blocked",
+    "next_slice_token": "MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001",
+    "owner_scope": "integration",
+    "reason": "No selected DerivedMainline route row remains after applying the route-matrix closeout exclusions.",
+    "reason_token": "NoEligibleDerivedMainlineRouteCandidate"
+  },
+  "eligible_candidate_count": 0,
+  "eligible_route_tokens": [],
+  "excluded_route_tokens": [
+    "FunctionRegionStackPop",
+    "ReturnEmission",
+    "allocation_policy_prepared_state_next_value_id",
+    "binding_context",
+    "compiler-library helpers",
+    "context",
+    "minimal_path_composed_execution_closure",
+    "variable_context",
+    "variable_context_immutable_borrow"
+  ],
+  "kind": "MirBuilderNextHakoAdoptionCandidateSelectionV1",
+  "next_action": "none",
+  "output_contract": "rust-lifecycle-next-hako-adoption-candidate-selection-v0",
+  "roadmap": "docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md",
+  "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json",
+  "route_matrix_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-route-matrix-closeout-v0.json",
+  "schema_version": 0,
+  "selected_mainline_route_tokens": [
+    "binding_context",
+    "context",
+    "variable_context",
+    "minimal_path_composed_execution_closure"
+  ]
+}

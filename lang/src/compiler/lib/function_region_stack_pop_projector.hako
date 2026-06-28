@@ -11,256 +11,136 @@
 // - host ABI
 // - runtime fallback
 
-using lang.compiler.lib.canonical_json as CanonicalJsonWriterBox
 using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using lang.compiler.lib.projector_support as CompilerProjectorSupportBox
 using selfhost.shared.common.box_helpers as BoxHelpers
 using selfhost.shared.common.string_helpers as StringHelpers
 
 static box FunctionRegionStackPopHakoProjector {
-  _tag(tag) {
-    if tag == null || ("" + tag) == "" {
-      return "[freeze:contract][hako_mirbuilder]"
-    }
-    return "" + tag
-  }
-
-  _fail(tag, msg) {
-    tag = me._tag(tag)
-    return %{
-      "err" => 1,
-      "err_line" => tag + msg,
-      "shadow_record" => null,
-      "shadow_json" => ""
-    }
-  }
-
-  _ok(shadow_record) {
-    return %{
-      "err" => 0,
-      "err_line" => "",
-      "shadow_record" => shadow_record,
-      "shadow_json" => CanonicalJsonWriterBox.canonicalize(shadow_record)
-    }
-  }
-
-  _require_map(value, label, tag) {
-    if value == null || BoxHelpers.is_map(value) != 1 {
-      return me._fail(tag, "[" + label + "] expected MapBox")
-    }
-    return null
-  }
-
-  _require_array(value, label, tag) {
-    if value == null || BoxHelpers.is_array(value) != 1 {
-      return me._fail(tag, "[" + label + "] expected ArrayBox")
-    }
-    return null
-  }
-
-  _require_present(value, label, tag) {
-    if value == null {
-      return me._fail(tag, "[" + label + "] missing")
-    }
-    return null
-  }
-
-  _require_text(value, label, expected, tag) {
-    local actual = "" + value
-    if actual != expected {
-      return me._fail(tag, "[" + label + "] expected " + expected + ", got " + actual)
-    }
-    return null
-  }
-
-  _has_string_item(items, expected) {
-    if items == null || BoxHelpers.is_array(items) != 1 {
-      return false
-    }
-    local i = 0
-    local n = items.length()
-    loop(i < n) {
-      if "" + items.get(i) == expected {
-        return true
-      }
-      i = i + 1
-    }
-    return false
-  }
-
-  _copy_any(value) {
-    if value == null {
-      return CompilerProjectionValueBox.create_null()
-    }
-    if value == true || value == false {
-      return CompilerProjectionValueBox.create_bool(value)
-    }
-    if BoxHelpers.is_array(value) == 1 {
-      return me._copy_array(value)
-    }
-    if BoxHelpers.is_map(value) == 1 {
-      return me._copy_object(value)
-    }
-    local text = "" + value
-    if StringHelpers.is_numeric_str(text) == 1 {
-      return CompilerProjectionValueBox.create_i64(text)
-    }
-    return CompilerProjectionValueBox.create_string(text)
-  }
-
-  _copy_array(arr) {
-    local out = CompilerProjectionValueBox.create_array()
-    local i = 0
-    local n = arr.length()
-    loop(i < n) {
-      CompilerProjectionValueBox.array_push(out, me._copy_any(arr.get(i)))
-      i = i + 1
-    }
-    return out
-  }
-
-  _copy_object(obj) {
-    local out = CompilerProjectionValueBox.create_object()
-    if obj == null {
-      return out
-    }
-    local keys = obj.keys()
-    if keys == null {
-      return out
-    }
-    local i = 0
-    local n = keys.length()
-    loop(i < n) {
-      local key = "" + keys.get(i)
-      CompilerProjectionValueBox.object_set(out, key, me._copy_any(obj.get(key)))
-      i = i + 1
-    }
-    return out
-  }
-
   _validate_plan(plan, tag) {
-    local err = me._require_map(plan, "plan", tag)
+    local err = CompilerProjectorSupportBox.require_map(plan, "plan", tag)
     if err != null {
       return err
     }
 
-    err = me._require_text(BoxHelpers.map_get(plan, "kind"), "plan.kind", "MirBuilderFunctionRegionStackPopPlanV1", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(plan, "kind"), "plan.kind", "MirBuilderFunctionRegionStackPopPlanV1", tag)
     if err != null { return err }
-    err = me._require_present(BoxHelpers.map_get(plan, "subject"), "plan.subject", tag)
+    err = CompilerProjectorSupportBox.require_present(BoxHelpers.map_get(plan, "subject"), "plan.subject", tag)
     if err != null { return err }
 
     local source_authority = BoxHelpers.map_get(plan, "source_authority")
-    err = me._require_map(source_authority, "plan.source_authority", tag)
+    err = CompilerProjectorSupportBox.require_map(source_authority, "plan.source_authority", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(source_authority, "finalize"), "plan.source_authority.finalize", "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "finalize"), "plan.source_authority.finalize", "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(source_authority, "observer"), "plan.source_authority.observer", "src/mir/region/observer.rs::pop_function_region", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "observer"), "plan.source_authority.observer", "src/mir/region/observer.rs::pop_function_region", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(source_authority, "predecessor_plan"), "plan.source_authority.predecessor_plan", "mirbuilder-condition-fn-injection-plan-v0.json", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "predecessor_plan"), "plan.source_authority.predecessor_plan", "mirbuilder-condition-fn-injection-plan-v0.json", tag)
     if err != null { return err }
 
     local execution_profile = BoxHelpers.map_get(plan, "execution_profile")
-    err = me._require_map(execution_profile, "plan.execution_profile", tag)
+    err = CompilerProjectorSupportBox.require_map(execution_profile, "plan.execution_profile", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(execution_profile, "input"), "plan.execution_profile.input", "ASTNode::Literal(Integer(0))", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(execution_profile, "input"), "plan.execution_profile.input", "ASTNode::Literal(Integer(0))", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(execution_profile, "context"), "plan.execution_profile.context", "finalize_module", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(execution_profile, "context"), "plan.execution_profile.context", "finalize_module", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(execution_profile, "region_trace"), "plan.execution_profile.region_trace", "NYASH_REGION_TRACE=1", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(execution_profile, "region_trace"), "plan.execution_profile.region_trace", "NYASH_REGION_TRACE=1", tag)
     if err != null { return err }
 
     local observed_source_order = BoxHelpers.map_get(plan, "observed_source_order")
-    err = me._require_map(observed_source_order, "plan.observed_source_order", tag)
+    err = CompilerProjectorSupportBox.require_map(observed_source_order, "plan.observed_source_order", tag)
     if err != null { return err }
     local finalize_module = BoxHelpers.map_get(observed_source_order, "finalize_module")
-    err = me._require_array(finalize_module, "plan.observed_source_order.finalize_module", tag)
+    err = CompilerProjectorSupportBox.require_array(finalize_module, "plan.observed_source_order.finalize_module", tag)
     if err != null { return err }
     if finalize_module.length() != 3 {
-      return me._fail(tag, "[plan.observed_source_order.finalize_module] expected 3 markers")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.observed_source_order.finalize_module] expected 3 markers")
     }
-    err = me._require_text(finalize_module.get(0), "plan.observed_source_order.finalize_module[0]", "module.add_function(f);", tag)
+    err = CompilerProjectorSupportBox.require_text(finalize_module.get(0), "plan.observed_source_order.finalize_module[0]", "module.add_function(f);", tag)
     if err != null { return err }
-    err = me._require_text(finalize_module.get(1), "plan.observed_source_order.finalize_module[1]", "crate::mir::region::observer::pop_function_region(self);", tag)
+    err = CompilerProjectorSupportBox.require_text(finalize_module.get(1), "plan.observed_source_order.finalize_module[1]", "crate::mir::region::observer::pop_function_region(self);", tag)
     if err != null { return err }
-    err = me._require_text(finalize_module.get(2), "plan.observed_source_order.finalize_module[2]", "self.comp_ctx.current_slot_registry = None;", tag)
+    err = CompilerProjectorSupportBox.require_text(finalize_module.get(2), "plan.observed_source_order.finalize_module[2]", "self.comp_ctx.current_slot_registry = None;", tag)
     if err != null { return err }
 
     local pop_function_region = BoxHelpers.map_get(observed_source_order, "pop_function_region")
-    err = me._require_array(pop_function_region, "plan.observed_source_order.pop_function_region", tag)
+    err = CompilerProjectorSupportBox.require_array(pop_function_region, "plan.observed_source_order.pop_function_region", tag)
     if err != null { return err }
     if pop_function_region.length() != 3 {
-      return me._fail(tag, "[plan.observed_source_order.pop_function_region] expected 3 markers")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.observed_source_order.pop_function_region] expected 3 markers")
     }
-    err = me._require_text(pop_function_region.get(0), "plan.observed_source_order.pop_function_region[0]", "if !is_region_trace_on()", tag)
+    err = CompilerProjectorSupportBox.require_text(pop_function_region.get(0), "plan.observed_source_order.pop_function_region[0]", "if !is_region_trace_on()", tag)
     if err != null { return err }
-    err = me._require_text(pop_function_region.get(1), "plan.observed_source_order.pop_function_region[1]", "return;", tag)
+    err = CompilerProjectorSupportBox.require_text(pop_function_region.get(1), "plan.observed_source_order.pop_function_region[1]", "return;", tag)
     if err != null { return err }
-    err = me._require_text(pop_function_region.get(2), "plan.observed_source_order.pop_function_region[2]", "let _ = builder.metadata_ctx.pop_region();", tag)
+    err = CompilerProjectorSupportBox.require_text(pop_function_region.get(2), "plan.observed_source_order.pop_function_region[2]", "let _ = builder.metadata_ctx.pop_region();", tag)
     if err != null { return err }
 
     local observe_function_region = BoxHelpers.map_get(observed_source_order, "observe_function_region_push_counterpart")
-    err = me._require_array(observe_function_region, "plan.observed_source_order.observe_function_region_push_counterpart", tag)
+    err = CompilerProjectorSupportBox.require_array(observe_function_region, "plan.observed_source_order.observe_function_region_push_counterpart", tag)
     if err != null { return err }
     if observe_function_region.length() != 2 {
-      return me._fail(tag, "[plan.observed_source_order.observe_function_region_push_counterpart] expected 2 markers")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.observed_source_order.observe_function_region_push_counterpart] expected 2 markers")
     }
-    err = me._require_text(observe_function_region.get(0), "plan.observed_source_order.observe_function_region_push_counterpart[0]", "if !is_region_trace_on()", tag)
+    err = CompilerProjectorSupportBox.require_text(observe_function_region.get(0), "plan.observed_source_order.observe_function_region_push_counterpart[0]", "if !is_region_trace_on()", tag)
     if err != null { return err }
-    err = me._require_text(observe_function_region.get(1), "plan.observed_source_order.observe_function_region_push_counterpart[1]", "builder.metadata_ctx.push_region(id);", tag)
+    err = CompilerProjectorSupportBox.require_text(observe_function_region.get(1), "plan.observed_source_order.observe_function_region_push_counterpart[1]", "builder.metadata_ctx.push_region(id);", tag)
     if err != null { return err }
 
     local pop_policy = BoxHelpers.map_get(plan, "pop_policy")
-    err = me._require_map(pop_policy, "plan.pop_policy", tag)
+    err = CompilerProjectorSupportBox.require_map(pop_policy, "plan.pop_policy", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(pop_policy, "callsite"), "plan.pop_policy.callsite", "region::observer::pop_function_region(self)", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(pop_policy, "callsite"), "plan.pop_policy.callsite", "region::observer::pop_function_region(self)", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(pop_policy, "guard"), "plan.pop_policy.guard", "NYASH_REGION_TRACE == 1", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(pop_policy, "guard"), "plan.pop_policy.guard", "NYASH_REGION_TRACE == 1", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(pop_policy, "operation"), "plan.pop_policy.operation", "metadata_ctx.pop_region", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(pop_policy, "operation"), "plan.pop_policy.operation", "metadata_ctx.pop_region", tag)
     if err != null { return err }
     if BoxHelpers.map_get(pop_policy, "result_ignored") != true {
-      return me._fail(tag, "[plan.pop_policy.result_ignored] expected true")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.pop_policy.result_ignored] expected true")
     }
-    err = me._require_text(BoxHelpers.map_get(pop_policy, "tracing_disabled_effect"), "plan.pop_policy.tracing_disabled_effect", "NoOp", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(pop_policy, "tracing_disabled_effect"), "plan.pop_policy.tracing_disabled_effect", "NoOp", tag)
     if err != null { return err }
     if BoxHelpers.map_get(pop_policy, "push_counterpart_observed") != true {
-      return me._fail(tag, "[plan.pop_policy.push_counterpart_observed] expected true")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.pop_policy.push_counterpart_observed] expected true")
     }
 
-    err = me._require_array(BoxHelpers.map_get(plan, "available_capabilities"), "plan.available_capabilities", tag)
+    err = CompilerProjectorSupportBox.require_array(BoxHelpers.map_get(plan, "available_capabilities"), "plan.available_capabilities", tag)
     if err != null { return err }
-    if me._has_string_item(BoxHelpers.map_get(plan, "available_capabilities"), "FunctionRegionStackPop") != true {
-      return me._fail(tag, "[plan.available_capabilities] missing FunctionRegionStackPop")
+    if CompilerProjectorSupportBox.has_string_item(BoxHelpers.map_get(plan, "available_capabilities"), "FunctionRegionStackPop") != true {
+      return CompilerProjectorSupportBox.fail(tag, "[plan.available_capabilities] missing FunctionRegionStackPop")
     }
 
     local result_contract = BoxHelpers.map_get(plan, "result_contract")
-    err = me._require_map(result_contract, "plan.result_contract", tag)
+    err = CompilerProjectorSupportBox.require_map(result_contract, "plan.result_contract", tag)
     if err != null { return err }
-    err = me._require_array(BoxHelpers.map_get(result_contract, "mutates_when_guard_enabled"), "plan.result_contract.mutates_when_guard_enabled", tag)
+    err = CompilerProjectorSupportBox.require_array(BoxHelpers.map_get(result_contract, "mutates_when_guard_enabled"), "plan.result_contract.mutates_when_guard_enabled", tag)
     if err != null { return err }
     local mutates = BoxHelpers.map_get(result_contract, "mutates_when_guard_enabled")
     if mutates.length() != 1 {
-      return me._fail(tag, "[plan.result_contract.mutates_when_guard_enabled] expected 1 entry")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.result_contract.mutates_when_guard_enabled] expected 1 entry")
     }
-    err = me._require_text(mutates.get(0), "plan.result_contract.mutates_when_guard_enabled[0]", "builder.metadata_ctx.current_region_stack", tag)
+    err = CompilerProjectorSupportBox.require_text(mutates.get(0), "plan.result_contract.mutates_when_guard_enabled[0]", "builder.metadata_ctx.current_region_stack", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(result_contract, "entrypoint"), "plan.result_contract.entrypoint", "region::observer::pop_function_region", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(result_contract, "entrypoint"), "plan.result_contract.entrypoint", "region::observer::pop_function_region", tag)
     if err != null { return err }
-    err = me._require_text(BoxHelpers.map_get(result_contract, "minimal_path_expected_result"), "plan.result_contract.minimal_path_expected_result", "NoErrorReturn", tag)
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(result_contract, "minimal_path_expected_result"), "plan.result_contract.minimal_path_expected_result", "NoErrorReturn", tag)
     if err != null { return err }
 
     local non_claims = BoxHelpers.map_get(plan, "non_claims")
-    err = me._require_map(non_claims, "plan.non_claims", tag)
+    err = CompilerProjectorSupportBox.require_map(non_claims, "plan.non_claims", tag)
     if err != null { return err }
     local keys = non_claims.keys()
     if keys == null {
-      return me._fail(tag, "[plan.non_claims] missing keys")
+      return CompilerProjectorSupportBox.fail(tag, "[plan.non_claims] missing keys")
     }
     local i = 0
     local n = keys.length()
     loop(i < n) {
       local key = "" + keys.get(i)
       if StringHelpers.to_i64(non_claims.get(key)) != 0 {
-        return me._fail(tag, "[plan.non_claims] non-zero claim: " + key)
+        return CompilerProjectorSupportBox.fail(tag, "[plan.non_claims] non-zero claim: " + key)
       }
       i = i + 1
     }
@@ -269,24 +149,24 @@ static box FunctionRegionStackPopHakoProjector {
   }
 
   _project_shadow_output(hako_shadow) {
-    return me._copy_any(hako_shadow)
+    return CompilerProjectorSupportBox.copy_any(hako_shadow)
   }
 
   project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
-    local tag = me._tag(null)
+    local tag = CompilerProjectorSupportBox.tag(null)
     local err = me._validate_plan(plan, tag)
     if err != null {
       return err
     }
-    err = me._require_present(python_oracle, "python_oracle", tag)
+    err = CompilerProjectorSupportBox.require_present(python_oracle, "python_oracle", tag)
     if err != null { return err }
-    err = me._require_present(hako_shadow, "hako_shadow", tag)
+    err = CompilerProjectorSupportBox.require_present(hako_shadow, "hako_shadow", tag)
     if err != null { return err }
-    err = me._require_present(parity_gate, "parity_gate", tag)
+    err = CompilerProjectorSupportBox.require_present(parity_gate, "parity_gate", tag)
     if err != null { return err }
-    err = me._require_present(promotion_token, "promotion_token", tag)
+    err = CompilerProjectorSupportBox.require_present(promotion_token, "promotion_token", tag)
     if err != null { return err }
-    err = me._require_present(retirement_token, "retirement_token", tag)
+    err = CompilerProjectorSupportBox.require_present(retirement_token, "retirement_token", tag)
     if err != null { return err }
 
     local shadow_record = CompilerProjectionValueBox.create_object()
@@ -294,15 +174,15 @@ static box FunctionRegionStackPopHakoProjector {
     CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("FunctionRegionStackPopHakoProjectorV1"))
     CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::function_region_stack_pop"))
     CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("function_region_stack_pop"))
-    CompilerProjectionValueBox.object_set(shadow_record, "subject", me._copy_any(BoxHelpers.map_get(plan, "subject")))
-    CompilerProjectionValueBox.object_set(shadow_record, "input_json", me._copy_any(plan))
+    CompilerProjectionValueBox.object_set(shadow_record, "subject", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(plan, "subject")))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", CompilerProjectorSupportBox.copy_any(plan))
     CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
-    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", me._copy_any(python_oracle))
-    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", me._copy_any(hako_shadow))
-    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", me._copy_any(parity_gate))
-    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", me._copy_any(promotion_token))
-    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", me._copy_any(retirement_token))
-    return me._ok(shadow_record)
+    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", CompilerProjectorSupportBox.copy_any(python_oracle))
+    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", CompilerProjectorSupportBox.copy_any(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", CompilerProjectorSupportBox.copy_any(parity_gate))
+    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", CompilerProjectorSupportBox.copy_any(promotion_token))
+    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", CompilerProjectorSupportBox.copy_any(retirement_token))
+    return CompilerProjectorSupportBox.ok(shadow_record)
   }
 
   project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {

@@ -1,0 +1,179 @@
+// module_metadata_publication_projector.hako — ModuleMetadataPublicationHakoProjector
+//
+// Responsibility:
+// - project the module metadata publication plan into typed shadow records
+// - package shadow metadata for canonical JSON parity
+//
+// Non-responsibility:
+// - Python oracle generation
+// - Hako artifact emission
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+
+using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using lang.compiler.lib.projector_support as CompilerProjectorSupportBox
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box ModuleMetadataPublicationHakoProjector {
+  _validate_plan(plan_box, tag) {
+    local plan = plan_box.payload
+    local err = CompilerProjectorSupportBox.require_map(plan, "plan", tag)
+    if err != null {
+      return err
+    }
+
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(plan, "kind"), "plan.kind", "MirBuilderModuleMetadataPublicationPlanV1", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(BoxHelpers.map_get(plan, "subject"), "plan.subject", tag)
+    if err != null { return err }
+
+    local source_authority = BoxHelpers.map_get(plan, "source_authority")
+    err = CompilerProjectorSupportBox.require_map(source_authority, "plan.source_authority", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "finalize"), "plan.source_authority.finalize", "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "predecessor_plan"), "plan.source_authority.predecessor_plan", "mirbuilder-slot-registry-release-plan-v0.json", tag)
+    if err != null { return err }
+
+    local execution_profile = BoxHelpers.map_get(plan, "execution_profile")
+    err = CompilerProjectorSupportBox.require_map(execution_profile, "plan.execution_profile", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(execution_profile, "input"), "plan.execution_profile.input", "ASTNode::Literal(Integer(0))", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(execution_profile, "context"), "plan.execution_profile.context", "finalize_module", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(execution_profile, "module_transport"), "plan.execution_profile.module_transport", "MirModuleMinimalShell", tag)
+    if err != null { return err }
+
+    local publication = BoxHelpers.map_get(plan, "publication")
+    err = CompilerProjectorSupportBox.require_map(publication, "plan.publication", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(publication, "timing"), "plan.publication.timing", "AfterSlotRegistryReleaseBeforeSemanticRefresh", tag)
+    if err != null { return err }
+    local fields = BoxHelpers.map_get(publication, "fields")
+    err = CompilerProjectorSupportBox.require_array(fields, "plan.publication.fields", tag)
+    if err != null { return err }
+    if fields.length() != 4 {
+      return CompilerProjectorSupportBox.fail(tag, "[plan.publication.fields] expected 4 publication fields")
+    }
+    err = CompilerProjectorSupportBox.require_text(fields.get(0).target, "plan.publication.fields[0].target", "module.metadata.user_box_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(fields.get(1).target, "plan.publication.fields[1].target", "module.metadata.user_box_field_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(fields.get(2).target, "plan.publication.fields[2].target", "module.metadata.record_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(fields.get(3).target, "plan.publication.fields[3].target", "module.metadata.enum_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(fields.get(1).operation, "plan.publication.fields[1].operation", "MapValuesToUserBoxFieldDecl", tag)
+    if err != null { return err }
+    local projected_fields = fields.get(1).projected_fields
+    err = CompilerProjectorSupportBox.require_array(projected_fields, "plan.publication.fields[1].projected_fields", tag)
+    if err != null { return err }
+    if projected_fields.length() != 3 {
+      return CompilerProjectorSupportBox.fail(tag, "[plan.publication.fields[1].projected_fields] expected 3 fields")
+    }
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(0), "plan.publication.fields[1].projected_fields[0]", "name", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(1), "plan.publication.fields[1].projected_fields[1]", "declared_type_name", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(projected_fields.get(2), "plan.publication.fields[1].projected_fields[2]", "is_weak", tag)
+    if err != null { return err }
+
+    local result_contract = BoxHelpers.map_get(plan, "result_contract")
+    err = CompilerProjectorSupportBox.require_map(result_contract, "plan.result_contract", tag)
+    if err != null { return err }
+    local mutates = BoxHelpers.map_get(result_contract, "mutates")
+    err = CompilerProjectorSupportBox.require_array(mutates, "plan.result_contract.mutates", tag)
+    if err != null { return err }
+    if mutates.length() != 4 {
+      return CompilerProjectorSupportBox.fail(tag, "[plan.result_contract.mutates] expected 4 entries")
+    }
+    err = CompilerProjectorSupportBox.require_text(mutates.get(0), "plan.result_contract.mutates[0]", "module.metadata.user_box_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(mutates.get(1), "plan.result_contract.mutates[1]", "module.metadata.user_box_field_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(mutates.get(2), "plan.result_contract.mutates[2]", "module.metadata.record_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(mutates.get(3), "plan.result_contract.mutates[3]", "module.metadata.enum_decls", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(result_contract, "entrypoint"), "plan.result_contract.entrypoint", "MirBuilder::finalize_module module metadata publication", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(result_contract, "minimal_path_expected_result"), "plan.result_contract.minimal_path_expected_result", "NoErrorReturn", tag)
+    if err != null { return err }
+
+    local non_claims = BoxHelpers.map_get(plan, "non_claims")
+    err = CompilerProjectorSupportBox.require_map(non_claims, "plan.non_claims", tag)
+    if err != null { return err }
+    local keys = non_claims.keys()
+    if keys == null {
+      return CompilerProjectorSupportBox.fail(tag, "[plan.non_claims] missing keys")
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      if StringHelpers.to_i64(non_claims.get(key)) != 0 {
+        return CompilerProjectorSupportBox.fail(tag, "[plan.non_claims] non-zero claim: " + key)
+      }
+      i = i + 1
+    }
+
+    return null
+  }
+
+  _project_shadow_output(hako_shadow_box) {
+    return CompilerProjectorSupportBox.copy_any(hako_shadow_box.payload)
+  }
+
+  project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local tag = CompilerProjectorSupportBox.tag(null)
+    local err = me._validate_plan(plan, tag)
+    if err != null {
+      return err
+    }
+    err = CompilerProjectorSupportBox.require_present(python_oracle, "python_oracle", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(hako_shadow, "hako_shadow", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(parity_gate, "parity_gate", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(promotion_token, "promotion_token", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(retirement_token, "retirement_token", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(python_oracle.shadow_json, "python_oracle.shadow_json", hako_shadow.shadow_json, tag)
+    if err != null { return err }
+
+    local shadow_record = CompilerProjectionValueBox.create_object()
+    CompilerProjectionValueBox.object_set(shadow_record, "schema_version", CompilerProjectionValueBox.create_i64(0))
+    CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("ModuleMetadataPublicationHakoShadowProjectorV1"))
+    CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::module_metadata_publication"))
+    CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("module_metadata_publication"))
+    CompilerProjectionValueBox.object_set(shadow_record, "subject", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(plan.payload, "subject")))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", CompilerProjectorSupportBox.copy_any(plan.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", CompilerProjectorSupportBox.copy_any(python_oracle.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", CompilerProjectorSupportBox.copy_any(hako_shadow.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", CompilerProjectorSupportBox.copy_any(parity_gate.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", CompilerProjectorSupportBox.copy_any(promotion_token.payload))
+    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", CompilerProjectorSupportBox.copy_any(retirement_token.payload))
+    return CompilerProjectorSupportBox.ok_with_json(shadow_record, hako_shadow.shadow_json)
+  }
+
+  project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local result = me.project_shadow_record(
+      plan,
+      python_oracle,
+      hako_shadow,
+      parity_gate,
+      promotion_token,
+      retirement_token,
+    )
+    if result.err != 0 {
+      return result.shadow_json
+    }
+    return result.shadow_json
+  }
+}

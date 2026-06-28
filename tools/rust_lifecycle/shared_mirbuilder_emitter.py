@@ -85,7 +85,7 @@ def render_main_operation(operation: Mapping[str, Any]) -> list[str]:
         if left is None or "right" not in operation or fail_message is None:
             raise ValueError("AssertEq requires left, right, and fail_message")
         return [
-            f"if {left} != {render_main_value(right)} {{",
+            f"if {render_main_value(left)} != {render_main_value(right)} {{",
             f"    print({render_string_literal(fail_message)})",
             f"    return {fail_code}",
             "}",

@@ -5,6 +5,7 @@ modules.
 
 Placement SSOT:
 - `docs/development/current/main/phases/phase-296x/296x-1740-HAKO-COMPILER-TEXT-BUILDER-V0-001.md`
+- `docs/development/current/main/phases/phase-296x/296x-1765-HAKO-COMPILER-CANONICAL-JSON-VALUE-WRITER-001.md`
 - `docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md`
 - `docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md`
 
@@ -15,12 +16,31 @@ Scope:
   - `text_builder.hako`
   - `canonical_json.hako`
   - `projection_value.hako`
+  - `projector_support.hako`
 - first shadow-projector support library:
   - `return_emission_projector.hako`
+- first native source owner candidate:
+  - `next_value_id_prepared_state_kernel.hako`
 - second shadow-projector support library:
   - `function_region_stack_pop_projector.hako`
 - third shadow-projector support library:
   - `slot_registry_release_projector.hako`
+- fourth shadow-projector support library:
+  - `module_metadata_publication_projector.hako`
+- fifth shadow-projector support library:
+  - `record_packed_layout_refresh_projector.hako`
+- sixth shadow-projector support library:
+  - `typed_object_plan_refresh_projector.hako`
+- seventh shadow-projector support library:
+  - `direct_state_plan_refresh_projector.hako`
+- eighth shadow-projector support library:
+  - `all_functions_phi_materialization_projector.hako`
+- executable placement guard:
+  - `tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh`
+- executable inventory guard:
+  - `tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh`
+- first shadow parity guard:
+  - `tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`

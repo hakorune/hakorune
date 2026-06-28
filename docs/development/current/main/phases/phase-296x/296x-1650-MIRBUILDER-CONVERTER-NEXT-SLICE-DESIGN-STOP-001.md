@@ -1,6 +1,6 @@
 # 296x-1650: MirBuilder Converter Next Slice Design Stop
 
-Status: Active
+Status: Closed by 1773-CURRENT-STATE-POINTER-REALIGN-001
 Date: 2026-06-24
 Token: MIRBUILDER-CONVERTER-NEXT-SLICE-DESIGN-STOP-001
 
@@ -37,3 +37,9 @@ new Hako syntax = 0
 backend behavior changed = 0
 runtime fallback = 0
 ```
+
+## Closeout
+
+The design-stop choice is resolved by
+`CURRENT-STATE-POINTER-REALIGN-001`. The old 1650 token remains provenance,
+not the active blocker.

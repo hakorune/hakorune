@@ -86,6 +86,8 @@ def _render_statement_operation(operation: Mapping[str, Any]) -> list[str]:
         value = operation.get("value")
         if not isinstance(target, str) or value is None:
             raise ValueError("Assign requires target and value")
+        if operation.get("declaration") == "local":
+            return [f"local {target} = {_render_expr(value)}"]
         return [f"{target} = {_render_expr(value)}"]
     if kind == "NewBox":
         target = operation.get("target")
@@ -648,7 +650,8 @@ def render_operation(operation: Mapping[str, Any]) -> list[str]:
             "if n == 0 {",
             "    return Option::None()",
             "}",
-            f"local value = {source}.pop()",
+            f"local value = BoxHelpers.array_get({source}, n - 1)",
+            f"{source}.remove(n - 1)",
             "return Option::Some(value)",
         ]
     if kind == "SequenceLastOption":

@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "DirectStatePlanRefreshApi.project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
+      "hako_operation": "StaticCall + SetField + ReturnValue",
+      "id": "DirectStatePlanRefreshApi::project_shadow_record",
+      "rust_operation": "MirBuilder::finalize_module direct state plan refresh"
+    }
+  ],
+  "pilot_scope": "DirectStatePlanRefresh_prepared_direct_state_plan_refresh_only",
+  "schema_version": 0,
+  "selected_body_count": "direct_state_plan_refresh_prepared_direct_state_plan_refresh_only",
+  "source_oracle": "mirbuilder-direct-state-plan-refresh-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-direct-state-plan-refresh-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.direct_state_plan_refresh"
+}

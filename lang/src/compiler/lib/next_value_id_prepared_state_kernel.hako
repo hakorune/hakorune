@@ -1,0 +1,111 @@
+// next_value_id_prepared_state_kernel.hako — native source owner for the
+// prepared-state allocation-policy kernel.
+//
+// Responsibility:
+// - own the prepared-state next_value_id family as native compiler library
+//   source
+// - provide edit/semantic authority for this narrow family
+//
+// Non-responsibility:
+// - generated artifact emission
+// - Python oracle generation
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+
+using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box MirBuilderAllocationPolicyKernel {
+}
+
+box CoreContext {
+    value_next_id: i64
+    block_next_id: i64
+    next_binding_id: i64
+    temp_slot_counter: i64
+    debug_join_counter: i64
+
+    birth() {
+        me.value_next_id = 0
+        me.block_next_id = 0
+        me.next_binding_id = 0
+        me.temp_slot_counter = 0
+        me.debug_join_counter = 0
+    }
+}
+
+box FunctionValueIdCounterState {
+    next_value_id: i64
+
+    birth() {
+        me.next_value_id = 0
+    }
+}
+
+box ReservedValueIdMembershipView {
+    storage: ValueIdOrderedMapBox
+
+    birth() {
+        me.storage = ValueIdOrderedMap.create()
+    }
+}
+
+static box CoreContextApi {
+    next_value(ctx): i64 {
+        local id = ctx.value_next_id
+        if ctx.value_next_id < 4294967295 {
+            ctx.value_next_id = ctx.value_next_id + 1
+        }
+        return id
+    }
+}
+
+static box FunctionValueIdCounterStateApi {
+    next(state): i64 {
+        local id = state.next_value_id
+        state.next_value_id = state.next_value_id + 1
+        return id
+    }
+}
+
+static box ReservedValueIdMembershipViewApi {
+    add(view, value_id): i64 {
+        view.storage.set(value_id, 1)
+        return 1
+    }
+
+    has(view, candidate): i64 {
+        local keys = view.storage.keys_value
+        if candidate == null {
+            return 0
+        }
+        local key = candidate
+        local i = 0
+        loop(i < keys.length()) {
+            if BoxHelpers.array_get(keys, i) == key {
+                return 1
+            }
+            i = i + 1
+        }
+        return 0
+    }
+}
+
+static box MirBuilderAllocationPolicyApi {
+    next_value_id(current_function_present, function_state, core_context, reserved_membership): i64 {
+        local candidate = 0
+        loop(candidate < 4294967295) {
+            if current_function_present == 1 {
+                candidate = FunctionValueIdCounterStateApi.next(function_state)
+            } else {
+                candidate = CoreContextApi.next_value(core_context)
+            }
+            local is_reserved = ReservedValueIdMembershipViewApi.has(reserved_membership, candidate)
+            if is_reserved == 0 {
+                return candidate
+            }
+        }
+        return 0
+    }
+}

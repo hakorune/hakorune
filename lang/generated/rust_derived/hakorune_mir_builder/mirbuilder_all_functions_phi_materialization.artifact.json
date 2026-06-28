@@ -1,0 +1,59 @@
+{
+  "claims": {
+    "abi_changed": 0,
+    "all_functions_phi_materialization": 1,
+    "backend_route_changed": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "generated_hako_manual_edit": 0,
+    "mainline_selected": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "excluded_methods": [],
+  "family_id": "hakorune_mir_builder::all_functions_phi_materialization",
+  "generator": {
+    "tool": "tools/rust_lifecycle/convert_mirbuilder_lightweight_facts.py --family mirbuilder-all-functions-phi-materialization",
+    "version": "mirbuilder-all-functions-phi-materialization-derived-hako-v0"
+  },
+  "inputs": {
+    "facts": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-plan-v0.json",
+      "sha256": "7af78d052bcefd98e9746b7e908a423febd55b46e4d7e65c8cf0b911333b0e5c"
+    },
+    "oracle": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-derived-hako-oracle-v0.json",
+      "sha256": "35f61c02065be2c249a099bc511c92e229535a49e0c67ec99a082529cafae068"
+    },
+    "plan": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-execution-projection-v0.json",
+      "sha256": "b3b0363492cef25be3b987127225fd95af31b2c6b59bbb771d2c11ef7cc8b271"
+    },
+    "recipe": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-derived-hako-recipe-v0.json",
+      "sha256": "cc632bbdf6e1c6c9cbf300bc5f4bd0bead864c26f7dba6a625ebcb33bae4868e"
+    },
+    "verifier": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-all-functions-phi-materialization-derived-hako-verifier-result-v0.json",
+      "sha256": "42fefc02eb7192ec19eddc751c7762abcfae1fa71e341486c442c61da78bc08a"
+    }
+  },
+  "kind": "RustDerivedHakoArtifact",
+  "output": {
+    "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_all_functions_phi_materialization.hako",
+    "hako_sha256": "4806735168f4117e7aa0c20091ed82c8131dded61ca4b9936d0c8c744aee5f56"
+  },
+  "pilot_scope": "AllFunctionsPhiMaterialization_prepared_all_functions_phi_materialization_only",
+  "schema_version": 0,
+  "source": {
+    "rust_files": [
+      {
+        "path": "src/mir/builder/module_lifecycle.rs",
+        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+      }
+    ]
+  },
+  "state": "DerivedShadow"
+}

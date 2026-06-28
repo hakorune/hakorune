@@ -1,0 +1,10 @@
+# Rows that define the explicit design-stop pause contract.
+# Format:
+#   blocker_token_contains=<substring>
+#   target_doc|required_pattern_prefix
+blocker_token_contains=DESIGN-STOP
+CURRENT_TASK.md|invent a new executable owner from historical mirrors.
+CURRENT_TASK.md|keep the goal open until the frontier names a concrete next
+docs/development/current/main/05-Restart-Quick-Resume.md|goal-driven execution loop here and review the frontier card before
+docs/development/current/main/design/current-docs-update-policy-ssot.md|pause point for goal-driven execution: do not invent a fresh executable owner
+docs/development/current/main/design/current-docs-update-policy-ssot.md|do not use docs-only follow-ups to keep the same

@@ -1,0 +1,32 @@
+{
+  "kind": "MirBuilderAllFunctionsPhiMaterializationDerivedHakoOracleV1",
+  "non_claims": {
+    "abi_changed": 0,
+    "backend_route_changed": 0,
+    "full_finalize_module": 0,
+    "generated_hako_artifact": 0,
+    "mainline_selected": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "schema_version": 0,
+  "subject": "MirBuilder::finalize_module all-functions PHI materialization",
+  "vectors": [
+    {
+      "expect": {
+        "canonical_json_parity": 1,
+        "mutation_target_count": 1,
+        "shadow_candidate_family": "hakorune_mir_builder::all_functions_phi_materialization",
+        "shadow_candidate_kind": "AllFunctionsPhiMaterializationShadowCandidateV1",
+        "shadow_candidate_stage": "all_functions_phi_materialization"
+      },
+      "inputs": {
+        "entrypoint": "MirBuilder::finalize_module all-functions PHI materialization sweep",
+        "plan_subject": "MirBuilder::finalize_module all-functions PHI materialization",
+        "projected_field_count": 8,
+        "publication_target_count": 1
+      },
+      "name": "all_functions_phi_shadow_candidate_canonical_parity"
+    }
+  ]
+}

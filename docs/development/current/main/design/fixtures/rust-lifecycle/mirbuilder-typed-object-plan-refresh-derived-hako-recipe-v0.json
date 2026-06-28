@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "TypedObjectPlanRefreshApi.project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
+      "hako_operation": "StaticCall + SetField + ReturnValue",
+      "id": "TypedObjectPlanRefreshApi::project_shadow_record",
+      "rust_operation": "MirBuilder::finalize_module typed object plan refresh"
+    }
+  ],
+  "pilot_scope": "TypedObjectPlanRefresh_prepared_typed_object_plan_refresh_only",
+  "schema_version": 0,
+  "selected_body_count": "typed_object_plan_refresh_prepared_typed_object_plan_refresh_only",
+  "source_oracle": "mirbuilder-typed-object-plan-refresh-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-typed-object-plan-refresh-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.typed_object_plan_refresh"
+}

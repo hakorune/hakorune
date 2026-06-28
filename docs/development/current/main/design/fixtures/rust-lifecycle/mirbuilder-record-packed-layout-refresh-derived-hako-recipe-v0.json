@@ -1,0 +1,18 @@
+{
+  "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
+  "kind": "HakoBehaviorRecipe",
+  "methods": [
+    {
+      "emits": "RecordPackedLayoutRefreshApi.project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
+      "hako_operation": "StaticCall + SetField + ReturnValue",
+      "id": "RecordPackedLayoutRefreshApi::project_shadow_record",
+      "rust_operation": "MirBuilder::finalize_module record/packed layout refresh"
+    }
+  ],
+  "pilot_scope": "RecordPackedLayoutRefresh_prepared_record_packed_layout_refresh_only",
+  "schema_version": 0,
+  "selected_body_count": "record_packed_layout_refresh_prepared_record_packed_layout_refresh_only",
+  "source_oracle": "mirbuilder-record-packed-layout-refresh-derived-hako-oracle-v0.json",
+  "source_plan": "mirbuilder-record-packed-layout-refresh-execution-projection-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.record_packed_layout_refresh"
+}

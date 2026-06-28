@@ -1,0 +1,32 @@
+{
+  "kind": "MirBuilderAllocationPolicyHakoAdoptionDecisionV1",
+  "schema_version": 0,
+  "family_id": "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+  "input_evidence": {
+    "composed_prefix_result": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-prefix-advance-v1.json",
+      "prefix_state": "Green",
+      "next_unconsumed_edge_classification": "Closed"
+    },
+    "route_selection": {
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.route.json",
+      "state": "DerivedMainline"
+    },
+    "artifact_manifest": {
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json",
+      "state": "DerivedMainline"
+    },
+    "native_source_owner_present": 0
+  },
+  "decision": "Defer",
+  "reason_token": "NativeHakoSourceOwnerMissing",
+  "selected_next_route": "wait_for_native_hako_source_owner",
+  "claims": {
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "source_selfhost_claim": 0,
+    "rust_source_delete": 0,
+    "manual_next_owner_selection": 0
+  }
+}

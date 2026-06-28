@@ -15,6 +15,7 @@ from family_artifact_builders import (
 )
 from family_artifact_spec import ApiMethodSpec, BehaviorMethodSpec, BoxSpec, FieldSpec, FamilyArtifactSpec, StaticBoxSpec
 from mirbuilder_direct_shape_lowerer import lower_direct_shape_methods
+from mirbuilder_optional_map_converter import require_immutable_leaf_projection_plan
 from shared_family_generator import read_json, run_validated_family_generator, stable_json, write_if_changed
 from mirbuilder_storage_access_facts import ELIDE_TO_READ_FOLD, classify_storage_access, storage_access_from_borrow_use
 from verified_hako_family_ir import op
@@ -42,9 +43,11 @@ def validate_metadata_value_caller(facts: dict[str, Any], plan: dict[str, Any], 
         raise SystemExit("MetadataContext value_origin_callers key-domain transport mismatch")
     if field.get("map_identity_escapes") is not False:
         raise SystemExit("MetadataContext value_origin_callers map identity must not escape")
-    plans = {row["id"]: row for row in plan["plans"]}
-    if plans["MetadataContext.value_origin_callers"].get("shape_rule") != "map.immutable_leaf_projection":
-        raise SystemExit("MetadataContext value_caller must use map.immutable_leaf_projection")
+    require_immutable_leaf_projection_plan(
+        plan,
+        plan_id="MetadataContext.value_origin_callers",
+        error_type=SystemExit,
+    )
     body_facts = {row["id"]: row for row in facts["body_facts"]}
     if body_facts.get("MetadataContext::value_caller", {}).get("value_projection") != "ImmutableStringAtom":
         raise SystemExit("MetadataContext value_caller projection mismatch")
@@ -59,6 +62,7 @@ def validate_metadata_value_caller(facts: dict[str, Any], plan: dict[str, Any], 
     fold_plan_ref = read_fold_shape.get("plan_ref")
     if not isinstance(fold_plan_ref, str):
         raise SystemExit("MetadataContext value_origin_callers read fold must declare plan_ref")
+    plans = {row["id"]: row for row in plan["plans"]}
     fold_plan = plans.get(fold_plan_ref)
     if fold_plan is None or fold_plan.get("shape_rule") != "borrow.read_fold":
         raise SystemExit("MetadataContext value_origin_callers read fold must use borrow.read_fold")

@@ -1,7 +1,7 @@
 # Derived-to-Native Hako Artifact Model
 
 Status: SSOT
-Date: 2026-06-20
+Date: 2026-06-28
 Scope: How Rust compiler-family sources migrate through generated Hako
 artifacts before becoming native Hako source.
 
@@ -43,6 +43,49 @@ Source Selfhost:
 The derived model helps reach Artifact Selfhost and Mainline Selfhost. It does
 not by itself prove Source Selfhost.
 
+## Converter Bridge Stop-Line
+
+The converter path is the selected bridge for moving complex Rust compiler
+families toward selfhost. It is not the destination.
+
+This is intentional:
+
+```text
+Rust source / facts
+  -> plan / verifier
+  -> generated Hako artifact
+  -> composed execution evidence
+  -> route selection
+  -> HakoAdopted decision
+```
+
+The converter is correct when it narrows semantic parity and produces
+machine-checkable execution artifacts. It becomes a design risk when producing
+more converter output becomes the goal and no family moves toward
+`HakoAdopted`.
+
+Therefore:
+
+```text
+converter artifact growth:
+  allowed only as a bridge toward executable evidence or adoption decisions
+
+generated artifact:
+  execution artifact; not final semantic/edit authority
+
+Source Selfhost:
+  requires native Hako source for compiler semantic families
+
+Rust after adoption:
+  bootstrap / platform / oracle / explicit compat only
+```
+
+Do not count converter completion as Source Selfhost. Do not treat a large set
+of generated artifacts as a substitute for native Hako ownership. The expected
+progression is to connect generated artifacts through composed execution, then
+run narrow family adoption decisions before the derived lane becomes a steady
+state.
+
 ## Family State Machine
 
 ```text
@@ -83,6 +126,86 @@ serialization boilerplate, ABI bindings, and generated constants. Compiler
 semantic families such as parser policy, resolution, lifecycle policy,
 FlowPlanner, recipe/verifier, loop/PHI policy, and canonical lowering require a
 Hako-native adoption decision before Source Selfhost is claimed.
+
+## Frontier and Directability
+
+The semantic frontier and the materialization decision are separate. The
+frontier chooses the next source edge; directability chooses whether that edge
+is a leaf that can be materialized now or a composite owner that must be
+decomposed first.
+
+Use these outcomes explicitly:
+
+```text
+AllowLeafArtifact:
+  the analyzer points at a leaf owner and the child authority is explicit
+
+DenyCompositeNeedsDecomposition:
+  the analyzer still points at a composite owner
+
+DenyMissingChildAuthority:
+  a child owner exists, but no directability evidence exists yet
+```
+
+Do not hand-pin the next edge in task-order when the analyzer can derive it.
+Do not turn a composite owner into one large derived artifact just because the
+frontier reports it next. The slice shape comes from directability, not from
+the frontier token alone.
+
+Example:
+
+```text
+finalize_module.record_packed_layout_refresh:
+  composite owner -> decompose first
+
+finalize_module.typed_object_plan_refresh:
+  first leaf owner under that composite -> may be materialized
+```
+
+Hako adoption is a separate axis from materialization. A family can be a
+selected generated artifact, a derived mainline artifact, or a Hako-adopted
+native source owner. Those states do not change the frontier rule above.
+
+## Composition Integration Owners
+
+Composition closure cards are integration owners, not semantic family owners.
+They may wire existing artifacts together, validate manifest / contract
+closure, observe same-state handoff, and report the first stable composition
+red edge.
+
+They must not own or recopy family semantics:
+
+```text
+owned:
+  artifact call graph order
+  state handoff wiring
+  manifest / contract closure checks
+  same-state execution smoke
+  first composition red edge detection
+
+not owned:
+  ReturnEmission semantics
+  ModuleMetadataPublication semantics
+  refresh-family semantics
+  allocation policy semantics
+  new transport policy
+  route fallback policy
+```
+
+Required acceptance for such cards:
+
+```text
+semantic_recipe_recopy = 0
+new_semantic_projection = 0
+existing_contracts_consumed = 1
+same_state_handoff_observed = 1
+first_red_edge_if_any_is_stable = 1
+standalone_smoke_aggregation_as_success = 0
+```
+
+If a composition owner exposes a red edge, the next owner comes from that
+observed edge plus directability classification. Do not use the composition
+owner as permission to create a larger semantic artifact.
 
 ## Authority Vocabulary
 

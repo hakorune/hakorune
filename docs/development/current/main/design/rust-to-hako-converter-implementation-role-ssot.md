@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-26
+Date: 2026-06-28
 Scope: Rust-to-Hako converter implementation roles and Python growth control.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -30,6 +30,56 @@ Converter implementation:
 family. A converter implementation migration makes the tool that projects
 facts/plans into typed artifact IR run in `.hako`. These are related but not
 the same task.
+
+## Converter Completion Stop-Line
+
+The converter exists to build a verified bridge into selfhost. Completing more
+converter machinery is not, by itself, the selfhost objective.
+
+Allowed converter work must serve at least one of these outcomes:
+
+```text
+semantic parity:
+  narrow Rust behavior into facts / plans / verifier evidence
+
+artifact execution:
+  produce generated Hako that parses, emits MIR, and runs under selected gates
+
+composition:
+  connect generated artifacts through the same prepared state instead of
+  isolated per-family smokes
+
+adoption:
+  move a mature narrow family toward HakoAdopted or explicitly defer it
+
+converter retirement:
+  move a SemanticProjector stage from PythonBootstrap to HakoShadow,
+  HakoMainline, PythonFrozen, or Retired
+```
+
+Forbidden steady states:
+
+```text
+converter_forever:
+  artifact generation continues without composed execution or adoption
+
+python_semantics_forever:
+  Python keeps growing directability, transport, recipe, or IR-construction
+  authority after the freeze checkpoint
+
+generated_source_as_source_selfhost:
+  generated Hako is counted as native Hako edit authority without
+  HakoAdopted
+
+backend_semantic_consumer:
+  backend/interpreter directly interprets compiler policy facts as a second
+  semantic owner
+```
+
+When choosing the next task, prefer the first action that reduces one of those
+risks: composed execution closure, a narrow HakoAdopted decision, Hako shadow
+projector parity, Python SemanticProjector retirement, or composite-owner
+decomposition.
 
 ## Role Classification
 
@@ -233,13 +283,23 @@ without relying on handwritten prose.
   "kind": "PythonConverterRoleInventoryV1",
   "checkpoint": "PYTHON-SEMANTIC-PROJECTOR-GROWTH-FREEZE-001",
   "scope": "tools/rust_lifecycle",
+  "active_python_file_count": 164,
+  "role_file_counts": {
+    "DeterministicEmitter": 10,
+    "FactsAdapter": 23,
+    "GuardOrchestrator": 37,
+    "SemanticProjector": 98
+  },
   "role_buckets": [
     {
       "role": "FactsAdapter",
       "patterns": [
         "tools/rust_lifecycle/context_fact_extraction.py",
         "tools/rust_lifecycle/extract_*.py",
-        "tools/rust_lifecycle/mirbuilder_allocation_policy_facts.py"
+        "tools/rust_lifecycle/mirbuilder_allocation_policy_facts.py",
+        "tools/rust_lifecycle/mirbuilder_storage_access_facts.py",
+        "tools/rust_lifecycle/mirbuilder_type_context_bounded_map_slice_facts_pilot.py",
+        "tools/rust_lifecycle/rustc_adapter_preflight.py"
       ]
     },
     {
@@ -266,13 +326,20 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/mirbuilder_minimal_execution_path_semantic_closure_report.py",
         "tools/rust_lifecycle/mirbuilder_condition_fn_injection.py",
         "tools/rust_lifecycle/mirbuilder_direct_shape_lowerer.py",
+        "tools/rust_lifecycle/mirbuilder_metadata_origin_caller_merge.py",
         "tools/rust_lifecycle/mirbuilder_mir_module_minimal_shell_transport.py",
+        "tools/rust_lifecycle/mirbuilder_module_function_insertion.py",
+        "tools/rust_lifecycle/mirbuilder_ordering_capability.py",
+        "tools/rust_lifecycle/mirbuilder_phi_input_materialization.py",
+        "tools/rust_lifecycle/mirbuilder_phi_return_type_inference.py",
         "tools/rust_lifecycle/mirbuilder_region_observer_variable_map_route.py",
+        "tools/rust_lifecycle/mirbuilder_return_emission.py",
         "tools/rust_lifecycle/mirbuilder_type_hint_provision.py",
         "tools/rust_lifecycle/mirbuilder_function_region_stack_pop.py",
         "tools/rust_lifecycle/mirbuilder_slot_registry_release.py",
         "tools/rust_lifecycle/mirbuilder_module_metadata_publication.py",
         "tools/rust_lifecycle/mirbuilder_record_packed_layout_refresh.py",
+        "tools/rust_lifecycle/mirbuilder_record_packed_layout_refresh_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_typed_object_plan_refresh.py",
         "tools/rust_lifecycle/mirbuilder_direct_state_plan_refresh.py",
         "tools/rust_lifecycle/mirbuilder_all_functions_phi_materialization.py",
@@ -280,15 +347,24 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/mir_function_constructor_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_prepared_state_install_artifacts.py",
         "tools/rust_lifecycle/mirbuilder_next_value_id_prepared_state_kernel_artifacts.py",
-        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py"
+        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py",
+        "tools/rust_lifecycle/verified_family_artifact_contract.py",
+        "tools/rust_lifecycle/verified_hako_family_ir.py"
       ]
     },
     {
       "role": "DeterministicEmitter",
       "patterns": [
+        "tools/rust_lifecycle/family_artifact_builders.py",
+        "tools/rust_lifecycle/family_artifact_spec.py",
         "tools/rust_lifecycle/generate_mirbuilder_ordered_map_crate_bundle.py",
+        "tools/rust_lifecycle/mirbuilder_family_artifact_runtime.py",
         "tools/rust_lifecycle/mirbuilder_family_artifacts.py",
-        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py"
+        "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py",
+        "tools/rust_lifecycle/shared_family_generator.py",
+        "tools/rust_lifecycle/shared_mirbuilder_emitter.py",
+        "tools/rust_lifecycle/shared_mirbuilder_emitter_common.py",
+        "tools/rust_lifecycle/shared_mirbuilder_operation_emitter.py"
       ]
     },
     {
@@ -299,17 +375,42 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/*_inventory.py",
         "tools/rust_lifecycle/*_readiness_inventory.py",
         "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_*.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_execution_path_smoke.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_execution_path_frontier_resolution.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_path_composed_execution_continuation.py",
+        "tools/rust_lifecycle/mirbuilder_minimal_path_composed_prefix_advance.py",
+        "tools/rust_lifecycle/mirbuilder_negative_converter_fixtures.py",
         "tools/rust_lifecycle/*_runner.py",
         "tools/rust_lifecycle/mirbuilder_family_validators.py",
         "tools/rust_lifecycle/mirbuilder_generated_to_native_adoption_matrix.py"
       ]
     }
   ],
+  "allowed_role_overlaps": {
+    "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_harness_owner_selection.py": [
+      "GuardOrchestrator",
+      "SemanticProjector"
+    ],
+    "tools/rust_lifecycle/mirbuilder_box_compilation_context_crate_smoke_selection.py": [
+      "GuardOrchestrator",
+      "SemanticProjector"
+    ],
+    "tools/rust_lifecycle/mirbuilder_family_artifacts.py": [
+      "DeterministicEmitter",
+      "SemanticProjector"
+    ],
+    "tools/rust_lifecycle/mirbuilder_ordered_map_crate_bundle_artifacts.py": [
+      "DeterministicEmitter",
+      "SemanticProjector"
+    ]
+  },
   "semantic_projector_follow_on_tokens": {
     "mirbuilder-minimal-execution-path-selection": "MIRBUILDER-MINIMAL-EXECUTION-PATH-SEMANTIC-CLOSURE-REPORT-001",
     "mirbuilder-minimal-execution-path-semantic-closure-report": "MIR-MODULE-MINIMAL-SHELL-DERIVED-HAKO-ARTIFACT-001",
     "mirbuilder-next-value-id-prepared-state-kernel": "MIRBUILDER-ALLOCATION-POLICY-HAKO-ADOPTION-DECISION-001",
     "mirbuilder-return-emission": "MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROJECTOR-001",
+    "mirbuilder-record-packed-layout-refresh": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-DERIVED-HAKO-ARTIFACT-001",
     "mirbuilder-condition-fn-injection": "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
   },
   "non_claims": {
@@ -443,6 +544,7 @@ lang/src/compiler/lib/canonical_json.hako
 lang/src/compiler/lib/return_emission_projector.hako
 lang/src/compiler/lib/function_region_stack_pop_projector.hako
 lang/src/compiler/lib/slot_registry_release_projector.hako
+lang/src/compiler/lib/typed_object_plan_refresh_projector.hako
 ```
 
 Promotion rule:

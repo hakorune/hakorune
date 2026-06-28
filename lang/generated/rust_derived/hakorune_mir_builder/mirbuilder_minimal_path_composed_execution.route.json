@@ -1,0 +1,339 @@
+{
+  "claims": {
+    "fallback_to_standalone_harness": 0,
+    "generated_hako_change": 0,
+    "generated_route_change": 1,
+    "manual_next_edge_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "same_state_handoff_observed": 1,
+    "selected_existing_contracts_consumed": 1,
+    "semantic_recipe_recopy": 0,
+    "source_selfhost_claim": 0
+  },
+  "composition_prefix": [
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+        "pilot_scope": "MirModuleMinimalShell_new_only",
+        "sha256": "a89a384924d90471b335b734b172e95fee4d427db08dc5dd88d74f9370cfb788",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> MirModule::new",
+      "edge_id": "prepare_module.module_new",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir::MirModuleMinimalShell",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+        "manifest_sha256": "a89a384924d90471b335b734b172e95fee4d427db08dc5dd88d74f9370cfb788"
+      },
+      "required_capability": "MirModuleMinimalShellTransport",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "pilot_scope": "CoreContext_scalar_counters_and_id_generators",
+        "sha256": "c8be93084f58479d3ef468d24797bce9de792daa9a7755db7d40361a9cfc52cb",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
+      "edge_id": "prepare_module.next_block",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::core_context",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "manifest_sha256": "c8be93084f58479d3ef468d24797bce9de792daa9a7755db7d40361a9cfc52cb"
+      },
+      "required_capability": "CoreContext.scalar_counters_and_id_generators",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.artifact.json",
+        "pilot_scope": "MirFunctionConstructorShell_new_only",
+        "sha256": "3f47de3da5060cde5d3cf544161a4a879c1c0412155379664d288e3d9c4103f5",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+      "edge_id": "prepare_module.function_new",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir::MirFunctionConstructorShell",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.artifact.json",
+        "manifest_sha256": "3f47de3da5060cde5d3cf544161a4a879c1c0412155379664d288e3d9c4103f5"
+      },
+      "required_capability": "MirFunctionConstructorTransport",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
+        "pilot_scope": "PreparedStateInstall_only",
+        "sha256": "7e0943135822dc349c42aad9d3a7da7c1783a57b7a12c41e4c93c220fc07671d",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> current state install",
+      "edge_id": "prepare_module.state_install",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::prepared_state_install",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
+        "manifest_sha256": "7e0943135822dc349c42aad9d3a7da7c1783a57b7a12c41e4c93c220fc07671d"
+      },
+      "required_capability": "PreparedStateInstall",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json",
+        "pilot_scope": "LiteralIntegerLowering_prepared_state_only",
+        "sha256": "6199480c9a313dda776e4303af3214c9600356a9c43e14fb9c0aca4d2fa03461",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+      "edge_id": "lower_root.literal_integer",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::literal_integer_lowering",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json",
+        "manifest_sha256": "6199480c9a313dda776e4303af3214c9600356a9c43e14fb9c0aca4d2fa03461"
+      },
+      "required_capability": "LiteralIntegerLowering",
+      "route_state": "DerivedShadow"
+    }
+  ],
+  "dependency_routes": [
+    {
+      "artifact_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.artifact.json",
+      "artifact_sha256": "53c013de80958bf34d08579cd29523972b7cad18d5a8ea275c6c5512e53a7d0f",
+      "artifact_state": "DerivedMainline",
+      "kind": "DerivedMainlineRouteSelectionV1",
+      "route_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.route.json",
+      "route_sha256": "d1ef2c68632fe2bd28cd89ef155149b4eee7bb4cfda085a7695bd9a9ccf0417e",
+      "route_slot_id": "hakorune_mir_builder.allocation_policy.next_value_id.prepared_state.v1"
+    }
+  ],
+  "family_id": "hakorune_mir_builder::minimal_path_composed_execution",
+  "input_profile": {
+    "ast": "ASTNode::Literal(Integer(0))"
+  },
+  "kind": "MinimalMirBuilderComposedExecutionRouteV1",
+  "route_slot_id": "hakorune_mir_builder.minimal_path.composed_execution.v1",
+  "same_state_handoff": {
+    "fallback_to_standalone_harness": 0,
+    "generated_hako_change": 0,
+    "observed": 1,
+    "selected_existing_contracts_consumed": 1,
+    "state_transport": "PreparedMirBuilderStateShell"
+  },
+  "schema_version": 0,
+  "selected_existing_contracts": [
+    {
+      "capability": "MirModuleMinimalShellTransport",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "edge_id": "prepare_module.module_new",
+      "family_id": "hakorune_mir::MirModuleMinimalShell",
+      "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.hako",
+      "hako_sha256": "4643030b9ad35444bdad1c73e549568ebe3a663935760a2879b3ff486e433653",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+      "manifest_sha256": "a89a384924d90471b335b734b172e95fee4d427db08dc5dd88d74f9370cfb788",
+      "pilot_scope": "MirModuleMinimalShell_new_only",
+      "state": "DerivedShadow"
+    },
+    {
+      "capability": "CoreContext.scalar_counters_and_id_generators",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "edge_id": "prepare_module.next_block",
+      "family_id": "hakorune_mir_builder::core_context",
+      "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.hako",
+      "hako_sha256": "5a2cdecc36376482735422016928989a957b5e89c5c6107a3b3fa1c6d323f048",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+      "manifest_sha256": "c8be93084f58479d3ef468d24797bce9de792daa9a7755db7d40361a9cfc52cb",
+      "pilot_scope": "CoreContext_scalar_counters_and_id_generators",
+      "state": "DerivedShadow"
+    },
+    {
+      "capability": "MirFunctionConstructorTransport",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "edge_id": "prepare_module.function_new",
+      "family_id": "hakorune_mir::MirFunctionConstructorShell",
+      "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.hako",
+      "hako_sha256": "8f2fb8f22bcd33ec54fae22a33c1bc8259045ebe305fcdc9d2fdbe0cfd2b8323",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.artifact.json",
+      "manifest_sha256": "3f47de3da5060cde5d3cf544161a4a879c1c0412155379664d288e3d9c4103f5",
+      "pilot_scope": "MirFunctionConstructorShell_new_only",
+      "state": "DerivedShadow"
+    },
+    {
+      "capability": "PreparedStateInstall",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "edge_id": "prepare_module.state_install",
+      "family_id": "hakorune_mir_builder::prepared_state_install",
+      "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.hako",
+      "hako_sha256": "e1a2e73106771d254766074fab9feea7857fdb7fd0c52364fda4681c948d1a99",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
+      "manifest_sha256": "7e0943135822dc349c42aad9d3a7da7c1783a57b7a12c41e4c93c220fc07671d",
+      "pilot_scope": "PreparedStateInstall_only",
+      "state": "DerivedShadow"
+    },
+    {
+      "capability": "LiteralIntegerLowering",
+      "contract_kind": "VerifiedFamilyArtifactContractV1",
+      "edge_id": "lower_root.literal_integer",
+      "family_id": "hakorune_mir_builder::literal_integer_lowering",
+      "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.hako",
+      "hako_sha256": "ddb4ff252c65cad9ede018a9a481b6c24d4a60468fee2b6ec771a569203dec75",
+      "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json",
+      "manifest_sha256": "6199480c9a313dda776e4303af3214c9600356a9c43e14fb9c0aca4d2fa03461",
+      "pilot_scope": "LiteralIntegerLowering_prepared_state_only",
+      "state": "DerivedShadow"
+    }
+  ],
+  "selected_scope": "PreparedMirBuilderStateV1",
+  "source_authority": {
+    "allocation_policy_route": {
+      "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.route.json",
+      "sha256": "d1ef2c68632fe2bd28cd89ef155149b4eee7bb4cfda085a7695bd9a9ccf0417e"
+    },
+    "semantic_closure_report": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
+      "sha256": "77bd29e2e005a65746660b551124b3a09d29af9805dfc48e61dd9b0eaee413e2"
+    }
+  },
+  "source_order_prefix": [
+    {
+      "callsite": "PreparedMirBuilderStateV1",
+      "edge_id": "entry.prepared_state_profile",
+      "provider_kind": "ExecutionProfile",
+      "required_capability": "PreparedMirBuilderStateV1"
+    },
+    {
+      "callsite": "MirBuilder::build_module -> prepare_module",
+      "edge_id": "build_module.prepare_module",
+      "provider_kind": "LiveSourceOrder",
+      "required_capability": "RustSourceCallOrder"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+        "pilot_scope": "MirModuleMinimalShell_new_only",
+        "sha256": "a89a384924d90471b335b734b172e95fee4d427db08dc5dd88d74f9370cfb788",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> MirModule::new",
+      "edge_id": "prepare_module.module_new",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir::MirModuleMinimalShell",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_module_minimal_shell.artifact.json",
+        "manifest_sha256": "a89a384924d90471b335b734b172e95fee4d427db08dc5dd88d74f9370cfb788"
+      },
+      "required_capability": "MirModuleMinimalShellTransport",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "pilot_scope": "CoreContext_scalar_counters_and_id_generators",
+        "sha256": "c8be93084f58479d3ef468d24797bce9de792daa9a7755db7d40361a9cfc52cb",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> CoreContextApi.next_block",
+      "edge_id": "prepare_module.next_block",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::core_context",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/core_context.artifact.json",
+        "manifest_sha256": "c8be93084f58479d3ef468d24797bce9de792daa9a7755db7d40361a9cfc52cb"
+      },
+      "required_capability": "CoreContext.scalar_counters_and_id_generators",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.artifact.json",
+        "pilot_scope": "MirFunctionConstructorShell_new_only",
+        "sha256": "3f47de3da5060cde5d3cf544161a4a879c1c0412155379664d288e3d9c4103f5",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> MirFunction::new",
+      "edge_id": "prepare_module.function_new",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir::MirFunctionConstructorShell",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mir_function_constructor_shell.artifact.json",
+        "manifest_sha256": "3f47de3da5060cde5d3cf544161a4a879c1c0412155379664d288e3d9c4103f5"
+      },
+      "required_capability": "MirFunctionConstructorTransport",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
+        "pilot_scope": "PreparedStateInstall_only",
+        "sha256": "7e0943135822dc349c42aad9d3a7da7c1783a57b7a12c41e4c93c220fc07671d",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::prepare_module -> current state install",
+      "edge_id": "prepare_module.state_install",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::prepared_state_install",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_prepared_state_install.artifact.json",
+        "manifest_sha256": "7e0943135822dc349c42aad9d3a7da7c1783a57b7a12c41e4c93c220fc07671d"
+      },
+      "required_capability": "PreparedStateInstall",
+      "route_state": "DerivedShadow"
+    },
+    {
+      "artifact_manifest": {
+        "path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json",
+        "pilot_scope": "LiteralIntegerLowering_prepared_state_only",
+        "sha256": "6199480c9a313dda776e4303af3214c9600356a9c43e14fb9c0aca4d2fa03461",
+        "state": "DerivedShadow"
+      },
+      "artifact_materialization": "ExecutableArtifactPresent",
+      "callsite": "MirBuilder::lower_root(ASTNode::Literal(Integer(0)))",
+      "edge_id": "lower_root.literal_integer",
+      "evidence_tier": "VerifiedArtifact",
+      "provider_reference": {
+        "artifact_state": "DerivedShadow",
+        "contract_kind": "VerifiedFamilyArtifactContractV1",
+        "family_id": "hakorune_mir_builder::literal_integer_lowering",
+        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_literal_integer_lowering.artifact.json",
+        "manifest_sha256": "6199480c9a313dda776e4303af3214c9600356a9c43e14fb9c0aca4d2fa03461"
+      },
+      "required_capability": "LiteralIntegerLowering",
+      "route_state": "DerivedShadow"
+    }
+  ]
+}

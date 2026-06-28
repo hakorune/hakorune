@@ -70,6 +70,14 @@ def main() -> int:
     snapshot_restore_route = _route_for("lang/generated/rust_derived/hakorune_mir_builder/variable_context_snapshot_restore.artifact.json")
     carrier_snapshot_route = _route_for("lang/generated/rust_derived/hakorune_mir_builder/variable_context_carrier_snapshot.artifact.json")
     explicit_carrier_route = _route_for("lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.artifact.json")
+    prepared_state_route_selection = _load_json(
+        ROOT / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_next_value_id_prepared_state_kernel.route.json"
+    )
+    prepared_state_route = {
+        "route": prepared_state_route_selection["profiles"]["selfhost_mainline"]["route"],
+        "state": prepared_state_route_selection["artifact"]["state"],
+        "selected_on_mainline": True,
+    }
 
     _report_row(
         "binding_context",
@@ -77,6 +85,13 @@ def main() -> int:
         generated_route_guard="bash tools/checks/rust_lifecycle_binding_context_derived_route_selection_guard.sh",
         native_source=ROOT / "apps/lib/hakorune_mir_builder/binding_context.hako",
         native_guard="bash tools/checks/rust_mirbuilder_binding_context_native_guard.sh",
+    )
+    _report_row(
+        "box_compilation_context",
+        generated_route=_route_for("lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json"),
+        generated_route_guard="bash tools/checks/rust_lifecycle_box_compilation_context_derived_route_selection_guard.sh",
+        native_source=ROOT / "apps/lib/hakorune_mir_builder/box_compilation_context.hako",
+        native_guard="bash tools/checks/rust_mirbuilder_box_compilation_context_native_guard.sh",
     )
     _report_row(
         "variable_context_simple_map",
@@ -98,6 +113,13 @@ def main() -> int:
         generated_route_guard=carrier_snapshot_route["guard_command"],
         native_source=ROOT / "apps/lib/hakorune_mir_builder/carrier_info.hako",
         native_guard="bash tools/checks/rust_mirbuilder_carrier_info_native_snapshot_guard.sh",
+    )
+    _report_row(
+        "allocation_policy_prepared_state_next_value_id",
+        generated_route=prepared_state_route,
+        generated_route_guard="bash tools/checks/rust_lifecycle_mirbuilder_allocation_policy_mainline_pilot_guard.sh",
+        native_source=ROOT / "lang/src/compiler/lib/next_value_id_prepared_state_kernel.hako",
+        native_guard="bash tools/checks/rust_lifecycle_mirbuilder_allocation_policy_native_source_owner_guard.sh",
     )
     _run_guard(explicit_carrier_route["guard_command"])
     print(f"carrier_info_snapshot_apis.explicit_generated_route={explicit_carrier_route['route']}")

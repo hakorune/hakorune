@@ -1,0 +1,30 @@
+{
+  "kind": "MirBuilderMinimalPathComposedExecutionClosureDerivedHakoOracleV1",
+  "non_claims": {
+    "full_minimal_path_mainline_selected": 0,
+    "hako_adopted": 0,
+    "runtime_fallback": 0,
+    "semantic_plan_closure": 0,
+    "source_selfhost_claim": 0
+  },
+  "schema_version": 0,
+  "subject": "MinimalMirBuilder composed execution closure seal",
+  "vectors": [
+    {
+      "expect": {
+        "generated_hako_executable_closure_closed": 1,
+        "return_value": 0,
+        "route_chain_closed": 1,
+        "same_state_handoff_observed": 1,
+        "selected_existing_contracts_consumed": 1
+      },
+      "inputs": {
+        "initial_generated_hako_executable_closure_closed": 0,
+        "initial_route_chain_closed": 0,
+        "initial_same_state_handoff_observed": 1,
+        "initial_selected_existing_contracts_consumed": 1
+      },
+      "name": "seal_closes_executable_closure"
+    }
+  ]
+}

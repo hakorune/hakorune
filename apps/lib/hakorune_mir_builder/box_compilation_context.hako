@@ -1,0 +1,22 @@
+using apps.lib.collections.ordered_map as OrderedMap
+
+box BoxCompilationContextNative {
+    variable_map: OrderedMapBox
+    value_origin_newbox: OrderedMapBox
+    value_types: OrderedMapBox
+
+    birth() {
+        me.variable_map = OrderedMap.create()
+        me.value_origin_newbox = OrderedMap.create()
+        me.value_types = OrderedMap.create()
+    }
+}
+
+static box BoxCompilationContextNativeApi {
+    is_empty(ctx): i64 {
+        if ctx.variable_map.is_empty() && ctx.value_origin_newbox.is_empty() && ctx.value_types.is_empty() {
+            return 1
+        }
+        return 0
+    }
+}

@@ -1,0 +1,61 @@
+{
+  "checks": {
+    "all_functions_phi_materialization": 0,
+    "apply_result_semantics": "Unit",
+    "apply_result_transport": "ScalarI64",
+    "current_slot_registry_cleared": 1,
+    "current_slot_registry_transport": "FunctionSlotRegistryPreparedBox",
+    "excluded_methods": [],
+    "full_finalize_module": 0,
+    "host_env_lookup": 0,
+    "metadata_publication": 0,
+    "module_metadata_publication": 0,
+    "release_result_transport": "FunctionSlotRegistryPreparedBox",
+    "released_registry_present": 1,
+    "runtime_fallback": 0,
+    "selected_body_count": "slot_registry_release_prepared_slot_registry_only",
+    "semantic_refresh": 0,
+    "slot_registry_release_only": 1,
+    "slot_registry_released": 1
+  },
+  "denied_boundaries": [
+    "module_metadata_publication",
+    "metadata_publication",
+    "semantic_refresh",
+    "all_functions_phi_materialization",
+    "full_finalize_module",
+    "mainline_selected",
+    "runtime_fallback"
+  ],
+  "family_id": "hakorune_mir_builder::slot_registry_release",
+  "kind": "DerivedHakoArtifactVerifierResult",
+  "pilot_scope": "SlotRegistryRelease_prepared_slot_registry_only",
+  "result": "VerifiedHakoFamilyIR",
+  "schema_version": 0,
+  "source_facts": "mirbuilder-slot-registry-release-plan-v0.json",
+  "source_plan": "mirbuilder-slot-registry-release-execution-projection-v0.json",
+  "source_recipe": "mirbuilder-slot-registry-release-derived-hako-recipe-v0.json",
+  "subject": "hakorune_mir_builder::MirBuilder.finalize_module.current_slot_registry_release",
+  "transport_notes": {
+    "all_functions_phi_materialization": 0,
+    "apply_result_semantics": "Unit",
+    "apply_result_transport": "ScalarI64",
+    "full_finalize_module": 0,
+    "function_region_stack_pop": 0,
+    "metadata_publication": 0,
+    "module_metadata_publication": 0,
+    "release_result_transport": "FunctionSlotRegistryPreparedBox",
+    "semantic_refresh": 0,
+    "slot_metadata_classification": 0,
+    "slot_registry_transport": "FunctionSlotRegistryPreparedBox",
+    "state_transport": "PreparedSlotRegistryStateShell"
+  },
+  "verified_operations": [
+    "Assign",
+    "SetField",
+    "ReturnValue",
+    "StaticCall",
+    "FunctionSlotRegistryPreparedBox",
+    "PreparedSlotRegistryStateShellBox"
+  ]
+}

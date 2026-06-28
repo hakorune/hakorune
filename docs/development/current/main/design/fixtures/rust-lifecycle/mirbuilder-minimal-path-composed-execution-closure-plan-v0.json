@@ -1,0 +1,43 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMinimalPathComposedExecutionClosurePlanV1",
+  "subject": "MinimalMirBuilder composed execution closure seal",
+  "source_authority": {
+    "semantic_closure_report": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
+    "composed_execution_route": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution.route.json",
+    "frontier_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-execution-path-frontier-resolution-v0.json",
+    "adoption_recheck": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-hako-adoption-decision-recheck-v1.json"
+  },
+  "execution_profile": {
+    "input": "ASTNode::Literal(Integer(0))",
+    "same_state_handoff": "Observed",
+    "selected_existing_contracts_consumed": "Consumed",
+    "generated_hako_executable_closure": "Open"
+  },
+  "closure_policy": {
+    "callsite": "MinimalMirBuilderComposedExecutionClosure::seal",
+    "operation": "set generated_hako_executable_closure_closed and route_chain_closed",
+    "generated_hako_executable_closure": "Closed",
+    "route_chain_closed": "Yes"
+  },
+  "available_capabilities": [
+    "ComposedExecutionClosure"
+  ],
+  "result_contract": {
+    "same_state_handoff_observed": 1,
+    "selected_existing_contracts_consumed": 1,
+    "generated_hako_executable_closure": "Closed",
+    "route_chain_closed": 1,
+    "minimal_path_expected_result": "NoErrorReturn"
+  },
+  "non_claims": {
+    "semantic_plan_closure": 0,
+    "full_minimal_path_mainline_selected": 0,
+    "hako_adopted": 0,
+    "rust_bootstrap_retirement": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

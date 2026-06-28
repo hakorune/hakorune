@@ -1,0 +1,148 @@
+// projector_support.hako -- CompilerProjectorSupportBox
+//
+// Responsibility:
+// - shared fail-fast helpers for compiler-facing Hako shadow projectors
+// - typed projection value deep-copy helpers
+//
+// Non-responsibility:
+// - family-specific semantic validation
+// - Python oracle generation
+// - Hako artifact emission
+// - TypeBox ABI
+// - host ABI
+
+using lang.compiler.lib.canonical_json as CanonicalJsonWriterBox
+using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box CompilerProjectorSupportBox {
+  tag(tag) {
+    if tag == null || ("" + tag) == "" {
+      return "[freeze:contract][hako_mirbuilder]"
+    }
+    return "" + tag
+  }
+
+  fail(tag, msg) {
+    tag = me.tag(tag)
+    return %{
+      "err" => 1,
+      "err_line" => tag + msg,
+      "shadow_record" => null,
+      "shadow_json" => ""
+    }
+  }
+
+  ok(shadow_record) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_record" => shadow_record,
+      "shadow_json" => CanonicalJsonWriterBox.canonicalize(shadow_record)
+    }
+  }
+
+  ok_with_json(shadow_record, shadow_json) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_record" => shadow_record,
+      "shadow_json" => "" + shadow_json
+    }
+  }
+
+  require_map(value, label, tag) {
+    if value == null || BoxHelpers.is_map(value) != 1 {
+      return me.fail(tag, "[" + label + "] expected MapBox")
+    }
+    return null
+  }
+
+  require_array(value, label, tag) {
+    if value == null || BoxHelpers.is_array(value) != 1 {
+      return me.fail(tag, "[" + label + "] expected ArrayBox")
+    }
+    return null
+  }
+
+  require_present(value, label, tag) {
+    if value == null {
+      return me.fail(tag, "[" + label + "] missing")
+    }
+    return null
+  }
+
+  require_text(value, label, expected, tag) {
+    local actual = "" + value
+    if actual != expected {
+      return me.fail(tag, "[" + label + "] expected " + expected + ", got " + actual)
+    }
+    return null
+  }
+
+  has_string_item(items, expected) {
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return false
+    }
+    local i = 0
+    local n = items.length()
+    loop(i < n) {
+      if "" + items.get(i) == expected {
+        return true
+      }
+      i = i + 1
+    }
+    return false
+  }
+
+  copy_any(value) {
+    if value == null {
+      return CompilerProjectionValueBox.create_null()
+    }
+    if value == true || value == false {
+      return CompilerProjectionValueBox.create_bool(value)
+    }
+    if BoxHelpers.is_array(value) == 1 {
+      return me.copy_array(value)
+    }
+    if BoxHelpers.is_map(value) == 1 {
+      return me.copy_object(value)
+    }
+    local text = "" + value
+    if StringHelpers.is_numeric_str(text) == 1 {
+      return CompilerProjectionValueBox.create_i64(text)
+    }
+    return CompilerProjectionValueBox.create_string(text)
+  }
+
+  copy_array(arr) {
+    local out = CompilerProjectionValueBox.create_array()
+    local i = 0
+    local n = arr.length()
+    loop(i < n) {
+      CompilerProjectionValueBox.array_push(out, me.copy_any(arr.get(i)))
+      i = i + 1
+    }
+    return out
+  }
+
+  copy_object(obj) {
+    local out = CompilerProjectionValueBox.create_object()
+    if obj == null {
+      return out
+    }
+    local keys = obj.keys()
+    if keys == null {
+      return out
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      CompilerProjectionValueBox.object_set(out, key, me.copy_any(obj.get(key)))
+      i = i + 1
+    }
+    return out
+  }
+}

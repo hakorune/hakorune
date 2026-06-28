@@ -1,0 +1,33 @@
+{
+  "claims": {
+    "hako_adopted": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "python_semantic_projector_growth": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "current_stage": "HakoShadow",
+  "decision": {
+    "kind": "Promote",
+    "next_slice_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001",
+    "owner_scope": "integration",
+    "reason": "FunctionRegionStackPop HakoShadow parity is green and the stage-state inventory keeps promotion and retirement tokens explicit.",
+    "reason_token": "FunctionRegionStackPopHakoShadowParityGreen"
+  },
+  "family_id": "hakorune_mir_builder::function_region_stack_pop",
+  "hako_shadow_retained": 1,
+  "input_evidence": {
+    "derived_artifact_guard": "tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_derived_artifact_guard.sh",
+    "derived_hako_verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-derived-hako-verifier-result-v0.json",
+    "stage_state_inventory_guard": "tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh"
+  },
+  "kind": "MirBuilderFunctionRegionStackPopHakoShadowPromotionDecisionV1",
+  "output_contract": "rust-lifecycle-function-region-stack-pop-hako-shadow-promotion-decision-v0",
+  "promotion_token": "FunctionRegionStackPopHakoShadowPromotionTokenV1",
+  "python_oracle_retained": 1,
+  "retirement_token": "FunctionRegionStackPopHakoShadowRetirementTokenV1",
+  "schema_version": 0,
+  "selected_stage": "HakoMainline",
+  "stage_id": "function_region_stack_pop"
+}
