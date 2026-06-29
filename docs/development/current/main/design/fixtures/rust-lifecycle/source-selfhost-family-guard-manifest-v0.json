@@ -464,6 +464,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-statement-lowering-surface-classification-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_ast_statement_lowering_surface_classification_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1866-MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-assignment-statement-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_ast_assignment_statement_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

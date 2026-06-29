@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1865-MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-SURFACE-CLASSIFICATION-001.md
+  1866-MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

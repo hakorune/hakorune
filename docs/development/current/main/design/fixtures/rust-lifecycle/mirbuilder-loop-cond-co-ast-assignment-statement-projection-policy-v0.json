@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoAstAssignmentStatementProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001",
+  "input_state": {
+    "statement_shape_classification_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-statement-lowering-surface-classification-v0.json",
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "selected_shape_id": "AssignmentStatementShape",
+    "source_surface": "lower_stmt_ast",
+    "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
+  },
+  "selected_policy": {
+    "policy": "DelegateToCarrierMergeAssignmentPolicy",
+    "projection_surface_selected": false,
+    "reason_token": "AstAssignmentArmDelegatesToCarrierMergeAssignmentHelper"
+  },
+  "source_arm_evidence": {
+    "ast_marker": "ASTNode::Assignment",
+    "delegated_function": "lower_assignment_stmt",
+    "wrapper": "effects_to_plans"
+  },
+  "delegated_surface": {
+    "source_id": "src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_assignment_stmt:L9",
+    "symbol": "lower_assignment_stmt",
+    "source_path": "src/mir/builder/control_flow/plan/features/carrier_merge.rs",
+    "expected_report_classification": "MissingProjectionPolicy",
+    "expected_report_reason_token": "PublicRustSurfaceMissingProjectionPolicy"
+  },
+  "decision": {
+    "kind": "SelectDelegatedProjectionPolicy",
+    "selected_next_card": "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001",
+    "reason_token": "DelegatedCarrierMergeAssignmentHelperNeedsProjectionPolicy"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}

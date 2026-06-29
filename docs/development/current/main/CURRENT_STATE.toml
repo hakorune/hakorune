@@ -22,11 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-SURFACE-CLASSIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1865-MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-SURFACE-CLASSIFICATION-001.md"
-latest_card_summary = """The latest card classifies loop-cond continue-only
-AST statement lowering into statement-shape surfaces and selects assignment
-statement policy as the next child card."""
+latest_card = "MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1866-MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card keeps the loop-cond continue-only
+AST assignment arm out of standalone projection ownership and delegates policy
+selection to carrier_merge::lower_assignment_stmt."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1866 routes loop-cond continue-only AST assignment arm policy to carrier-merge assignment.",
   "2026-06-30: 1865 classifies loop-cond continue-only AST statement lowering into statement-shape surfaces.",
   "2026-06-30: 1864 routes loop-cond continue-only AST statement lowering to further statement-shape classification.",
   "2026-06-30: 1863 marks loop-cond continue-only statement dispatcher as PrivateStatementDispatcherHelper.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1861 marks loop-cond continue-only carrier-sync helper as PrivateCarrierSyncHelper.",
   "2026-06-30: 1860 marks loop-cond continue-only mutation-probe helper as PrivateMutationProbeHelper.",
   "2026-06-30: 1859 classifies loop-cond continue-only helper surfaces into two buckets.",
-  "2026-06-30: 1858 marks loop-cond continue-only group-if nested-loop lowering as PrivateGroupIfNestedLoopHelper.",
 ]
