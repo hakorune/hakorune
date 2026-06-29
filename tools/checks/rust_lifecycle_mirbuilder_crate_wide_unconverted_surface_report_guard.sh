@@ -40,6 +40,23 @@ if input_info.get("scan_method") != "regex_source_text_v0":
 items = fixture.get("items") or []
 if not items:
     raise SystemExit("items missing")
+provenance = fixture.get("provenance") or {}
+for key in [
+    "tool_version",
+    "source_root_hash",
+    "native_owner_seed_capability_survey_hash",
+    "source_selfhost_family_guard_manifest_hash",
+    "variable_context_reference_projection_contract_hash",
+]:
+    if not provenance.get(key):
+        raise SystemExit(f"provenance missing {key}")
+if provenance.get("tool_version") != "regex_source_text_v0":
+    raise SystemExit("provenance tool version drift")
+
+reason_table = fixture.get("reason_token_table") or {}
+if not reason_table:
+    raise SystemExit("reason token table missing")
+
 seen = set()
 for item in items:
     source_id = item.get("source_id")
@@ -50,8 +67,22 @@ for item in items:
     seen.add(source_id)
     if not item.get("classification"):
         raise SystemExit(f"item missing classification: {source_id}")
-    if not item.get("reason_token"):
+    reason_token = item.get("reason_token")
+    if not reason_token:
         raise SystemExit(f"item missing reason_token: {source_id}")
+    if reason_token not in reason_table:
+        raise SystemExit(f"item reason token is not in table: {reason_token}")
+    if not item.get("owner_edge_confidence"):
+        raise SystemExit(f"item missing owner edge confidence: {source_id}")
+    if item.get("owner_edge_confidence") == "Heuristic" and item.get("next_owner_kind") != "None":
+        raise SystemExit(f"heuristic owner edge selected an owner: {source_id}")
+    if item.get("is_public_surface") and item.get("classification") == "IgnoredNonSemanticHelper":
+        raise SystemExit(f"public ignored helper is not allowed: {source_id}")
+
+reverse_checks = fixture.get("reverse_evidence_checks") or {}
+for key in ["known_owner_edge_count", "orphan_source_surface_count", "orphan_evidence_row_count", "orphan_evidence_rows"]:
+    if key not in reverse_checks:
+        raise SystemExit(f"reverse evidence checks missing {key}")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -73,6 +104,10 @@ for key in [
     "scan_method_regex_source_text_v0",
     "every_scanned_public_method_classified_exactly_once",
     "every_unconverted_item_has_reason_token",
+    "every_reason_token_is_stable",
+    "owner_edge_confidence_recorded",
+    "heuristic_owner_edge_not_selectable",
+    "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",
     "borrow_policy_known_does_not_select_owner",
     "composite_suspected_is_not_decomposition_proof",

@@ -2,15 +2,19 @@
   "claims": {
     "borrow_policy_known_does_not_select_owner": 1,
     "composite_suspected_is_not_decomposition_proof": 1,
+    "every_reason_token_is_stable": 1,
     "every_scanned_public_method_classified_exactly_once": 1,
     "every_unconverted_item_has_reason_token": 1,
     "generated_artifact_only_is_not_native_edit_authority": 1,
+    "heuristic_owner_edge_not_selectable": 1,
     "join_unit_semantic_owner_edge": 1,
     "manual_family_selection": 0,
     "multiple_candidates_keep_stopped": 1,
     "new_abi": 0,
     "new_backend_route": 0,
     "new_python_semantic_projector": 0,
+    "owner_edge_confidence_recorded": 1,
+    "public_ignored_requires_reason": 1,
     "runner_semantic_owner": 0,
     "runtime_fallback": 0,
     "rust_ast_parser_required": 0,
@@ -34805,9 +34809,71 @@
     }
   ],
   "kind": "MirBuilderCrateWideUnconvertedSurfaceReportV1",
+  "provenance": {
+    "native_owner_seed_capability_survey_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d",
+    "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
+    "source_selfhost_family_guard_manifest_hash": "1f74eb23035e60b741dea4b822696a83e69fe5dbd69ef2f0b9dd108449ca0cd7",
+    "tool_version": "regex_source_text_v0",
+    "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"
+  },
+  "reason_token_table": {
+    "DebugOnlySurfaceIgnored": "debug-only source surface; not a selfhost conversion owner",
+    "KnownFinalizeModuleContainsMultipleSemanticEdges": "regex-level composite suspicion only; not decomposition proof",
+    "MappedToKnownOwnerEdge": "source surface is mapped to an existing owner edge",
+    "NoKnownOwnerEdge": "source surface has no known owner-edge evidence yet",
+    "PrivateHelperSurfaceNotSelected": "private helper not selected as a source-selfhost conversion surface",
+    "PublicRustSurfaceMissingProjectionPolicy": "public Rust surface lacks a selected Hako projection policy",
+    "ReturnedMutableBorrowCoveredByExplicitMutationApiOnly": "known returned mutable borrow replacement policy",
+    "ReturnedMutableBorrowPolicyMissing": "returned mutable borrow detected without an existing replacement policy",
+    "ReturnedReadBorrowCoveredByOwnedReadSnapshotProjection": "known returned read borrow replacement policy",
+    "ReturnedReadBorrowPolicyMissing": "returned read borrow detected without an existing replacement policy",
+    "TestOnlySurfaceIgnored": "test-only source surface; not a selfhost conversion owner"
+  },
+  "reverse_evidence_checks": {
+    "known_owner_edge_count": 3,
+    "orphan_evidence_row_count": 7,
+    "orphan_evidence_rows": [
+      {
+        "classification": "AlreadyAdopted",
+        "owner_edge_id": "allocation_policy_prepared_state_next_value_id",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      },
+      {
+        "classification": "AlreadyAdopted",
+        "owner_edge_id": "binding_context",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      },
+      {
+        "classification": "SupportLaneOnly",
+        "owner_edge_id": "compiler_library_helpers",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      },
+      {
+        "classification": "AlreadyAdopted",
+        "owner_edge_id": "context",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      },
+      {
+        "classification": "AlreadyAdopted",
+        "owner_edge_id": "return_emission",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      },
+      {
+        "classification": "AlreadyAdopted",
+        "owner_edge_id": "slot_registry_release",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      },
+      {
+        "classification": "BoundedSurfaceOnly",
+        "owner_edge_id": "variable_context_immutable_borrow",
+        "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin"
+      }
+    ],
+    "orphan_source_surface_count": 1563
+  },
   "schema_version": 0,
   "source_inventory": {
-    "family_manifest_rows": 26,
+    "family_manifest_rows": 27,
     "public_rust_surface_count": 1556,
     "reported_item_count": 1584,
     "rust_surface_count": 3120,

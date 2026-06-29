@@ -10,6 +10,7 @@ visible with stable reason tokens.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -40,6 +41,20 @@ FN_PATTERN = re.compile(
     re.MULTILINE,
 )
 
+REASON_TOKEN_TABLE = {
+    "DebugOnlySurfaceIgnored": "debug-only source surface; not a selfhost conversion owner",
+    "KnownFinalizeModuleContainsMultipleSemanticEdges": "regex-level composite suspicion only; not decomposition proof",
+    "MappedToKnownOwnerEdge": "source surface is mapped to an existing owner edge",
+    "NoKnownOwnerEdge": "source surface has no known owner-edge evidence yet",
+    "PrivateHelperSurfaceNotSelected": "private helper not selected as a source-selfhost conversion surface",
+    "PublicRustSurfaceMissingProjectionPolicy": "public Rust surface lacks a selected Hako projection policy",
+    "ReturnedMutableBorrowCoveredByExplicitMutationApiOnly": "known returned mutable borrow replacement policy",
+    "ReturnedMutableBorrowPolicyMissing": "returned mutable borrow detected without an existing replacement policy",
+    "ReturnedReadBorrowCoveredByOwnedReadSnapshotProjection": "known returned read borrow replacement policy",
+    "ReturnedReadBorrowPolicyMissing": "returned read borrow detected without an existing replacement policy",
+    "TestOnlySurfaceIgnored": "test-only source surface; not a selfhost conversion owner",
+}
+
 
 class ReportError(RuntimeError):
     pass
@@ -51,6 +66,25 @@ def rel(path: Path) -> str:
 
 def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    return sha256_bytes(path.read_bytes())
+
+
+def hash_source_roots() -> str:
+    digest = hashlib.sha256()
+    for root in SOURCE_ROOTS:
+        for path in sorted(root.rglob("*.rs")):
+            digest.update(rel(path).encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(sha256_file(path).encode("ascii"))
+            digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def normalize(text: str) -> str:
@@ -219,6 +253,16 @@ def build_report() -> dict[str, Any]:
     all_surfaces = extract_surfaces()
     classified = [classify(surface) for surface in all_surfaces]
     items = [item for item in classified if included_item(item)]
+    known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
+    orphan_evidence_rows = [
+        {
+            "owner_edge_id": item.get("owner_edge_id"),
+            "classification": item.get("classification"),
+            "reason_token": "EvidenceRowHasNoExactSourceSurfaceJoin",
+        }
+        for item in seed_survey.get("scanned_items", [])
+        if item.get("owner_edge_id") not in known_owner_edges
+    ]
 
     counts: dict[str, int] = {}
     for item in items:
@@ -275,6 +319,13 @@ def build_report() -> dict[str, Any]:
             "source_selfhost_family_guard_manifest": rel(FAMILY_MANIFEST),
             "current_state": rel(CURRENT_STATE),
         },
+        "provenance": {
+            "tool_version": "regex_source_text_v0",
+            "source_root_hash": hash_source_roots(),
+            "native_owner_seed_capability_survey_hash": sha256_file(NATIVE_SEED_SURVEY),
+            "source_selfhost_family_guard_manifest_hash": sha256_file(FAMILY_MANIFEST),
+            "variable_context_reference_projection_contract_hash": sha256_file(REFERENCE_PROJECTION),
+        },
         "source_inventory": {
             "rust_surface_count": len(all_surfaces),
             "public_rust_surface_count": sum(1 for item in all_surfaces if item["is_public_surface"]),
@@ -282,6 +333,13 @@ def build_report() -> dict[str, Any]:
             "seed_survey_decision": seed_survey.get("decision", {}).get("kind"),
             "family_manifest_rows": len(family_manifest.get("rows") or []),
         },
+        "reverse_evidence_checks": {
+            "known_owner_edge_count": len(known_owner_edges),
+            "orphan_source_surface_count": sum(1 for item in items if not item["known_owner_edge"]),
+            "orphan_evidence_row_count": len(orphan_evidence_rows),
+            "orphan_evidence_rows": sorted(orphan_evidence_rows, key=lambda item: item["owner_edge_id"] or ""),
+        },
+        "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
             "AlreadyConverted",
             "MappedToKnownOwner",
@@ -330,6 +388,10 @@ def build_report() -> dict[str, Any]:
             "semantic_inference_beyond_existing_ssot": 0,
             "every_scanned_public_method_classified_exactly_once": 1,
             "every_unconverted_item_has_reason_token": 1,
+            "every_reason_token_is_stable": 1,
+            "owner_edge_confidence_recorded": 1,
+            "heuristic_owner_edge_not_selectable": 1,
+            "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,
             "borrow_policy_known_does_not_select_owner": 1,
             "composite_suspected_is_not_decomposition_proof": 1,
