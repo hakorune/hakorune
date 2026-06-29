@@ -338,6 +338,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-nested-carrier-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_bc_nested_carrier_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-CONTINUE-ONLY-SURFACE-CLASSIFICATION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1848-MIRBUILDER-LOOP-COND-CONTINUE-ONLY-SURFACE-CLASSIFICATION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_unconverted_surface_report_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

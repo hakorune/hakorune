@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1847-MIRBUILDER-LOOP-COND-BC-NESTED-CARRIER-PROJECTION-POLICY-001.md
+  1848-MIRBUILDER-LOOP-COND-CONTINUE-ONLY-SURFACE-CLASSIFICATION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

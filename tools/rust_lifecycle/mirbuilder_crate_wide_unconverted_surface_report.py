@@ -235,6 +235,16 @@ LOOP_COND_BC_PIPELINE_SUBCLUSTER_RULES = [
     ("LoopCondBcCarrierSyncCluster", ("sync_carrier_bindings",)),
 ]
 
+LOOP_COND_CO_SUBCLUSTER_RULES = [
+    ("LoopCondCoRootPipelineCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs",)),
+    ("LoopCondCoBlockLoweringCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs",)),
+    ("LoopCondCoCleanupCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_cleanup.rs",)),
+    ("LoopCondCoContinueIfCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs",)),
+    ("LoopCondCoGroupIfCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs",)),
+    ("LoopCondCoHelperCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs",)),
+    ("LoopCondCoStatementLoweringCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs",)),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -508,6 +518,16 @@ def loop_cond_bc_pipeline_subcluster(item: dict[str, Any]) -> str | None:
     return "OtherLoopCondBcPipelineCluster"
 
 
+def loop_cond_co_subcluster(item: dict[str, Any]) -> str | None:
+    if item.get("loop_cond_feature_subcluster") != "LoopCondContinueOnlyCluster":
+        return None
+    path = item["source_path"]
+    for subcluster, prefixes in LOOP_COND_CO_SUBCLUSTER_RULES:
+        if any(path.startswith(prefix) for prefix in prefixes):
+            return subcluster
+    return "OtherLoopCondContinueOnlyCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -539,6 +559,9 @@ def build_report() -> dict[str, Any]:
         pipeline_subcluster = loop_cond_bc_pipeline_subcluster(item)
         if pipeline_subcluster is not None:
             item["loop_cond_bc_pipeline_subcluster"] = pipeline_subcluster
+        co_subcluster = loop_cond_co_subcluster(item)
+        if co_subcluster is not None:
+            item["loop_cond_co_subcluster"] = co_subcluster
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -561,6 +584,7 @@ def build_report() -> dict[str, Any]:
     loop_cond_bc_cleanup_subcluster_counts: dict[str, int] = {}
     loop_cond_bc_item_lowering_subcluster_counts: dict[str, int] = {}
     loop_cond_bc_pipeline_subcluster_counts: dict[str, int] = {}
+    loop_cond_co_subcluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
         if item["classification"] == "MissingProjectionPolicy":
@@ -590,6 +614,9 @@ def build_report() -> dict[str, Any]:
                             if bc_subcluster == "LoopCondBcPipelineCluster":
                                 pipeline_subcluster = item["loop_cond_bc_pipeline_subcluster"] or "OtherLoopCondBcPipelineCluster"
                                 loop_cond_bc_pipeline_subcluster_counts[pipeline_subcluster] = loop_cond_bc_pipeline_subcluster_counts.get(pipeline_subcluster, 0) + 1
+                        if loop_cond_subcluster == "LoopCondContinueOnlyCluster":
+                            co_subcluster = item["loop_cond_co_subcluster"] or "OtherLoopCondContinueOnlyCluster"
+                            loop_cond_co_subcluster_counts[co_subcluster] = loop_cond_co_subcluster_counts.get(co_subcluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -698,6 +725,10 @@ def build_report() -> dict[str, Any]:
             {"subcluster": subcluster, "symbols": list(symbols)}
             for subcluster, symbols in LOOP_COND_BC_PIPELINE_SUBCLUSTER_RULES
         ],
+        "loop_cond_co_subcluster_rules": [
+            {"subcluster": subcluster, "path_prefixes": list(prefixes)}
+            for subcluster, prefixes in LOOP_COND_CO_SUBCLUSTER_RULES
+        ],
         "missing_projection_cluster_summary": [
             {"cluster": cluster, "count": count}
             for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
@@ -733,6 +764,10 @@ def build_report() -> dict[str, Any]:
         "loop_cond_bc_pipeline_subcluster_summary": [
             {"subcluster": subcluster, "count": count}
             for subcluster, count in sorted(loop_cond_bc_pipeline_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        "loop_cond_co_subcluster_summary": [
+            {"subcluster": subcluster, "count": count}
+            for subcluster, count in sorted(loop_cond_co_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
         ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
@@ -795,6 +830,7 @@ def build_report() -> dict[str, Any]:
             "loop_cond_bc_cleanup_items_subclustered": 1,
             "loop_cond_bc_item_lowering_items_subclustered": 1,
             "loop_cond_bc_pipeline_items_subclustered": 1,
+            "loop_cond_co_items_subclustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,

@@ -101,6 +101,8 @@ if not fixture.get("loop_cond_bc_item_lowering_subcluster_rules"):
     raise SystemExit("loop-cond break/continue item-lowering subcluster rules missing")
 if not fixture.get("loop_cond_bc_pipeline_subcluster_rules"):
     raise SystemExit("loop-cond break/continue pipeline subcluster rules missing")
+if not fixture.get("loop_cond_co_subcluster_rules"):
+    raise SystemExit("loop-cond continue-only subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
@@ -128,6 +130,9 @@ if not loop_cond_bc_item_lowering_summary:
 loop_cond_bc_pipeline_summary = fixture.get("loop_cond_bc_pipeline_subcluster_summary") or []
 if not loop_cond_bc_pipeline_summary:
     raise SystemExit("loop-cond break/continue pipeline subcluster summary missing")
+loop_cond_co_summary = fixture.get("loop_cond_co_subcluster_summary") or []
+if not loop_cond_co_summary:
+    raise SystemExit("loop-cond continue-only subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -203,6 +208,16 @@ for item in loop_cond_bc_pipeline_items:
 loop_cond_bc_pipeline_sum = sum(item.get("count", 0) for item in loop_cond_bc_pipeline_summary)
 if loop_cond_bc_pipeline_sum != len(loop_cond_bc_pipeline_items):
     raise SystemExit("loop-cond break/continue pipeline subcluster summary count drift")
+loop_cond_co_items = [
+    item for item in loop_cond_items
+    if item.get("loop_cond_feature_subcluster") == "LoopCondContinueOnlyCluster"
+]
+for item in loop_cond_co_items:
+    if not item.get("loop_cond_co_subcluster"):
+        raise SystemExit(f"LoopCondContinueOnlyCluster item lacks subcluster: {item.get('source_id')}")
+loop_cond_co_sum = sum(item.get("count", 0) for item in loop_cond_co_summary)
+if loop_cond_co_sum != len(loop_cond_co_items):
+    raise SystemExit("loop-cond continue-only subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -236,6 +251,7 @@ for key in [
     "loop_cond_bc_cleanup_items_subclustered",
     "loop_cond_bc_item_lowering_items_subclustered",
     "loop_cond_bc_pipeline_items_subclustered",
+    "loop_cond_co_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",

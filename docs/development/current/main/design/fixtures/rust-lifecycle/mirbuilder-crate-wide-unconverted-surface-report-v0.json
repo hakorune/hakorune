@@ -15,6 +15,7 @@
     "loop_cond_bc_item_lowering_items_subclustered": 1,
     "loop_cond_bc_pipeline_items_subclustered": 1,
     "loop_cond_break_continue_items_subclustered": 1,
+    "loop_cond_co_items_subclustered": 1,
     "loop_cond_feature_items_subclustered": 1,
     "manual_family_selection": 0,
     "missing_projection_items_clustered": 1,
@@ -18969,6 +18970,7 @@
       "line": 12,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoBlockLoweringCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -18997,6 +18999,7 @@
       "line": 11,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoCleanupCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19025,6 +19028,7 @@
       "line": 109,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoContinueIfCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19053,6 +19057,7 @@
       "line": 51,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoContinueIfCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19081,6 +19086,7 @@
       "line": 20,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoContinueIfCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19109,6 +19115,7 @@
       "line": 128,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoGroupIfCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19137,6 +19144,7 @@
       "line": 23,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoGroupIfCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19165,6 +19173,7 @@
       "line": 40,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoHelperCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19193,6 +19202,7 @@
       "line": 55,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoHelperCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19333,6 +19343,7 @@
       "line": 28,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoRootPipelineCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19361,6 +19372,7 @@
       "line": 27,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoStatementLoweringCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -19389,6 +19401,7 @@
       "line": 158,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_subcluster": "LoopCondCoStatementLoweringCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
       "next_owner_kind": "ProjectionPolicy",
@@ -44629,6 +44642,80 @@
       "subcluster": "LoopCondBcNestedCarrierCluster"
     }
   ],
+  "loop_cond_co_subcluster_rules": [
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs"
+      ],
+      "subcluster": "LoopCondCoRootPipelineCluster"
+    },
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs"
+      ],
+      "subcluster": "LoopCondCoBlockLoweringCluster"
+    },
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_cleanup.rs"
+      ],
+      "subcluster": "LoopCondCoCleanupCluster"
+    },
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs"
+      ],
+      "subcluster": "LoopCondCoContinueIfCluster"
+    },
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs"
+      ],
+      "subcluster": "LoopCondCoGroupIfCluster"
+    },
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs"
+      ],
+      "subcluster": "LoopCondCoHelperCluster"
+    },
+    {
+      "path_prefixes": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
+      ],
+      "subcluster": "LoopCondCoStatementLoweringCluster"
+    }
+  ],
+  "loop_cond_co_subcluster_summary": [
+    {
+      "count": 3,
+      "subcluster": "LoopCondCoContinueIfCluster"
+    },
+    {
+      "count": 2,
+      "subcluster": "LoopCondCoGroupIfCluster"
+    },
+    {
+      "count": 2,
+      "subcluster": "LoopCondCoHelperCluster"
+    },
+    {
+      "count": 2,
+      "subcluster": "LoopCondCoStatementLoweringCluster"
+    },
+    {
+      "count": 1,
+      "subcluster": "LoopCondCoBlockLoweringCluster"
+    },
+    {
+      "count": 1,
+      "subcluster": "LoopCondCoCleanupCluster"
+    },
+    {
+      "count": 1,
+      "subcluster": "LoopCondCoRootPipelineCluster"
+    }
+  ],
   "loop_cond_feature_subcluster_rules": [
     {
       "path_prefixes": [
@@ -44905,7 +44992,7 @@
   "provenance": {
     "native_owner_seed_capability_survey_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d",
     "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
-    "source_selfhost_family_guard_manifest_hash": "2d61ac7eb0259266fa4f4c2984d07005a14607f6f8342420d2eb4a84ac8498d6",
+    "source_selfhost_family_guard_manifest_hash": "b22ef671486996a3d92fc199ac67311f1f5240988f1e67a7dc5834ea22c382fe",
     "tool_version": "regex_source_text_v0",
     "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"
   },
@@ -44966,7 +45053,7 @@
   },
   "schema_version": 0,
   "source_inventory": {
-    "family_manifest_rows": 47,
+    "family_manifest_rows": 48,
     "public_rust_surface_count": 1556,
     "reported_item_count": 1584,
     "rust_surface_count": 3120,
