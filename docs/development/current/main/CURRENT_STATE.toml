@@ -22,11 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-BC-STATEMENT-LOWERING-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1843-MIRBUILDER-LOOP-COND-BC-STATEMENT-LOWERING-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves loop-cond break/continue
-statement lowering as a PrivateStatementLoweringHelper under the
-loop_cond_break_continue owner edge."""
+latest_card = "MIRBUILDER-LOOP-COND-BC-PIPELINE-SURFACE-CLASSIFICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1844-MIRBUILDER-LOOP-COND-BC-PIPELINE-SURFACE-CLASSIFICATION-001.md"
+latest_card_summary = """The latest card classifies LoopCondBcPipelineCluster
+into root pipeline and carrier sync buckets while keeping Source Selfhost
+stopped."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1844 classifies LoopCondBcPipelineCluster into root pipeline and carrier sync buckets.",
   "2026-06-30: 1843 marks loop-cond break/continue statement lowering as PrivateStatementLoweringHelper.",
   "2026-06-30: 1842 marks loop-cond break/continue item dispatch as PrivateItemDispatcherHelper.",
   "2026-06-30: 1841 classifies LoopCondBcItemLoweringCluster into item dispatcher and statement lowering buckets.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1839 marks loop-cond break/continue cleanup application as PrivateRouteCleanupHelper.",
   "2026-06-30: 1838 classifies LoopCondBcCleanupCluster into cleanup application and exit predicate buckets.",
   "2026-06-30: 1837 marks continue-if-with-else loop-cond lowering as PrivateLoweringHelper under loop_cond_break_continue.",
-  "2026-06-30: 1836 marks return-only loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
 ]

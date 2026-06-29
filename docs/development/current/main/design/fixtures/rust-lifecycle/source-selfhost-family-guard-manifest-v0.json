@@ -310,6 +310,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-statement-lowering-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_bc_statement_lowering_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-BC-PIPELINE-SURFACE-CLASSIFICATION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1844-MIRBUILDER-LOOP-COND-BC-PIPELINE-SURFACE-CLASSIFICATION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_unconverted_surface_report_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
