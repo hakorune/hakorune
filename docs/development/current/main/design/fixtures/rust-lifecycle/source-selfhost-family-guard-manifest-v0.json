@@ -170,6 +170,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-unblock-task-breakdown-v0.json",
       "legacy_guard": "",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1824-MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-native-owner-seed-candidate-resolution-v0.json",
+      "legacy_guard": "",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
