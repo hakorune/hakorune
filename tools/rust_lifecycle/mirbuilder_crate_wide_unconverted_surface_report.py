@@ -213,6 +213,13 @@ LOOP_COND_BC_SUBCLUSTER_RULES = [
     ("LoopCondBcNestedCarrierCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs",)),
 ]
 
+LOOP_COND_BC_ELSE_PATTERN_SUBCLUSTER_RULES = [
+    ("LoopCondBcContinueIfElseCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs",)),
+    ("LoopCondBcBreakOnlyElsePatternCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs",)),
+    ("LoopCondBcGuardBreakElsePatternCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs",)),
+    ("LoopCondBcReturnOnlyElsePatternCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs",)),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -446,6 +453,16 @@ def loop_cond_bc_subcluster(item: dict[str, Any]) -> str | None:
     return "OtherLoopCondBreakContinueCluster"
 
 
+def loop_cond_bc_else_pattern_subcluster(item: dict[str, Any]) -> str | None:
+    if item.get("loop_cond_bc_subcluster") != "LoopCondBcElsePatternCluster":
+        return None
+    path = item["source_path"]
+    for subcluster, prefixes in LOOP_COND_BC_ELSE_PATTERN_SUBCLUSTER_RULES:
+        if any(path.startswith(prefix) for prefix in prefixes):
+            return subcluster
+    return "OtherLoopCondBcElsePatternCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -467,6 +484,7 @@ def build_report() -> dict[str, Any]:
         item["plan_feature_subcluster"] = plan_feature_subcluster(item)
         item["loop_cond_feature_subcluster"] = loop_cond_feature_subcluster(item)
         item["loop_cond_bc_subcluster"] = loop_cond_bc_subcluster(item)
+        item["loop_cond_bc_else_pattern_subcluster"] = loop_cond_bc_else_pattern_subcluster(item)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -485,6 +503,7 @@ def build_report() -> dict[str, Any]:
     plan_feature_subcluster_counts: dict[str, int] = {}
     loop_cond_feature_subcluster_counts: dict[str, int] = {}
     loop_cond_bc_subcluster_counts: dict[str, int] = {}
+    loop_cond_bc_else_pattern_subcluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
         if item["classification"] == "MissingProjectionPolicy":
@@ -502,6 +521,9 @@ def build_report() -> dict[str, Any]:
                         if loop_cond_subcluster == "LoopCondBreakContinueCluster":
                             bc_subcluster = item["loop_cond_bc_subcluster"] or "OtherLoopCondBreakContinueCluster"
                             loop_cond_bc_subcluster_counts[bc_subcluster] = loop_cond_bc_subcluster_counts.get(bc_subcluster, 0) + 1
+                            if bc_subcluster == "LoopCondBcElsePatternCluster":
+                                else_pattern_subcluster = item["loop_cond_bc_else_pattern_subcluster"] or "OtherLoopCondBcElsePatternCluster"
+                                loop_cond_bc_else_pattern_subcluster_counts[else_pattern_subcluster] = loop_cond_bc_else_pattern_subcluster_counts.get(else_pattern_subcluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -594,6 +616,10 @@ def build_report() -> dict[str, Any]:
             {"subcluster": subcluster, "path_prefixes": list(prefixes)}
             for subcluster, prefixes in LOOP_COND_BC_SUBCLUSTER_RULES
         ],
+        "loop_cond_bc_else_pattern_subcluster_rules": [
+            {"subcluster": subcluster, "path_prefixes": list(prefixes)}
+            for subcluster, prefixes in LOOP_COND_BC_ELSE_PATTERN_SUBCLUSTER_RULES
+        ],
         "missing_projection_cluster_summary": [
             {"cluster": cluster, "count": count}
             for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
@@ -613,6 +639,10 @@ def build_report() -> dict[str, Any]:
         "loop_cond_bc_subcluster_summary": [
             {"subcluster": subcluster, "count": count}
             for subcluster, count in sorted(loop_cond_bc_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        "loop_cond_bc_else_pattern_subcluster_summary": [
+            {"subcluster": subcluster, "count": count}
+            for subcluster, count in sorted(loop_cond_bc_else_pattern_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
         ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
@@ -671,6 +701,7 @@ def build_report() -> dict[str, Any]:
             "plan_feature_items_subclustered": 1,
             "loop_cond_feature_items_subclustered": 1,
             "loop_cond_break_continue_items_subclustered": 1,
+            "loop_cond_bc_else_pattern_items_subclustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,

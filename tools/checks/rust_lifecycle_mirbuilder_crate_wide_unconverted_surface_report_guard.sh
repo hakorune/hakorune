@@ -93,6 +93,8 @@ if not fixture.get("loop_cond_feature_subcluster_rules"):
     raise SystemExit("loop-cond feature subcluster rules missing")
 if not fixture.get("loop_cond_bc_subcluster_rules"):
     raise SystemExit("loop-cond break/continue subcluster rules missing")
+if not fixture.get("loop_cond_bc_else_pattern_subcluster_rules"):
+    raise SystemExit("loop-cond break/continue else-pattern subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
@@ -108,6 +110,9 @@ if not loop_cond_summary:
 loop_cond_bc_summary = fixture.get("loop_cond_bc_subcluster_summary") or []
 if not loop_cond_bc_summary:
     raise SystemExit("loop-cond break/continue subcluster summary missing")
+loop_cond_bc_else_pattern_summary = fixture.get("loop_cond_bc_else_pattern_subcluster_summary") or []
+if not loop_cond_bc_else_pattern_summary:
+    raise SystemExit("loop-cond break/continue else-pattern subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -143,6 +148,16 @@ for item in loop_cond_bc_items:
 loop_cond_bc_sum = sum(item.get("count", 0) for item in loop_cond_bc_summary)
 if loop_cond_bc_sum != len(loop_cond_bc_items):
     raise SystemExit("loop-cond break/continue subcluster summary count drift")
+loop_cond_bc_else_pattern_items = [
+    item for item in loop_cond_bc_items
+    if item.get("loop_cond_bc_subcluster") == "LoopCondBcElsePatternCluster"
+]
+for item in loop_cond_bc_else_pattern_items:
+    if not item.get("loop_cond_bc_else_pattern_subcluster"):
+        raise SystemExit(f"LoopCondBcElsePatternCluster item lacks subcluster: {item.get('source_id')}")
+loop_cond_bc_else_pattern_sum = sum(item.get("count", 0) for item in loop_cond_bc_else_pattern_summary)
+if loop_cond_bc_else_pattern_sum != len(loop_cond_bc_else_pattern_items):
+    raise SystemExit("loop-cond break/continue else-pattern subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -172,6 +187,7 @@ for key in [
     "plan_feature_items_subclustered",
     "loop_cond_feature_items_subclustered",
     "loop_cond_break_continue_items_subclustered",
+    "loop_cond_bc_else_pattern_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",
