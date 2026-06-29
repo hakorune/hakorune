@@ -1,0 +1,43 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondBcStatementLoweringProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-BC-STATEMENT-LOWERING-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondBcStatementLoweringCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "PrivateStatementLoweringHelper",
+    "owner_edge": "loop_cond_break_continue",
+    "projection_surface_selected": false,
+    "reason_token": "StatementLoweringIsRouteLocalLoopCondBcHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs::lower_loop_cond_stmt:L22",
+      "symbol": "lower_loop_cond_stmt",
+      "visibility": "pub(in crate::mir::builder)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs"
+    }
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-BC-PIPELINE-SURFACE-CLASSIFICATION-001",
+    "reason_token": "StatementLoweringDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
