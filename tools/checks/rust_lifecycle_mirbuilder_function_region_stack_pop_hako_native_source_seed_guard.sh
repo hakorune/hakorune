@@ -66,7 +66,6 @@ native = native_path.read_text()
 for needle in [
     "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001",
     "source-family: hakorune_mir_builder::function_region_stack_pop",
-    "hako-adopted: 0",
     "source-selfhost-claim: 0",
     "static box FunctionRegionStackPopNativeSeedApi",
     "static box FunctionRegionStackPopApi",

@@ -22,7 +22,7 @@
 // source-family: hakorune_mir_builder::function_region_stack_pop
 // generated-artifact-source:
 //   lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.hako
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 using selfhost.shared.common.box_helpers as BoxHelpers

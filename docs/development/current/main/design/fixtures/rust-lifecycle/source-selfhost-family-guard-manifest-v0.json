@@ -135,6 +135,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-hako-native-source-seed-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_hako_native_source_seed_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1819-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_hako_adoption_decision_guard.sh",
+      "role": "current_semantic"
     }
   ],
   "forbidden_claims": {
