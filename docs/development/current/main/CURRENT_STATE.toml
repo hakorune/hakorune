@@ -265,11 +265,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1800-SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.md"
+latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1801-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.md"
 latest_card_summary = """The latest card keeps the Source Selfhost design
-stop intact while separating runner roles from semantic ownership and naming
-the next task packs for wider route-selection recovery."""
+stop intact while freezing the consultation-gated wider route-selection basis
+and the current runner vocabulary without hand-picking a family."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -280,6 +280,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1801 freezes the consultation-gated wider route-selection basis and the current runner vocabulary without hand-picking a family.",
   "2026-06-29: 1800 separates Source Selfhost runner roles from semantic ownership and names the guarded task packs that may resume the wider route-selection stop.",
   "2026-06-29: 1799 makes the wider Source Selfhost route-selection stop explicit and keeps the lane stopped until consultation-gated widening or machine-derived route repair resumes it.",
   "2026-06-29: 1798 fixes Source Selfhost next route-family selection policy and blocks with recovery guidance because no machine-derived native adoption candidate remains.",

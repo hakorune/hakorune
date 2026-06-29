@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostWiderRouteSelectionBasisV1",
+  "output_contract": "rust-lifecycle-source-selfhost-wider-route-selection-basis-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "basis": {
+    "kind": "KeepSourceSelfhostStopped",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "allowed_resume": [
+      "ConsultationGatedWiderRouteSelection",
+      "MachineDerivedRouteRepair"
+    ]
+  },
+  "runner_vocabulary": {
+    "semantic_owner": [
+      "native_hako_source_when_hako_adopted",
+      "hako_projector_when_hako_mainline",
+      "rust_source_while_rust_primary_or_oracle"
+    ],
+    "current_vm_hako": {
+      "role": "internal_semantic_witness_debug_bootstrap_proof_lane",
+      "co_mainline_product_lane": false
+    },
+    "exe_aot": {
+      "role": "mainline_distribution_validation_gate",
+      "semantic_owner": false
+    },
+    "future_interpreter": {
+      "role": "reserved_usability_lane",
+      "active": false,
+      "required_for_python_to_hako_projector_migration": false
+    }
+  },
+  "route_basis_inputs": [
+    "route matrix fixtures",
+    "HakoAdopted decision fixtures",
+    "projector stage-state fixtures",
+    "artifact-policy SSOT",
+    "vm-active-lane-retirement SSOT",
+    "migration roadmap SSOT"
+  ],
+  "claims": {
+    "runner_semantic_owner": 0,
+    "single_hako_meaning_source": 1,
+    "future_interpreter_required_for_projector_migration": 0,
+    "exe_aot_gate_is_semantic_owner": 0,
+    "vm_hako_co_mainline_claim": 0,
+    "consultation_gated_wider_route_selection": 1,
+    "machine_derived_route_repair_allowed": 1,
+    "manual_family_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0
+  }
+}

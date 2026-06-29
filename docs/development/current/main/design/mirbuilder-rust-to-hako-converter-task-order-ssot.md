@@ -24,11 +24,11 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.
-  Keep the 1799 Source Selfhost design stop intact while separating runner
-  roles from semantic ownership and naming the task packs that may resume
-  wider route selection.
-  output_contract = rust-lifecycle-source-selfhost-runner-and-route-task-breakdown-v0
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.
+  Keep the 1799 Source Selfhost design stop intact while freezing the
+  consultation-gated wider route-selection basis and the current runner
+  vocabulary without hand-picking a family.
+  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -56,6 +56,7 @@ selected decision slice:
     -> SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
     -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
     -> SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001
+    -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
 
 selected evidence:
   adoption-plan evidence
@@ -83,6 +84,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
     -> docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md
     -> docs/development/current/main/phases/phase-296x/1800-SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.md
+    -> docs/development/current/main/phases/phase-296x/1801-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -96,7 +98,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Source Selfhost runner and route task breakdown
+  Source Selfhost wider route-selection basis
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -149,7 +151,9 @@ latest design decision:
   `NoEligibleNativeAdoptionCandidate`. Runner roles are now separated from
   semantic ownership: EXE/AOT is a validation gate, current `vm-hako` is an
   internal witness/debug/bootstrap-proof lane, and a future interpreter is not
-  required for Python-to-Hako projector migration.
+  required for Python-to-Hako projector migration. The next task pack freezes
+  the consultation-gated wider route-selection basis rather than opening route
+  repair or family adoption.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -218,6 +222,7 @@ single_hako_meaning_source = 1
 runner_semantic_owner = 0
 future_interpreter_required_for_projector_migration = 0
 next_task_pack = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
+route_selection_basis = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
 old_1650_design_stop = provenance_only
 ```
 
@@ -236,7 +241,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1800-SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.md
+  1801-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -290,6 +295,12 @@ history, not in this task-order SSOT.
    boundary=runner lanes validate selected Hako meaning; they do not own compiler semantics
    semantic_authority=artifact policy SSOT, converter role SSOT, runner/task breakdown fixture
    non_authority=future interpreter activation, VM co-mainline, EXE/AOT as semantic owner
+
+6. Source Selfhost wider route-selection basis
+   status=active
+   boundary=consultation-gated basis; no family is hand-selected
+   semantic_authority=runner vocabulary SSOT, route-selection basis fixture, artifact policy SSOT
+   non_authority=route repair, family adoption, runtime fallback, support-lane proof
 ```
 
 ## Landed Converter Capability Summary

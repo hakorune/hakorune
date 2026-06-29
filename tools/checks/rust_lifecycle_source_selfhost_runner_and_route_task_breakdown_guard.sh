@@ -153,7 +153,11 @@ for needle in [
 ]:
     require(needle in task_order, f"task-order missing {needle}")
 
-require(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
+latest_card = state.get("latest_card")
+latest_card_path = state.get("latest_card_path")
+require(isinstance(latest_card, str) and latest_card, "CURRENT_STATE latest card missing")
+require(isinstance(latest_card_path, str) and Path(latest_card_path).exists(), "CURRENT_STATE latest card path missing")
+require(latest_card in latest_card_path, "CURRENT_STATE latest card/path mismatch")
 require(state.get("current_blocker_token") == design_stop_token, "CURRENT_STATE blocker must remain design stop")
 require("tools/checks/rust_lifecycle_source_selfhost_runner_and_route_task_breakdown_guard.sh" in index, "check index missing guard")
 
