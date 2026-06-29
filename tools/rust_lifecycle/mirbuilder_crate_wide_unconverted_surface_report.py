@@ -148,6 +148,51 @@ PLAN_FEATURE_SUBCLUSTER_RULES = [
     ("BodyViewFeatureCluster", ("src/mir/builder/control_flow/plan/features/body_view.rs",)),
 ]
 
+LOOP_COND_FEATURE_SUBCLUSTER_RULES = [
+    (
+        "LoopCondVerifierCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_verifier.rs",
+            "src/mir/builder/control_flow/plan/features/loop_cond_co_verifier.rs",
+            "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_verifier.rs",
+            "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_verifier.rs",
+            "src/mir/builder/control_flow/plan/features/loop_true_break_continue_verifier.rs",
+        ),
+    ),
+    ("LoopCondUtilityCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",)),
+    (
+        "LoopCondBreakContinueCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs",
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_",
+        ),
+    ),
+    (
+        "LoopCondContinueOnlyCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_co_",
+        ),
+    ),
+    (
+        "LoopCondReturnInBodyCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_",
+        ),
+    ),
+    (
+        "LoopCondContinueWithReturnCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_",
+        ),
+    ),
+    (
+        "LoopTrueBreakContinueCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_true_break_continue_",
+        ),
+    ),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -360,6 +405,17 @@ def plan_feature_subcluster(item: dict[str, Any]) -> str | None:
     return "OtherPlanFeatureCluster"
 
 
+def loop_cond_feature_subcluster(item: dict[str, Any]) -> str | None:
+    if item.get("plan_feature_subcluster") != "LoopCondFeatureCluster":
+        return None
+    path = item["source_path"]
+    # Verifier files must win before their broader bc/co/return prefixes.
+    for subcluster, prefixes in LOOP_COND_FEATURE_SUBCLUSTER_RULES:
+        if any(path.startswith(prefix) for prefix in prefixes):
+            return subcluster
+    return "OtherLoopCondFeatureCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -379,6 +435,7 @@ def build_report() -> dict[str, Any]:
         item["likely_owner_cluster"] = likely_owner_cluster(item)
         item["joinir_plan_subcluster"] = joinir_plan_subcluster(item)
         item["plan_feature_subcluster"] = plan_feature_subcluster(item)
+        item["loop_cond_feature_subcluster"] = loop_cond_feature_subcluster(item)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -395,6 +452,7 @@ def build_report() -> dict[str, Any]:
     cluster_counts: dict[str, int] = {}
     joinir_plan_subcluster_counts: dict[str, int] = {}
     plan_feature_subcluster_counts: dict[str, int] = {}
+    loop_cond_feature_subcluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
         if item["classification"] == "MissingProjectionPolicy":
@@ -406,6 +464,9 @@ def build_report() -> dict[str, Any]:
                 if subcluster == "PlanFeatureMaterializerCluster":
                     feature_subcluster = item["plan_feature_subcluster"] or "OtherPlanFeatureCluster"
                     plan_feature_subcluster_counts[feature_subcluster] = plan_feature_subcluster_counts.get(feature_subcluster, 0) + 1
+                    if feature_subcluster == "LoopCondFeatureCluster":
+                        loop_cond_subcluster = item["loop_cond_feature_subcluster"] or "OtherLoopCondFeatureCluster"
+                        loop_cond_feature_subcluster_counts[loop_cond_subcluster] = loop_cond_feature_subcluster_counts.get(loop_cond_subcluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -490,6 +551,10 @@ def build_report() -> dict[str, Any]:
             {"subcluster": subcluster, "path_prefixes": list(prefixes)}
             for subcluster, prefixes in PLAN_FEATURE_SUBCLUSTER_RULES
         ],
+        "loop_cond_feature_subcluster_rules": [
+            {"subcluster": subcluster, "path_prefixes": list(prefixes)}
+            for subcluster, prefixes in LOOP_COND_FEATURE_SUBCLUSTER_RULES
+        ],
         "missing_projection_cluster_summary": [
             {"cluster": cluster, "count": count}
             for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
@@ -501,6 +566,10 @@ def build_report() -> dict[str, Any]:
         "plan_feature_subcluster_summary": [
             {"subcluster": subcluster, "count": count}
             for subcluster, count in sorted(plan_feature_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        "loop_cond_feature_subcluster_summary": [
+            {"subcluster": subcluster, "count": count}
+            for subcluster, count in sorted(loop_cond_feature_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
         ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
@@ -557,6 +626,7 @@ def build_report() -> dict[str, Any]:
             "missing_projection_items_clustered": 1,
             "joinir_plan_items_subclustered": 1,
             "plan_feature_items_subclustered": 1,
+            "loop_cond_feature_items_subclustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,
