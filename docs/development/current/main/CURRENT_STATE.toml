@@ -22,12 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-BC-CONTINUE-IF-ELSE-PATTERN-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1837-MIRBUILDER-LOOP-COND-BC-CONTINUE-IF-ELSE-PATTERN-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves the continue-if-with-else
-loop-cond surface as PrivateLoweringHelper under the
-loop_cond_break_continue owner edge. It does not open standalone projection,
-Hako generation, adoption, or Source Selfhost claims."""
+latest_card = "MIRBUILDER-LOOP-COND-BC-CLEANUP-SURFACE-CLASSIFICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1838-MIRBUILDER-LOOP-COND-BC-CLEANUP-SURFACE-CLASSIFICATION-001.md"
+latest_card_summary = """The latest card classifies LoopCondBcCleanupCluster
+into cleanup application and exit predicate buckets while keeping Source
+Selfhost stopped."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -38,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1838 classifies LoopCondBcCleanupCluster into cleanup application and exit predicate buckets.",
   "2026-06-30: 1837 marks continue-if-with-else loop-cond lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1836 marks return-only loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1835 marks guard-break loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
@@ -45,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1833 classifies LoopCondBcElsePatternCluster into four subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1832 classifies LoopCondBreakContinueCluster into five subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1831 classifies LoopCondFeatureCluster into seven subclusters while keeping Source Selfhost stopped.",
-  "2026-06-30: 1830 classifies PlanFeatureMaterializerCluster into eight subclusters while keeping Source Selfhost stopped.",
 ]

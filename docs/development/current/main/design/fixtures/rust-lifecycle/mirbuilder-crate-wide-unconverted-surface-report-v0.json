@@ -10,6 +10,7 @@
     "join_unit_semantic_owner_edge": 1,
     "joinir_plan_items_subclustered": 1,
     "likely_owner_cluster_recorded": 1,
+    "loop_cond_bc_cleanup_items_subclustered": 1,
     "loop_cond_bc_else_pattern_items_subclustered": 1,
     "loop_cond_break_continue_items_subclustered": 1,
     "loop_cond_feature_items_subclustered": 1,
@@ -18146,6 +18147,7 @@
       "known_replacement": null,
       "likely_owner_cluster": "JoinIRPlanCluster",
       "line": 22,
+      "loop_cond_bc_cleanup_subcluster": "LoopCondBcCleanupApplicationCluster",
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": "LoopCondBcCleanupCluster",
       "loop_cond_feature_subcluster": "LoopCondBreakContinueCluster",
@@ -18174,6 +18176,7 @@
       "known_replacement": null,
       "likely_owner_cluster": "JoinIRPlanCluster",
       "line": 17,
+      "loop_cond_bc_cleanup_subcluster": "LoopCondBcCleanupExitPredicateCluster",
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": "LoopCondBcCleanupCluster",
       "loop_cond_feature_subcluster": "LoopCondBreakContinueCluster",
@@ -44448,6 +44451,30 @@
     }
   ],
   "kind": "MirBuilderCrateWideUnconvertedSurfaceReportV1",
+  "loop_cond_bc_cleanup_subcluster_rules": [
+    {
+      "subcluster": "LoopCondBcCleanupApplicationCluster",
+      "symbols": [
+        "apply_loop_cond_break_continue_cleanup"
+      ]
+    },
+    {
+      "subcluster": "LoopCondBcCleanupExitPredicateCluster",
+      "symbols": [
+        "body_exits_all_paths"
+      ]
+    }
+  ],
+  "loop_cond_bc_cleanup_subcluster_summary": [
+    {
+      "count": 1,
+      "subcluster": "LoopCondBcCleanupApplicationCluster"
+    },
+    {
+      "count": 1,
+      "subcluster": "LoopCondBcCleanupExitPredicateCluster"
+    }
+  ],
   "loop_cond_bc_else_pattern_subcluster_rules": [
     {
       "path_prefixes": [
@@ -44824,7 +44851,7 @@
   "provenance": {
     "native_owner_seed_capability_survey_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d",
     "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
-    "source_selfhost_family_guard_manifest_hash": "29ae3d81984bb5f2ec73cfa2d051e6acec76094efd0ec8d33e4a55b65f0a979d",
+    "source_selfhost_family_guard_manifest_hash": "68173ac2ac62c014e4e3f31788e1ea521d2156c4c3a748c5736dd3beba437879",
     "tool_version": "regex_source_text_v0",
     "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"
   },
@@ -44885,7 +44912,7 @@
   },
   "schema_version": 0,
   "source_inventory": {
-    "family_manifest_rows": 37,
+    "family_manifest_rows": 38,
     "public_rust_surface_count": 1556,
     "reported_item_count": 1584,
     "rust_surface_count": 3120,
