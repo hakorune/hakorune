@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1834-MIRBUILDER-LOOP-COND-BC-BREAK-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001.md
+  1835-MIRBUILDER-LOOP-COND-BC-GUARD-BREAK-ELSE-PATTERN-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

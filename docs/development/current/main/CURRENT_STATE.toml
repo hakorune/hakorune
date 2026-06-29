@@ -22,9 +22,9 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-BC-BREAK-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1834-MIRBUILDER-LOOP-COND-BC-BREAK-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves the break-only
+latest_card = "MIRBUILDER-LOOP-COND-BC-GUARD-BREAK-ELSE-PATTERN-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1835-MIRBUILDER-LOOP-COND-BC-GUARD-BREAK-ELSE-PATTERN-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card resolves the guard-break
 loop-cond else-pattern surfaces as PrivateLoweringHelper under the
 loop_cond_break_continue owner edge. It does not open standalone projection,
 Hako generation, adoption, or Source Selfhost claims."""
@@ -38,6 +38,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1835 marks guard-break loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1834 marks break-only loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1833 classifies LoopCondBcElsePatternCluster into four subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1832 classifies LoopCondBreakContinueCluster into five subclusters while keeping Source Selfhost stopped.",
@@ -45,5 +46,4 @@ landed_tail = [
   "2026-06-30: 1830 classifies PlanFeatureMaterializerCluster into eight subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1829 breaks JoinIRPlanCluster into thirteen subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1828 clusters 1396 MissingProjectionPolicy surfaces into nine owner buckets without selecting a family.",
-  "2026-06-30: 1827 hardens the unconverted surface report with hashes, orphan evidence checks, reason-token table, and confidence guardrails.",
 ]

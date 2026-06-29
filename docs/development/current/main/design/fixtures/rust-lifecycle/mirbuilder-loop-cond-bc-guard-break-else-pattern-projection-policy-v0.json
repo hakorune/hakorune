@@ -1,0 +1,50 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondBcGuardBreakElsePatternProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-BC-GUARD-BREAK-ELSE-PATTERN-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondBcGuardBreakElsePatternCluster",
+    "source_count": 2
+  },
+  "selected_policy": {
+    "policy": "PrivateLoweringHelper",
+    "owner_edge": "loop_cond_break_continue",
+    "projection_surface_selected": false,
+    "reason_token": "GuardBreakElsePatternIsInternalLoopCondBcLoweringHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs::lower_else_guard_break_if_with_exit_allowed:L13",
+      "symbol": "lower_else_guard_break_if_with_exit_allowed",
+      "visibility": "pub(in crate::mir::builder::control_flow::plan::features)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs"
+    },
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs::lower_else_guard_break_body:L107",
+      "symbol": "lower_else_guard_break_body",
+      "visibility": "pub(in crate::mir::builder::control_flow::plan::features)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs"
+    }
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-BC-RETURN-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001",
+    "reason_token": "GuardBreakElsePatternDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
