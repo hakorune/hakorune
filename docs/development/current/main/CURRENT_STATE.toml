@@ -22,13 +22,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-JOINIR-PLAN-CLUSTER-BREAKDOWN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1829-MIRBUILDER-JOINIR-PLAN-CLUSTER-BREAKDOWN-001.md"
-latest_card_summary = """The latest card breaks the largest unconverted
-surface owner cluster, JoinIRPlanCluster, into thirteen subclusters. This keeps
-the next work bounded without selecting a family or generating Hako. Source
-Selfhost remains stopped with fallback, backend route, ABI, Python
-SemanticProjector, and manual selection claims at 0."""
+latest_card = "MIRBUILDER-PLAN-FEATURE-MATERIALIZER-SURFACE-CLASSIFICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1830-MIRBUILDER-PLAN-FEATURE-MATERIALIZER-SURFACE-CLASSIFICATION-001.md"
+latest_card_summary = """The latest card classifies PlanFeatureMaterializerCluster
+into eight smaller buckets led by LoopCondFeature, GenericLoopBody, and
+PhiMaterializer surfaces. This keeps the next work bounded without selecting a
+family or generating Hako. Source Selfhost remains stopped with fallback,
+backend route, ABI, Python SemanticProjector, and manual selection claims at 0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1830 classifies PlanFeatureMaterializerCluster into eight subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1829 breaks JoinIRPlanCluster into thirteen subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1828 clusters 1396 MissingProjectionPolicy surfaces into nine owner buckets without selecting a family.",
   "2026-06-30: 1827 hardens the unconverted surface report with hashes, orphan evidence checks, reason-token table, and confidence guardrails.",
@@ -46,5 +47,4 @@ landed_tail = [
   "2026-06-30: 1825 surveys crate-wide native owner seed capability and keeps Source Selfhost stopped because no unique next owner exists.",
   "2026-06-30: 1824 resolves generated-artifact native owner seed candidates and keeps Source Selfhost stopped because no machine-derived leaf candidate exists.",
   "2026-06-30: 1823 taskizes the wider route stop into a machine-derived unblock lane without selecting a family.",
-  "2026-06-29: 1822 adopts SlotRegistryRelease as a narrow native Hako leaf owner while keeping Source Selfhost stopped.",
 ]

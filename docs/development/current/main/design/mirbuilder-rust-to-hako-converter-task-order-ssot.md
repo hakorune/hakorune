@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1829-MIRBUILDER-JOINIR-PLAN-CLUSTER-BREAKDOWN-001.md
+  1830-MIRBUILDER-PLAN-FEATURE-MATERIALIZER-SURFACE-CLASSIFICATION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

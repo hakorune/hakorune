@@ -87,12 +87,17 @@ if not fixture.get("owner_cluster_rules"):
     raise SystemExit("owner cluster rules missing")
 if not fixture.get("joinir_plan_subcluster_rules"):
     raise SystemExit("joinir plan subcluster rules missing")
+if not fixture.get("plan_feature_subcluster_rules"):
+    raise SystemExit("plan feature subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
 joinir_plan_summary = fixture.get("joinir_plan_subcluster_summary") or []
 if not joinir_plan_summary:
     raise SystemExit("joinir plan subcluster summary missing")
+plan_feature_summary = fixture.get("plan_feature_subcluster_summary") or []
+if not plan_feature_summary:
+    raise SystemExit("plan feature subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -107,6 +112,13 @@ for item in joinir_plan_items:
 joinir_plan_sum = sum(item.get("count", 0) for item in joinir_plan_summary)
 if joinir_plan_sum != len(joinir_plan_items):
     raise SystemExit("JoinIR plan subcluster summary count drift")
+plan_feature_items = [item for item in joinir_plan_items if item.get("joinir_plan_subcluster") == "PlanFeatureMaterializerCluster"]
+for item in plan_feature_items:
+    if not item.get("plan_feature_subcluster"):
+        raise SystemExit(f"PlanFeatureMaterializerCluster item lacks subcluster: {item.get('source_id')}")
+plan_feature_sum = sum(item.get("count", 0) for item in plan_feature_summary)
+if plan_feature_sum != len(plan_feature_items):
+    raise SystemExit("plan feature subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -133,6 +145,7 @@ for key in [
     "likely_owner_cluster_recorded",
     "missing_projection_items_clustered",
     "joinir_plan_items_subclustered",
+    "plan_feature_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",

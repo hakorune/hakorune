@@ -212,6 +212,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_unconverted_surface_report_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-PLAN-FEATURE-MATERIALIZER-SURFACE-CLASSIFICATION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1830-MIRBUILDER-PLAN-FEATURE-MATERIALIZER-SURFACE-CLASSIFICATION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_unconverted_surface_report_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
