@@ -311,6 +311,11 @@ function_region_stack_pop_hako_adoption_decision =
   MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001
 function_region_stack_pop_hako_adopted = 1
 function_region_stack_pop_source_selfhost_claim = 0
+native_owner_seed_pilot_target_selection_003 =
+  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003
+native_owner_seed_pilot_003_selected_target = SlotRegistryRelease
+native_owner_seed_pilot_003_next_card =
+  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001
 support_lane_projector_as_hako_adoption_candidate = 0
 support_lane_projector_as_seed_pilot_target = 1
 conditional_route_matrix_repair =
@@ -334,7 +339,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1819-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001.md
+  1820-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -361,8 +366,8 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=ReturnEmission and FunctionRegionStackPop are adopted, but Source Selfhost remains unclaimed
-   semantic_authority=design-stop card, ReturnEmission adoption fixture, FunctionRegionStackPop adoption fixture
+   boundary=SlotRegistryRelease seed is selected, but Source Selfhost remains unclaimed
+   semantic_authority=design-stop card, FunctionRegionStackPop adoption fixture, seed pilot target selection fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
 2. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
@@ -378,7 +383,7 @@ history, not in this task-order SSOT.
    non_authority=manual family selection, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003
+  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001
 ```
 
 ## Landed Converter Capability Summary
