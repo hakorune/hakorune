@@ -121,9 +121,12 @@ require(adoption_plan.get("plan", {}).get("manual_family_selection") == 0, "adop
 require((candidate_selection.get("decision") or {}).get("kind") == "Blocked", "candidate selection should remain blocked")
 require((candidate_selection.get("eligible_candidate_count")) == 0, "candidate selection eligible count drift")
 
-require(state.get("latest_card") == token, "current-state latest card drift")
 require(state.get("current_blocker_token") == token, "current-state blocker drift")
-require(state.get("latest_card_path") == "docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md", "current-state latest card path drift")
+latest_card = state.get("latest_card")
+latest_card_path = state.get("latest_card_path")
+require(isinstance(latest_card, str) and latest_card, "current-state latest card missing")
+require(isinstance(latest_card_path, str) and Path(latest_card_path).exists(), "current-state latest card path missing")
+require(latest_card in latest_card_path, "current-state latest card/path mismatch")
 
 for needle in [
     token,

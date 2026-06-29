@@ -1,0 +1,89 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostRunnerAndRouteTaskBreakdownV1",
+  "output_contract": "rust-lifecycle-source-selfhost-runner-and-route-task-breakdown-v0",
+  "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+  "candidate_pool": {
+    "state": "Blocked",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "allowed_resume": [
+      "ConsultationGatedWiderRouteSelection",
+      "MachineDerivedRouteRepair"
+    ]
+  },
+  "runner_roles": {
+    "semantic_owner": [
+      "native_hako_source_when_hako_adopted",
+      "hako_projector_when_hako_mainline",
+      "rust_source_while_rust_primary_or_oracle"
+    ],
+    "shadow_reference_runner": {
+      "role": "parity_witness",
+      "may_own_semantics": false
+    },
+    "exe_aot": {
+      "role": "mainline_distribution_validation_gate",
+      "may_own_semantics": false
+    },
+    "current_vm_hako": {
+      "role": "internal_semantic_witness_debug_bootstrap_proof",
+      "co_mainline_product_lane": false
+    },
+    "future_interpreter": {
+      "role": "reserved_usability_lane",
+      "active": false,
+      "required_for_python_to_hako_projector_migration": false
+    }
+  },
+  "task_packs": [
+    {
+      "order": 0,
+      "token": "SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001",
+      "kind": "DocumentationGuard",
+      "purpose": "Separate runner roles and name recovery task packs"
+    },
+    {
+      "order": 1,
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001",
+      "kind": "ConsultationGatedBasis",
+      "purpose": "Derive the next native route-family basis without manual family selection"
+    },
+    {
+      "order": 2,
+      "token": "<ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001",
+      "kind": "MachineDerivedRouteRepair",
+      "purpose": "Repair exactly one machine-derived route-family row"
+    },
+    {
+      "order": 3,
+      "token": "<SELECTED-FAMILY>-HAKO-ADOPTION-DECISION-001",
+      "kind": "FamilyAdoptionDecision",
+      "purpose": "Adopt, Defer, or Reject one machine-selected family"
+    },
+    {
+      "order": 4,
+      "token": "<PROJECTOR-FAMILY>-HAKO-SHADOW-PROMOTION-DECISION-001",
+      "kind": "ProjectorPromotionLane",
+      "purpose": "Reduce Python SemanticProjector ownership without claiming family adoption"
+    }
+  ],
+  "claims": {
+    "single_hako_meaning_source": 1,
+    "task_packs_named": 1,
+    "consultation_gated_wider_route_selection": 1,
+    "machine_derived_route_repair_allowed": 1,
+    "manual_family_selection": 0,
+    "runner_semantic_owner": 0,
+    "exe_aot_gate_is_semantic_owner": 0,
+    "vm_hako_co_mainline_claim": 0,
+    "future_interpreter_activation": 0,
+    "future_interpreter_required_for_projector_migration": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0
+  }
+}

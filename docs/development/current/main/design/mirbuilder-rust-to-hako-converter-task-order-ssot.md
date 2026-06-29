@@ -24,10 +24,11 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  Keep Source Selfhost explicitly stopped while the wider route-selection
-  basis remains consultation-gated or machine-repaired.
-  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0
+  SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.
+  Keep the 1799 Source Selfhost design stop intact while separating runner
+  roles from semantic ownership and naming the task packs that may resume
+  wider route selection.
+  output_contract = rust-lifecycle-source-selfhost-runner-and-route-task-breakdown-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -54,6 +55,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
     -> SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
     -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+    -> SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001
 
 selected evidence:
   adoption-plan evidence
@@ -80,6 +82,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
     -> docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md
+    -> docs/development/current/main/phases/phase-296x/1800-SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -93,7 +96,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Source Selfhost wider route selection design stop
+  Source Selfhost runner and route task breakdown
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -143,7 +146,10 @@ latest design decision:
   consultation-gated rows. That policy's recovery line now lands on the wider
   route-selection design stop, which keeps the lane stopped until consultation-
   gated widening or machine-derived route repair resumes it. Reason token:
-  `NoEligibleNativeAdoptionCandidate`.
+  `NoEligibleNativeAdoptionCandidate`. Runner roles are now separated from
+  semantic ownership: EXE/AOT is a validation gate, current `vm-hako` is an
+  internal witness/debug/bootstrap-proof lane, and a future interpreter is not
+  required for Python-to-Hako projector migration.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -178,6 +184,7 @@ next_route_family_selection_policy = SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION
 next_route_family_selection_decision = KeepSourceSelfhostStopped
 next_route_family_selection_reason = NoEligibleNativeAdoptionCandidate
 next_route_family_selection_recovery = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+next_route_family_selection_recovery_contract = rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0
 consultation_gated_wider_route_selection = 1
 manual_family_selection = 0
 machine_derived_route_repair_allowed = 1
@@ -205,6 +212,12 @@ explicit_mutation_surface_state = Adopt
 post_explicit_mutation_resolution_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
 next_action = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 resume_condition = ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair
+runner_task_breakdown = SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001
+runner_task_breakdown_output = rust-lifecycle-source-selfhost-runner-and-route-task-breakdown-v0
+single_hako_meaning_source = 1
+runner_semantic_owner = 0
+future_interpreter_required_for_projector_migration = 0
+next_task_pack = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
 old_1650_design_stop = provenance_only
 ```
 
@@ -223,7 +236,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md
+  1800-SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -266,11 +279,17 @@ history, not in this task-order SSOT.
    semantic_authority=route matrix rerun 002 fixture, explicit mutation API projection guard, explicit mutation adoption guard
    non_authority=raw mutable alias, MutLease, full VariableContext, source selfhost
 
-4. Source Selfhost next route-family selection policy
+4. Source Selfhost wider route-selection design stop
    status=active
-   boundary=classify route-family rows and block with recovery guidance when no machine-derived native adoption candidate remains
-   semantic_authority=route matrix fixtures, HakoAdopted decision fixtures, projector stage-state fixtures, roadmap/model SSOTs
+   boundary=keep Source Selfhost stopped until consultation-gated widening or machine-derived route repair resumes it
+   semantic_authority=next route-family selection policy fixture, wider-route design stop fixture
    non_authority=manual family selection, Source Selfhost claim, Rust deletion, runtime fallback
+
+5. Source Selfhost runner and route task breakdown
+   status=active
+   boundary=runner lanes validate selected Hako meaning; they do not own compiler semantics
+   semantic_authority=artifact policy SSOT, converter role SSOT, runner/task breakdown fixture
+   non_authority=future interpreter activation, VM co-mainline, EXE/AOT as semantic owner
 ```
 
 ## Landed Converter Capability Summary
