@@ -1,0 +1,173 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoAstStatementLoweringSurfaceClassificationV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-SURFACE-CLASSIFICATION-001",
+  "input_state": {
+    "projection_policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-statement-lowering-projection-policy-v0.json",
+    "source_surface": "lower_stmt_ast",
+    "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs",
+    "source_cluster": "LoopCondCoAstStatementLoweringCluster",
+    "source_reason_token": "AstStatementLoweringMustBeClassifiedBeforeProjectionPolicy"
+  },
+  "shape_inventory": [
+    {
+      "shape_id": "AssignmentStatementShape",
+      "ast_markers": [
+        "ASTNode::Assignment"
+      ],
+      "evidence_markers": [
+        "lower_assignment_stmt",
+        "effects_to_plans"
+      ],
+      "classification": "LeafStatementShape",
+      "reason_token": "AssignmentDelegatesToCarrierMergeHelper",
+      "eligible_for_projection_policy": true
+    },
+    {
+      "shape_id": "LocalStatementShape",
+      "ast_markers": [
+        "ASTNode::Local"
+      ],
+      "evidence_markers": [
+        "lower_local_init_stmt",
+        "effects_to_plans"
+      ],
+      "classification": "LeafStatementShape",
+      "reason_token": "LocalInitDelegatesToCarrierMergeHelper",
+      "eligible_for_projection_policy": true
+    },
+    {
+      "shape_id": "MethodCallStatementShape",
+      "ast_markers": [
+        "ASTNode::MethodCall"
+      ],
+      "evidence_markers": [
+        "loop_body_lowering::lower_method_call_stmt",
+        "effects_to_plans"
+      ],
+      "classification": "CallStatementShape",
+      "reason_token": "MethodCallDelegatesToLoopBodyLowering",
+      "eligible_for_projection_policy": true
+    },
+    {
+      "shape_id": "FunctionCallStatementShape",
+      "ast_markers": [
+        "ASTNode::FunctionCall"
+      ],
+      "evidence_markers": [
+        "loop_body_lowering::lower_function_call_stmt",
+        "effects_to_plans"
+      ],
+      "classification": "CallStatementShape",
+      "reason_token": "FunctionCallDelegatesToLoopBodyLowering",
+      "eligible_for_projection_policy": true
+    },
+    {
+      "shape_id": "PrintStatementShape",
+      "ast_markers": [
+        "ASTNode::Print"
+      ],
+      "evidence_markers": [
+        "PlanNormalizer::lower_value_ast",
+        "CoreEffectPlan::ExternCall",
+        "env.console",
+        "log"
+      ],
+      "classification": "ExternCallStatementShape",
+      "reason_token": "PrintLowersToConsoleExternCall",
+      "eligible_for_projection_policy": true
+    },
+    {
+      "shape_id": "IfStatementShape",
+      "ast_markers": [
+        "ASTNode::If"
+      ],
+      "evidence_markers": [
+        "parts::entry::lower_conditional_update_if",
+        "try_lower_general_if_recipe_authority",
+        "lower_if_exit_stmt",
+        "general-if body contains exit"
+      ],
+      "classification": "CompositeStatementShape",
+      "reason_token": "IfStatementHasMultipleLoweringRoutes",
+      "eligible_for_projection_policy": false
+    },
+    {
+      "shape_id": "ExitRejectStatementShape",
+      "ast_markers": [
+        "ASTNode::Continue",
+        "ASTNode::Break",
+        "ASTNode::Return"
+      ],
+      "evidence_markers": [
+        "continue must be inside if",
+        "break/return out-of-scope"
+      ],
+      "classification": "RejectStatementShape",
+      "reason_token": "DirectExitStatementsRejectedInAstStatementLowering",
+      "eligible_for_projection_policy": false
+    },
+    {
+      "shape_id": "NestedLoopStatementShape",
+      "ast_markers": [
+        "ASTNode::Loop"
+      ],
+      "evidence_markers": [
+        "lower_nested_loop_depth1_any",
+        "sync_carrier_bindings"
+      ],
+      "classification": "NestedLoopStatementShape",
+      "reason_token": "NestedLoopDelegatesToDepth1LoweringAndCarrierSync",
+      "eligible_for_projection_policy": true
+    },
+    {
+      "shape_id": "LoopRangeRejectStatementShape",
+      "ast_markers": [
+        "ASTNode::LoopRange"
+      ],
+      "evidence_markers": [
+        "nested LoopRange out-of-scope"
+      ],
+      "classification": "RejectStatementShape",
+      "reason_token": "NestedLoopRangeRejectedInContinueOnlyAstLowering",
+      "eligible_for_projection_policy": false
+    },
+    {
+      "shape_id": "UnsupportedStatementShape",
+      "ast_markers": [
+        "_ => Err"
+      ],
+      "evidence_markers": [
+        "unsupported stmt"
+      ],
+      "classification": "RejectStatementShape",
+      "reason_token": "UnsupportedAstStatementShapeRejected",
+      "eligible_for_projection_policy": false
+    }
+  ],
+  "summary": {
+    "shape_count": 10,
+    "leaf_or_call_or_extern_or_loop_projection_policy_candidate_count": 6,
+    "composite_shape_count": 1,
+    "reject_shape_count": 3
+  },
+  "decision": {
+    "kind": "SelectShapeProjectionPolicy",
+    "selected_shape_id": "AssignmentStatementShape",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001",
+    "reason_token": "FirstLeafAstStatementShapeBySourceOrder"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_policy_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
