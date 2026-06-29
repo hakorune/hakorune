@@ -107,6 +107,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001",
+      "card": "docs/development/current/main/phases/phase-296x/1815-MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_native_source_seed_guard.sh",
+      "role": "current_semantic"
     }
   ],
   "forbidden_claims": {

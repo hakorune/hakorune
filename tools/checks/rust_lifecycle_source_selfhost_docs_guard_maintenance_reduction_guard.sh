@@ -8,14 +8,15 @@ STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 POLICY="$ROOT/docs/development/current/main/design/current-docs-update-policy-ssot.md"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
+MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
 
-python3 - "$ROOT" "$CARD" "$FIXTURE" "$STATE" "$TASK_ORDER" "$POLICY" "$INDEX" <<'PY'
+python3 - "$ROOT" "$CARD" "$FIXTURE" "$STATE" "$TASK_ORDER" "$POLICY" "$INDEX" "$MANIFEST" <<'PY'
 import json
 import sys
 from pathlib import Path
 import tomllib
 
-root, card, fixture, state, task_order, policy, index = map(Path, sys.argv[1:])
+root, card, fixture, state, task_order, policy, index, manifest = map(Path, sys.argv[1:])
 
 TOKEN = "SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001"
 BLOCKER = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -47,6 +48,7 @@ def read(path: Path) -> str:
 
 card_text = read(card)
 fixture_data = json.loads(read(fixture))
+manifest_data = json.loads(read(manifest))
 state_text = read(state)
 task_order_text = read(task_order)
 policy_text = read(policy)
@@ -89,7 +91,8 @@ for key in [
         die(f"claim must be zero: {key}")
 
 state_data = tomllib.loads(state_text)
-allowed_latest_cards = {TOKEN} | REQUIRED_TASKS | ALLOWED_POST_MAINTENANCE
+manifest_tokens = {row.get("token") for row in manifest_data.get("rows", []) if row.get("token")}
+allowed_latest_cards = {TOKEN} | REQUIRED_TASKS | ALLOWED_POST_MAINTENANCE | manifest_tokens
 latest_card = state_data.get("latest_card")
 latest_card_path = state_data.get("latest_card_path") or ""
 if latest_card not in allowed_latest_cards:

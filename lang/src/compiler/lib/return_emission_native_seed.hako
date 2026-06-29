@@ -1,0 +1,55 @@
+// return_emission_native_seed.hako - native source seed for the ReturnEmission
+// MirBuilder leaf family.
+//
+// Responsibility:
+// - provide a native Hako source seed for the ReturnEmission leaf operation
+// - preserve the narrow generated artifact behavior in editable source form
+// - stay outside the generated artifact output tree
+//
+// Non-responsibility:
+// - HakoAdopted decision
+// - Source Selfhost claim
+// - generated artifact emission
+// - Python oracle generation
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+//
+// native-source-seed: MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::return_emission
+// generated-artifact-source:
+//   lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_emission.hako
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+box ReturnEmissionBasicBlockShellBox {
+    id: i64
+    terminated: i64
+    return_value: i64
+    return_value_present: i64
+    successors_empty: i64
+
+    birth() {
+        me.id = 0
+        me.terminated = 0
+        me.return_value = 0
+        me.return_value_present = 0
+        me.successors_empty = 1
+    }
+}
+
+static box ReturnEmissionNativeSeedApi {
+    emit(block, result_value): ReturnEmissionBasicBlockShellBox {
+        block.terminated = 1
+        block.return_value = result_value
+        block.return_value_present = 1
+        block.successors_empty = 1
+        return block
+    }
+}
+
+static box ReturnEmissionApi {
+    emit(block, result_value): ReturnEmissionBasicBlockShellBox {
+        return ReturnEmissionNativeSeedApi.emit(block, result_value)
+    }
+}

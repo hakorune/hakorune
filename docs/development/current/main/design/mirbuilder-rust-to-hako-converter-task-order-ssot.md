@@ -284,6 +284,14 @@ native_owner_seed_pilot_target_selection_output =
 native_owner_seed_pilot_selected_target = ReturnEmission
 native_owner_seed_pilot_next_card =
   MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
+return_emission_native_source_seed =
+  MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
+return_emission_native_source_seed_output =
+  rust-lifecycle-mirbuilder-return-emission-hako-native-source-seed-v0
+return_emission_native_source_path =
+  lang/src/compiler/lib/return_emission_native_seed.hako
+return_emission_generator_overwrite_guard = 1
+return_emission_hako_adoption_decision = deferred
 support_lane_projector_as_hako_adoption_candidate = 0
 support_lane_projector_as_seed_pilot_target = 1
 conditional_route_matrix_repair =
@@ -307,7 +315,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1814-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.md
+  1815-MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -334,18 +342,18 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=ReturnEmission seed pilot is selected, but Source Selfhost remains unclaimed
-   semantic_authority=design-stop card, seed policy fixture, seed pilot target selection fixture
+   boundary=ReturnEmission native source seed exists, but Source Selfhost remains unclaimed
+   semantic_authority=design-stop card, seed policy fixture, native source seed fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
 2. MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
-   status=next
-   boundary=materialize ReturnEmission native .hako seed path and generator overwrite guard
-   semantic_authority=ReturnEmission HakoMainline promotion fixture, seed target selection fixture
+   status=green
+   boundary=ReturnEmission native .hako seed path and generator overwrite guard
+   semantic_authority=ReturnEmission native source seed fixture, HakoMainline promotion fixture
    non_authority=HakoAdopted decision, Source Selfhost claim
 
 3. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
-   status=conditional
+   status=next
    boundary=only after ReturnEmission native source seed guard is green
    semantic_authority=native source seed fixture, Derived-to-Native artifact model
    non_authority=Source Selfhost claim, Rust deletion

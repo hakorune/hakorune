@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderReturnEmissionHakoNativeSourceSeedV1",
+  "token": "MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001",
+  "family_id": "hakorune_mir_builder::return_emission",
+  "input_authority": {
+    "seed_pilot_target_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v0.json",
+    "hako_shadow_promotion_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/return-emission-hako-shadow-promotion-decision-v0.json",
+    "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_emission.hako",
+    "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_emission.artifact.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md"
+  },
+  "native_source_seed": {
+    "path": "lang/src/compiler/lib/return_emission_native_seed.hako",
+    "module_export": "lib.return_emission_native_seed",
+    "api": "ReturnEmissionApi.emit",
+    "native_seed_api": "ReturnEmissionNativeSeedApi.emit",
+    "outside_generated_tree": true,
+    "generator_overwrite_guard": true
+  },
+  "selected_behavior": {
+    "operation": "EmitReturnTerminator",
+    "mutation_frame": [
+      "block.terminated",
+      "block.return_value",
+      "block.return_value_present",
+      "block.successors_empty"
+    ],
+    "non_mutated_fields": [
+      "block.id"
+    ],
+    "result_contract": {
+      "terminated": 1,
+      "return_value": "result_value",
+      "return_value_present": 1,
+      "successors_empty": 1
+    }
+  },
+  "seed_status": {
+    "native_source_owner_seed_present": 1,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "NativeSourceSeedMaterialized"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "family_adoption_decision": 0,
+    "source_selfhost_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "rust_deletion": 0
+  }
+}
