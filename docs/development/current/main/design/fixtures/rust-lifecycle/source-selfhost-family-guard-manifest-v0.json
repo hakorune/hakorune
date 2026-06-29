@@ -149,6 +149,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v2.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_003_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001",
+      "card": "docs/development/current/main/phases/phase-296x/1821-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_hako_native_source_seed_guard.sh",
+      "role": "current_semantic"
     }
   ],
   "forbidden_claims": {

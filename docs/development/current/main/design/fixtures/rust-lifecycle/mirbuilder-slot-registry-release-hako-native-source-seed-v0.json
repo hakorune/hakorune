@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSlotRegistryReleaseHakoNativeSourceSeedV1",
+  "token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001",
+  "family_id": "hakorune_mir_builder::slot_registry_release",
+  "input_authority": {
+    "seed_pilot_target_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v2.json",
+    "hako_shadow_promotion_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/slot-registry-release-hako-shadow-promotion-decision-v0.json",
+    "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.hako",
+    "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.artifact.json",
+    "derived_artifact_verifier": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-derived-hako-verifier-result-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md"
+  },
+  "native_source_seed": {
+    "path": "lang/src/compiler/lib/slot_registry_release_native_seed.hako",
+    "module_export": "lib.slot_registry_release_native_seed",
+    "api": "SlotRegistryReleaseApi.release",
+    "native_seed_api": "SlotRegistryReleaseNativeSeedApi.release",
+    "outside_generated_tree": true,
+    "generator_overwrite_guard": true
+  },
+  "selected_behavior": {
+    "operation": "PreparedSlotRegistryRelease",
+    "mutation_frame": [
+      "state.current_slot_registry",
+      "state.current_slot_registry_present",
+      "state.released_registry_present",
+      "state.slot_registry_released"
+    ],
+    "denied_boundaries": [
+      "module_metadata_publication",
+      "metadata_publication",
+      "semantic_refresh",
+      "all_functions_phi_materialization",
+      "full_finalize_module"
+    ]
+  },
+  "seed_status": {
+    "native_source_owner_seed_present": 1,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "NativeSourceSeedMaterialized"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "family_adoption_decision": 0,
+    "source_selfhost_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "rust_deletion": 0
+  }
+}

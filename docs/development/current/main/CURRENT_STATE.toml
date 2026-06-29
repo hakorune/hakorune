@@ -12,9 +12,9 @@ active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost ap
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
 route-selection design stop. ReturnEmission is now a narrow HakoAdopted leaf
 semantic owner, and FunctionRegionStackPop is now a narrow HakoAdopted leaf
-semantic owner. SlotRegistryRelease is selected as the next native source seed
-pilot target. This is not a Source Selfhost claim. EXE/AOT remains the primary
-app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
+semantic owner. SlotRegistryRelease now has a native source seed. This is not a
+Source Selfhost claim. EXE/AOT remains the primary app/selfhost validation
+route; VM/interpreter lanes are not semantic owners."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -22,12 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1820-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003.md"
-latest_card_summary = """The latest card excludes already-adopted ReturnEmission
-and FunctionRegionStackPop, then selects SlotRegistryRelease as the next native
-source seed pilot target. It does not materialize source or claim Source
-Selfhost."""
+latest_card = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1821-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001.md"
+latest_card_summary = """The latest card materializes the SlotRegistryRelease
+native Hako source seed and generator-overwrite guard. It does not run
+HakoAdopted or claim Source Selfhost."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -38,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1821 materializes SlotRegistryRelease native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
   "2026-06-29: 1820 selects SlotRegistryRelease as the next native source seed pilot target after ReturnEmission and FunctionRegionStackPop adoption.",
   "2026-06-29: 1819 adopts FunctionRegionStackPop as a narrow native Hako leaf owner while keeping Source Selfhost stopped.",
   "2026-06-29: 1818 materializes FunctionRegionStackPop native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
@@ -45,5 +45,4 @@ landed_tail = [
   "2026-06-29: 1816 adopts ReturnEmission as a narrow native Hako leaf owner while keeping Source Selfhost stopped.",
   "2026-06-29: 1815 materializes ReturnEmission native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
   "2026-06-29: 1814 selects ReturnEmission as the first native source seed pilot target without treating support-lane projectors as HakoAdopted candidates.",
-  "2026-06-29: 1813 defines the GeneratedArtifactOnly to NativeOwnerSeedCandidate policy without selecting a family or opening Source Selfhost.",
 ]

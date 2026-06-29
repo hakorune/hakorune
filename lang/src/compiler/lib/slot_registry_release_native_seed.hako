@@ -1,0 +1,67 @@
+// slot_registry_release_native_seed.hako - native source seed for the
+// SlotRegistryRelease MirBuilder leaf family.
+//
+// Responsibility:
+// - provide a native Hako source seed for prepared slot-registry release
+// - preserve the narrow generated artifact behavior in editable source form
+// - stay outside the generated artifact output tree
+//
+// Non-responsibility:
+// - HakoAdopted decision
+// - Source Selfhost claim
+// - module metadata publication
+// - semantic refresh
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+//
+// native-source-seed:
+//   MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::slot_registry_release
+// generated-artifact-source:
+//   lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.hako
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+box FunctionSlotRegistryPreparedBox {
+}
+
+box PreparedSlotRegistryStateShellBox {
+    current_slot_registry: FunctionSlotRegistryPreparedBox
+    current_slot_registry_present: i64
+    released_registry_present: i64
+    slot_registry_released: i64
+
+    birth() {
+        me.current_slot_registry = new FunctionSlotRegistryPreparedBox()
+        me.current_slot_registry_present = 1
+        me.released_registry_present = 0
+        me.slot_registry_released = 0
+    }
+}
+
+static box SlotRegistryReleaseNativeSeedApi {
+    release(state): FunctionSlotRegistryPreparedBox {
+        local registry = state.current_slot_registry
+        state.current_slot_registry = null
+        state.current_slot_registry_present = 0
+        state.released_registry_present = 1
+        state.slot_registry_released = 1
+        return registry
+    }
+
+    apply(state): i64 {
+        SlotRegistryReleaseNativeSeedApi.release(state)
+        return 0
+    }
+}
+
+static box SlotRegistryReleaseApi {
+    release(state): FunctionSlotRegistryPreparedBox {
+        return SlotRegistryReleaseNativeSeedApi.release(state)
+    }
+
+    apply(state): i64 {
+        return SlotRegistryReleaseNativeSeedApi.apply(state)
+    }
+}
