@@ -93,6 +93,21 @@ OWNER_CLUSTER_RULES = [
     ("FastMemCluster", ("src/mir/builder/fastmem/",)),
 ]
 
+JOINIR_PLAN_SUBCLUSTER_RULES = [
+    ("PlanFeatureMaterializerCluster", ("src/mir/builder/control_flow/plan/features/",)),
+    ("GenericLoopPlanCluster", ("src/mir/builder/control_flow/plan/generic_loop/",)),
+    ("RecipeTreeMatcherCluster", ("src/mir/builder/control_flow/plan/recipe_tree/",)),
+    ("PlanPartsAssemblyCluster", ("src/mir/builder/control_flow/plan/parts/",)),
+    ("LoopBreakPlanCluster", ("src/mir/builder/control_flow/plan/loop_break/",)),
+    ("LoopCondPlanCluster", ("src/mir/builder/control_flow/plan/loop_cond/",)),
+    ("PlanFactsCluster", ("src/mir/builder/control_flow/plan/facts/",)),
+    ("PlanNormalizerCluster", ("src/mir/builder/control_flow/plan/normalizer/",)),
+    ("PlanLowererCluster", ("src/mir/builder/control_flow/plan/lowerer/",)),
+    ("PlannerPolicyCluster", ("src/mir/builder/control_flow/plan/planner/",)),
+    ("NestedLoopPlanCluster", ("src/mir/builder/control_flow/plan/nested_loop",)),
+    ("PlanComposerCluster", ("src/mir/builder/control_flow/plan/composer/",)),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -285,6 +300,16 @@ def likely_owner_cluster(item: dict[str, Any]) -> str:
     return "OtherMissingProjectionPolicyCluster"
 
 
+def joinir_plan_subcluster(item: dict[str, Any]) -> str | None:
+    if item.get("likely_owner_cluster") != "JoinIRPlanCluster":
+        return None
+    path = item["source_path"]
+    for subcluster, prefixes in JOINIR_PLAN_SUBCLUSTER_RULES:
+        if any(path.startswith(prefix) for prefix in prefixes):
+            return subcluster
+    return "OtherJoinIRPlanCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -302,6 +327,7 @@ def build_report() -> dict[str, Any]:
     classified = [classify(surface) for surface in all_surfaces]
     for item in classified:
         item["likely_owner_cluster"] = likely_owner_cluster(item)
+        item["joinir_plan_subcluster"] = joinir_plan_subcluster(item)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -316,11 +342,15 @@ def build_report() -> dict[str, Any]:
 
     counts: dict[str, int] = {}
     cluster_counts: dict[str, int] = {}
+    joinir_plan_subcluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
         if item["classification"] == "MissingProjectionPolicy":
             cluster = item["likely_owner_cluster"]
             cluster_counts[cluster] = cluster_counts.get(cluster, 0) + 1
+            if cluster == "JoinIRPlanCluster":
+                subcluster = item["joinir_plan_subcluster"] or "OtherJoinIRPlanCluster"
+                joinir_plan_subcluster_counts[subcluster] = joinir_plan_subcluster_counts.get(subcluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -397,9 +427,17 @@ def build_report() -> dict[str, Any]:
             {"cluster": cluster, "path_prefixes": list(prefixes)}
             for cluster, prefixes in OWNER_CLUSTER_RULES
         ],
+        "joinir_plan_subcluster_rules": [
+            {"subcluster": subcluster, "path_prefixes": list(prefixes)}
+            for subcluster, prefixes in JOINIR_PLAN_SUBCLUSTER_RULES
+        ],
         "missing_projection_cluster_summary": [
             {"cluster": cluster, "count": count}
             for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        "joinir_plan_subcluster_summary": [
+            {"subcluster": subcluster, "count": count}
+            for subcluster, count in sorted(joinir_plan_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
         ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
@@ -454,6 +492,7 @@ def build_report() -> dict[str, Any]:
             "owner_edge_confidence_recorded": 1,
             "likely_owner_cluster_recorded": 1,
             "missing_projection_items_clustered": 1,
+            "joinir_plan_items_subclustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,

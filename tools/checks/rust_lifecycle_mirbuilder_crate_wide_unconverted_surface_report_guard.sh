@@ -85,9 +85,14 @@ for key in ["known_owner_edge_count", "orphan_source_surface_count", "orphan_evi
         raise SystemExit(f"reverse evidence checks missing {key}")
 if not fixture.get("owner_cluster_rules"):
     raise SystemExit("owner cluster rules missing")
+if not fixture.get("joinir_plan_subcluster_rules"):
+    raise SystemExit("joinir plan subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
+joinir_plan_summary = fixture.get("joinir_plan_subcluster_summary") or []
+if not joinir_plan_summary:
+    raise SystemExit("joinir plan subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -95,6 +100,13 @@ for item in missing_items:
 cluster_count_sum = sum(item.get("count", 0) for item in cluster_summary)
 if cluster_count_sum != len(missing_items):
     raise SystemExit("missing projection cluster summary count drift")
+joinir_plan_items = [item for item in missing_items if item.get("likely_owner_cluster") == "JoinIRPlanCluster"]
+for item in joinir_plan_items:
+    if not item.get("joinir_plan_subcluster"):
+        raise SystemExit(f"JoinIRPlanCluster item lacks subcluster: {item.get('source_id')}")
+joinir_plan_sum = sum(item.get("count", 0) for item in joinir_plan_summary)
+if joinir_plan_sum != len(joinir_plan_items):
+    raise SystemExit("JoinIR plan subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -120,6 +132,7 @@ for key in [
     "owner_edge_confidence_recorded",
     "likely_owner_cluster_recorded",
     "missing_projection_items_clustered",
+    "joinir_plan_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",
