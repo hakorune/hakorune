@@ -1,0 +1,50 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondBcNestedCarrierProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-BC-NESTED-CARRIER-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondBcNestedCarrierCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "PrivateNestedCarrierHelper",
+    "owner_edge": "loop_cond_break_continue",
+    "projection_surface_selected": false,
+    "reason_token": "NestedCarrierExtensionIsRouteLocalLoopCondBcHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs::extend_nested_loop_carriers:L10",
+      "symbol": "extend_nested_loop_carriers",
+      "visibility": "pub(super)",
+      "return_type": "",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs"
+    }
+  ],
+  "nested_carrier_evidence": [
+    "CorePlan::Loop(loop_plan)",
+    "return; // no-op for non-Loop plans",
+    "existing_names.contains",
+    "build_loop_phi_info",
+    "loop_plan.final_values.push"
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CONTINUE-ONLY-SURFACE-CLASSIFICATION-001",
+    "reason_token": "NestedCarrierExtensionDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
