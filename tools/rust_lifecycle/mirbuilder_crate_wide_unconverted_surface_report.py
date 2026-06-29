@@ -55,6 +55,44 @@ REASON_TOKEN_TABLE = {
     "TestOnlySurfaceIgnored": "test-only source surface; not a selfhost conversion owner",
 }
 
+OWNER_CLUSTER_RULES = [
+    ("JoinIRPlanCluster", ("src/mir/builder/control_flow/plan/",)),
+    ("JoinIRRouteRegistryCluster", ("src/mir/builder/control_flow/joinir/route_entry/",)),
+    (
+        "JoinIRRouteVerifyCluster",
+        (
+            "src/mir/builder/control_flow/facts/",
+            "src/mir/builder/control_flow/verify/",
+            "src/mir/builder/control_flow/edgecfg/",
+            "src/mir/builder/control_flow/recipes/",
+            "src/mir/builder/control_flow/generic_loop/",
+            "src/mir/builder/control_flow/joinir/",
+        ),
+    ),
+    (
+        "ContextRegistryCluster",
+        (
+            "src/mir/builder/compilation_context",
+            "src/mir/builder/type_registry.rs",
+            "src/mir/builder/scope_context.rs",
+            "src/mir/builder/builder_metadata.rs",
+            "crates/hakorune_mir_builder/src/",
+        ),
+    ),
+    ("CallLoweringCluster", ("src/mir/builder/calls/", "src/mir/builder/method_call_handlers.rs")),
+    (
+        "EmissionSsaPhiCluster",
+        (
+            "src/mir/builder/emission/",
+            "src/mir/builder/ssa/",
+            "src/mir/builder/phi.rs",
+            "src/mir/builder/constants.rs",
+        ),
+    ),
+    ("StatementValueConstructionCluster", ("src/mir/builder/stmts/", "src/mir/builder/vars/", "src/mir/builder/ops/", "src/mir/builder/fields", "src/mir/builder/record_values.rs", "src/mir/builder/builder_build.rs")),
+    ("FastMemCluster", ("src/mir/builder/fastmem/",)),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -237,6 +275,16 @@ def classify(surface: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def likely_owner_cluster(item: dict[str, Any]) -> str:
+    if item["classification"] != "MissingProjectionPolicy":
+        return "NotMissingProjectionPolicy"
+    path = item["source_path"]
+    for cluster, prefixes in OWNER_CLUSTER_RULES:
+        if any(path.startswith(prefix) for prefix in prefixes):
+            return cluster
+    return "OtherMissingProjectionPolicyCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -252,6 +300,8 @@ def build_report() -> dict[str, Any]:
     family_manifest = read_json(FAMILY_MANIFEST)
     all_surfaces = extract_surfaces()
     classified = [classify(surface) for surface in all_surfaces]
+    for item in classified:
+        item["likely_owner_cluster"] = likely_owner_cluster(item)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -265,8 +315,12 @@ def build_report() -> dict[str, Any]:
     ]
 
     counts: dict[str, int] = {}
+    cluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
+        if item["classification"] == "MissingProjectionPolicy":
+            cluster = item["likely_owner_cluster"]
+            cluster_counts[cluster] = cluster_counts.get(cluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -339,6 +393,14 @@ def build_report() -> dict[str, Any]:
             "orphan_evidence_row_count": len(orphan_evidence_rows),
             "orphan_evidence_rows": sorted(orphan_evidence_rows, key=lambda item: item["owner_edge_id"] or ""),
         },
+        "owner_cluster_rules": [
+            {"cluster": cluster, "path_prefixes": list(prefixes)}
+            for cluster, prefixes in OWNER_CLUSTER_RULES
+        ],
+        "missing_projection_cluster_summary": [
+            {"cluster": cluster, "count": count}
+            for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
             "AlreadyConverted",
@@ -390,6 +452,8 @@ def build_report() -> dict[str, Any]:
             "every_unconverted_item_has_reason_token": 1,
             "every_reason_token_is_stable": 1,
             "owner_edge_confidence_recorded": 1,
+            "likely_owner_cluster_recorded": 1,
+            "missing_projection_items_clustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,
