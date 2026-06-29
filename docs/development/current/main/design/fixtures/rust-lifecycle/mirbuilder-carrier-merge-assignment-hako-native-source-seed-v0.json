@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCarrierMergeAssignmentHakoNativeSourceSeedV1",
+  "token": "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-NATIVE-SOURCE-SEED-001",
+  "family_id": "hakorune_mir_builder::carrier_merge_assignment",
+  "input_authority": {
+    "hako_shadow_promotion_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/carrier-merge-assignment-hako-shadow-promotion-decision-v0.json",
+    "mutation_frame_contract": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-merge-assignment-statement-mutation-frame-contract-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md"
+  },
+  "native_source_seed": {
+    "path": "lang/src/compiler/lib/carrier_merge_assignment_native_seed.hako",
+    "module_export": "lib.carrier_merge_assignment_native_seed",
+    "api": "CarrierMergeAssignmentApi.apply",
+    "native_seed_api": "CarrierMergeAssignmentNativeSeedApi.apply",
+    "outside_generated_tree": true,
+    "generator_overwrite_guard": true
+  },
+  "selected_behavior": {
+    "operation": "CarrierMergeAssignmentMutationFrame",
+    "mutation_frame": [
+      "resealed_builder_map",
+      "effects_returned",
+      "carrier_update_written",
+      "current_binding_written",
+      "builder_variable_map_written"
+    ],
+    "denied_boundaries": [
+      "full_assignment_lowering_semantics",
+      "full_variable_context_map_semantics",
+      "route_selection",
+      "hako_adopted_decision",
+      "source_selfhost_claim",
+      "runtime_fallback"
+    ]
+  },
+  "seed_status": {
+    "native_source_owner_seed_present": 1,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "NativeSourceSeedMaterialized"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "family_adoption_decision": 0,
+    "source_selfhost_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "rust_deletion": 0
+  }
+}

@@ -1,0 +1,75 @@
+// carrier_merge_assignment_native_seed.hako - native source seed for the
+// CarrierMergeAssignment MirBuilder leaf family.
+//
+// Responsibility:
+// - provide a native Hako source seed for the carrier-merge assignment
+//   mutation-frame contract
+// - preserve the contracted state-output order in editable source form
+// - stay outside the generated artifact output tree
+//
+// Non-responsibility:
+// - full assignment lowering semantics
+// - full VariableContext map semantics
+// - HakoAdopted decision
+// - Source Selfhost claim
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+//
+// native-source-seed:
+//   MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::carrier_merge_assignment
+// mutation-frame-contract:
+//   MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-MUTATION-FRAME-CONTRACT-001
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+box CarrierMergeAssignmentStateShellBox {
+    current_binding_present: i64
+    carrier_phi_present: i64
+    binding_returned: i64
+    resealed_builder_map: i64
+    effects_returned: i64
+    carrier_update_written: i64
+    current_binding_written: i64
+    builder_variable_map_written: i64
+
+    birth() {
+        me.current_binding_present = 0
+        me.carrier_phi_present = 0
+        me.binding_returned = 0
+        me.resealed_builder_map = 0
+        me.effects_returned = 0
+        me.carrier_update_written = 0
+        me.current_binding_written = 0
+        me.builder_variable_map_written = 0
+    }
+}
+
+static box CarrierMergeAssignmentNativeSeedApi {
+    apply(state): i64 {
+        state.resealed_builder_map = 1
+        state.effects_returned = 1
+
+        if state.binding_returned == 0 {
+            return 0
+        }
+
+        if state.carrier_phi_present != 0 {
+            state.carrier_update_written = 1
+        }
+
+        if state.carrier_phi_present != 0 || state.current_binding_present != 0 {
+            state.current_binding_written = 1
+        }
+
+        state.builder_variable_map_written = 1
+        return 0
+    }
+}
+
+static box CarrierMergeAssignmentApi {
+    apply(state): i64 {
+        return CarrierMergeAssignmentNativeSeedApi.apply(state)
+    }
+}
