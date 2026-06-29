@@ -121,6 +121,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-adoption-decision-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_adoption_decision_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002",
+      "card": "docs/development/current/main/phases/phase-296x/1817-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v1.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_002_guard.sh",
+      "role": "current_semantic"
     }
   ],
   "forbidden_claims": {

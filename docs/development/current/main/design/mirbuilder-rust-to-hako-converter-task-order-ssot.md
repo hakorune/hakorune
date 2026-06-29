@@ -297,6 +297,11 @@ return_emission_hako_adoption_decision_output =
   rust-lifecycle-mirbuilder-return-emission-hako-adoption-decision-v0
 return_emission_hako_adopted = 1
 return_emission_source_selfhost_claim = 0
+native_owner_seed_pilot_target_selection_002 =
+  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002
+native_owner_seed_pilot_002_selected_target = FunctionRegionStackPop
+native_owner_seed_pilot_002_next_card =
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
 support_lane_projector_as_hako_adoption_candidate = 0
 support_lane_projector_as_seed_pilot_target = 1
 conditional_route_matrix_repair =
@@ -320,7 +325,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1816-MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001.md
+  1817-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -347,8 +352,8 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=ReturnEmission leaf is HakoAdopted, but Source Selfhost remains unclaimed
-   semantic_authority=design-stop card, seed policy fixture, ReturnEmission adoption fixture
+   boundary=ReturnEmission is adopted and FunctionRegionStackPop seed is selected, but Source Selfhost remains unclaimed
+   semantic_authority=design-stop card, ReturnEmission adoption fixture, seed pilot target selection fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
 2. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
@@ -358,10 +363,13 @@ history, not in this task-order SSOT.
    non_authority=Source Selfhost claim, Rust deletion
 
 3. MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002
-   status=next
+   status=green
    boundary=select next seed pilot by stable priority after ReturnEmission adoption
    semantic_authority=seed target selection fixture, adoption decision fixture
    non_authority=manual family selection, Source Selfhost claim
+
+next_after_active_3 =
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
 ```
 
 ## Landed Converter Capability Summary

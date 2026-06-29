@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "kind": "MirBuilderNativeOwnerSeedPilotTargetSelectionV1",
+  "token": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002",
+  "input_authority": {
+    "previous_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v0.json",
+    "return_emission_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-adoption-decision-v0.json",
+    "function_region_stack_pop_promotion": "docs/development/current/main/design/fixtures/rust-lifecycle/function-region-stack-pop-hako-shadow-promotion-decision-v0.json",
+    "slot_registry_release_promotion": "docs/development/current/main/design/fixtures/rust-lifecycle/slot-registry-release-hako-shadow-promotion-decision-v0.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "selection_scope": {
+    "kind": "NativeSourceSeedPilotOnly",
+    "source_lane": "HakoMainlineSupportLane",
+    "not_family_hako_adoption_candidate": true,
+    "not_source_selfhost_claim": true
+  },
+  "target_criteria": [
+    "LeafSemanticOwner",
+    "HakoMainlinePromotionGreen",
+    "SmallSurface",
+    "NoCompositeOwner",
+    "NoReturnedBorrow",
+    "NoNewAbi",
+    "NoNewBackendRoute",
+    "NoRuntimeFallback",
+    "OracleOrParityFixturePresent",
+    "SeedMaterializationCanBeSeparateCard",
+    "AlreadyAdoptedExcluded"
+  ],
+  "candidate_targets": [
+    {
+      "target": "ReturnEmission",
+      "priority": 0,
+      "classification": "AlreadyAdopted",
+      "promotion_state": "HakoMainline",
+      "reason_token": "ReturnEmissionAlreadyHakoAdopted",
+      "eligible_for_seed_pilot": false
+    },
+    {
+      "target": "FunctionRegionStackPop",
+      "priority": 1,
+      "classification": "NativeSourceSeedPilotCandidate",
+      "promotion_state": "HakoMainline",
+      "reason_token": "SmallLeafFunctionRegionStackPopPromotionGreen",
+      "eligible_for_seed_pilot": true
+    },
+    {
+      "target": "SlotRegistryRelease",
+      "priority": 2,
+      "classification": "NativeSourceSeedPilotCandidate",
+      "promotion_state": "HakoMainline",
+      "reason_token": "SmallLeafSlotRegistryReleasePromotionGreen",
+      "eligible_for_seed_pilot": true
+    }
+  ],
+  "decision": {
+    "kind": "SelectNativeOwnerSeedPilotTarget",
+    "selected_target": "FunctionRegionStackPop",
+    "selection_rule": "lowest_priority_eligible_target_after_excluding_adopted",
+    "next_card": "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001",
+    "reason_token": "FunctionRegionStackPopLowestPriorityRemainingSeedPilotCandidate"
+  },
+  "claims": {
+    "support_lane_projector_as_hako_adoption_candidate": 0,
+    "support_lane_projector_as_seed_pilot_target": 1,
+    "manual_family_selection": 0,
+    "native_source_owner_materialized": 0,
+    "family_adoption_decision": 0,
+    "source_selfhost_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
