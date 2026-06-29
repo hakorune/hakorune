@@ -147,7 +147,10 @@ for needle in [
 ]:
     require(needle in task_order, f"task-order missing {needle}")
 
-require(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
+require(state.get("latest_card") in {
+    token,
+    "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001",
+}, "CURRENT_STATE latest card drift")
 require(state.get("current_blocker_token") == design_stop_token, "CURRENT_STATE blocker drift")
 require("tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_basis_guard.sh" in index, "check index missing guard")
 

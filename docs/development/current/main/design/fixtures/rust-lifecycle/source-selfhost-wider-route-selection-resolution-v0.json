@@ -1,0 +1,46 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostWiderRouteSelectionResolutionV1",
+  "output_contract": "rust-lifecycle-source-selfhost-wider-route-selection-resolution-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1802-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "basis": {
+    "kind": "KeepSourceSelfhostStopped",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "allowed_resume": [
+      "ConsultationGatedWiderRouteSelection",
+      "MachineDerivedRouteRepair"
+    ]
+  },
+  "candidate_pool": {
+    "state": "Blocked",
+    "eligible_count": 0,
+    "repairable_inconsistency_count": 0,
+    "consultation_gated_count": 1,
+    "ambiguous_candidate_count": 0
+  },
+  "resolution": {
+    "kind": "KeepSourceSelfhostStopped",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "next_action": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "planned_follow_up_task_packs": [
+      "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+      "<ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001"
+    ]
+  },
+  "recovery": {
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "bundle_size_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "source_selfhost_claim": 0
+  }
+}
