@@ -21,7 +21,7 @@
 // source-family: hakorune_mir_builder::carrier_merge_assignment
 // mutation-frame-contract:
 //   MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-MUTATION-FRAME-CONTRACT-001
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 box CarrierMergeAssignmentStateShellBox {

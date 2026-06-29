@@ -11,10 +11,12 @@ date = "2026-06-30"
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
 route-selection design stop. ReturnEmission is now a narrow HakoAdopted leaf
-semantic owner, and FunctionRegionStackPop is now a narrow HakoAdopted leaf
-semantic owner, and SlotRegistryRelease is now a narrow HakoAdopted leaf
-semantic owner. Source Selfhost remains unclaimed. EXE/AOT remains the primary
-app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
+semantic owner, FunctionRegionStackPop is now a narrow HakoAdopted leaf
+semantic owner, SlotRegistryRelease is now a narrow HakoAdopted leaf semantic
+owner, and carrier-merge assignment is now a narrow HakoAdopted mutation-frame
+leaf semantic owner. Source Selfhost remains unclaimed. EXE/AOT remains the
+primary app/selfhost validation route; VM/interpreter lanes are not semantic
+owners."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -22,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-NATIVE-SOURCE-SEED-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1871-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-NATIVE-SOURCE-SEED-001.md"
-latest_card_summary = """The latest card materializes the carrier-merge
-assignment native Hako source seed after HakoMainline promotion while deferring
-HakoAdopted and Source Selfhost claims."""
+latest_card = "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1872-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts the carrier-merge assignment
+mutation-frame native Hako source as a narrow HakoAdopted leaf semantic owner
+while keeping Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1872 adopts carrier-merge assignment as a narrow HakoAdopted mutation-frame owner.",
   "2026-06-30: 1871 materializes the carrier-merge assignment native Hako source seed.",
   "2026-06-30: 1870 promotes carrier-merge assignment HakoShadow to HakoMainline.",
   "2026-06-30: 1869 adds carrier-merge assignment HakoShadow parity for the contracted mutation frame.",
@@ -44,5 +47,4 @@ landed_tail = [
   "2026-06-30: 1867 requires a mutation-frame contract before carrier-merge assignment projection.",
   "2026-06-30: 1866 routes loop-cond continue-only AST assignment arm policy to carrier-merge assignment.",
   "2026-06-30: 1865 classifies loop-cond continue-only AST statement lowering into statement-shape surfaces.",
-  "2026-06-30: 1864 routes loop-cond continue-only AST statement lowering to further statement-shape classification.",
 ]

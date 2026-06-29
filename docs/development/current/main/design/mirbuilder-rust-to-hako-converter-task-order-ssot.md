@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1871-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-NATIVE-SOURCE-SEED-001.md
+  1872-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-ADOPTION-DECISION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

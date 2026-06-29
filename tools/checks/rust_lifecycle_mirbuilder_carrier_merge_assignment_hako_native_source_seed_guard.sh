@@ -63,7 +63,6 @@ for needle in [
     "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-NATIVE-SOURCE-SEED-001",
     "source-family: hakorune_mir_builder::carrier_merge_assignment",
     "source-selfhost-claim: 0",
-    "hako-adopted: 0",
     "box CarrierMergeAssignmentStateShellBox",
     "static box CarrierMergeAssignmentNativeSeedApi",
     "static box CarrierMergeAssignmentApi",
