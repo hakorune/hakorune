@@ -19,7 +19,7 @@
 // source-family: hakorune_mir_builder::return_emission
 // generated-artifact-source:
 //   lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_return_emission.hako
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 box ReturnEmissionBasicBlockShellBox {

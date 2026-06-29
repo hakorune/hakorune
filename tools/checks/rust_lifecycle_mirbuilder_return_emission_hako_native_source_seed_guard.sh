@@ -58,7 +58,6 @@ native = native_path.read_text()
 for needle in [
     "native-source-seed: MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001",
     "source-family: hakorune_mir_builder::return_emission",
-    "hako-adopted: 0",
     "source-selfhost-claim: 0",
     "static box ReturnEmissionNativeSeedApi",
     "static box ReturnEmissionApi",

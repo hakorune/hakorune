@@ -291,7 +291,12 @@ return_emission_native_source_seed_output =
 return_emission_native_source_path =
   lang/src/compiler/lib/return_emission_native_seed.hako
 return_emission_generator_overwrite_guard = 1
-return_emission_hako_adoption_decision = deferred
+return_emission_hako_adoption_decision =
+  MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
+return_emission_hako_adoption_decision_output =
+  rust-lifecycle-mirbuilder-return-emission-hako-adoption-decision-v0
+return_emission_hako_adopted = 1
+return_emission_source_selfhost_claim = 0
 support_lane_projector_as_hako_adoption_candidate = 0
 support_lane_projector_as_seed_pilot_target = 1
 conditional_route_matrix_repair =
@@ -315,7 +320,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1815-MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001.md
+  1816-MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -342,21 +347,21 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=ReturnEmission native source seed exists, but Source Selfhost remains unclaimed
-   semantic_authority=design-stop card, seed policy fixture, native source seed fixture
+   boundary=ReturnEmission leaf is HakoAdopted, but Source Selfhost remains unclaimed
+   semantic_authority=design-stop card, seed policy fixture, ReturnEmission adoption fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
+2. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
    status=green
-   boundary=ReturnEmission native .hako seed path and generator overwrite guard
-   semantic_authority=ReturnEmission native source seed fixture, HakoMainline promotion fixture
-   non_authority=HakoAdopted decision, Source Selfhost claim
-
-3. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
-   status=next
-   boundary=only after ReturnEmission native source seed guard is green
+   boundary=narrow ReturnEmission leaf HakoAdopted decision
    semantic_authority=native source seed fixture, Derived-to-Native artifact model
    non_authority=Source Selfhost claim, Rust deletion
+
+3. MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002
+   status=next
+   boundary=select next seed pilot by stable priority after ReturnEmission adoption
+   semantic_authority=seed target selection fixture, adoption decision fixture
+   non_authority=manual family selection, Source Selfhost claim
 ```
 
 ## Landed Converter Capability Summary

@@ -10,10 +10,10 @@ date = "2026-06-29"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
-route-selection design stop. The ReturnEmission native source seed is now
-materialized outside the generated artifact tree. This is not a HakoAdopted
-decision or Source Selfhost claim. EXE/AOT remains the primary app/selfhost
-validation route; VM/interpreter lanes are not semantic owners."""
+route-selection design stop. ReturnEmission is now a narrow HakoAdopted leaf
+semantic owner after native source seed materialization. This is not a Source
+Selfhost claim. EXE/AOT remains the primary app/selfhost validation route;
+VM/interpreter lanes are not semantic owners."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -21,11 +21,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1815-MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001.md"
-latest_card_summary = """The latest card materializes the ReturnEmission native
-Hako source seed and generator-overwrite guard. It does not run HakoAdopted or
-claim Source Selfhost."""
+latest_card = "MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1816-MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts the narrow ReturnEmission leaf
+semantic owner after native source seed materialization. It keeps Source
+Selfhost, Rust deletion, runtime fallback, backend route, and ABI claims at 0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -36,6 +36,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1816 adopts ReturnEmission as a narrow native Hako leaf owner while keeping Source Selfhost stopped.",
   "2026-06-29: 1815 materializes ReturnEmission native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
   "2026-06-29: 1814 selects ReturnEmission as the first native source seed pilot target without treating support-lane projectors as HakoAdopted candidates.",
   "2026-06-29: 1813 defines the GeneratedArtifactOnly to NativeOwnerSeedCandidate policy without selecting a family or opening Source Selfhost.",
@@ -43,5 +44,4 @@ landed_tail = [
   "2026-06-29: 1811 decomposes the minimal-path composed closure into native slices and keeps the wider route-selection design stop because no candidate or route repair is derived.",
   "2026-06-29: 1810 fixes the post-maintenance task inventory and hands the next semantic task to native-slice decomposition while preserving the design stop.",
   "2026-06-29: 1809 moves Source Selfhost check-index usage toward a family-view model while preserving historical guard traceability.",
-  "2026-06-29: 1808 thins the MirBuilder task-order SSOT back into a current queue pointer while preserving guard-readable tokens.",
 ]

@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderReturnEmissionHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001",
+  "family_id": "hakorune_mir_builder::return_emission",
+  "input_authority": {
+    "native_source_seed": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-native-source-seed-v0.json",
+    "native_source_path": "lang/src/compiler/lib/return_emission_native_seed.hako",
+    "hako_shadow_promotion_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/return-emission-hako-shadow-promotion-decision-v0.json",
+    "derived_artifact_verifier": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-derived-hako-verifier-result-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md"
+  },
+  "target": {
+    "family_scope": "LeafSemanticOwner",
+    "selected_behavior": "ReturnEmission_unterminated_block_only",
+    "native_source_owner_present": 1,
+    "generator_overwrite_guard": 1,
+    "support_lane_projector_as_hako_adoption_candidate": 0
+  },
+  "decision": {
+    "value": "Adopt",
+    "reason_token": "ReturnEmissionNativeSeedPresentAndPromotionGreen",
+    "selected_next_route": "native_hako_source_owner"
+  },
+  "post_decision_state": {
+    "hako_adopted": 1,
+    "native_edit_authority": 1,
+    "rust_role": "bootstrap_oracle_compat",
+    "generated_artifact_role": "provenance_and_regeneration_reference",
+    "python_role": "oracle_guard_only"
+  },
+  "next_action": {
+    "kind": "SelectNextNativeOwnerSeedPilotTarget",
+    "next_card": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002",
+    "reason_token": "ReturnEmissionAdoptedSourceSelfhostStillStopped"
+  },
+  "claims": {
+    "hako_adopted": 1,
+    "native_hako_source_owner_present": 1,
+    "generator_overwrite_guard": 1,
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1,
+    "manual_family_selection": 0,
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "support_lane_projector_as_hako_adoption_candidate": 0
+  }
+}
