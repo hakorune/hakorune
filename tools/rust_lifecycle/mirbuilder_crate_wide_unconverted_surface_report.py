@@ -193,6 +193,26 @@ LOOP_COND_FEATURE_SUBCLUSTER_RULES = [
     ),
 ]
 
+LOOP_COND_BC_SUBCLUSTER_RULES = [
+    ("LoopCondBcPipelineCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc.rs",)),
+    ("LoopCondBcCleanupCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs",)),
+    (
+        "LoopCondBcElsePatternCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/",
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs",
+        ),
+    ),
+    (
+        "LoopCondBcItemLoweringCluster",
+        (
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs",
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs",
+        ),
+    ),
+    ("LoopCondBcNestedCarrierCluster", ("src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs",)),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -416,6 +436,16 @@ def loop_cond_feature_subcluster(item: dict[str, Any]) -> str | None:
     return "OtherLoopCondFeatureCluster"
 
 
+def loop_cond_bc_subcluster(item: dict[str, Any]) -> str | None:
+    if item.get("loop_cond_feature_subcluster") != "LoopCondBreakContinueCluster":
+        return None
+    path = item["source_path"]
+    for subcluster, prefixes in LOOP_COND_BC_SUBCLUSTER_RULES:
+        if any(path.startswith(prefix) for prefix in prefixes):
+            return subcluster
+    return "OtherLoopCondBreakContinueCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -436,6 +466,7 @@ def build_report() -> dict[str, Any]:
         item["joinir_plan_subcluster"] = joinir_plan_subcluster(item)
         item["plan_feature_subcluster"] = plan_feature_subcluster(item)
         item["loop_cond_feature_subcluster"] = loop_cond_feature_subcluster(item)
+        item["loop_cond_bc_subcluster"] = loop_cond_bc_subcluster(item)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -453,6 +484,7 @@ def build_report() -> dict[str, Any]:
     joinir_plan_subcluster_counts: dict[str, int] = {}
     plan_feature_subcluster_counts: dict[str, int] = {}
     loop_cond_feature_subcluster_counts: dict[str, int] = {}
+    loop_cond_bc_subcluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
         if item["classification"] == "MissingProjectionPolicy":
@@ -467,6 +499,9 @@ def build_report() -> dict[str, Any]:
                     if feature_subcluster == "LoopCondFeatureCluster":
                         loop_cond_subcluster = item["loop_cond_feature_subcluster"] or "OtherLoopCondFeatureCluster"
                         loop_cond_feature_subcluster_counts[loop_cond_subcluster] = loop_cond_feature_subcluster_counts.get(loop_cond_subcluster, 0) + 1
+                        if loop_cond_subcluster == "LoopCondBreakContinueCluster":
+                            bc_subcluster = item["loop_cond_bc_subcluster"] or "OtherLoopCondBreakContinueCluster"
+                            loop_cond_bc_subcluster_counts[bc_subcluster] = loop_cond_bc_subcluster_counts.get(bc_subcluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -555,6 +590,10 @@ def build_report() -> dict[str, Any]:
             {"subcluster": subcluster, "path_prefixes": list(prefixes)}
             for subcluster, prefixes in LOOP_COND_FEATURE_SUBCLUSTER_RULES
         ],
+        "loop_cond_bc_subcluster_rules": [
+            {"subcluster": subcluster, "path_prefixes": list(prefixes)}
+            for subcluster, prefixes in LOOP_COND_BC_SUBCLUSTER_RULES
+        ],
         "missing_projection_cluster_summary": [
             {"cluster": cluster, "count": count}
             for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
@@ -570,6 +609,10 @@ def build_report() -> dict[str, Any]:
         "loop_cond_feature_subcluster_summary": [
             {"subcluster": subcluster, "count": count}
             for subcluster, count in sorted(loop_cond_feature_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        "loop_cond_bc_subcluster_summary": [
+            {"subcluster": subcluster, "count": count}
+            for subcluster, count in sorted(loop_cond_bc_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
         ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
@@ -627,6 +670,7 @@ def build_report() -> dict[str, Any]:
             "joinir_plan_items_subclustered": 1,
             "plan_feature_items_subclustered": 1,
             "loop_cond_feature_items_subclustered": 1,
+            "loop_cond_break_continue_items_subclustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,

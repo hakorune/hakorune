@@ -91,6 +91,8 @@ if not fixture.get("plan_feature_subcluster_rules"):
     raise SystemExit("plan feature subcluster rules missing")
 if not fixture.get("loop_cond_feature_subcluster_rules"):
     raise SystemExit("loop-cond feature subcluster rules missing")
+if not fixture.get("loop_cond_bc_subcluster_rules"):
+    raise SystemExit("loop-cond break/continue subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
@@ -103,6 +105,9 @@ if not plan_feature_summary:
 loop_cond_summary = fixture.get("loop_cond_feature_subcluster_summary") or []
 if not loop_cond_summary:
     raise SystemExit("loop-cond feature subcluster summary missing")
+loop_cond_bc_summary = fixture.get("loop_cond_bc_subcluster_summary") or []
+if not loop_cond_bc_summary:
+    raise SystemExit("loop-cond break/continue subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -131,6 +136,13 @@ for item in loop_cond_items:
 loop_cond_sum = sum(item.get("count", 0) for item in loop_cond_summary)
 if loop_cond_sum != len(loop_cond_items):
     raise SystemExit("loop-cond feature subcluster summary count drift")
+loop_cond_bc_items = [item for item in loop_cond_items if item.get("loop_cond_feature_subcluster") == "LoopCondBreakContinueCluster"]
+for item in loop_cond_bc_items:
+    if not item.get("loop_cond_bc_subcluster"):
+        raise SystemExit(f"LoopCondBreakContinueCluster item lacks subcluster: {item.get('source_id')}")
+loop_cond_bc_sum = sum(item.get("count", 0) for item in loop_cond_bc_summary)
+if loop_cond_bc_sum != len(loop_cond_bc_items):
+    raise SystemExit("loop-cond break/continue subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -159,6 +171,7 @@ for key in [
     "joinir_plan_items_subclustered",
     "plan_feature_items_subclustered",
     "loop_cond_feature_items_subclustered",
+    "loop_cond_break_continue_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",

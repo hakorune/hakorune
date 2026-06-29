@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1831-MIRBUILDER-LOOP-COND-FEATURE-SURFACE-CLASSIFICATION-001.md
+  1832-MIRBUILDER-LOOP-COND-BREAK-CONTINUE-SURFACE-CLASSIFICATION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

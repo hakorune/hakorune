@@ -22,13 +22,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-FEATURE-SURFACE-CLASSIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1831-MIRBUILDER-LOOP-COND-FEATURE-SURFACE-CLASSIFICATION-001.md"
-latest_card_summary = """The latest card classifies LoopCondFeatureCluster
-into seven loop-condition buckets led by break/continue and continue-only
-surfaces. This keeps the next work bounded without selecting a family or
-generating Hako. Source Selfhost remains stopped with fallback, backend route,
-ABI, Python SemanticProjector, and manual selection claims at 0."""
+latest_card = "MIRBUILDER-LOOP-COND-BREAK-CONTINUE-SURFACE-CLASSIFICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1832-MIRBUILDER-LOOP-COND-BREAK-CONTINUE-SURFACE-CLASSIFICATION-001.md"
+latest_card_summary = """The latest card classifies LoopCondBreakContinueCluster
+into five buckets led by else-pattern lowering. This keeps the next work
+bounded without selecting a family or generating Hako. Source Selfhost remains
+stopped with fallback, backend route, ABI, Python SemanticProjector, and manual
+selection claims at 0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1832 classifies LoopCondBreakContinueCluster into five subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1831 classifies LoopCondFeatureCluster into seven subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1830 classifies PlanFeatureMaterializerCluster into eight subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1829 breaks JoinIRPlanCluster into thirteen subclusters while keeping Source Selfhost stopped.",
@@ -46,5 +47,4 @@ landed_tail = [
   "2026-06-30: 1827 hardens the unconverted surface report with hashes, orphan evidence checks, reason-token table, and confidence guardrails.",
   "2026-06-30: 1826 reports crate-wide unconverted Rust source surfaces and keeps Source Selfhost stopped because candidates remain ambiguous.",
   "2026-06-30: 1825 surveys crate-wide native owner seed capability and keeps Source Selfhost stopped because no unique next owner exists.",
-  "2026-06-30: 1824 resolves generated-artifact native owner seed candidates and keeps Source Selfhost stopped because no machine-derived leaf candidate exists.",
 ]
