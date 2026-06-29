@@ -22,10 +22,10 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-BC-CLEANUP-APPLICATION-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1839-MIRBUILDER-LOOP-COND-BC-CLEANUP-APPLICATION-PROJECTION-POLICY-001.md"
+latest_card = "MIRBUILDER-LOOP-COND-BC-CLEANUP-EXIT-PREDICATE-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1840-MIRBUILDER-LOOP-COND-BC-CLEANUP-EXIT-PREDICATE-PROJECTION-POLICY-001.md"
 latest_card_summary = """The latest card resolves loop-cond break/continue
-cleanup application as a PrivateRouteCleanupHelper under the
+cleanup exit predicate as a PrivateRouteCleanupResultAccessor under the
 loop_cond_break_continue owner edge."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1840 marks loop-cond break/continue cleanup exit predicate as PrivateRouteCleanupResultAccessor.",
   "2026-06-30: 1839 marks loop-cond break/continue cleanup application as PrivateRouteCleanupHelper.",
   "2026-06-30: 1838 classifies LoopCondBcCleanupCluster into cleanup application and exit predicate buckets.",
   "2026-06-30: 1837 marks continue-if-with-else loop-cond lowering as PrivateLoweringHelper under loop_cond_break_continue.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1835 marks guard-break loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1834 marks break-only loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1833 classifies LoopCondBcElsePatternCluster into four subclusters while keeping Source Selfhost stopped.",
-  "2026-06-30: 1832 classifies LoopCondBreakContinueCluster into five subclusters while keeping Source Selfhost stopped.",
 ]
