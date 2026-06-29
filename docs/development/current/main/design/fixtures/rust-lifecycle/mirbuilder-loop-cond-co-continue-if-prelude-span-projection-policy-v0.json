@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoContinueIfPreludeSpanProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-PRELUDE-SPAN-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondCoContinueIfPreludeSpanCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "PrivatePreludeSpanHelper",
+    "owner_edge": "loop_cond_continue_only",
+    "projection_surface_selected": false,
+    "reason_token": "ContinueIfPreludeSpanIsRouteLocalLoopCondCoHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_prelude_span:L20",
+      "symbol": "lower_continue_if_prelude_span",
+      "visibility": "pub(super)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs"
+    }
+  ],
+  "prelude_span_evidence": [
+    "get_body_span",
+    "for stmt in prelude_body",
+    "lower_stmt_ast",
+    "out.append"
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-NO-ELSE-PROJECTION-POLICY-001",
+    "reason_token": "ContinueIfPreludeSpanDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}

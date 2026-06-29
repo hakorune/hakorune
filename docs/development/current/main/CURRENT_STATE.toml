@@ -22,11 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-SURFACE-CLASSIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1852-MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-SURFACE-CLASSIFICATION-001.md"
-latest_card_summary = """The latest card classifies loop-cond continue-only
-continue-if lowering surfaces into prelude-span, no-else, and group-prelude
-buckets while keeping Source Selfhost stopped."""
+latest_card = "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-PRELUDE-SPAN-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1853-MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-PRELUDE-SPAN-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card marks loop-cond continue-only
+continue-if prelude span lowering as a PrivatePreludeSpanHelper under
+loop_cond_continue_only while keeping Source Selfhost stopped."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1853 marks loop-cond continue-only continue-if prelude span lowering as PrivatePreludeSpanHelper.",
   "2026-06-30: 1852 classifies loop-cond continue-only continue-if surfaces into three buckets.",
   "2026-06-30: 1851 marks loop-cond continue-only fallthrough continue cleanup as PrivateRouteCleanupHelper.",
   "2026-06-30: 1850 marks loop-cond continue-only block lowering as PrivateBlockLoweringHelper.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1848 classifies LoopCondContinueOnlyCluster into continue-only subclusters.",
   "2026-06-30: 1847 marks loop-cond break/continue nested carrier extension as PrivateNestedCarrierHelper.",
   "2026-06-30: 1846 marks loop-cond break/continue carrier binding sync as PrivateCarrierSyncHelper.",
-  "2026-06-30: 1845 marks loop-cond break/continue root pipeline lowering as RootPipelineIntegrationOwner.",
 ]
