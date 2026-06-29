@@ -17,6 +17,7 @@
     "loop_cond_break_continue_items_subclustered": 1,
     "loop_cond_co_continue_if_items_subclustered": 1,
     "loop_cond_co_group_if_items_subclustered": 1,
+    "loop_cond_co_helper_items_subclustered": 1,
     "loop_cond_co_items_subclustered": 1,
     "loop_cond_feature_items_subclustered": 1,
     "manual_family_selection": 0,
@@ -19180,6 +19181,7 @@
       "line": 40,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_helper_subcluster": "LoopCondCoHelperMutationProbeCluster",
       "loop_cond_co_subcluster": "LoopCondCoHelperCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
@@ -19209,6 +19211,7 @@
       "line": 55,
       "loop_cond_bc_else_pattern_subcluster": null,
       "loop_cond_bc_subcluster": null,
+      "loop_cond_co_helper_subcluster": "LoopCondCoHelperCarrierSyncCluster",
       "loop_cond_co_subcluster": "LoopCondCoHelperCluster",
       "loop_cond_feature_subcluster": "LoopCondContinueOnlyCluster",
       "next_card": "<OWNER>-PROJECTION-POLICY-001",
@@ -44707,6 +44710,30 @@
       "subcluster": "LoopCondCoGroupIfNestedLoopCluster"
     }
   ],
+  "loop_cond_co_helper_subcluster_rules": [
+    {
+      "subcluster": "LoopCondCoHelperMutationProbeCluster",
+      "symbols": [
+        "map_mutates_existing_vars"
+      ]
+    },
+    {
+      "subcluster": "LoopCondCoHelperCarrierSyncCluster",
+      "symbols": [
+        "sync_carrier_bindings"
+      ]
+    }
+  ],
+  "loop_cond_co_helper_subcluster_summary": [
+    {
+      "count": 1,
+      "subcluster": "LoopCondCoHelperCarrierSyncCluster"
+    },
+    {
+      "count": 1,
+      "subcluster": "LoopCondCoHelperMutationProbeCluster"
+    }
+  ],
   "loop_cond_co_subcluster_rules": [
     {
       "path_prefixes": [
@@ -45057,7 +45084,7 @@
   "provenance": {
     "native_owner_seed_capability_survey_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d",
     "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
-    "source_selfhost_family_guard_manifest_hash": "c4ccd206d344984a76624892ffd33de47083bc916ba447a2044a6367b0754f71",
+    "source_selfhost_family_guard_manifest_hash": "ebba046c6ec14c124a820d4caab4f1106e6f9e65daaa57fa29c36e4396065e0d",
     "tool_version": "regex_source_text_v0",
     "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"
   },
@@ -45118,7 +45145,7 @@
   },
   "schema_version": 0,
   "source_inventory": {
-    "family_manifest_rows": 58,
+    "family_manifest_rows": 59,
     "public_rust_surface_count": 1556,
     "reported_item_count": 1584,
     "rust_surface_count": 3120,

@@ -107,6 +107,8 @@ if not fixture.get("loop_cond_co_continue_if_subcluster_rules"):
     raise SystemExit("loop-cond continue-only continue-if subcluster rules missing")
 if not fixture.get("loop_cond_co_group_if_subcluster_rules"):
     raise SystemExit("loop-cond continue-only group-if subcluster rules missing")
+if not fixture.get("loop_cond_co_helper_subcluster_rules"):
+    raise SystemExit("loop-cond continue-only helper subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
@@ -143,6 +145,9 @@ if not loop_cond_co_continue_if_summary:
 loop_cond_co_group_if_summary = fixture.get("loop_cond_co_group_if_subcluster_summary") or []
 if not loop_cond_co_group_if_summary:
     raise SystemExit("loop-cond continue-only group-if subcluster summary missing")
+loop_cond_co_helper_summary = fixture.get("loop_cond_co_helper_subcluster_summary") or []
+if not loop_cond_co_helper_summary:
+    raise SystemExit("loop-cond continue-only helper subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -248,6 +253,16 @@ for item in loop_cond_co_group_if_items:
 loop_cond_co_group_if_sum = sum(item.get("count", 0) for item in loop_cond_co_group_if_summary)
 if loop_cond_co_group_if_sum != len(loop_cond_co_group_if_items):
     raise SystemExit("loop-cond continue-only group-if subcluster summary count drift")
+loop_cond_co_helper_items = [
+    item for item in loop_cond_co_items
+    if item.get("loop_cond_co_subcluster") == "LoopCondCoHelperCluster"
+]
+for item in loop_cond_co_helper_items:
+    if not item.get("loop_cond_co_helper_subcluster"):
+        raise SystemExit(f"LoopCondCoHelperCluster item lacks subcluster: {item.get('source_id')}")
+loop_cond_co_helper_sum = sum(item.get("count", 0) for item in loop_cond_co_helper_summary)
+if loop_cond_co_helper_sum != len(loop_cond_co_helper_items):
+    raise SystemExit("loop-cond continue-only helper subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -284,6 +299,7 @@ for key in [
     "loop_cond_co_items_subclustered",
     "loop_cond_co_continue_if_items_subclustered",
     "loop_cond_co_group_if_items_subclustered",
+    "loop_cond_co_helper_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",

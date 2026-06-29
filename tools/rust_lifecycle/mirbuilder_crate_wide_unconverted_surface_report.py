@@ -256,6 +256,11 @@ LOOP_COND_CO_GROUP_IF_SUBCLUSTER_RULES = [
     ("LoopCondCoGroupIfNestedLoopCluster", ("lower_continue_if_nested_loop",)),
 ]
 
+LOOP_COND_CO_HELPER_SUBCLUSTER_RULES = [
+    ("LoopCondCoHelperMutationProbeCluster", ("map_mutates_existing_vars",)),
+    ("LoopCondCoHelperCarrierSyncCluster", ("sync_carrier_bindings",)),
+]
+
 
 class ReportError(RuntimeError):
     pass
@@ -559,6 +564,16 @@ def loop_cond_co_group_if_subcluster(item: dict[str, Any]) -> str | None:
     return "OtherLoopCondCoGroupIfCluster"
 
 
+def loop_cond_co_helper_subcluster(item: dict[str, Any]) -> str | None:
+    if item.get("loop_cond_co_subcluster") != "LoopCondCoHelperCluster":
+        return None
+    symbol = item["symbol"]
+    for subcluster, symbols in LOOP_COND_CO_HELPER_SUBCLUSTER_RULES:
+        if symbol in symbols:
+            return subcluster
+    return "OtherLoopCondCoHelperCluster"
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -599,6 +614,9 @@ def build_report() -> dict[str, Any]:
         co_group_if_subcluster = loop_cond_co_group_if_subcluster(item)
         if co_group_if_subcluster is not None:
             item["loop_cond_co_group_if_subcluster"] = co_group_if_subcluster
+        co_helper_subcluster = loop_cond_co_helper_subcluster(item)
+        if co_helper_subcluster is not None:
+            item["loop_cond_co_helper_subcluster"] = co_helper_subcluster
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -624,6 +642,7 @@ def build_report() -> dict[str, Any]:
     loop_cond_co_subcluster_counts: dict[str, int] = {}
     loop_cond_co_continue_if_subcluster_counts: dict[str, int] = {}
     loop_cond_co_group_if_subcluster_counts: dict[str, int] = {}
+    loop_cond_co_helper_subcluster_counts: dict[str, int] = {}
     for item in items:
         counts[item["classification"]] = counts.get(item["classification"], 0) + 1
         if item["classification"] == "MissingProjectionPolicy":
@@ -662,6 +681,9 @@ def build_report() -> dict[str, Any]:
                             if co_subcluster == "LoopCondCoGroupIfCluster":
                                 co_group_if_subcluster = item["loop_cond_co_group_if_subcluster"] or "OtherLoopCondCoGroupIfCluster"
                                 loop_cond_co_group_if_subcluster_counts[co_group_if_subcluster] = loop_cond_co_group_if_subcluster_counts.get(co_group_if_subcluster, 0) + 1
+                            if co_subcluster == "LoopCondCoHelperCluster":
+                                co_helper_subcluster = item["loop_cond_co_helper_subcluster"] or "OtherLoopCondCoHelperCluster"
+                                loop_cond_co_helper_subcluster_counts[co_helper_subcluster] = loop_cond_co_helper_subcluster_counts.get(co_helper_subcluster, 0) + 1
 
     candidate_classes = [
         "MissingProjectionPolicy",
@@ -782,6 +804,10 @@ def build_report() -> dict[str, Any]:
             {"subcluster": subcluster, "symbols": list(symbols)}
             for subcluster, symbols in LOOP_COND_CO_GROUP_IF_SUBCLUSTER_RULES
         ],
+        "loop_cond_co_helper_subcluster_rules": [
+            {"subcluster": subcluster, "symbols": list(symbols)}
+            for subcluster, symbols in LOOP_COND_CO_HELPER_SUBCLUSTER_RULES
+        ],
         "missing_projection_cluster_summary": [
             {"cluster": cluster, "count": count}
             for cluster, count in sorted(cluster_counts.items(), key=lambda item: (-item[1], item[0]))
@@ -829,6 +855,10 @@ def build_report() -> dict[str, Any]:
         "loop_cond_co_group_if_subcluster_summary": [
             {"subcluster": subcluster, "count": count}
             for subcluster, count in sorted(loop_cond_co_group_if_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
+        ],
+        "loop_cond_co_helper_subcluster_summary": [
+            {"subcluster": subcluster, "count": count}
+            for subcluster, count in sorted(loop_cond_co_helper_subcluster_counts.items(), key=lambda item: (-item[1], item[0]))
         ],
         "reason_token_table": REASON_TOKEN_TABLE,
         "classification_enum": [
@@ -894,6 +924,7 @@ def build_report() -> dict[str, Any]:
             "loop_cond_co_items_subclustered": 1,
             "loop_cond_co_continue_if_items_subclustered": 1,
             "loop_cond_co_group_if_items_subclustered": 1,
+            "loop_cond_co_helper_items_subclustered": 1,
             "heuristic_owner_edge_not_selectable": 1,
             "public_ignored_requires_reason": 1,
             "multiple_candidates_keep_stopped": 1,
