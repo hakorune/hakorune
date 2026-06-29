@@ -97,6 +97,8 @@ if not fixture.get("loop_cond_bc_else_pattern_subcluster_rules"):
     raise SystemExit("loop-cond break/continue else-pattern subcluster rules missing")
 if not fixture.get("loop_cond_bc_cleanup_subcluster_rules"):
     raise SystemExit("loop-cond break/continue cleanup subcluster rules missing")
+if not fixture.get("loop_cond_bc_item_lowering_subcluster_rules"):
+    raise SystemExit("loop-cond break/continue item-lowering subcluster rules missing")
 cluster_summary = fixture.get("missing_projection_cluster_summary") or []
 if not cluster_summary:
     raise SystemExit("missing projection cluster summary missing")
@@ -118,6 +120,9 @@ if not loop_cond_bc_else_pattern_summary:
 loop_cond_bc_cleanup_summary = fixture.get("loop_cond_bc_cleanup_subcluster_summary") or []
 if not loop_cond_bc_cleanup_summary:
     raise SystemExit("loop-cond break/continue cleanup subcluster summary missing")
+loop_cond_bc_item_lowering_summary = fixture.get("loop_cond_bc_item_lowering_subcluster_summary") or []
+if not loop_cond_bc_item_lowering_summary:
+    raise SystemExit("loop-cond break/continue item-lowering subcluster summary missing")
 missing_items = [item for item in items if item.get("classification") == "MissingProjectionPolicy"]
 for item in missing_items:
     if not item.get("likely_owner_cluster") or item.get("likely_owner_cluster") == "NotMissingProjectionPolicy":
@@ -173,6 +178,16 @@ for item in loop_cond_bc_cleanup_items:
 loop_cond_bc_cleanup_sum = sum(item.get("count", 0) for item in loop_cond_bc_cleanup_summary)
 if loop_cond_bc_cleanup_sum != len(loop_cond_bc_cleanup_items):
     raise SystemExit("loop-cond break/continue cleanup subcluster summary count drift")
+loop_cond_bc_item_lowering_items = [
+    item for item in loop_cond_bc_items
+    if item.get("loop_cond_bc_subcluster") == "LoopCondBcItemLoweringCluster"
+]
+for item in loop_cond_bc_item_lowering_items:
+    if not item.get("loop_cond_bc_item_lowering_subcluster"):
+        raise SystemExit(f"LoopCondBcItemLoweringCluster item lacks subcluster: {item.get('source_id')}")
+loop_cond_bc_item_lowering_sum = sum(item.get("count", 0) for item in loop_cond_bc_item_lowering_summary)
+if loop_cond_bc_item_lowering_sum != len(loop_cond_bc_item_lowering_items):
+    raise SystemExit("loop-cond break/continue item-lowering subcluster summary count drift")
 
 summary = fixture.get("summary") or {}
 if summary.get("scanned_surface_count") != len(items):
@@ -204,6 +219,7 @@ for key in [
     "loop_cond_break_continue_items_subclustered",
     "loop_cond_bc_else_pattern_items_subclustered",
     "loop_cond_bc_cleanup_items_subclustered",
+    "loop_cond_bc_item_lowering_items_subclustered",
     "heuristic_owner_edge_not_selectable",
     "public_ignored_requires_reason",
     "multiple_candidates_keep_stopped",
