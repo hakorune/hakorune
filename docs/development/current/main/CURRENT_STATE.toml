@@ -22,10 +22,10 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-CO-GROUP-IF-BRANCH-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1857-MIRBUILDER-LOOP-COND-CO-GROUP-IF-BRANCH-PROJECTION-POLICY-001.md"
+latest_card = "MIRBUILDER-LOOP-COND-CO-GROUP-IF-NESTED-LOOP-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1858-MIRBUILDER-LOOP-COND-CO-GROUP-IF-NESTED-LOOP-PROJECTION-POLICY-001.md"
 latest_card_summary = """The latest card marks loop-cond continue-only
-group-if branch lowering as a PrivateGroupIfBranchHelper under
+group-if nested-loop lowering as a PrivateGroupIfNestedLoopHelper under
 loop_cond_continue_only while keeping Source Selfhost stopped."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1858 marks loop-cond continue-only group-if nested-loop lowering as PrivateGroupIfNestedLoopHelper.",
   "2026-06-30: 1857 marks loop-cond continue-only group-if branch lowering as PrivateGroupIfBranchHelper.",
   "2026-06-30: 1856 classifies loop-cond continue-only group-if surfaces into two buckets.",
   "2026-06-30: 1855 marks loop-cond continue-only continue-if group-prelude lowering as PrivateContinueIfGroupPreludeHelper.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1853 marks loop-cond continue-only continue-if prelude span lowering as PrivatePreludeSpanHelper.",
   "2026-06-30: 1852 classifies loop-cond continue-only continue-if surfaces into three buckets.",
   "2026-06-30: 1851 marks loop-cond continue-only fallthrough continue cleanup as PrivateRouteCleanupHelper.",
-  "2026-06-30: 1850 marks loop-cond continue-only block lowering as PrivateBlockLoweringHelper.",
 ]
