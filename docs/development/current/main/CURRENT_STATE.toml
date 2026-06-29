@@ -22,13 +22,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-BC-ELSE-PATTERN-SURFACE-CLASSIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1833-MIRBUILDER-LOOP-COND-BC-ELSE-PATTERN-SURFACE-CLASSIFICATION-001.md"
-latest_card_summary = """The latest card classifies LoopCondBcElsePatternCluster
-into break-only, guard-break, return-only, and continue-if buckets. This keeps
-the next work bounded without selecting a family or generating Hako. Source
-Selfhost remains stopped with fallback, backend route, ABI, Python
-SemanticProjector, and manual selection claims at 0."""
+latest_card = "MIRBUILDER-LOOP-COND-BC-BREAK-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1834-MIRBUILDER-LOOP-COND-BC-BREAK-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card resolves the break-only
+loop-cond else-pattern surfaces as PrivateLoweringHelper under the
+loop_cond_break_continue owner edge. It does not open standalone projection,
+Hako generation, adoption, or Source Selfhost claims."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +38,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1834 marks break-only loop-cond else-pattern lowering as PrivateLoweringHelper under loop_cond_break_continue.",
   "2026-06-30: 1833 classifies LoopCondBcElsePatternCluster into four subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1832 classifies LoopCondBreakContinueCluster into five subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1831 classifies LoopCondFeatureCluster into seven subclusters while keeping Source Selfhost stopped.",
@@ -46,5 +46,4 @@ landed_tail = [
   "2026-06-30: 1829 breaks JoinIRPlanCluster into thirteen subclusters while keeping Source Selfhost stopped.",
   "2026-06-30: 1828 clusters 1396 MissingProjectionPolicy surfaces into nine owner buckets without selecting a family.",
   "2026-06-30: 1827 hardens the unconverted surface report with hashes, orphan evidence checks, reason-token table, and confidence guardrails.",
-  "2026-06-30: 1826 reports crate-wide unconverted Rust source surfaces and keeps Source Selfhost stopped because candidates remain ambiguous.",
 ]
