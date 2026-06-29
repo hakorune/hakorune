@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoStatementDispatcherProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-STATEMENT-DISPATCHER-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondCoStatementDispatcherCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "PrivateStatementDispatcherHelper",
+    "owner_edge": "loop_cond_continue_only",
+    "projection_surface_selected": false,
+    "reason_token": "StatementDispatcherIsRouteLocalLoopCondCoHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs::lower_continue_only_stmt:L27",
+      "symbol": "lower_continue_only_stmt",
+      "visibility": "pub(super)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs"
+    }
+  ],
+  "statement_dispatcher_evidence": [
+    "match stmt",
+    "ContinueOnlyStmtRecipe::Stmt(node)",
+    "ContinueOnlyStmtRecipe::ContinueIf",
+    "ContinueOnlyStmtRecipe::ContinueIfGroupPrelude",
+    "ContinueOnlyStmtRecipe::GroupIf",
+    "ContinueOnlyStmtRecipe::ContinueIfNestedLoop",
+    "lower_stmt_ast",
+    "lower_continue_if_no_else",
+    "lower_continue_if_group_prelude",
+    "lower_group_if",
+    "lower_continue_if_nested_loop"
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001",
+    "reason_token": "StatementDispatcherDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
