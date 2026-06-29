@@ -387,6 +387,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-continue-if-no-else-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_continue_if_no_else_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-GROUP-PRELUDE-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1855-MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-GROUP-PRELUDE-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-continue-if-group-prelude-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_continue_if_group_prelude_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
