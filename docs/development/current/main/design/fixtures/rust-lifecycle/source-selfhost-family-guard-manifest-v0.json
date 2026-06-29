@@ -93,6 +93,20 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_owner_seed_inventory_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1813-MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-to-native-owner-seed-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_generated_artifact_to_native_owner_seed_policy_guard.sh",
+      "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1814-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_guard.sh",
+      "role": "current_semantic"
     }
   ],
   "forbidden_claims": {

@@ -10,10 +10,10 @@ date = "2026-06-29"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
-route-selection design stop. Native owner seed inventory has confirmed that
-the composed closure is not a semantic family owner and no leaf native owner
-seed is machine-derived yet. EXE/AOT remains the primary app/selfhost
-validation route; VM/interpreter lanes are not semantic owners."""
+route-selection design stop. A narrow native source seed pilot target is now
+selected: ReturnEmission. This is not a HakoAdopted decision or Source Selfhost
+claim. EXE/AOT remains the primary app/selfhost validation route; VM/interpreter
+lanes are not semantic owners."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -21,12 +21,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md"
-latest_card_summary = """The latest card inventories whether the generated
-minimal-path composed closure contains a leaf native owner seed. It derives no
-NativeOwnerSeedCandidate and keeps Source Selfhost stopped at the wider route
-selection design stop."""
+latest_card = "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1814-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.md"
+latest_card_summary = """The latest card selects ReturnEmission as the first
+native source owner seed pilot target by stable priority among small
+HakoMainline support-lane leaves. It does not materialize native source, run
+HakoAdopted, or claim Source Selfhost."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,12 +37,12 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1814 selects ReturnEmission as the first native source seed pilot target without treating support-lane projectors as HakoAdopted candidates.",
+  "2026-06-29: 1813 defines the GeneratedArtifactOnly to NativeOwnerSeedCandidate policy without selecting a family or opening Source Selfhost.",
   "2026-06-29: 1812 inventories native owner seed candidates under the generated composed closure and keeps the design stop because no leaf semantic owner seed is derived.",
   "2026-06-29: 1811 decomposes the minimal-path composed closure into native slices and keeps the wider route-selection design stop because no candidate or route repair is derived.",
   "2026-06-29: 1810 fixes the post-maintenance task inventory and hands the next semantic task to native-slice decomposition while preserving the design stop.",
   "2026-06-29: 1809 moves Source Selfhost check-index usage toward a family-view model while preserving historical guard traceability.",
   "2026-06-29: 1808 thins the MirBuilder task-order SSOT back into a current queue pointer while preserving guard-readable tokens.",
   "2026-06-29: 1807 compacts CURRENT_STATE into a live pointer file with a short landed tail while preserving the Source Selfhost design stop.",
-  "2026-06-29: 1806 adds a reusable Source Selfhost family guard manifest to reduce row guard boilerplate while preserving historical guard callability.",
-  "2026-06-29: 1805 decouples historical Source Selfhost row guards from live CURRENT_STATE latest-card allowlists while preserving the design stop.",
 ]

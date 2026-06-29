@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGeneratedArtifactToNativeOwnerSeedPolicyV1",
+  "token": "MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001",
+  "input_authority": {
+    "native_owner_seed_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0.json",
+    "native_slice_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "policy": {
+    "source_classification": "GeneratedArtifactOnly",
+    "target_classification": "NativeOwnerSeedCandidate",
+    "generated_artifact_is_edit_authority": false,
+    "seed_candidate_required_conditions": [
+      "LeafSemanticOwner",
+      "NotCompositionOwner",
+      "NotSupportLaneOnly",
+      "NotAlreadyAdopted",
+      "NotBoundedSurfaceOnly",
+      "VerifiedArtifactManifestPresent",
+      "DeterministicRegenerationGreen",
+      "OracleOrContractGreen",
+      "ExecutableGateGreen",
+      "SourcePlanOrEquivalentAuthorityPresent",
+      "NoRuntimeFallback",
+      "NoNewBackendRoute",
+      "NoNewAbi",
+      "GeneratorOverwriteGuardPlanned"
+    ],
+    "explicit_denials": [
+      "CompositionOwnerAsSemanticOwner",
+      "GeneratedArtifactAsEditAuthority",
+      "SupportLaneProjectorAsFamilyAdoptionCandidate",
+      "ManualFamilySelection",
+      "RuntimeTryHakoThenRustFallback",
+      "SourceSelfhostClaim"
+    ]
+  },
+  "next_resolution": {
+    "card": "MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001",
+    "decision_kind": "ResolveSeedCandidateByPolicy",
+    "allowed_outcomes": [
+      "SelectSeedMaterialization",
+      "KeepStopped",
+      "SelectFurtherLeafDecomposition"
+    ],
+    "selection_rule": "exactly_one_machine_derived_leaf_semantic_owner"
+  },
+  "next_cards": {
+    "if_exactly_one_candidate": "<LEAF-OWNER>-HAKO-NATIVE-SOURCE-OWNER-SEED-001",
+    "after_seed_materialization": "<LEAF-OWNER>-HAKO-ADOPTION-DECISION-001",
+    "if_no_candidate": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "decision": {
+    "kind": "PolicyDefined",
+    "reason_token": "GeneratedArtifactToNativeOwnerSeedPolicyDefined",
+    "selected_family": null,
+    "selected_next_card": "MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "native_source_owner_materialized": 0,
+    "family_adoption_decision": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "composition_owner_as_semantic_owner": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}

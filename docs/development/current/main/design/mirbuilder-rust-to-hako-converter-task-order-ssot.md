@@ -24,12 +24,12 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.
-  Inventory whether the generated minimal-path composed closure contains a
-  leaf semantic owner that can become a native Hako source owner seed. The
-  fixture derives no NativeOwnerSeedCandidate and keeps Source Selfhost
-  stopped at the wider route-selection design stop.
-  output_contract = rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0
+  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.
+  Select the first small native source owner seed pilot target. ReturnEmission
+  is selected by stable priority among small HakoMainline support-lane leaves.
+  This does not materialize native source, run HakoAdopted, or claim Source
+  Selfhost.
+  output_contract = rust-lifecycle-mirbuilder-native-owner-seed-pilot-target-selection-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -46,6 +46,8 @@ selected decision slice:
     -> SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001
     -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
     -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001
+    -> MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001
+    -> MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001
 
 selected evidence:
   current pointers:
@@ -144,7 +146,11 @@ latest design decision:
   selected next card remains `SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001`.
   Native owner seed inventory now confirms that the composed closure is not a
   semantic family owner, the generated artifact is not edit authority, and no
-  leaf native owner seed is machine-derived.
+  leaf native owner seed is machine-derived. The GeneratedArtifactOnly to
+  NativeOwnerSeedCandidate policy now defines the missing promotion conditions
+  without selecting a family or opening Source Selfhost. The native source seed
+  pilot target selection now narrows progress to ReturnEmission, treating
+  support-lane projectors as seed pilot targets but not HakoAdopted candidates.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -259,6 +265,27 @@ composition_owner_as_semantic_owner = 0
 generated_artifact_as_edit_authority = 0
 native_owner_seed_selected_next_card =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+generated_artifact_to_native_owner_seed_policy =
+  MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001
+generated_artifact_to_native_owner_seed_policy_output =
+  rust-lifecycle-mirbuilder-generated-artifact-to-native-owner-seed-policy-v0
+generated_artifact_to_native_owner_seed_policy_decision = PolicyDefined
+generated_artifact_to_native_owner_seed_next_resolution =
+  MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001
+seed_candidate_requires_leaf_semantic_owner = 1
+seed_candidate_requires_verified_artifact = 1
+seed_candidate_requires_deterministic_regeneration = 1
+seed_materialization_is_separate_card = 1
+hako_adoption_decision_is_separate_card = 1
+native_owner_seed_pilot_target_selection =
+  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001
+native_owner_seed_pilot_target_selection_output =
+  rust-lifecycle-mirbuilder-native-owner-seed-pilot-target-selection-v0
+native_owner_seed_pilot_selected_target = ReturnEmission
+native_owner_seed_pilot_next_card =
+  MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
+support_lane_projector_as_hako_adoption_candidate = 0
+support_lane_projector_as_seed_pilot_target = 1
 conditional_route_matrix_repair =
   <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
   only_after = ConcreteRouteMatrixInconsistency
@@ -280,7 +307,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md
+  1814-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -307,21 +334,21 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=native owner seed inventory found no leaf seed; keep Source Selfhost stopped
-   semantic_authority=design-stop card, wider route-selection basis/resolution fixtures, native-slice decomposition fixture, native owner seed inventory fixture
+   boundary=ReturnEmission seed pilot is selected, but Source Selfhost remains unclaimed
+   semantic_authority=design-stop card, seed policy fixture, seed pilot target selection fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. <LEAF-OWNER>-HAKO-NATIVE-SOURCE-OWNER-SEED-001
-   status=conditional
-   boundary=only if a future machine-derived fixture exposes exactly one NativeOwnerSeedCandidate
-   semantic_authority=native owner seed fixture, Derived-to-Native artifact model
-   non_authority=composition owner as semantic family owner, generated artifact as edit authority
+2. MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
+   status=next
+   boundary=materialize ReturnEmission native .hako seed path and generator overwrite guard
+   semantic_authority=ReturnEmission HakoMainline promotion fixture, seed target selection fixture
+   non_authority=HakoAdopted decision, Source Selfhost claim
 
-3. <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
+3. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
    status=conditional
-   boundary=only if native-slice decomposition exposes a concrete route inconsistency
-   semantic_authority=route repair fixture, Source Selfhost family guard
-   non_authority=manual family selection, coverage percentage, bundle size
+   boundary=only after ReturnEmission native source seed guard is green
+   semantic_authority=native source seed fixture, Derived-to-Native artifact model
+   non_authority=Source Selfhost claim, Rust deletion
 ```
 
 ## Landed Converter Capability Summary

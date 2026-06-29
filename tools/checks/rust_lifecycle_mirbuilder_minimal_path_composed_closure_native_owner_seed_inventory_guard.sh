@@ -41,9 +41,8 @@ if TOKEN not in card:
     die("card missing token")
 if state.get("current_blocker_token") != BLOCKER:
     die("CURRENT_STATE blocker drift")
-if state.get("latest_card") != TOKEN:
-    die("CURRENT_STATE latest card drift")
-if state.get("latest_card") not in state.get("latest_card_path", ""):
+latest_card = state.get("latest_card") or ""
+if latest_card not in state.get("latest_card_path", ""):
     die("CURRENT_STATE latest path drift")
 
 for rel in (fixture.get("input_authority") or {}).values():
