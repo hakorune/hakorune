@@ -450,6 +450,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-statement-dispatcher-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_statement_dispatcher_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1864-MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-statement-lowering-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_ast_statement_lowering_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

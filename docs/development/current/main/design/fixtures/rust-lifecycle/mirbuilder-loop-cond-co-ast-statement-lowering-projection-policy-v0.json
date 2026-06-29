@@ -1,0 +1,68 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoAstStatementLoweringProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondCoAstStatementLoweringCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "CompositeAstStatementLoweringNeedsSubclassification",
+    "owner_edge": "loop_cond_continue_only",
+    "projection_surface_selected": false,
+    "reason_token": "AstStatementLoweringContainsMultipleStatementShapes"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs::lower_stmt_ast:L158",
+      "symbol": "lower_stmt_ast",
+      "visibility": "pub(super)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
+    }
+  ],
+  "ast_statement_shape_evidence": [
+    "ASTNode::Assignment",
+    "ASTNode::Local",
+    "ASTNode::MethodCall",
+    "ASTNode::FunctionCall",
+    "ASTNode::Print",
+    "ASTNode::If",
+    "ASTNode::Continue",
+    "ASTNode::Break",
+    "ASTNode::Return",
+    "ASTNode::Loop",
+    "ASTNode::LoopRange"
+  ],
+  "delegation_evidence": [
+    "lower_assignment_stmt",
+    "lower_local_init_stmt",
+    "loop_body_lowering::lower_method_call_stmt",
+    "loop_body_lowering::lower_function_call_stmt",
+    "parts::entry::lower_conditional_update_if",
+    "try_lower_general_if_recipe_authority",
+    "lower_if_exit_stmt",
+    "lower_nested_loop_depth1_any",
+    "sync_carrier_bindings"
+  ],
+  "decision": {
+    "kind": "SelectFurtherSubclassification",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-SURFACE-CLASSIFICATION-001",
+    "reason_token": "AstStatementLoweringMustBeClassifiedBeforeProjectionPolicy"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "composite_owner_as_semantic_owner": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}

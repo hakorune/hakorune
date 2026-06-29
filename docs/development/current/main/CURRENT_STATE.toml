@@ -22,11 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-CO-STATEMENT-DISPATCHER-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1863-MIRBUILDER-LOOP-COND-CO-STATEMENT-DISPATCHER-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card marks loop-cond continue-only
-statement dispatcher as a PrivateStatementDispatcherHelper under
-loop_cond_continue_only while keeping Source Selfhost stopped."""
+latest_card = "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1864-MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card keeps loop-cond continue-only AST
+statement lowering out of standalone projection ownership and routes it to
+further statement-shape classification."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1864 routes loop-cond continue-only AST statement lowering to further statement-shape classification.",
   "2026-06-30: 1863 marks loop-cond continue-only statement dispatcher as PrivateStatementDispatcherHelper.",
   "2026-06-30: 1862 classifies loop-cond continue-only statement lowering surfaces into two buckets.",
   "2026-06-30: 1861 marks loop-cond continue-only carrier-sync helper as PrivateCarrierSyncHelper.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1859 classifies loop-cond continue-only helper surfaces into two buckets.",
   "2026-06-30: 1858 marks loop-cond continue-only group-if nested-loop lowering as PrivateGroupIfNestedLoopHelper.",
   "2026-06-30: 1857 marks loop-cond continue-only group-if branch lowering as PrivateGroupIfBranchHelper.",
-  "2026-06-30: 1856 classifies loop-cond continue-only group-if surfaces into two buckets.",
 ]
