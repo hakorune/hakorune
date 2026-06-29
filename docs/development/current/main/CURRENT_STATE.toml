@@ -22,10 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-MUTATION-FRAME-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1868-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-MUTATION-FRAME-CONTRACT-001.md"
-latest_card_summary = """The latest card fixes the carrier-merge assignment
-mutation frame and selects HakoShadow parity as the next non-claiming step."""
+latest_card = "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-SHADOW-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1869-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-SHADOW-PARITY-001.md"
+latest_card_summary = """The latest card adds carrier-merge assignment
+HakoShadow parity for the contracted mutation frame without Hako generation or
+Source Selfhost claims."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -36,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1869 adds carrier-merge assignment HakoShadow parity for the contracted mutation frame.",
   "2026-06-30: 1868 fixes the carrier-merge assignment mutation-frame contract.",
   "2026-06-30: 1867 requires a mutation-frame contract before carrier-merge assignment projection.",
   "2026-06-30: 1866 routes loop-cond continue-only AST assignment arm policy to carrier-merge assignment.",
@@ -43,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1864 routes loop-cond continue-only AST statement lowering to further statement-shape classification.",
   "2026-06-30: 1863 marks loop-cond continue-only statement dispatcher as PrivateStatementDispatcherHelper.",
   "2026-06-30: 1862 classifies loop-cond continue-only statement lowering surfaces into two buckets.",
-  "2026-06-30: 1861 marks loop-cond continue-only carrier-sync helper as PrivateCarrierSyncHelper.",
 ]

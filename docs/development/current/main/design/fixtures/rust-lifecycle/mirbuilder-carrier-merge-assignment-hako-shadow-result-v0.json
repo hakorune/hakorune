@@ -1,0 +1,87 @@
+{
+  "kind": "MirBuilderCarrierMergeAssignmentHakoShadowResultV1",
+  "non_claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "result": {
+    "err": 0,
+    "err_line": "",
+    "shadow_json": "{\n  \"available_capabilities\": [\n    \"CarrierMergeAssignmentMutationFrame\"\n  ],\n  \"family_id\": \"hakorune_mir_builder::carrier_merge_assignment\",\n  \"kind\": \"CarrierMergeAssignmentShadowCandidateV1\",\n  \"mutation_frame_contract\": {\n    \"mutation_order\": [\n      \"ResealBuilderVariableMapFromCurrentBindings\",\n      \"DelegateLoopBodyAssignmentLowering\",\n      \"ReturnEffectsOnlyWhenNoBinding\",\n      \"UpdateCarrierUpdatesWhenCarrierPhiExists\",\n      \"UpdateCurrentBindingsWhenCarrierOrCurrentBindingExists\",\n      \"PublishReturnedBindingToBuilderVariableMap\"\n    ],\n    \"read_only_inputs\": [\n      \"carrier_phis\"\n    ],\n    \"state_inputs\": [\n      \"current_bindings\",\n      \"carrier_phis\",\n      \"builder.variable_ctx.variable_map\"\n    ],\n    \"state_outputs\": [\n      \"current_bindings\",\n      \"carrier_updates\",\n      \"builder.variable_ctx.variable_map\"\n    ]\n  },\n  \"non_claims\": {\n    \"hako_adopted_decision\": 0,\n    \"hako_generation\": 0,\n    \"native_seed_materialization\": 0,\n    \"runtime_fallback\": 0,\n    \"source_selfhost_claim\": 0\n  },\n  \"result_contract\": {\n    \"mutation_order\": [\n      \"ResealBuilderVariableMapFromCurrentBindings\",\n      \"DelegateLoopBodyAssignmentLowering\",\n      \"ReturnEffectsOnlyWhenNoBinding\",\n      \"UpdateCarrierUpdatesWhenCarrierPhiExists\",\n      \"UpdateCurrentBindingsWhenCarrierOrCurrentBindingExists\",\n      \"PublishReturnedBindingToBuilderVariableMap\"\n    ],\n    \"read_only_inputs\": [\n      \"carrier_phis\"\n    ],\n    \"state_outputs\": [\n      \"current_bindings\",\n      \"carrier_updates\",\n      \"builder.variable_ctx.variable_map\"\n    ]\n  },\n  \"schema_version\": 0,\n  \"source_authority\": \"src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_assignment_stmt:L9\",\n  \"stage_id\": \"carrier_merge_assignment\",\n  \"subject\": \"carrier_merge::lower_assignment_stmt mutation frame\"\n}\n",
+    "shadow_record": {
+      "available_capabilities": [
+        "CarrierMergeAssignmentMutationFrame"
+      ],
+      "family_id": "hakorune_mir_builder::carrier_merge_assignment",
+      "kind": "CarrierMergeAssignmentShadowCandidateV1",
+      "mutation_frame_contract": {
+        "mutation_order": [
+          "ResealBuilderVariableMapFromCurrentBindings",
+          "DelegateLoopBodyAssignmentLowering",
+          "ReturnEffectsOnlyWhenNoBinding",
+          "UpdateCarrierUpdatesWhenCarrierPhiExists",
+          "UpdateCurrentBindingsWhenCarrierOrCurrentBindingExists",
+          "PublishReturnedBindingToBuilderVariableMap"
+        ],
+        "read_only_inputs": [
+          "carrier_phis"
+        ],
+        "state_inputs": [
+          "current_bindings",
+          "carrier_phis",
+          "builder.variable_ctx.variable_map"
+        ],
+        "state_outputs": [
+          "current_bindings",
+          "carrier_updates",
+          "builder.variable_ctx.variable_map"
+        ]
+      },
+      "non_claims": {
+        "hako_adopted_decision": 0,
+        "hako_generation": 0,
+        "native_seed_materialization": 0,
+        "runtime_fallback": 0,
+        "source_selfhost_claim": 0
+      },
+      "result_contract": {
+        "mutation_order": [
+          "ResealBuilderVariableMapFromCurrentBindings",
+          "DelegateLoopBodyAssignmentLowering",
+          "ReturnEffectsOnlyWhenNoBinding",
+          "UpdateCarrierUpdatesWhenCarrierPhiExists",
+          "UpdateCurrentBindingsWhenCarrierOrCurrentBindingExists",
+          "PublishReturnedBindingToBuilderVariableMap"
+        ],
+        "read_only_inputs": [
+          "carrier_phis"
+        ],
+        "state_outputs": [
+          "current_bindings",
+          "carrier_updates",
+          "builder.variable_ctx.variable_map"
+        ]
+      },
+      "schema_version": 0,
+      "source_authority": "src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_assignment_stmt:L9",
+      "stage_id": "carrier_merge_assignment",
+      "subject": "carrier_merge::lower_assignment_stmt mutation frame"
+    }
+  },
+  "schema_version": 0,
+  "stage_state": {
+    "family_id": "hakorune_mir_builder::carrier_merge_assignment",
+    "hako_shadow": "CarrierMergeAssignmentHakoProjector",
+    "input_json": "mirbuilder-carrier-merge-assignment-statement-mutation-frame-contract-v0.json",
+    "output_json": "CarrierMergeAssignmentShadowCandidateV1",
+    "parity_gate": "rust_lifecycle_mirbuilder_carrier_merge_assignment_statement_hako_shadow_parity_guard.sh",
+    "promotion_token": "CarrierMergeAssignmentHakoShadowPromotionTokenV1",
+    "python_oracle": "CarrierMergeAssignmentMutationFrameContractV1",
+    "retirement_token": "CarrierMergeAssignmentHakoShadowRetirementTokenV1",
+    "stage_id": "carrier_merge_assignment"
+  },
+  "subject": "carrier_merge::lower_assignment_stmt mutation frame"
+}
