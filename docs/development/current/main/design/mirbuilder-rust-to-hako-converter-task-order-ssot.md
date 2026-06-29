@@ -21,14 +21,13 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.
-  Classify route-family rows after the bounded VariableContext closeout and
-  machine-select whether the next selfhost action is native adoption, route
-  repair, projector promotion, or consultation-gated stop.
-  output_contract = rust-lifecycle-source-selfhost-next-route-family-selection-policy-v0
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  Keep Source Selfhost explicitly stopped while the wider route-selection
+  basis remains consultation-gated or machine-repaired.
+  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -54,6 +53,7 @@ selected decision slice:
     -> MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
     -> MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
     -> SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
+    -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 selected evidence:
   adoption-plan evidence
@@ -79,6 +79,7 @@ selected evidence:
     -> docs/development/current/main/phases/phase-296x/1796-MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
+    -> docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
     -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
     -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
@@ -92,7 +93,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Source Selfhost next route-family selection policy
+  Source Selfhost wider route selection design stop
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -110,7 +111,9 @@ current fail-fast boundary:
   remain naming cleanup only, and MutLease remains a follow-up lane. The next
   policy does not select a family by hand: it classifies route-family rows and
   blocks with recovery guidance when no machine-derived native adoption
-  candidate remains.
+  candidate remains. The wider route-selection stop keeps the lane stopped
+  until consultation-gated widening or machine-derived route repair resumes
+  it.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -137,7 +140,9 @@ latest design decision:
   not a new projection lane. That policy now classifies the current rows and
   keeps Source Selfhost stopped because no eligible native adoption candidate
   remains after excluding already adopted, bounded-only, support-lane, and
-  consultation-gated rows. Reason token:
+  consultation-gated rows. That policy's recovery line now lands on the wider
+  route-selection design stop, which keeps the lane stopped until consultation-
+  gated widening or machine-derived route repair resumes it. Reason token:
   `NoEligibleNativeAdoptionCandidate`.
 
 ## Source Selfhost Adoption Plan Evidence
@@ -173,6 +178,9 @@ next_route_family_selection_policy = SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION
 next_route_family_selection_decision = KeepSourceSelfhostStopped
 next_route_family_selection_reason = NoEligibleNativeAdoptionCandidate
 next_route_family_selection_recovery = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+consultation_gated_wider_route_selection = 1
+manual_family_selection = 0
+machine_derived_route_repair_allowed = 1
 classification_partition_complete = 1
 support_lane_projector_as_adoption_candidate = 0
 mut_lease_state = DeferredUntilLiveNeed
@@ -215,7 +223,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
+  1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

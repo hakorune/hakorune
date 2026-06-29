@@ -265,14 +265,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md"
-latest_card_summary = """The latest card fixes the Source Selfhost next
-route-family selection policy. The current evidence has no machine-derived
-family-specific HakoAdopted candidate after excluding already adopted,
-bounded-only, support-lane, and consultation-gated rows."""
+latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md"
+latest_card_summary = """The latest card keeps Source Selfhost explicitly
+stopped while the wider route-selection basis remains consultation-gated or
+machine-repaired. No eligible native adoption candidate remains."""
 
-current_blocker_token = "SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001"
+current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -281,6 +280,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-29: 1799 makes the wider Source Selfhost route-selection stop explicit and keeps the lane stopped until consultation-gated widening or machine-derived route repair resumes it.",
   "2026-06-29: 1798 fixes Source Selfhost next route-family selection policy and blocks with recovery guidance because no machine-derived native adoption candidate remains.",
   "2026-06-29: 1797 resolves `entries_snapshot` as not needed for the current bounded VariableContext consumers and hands the queue to NextRouteFamilySelectionPolicy.",
   "2026-06-29: 1796 resolves the adopted VariableContext native surface as bounded-consumer ready and splits entries_snapshot / naming cleanup / MutLease into follow-up lanes.",

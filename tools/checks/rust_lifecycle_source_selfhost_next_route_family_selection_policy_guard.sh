@@ -154,18 +154,19 @@ require((variable_context_adoption.get("target") or {}).get("full_variable_conte
 require((entries_resolution.get("decision") or {}).get("next_action") == "NextRouteFamilySelectionPolicy", "entries resolver handoff drift")
 require((entries_resolution.get("decision") or {}).get("need_state") == "NotNeeded", "entries need state drift")
 
-require(state.get("latest_card") == token, "current-state latest card drift")
-require(state.get("latest_card_path") == "docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md", "current-state latest card path drift")
-require(state.get("current_blocker_token") == token, "current-state blocker drift")
+latest_card_path = state.get("latest_card_path")
+require(isinstance(latest_card_path, str) and Path(latest_card_path).exists(), "current-state latest card path missing")
+landed_tail = state.get("landed_tail") or []
+require(any("1798 fixes Source Selfhost next route-family selection policy" in row for row in landed_tail), "current-state missing 1798 provenance")
 
 for needle in [
     token,
-    output_contract,
     decision_kind,
     reason_token,
     next_action,
     "classification_partition_complete = 1",
     "support_lane_projector_as_adoption_candidate = 0",
+    "NextRouteFamilySelectionPolicy",
 ]:
     require(needle in task_order, f"task-order missing {needle}")
 

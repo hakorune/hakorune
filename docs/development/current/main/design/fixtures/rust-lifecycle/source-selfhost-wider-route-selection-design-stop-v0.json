@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostWiderRouteSelectionDesignStopV1",
+  "output_contract": "rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "prior_policy_card": "SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001",
+    "prior_policy_result": "KeepSourceSelfhostStopped",
+    "prior_policy_reason_token": "NoEligibleNativeAdoptionCandidate",
+    "prior_policy_next_action": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "candidate_pool_state": "Blocked",
+    "eligible_candidate_count": 0,
+    "support_lane_count": 4,
+    "consultation_gated_count": 1,
+    "resume_condition": "ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair"
+  },
+  "candidate_pool_state": "Blocked",
+  "authority": {
+    "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+    "blocked_recovery_diagnostic": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-blocked-recovery-diagnostic-v0.json",
+    "candidate_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/next-hako-adoption-candidate-selection-v0.json",
+    "adoption_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-adoption-plan-v0.json"
+  },
+  "decision": {
+    "kind": "KeepSourceSelfhostStopped",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "next_action": "DesignConsultationRequired"
+  },
+  "recovery": {
+    "resume_condition": "ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair",
+    "allowed_resumes": [
+      "ConsultationGatedWiderRouteSelection",
+      "MachineDerivedRouteRepair"
+    ],
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "bundle_size_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0
+  },
+  "claims": {
+    "new_hako_adopted_family": 0,
+    "new_route_family_selected": 0,
+    "full_variable_context_claim": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "rust_deletion": 0
+  }
+}
