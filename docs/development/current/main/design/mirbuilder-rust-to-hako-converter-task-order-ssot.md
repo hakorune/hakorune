@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1851-MIRBUILDER-LOOP-COND-CO-CLEANUP-PROJECTION-POLICY-001.md
+  1852-MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-SURFACE-CLASSIFICATION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
