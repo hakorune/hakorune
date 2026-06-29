@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondBcRootPipelineProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-BC-ROOT-PIPELINE-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondBcRootPipelineCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "RootPipelineIntegrationOwner",
+    "owner_edge": "loop_cond_break_continue",
+    "projection_surface_selected": false,
+    "reason_token": "RootPipelineComposesLoopCondBcSemanticEdges"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs::lower_loop_cond_break_continue:L33",
+      "symbol": "lower_loop_cond_break_continue",
+      "visibility": "pub(in crate::mir::builder)",
+      "return_type": "Result<LoweredRecipe, String>",
+      "expected_callsites": [
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_cond_composer.rs",
+        "src/mir/builder/control_flow/plan/normalizer/mod.rs"
+      ]
+    }
+  ],
+  "root_pipeline_evidence": [
+    "LoopBlocksStandard5::allocate",
+    "LoopCondBreakContinuePhiMaterializer::prepare",
+    "lower_loop_header_cond",
+    "lower_loop_cond_body_items",
+    "apply_loop_cond_break_continue_cleanup",
+    "verify_loop_cond_break_continue_phi_closure",
+    "CorePlan::Loop"
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-BC-CARRIER-SYNC-PROJECTION-POLICY-001",
+    "reason_token": "RootPipelineDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
