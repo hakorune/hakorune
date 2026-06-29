@@ -1,0 +1,33 @@
+{
+  "claims": {
+    "hako_adopted": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "python_semantic_projector_growth": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "current_stage": "HakoShadow",
+  "decision": {
+    "kind": "Promote",
+    "next_slice_token": "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-HAKO-SHADOW-PROMOTION-DECISION-001",
+    "owner_scope": "integration",
+    "reason": "CarrierMergeAssignment HakoShadow parity is green and mutation-frame stage-state tokens are explicit.",
+    "reason_token": "CarrierMergeAssignmentHakoShadowParityGreen"
+  },
+  "family_id": "hakorune_mir_builder::carrier_merge_assignment",
+  "hako_shadow_retained": 1,
+  "input_evidence": {
+    "hako_shadow_parity_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-merge-assignment-hako-shadow-result-v0.json",
+    "parity_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_merge_assignment_statement_hako_shadow_parity_guard.sh",
+    "stage_state_inventory_guard": "tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh"
+  },
+  "kind": "MirBuilderCarrierMergeAssignmentHakoShadowPromotionDecisionV1",
+  "output_contract": "rust-lifecycle-carrier-merge-assignment-hako-shadow-promotion-decision-v0",
+  "promotion_token": "CarrierMergeAssignmentHakoShadowPromotionTokenV1",
+  "python_oracle_retained": 1,
+  "retirement_token": "CarrierMergeAssignmentHakoShadowRetirementTokenV1",
+  "schema_version": 0,
+  "selected_stage": "HakoMainline",
+  "stage_id": "carrier_merge_assignment"
+}

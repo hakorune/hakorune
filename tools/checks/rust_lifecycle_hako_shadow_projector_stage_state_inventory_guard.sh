@@ -18,6 +18,7 @@ PROJECTORS=(
   "typed_object_plan_refresh_projector.hako|hakorune_mir_builder::typed_object_plan_refresh|typed_object_plan_refresh"
   "direct_state_plan_refresh_projector.hako|hakorune_mir_builder::direct_state_plan_refresh|direct_state_plan_refresh"
   "all_functions_phi_materialization_projector.hako|hakorune_mir_builder::all_functions_phi_materialization|all_functions_phi_materialization"
+  "carrier_merge_assignment_projector.hako|hakorune_mir_builder::carrier_merge_assignment|carrier_merge_assignment"
 )
 
 guard_require_command "$TAG" python3
@@ -71,6 +72,7 @@ expected_lines = [
     "sixth shadow-projector support library:",
     "seventh shadow-projector support library:",
     "eighth shadow-projector support library:",
+    "ninth shadow-projector support library:",
 ]
 for needle in expected_lines:
     if needle not in readme:
@@ -85,6 +87,7 @@ for needle in [
     "typed_object_plan_refresh_projector.hako",
     "direct_state_plan_refresh_projector.hako",
     "all_functions_phi_materialization_projector.hako",
+    "carrier_merge_assignment_projector.hako",
     "ordinary `.hako` library home",
 ]:
     if needle not in readme:
@@ -95,7 +98,7 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-hako-shadow-projector-stage-state-inventory-v0
 library_home=lang/src/compiler/lib/
 projector_inventory=green
-projector_count=8
+projector_count=9
 stage_state_fields=green
 family_id=green
 stage_id=green

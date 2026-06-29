@@ -111,9 +111,9 @@ static box CarrierMergeAssignmentHakoProjector {
     return CompilerProjectorSupportBox.copy_any(hako_shadow)
   }
 
-  project_shadow_record(contract, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+  project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
     local tag = CompilerProjectorSupportBox.tag(null)
-    local err = me._validate_contract(contract, tag)
+    local err = me._validate_contract(plan, tag)
     if err != null {
       return err
     }
@@ -128,7 +128,7 @@ static box CarrierMergeAssignmentHakoProjector {
     err = CompilerProjectorSupportBox.require_present(retirement_token, "retirement_token", tag)
     if err != null { return err }
 
-    local input_state = BoxHelpers.map_get(contract, "input_state")
+    local input_state = BoxHelpers.map_get(plan, "input_state")
     local shadow_record = CompilerProjectionValueBox.create_object()
     CompilerProjectionValueBox.object_set(shadow_record, "schema_version", CompilerProjectionValueBox.create_i64(0))
     CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("CarrierMergeAssignmentHakoShadowProjectorV1"))
@@ -136,7 +136,7 @@ static box CarrierMergeAssignmentHakoProjector {
     CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("carrier_merge_assignment"))
     CompilerProjectionValueBox.object_set(shadow_record, "subject", CompilerProjectionValueBox.create_string("carrier_merge::lower_assignment_stmt mutation frame"))
     CompilerProjectionValueBox.object_set(shadow_record, "source_authority", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(input_state, "source_id")))
-    CompilerProjectionValueBox.object_set(shadow_record, "input_json", CompilerProjectorSupportBox.copy_any(contract))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", CompilerProjectorSupportBox.copy_any(plan))
     CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
     CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", CompilerProjectorSupportBox.copy_any(python_oracle))
     CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", CompilerProjectorSupportBox.copy_any(hako_shadow))
@@ -146,9 +146,9 @@ static box CarrierMergeAssignmentHakoProjector {
     return CompilerProjectorSupportBox.ok(shadow_record)
   }
 
-  project_shadow_json(contract, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+  project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
     local result = me.project_shadow_record(
-      contract,
+      plan,
       python_oracle,
       hako_shadow,
       parity_gate,

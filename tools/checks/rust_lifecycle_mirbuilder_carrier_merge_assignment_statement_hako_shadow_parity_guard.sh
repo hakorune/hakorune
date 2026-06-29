@@ -36,8 +36,8 @@ if token not in card:
 
 required_projector_text = [
     "CarrierMergeAssignmentHakoProjector",
-    "project_shadow_record(contract, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
-    "project_shadow_json(contract, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
+    "project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
+    "project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token)",
     'CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("CarrierMergeAssignmentHakoShadowProjectorV1"))',
     'CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::carrier_merge_assignment"))',
     'CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("carrier_merge_assignment"))',
