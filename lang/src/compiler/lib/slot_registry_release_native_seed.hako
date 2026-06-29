@@ -20,7 +20,7 @@
 // source-family: hakorune_mir_builder::slot_registry_release
 // generated-artifact-source:
 //   lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_slot_registry_release.hako
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 box FunctionSlotRegistryPreparedBox {

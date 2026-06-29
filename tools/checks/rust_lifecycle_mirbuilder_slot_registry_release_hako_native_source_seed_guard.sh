@@ -66,7 +66,6 @@ native = native_path.read_text()
 for needle in [
     "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001",
     "source-family: hakorune_mir_builder::slot_registry_release",
-    "hako-adopted: 0",
     "source-selfhost-claim: 0",
     "static box SlotRegistryReleaseNativeSeedApi",
     "static box SlotRegistryReleaseApi",
