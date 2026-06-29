@@ -114,9 +114,10 @@ for key in [
 
 require(design_stop_token in runner_breakdown, "runner breakdown provenance missing")
 
-require(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
+require(state.get("latest_card"), "CURRENT_STATE latest card missing")
+require(state.get("latest_card_path"), "CURRENT_STATE latest card path missing")
+require(state.get("latest_card") in state.get("latest_card_path", ""), "CURRENT_STATE latest card path drift")
 require(state.get("current_blocker_token") == design_stop_token, "CURRENT_STATE blocker drift")
-require(state.get("latest_card_path") == "docs/development/current/main/phases/phase-296x/1802-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001.md", "CURRENT_STATE latest card path drift")
 
 for needle in [
     token,
@@ -128,7 +129,7 @@ for needle in [
 ]:
     require(needle in task_order, f"task-order missing {needle}")
 
-require("tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_resolution_guard.sh" in index, "check index missing guard")
+require("tools/checks/rust_lifecycle_source_selfhost_family_guard.sh" in index, "check index missing family guard")
 
 print(f"output_contract={contract}")
 print(f"current_blocker_preserved={design_stop_token}")

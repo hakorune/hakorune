@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostDocsGuardMaintenanceReductionV1",
+  "token": "SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001",
+  "input_state": {
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_resolution_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001",
+    "semantic_lane_state": "StoppedUntilWiderRouteSelectionOrMachineDerivedRepair"
+  },
+  "worker_inventory": {
+    "docs_update_cost_drivers": [
+      "CURRENT_STATE_landed_history_growth",
+      "task_order_ledger_growth",
+      "row_guard_boilerplate_repetition",
+      "check_scripts_index_row_ledger_growth",
+      "historical_guards_pin_live_current_state"
+    ],
+    "stale_guard_drift": [
+      {
+        "guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_readiness_resolver_guard.sh",
+        "reason": "StaleTaskOrderNeedle",
+        "missing_needle": "same-state composed prefix evidence"
+      }
+    ]
+  },
+  "maintenance_sequence": [
+    {
+      "phase": "P0",
+      "task": "MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001",
+      "purpose": "realign stale readiness guard vocabulary with current 1802 stop-line evidence"
+    },
+    {
+      "phase": "P1",
+      "task": "GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001",
+      "purpose": "stop historical row guards from validating live latest-card allowlists"
+    },
+    {
+      "phase": "P1",
+      "task": "GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001",
+      "purpose": "replace repeated row guard boilerplate with a reusable Source Selfhost family guard"
+    },
+    {
+      "phase": "P2",
+      "task": "DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001",
+      "purpose": "keep CURRENT_STATE as live pointer and short landed tail only"
+    },
+    {
+      "phase": "P2",
+      "task": "DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001",
+      "purpose": "keep task-order as pointer/current queue, not landed evidence ledger"
+    },
+    {
+      "phase": "P2",
+      "task": "DOCS-CHECK-INDEX-FAMILY-VIEW-001",
+      "purpose": "keep stable guard entries in the public index and move row-level traceability to a family manifest"
+    }
+  ],
+  "deferred_semantic_next": {
+    "task": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+    "resume_condition": "maintenance_sequence_green"
+  },
+  "claims": {
+    "docs_only_closeout": 0,
+    "code_or_guard_delta_required": 1,
+    "manual_family_selection": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "route_repair": 0,
+    "family_adoption_decision": 0
+  }
+}

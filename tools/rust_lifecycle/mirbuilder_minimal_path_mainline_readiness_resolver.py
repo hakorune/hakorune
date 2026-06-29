@@ -68,11 +68,14 @@ def parse_current_state() -> dict[str, Any]:
 def validate_task_order() -> dict[str, Any]:
     text = TASK_ORDER_PATH.read_text(encoding="utf-8")
     for needle in [
-        "same-state composed prefix evidence",
-        "next_unconsumed_edge = Closed",
-        "generated Hako executable closure = Closed",
+        "mainline_readiness = Ready",
+        "mainline_readiness_decision = ReadyForMinimalPathMainlinePilot",
+        "mainline_next_unconsumed_edge = Closed",
+        "mainline_generated_hako_executable_closure = Closed",
+        "mainline_same_state_handoff_observed = 1",
         "ReadyForMinimalPathMainlinePilot",
         "MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001",
+        "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
     ]:
         require(needle in text, f"task-order missing: {needle}")
     return {

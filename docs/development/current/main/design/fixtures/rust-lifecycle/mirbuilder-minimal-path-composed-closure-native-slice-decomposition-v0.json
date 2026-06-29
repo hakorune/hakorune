@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMinimalPathComposedClosureNativeSliceDecompositionV1",
+  "token": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+  "composed_route_id": "hakorune_mir_builder::minimal_path_composed_execution_closure",
+  "input_authority": {
+    "wider_route_selection_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "minimal_path_mainline_readiness": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json",
+    "minimal_path_mainline_pilot": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-pilot-v0.json",
+    "allocation_policy_adoption_recheck": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-allocation-policy-hako-adoption-decision-recheck-v1.json"
+  },
+  "slices": [
+    {
+      "slice_id": "allocation_policy_kernel",
+      "source_authority": "native_hako_adopted",
+      "route_state": "HakoAdopted",
+      "native_owner_state": "AlreadyAdopted",
+      "candidate_classification": "AlreadyAdopted",
+      "eligible_for_adoption": false,
+      "reason_token": "AlreadyAdopted"
+    },
+    {
+      "slice_id": "variable_context_bounded_native_surface",
+      "source_authority": "native_hako_bounded_surface",
+      "route_state": "HakoAdopted",
+      "native_owner_state": "BoundedSurfaceOnly",
+      "candidate_classification": "BoundedSurfaceAdopted",
+      "eligible_for_adoption": false,
+      "reason_token": "FullVariableContextClaimParked"
+    },
+    {
+      "slice_id": "minimal_path_composed_execution_closure",
+      "source_authority": "generated_hako_execution_artifact",
+      "route_state": "DerivedMainline",
+      "native_owner_state": "GeneratedArtifactOnly",
+      "candidate_classification": "ConsultationGated",
+      "eligible_for_adoption": false,
+      "reason_token": "GeneratedArtifactIsNotNativeEditAuthority"
+    },
+    {
+      "slice_id": "support_lane_projectors",
+      "source_authority": "hako_projector_stage_state",
+      "route_state": "SupportLaneOnly",
+      "native_owner_state": "NotFamilyAdoptionCandidate",
+      "candidate_classification": "SupportLaneOnly",
+      "eligible_for_adoption": false,
+      "reason_token": "SupportLaneProjectorIsNotFamilyAdoptionCandidate"
+    }
+  ],
+  "candidate_pool": {
+    "candidate_eligible_count": 0,
+    "repairable_inconsistency_count": 0,
+    "consultation_gated_count": 1,
+    "support_lane_count": 1,
+    "already_adopted_count": 1,
+    "bounded_surface_count": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoCandidateAfterNativeSliceDecomposition",
+    "selected_slice_id": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "route_repair": 0,
+    "family_adoption_decision": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "runner_semantic_owner": 0,
+    "generated_artifact_as_edit_authority": 0
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostFamilyGuardManifestV1",
+  "family_scope": "SourceSelfhost",
+  "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+  "guard_policy": {
+    "historical_row_guards_remain_callable": 1,
+    "new_rows_prefer_family_guard": 1,
+    "current_state_pointer_guard_owns_live_latest_card": 1,
+    "row_guard_latest_card_allowlists": 0
+  },
+  "rows": [
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/1801-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_basis_guard.sh",
+      "role": "historical_traceability"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1802-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_resolution_guard.sh",
+      "role": "historical_traceability"
+    },
+    {
+      "token": "SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1803-SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-docs-guard-maintenance-reduction-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_docs_guard_maintenance_reduction_guard.sh",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001",
+      "card": "docs/development/current/main/phases/phase-296x/1804-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_readiness_resolver_guard.sh",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001",
+      "card": "docs/development/current/main/phases/phase-296x/1805-GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001.md",
+      "fixture": "",
+      "legacy_guard": "",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1806-GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001",
+      "card": "docs/development/current/main/phases/phase-296x/1807-DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/current_state_pointer_guard.sh",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001",
+      "card": "docs/development/current/main/phases/phase-296x/1808-DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/current_state_pointer_guard.sh",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "DOCS-CHECK-INDEX-FAMILY-VIEW-001",
+      "card": "docs/development/current/main/phases/phase-296x/1809-DOCS-CHECK-INDEX-FAMILY-VIEW-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_maintenance"
+    },
+    {
+      "token": "SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1810-SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_slice_decomposition_guard.sh",
+      "role": "current_semantic"
+    }
+  ],
+  "forbidden_claims": {
+    "manual_family_selection": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}

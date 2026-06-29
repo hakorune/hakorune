@@ -26,9 +26,9 @@
     "route_chain_closed": 1
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
-    "latest_card": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md"
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md"
   },
   "decision": {
     "kind": "ReadyForMinimalPathMainlinePilot",
@@ -94,12 +94,12 @@
     {
       "kind": "current_state",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "cd642918a96efceeddfff5e0ffb801066ef0817f29fecf32ec5ec83712656beb"
+      "sha256": "0c79de0516437e5b2a7e2aa686115abc0c8fdeaf54ebf2ab1068ecc1c8aa7ae4"
     },
     {
       "kind": "task_order_pointer",
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "8a53669eea9ffe4a0ca38a48818587718b7c114234165481fb949ff0c608ff49"
+      "sha256": "7359a9829dcd0d23c32b3be954c88dc11874ccd9b438868deb4814badb1ee9a0"
     }
   ],
   "source_authority": {
@@ -120,11 +120,11 @@
       "sha256": "82c7ad62d0faeb5396f83d5fc0cfcd17437b029fd13855db662fc425ad3ac752"
     },
     "current_state": {
-      "current_blocker_token": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
-      "latest_card": "MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001",
-      "latest_card_path": "docs/development/current/main/phases/phase-296x/1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md",
+      "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+      "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+      "latest_card_path": "docs/development/current/main/phases/phase-296x/1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "cd642918a96efceeddfff5e0ffb801066ef0817f29fecf32ec5ec83712656beb"
+      "sha256": "0c79de0516437e5b2a7e2aa686115abc0c8fdeaf54ebf2ab1068ecc1c8aa7ae4"
     },
     "design_stop_contract": {
       "path": "tools/checks/current_state_design_stop_contract.txt",
@@ -144,7 +144,7 @@
     },
     "task_order_pointer": {
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "8a53669eea9ffe4a0ca38a48818587718b7c114234165481fb949ff0c608ff49"
+      "sha256": "7359a9829dcd0d23c32b3be954c88dc11874ccd9b438868deb4814badb1ee9a0"
     }
   }
 }

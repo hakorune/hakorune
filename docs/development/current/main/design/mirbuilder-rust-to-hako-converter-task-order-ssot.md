@@ -24,75 +24,36 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001.
-  Keep the 1799 Source Selfhost design stop intact while freezing the
-  consultation-gated wider route-selection resolution and its recovery packs
-  without hand-picking a family.
-  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-resolution-v0
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.
+  Decompose the consultation-gated minimal-path composed closure into native
+  slices. The fixture derives no CandidateEligible slice and no route repair,
+  so Source Selfhost remains stopped at the wider route-selection design stop.
+  output_contract = rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
-    -> artifact-selfhost checkpoint provenance
-    -> mainline pilot provenance
-    -> route-matrix evidence
-    -> SOURCE-SELFHOST-ADOPTION-PLAN-001
-    -> SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001
-    -> VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001
-    -> VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001
-    -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
-    -> VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
-    -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
-    -> VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001
-    -> SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001
-    -> MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001
-    -> SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
     -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-    -> SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001
     -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
     -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
+    -> SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001
+    -> MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001
+    -> GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001
+    -> GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001
+    -> DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001
+    -> DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001
+    -> DOCS-CHECK-INDEX-FAMILY-VIEW-001
+    -> SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001
+    -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
 
 selected evidence:
-  adoption-plan evidence
+  current pointers:
+    -> docs/development/current/main/CURRENT_STATE.toml
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json
+    -> docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json
+  durable policy:
     -> docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
     -> docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
-    -> docs/development/current/main/phases/phase-296x/1779-ARTIFACT-SELFHOST-CHECKPOINT-001.md
-    -> docs/development/current/main/phases/phase-296x/1780-SOURCE-SELFHOST-ADOPTION-PLAN-001.md
-    -> docs/development/current/main/phases/phase-296x/1781-SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001.md
-    -> docs/development/current/main/phases/phase-296x/1782-VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1783-VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001.md
-    -> docs/development/current/main/phases/phase-296x/1784-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1785-MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001.md
-    -> docs/development/current/main/phases/phase-296x/1786-MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1787-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001.md
-    -> docs/development/current/main/phases/phase-296x/1788-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001.md
-    -> docs/development/current/main/phases/phase-296x/1789-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1790-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1791-MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1792-MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002.md
-    -> docs/development/current/main/phases/phase-296x/1793-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-HAKO-ADOPTION-DECISION-001.md
-    -> docs/development/current/main/phases/phase-296x/1794-SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-EXPLICIT-MUTATION-RESOLUTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1795-MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001.md
-    -> docs/development/current/main/phases/phase-296x/1796-MIRBUILDER-VARIABLE-CONTEXT-BOUNDED-NATIVE-SURFACE-READINESS-RESOLVER-001.md
-    -> docs/development/current/main/phases/phase-296x/1797-MIRBUILDER-VARIABLE-CONTEXT-ENTRIES-SNAPSHOT-NEED-RESOLVER-001.md
-    -> docs/development/current/main/phases/phase-296x/1798-SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001.md
-    -> docs/development/current/main/phases/phase-296x/1799-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.md
-    -> docs/development/current/main/phases/phase-296x/1800-SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001.md
-    -> docs/development/current/main/phases/phase-296x/1801-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.md
-    -> docs/development/current/main/phases/phase-296x/1802-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
-    -> docs/development/current/main/phases/phase-296x/296x-1764-MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001.md
-    -> docs/development/current/main/phases/phase-296x/1775-MIRBUILDER-NEXT-HAKO-ADOPTION-CANDIDATE-SELECTION-001.md
-    -> docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
-    -> docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
-    -> docs/development/current/main/CURRENT_STATE.toml
 
 landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and
@@ -100,7 +61,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  Source Selfhost wider route-selection resolution
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -120,7 +81,12 @@ current fail-fast boundary:
   blocks with recovery guidance when no machine-derived native adoption
   candidate remains. The wider route-selection resolution row keeps the lane
   stopped until consultation-gated widening or machine-derived route repair
-  resumes it.
+  resumes it. The current maintenance phase does not change that stop line; it
+  fixes stale guard vocabulary and reduces row-update cost before semantic
+  native-slice decomposition resumes. Native-slice decomposition now consumes
+  the composed-closure evidence and derives no eligible native adoption slice
+  and no concrete route repair. Source Selfhost stays stopped at the wider
+  route-selection design stop.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -155,7 +121,25 @@ latest design decision:
   internal witness/debug/bootstrap-proof lane, and a future interpreter is not
   required for Python-to-Hako projector migration. The next task pack freezes
   the consultation-gated wider route-selection resolution rather than opening
-  route repair or family adoption.
+  route repair or family adoption. The next selected task is a maintenance
+  phase: realign stale guard vocabulary, decouple historical row guards from
+  live CURRENT_STATE pointer churn, and prepare reusable Source Selfhost family
+  guards before native-slice decomposition. The stale readiness guard
+  vocabulary is now represented as structured evidence fields rather than a
+  prose task-order needle. Historical 1801/1802 row guards no longer pin a
+  live `CURRENT_STATE.latest_card` allowlist; `current_state_pointer_guard`
+  owns live pointer validation. Source Selfhost row boilerplate now has a
+  reusable family manifest guard for card / fixture / non-claim existence.
+  `CURRENT_STATE.toml` is now compact pointer state, not a landed-history
+  ledger. This task-order is also compact pointer state; detailed landed rows
+  live in phase cards, git history, and the Source Selfhost family manifest.
+  The check-scripts index now treats Source Selfhost row-specific guards as
+  legacy traceability and keeps the family guard as the stable public entry.
+  The post-maintenance queue is now fixed: next semantic work is native-slice
+  decomposition, and Source Selfhost remains stopped at the wider route
+  selection design stop. The native-slice decomposition result is now fixed:
+  `candidate_eligible_count = 0`, `repairable_inconsistency_count = 0`, and
+  selected next card remains `SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001`.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -198,6 +182,11 @@ classification_partition_complete = 1
 support_lane_projector_as_adoption_candidate = 0
 mut_lease_state = DeferredUntilLiveNeed
 mainline_readiness = Ready
+mainline_readiness_decision = ReadyForMinimalPathMainlinePilot
+mainline_next_unconsumed_edge = Closed
+mainline_generated_hako_executable_closure = Closed
+mainline_same_state_handoff_observed = 1
+mainline_pilot_next_slice = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
 artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
 mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
 source_selfhost_adoption_plan = SOURCE-SELFHOST-ADOPTION-PLAN-001
@@ -227,6 +216,36 @@ next_task_pack = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
 route_selection_basis = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
 route_selection_basis_output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-v0
 route_selection_resolution = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
+route_selection_resolution_output_contract = rust-lifecycle-source-selfhost-wider-route-selection-resolution-v0
+docs_guard_maintenance_reduction = SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001
+docs_guard_maintenance_output = rust-lifecycle-source-selfhost-docs-guard-maintenance-reduction-v0
+readiness_guard_realignment = MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001
+current_pointer_decouple = GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001
+source_selfhost_family_guard = GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001
+source_selfhost_family_guard_output = rust-lifecycle-source-selfhost-family-guard-manifest-v0
+compact_current_state = DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001
+task_order_thinning = DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001
+check_index_family_view = DOCS-CHECK-INDEX-FAMILY-VIEW-001
+post_maintenance_task_inventory = SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001
+maintenance_sequence_next =
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
+deferred_semantic_next =
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
+native_slice_decomposition =
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
+native_slice_decomposition_output =
+  rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0
+native_slice_decomposition_decision = KeepStopped
+native_slice_decomposition_reason = NoCandidateAfterNativeSliceDecomposition
+native_slice_decomposition_candidate_eligible_count = 0
+native_slice_decomposition_repairable_inconsistency_count = 0
+native_slice_decomposition_selected_next_card =
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+native_slice_decomposition_manual_family_selection = 0
+native_slice_decomposition_source_selfhost_claim = 0
+conditional_route_matrix_repair =
+  <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
+  only_after = ConcreteRouteMatrixInconsistency
 old_1650_design_stop = provenance_only
 ```
 
@@ -245,7 +264,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1801-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001.md
+  1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -270,23 +289,23 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. Source Selfhost wider route-selection resolution
-   status=active
-   boundary=machine-checkable stop-line row with recovery packs named; design stop preserved
-   semantic_authority=resolution fixture, basis SSOT, design stop guard
-   non_authority=manual family selection, Source Selfhost claim, Rust deletion, runtime fallback
+1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=stop-line
+   boundary=native-slice decomposition found no candidate and no repair; keep Source Selfhost stopped
+   semantic_authority=design-stop card, wider route-selection basis/resolution fixtures, native-slice decomposition fixture
+   non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
-   status=next
-   boundary=decompose consultation-gated wider route-selection recovery into native-adoptable slices
-   semantic_authority=composed-closure decomposition fixture, native slice decomposition guard
-   non_authority=family selection by hand, route repair without machine evidence
-
-3. <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
+2. <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
    status=conditional
-   boundary=only if the resolution resolver exposes a concrete inconsistency
-   semantic_authority=route repair fixture, route matrix guard
+   boundary=only if native-slice decomposition exposes a concrete route inconsistency
+   semantic_authority=route repair fixture, Source Selfhost family guard
    non_authority=manual family selection, coverage percentage, bundle size
+
+3. <SELECTED-SLICE>-HAKO-ADOPTION-DECISION-001
+   status=conditional
+   boundary=only if a future machine-derived fixture exposes exactly one CandidateEligible native slice
+   semantic_authority=route matrix / native slice fixture, HakoAdopted decision fixture
+   non_authority=generated artifact as edit authority, Source Selfhost claim
 ```
 
 ## Landed Converter Capability Summary
