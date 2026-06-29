@@ -478,6 +478,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-merge-assignment-statement-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_merge_assignment_statement_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-MUTATION-FRAME-CONTRACT-001",
+      "card": "docs/development/current/main/phases/phase-296x/1868-MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-MUTATION-FRAME-CONTRACT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-merge-assignment-statement-mutation-frame-contract-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_merge_assignment_statement_mutation_frame_contract_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
