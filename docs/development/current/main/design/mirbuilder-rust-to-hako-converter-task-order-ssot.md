@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1845-MIRBUILDER-LOOP-COND-BC-ROOT-PIPELINE-PROJECTION-POLICY-001.md
+  1846-MIRBUILDER-LOOP-COND-BC-CARRIER-SYNC-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
