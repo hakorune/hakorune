@@ -22,11 +22,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-CO-GROUP-IF-SURFACE-CLASSIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1856-MIRBUILDER-LOOP-COND-CO-GROUP-IF-SURFACE-CLASSIFICATION-001.md"
-latest_card_summary = """The latest card classifies loop-cond continue-only
-group-if surfaces into branch and nested-loop buckets while keeping Source
-Selfhost stopped."""
+latest_card = "MIRBUILDER-LOOP-COND-CO-GROUP-IF-BRANCH-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1857-MIRBUILDER-LOOP-COND-CO-GROUP-IF-BRANCH-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card marks loop-cond continue-only
+group-if branch lowering as a PrivateGroupIfBranchHelper under
+loop_cond_continue_only while keeping Source Selfhost stopped."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1857 marks loop-cond continue-only group-if branch lowering as PrivateGroupIfBranchHelper.",
   "2026-06-30: 1856 classifies loop-cond continue-only group-if surfaces into two buckets.",
   "2026-06-30: 1855 marks loop-cond continue-only continue-if group-prelude lowering as PrivateContinueIfGroupPreludeHelper.",
   "2026-06-30: 1854 marks loop-cond continue-only continue-if no-else lowering as PrivateContinueIfNoElseHelper.",
@@ -44,5 +45,4 @@ landed_tail = [
   "2026-06-30: 1852 classifies loop-cond continue-only continue-if surfaces into three buckets.",
   "2026-06-30: 1851 marks loop-cond continue-only fallthrough continue cleanup as PrivateRouteCleanupHelper.",
   "2026-06-30: 1850 marks loop-cond continue-only block lowering as PrivateBlockLoweringHelper.",
-  "2026-06-30: 1849 marks loop-cond continue-only root pipeline lowering as RootPipelineIntegrationOwner.",
 ]

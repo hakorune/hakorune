@@ -1,0 +1,53 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoGroupIfBranchProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-GROUP-IF-BRANCH-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondCoGroupIfBranchCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "PrivateGroupIfBranchHelper",
+    "owner_edge": "loop_cond_continue_only",
+    "projection_surface_selected": false,
+    "reason_token": "GroupIfBranchIsRouteLocalLoopCondCoHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs::lower_group_if:L23",
+      "symbol": "lower_group_if",
+      "visibility": "pub(super)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
+    }
+  ],
+  "group_if_branch_evidence": [
+    "let pre_if_map = builder.variable_ctx.variable_map.clone()",
+    "let pre_bindings = current_bindings.clone()",
+    "lower_continue_only_block",
+    "map_mutates_existing_vars",
+    "group-if fallthrough mutates existing vars",
+    "builder.variable_ctx.variable_map = pre_if_map",
+    "*current_bindings = pre_bindings",
+    "lower_if_join_with_branch_lowerers"
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CO-GROUP-IF-NESTED-LOOP-PROJECTION-POLICY-001",
+    "reason_token": "GroupIfBranchDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
