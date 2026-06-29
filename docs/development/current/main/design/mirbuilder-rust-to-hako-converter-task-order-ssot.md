@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1849-MIRBUILDER-LOOP-COND-CO-ROOT-PIPELINE-PROJECTION-POLICY-001.md
+  1850-MIRBUILDER-LOOP-COND-CO-BLOCK-LOWERING-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

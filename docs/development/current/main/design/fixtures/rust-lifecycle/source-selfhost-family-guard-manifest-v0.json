@@ -352,6 +352,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-root-pipeline-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_root_pipeline_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-CO-BLOCK-LOWERING-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1850-MIRBUILDER-LOOP-COND-CO-BLOCK-LOWERING-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-block-lowering-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_co_block_lowering_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
