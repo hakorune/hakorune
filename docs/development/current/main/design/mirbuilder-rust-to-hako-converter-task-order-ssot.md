@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1825-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-001.md
+  1826-MIRBUILDER-CRATE-WIDE-UNCONVERTED-SURFACE-REPORT-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
