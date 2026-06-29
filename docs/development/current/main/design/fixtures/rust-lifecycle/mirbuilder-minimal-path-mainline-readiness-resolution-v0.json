@@ -27,8 +27,8 @@
   },
   "current_state": {
     "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
-    "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md"
+    "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md"
   },
   "decision": {
     "kind": "ReadyForMinimalPathMainlinePilot",
@@ -94,12 +94,12 @@
     {
       "kind": "current_state",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "0c79de0516437e5b2a7e2aa686115abc0c8fdeaf54ebf2ab1068ecc1c8aa7ae4"
+      "sha256": "d0392be89137d4f37b8fbeecf450aea776ebf79a878638d6624b0e77dc85a7a7"
     },
     {
       "kind": "task_order_pointer",
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "7359a9829dcd0d23c32b3be954c88dc11874ccd9b438868deb4814badb1ee9a0"
+      "sha256": "87fb06bc6cff8cc7421686bdb2b0f63e4590e77d13108d3259d8f490e7c67f74"
     }
   ],
   "source_authority": {
@@ -121,10 +121,10 @@
     },
     "current_state": {
       "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
-      "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
-      "latest_card_path": "docs/development/current/main/phases/phase-296x/1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md",
+      "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001",
+      "latest_card_path": "docs/development/current/main/phases/phase-296x/1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md",
       "path": "docs/development/current/main/CURRENT_STATE.toml",
-      "sha256": "0c79de0516437e5b2a7e2aa686115abc0c8fdeaf54ebf2ab1068ecc1c8aa7ae4"
+      "sha256": "d0392be89137d4f37b8fbeecf450aea776ebf79a878638d6624b0e77dc85a7a7"
     },
     "design_stop_contract": {
       "path": "tools/checks/current_state_design_stop_contract.txt",
@@ -144,7 +144,7 @@
     },
     "task_order_pointer": {
       "path": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
-      "sha256": "7359a9829dcd0d23c32b3be954c88dc11874ccd9b438868deb4814badb1ee9a0"
+      "sha256": "87fb06bc6cff8cc7421686bdb2b0f63e4590e77d13108d3259d8f490e7c67f74"
     }
   }
 }

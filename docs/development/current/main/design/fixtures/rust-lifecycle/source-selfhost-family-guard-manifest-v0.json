@@ -86,6 +86,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_slice_decomposition_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_owner_seed_inventory_guard.sh",
+      "role": "current_semantic"
     }
   ],
   "forbidden_claims": {

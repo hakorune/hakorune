@@ -24,11 +24,12 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.
-  Decompose the consultation-gated minimal-path composed closure into native
-  slices. The fixture derives no CandidateEligible slice and no route repair,
-  so Source Selfhost remains stopped at the wider route-selection design stop.
-  output_contract = rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.
+  Inventory whether the generated minimal-path composed closure contains a
+  leaf semantic owner that can become a native Hako source owner seed. The
+  fixture derives no NativeOwnerSeedCandidate and keeps Source Selfhost
+  stopped at the wider route-selection design stop.
+  output_contract = rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -44,6 +45,7 @@ selected decision slice:
     -> DOCS-CHECK-INDEX-FAMILY-VIEW-001
     -> SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001
     -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
+    -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001
 
 selected evidence:
   current pointers:
@@ -140,6 +142,9 @@ latest design decision:
   selection design stop. The native-slice decomposition result is now fixed:
   `candidate_eligible_count = 0`, `repairable_inconsistency_count = 0`, and
   selected next card remains `SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001`.
+  Native owner seed inventory now confirms that the composed closure is not a
+  semantic family owner, the generated artifact is not edit authority, and no
+  leaf native owner seed is machine-derived.
 
 ## Source Selfhost Adoption Plan Evidence
 
@@ -243,6 +248,17 @@ native_slice_decomposition_selected_next_card =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 native_slice_decomposition_manual_family_selection = 0
 native_slice_decomposition_source_selfhost_claim = 0
+native_owner_seed_inventory =
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001
+native_owner_seed_inventory_output =
+  rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0
+native_owner_seed_inventory_decision = KeepStopped
+native_owner_seed_inventory_reason = NoNativeOwnerSeedCandidate
+native_owner_seed_candidate_count = 0
+composition_owner_as_semantic_owner = 0
+generated_artifact_as_edit_authority = 0
+native_owner_seed_selected_next_card =
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 conditional_route_matrix_repair =
   <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
   only_after = ConcreteRouteMatrixInconsistency
@@ -264,7 +280,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md
+  1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -291,21 +307,21 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=native-slice decomposition found no candidate and no repair; keep Source Selfhost stopped
-   semantic_authority=design-stop card, wider route-selection basis/resolution fixtures, native-slice decomposition fixture
+   boundary=native owner seed inventory found no leaf seed; keep Source Selfhost stopped
+   semantic_authority=design-stop card, wider route-selection basis/resolution fixtures, native-slice decomposition fixture, native owner seed inventory fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
+2. <LEAF-OWNER>-HAKO-NATIVE-SOURCE-OWNER-SEED-001
+   status=conditional
+   boundary=only if a future machine-derived fixture exposes exactly one NativeOwnerSeedCandidate
+   semantic_authority=native owner seed fixture, Derived-to-Native artifact model
+   non_authority=composition owner as semantic family owner, generated artifact as edit authority
+
+3. <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
    status=conditional
    boundary=only if native-slice decomposition exposes a concrete route inconsistency
    semantic_authority=route repair fixture, Source Selfhost family guard
    non_authority=manual family selection, coverage percentage, bundle size
-
-3. <SELECTED-SLICE>-HAKO-ADOPTION-DECISION-001
-   status=conditional
-   boundary=only if a future machine-derived fixture exposes exactly one CandidateEligible native slice
-   semantic_authority=route matrix / native slice fixture, HakoAdopted decision fixture
-   non_authority=generated artifact as edit authority, Source Selfhost claim
 ```
 
 ## Landed Converter Capability Summary
