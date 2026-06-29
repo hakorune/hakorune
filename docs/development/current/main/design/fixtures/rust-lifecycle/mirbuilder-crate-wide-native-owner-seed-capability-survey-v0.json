@@ -1,0 +1,327 @@
+{
+  "claims": {
+    "composition_owner_as_semantic_owner": 0,
+    "coverage_percentage_as_proof": 0,
+    "each_item_has_evidence_refs": 1,
+    "each_item_has_stable_classification": 1,
+    "each_non_convertible_item_has_blocker_token": 1,
+    "generated_artifact_as_edit_authority": 0,
+    "manual_family_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "selected_source_surfaces_partitioned_exactly_once": 1,
+    "source_selfhost_claim": 0,
+    "support_lane_projector_as_hako_adoption_candidate": 0,
+    "survey_scope_explicit": 1,
+    "survey_unit_semantic_owner_edge": 1
+  },
+  "classification_enum": [
+    "AlreadyAdopted",
+    "NativeSeedReady",
+    "ConvertibleLeaf",
+    "SupportLaneSeedPilotCandidate",
+    "SupportLaneOnly",
+    "GeneratedArtifactOnly",
+    "BoundedSurfaceOnly",
+    "CompositeNeedsDecomposition",
+    "NonSemanticIntegrationOwner",
+    "BorrowSurfacePolicyKnown",
+    "BorrowSurfaceNeedsPolicy",
+    "MissingProjectionPolicy",
+    "MissingVerifierOrOracle",
+    "MissingDeterministicRegeneration",
+    "RouteRepairNeeded",
+    "BlockedDesignStop"
+  ],
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoUniqueNextOwner",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_owner_edge_id": null
+  },
+  "input_authority": {
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "generated_artifact_native_owner_seed_candidate_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-native-owner-seed-candidate-resolution-v0.json",
+    "generated_artifact_to_native_owner_seed_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-to-native-owner-seed-policy-v0.json",
+    "route_manifest": "lang/generated/rust_derived/hakorune_mir_builder/family_routes.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "source_selfhost_next_route_family_selection_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "input_scope": {
+    "crate": "hakorune_mir_builder",
+    "source_roots": [
+      "src/mir/builder"
+    ],
+    "survey_unit": "semantic_owner_edge"
+  },
+  "kind": "MirBuilderCrateWideNativeOwnerSeedCapabilitySurveyV1",
+  "scanned_items": [
+    {
+      "artifact_state": "None",
+      "blockers": [
+        "AlreadyHakoAdopted"
+      ],
+      "classification": "AlreadyAdopted",
+      "current_route_state": "Unknown",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "HakoAdopted",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "allocation_policy_prepared_state_next_value_id",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "PolicyAlreadyAdopted",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "MainlineArtifactPresent",
+      "blockers": [
+        "AlreadyHakoAdopted"
+      ],
+      "classification": "AlreadyAdopted",
+      "current_route_state": "DerivedMainline",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "lang/generated/rust_derived/hakorune_mir_builder/binding_context.artifact.json"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "HakoAdopted",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "binding_context",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "PolicyAlreadyAdopted",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "None",
+      "blockers": [
+        "NotSupportLaneOnly"
+      ],
+      "classification": "SupportLaneOnly",
+      "current_route_state": "Unknown",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "None",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "compiler_library_helpers",
+      "owner_kind": "SupportLaneProjector",
+      "reason_token": "CompilerLibraryHelpersAreNotFamilyAdoptionCandidates",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "MainlineArtifactPresent",
+      "blockers": [
+        "AlreadyHakoAdopted"
+      ],
+      "classification": "AlreadyAdopted",
+      "current_route_state": "DerivedMainline",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "lang/generated/rust_derived/hakorune_mir_builder/box_compilation_context.artifact.json"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "HakoAdopted",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "context",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "PolicyAlreadyAdopted",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "None",
+      "blockers": [
+        "AlreadyHakoAdopted"
+      ],
+      "classification": "AlreadyAdopted",
+      "current_route_state": "Unknown",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "HakoAdopted",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "function_region_stack_pop",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "MainlineArtifactPresent",
+      "blockers": [
+        "LeafSemanticOwner",
+        "NotCompositionOwner"
+      ],
+      "classification": "GeneratedArtifactOnly",
+      "current_route_state": "DerivedMainline",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_minimal_path_composed_execution_closure.artifact.json"
+      ],
+      "minimal_path_membership": "InMinimalPath",
+      "native_authority_state": "GeneratedArtifactOnly",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "minimal_path_composed_execution_closure",
+      "owner_kind": "IntegrationOwner",
+      "reason_token": "WiderRouteSelectionConsultationGated",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "None",
+      "blockers": [
+        "AlreadyHakoAdopted"
+      ],
+      "classification": "AlreadyAdopted",
+      "current_route_state": "Unknown",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "HakoAdopted",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "return_emission",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "None",
+      "blockers": [
+        "AlreadyHakoAdopted"
+      ],
+      "classification": "AlreadyAdopted",
+      "current_route_state": "Unknown",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "HakoAdopted",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "slot_registry_release",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "MainlineArtifactPresent",
+      "blockers": [
+        "NotBoundedSurfaceOnly"
+      ],
+      "classification": "BoundedSurfaceOnly",
+      "current_route_state": "DerivedMainline",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json",
+        "lang/generated/rust_derived/hakorune_mir_builder/variable_context_explicit_carrier_snapshot.artifact.json"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "BoundedSurfaceOnly",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "variable_context",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "VariableContextBoundedSurfaceAdoptedFullClaimParked",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    },
+    {
+      "artifact_state": "None",
+      "blockers": [
+        "NotBoundedSurfaceOnly"
+      ],
+      "classification": "BoundedSurfaceOnly",
+      "current_route_state": "Unknown",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-next-route-family-selection-policy-v0.json"
+      ],
+      "minimal_path_membership": "Unknown",
+      "native_authority_state": "BoundedSurfaceOnly",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_id": "variable_context_immutable_borrow",
+      "owner_kind": "LeafSemanticOwner",
+      "reason_token": "VariableContextImmutableBorrowCoveredByOwnedSnapshotSurface",
+      "rust_symbols": [],
+      "source_paths": [
+        "src/mir/builder"
+      ]
+    }
+  ],
+  "schema_version": 0,
+  "selection_rules": {
+    "generated_artifact_presence_is_priority_signal_not_proof": 1,
+    "leaf_semantic_owner_before_composite_owner": 1,
+    "lexical_owner_edge_id_final_tiebreaker": 1,
+    "minimal_path_membership_is_priority_signal_not_proof": 1,
+    "native_seed_ready_before_new_seed_materialization": 1,
+    "route_repair_before_adoption_or_seed": 1
+  },
+  "source_inventory": {
+    "public_rust_function_symbol_count": 1489,
+    "rust_file_count": 675,
+    "rust_function_symbol_count": 3014,
+    "source_roots": [
+      "src/mir/builder"
+    ]
+  },
+  "summary": {
+    "already_adopted_count": 6,
+    "borrow_policy_count": 0,
+    "bounded_surface_only_count": 2,
+    "composite_needs_decomposition_count": 0,
+    "convertible_leaf_count": 0,
+    "design_stop_count": 1,
+    "generated_artifact_only_count": 1,
+    "missing_projection_count": 0,
+    "missing_verifier_or_oracle_count": 0,
+    "native_seed_ready_count": 0,
+    "route_repair_needed_count": 0,
+    "scanned_item_count": 10,
+    "support_lane_only_count": 1,
+    "support_lane_seed_candidate_count": 0
+  },
+  "token": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-001"
+}
