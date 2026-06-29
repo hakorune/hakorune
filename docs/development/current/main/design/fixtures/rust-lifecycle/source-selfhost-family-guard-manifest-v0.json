@@ -163,6 +163,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-hako-adoption-decision-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_hako_adoption_decision_guard.sh",
       "role": "current_semantic"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-UNBLOCK-TASK-BREAKDOWN-001",
+      "card": "docs/development/current/main/phases/phase-296x/1823-SOURCE-SELFHOST-WIDER-ROUTE-UNBLOCK-TASK-BREAKDOWN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-unblock-task-breakdown-v0.json",
+      "legacy_guard": "",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

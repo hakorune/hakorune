@@ -22,11 +22,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1822-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts the narrow SlotRegistryRelease
-leaf semantic owner after native source seed materialization. It keeps Source
-Selfhost, Rust deletion, runtime fallback, backend route, and ABI claims at 0."""
+latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-UNBLOCK-TASK-BREAKDOWN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1823-SOURCE-SELFHOST-WIDER-ROUTE-UNBLOCK-TASK-BREAKDOWN-001.md"
+latest_card_summary = """The latest card taskizes the Source Selfhost wider
+route design stop into a machine-derived unblock lane. It selects the generated
+artifact native-owner-seed candidate resolver as the next allowed task while
+keeping Source Selfhost, fallback, backend route, ABI, and manual selection
+claims at 0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -37,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1823 taskizes the wider route stop into a machine-derived unblock lane without selecting a family.",
   "2026-06-29: 1822 adopts SlotRegistryRelease as a narrow native Hako leaf owner while keeping Source Selfhost stopped.",
   "2026-06-29: 1821 materializes SlotRegistryRelease native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
   "2026-06-29: 1820 selects SlotRegistryRelease as the next native source seed pilot target after ReturnEmission and FunctionRegionStackPop adoption.",
@@ -44,5 +47,4 @@ landed_tail = [
   "2026-06-29: 1818 materializes FunctionRegionStackPop native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
   "2026-06-29: 1817 selects FunctionRegionStackPop as the next native source seed pilot target after ReturnEmission adoption.",
   "2026-06-29: 1816 adopts ReturnEmission as a narrow native Hako leaf owner while keeping Source Selfhost stopped.",
-  "2026-06-29: 1815 materializes ReturnEmission native source seed outside lang/generated and defers HakoAdopted to a separate decision.",
 ]

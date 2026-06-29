@@ -1,0 +1,123 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostWiderRouteUnblockTaskBreakdownV1",
+  "token": "SOURCE-SELFHOST-WIDER-ROUTE-UNBLOCK-TASK-BREAKDOWN-001",
+  "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+  "input_authority": {
+    "wider_route_selection_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json",
+    "native_slice_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0.json",
+    "native_owner_seed_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0.json",
+    "generated_artifact_to_native_owner_seed_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-to-native-owner-seed-policy-v0.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml"
+  },
+  "current_diagnosis": {
+    "converter_broken": false,
+    "source_selfhost_state": "Stopped",
+    "reason_token": "NoEligibleNativeAdoptionCandidate",
+    "candidate_eligible_count": 0,
+    "repairable_inconsistency_count": 0,
+    "native_owner_seed_candidate_count": 0
+  },
+  "selected_design": {
+    "kind": "GeneratedArtifactOnlyToNativeOwnerSeedResolution",
+    "summary": "Resolve a leaf semantic owner under the generated-artifact-to-native-owner-seed policy before any seed materialization or adoption decision.",
+    "next_unblock_card": "MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001"
+  },
+  "ordered_tasks": [
+    {
+      "order": 1,
+      "token": "MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001",
+      "kind": "resolver",
+      "open_condition": "Current Source Selfhost blocker remains a wider route-selection design stop and generated-artifact-to-native-owner-seed policy is defined.",
+      "allowed_outcomes": [
+        "SelectSeedMaterialization",
+        "SelectFurtherLeafDecomposition",
+        "KeepStopped"
+      ],
+      "acceptance": [
+        "exactly_one_machine_derived_leaf_semantic_owner_or_keep_stopped",
+        "manual_family_selection = 0",
+        "composition_owner_as_semantic_owner = 0",
+        "generated_artifact_as_edit_authority = 0"
+      ]
+    },
+    {
+      "order": 2,
+      "token": "<ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001",
+      "kind": "conditional_repair",
+      "open_condition": "A resolver emits exactly one ConcreteRouteMatrixInconsistency.",
+      "allowed_outcomes": [
+        "CandidateEligible",
+        "Parked(reason)"
+      ],
+      "acceptance": [
+        "repairable_inconsistency_count = 1",
+        "selected_route_family_is_machine_derived = 1",
+        "manual_family_selection = 0"
+      ]
+    },
+    {
+      "order": 3,
+      "token": "<LEAF-OWNER>-HAKO-NATIVE-SOURCE-OWNER-SEED-001",
+      "kind": "conditional_seed_materialization",
+      "open_condition": "Exactly one leaf semantic owner is machine-derived as NativeOwnerSeedCandidate.",
+      "allowed_outcomes": [
+        "SeedMaterialized",
+        "Blocked(reason)"
+      ],
+      "acceptance": [
+        "native_source_owner_materialized = 1",
+        "generator_overwrite_guard_planned = 1",
+        "family_adoption_decision = 0",
+        "source_selfhost_claim = 0"
+      ]
+    },
+    {
+      "order": 4,
+      "token": "<LEAF-OWNER>-HAKO-ADOPTION-DECISION-001",
+      "kind": "conditional_adoption_decision",
+      "open_condition": "The selected leaf's native source owner seed is green.",
+      "allowed_outcomes": [
+        "Adopt",
+        "Defer(reason)",
+        "Reject(reason)"
+      ],
+      "acceptance": [
+        "native_source_owner_present = 1",
+        "generator_overwrite_guard = 1",
+        "rust_bootstrap_oracle_retained = 1",
+        "source_selfhost_claim = 0"
+      ]
+    }
+  ],
+  "blocked_recovery_message": {
+    "reason": "NoEligibleNativeAdoptionCandidate",
+    "next_action": "Run MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001. If it cannot derive exactly one leaf semantic owner or route repair, keep SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 active.",
+    "do_not": [
+      "manual_family_selection",
+      "runtime_fallback",
+      "new_backend_route",
+      "new_abi",
+      "new_python_semantic_projector",
+      "runner_semantic_owner",
+      "generated_artifact_as_edit_authority",
+      "source_selfhost_claim"
+    ]
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "composition_owner_as_semantic_owner": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "native_source_owner_materialized": 0,
+    "family_adoption_decision": 0,
+    "route_repair": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}
