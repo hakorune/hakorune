@@ -157,6 +157,7 @@ traceability, not daily scanning; use the quick index above first.
 | `tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_native_source_seed_guard.sh` | MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001 の ReturnEmission native source seed guard。native `.hako` seed を `lang/generated` 外へ materialize し、generator overwrite guard を固定する一方で HakoAdopted / Source Selfhost claim は開かない。 |
 | `tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_adoption_decision_guard.sh` | MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001 の ReturnEmission HakoAdopted decision guard。native source seed / HakoMainline promotion / verifier evidence を消費して narrow leaf owner を Adopt し、Source Selfhost claim は開かない。 |
 | `tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_002_guard.sh` | MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002 の native owner seed pilot target selection guard。ReturnEmission を AlreadyAdopted として除外し、stable priority で FunctionRegionStackPop を次の native source seed materialization target に選ぶ。 |
+| `tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_hako_native_source_seed_guard.sh` | MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001 の FunctionRegionStackPop native source seed guard。prepared region-stack pop native `.hako` seed を `lang/generated` 外へ materialize し、host env lookup / fallback / Source Selfhost claim を開かない。 |
 
 Source Selfhost row-specific guards below are legacy traceability entries. New
 Source Selfhost rows should prefer the reusable family guard unless the row owns

@@ -302,6 +302,12 @@ native_owner_seed_pilot_target_selection_002 =
 native_owner_seed_pilot_002_selected_target = FunctionRegionStackPop
 native_owner_seed_pilot_002_next_card =
   MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
+function_region_stack_pop_native_source_seed =
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
+function_region_stack_pop_native_source_path =
+  lang/src/compiler/lib/function_region_stack_pop_native_seed.hako
+function_region_stack_pop_generator_overwrite_guard = 1
+function_region_stack_pop_hako_adoption_decision = deferred
 support_lane_projector_as_hako_adoption_candidate = 0
 support_lane_projector_as_seed_pilot_target = 1
 conditional_route_matrix_repair =
@@ -325,7 +331,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1817-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002.md
+  1818-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -352,8 +358,8 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=ReturnEmission is adopted and FunctionRegionStackPop seed is selected, but Source Selfhost remains unclaimed
-   semantic_authority=design-stop card, ReturnEmission adoption fixture, seed pilot target selection fixture
+   boundary=ReturnEmission is adopted and FunctionRegionStackPop seed exists, but Source Selfhost remains unclaimed
+   semantic_authority=design-stop card, ReturnEmission adoption fixture, FunctionRegionStackPop seed fixture
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
 2. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
@@ -369,7 +375,7 @@ history, not in this task-order SSOT.
    non_authority=manual family selection, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001
 ```
 
 ## Landed Converter Capability Summary

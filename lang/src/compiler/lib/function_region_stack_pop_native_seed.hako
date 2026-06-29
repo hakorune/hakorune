@@ -1,0 +1,79 @@
+// function_region_stack_pop_native_seed.hako - native source seed for the
+// FunctionRegionStackPop MirBuilder leaf family.
+//
+// Responsibility:
+// - provide a native Hako source seed for prepared region-stack pop behavior
+// - preserve the narrow generated artifact behavior in editable source form
+// - stay outside the generated artifact output tree
+//
+// Non-responsibility:
+// - HakoAdopted decision
+// - Source Selfhost claim
+// - host environment lookup
+// - slot registry release
+// - metadata publication
+// - semantic refresh
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+//
+// native-source-seed:
+//   MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::function_region_stack_pop
+// generated-artifact-source:
+//   lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.hako
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+box PreparedRegionTraceStateBox {
+    trace_enabled: i64
+    current_region_stack: ArrayBox
+    stack_size_before: i64
+    stack_size_after: i64
+    pop_attempted: i64
+
+    birth() {
+        me.trace_enabled = 0
+        me.current_region_stack = new ArrayBox()
+        me.stack_size_before = 0
+        me.stack_size_after = 0
+        me.pop_attempted = 0
+    }
+}
+
+static box FunctionRegionStackPopNativeSeedApi {
+    pop_option(stack): Option<i64> {
+        local n = stack.length()
+        if n == 0 {
+            return Option::None()
+        }
+        local value = BoxHelpers.array_get(stack, n - 1)
+        stack.remove(n - 1)
+        return Option::Some(value)
+    }
+
+    apply(state): i64 {
+        local before = state.current_region_stack.length()
+        state.stack_size_before = before
+        state.pop_attempted = 0
+        if state.trace_enabled == 1 {
+            state.pop_attempted = 1
+            FunctionRegionStackPopNativeSeedApi.pop_option(state.current_region_stack)
+        }
+        local after = state.current_region_stack.length()
+        state.stack_size_after = after
+        return 0
+    }
+}
+
+static box FunctionRegionStackPopApi {
+    pop_option(stack): Option<i64> {
+        return FunctionRegionStackPopNativeSeedApi.pop_option(stack)
+    }
+
+    apply(state): i64 {
+        return FunctionRegionStackPopNativeSeedApi.apply(state)
+    }
+}

@@ -23,6 +23,8 @@ Scope:
   - `next_value_id_prepared_state_kernel.hako`
 - first native source seed:
   - `return_emission_native_seed.hako`
+- second native source seed:
+  - `function_region_stack_pop_native_seed.hako`
 - second shadow-projector support library:
   - `function_region_stack_pop_projector.hako`
 - third shadow-projector support library:
