@@ -1,0 +1,52 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondCoContinueIfNoElseProjectionPolicyV1",
+  "token": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-NO-ELSE-PROJECTION-POLICY-001",
+  "input_state": {
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "source_cluster": "LoopCondCoContinueIfNoElseCluster",
+    "source_count": 1
+  },
+  "selected_policy": {
+    "policy": "PrivateContinueIfNoElseHelper",
+    "owner_edge": "loop_cond_continue_only",
+    "projection_surface_selected": false,
+    "reason_token": "ContinueIfNoElseIsRouteLocalLoopCondCoHelper"
+  },
+  "source_surfaces": [
+    {
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_no_else:L51",
+      "symbol": "lower_continue_if_no_else",
+      "visibility": "pub(super)",
+      "return_type": "Result<Vec<LoweredRecipe>, String>",
+      "expected_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
+    }
+  ],
+  "no_else_evidence": [
+    "lower_continue_if_prelude_span",
+    "continue-if prelude contains exit",
+    "build_continue_with_phi_args",
+    "then_plans.push(CorePlan::Exit(exit))",
+    "builder.variable_ctx.variable_map = saved_map",
+    "*current_bindings = saved_bindings",
+    "lower_if_join_with_branch_lowerers"
+  ],
+  "decision": {
+    "kind": "KeepParentOwner",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-GROUP-PRELUDE-PROJECTION-POLICY-001",
+    "reason_token": "ContinueIfNoElseDoesNotOpenStandaloneProjectionOwner"
+  },
+  "claims": {
+    "manual_family_selection": 0,
+    "projection_surface_selected": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  }
+}

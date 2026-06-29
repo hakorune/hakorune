@@ -45030,7 +45030,7 @@
   "provenance": {
     "native_owner_seed_capability_survey_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d",
     "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
-    "source_selfhost_family_guard_manifest_hash": "754eece35ee0588c29a3d2932f4517687963a546870544c34dbe67a595a14cc4",
+    "source_selfhost_family_guard_manifest_hash": "6574b5e089013973ccf2e97a6d423aa96c0ddde3786fef54fc8a905f56a55b11",
     "tool_version": "regex_source_text_v0",
     "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"
   },
@@ -45091,7 +45091,7 @@
   },
   "schema_version": 0,
   "source_inventory": {
-    "family_manifest_rows": 53,
+    "family_manifest_rows": 54,
     "public_rust_surface_count": 1556,
     "reported_item_count": 1584,
     "rust_surface_count": 3120,

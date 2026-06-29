@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1853-MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-PRELUDE-SPAN-PROJECTION-POLICY-001.md
+  1854-MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-NO-ELSE-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
