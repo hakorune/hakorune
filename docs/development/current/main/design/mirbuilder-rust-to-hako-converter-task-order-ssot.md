@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1861-MIRBUILDER-LOOP-COND-CO-HELPER-CARRIER-SYNC-PROJECTION-POLICY-001.md
+  1862-MIRBUILDER-LOOP-COND-CO-STATEMENT-LOWERING-SURFACE-CLASSIFICATION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
