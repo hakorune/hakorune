@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-KIND-RESOLUTION-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1918-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-KIND-RESOLUTION-PROJECTION-POLICY-001.md"
+latest_card = "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1919-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-CLOSEOUT-001.md"
 latest_card_summary = """The latest card materializes the GenericLoop
-body-check step-kind dispatch resolution and selects step-validation closeout
-next."""
+body-check step validation closeout and returns selection to the projection
+policy priority resolver."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1919 closes the GenericLoop body-check step validation subcluster.",
   "2026-06-30: 1918 materializes the GenericLoop body-check step-kind dispatch resolution.",
   "2026-06-30: 1917 materializes the GenericLoop break-else-if step validation descriptor.",
   "2026-06-30: 1916 materializes the GenericLoop continue-if step validation descriptor.",
@@ -64,5 +65,4 @@ landed_tail = [
   "2026-06-30: 1896 decomposes CallLoweringCluster into subclusters before any projection policy is selected.",
   "2026-06-30: 1895 keeps PlanPartsAssembly shape / exit-path / conditional-update predicate surfaces under their parent owner.",
   "2026-06-30: 1894 keeps PlanFacts predicate / matcher / diagnostic helper surfaces under their parent owner.",
-  "2026-06-30: 1893 keeps GenericLoopBodyFeature predicate / matcher surfaces under their parent owner.",
 ]

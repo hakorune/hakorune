@@ -1,0 +1,58 @@
+{
+  "claims": {
+    "docs_only_closeout": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "machine_checkable_fixture": 1,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "closed_subcluster": {
+    "closed_reason_token": "AllStepValidationDescriptorsMaterialized",
+    "dispatch_resolution_selected": true,
+    "materialized_leaf_count": 4,
+    "parent_token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-PROJECTION-POLICY-001",
+    "subcluster_id": "BodyCheckStepValidation"
+  },
+  "closeout_boundary": {
+    "docs_only_closeout": 0,
+    "hako_projection_selected": 0,
+    "machine_checkable_fixture": 1,
+    "next_owner_returned_to_priority_resolver": 1
+  },
+  "consumed_descriptors": {
+    "break_else_if_descriptor": "generic_loop_body_check_break_else_if_step_validation_v1",
+    "continue_if_descriptor": "generic_loop_body_check_continue_if_step_validation_v1",
+    "in_body_descriptor": "generic_loop_body_check_in_body_step_validation_v1",
+    "step_kind_dispatch": "SourceExtractedStepKindDispatchResolution",
+    "tail_probe_descriptor": "generic_loop_body_check_tail_control_flow_probe_v1"
+  },
+  "decision": {
+    "kind": "CloseSubclusterAndReturnToPriorityResolver",
+    "reason_token": "BodyCheckStepValidationClosed",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "break_else_if_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-break-else-if-step-validation-projection-policy-v0.json",
+    "continue_if_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-continue-if-step-validation-projection-policy-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "in_body_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-in-body-step-validation-projection-policy-v0.json",
+    "parent_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-validation-projection-policy-v0.json",
+    "step_kind_resolution_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-kind-resolution-projection-policy-v0.json",
+    "tail_control_flow_probe_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-tail-control-flow-probe-projection-policy-v0.json"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckStepValidationCloseoutV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-CLOSEOUT-001"
+}
