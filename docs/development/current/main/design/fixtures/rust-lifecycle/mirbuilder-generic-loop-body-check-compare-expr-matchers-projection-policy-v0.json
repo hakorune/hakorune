@@ -1,0 +1,141 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "matcher_descriptor_selected": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMatcherDescriptorPolicy",
+    "reason_token": "CompareExpressionMatcherDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTROL-RETURN-EXPR-MATCHERS-PROJECTION-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "expr_matchers_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-expr-matchers-projection-policy-v0.json",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-call-expr-matchers-projection-policy-v0.json",
+    "selected_subcluster_id": "CompareExprMatchers",
+    "source_count": 3,
+    "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckCompareExprMatchersProjectionPolicyV1",
+  "matcher_descriptor": {
+    "ast_root": "ASTNode::BinaryOp",
+    "descriptor_id": "generic_loop_body_check_compare_expr_matchers_v1",
+    "entries": [
+      {
+        "ast_root": "ASTNode::BinaryOp",
+        "literal_type": "LiteralValue::Integer",
+        "operand_policy": "LoopVarIntegerLiteralCommutative",
+        "operator_set": [
+          "Less"
+        ],
+        "rust_pattern": "BinaryOp(Less, loop_var, integer literal value)",
+        "source_markers": [
+          "BinaryOperator::Less",
+          "LiteralValue::Integer",
+          "is_loop_var",
+          "is_literal"
+        ],
+        "symbol": "matches_loop_var_less_than_literal"
+      },
+      {
+        "ast_root": "ASTNode::BinaryOp",
+        "literal_type": "LiteralValue::Integer",
+        "operand_policy": "LoopVarIntegerLiteralCommutative",
+        "operator_set": [
+          "Equal"
+        ],
+        "rust_pattern": "BinaryOp(Equal, loop_var, integer literal value)",
+        "source_markers": [
+          "BinaryOperator::Equal",
+          "LiteralValue::Integer",
+          "is_loop_var",
+          "is_literal"
+        ],
+        "symbol": "matches_loop_var_equal_literal"
+      },
+      {
+        "ast_root": "ASTNode::BinaryOp",
+        "literal_type": "None",
+        "operand_policy": "LoopVarAnyVariableCommutative",
+        "operator_set": [
+          "Less",
+          "Greater",
+          "LessEqual",
+          "GreaterEqual"
+        ],
+        "rust_pattern": "BinaryOp(relational, loop_var, any variable)",
+        "source_markers": [
+          "BinaryOperator::Less",
+          "BinaryOperator::Greater",
+          "BinaryOperator::LessEqual",
+          "BinaryOperator::GreaterEqual",
+          "is_var",
+          "is_loop_var"
+        ],
+        "symbol": "matches_loop_var_compare"
+      }
+    ],
+    "entry_count": 3,
+    "source_extraction": "rust_binary_op_patterns"
+  },
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "hako_projection_selected": false,
+    "matcher_descriptor_selected": true,
+    "owner_edge": "mirbuilder::generic_loop_body_check_compare_expr_matchers",
+    "policy": "SourceExtractedCompareMatcherDescriptor",
+    "reason_token": "CompareExpressionMatchersRequireDescriptorBeforeHakoProjection"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_compare_expr_matchers",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "line": 4,
+      "matcher_role": "binary_op_predicate",
+      "params": "expr: &ASTNode,\n    loop_var: &str,\n    value: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_less_than_literal:L4",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "symbol": "matches_loop_var_less_than_literal"
+    },
+    {
+      "line": 34,
+      "matcher_role": "binary_op_predicate",
+      "params": "expr: &ASTNode,\n    loop_var: &str,\n    value: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_equal_literal:L34",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "symbol": "matches_loop_var_equal_literal"
+    },
+    {
+      "line": 64,
+      "matcher_role": "binary_op_predicate",
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_compare:L64",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "symbol": "matches_loop_var_compare"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-COMPARE-EXPR-MATCHERS-PROJECTION-POLICY-001"
+}
