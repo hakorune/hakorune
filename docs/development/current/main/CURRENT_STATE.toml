@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1884-MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves the JoinIRRouteVerify
-facts/diagnostics/merge-helper cluster as KeepParentOwner: route verify helper
-surfaces do not open a standalone Hako projection surface."""
+latest_card = "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1885-MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card resolves the LoopCondReturnInBody
+cleanup predicate as KeepParentOwner: body-exit analysis does not open a
+standalone Hako projection surface."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1885 keeps LoopCondReturnInBody cleanup predicate under its parent owner.",
   "2026-06-30: 1884 keeps JoinIR route verify helpers under their parent owner.",
   "2026-06-30: 1883 keeps JoinIR route registry predicates/utilities under their parent owner.",
   "2026-06-30: 1882 keeps OtherJoinIRPlan helpers under the JoinIR plan parent owner.",
@@ -46,5 +47,4 @@ landed_tail = [
   "2026-06-30: 1880 filters already-landed projection policy decisions.",
   "2026-06-30: 1879 resolves projection-policy cluster priority.",
   "2026-06-30: 1878 inventories shape signatures for MissingProjectionPolicy clusters.",
-  "2026-06-30: 1877 repairs stable deny reasons for MissingProjectionPolicy surfaces.",
 ]

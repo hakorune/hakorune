@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1884-MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-PROJECTION-POLICY-001.md
+  1885-MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
