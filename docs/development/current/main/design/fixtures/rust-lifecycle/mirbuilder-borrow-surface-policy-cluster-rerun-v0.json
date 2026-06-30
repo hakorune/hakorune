@@ -1,0 +1,82 @@
+{
+  "candidate_pool": {
+    "returned_mutable_borrow_cluster_count": 3,
+    "returned_read_borrow_cluster_count": 58,
+    "selection_eligible_cluster_count": 61
+  },
+  "claims": {
+    "borrow_policy_cluster_selected": 1,
+    "borrow_policy_selected": 0,
+    "cluster_size_as_proof": 0,
+    "explicit_mutation_api_selected_for_new_surface": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_borrow_policy_selection": 0,
+    "mut_lease_selected": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owned_read_snapshot_selected_for_new_surface": 0,
+    "owner_edge_confidence_repair_consumed": 1,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "strict_rules_changed": 0
+  },
+  "decision": {
+    "kind": "SelectBorrowProjectionPolicyCluster",
+    "reason_token": "HighestRiskBorrowPolicyClusterSelected",
+    "selected_cluster_id": "borrow_surface::ReturnedMutableBorrow::mutable_ref::mutable_receiver::loop_cond_return_in_body_phi_materializer::None",
+    "selected_next_card": "MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001"
+  },
+  "input_authority": {
+    "borrow_surface_owner_edge_confidence_repair": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-owner-edge-confidence-repair-v0.json",
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml"
+  },
+  "kind": "MirBuilderBorrowSurfacePolicyClusterRerunV1",
+  "provenance": {
+    "borrow_surface_owner_edge_confidence_repair_hash": "c29d5ee59fb31968639f79b355719370989f9756e571c92591cb57e2dcaebf70"
+  },
+  "schema_version": 0,
+  "selected_cluster": {
+    "borrow_kind": "ReturnedMutableBorrow",
+    "candidate_count": 1,
+    "cluster_id": "borrow_surface::ReturnedMutableBorrow::mutable_ref::mutable_receiver::loop_cond_return_in_body_phi_materializer::None",
+    "evidence": "source_module_from_source_path",
+    "old_owner_edge_confidence": "None",
+    "receiver_axis": "mutable_receiver",
+    "repaired_owner_edge_confidence": "FileScoped",
+    "repaired_owner_edge_id": "mirbuilder::borrow_surface::loop_cond_return_in_body_phi_materializer",
+    "return_shape": "mutable_ref",
+    "selection_eligible_for_borrow_policy": true,
+    "source_module": "loop_cond_return_in_body_phi_materializer"
+  },
+  "selection_rules": {
+    "borrow_kind_priority": [
+      "ReturnedMutableBorrow",
+      "ReturnedReadBorrow"
+    ],
+    "cluster_size_as_proof": 0,
+    "lexical_tie_breaker_only_after_evidence_axes": 1,
+    "receiver_priority": [
+      "mutable_receiver",
+      "shared_receiver",
+      "owned_receiver",
+      "free_function_or_static"
+    ],
+    "return_shape_priority": [
+      "mutable_ref",
+      "option_ref",
+      "btree_map_ref",
+      "hash_map_ref",
+      "slice_ref",
+      "option_slice_ref",
+      "option_str_ref",
+      "option_static_str_ref",
+      "static_str_ref",
+      "shared_ref"
+    ]
+  },
+  "token": "MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-001"
+}

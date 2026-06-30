@@ -1094,6 +1094,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-owner-edge-confidence-repair-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_borrow_surface_owner_edge_confidence_repair_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/1956-MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-policy-cluster-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_borrow_surface_policy_cluster_rerun_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
