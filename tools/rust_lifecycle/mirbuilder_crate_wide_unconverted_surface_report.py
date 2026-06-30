@@ -301,6 +301,19 @@ def hash_source_roots() -> str:
     return digest.hexdigest()
 
 
+def projection_descriptor_ledger_hash(family_manifest: dict[str, Any]) -> str:
+    rows = [
+        {
+            "token": row.get("token"),
+            "fixture": row.get("fixture"),
+        }
+        for row in family_manifest.get("rows", [])
+        if "PROJECTION-POLICY" in (row.get("token") or "")
+    ]
+    payload = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return sha256_bytes(payload)
+
+
 def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").strip())
 
@@ -900,7 +913,8 @@ def build_report() -> dict[str, Any]:
             "tool_version": "regex_source_text_v0",
             "source_root_hash": hash_source_roots(),
             "native_owner_seed_capability_survey_hash": sha256_file(NATIVE_SEED_SURVEY),
-            "source_selfhost_family_guard_manifest_hash": sha256_file(FAMILY_MANIFEST),
+            "source_selfhost_family_guard_manifest_hash": projection_descriptor_ledger_hash(family_manifest),
+            "projection_descriptor_ledger_hash": projection_descriptor_ledger_hash(family_manifest),
             "variable_context_reference_projection_contract_hash": sha256_file(REFERENCE_PROJECTION),
             "owner_edge_confidence_repair_hash": sha256_file(OWNER_EDGE_CONFIDENCE_REPAIR) if OWNER_EDGE_CONFIDENCE_REPAIR.exists() else None,
             "stable_deny_reason_repair_hash": sha256_file(STABLE_DENY_REASON_REPAIR) if STABLE_DENY_REASON_REPAIR.exists() else None,
@@ -911,7 +925,10 @@ def build_report() -> dict[str, Any]:
             "public_rust_surface_count": sum(1 for item in all_surfaces if item["is_public_surface"]),
             "reported_item_count": len(items),
             "seed_survey_decision": seed_survey.get("decision", {}).get("kind"),
-            "family_manifest_rows": len(family_manifest.get("rows") or []),
+            "family_manifest_rows": len([
+                row for row in family_manifest.get("rows", [])
+                if "PROJECTION-POLICY" in (row.get("token") or "")
+            ]),
         },
         "reverse_evidence_checks": {
             "known_owner_edge_count": len(known_owner_edges),

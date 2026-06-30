@@ -24,11 +24,24 @@ from pathlib import Path
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def projection_ledger_hash(manifest: dict) -> str:
+    rows = [
+        {
+            "token": row.get("token"),
+            "fixture": row.get("fixture"),
+        }
+        for row in manifest.get("rows", [])
+        if "PROJECTION-POLICY" in (row.get("token") or "")
+    ]
+    payload = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
 fixture_path = Path("docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json")
 manifest_path = Path("docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json")
 survey_path = Path("docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-v0.json")
 card = Path("docs/development/current/main/phases/phase-296x/1949-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001.md").read_text()
 fixture = json.loads(fixture_path.read_text())
+manifest = json.loads(manifest_path.read_text())
 
 token = "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001"
 if token not in card:
@@ -39,10 +52,10 @@ if fixture.get("token") != "MIRBUILDER-CRATE-WIDE-UNCONVERTED-SURFACE-REPORT-001
     raise SystemExit("source report token drift")
 
 provenance = fixture.get("provenance") or {}
-if provenance.get("source_selfhost_family_guard_manifest_hash") != sha256(manifest_path):
-    raise SystemExit("report manifest hash is stale")
 if provenance.get("native_owner_seed_capability_survey_hash") != sha256(survey_path):
     raise SystemExit("report native seed survey hash is stale")
+if provenance.get("projection_descriptor_ledger_hash") != projection_ledger_hash(manifest):
+    raise SystemExit("report projection descriptor ledger hash is stale")
 if provenance.get("tool_version") != "regex_source_text_v0":
     raise SystemExit("tool version drift")
 

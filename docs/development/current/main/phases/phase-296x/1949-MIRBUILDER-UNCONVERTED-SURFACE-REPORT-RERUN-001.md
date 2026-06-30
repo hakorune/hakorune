@@ -34,7 +34,7 @@ guard:
 
 ```text
 report_regenerated = 1
-source_selfhost_family_guard_manifest_hash_fresh = 1
+projection_descriptor_ledger_hash_fresh = 1
 native_owner_seed_capability_survey_hash_fresh = 1
 scan_unit = rust_function_or_method
 join_unit = semantic_owner_edge
