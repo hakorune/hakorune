@@ -527,6 +527,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-unconverted-surface-next-owner-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_next_owner_resolver_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1875-MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_missing_projection_policy_cluster_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
