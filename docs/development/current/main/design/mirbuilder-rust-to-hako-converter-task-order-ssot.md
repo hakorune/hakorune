@@ -379,17 +379,17 @@ history, not in this task-order SSOT.
    semantic_authority=Other shape inventory/resolution fixtures
    non_authority=family-name policy, semantic projection inference, Source Selfhost claim
 
-3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-001
+3. MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001
    status=green
-   boundary=projection queues exhausted; unconverted surface report is stale
-   semantic_authority=1948 seed capability rerun fixture
-   non_authority=manual family selection, native seed selection, Source Selfhost claim
+   boundary=unconverted surface report provenance refreshed after descriptor ledger changes
+   semantic_authority=crate-wide unconverted surface report fixture
+   non_authority=manual family selection, Hako generation, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-002
 
 next_after_active_3 =
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-002
 ```
 
 ## Landed Converter Capability Summary
