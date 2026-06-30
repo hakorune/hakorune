@@ -842,6 +842,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-validation-closeout-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_generic_loop_body_check_step_validation_closeout_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-BODY-VIEW-FEATURE-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1920-MIRBUILDER-BODY-VIEW-FEATURE-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-body-view-feature-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_body_view_feature_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
