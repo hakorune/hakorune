@@ -1,0 +1,208 @@
+{
+  "claims": {
+    "ad_hoc_by_name_policy": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "registry_descriptor_selected": 1,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectRegistryDescriptorPolicy",
+    "reason_token": "BuiltinGlobalRegistryDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-CALL-LOWERING-EXTERN-INTERFACE-REGISTRY-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-diagnostic-helpers-projection-policy-v0.json",
+    "selected_subcluster_id": "BuiltinGlobalFunctionRegistry",
+    "source_count": 2,
+    "subcluster_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-policy-subcluster-decomposition-v0.json"
+  },
+  "kind": "MirBuilderCallLoweringBuiltinGlobalFunctionRegistryPolicyV1",
+  "registry_descriptor": {
+    "builtin_function_count": 12,
+    "descriptor_id": "call_lowering_builtin_global_function_registry_v1",
+    "entries": [
+      {
+        "categories": [
+          "builtin_global_function",
+          "math_special_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": true,
+        "name": "abs"
+      },
+      {
+        "categories": [
+          "math_special_function"
+        ],
+        "is_builtin_function": false,
+        "is_math_function": true,
+        "name": "ceil"
+      },
+      {
+        "categories": [
+          "builtin_global_function",
+          "math_special_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": true,
+        "name": "cos"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "error"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "exit"
+      },
+      {
+        "categories": [
+          "math_special_function"
+        ],
+        "is_builtin_function": false,
+        "is_math_function": true,
+        "name": "floor"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "gc_collect"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "gc_stats"
+      },
+      {
+        "categories": [
+          "builtin_global_function",
+          "math_special_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": true,
+        "name": "max"
+      },
+      {
+        "categories": [
+          "builtin_global_function",
+          "math_special_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": true,
+        "name": "min"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "now"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "panic"
+      },
+      {
+        "categories": [
+          "math_special_function"
+        ],
+        "is_builtin_function": false,
+        "is_math_function": true,
+        "name": "pow"
+      },
+      {
+        "categories": [
+          "builtin_global_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": false,
+        "name": "print"
+      },
+      {
+        "categories": [
+          "builtin_global_function",
+          "math_special_function"
+        ],
+        "is_builtin_function": true,
+        "is_math_function": true,
+        "name": "sin"
+      },
+      {
+        "categories": [
+          "math_special_function"
+        ],
+        "is_builtin_function": false,
+        "is_math_function": true,
+        "name": "sqrt"
+      }
+    ],
+    "math_function_count": 9,
+    "shared_builtin_math_count": 5,
+    "source_extraction": "rust_matches_string_literals"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::call_lowering_builtin_global_function_registry",
+    "policy": "RegistryDescriptorFixture",
+    "projection_surface_selected": false,
+    "reason_token": "BuiltinGlobalFunctionNamesRequireDescriptorFixture",
+    "registry_descriptor_selected": true
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.call_lowering",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "params": "name: &str",
+      "registry_role": "builtin_global_membership_predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/method_resolution.rs::is_builtin_function:L70",
+      "source_path": "src/mir/builder/calls/method_resolution.rs",
+      "symbol": "is_builtin_function"
+    },
+    {
+      "params": "name: &str",
+      "registry_role": "math_special_membership_predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/special_handlers.rs::is_math_function:L13",
+      "source_path": "src/mir/builder/calls/special_handlers.rs",
+      "symbol": "is_math_function"
+    }
+  ],
+  "token": "MIRBUILDER-CALL-LOWERING-BUILTIN-GLOBAL-FUNCTION-REGISTRY-POLICY-001"
+}
