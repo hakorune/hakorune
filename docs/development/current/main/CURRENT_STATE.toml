@@ -25,12 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1964-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001.md"
-latest_card_summary = """The latest card filters strict converter emission
-evidence through the bridge policy and selects core_context as the next native
-source seed candidate without materializing a seed or claiming Source
-Selfhost."""
+latest_card = "MIRBUILDER-CORE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1965-MIRBUILDER-CORE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001.md"
+latest_card_summary = """The latest card materializes the native source seed
+for core_context from DerivedArtifactSeedDraftInput while deferring HakoAdopted
+and Source Selfhost claims."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1965 materializes the core_context native source seed and defers HakoAdopted decision.",
   "2026-07-01: 1964 selects core_context as the strict-emission native seed candidate while keeping seed materialization and Source Selfhost unclaimed.",
   "2026-07-01: 1963 defines the strict-emission to native-seed bridge policy without Hako generation, adoption, or Source Selfhost claim.",
   "2026-07-01: 1962 reruns native-owner seed capability after strict emission evidence and keeps Source Selfhost stopped with no machine-derived seed candidate.",

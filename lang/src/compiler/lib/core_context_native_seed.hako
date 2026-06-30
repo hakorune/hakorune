@@ -1,0 +1,70 @@
+// native-source-seed: MIRBUILDER-CORE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::core_context
+// source-input-state: DerivedArtifactSeedDraftInput
+// source-selfhost-claim: 0
+
+box CoreContext {
+    value_next_id: i64
+    block_next_id: i64
+    next_binding_id: i64
+    temp_slot_counter: i64
+    debug_join_counter: i64
+
+    birth() {
+        me.value_next_id = 0
+        me.block_next_id = 0
+        me.next_binding_id = 0
+        me.temp_slot_counter = 0
+        me.debug_join_counter = 0
+    }
+}
+
+static box CoreContextApi {
+    next_binding(ctx): i64 {
+        local id = ctx.next_binding_id
+        if ctx.next_binding_id < 4294967295 {
+            ctx.next_binding_id = ctx.next_binding_id + 1
+        }
+        return id
+    }
+
+    next_temp_slot(ctx): i64 {
+        local id = ctx.temp_slot_counter
+        if ctx.temp_slot_counter < 4294967295 {
+            ctx.temp_slot_counter = ctx.temp_slot_counter + 1
+        }
+        return id
+    }
+
+    next_debug_join(ctx): i64 {
+        local id = ctx.debug_join_counter
+        if ctx.debug_join_counter < 4294967295 {
+            ctx.debug_join_counter = ctx.debug_join_counter + 1
+        }
+        return id
+    }
+
+    next_value(ctx): i64 {
+        local id = ctx.value_next_id
+        if ctx.value_next_id < 4294967295 {
+            ctx.value_next_id = ctx.value_next_id + 1
+        }
+        return id
+    }
+
+    peek_next_value(ctx): i64 {
+        return ctx.value_next_id
+    }
+
+    next_block(ctx): i64 {
+        local id = ctx.block_next_id
+        if ctx.block_next_id < 4294967295 {
+            ctx.block_next_id = ctx.block_next_id + 1
+        }
+        return id
+    }
+
+    peek_next_block(ctx): i64 {
+        return ctx.block_next_id
+    }
+}
