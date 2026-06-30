@@ -1,0 +1,2057 @@
+{
+  "claims": {
+    "all_joinir_route_verify_items_partitioned_exactly_once": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "input_joinir_route_verify_cluster_count": 206,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "previous_parent_owned_policy_consumed": 1,
+    "projection_priority_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0,
+    "subcluster_ids_are_stable": 1,
+    "subcluster_reason_tokens_are_stable": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "AmbiguousJoinIRRouteVerifyProjectionSubclusters",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_subcluster_id": null
+  },
+  "input_state": {
+    "cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_joinir_route_verify_cluster_count": 206,
+    "previous_parent_owned_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+    "previous_policy_decision": {
+      "kind": "KeepParentOwner",
+      "reason_token": "JoinIRRouteVerifyDoesNotOpenStandaloneProjectionOwner",
+      "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+    },
+    "priority_decision": {
+      "kind": "KeepStopped",
+      "reason_token": "NoEligibleProjectionPolicyCluster",
+      "selected_cluster_id": null,
+      "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+    },
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyJoinIRRouteVerifyClusterV1",
+  "provenance": {
+    "cluster_resolution_hash": "ac0059a9dc2bafab00e6d20dda10dc3b7f6468c9508a891f4de69257d779f2bb",
+    "previous_parent_owned_policy_hash": "a8c51e53df69fc328ff9ec2c5b158ff32338ec0ea0dd0fd8011b6953d4786a21",
+    "priority_resolution_hash": "e574dbc276f39ca6a7404c9bbc8d6e2c0ce39126dc9d028d1fb93886c57fb3d2",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
+  },
+  "route_verify_roles": [
+    "edgecfg_compose_or_verify",
+    "facts_or_recognizer",
+    "recipe_index_or_ref",
+    "joinir_routing_or_trace",
+    "joinir_merge_coordinator",
+    "joinir_merge_contract",
+    "joinir_merge_rewriter",
+    "joinir_merge_helper",
+    "verify_diagnostic",
+    "verify_observability",
+    "verify_predicate_or_guard",
+    "diagnostic_or_debug_helper",
+    "test_only_surface",
+    "route_verify_other"
+  ],
+  "schema_version": 0,
+  "subcluster_axes": [
+    "route_verify_role",
+    "source_module",
+    "shape_signature",
+    "borrow_axis",
+    "type_transport_axis",
+    "return_family",
+    "receiver_axis",
+    "verifier_or_oracle_state",
+    "public_or_private_surface",
+    "cfg_test_surface"
+  ],
+  "subclusters": [
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 20,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "verify_predicate_or_guard",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 20,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/verifier/cond_profile.rs::accept_via_cond_profile_accum_const_loop:L25",
+        "src/mir/builder/control_flow/verify/verifier/cond_profile.rs::accept_via_cond_profile_bool_predicate_scan:L19",
+        "src/mir/builder/control_flow/verify/verifier/cond_profile.rs::accept_via_cond_profile_loop_array_join:L13",
+        "src/mir/builder/control_flow/verify/verifier/cond_profile.rs::accept_via_cond_profile_loop_char_map:L7",
+        "src/mir/builder/control_flow/verify/verifier/core.rs::verify:L27",
+        "src/mir/builder/control_flow/verify/verifier/core.rs::verify_plan:L34",
+        "src/mir/builder/control_flow/verify/verifier/effect_validators.rs::verify_effect:L19",
+        "src/mir/builder/control_flow/verify/verifier/effect_validators.rs::verify_if_effect_branch:L270",
+        "src/mir/builder/control_flow/verify/verifier/loop_body_validators.rs::verify_loop_body_tree:L17",
+        "src/mir/builder/control_flow/verify/verifier/loop_validators.rs::verify_loop:L30",
+        "src/mir/builder/control_flow/verify/verifier/plan_validators.rs::verify_branch_n:L97",
+        "src/mir/builder/control_flow/verify/verifier/plan_validators.rs::verify_exit:L156",
+        "src/mir/builder/control_flow/verify/verifier/plan_validators.rs::verify_if:L41",
+        "src/mir/builder/control_flow/verify/verifier/plan_validators.rs::verify_seq:L21",
+        "src/mir/builder/control_flow/verify/verifier/position_validators.rs::verify_branch_plans:L61",
+        "src/mir/builder/control_flow/verify/verifier/position_validators.rs::verify_exit_depth:L98",
+        "src/mir/builder/control_flow/verify/verifier/position_validators.rs::verify_exit_if_position:L80",
+        "src/mir/builder/control_flow/verify/verifier/position_validators.rs::verify_exit_position:L34",
+        "src/mir/builder/control_flow/verify/verifier/primitives.rs::verify_edge_args_layout:L47",
+        "src/mir/builder/control_flow/verify/verifier/primitives.rs::verify_value_id_basic:L33"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/verifier",
+      "subcluster_id": "joinir_route_verify::verify_predicate_or_guard::src_mir_builder_control_flow_verify_verifier::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 9,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 9,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/body.rs::new:L23",
+        "src/mir/builder/control_flow/recipes/body.rs::new:L74",
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::else_guard_break_if_with_optional_else_exit_allowed:L160",
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::exit_if_with_optional_block:L121",
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::tail_break_with_optional_block:L131",
+        "src/mir/builder/control_flow/recipes/loop_cond_shared.rs::new:L13",
+        "src/mir/builder/control_flow/recipes/refs.rs::new:L15",
+        "src/mir/builder/control_flow/recipes/refs.rs::new:L32",
+        "src/mir/builder/control_flow/recipes/refs.rs::new:L47"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 7,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 7,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs::is_true_literal:L8",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue:L129",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue_flattened:L133",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_break_statement:L113",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_continue_statement:L118",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_if_else_statement:L146",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_return_statement:L123"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/extractors/common_helpers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_extractors_common_helpers::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 7,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_coordinator",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 7,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/coordinator/finalize.rs::execute:L20",
+        "src/mir/builder/control_flow/joinir/merge/coordinator/mod.rs::merge_joinir_mir_blocks:L65",
+        "src/mir/builder/control_flow/joinir/merge/coordinator/phase_1_2.rs::execute:L23",
+        "src/mir/builder/control_flow/joinir/merge/coordinator/phase_3_5_phi_override.rs::execute:L23",
+        "src/mir/builder/control_flow/joinir/merge/coordinator/phase_3_remap.rs::execute:L14",
+        "src/mir/builder/control_flow/joinir/merge/coordinator/phase_4_5.rs::execute:L19",
+        "src/mir/builder/control_flow/joinir/merge/coordinator/phase_5_6.rs::execute:L19"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/coordinator",
+      "subcluster_id": "joinir_route_verify::joinir_merge_coordinator::src_mir_builder_control_flow_joinir_merge_coordinator::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NonSemanticHelper"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "unit",
+      "route_verify_role": "diagnostic_or_debug_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/trace.rs::blocks:L203",
+        "src/mir/builder/control_flow/joinir/trace.rs::dev:L151",
+        "src/mir/builder/control_flow/joinir/trace.rs::emit_if:L162",
+        "src/mir/builder/control_flow/joinir/trace.rs::routing:L188",
+        "src/mir/builder/control_flow/joinir/trace.rs::stderr_if:L175",
+        "src/mir/builder/control_flow/joinir/trace.rs::varmap:L122"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::diagnostic_or_debug_helper::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::Known::unit::_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/branch_stub.rs::new:L36",
+        "src/mir/builder/control_flow/edgecfg/api/edge_stub.rs::new:L54",
+        "src/mir/builder/control_flow/edgecfg/api/edge_stub.rs::without_args:L69",
+        "src/mir/builder/control_flow/edgecfg/api/frag.rs::new:L68",
+        "src/mir/builder/control_flow/edgecfg/api/frag.rs::with_single_exit:L79",
+        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs::new:L39"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_break_in_body:L38",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_continue_in_body:L25",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_return_in_body:L45",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::has_continue_node:L50",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/if_else_phi.rs::detect_if_else_phi_in_body:L36",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs::detect_infinite_loop:L18"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/route_shape_recognizers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_route_shape_recognizers::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/block_allocator.rs::allocate_blocks:L17",
+        "src/mir/builder/control_flow/joinir/merge/carrier_init_builder.rs::init_value:L47",
+        "src/mir/builder/control_flow/joinir/merge/header_phi_prebuild.rs::prebuild_header_phis:L25",
+        "src/mir/builder/control_flow/joinir/merge/instruction_rewriter.rs::merge_and_rewrite:L54",
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs::finalize:L287",
+        "src/mir/builder/control_flow/joinir/merge/value_remapper.rs::remap_values:L17"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs::is_skippable_continuation:L31",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_boundary_input_const:L64",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_copy_overwriting_phi:L28",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_function_name_const:L47",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs::should_keep_return:L27",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs::is_loop_entry_source:L16"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "self",
+      "return_family": "scalar",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/body.rs::end_index:L85",
+        "src/mir/builder/control_flow/recipes/body.rs::index:L62",
+        "src/mir/builder/control_flow/recipes/body.rs::start_index:L81",
+        "src/mir/builder/control_flow/recipes/refs.rs::end_index:L57",
+        "src/mir/builder/control_flow/recipes/refs.rs::index:L19",
+        "src/mir/builder/control_flow/recipes/refs.rs::start_index:L53"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoBorrow::Known::scalar::self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "option",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/parse_number.rs::detect_parse_number_shape:L55",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/parse_number.rs::detect_read_digits_loop_true_shape:L182",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/parse_string.rs::detect_continue_shape:L263",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/parse_string.rs::detect_parse_string_shape:L101",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/skip_whitespace.rs::detect_skip_whitespace_shape:L55"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/route_shape_recognizers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_route_shape_recognizers::shape.join_i_r_route_verify::NoBorrow::KnownOptionCarrier::option::None::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_contract",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/boundary_creation.rs::verify_boundary_contract_at_creation:L16",
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/boundary_hygiene.rs::verify_boundary_hygiene:L7",
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/exit_bindings.rs::verify_exit_bindings_have_exit_phis:L9",
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/header_phi_layout.rs::verify_header_phi_layout:L6",
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/terminator_targets.rs::verify_all_terminator_targets_exist:L15"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/contract_checks",
+      "subcluster_id": "joinir_route_verify::joinir_merge_contract::src_mir_builder_control_flow_joinir_merge_contract_checks::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&mut self",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs::add_carrier_input:L56",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs::add_exit_phi_input:L51",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs::register_function_entry:L69",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs::register_skipped_redirect:L74",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs::set_remapped_exit_value:L79"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::_mut_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "verify_observability",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag:L129",
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_for_coreplan:L108",
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_from_coreplan:L99",
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag:L169",
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag_from_facts:L149"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/observability",
+      "subcluster_id": "joinir_route_verify::verify_observability::src_mir_builder_control_flow_verify_observability::shape.join_i_r_route_verify::NoBorrow::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/block_policies.rs::is_allowed_effect_stmt:L16",
+        "src/mir/builder/control_flow/facts/expr_bool.rs::is_supported_bool_expr_with_canon:L10",
+        "src/mir/builder/control_flow/facts/expr_value.rs::is_supported_value_expr:L5",
+        "src/mir/builder/control_flow/facts/expr_value.rs::value_expr_requires_canon:L31"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/if_phi_join_facts.rs::try_extract_if_phi_join_facts:L21",
+        "src/mir/builder/control_flow/facts/loop_cond_continue_only.rs::try_extract_loop_cond_continue_only_facts:L25",
+        "src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs::try_extract_loop_cond_continue_with_return_facts:L23",
+        "src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs::try_extract_loop_cond_return_in_body_facts:L19"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/boundary_carrier_layout.rs::from_boundary:L14",
+        "src/mir/builder/control_flow/joinir/merge/config.rs::default:L19",
+        "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs::new:L71",
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs::empty:L67"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NonSemanticHelper"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "bool",
+      "route_verify_role": "diagnostic_or_debug_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/trace.rs::is_enabled:L98",
+        "src/mir/builder/control_flow/joinir/trace.rs::is_loopform_enabled:L113",
+        "src/mir/builder/control_flow/joinir/trace.rs::is_mainline_enabled:L108"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::diagnostic_or_debug_helper::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::Known::bool::_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "option",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/escape_shape_recognizer.rs::detect_escape_skip_shape:L58",
+        "src/mir/builder/control_flow/facts/no_exit_block.rs::try_build_no_exit_block_recipe:L30",
+        "src/mir/builder/control_flow/facts/stmt_view.rs::try_build_stmt_only_block_recipe:L116"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts::shape.join_i_r_route_verify::NoBorrow::KnownOptionCarrier::option::None::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_boundary_info:L18",
+        "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_merge_complete:L100",
+        "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs::remap_existing_phi_block_ids:L15"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoBorrow::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/block_remapper.rs::remap_block_id:L71",
+        "src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::split_header_preds:L19",
+        "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::classify_tail_call:L45"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/plan_helpers.rs::sync_spans:L51",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/terminator.rs::remap_branch:L62",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/terminator.rs::remap_jump:L38"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "verify_diagnostic",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::clear_last_plan_reject_detail:L10",
+        "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail:L17",
+        "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail_if_absent:L24"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/diagnostics",
+      "subcluster_id": "joinir_route_verify::verify_diagnostic::src_mir_builder_control_flow_verify_diagnostics::shape.join_i_r_route_verify::NoBorrow::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "verify_predicate_or_guard",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::has_control_flow_effect:L27",
+        "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_effect_only_stmt:L36",
+        "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_leaf_effect_plan:L10"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify",
+      "subcluster_id": "joinir_route_verify::verify_predicate_or_guard::src_mir_builder_control_flow_verify::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/emit.rs::emit_frag:L227",
+        "src/mir/builder/control_flow/edgecfg/api/emit.rs::emit_wires:L36"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "bool",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/exit_kind.rs::is_function_exit:L49",
+        "src/mir/builder/control_flow/edgecfg/api/exit_kind.rs::is_loop_exit:L44"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::Known::bool::_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/ast_feature_extractor.rs::extract_features:L72",
+        "src/mir/builder/control_flow/facts/stmt_view.rs::flatten_scope_boxes:L13"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "bool",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/loop_cond_break_continue.rs::is_return_only_body:L47",
+        "src/mir/builder/control_flow/facts/loop_cond_break_continue.rs::release_allowed:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::Known::bool::_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/expr_result_resolver.rs::resolve:L41",
+        "src/mir/builder/control_flow/joinir/merge/value_collector.rs::collect_values:L18"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs::build_exit_phi:L21",
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs::build:L71"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "option",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/boundary_carrier_layout.rs::ordered_arg_index:L44",
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs::get_carrier_phi:L77"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::_self::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/exit_line/mod.rs::execute:L81",
+        "src/mir/builder/control_flow/joinir/merge/exit_line/reconnector.rs::reconnect:L82"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/exit_line",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge_exit_line::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/carrier_inputs_collector.rs::new:L51",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs::new:L35"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/latch_incoming_recorder.rs::record_if_backedge:L17",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs::record_latch_incoming_if_backedge:L25"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/tail_call_rewrite.rs::process_tail_call_params:L36",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/terminator_rewrite.rs::process_block_terminator:L49"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter_stages_plan::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&mut self",
+      "return_family": "result",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/routing.rs::cf_loop_joinir_impl:L381",
+        "src/mir/builder/control_flow/joinir/routing.rs::try_cf_loop_joinir:L283"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::_mut_self::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/loop_context.rs::to_loop_ast:L94",
+        "src/mir/builder/control_flow/joinir/parity_checker.rs::verify_router_parity:L19"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::_self::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "self",
+      "return_family": "custom_carrier",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/body.rs::indices:L89",
+        "src/mir/builder/control_flow/recipes/refs.rs::indices:L61"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::self::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "bool",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/body.rs::is_empty:L39",
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::is_tail_break:L156"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::Known::bool::_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "option",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::as_else_guard_break_if:L176",
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::as_exit_if:L139"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::_self::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "verify_observability",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::box_kind_from_core_plan:L44",
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::box_kind_from_facts:L56"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/observability",
+      "subcluster_id": "joinir_route_verify::verify_observability::src_mir_builder_control_flow_verify_observability::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NonSemanticHelper"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "diagnostic_or_debug_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/trace.rs::new:L70"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::diagnostic_or_debug_helper::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/verify.rs::verify_frag_invariants_strict:L117"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&mut self",
+      "return_family": "unit",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs::reset:L51"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::_mut_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&mut self",
+      "return_family": "result",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs::emit_and_seal:L99"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::_mut_self::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs::if_:L51"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api/compose",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api_compose::shape.join_i_r_route_verify::NoBorrow::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/compose/cleanup.rs::cleanup:L50"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api/compose",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api_compose::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "edgecfg_compose_or_verify",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/edgecfg/api/compose/mod.rs::merge_block_params:L84"
+      ],
+      "source_module": "src/mir/builder/control_flow/edgecfg/api/compose",
+      "subcluster_id": "joinir_route_verify::edgecfg_compose_or_verify::src_mir_builder_control_flow_edgecfg_api_compose::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/canon/cond_block_view.rs::from_expr:L15"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/canon",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_canon::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "option",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/canon/cond.rs::canon_bool_or_condition:L23"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/canon",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_canon::shape.join_i_r_route_verify::NoBorrow::KnownOptionCarrier::option::None::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "option",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/extractors/loop_simple_while.rs::validate_loop_condition_structure:L12"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/extractors",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_extractors::shape.join_i_r_route_verify::NoBorrow::KnownOptionCarrier::option::None::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/extractors/if_phi_join.rs::extract_loop_with_if_phi_parts:L38"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/extractors",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_extractors::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::count_control_flow:L46"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/extractors/common_helpers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_extractors_common_helpers::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/increment.rs::extract_loop_increment_plan:L11"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/extractors/common_helpers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_extractors_common_helpers::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingBorrowTransport",
+        "BorrowPolicyNeeded"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "option",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::find_first_control_flow_stmt:L119"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/route_shape_recognizers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_route_shape_recognizers::shape.join_i_r_route_verify::BorrowPolicyNeeded::MissingBorrowTransport::option::None::Present::public::non_test",
+      "type_transport_axis": "MissingBorrowTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "scalar",
+      "route_verify_role": "facts_or_recognizer",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/carrier_count.rs::count_carriers_in_body:L26"
+      ],
+      "source_module": "src/mir/builder/control_flow/facts/route_shape_recognizers",
+      "subcluster_id": "joinir_route_verify::facts_or_recognizer::src_mir_builder_control_flow_facts_route_shape_recognizers::shape.join_i_r_route_verify::NoBorrow::Known::scalar::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "joinir_merge_contract",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs::is_entry_like_source:L8"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/contract_checks",
+      "subcluster_id": "joinir_route_verify::joinir_merge_contract::src_mir_builder_control_flow_joinir_merge_contract_checks::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_contract",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs::verify_carrier_inputs_complete:L25"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/contract_checks",
+      "subcluster_id": "joinir_route_verify::joinir_merge_contract::src_mir_builder_control_flow_joinir_merge_contract_checks::shape.join_i_r_route_verify::NoBorrow::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingBorrowTransport",
+        "BorrowPolicyNeeded"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "borrow_return",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/boundary_carrier_layout.rs::ordered_names:L37"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::BorrowPolicyNeeded::MissingBorrowTransport::borrow_return::_self::Present::public::non_test",
+      "type_transport_axis": "MissingBorrowTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "bool",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/dev_log.rs::dev_enabled:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoBorrow::Known::bool::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&mut self",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs::set_latch_incoming:L84"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::_mut_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs::reserved_value_ids:L116"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::_self::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_helper",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs::collect:L96"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge",
+      "subcluster_id": "joinir_route_verify::joinir_merge_helper::src_mir_builder_control_flow_joinir_merge::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::ResultCarrierNeedsVerifier::result::_self::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/plan_helpers.rs::build_local_block_map:L23"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/carrier_inputs_collector.rs::collect:L77"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::_self::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/apply.rs::apply_rewrites:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter/stages",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter_stages::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "unit",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs::resolve_entry_func_name:L20"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter_stages_plan::shape.join_i_r_route_verify::NoBorrow::Known::unit::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/instruction_rewrite.rs::process_block_instructions:L29"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter_stages_plan::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_merge_rewriter",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/mod.rs::plan_rewrites:L58"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan",
+      "subcluster_id": "joinir_route_verify::joinir_merge_rewriter::src_mir_builder_control_flow_joinir_merge_rewriter_stages_plan::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "constructor_self",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/loop_context.rs::new:L65"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoBorrow::ConstructorCarrier::constructor_self::None::Present::public::non_test",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/routing.rs::choose_route_kind:L37"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "result",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/control_tree_capability_guard.rs::check:L33"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoBorrow::ResultCarrierNeedsVerifier::result::None::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&mut self",
+      "return_family": "unit",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/loop_context.rs::set_canonicalizer_result:L85"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoReturnedBorrowMutableReceiver::Known::unit::_mut_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "result",
+      "route_verify_role": "joinir_routing_or_trace",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/joinir/loop_context.rs::verify_parity:L113"
+      ],
+      "source_module": "src/mir/builder/control_flow/joinir",
+      "subcluster_id": "joinir_route_verify::joinir_routing_or_trace::src_mir_builder_control_flow_joinir::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::ResultCarrierNeedsVerifier::result::_self::Present::public::non_test",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "custom_carrier",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs::build_loop_cond_return_in_body_recipe:L11"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoBorrow::MissingTypeTransport::custom_carrier::None::Present::public::non_test",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "&self",
+      "return_family": "scalar",
+      "route_verify_role": "recipe_index_or_ref",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/recipes/body.rs::len:L35"
+      ],
+      "source_module": "src/mir/builder/control_flow/recipes",
+      "subcluster_id": "joinir_route_verify::recipe_index_or_ref::src_mir_builder_control_flow_recipes::shape.join_i_r_route_verify::NoReturnedBorrowSharedReceiver::Known::scalar::_self::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "string",
+      "route_verify_role": "verify_diagnostic",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/diagnostics/span_format.rs::normalize_span_line_col:L1"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/diagnostics",
+      "subcluster_id": "joinir_route_verify::verify_diagnostic::src_mir_builder_control_flow_verify_diagnostics::shape.join_i_r_route_verify::NoBorrow::Known::string::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "option",
+      "route_verify_role": "verify_diagnostic",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::take_last_plan_reject_detail:L34"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/diagnostics",
+      "subcluster_id": "joinir_route_verify::verify_diagnostic::src_mir_builder_control_flow_verify_diagnostics::shape.join_i_r_route_verify::NoBorrow::KnownOptionCarrier::option::None::Present::public::non_test",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingBorrowTransport",
+        "BorrowPolicyNeeded"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "borrow_return",
+      "route_verify_role": "verify_observability",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::features_from_facts:L68"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/observability",
+      "subcluster_id": "joinir_route_verify::verify_observability::src_mir_builder_control_flow_verify_observability::shape.join_i_r_route_verify::BorrowPolicyNeeded::MissingBorrowTransport::borrow_return::None::Present::public::non_test",
+      "type_transport_axis": "MissingBorrowTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "string",
+      "route_verify_role": "verify_observability",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_contract:L159"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/observability",
+      "subcluster_id": "joinir_route_verify::verify_observability::src_mir_builder_control_flow_verify_observability::shape.join_i_r_route_verify::NoBorrow::Known::string::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRRouteVerifyClusterPartitionedForFollowUp",
+      "receiver_axis": "None",
+      "return_family": "string",
+      "route_verify_role": "verify_predicate_or_guard",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/verify/verifier/primitives.rs::err:L69"
+      ],
+      "source_module": "src/mir/builder/control_flow/verify/verifier",
+      "subcluster_id": "joinir_route_verify::verify_predicate_or_guard::src_mir_builder_control_flow_verify_verifier::shape.join_i_r_route_verify::NoBorrow::Known::string::None::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    }
+  ],
+  "summary": {
+    "input_joinir_route_verify_cluster_count": 206,
+    "return_family_counts": {
+      "bool": 37,
+      "borrow_return": 2,
+      "constructor_self": 24,
+      "custom_carrier": 20,
+      "option": 16,
+      "result": 62,
+      "scalar": 8,
+      "string": 3,
+      "unit": 34
+    },
+    "role_counts": {
+      "diagnostic_or_debug_helper": 3,
+      "edgecfg_compose_or_verify": 9,
+      "facts_or_recognizer": 16,
+      "joinir_merge_contract": 3,
+      "joinir_merge_coordinator": 1,
+      "joinir_merge_helper": 13,
+      "joinir_merge_rewriter": 12,
+      "joinir_routing_or_trace": 7,
+      "recipe_index_or_ref": 7,
+      "verify_diagnostic": 3,
+      "verify_observability": 4,
+      "verify_predicate_or_guard": 3
+    },
+    "selected_subcluster_id": null,
+    "selection_eligible_subcluster_count": 42,
+    "source_module_counts": {
+      "src/mir/builder/control_flow/edgecfg/api": 13,
+      "src/mir/builder/control_flow/edgecfg/api/compose": 3,
+      "src/mir/builder/control_flow/facts": 15,
+      "src/mir/builder/control_flow/facts/canon": 2,
+      "src/mir/builder/control_flow/facts/extractors": 2,
+      "src/mir/builder/control_flow/facts/extractors/common_helpers": 9,
+      "src/mir/builder/control_flow/facts/route_shape_recognizers": 13,
+      "src/mir/builder/control_flow/joinir": 19,
+      "src/mir/builder/control_flow/joinir/merge": 27,
+      "src/mir/builder/control_flow/joinir/merge/contract_checks": 7,
+      "src/mir/builder/control_flow/joinir/merge/coordinator": 7,
+      "src/mir/builder/control_flow/joinir/merge/exit_line": 2,
+      "src/mir/builder/control_flow/joinir/merge/rewriter": 20,
+      "src/mir/builder/control_flow/joinir/merge/rewriter/stages": 1,
+      "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan": 5,
+      "src/mir/builder/control_flow/recipes": 23,
+      "src/mir/builder/control_flow/verify": 3,
+      "src/mir/builder/control_flow/verify/diagnostics": 5,
+      "src/mir/builder/control_flow/verify/observability": 9,
+      "src/mir/builder/control_flow/verify/verifier": 21
+    },
+    "subcluster_count": 81,
+    "type_transport_axis_counts": {
+      "ConstructorCarrier": 24,
+      "Known": 82,
+      "KnownOptionCarrier": 15,
+      "MissingBorrowTransport": 3,
+      "MissingTypeTransport": 20,
+      "ResultCarrierNeedsVerifier": 62
+    }
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-ROUTE-VERIFY-CLUSTER-001"
+}

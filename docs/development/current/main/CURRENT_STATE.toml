@@ -25,10 +25,10 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1936-MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001.md"
+latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-ROUTE-VERIFY-CLUSTER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1937-MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-ROUTE-VERIFY-CLUSTER-001.md"
 latest_card_summary = """The latest card partitions the remaining
-JoinIRPlanCluster MissingProjectionPolicy surface into 120 machine-derived
+JoinIRRouteVerifyCluster MissingProjectionPolicy surface into 81 machine-derived
 subclusters while keeping Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1937 partitions JoinIRRouteVerifyCluster MissingProjectionPolicy into 81 subclusters.",
   "2026-06-30: 1936 partitions JoinIRPlanCluster MissingProjectionPolicy into 120 subclusters.",
   "2026-06-30: 1935 materializes the PhiMaterializerFeature constructor descriptor and exhausts the current projection-policy queue.",
   "2026-06-30: 1934 materializes the EmissionSsaPhi contract/lifecycle descriptor.",
