@@ -1,0 +1,202 @@
+{
+  "claims": {
+    "descriptor_selected": 1,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProjectionPolicyDescriptor",
+    "reason_token": "PhiMaterializerFeatureConstructorDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.phi_materializer_feature::FixtureMapped::PhiMaterializerFeatureCluster::borrow=NoBorrow::control=PhiRequired::type=Known::call=AllKnown::verifier=Present",
+    "selected_cluster_ids": [
+      "projection_policy::UnsupportedDirectShape::shape.phi_materializer_feature::FixtureMapped::PhiMaterializerFeatureCluster::borrow=NoBorrow::control=PhiRequired::type=Known::call=AllKnown::verifier=Present"
+    ],
+    "source_count": 7,
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderPhiMaterializerFeatureProjectionPolicyV1",
+  "phi_materializer_feature_descriptor": {
+    "closure_constructors": [
+      "LoopCondBreakContinuePhiClosure::new",
+      "LoopCondContinueOnlyPhiClosure::new",
+      "LoopCondContinueWithReturnPhiClosure::new",
+      "LoopCondReturnInBodyPhiClosure::new",
+      "LoopTrueBreakContinuePhiClosure::new"
+    ],
+    "core_phi_info_builders": [
+      "build_phi_info"
+    ],
+    "descriptor_id": "phi_materializer_feature_constructors_v1",
+    "loop_binding_builders": [
+      "build_loop_bindings"
+    ],
+    "mutation_frame": [],
+    "return_contract": "route-local PHI carrier data constructors",
+    "returned_borrow": 0,
+    "role_counts": {
+      "core_phi_info_builder": 1,
+      "loop_binding_builder": 1,
+      "route_local_closure_constructor": 5
+    },
+    "source_extraction": "rust_phi_materializer_constructor_helpers",
+    "source_markers": [
+      {
+        "marker": "create_phi_bindings(bindings)",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_loop_bindings:L39"
+      },
+      {
+        "marker": "CorePhiInfo {",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_phi_info:L8"
+      },
+      {
+        "marker": "Self { phis, final_values }",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::new:L29"
+      },
+      {
+        "marker": "Self { phis, final_values }",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::new:L19"
+      },
+      {
+        "marker": "continue_target",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::new:L27"
+      },
+      {
+        "marker": "continue_exit",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::new:L30"
+      },
+      {
+        "marker": "Self { phis, final_values }",
+        "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::new:L19"
+      }
+    ]
+  },
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "descriptor_selected": true,
+    "hako_projection_selected": false,
+    "owner_edge": "mirbuilder::phi_materializer_feature",
+    "policy": "PhiMaterializerFeatureConstructorDescriptor",
+    "reason_token": "PhiMaterializerFeatureConstructorDescriptorRequiredBeforeHakoProjection"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "control_flow_axis": "PhiRequired",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.phi_materializer_feature",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 39,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "bindings: &[(&str, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "loop_binding_builder",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_loop_bindings:L39",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_carriers.rs",
+      "symbol": "build_loop_bindings",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 8,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "block: BasicBlockId, dst: ValueId, inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "core_phi_info_builder",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_phi_info:L8",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_carriers.rs",
+      "symbol": "build_phi_info",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 29,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "phis: Vec<CorePhiInfo>, final_values: Vec<(String, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "route_local_closure_constructor",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::new:L29",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+      "symbol": "new",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 19,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "phis: Vec<CorePhiInfo>, final_values: Vec<(String, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "route_local_closure_constructor",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::new:L19",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs",
+      "symbol": "new",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 27,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "phis: Vec<CorePhiInfo>, final_values: Vec<(String, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "route_local_closure_constructor",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::new:L27",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs",
+      "symbol": "new",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 30,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "continue_exit: Option<CoreExitPlan>, phis: Vec<CorePhiInfo>, final_values: Vec<(String, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "route_local_closure_constructor",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::new:L30",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+      "symbol": "new",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "line": 19,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "phis: Vec<CorePhiInfo>, final_values: Vec<(String, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "route_local_closure_constructor",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::new:L19",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+      "symbol": "new",
+      "visibility": "pub(in crate::mir::builder)"
+    }
+  ],
+  "token": "MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001"
+}

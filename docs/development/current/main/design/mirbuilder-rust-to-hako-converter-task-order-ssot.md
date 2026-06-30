@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1934-MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001.md
+  1935-MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001
+2. MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001
    status=green
-   boundary=EmissionSsaPhi contract/lifecycle descriptor materialized
-   semantic_authority=emission ssa phi projection-policy fixture
+   boundary=PhiMaterializerFeature constructor descriptor materialized
+   semantic_authority=phi materializer feature projection-policy fixture
    non_authority=Hako generation, native seed, Source Selfhost claim
 
-3. MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001
-   status=next
-   boundary=continue projection-policy priority queue after EmissionSsaPhi descriptor
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=stop-line
+   boundary=projection-policy priority queue currently has no eligible cluster
    semantic_authority=projection-policy cluster priority resolver fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 ```
 
 ## Landed Converter Capability Summary
