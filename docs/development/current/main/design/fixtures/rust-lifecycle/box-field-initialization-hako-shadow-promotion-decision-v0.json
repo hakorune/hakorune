@@ -1,0 +1,33 @@
+{
+  "claims": {
+    "hako_adopted": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "python_semantic_projector_growth": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "current_stage": "HakoShadow",
+  "decision": {
+    "kind": "Promote",
+    "next_slice_token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001",
+    "owner_scope": "support_lane_projector",
+    "reason": "BoxFieldInitialization HakoShadow parity is green and the mutation-frame stage-state tokens are explicit.",
+    "reason_token": "BoxFieldInitializationHakoShadowParityGreen"
+  },
+  "family_id": "hakorune_mir_builder::statement_value_construction_box_field_initialization",
+  "hako_shadow_retained": 1,
+  "input_evidence": {
+    "hako_shadow_parity_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-hako-shadow-result-v0.json",
+    "parity_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_box_field_initialization_hako_shadow_parity_guard.sh",
+    "stage_state_inventory_guard": "tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh"
+  },
+  "kind": "MirBuilderStatementValueConstructionBoxFieldInitializationHakoShadowPromotionDecisionV1",
+  "output_contract": "rust-lifecycle-box-field-initialization-hako-shadow-promotion-decision-v0",
+  "promotion_token": "BoxFieldInitializationHakoShadowPromotionTokenV1",
+  "python_oracle_retained": 1,
+  "retirement_token": "BoxFieldInitializationHakoShadowRetirementTokenV1",
+  "schema_version": 0,
+  "selected_stage": "HakoMainline",
+  "stage_id": "box_field_initialization"
+}
