@@ -1,0 +1,89 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_shadow_projector_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMutationFrameContract",
+    "reason_token": "MutationFrameMustBeContractedBeforeBoxFieldProjection",
+    "selected_next_card": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-block-termination-predicate-projection-policy-v0.json",
+    "selected_subcluster_id": "BoxFieldInitialization",
+    "source_count": 2,
+    "subcluster_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-subcluster-decomposition-v0.json"
+  },
+  "kind": "MirBuilderStatementValueConstructionBoxFieldInitializationProjectionPolicyV1",
+  "mutation_frame_evidence": {
+    "duplicate_field_guard_detected": true,
+    "field_assignment_delegation_detected": true,
+    "field_initializer_loop_detected": true,
+    "new_box_value_created_before_field_initializers": true,
+    "object_field_state_mutated_by_delegate": true,
+    "record_constructor_field_initializers_rejected": true,
+    "user_defined_box_field_membership_guard_detected": true
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::statement_value_construction_box_field_initialization",
+    "policy": "MutationFrameContractRequired",
+    "projection_surface_selected": false,
+    "reason_token": "BoxFieldInitializationMutatesObjectFieldsAndValidatesFieldSet"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoReturnedBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.statement_value_construction",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "mutation_role": "new_box_with_field_initializers_entry",
+      "params": "&mut self, class: String, arguments: Vec<ASTNode>, field_initializers: Vec<(String, ASTNode",
+      "return_type": "",
+      "source_id": "src/mir/builder/builder_build.rs::build_new_expression_with_field_initializers:L393",
+      "source_markers": [
+        "field_initializers.is_empty()",
+        "self.is_record_constructor_class(&class)",
+        "[box-init/record-reject]",
+        "let dst = self.build_new_expression(class.clone(), arguments)?;",
+        "self.build_box_field_initializers(dst, &class, field_initializers)?;",
+        "Ok(dst)"
+      ],
+      "source_path": "src/mir/builder/builder_build.rs",
+      "symbol": "build_new_expression_with_field_initializers"
+    },
+    {
+      "mutation_role": "box_field_initializer_assignment_loop",
+      "params": "&mut self, object_value: ValueId, class: &str, field_initializers: Vec<(String, ASTNode",
+      "return_type": "",
+      "source_id": "src/mir/builder/fields.rs::build_box_field_initializers:L42",
+      "source_markers": [
+        "let mut seen = std::collections::BTreeSet::new();",
+        "for (field, value) in field_initializers",
+        "[box-init/duplicate-field]",
+        "self.comp_ctx.user_defined_boxes.contains_key(class)",
+        "[box-init/unknown-field]",
+        "self.build_field_assignment_from_value(object_value, field, value)?;",
+        "Ok(())"
+      ],
+      "source_path": "src/mir/builder/fields.rs",
+      "symbol": "build_box_field_initializers"
+    }
+  ],
+  "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001"
+}
