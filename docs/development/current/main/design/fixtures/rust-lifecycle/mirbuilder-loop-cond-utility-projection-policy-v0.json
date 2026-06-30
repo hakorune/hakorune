@@ -1,0 +1,70 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "LoopCondUtilityDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.loop_cond_utility::FixtureMapped::LoopCondUtilityCluster",
+    "source_count": 2,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderLoopCondUtilityProjectionPolicyV1",
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::loop_cond_utility",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "LoopCondUtilityDiagnosticTagHelpersAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.loop_cond_utility",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "String",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::direct_exit_reject:L38",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",
+      "symbol": "direct_exit_reject",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::is_direct_exit_reject:L48",
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",
+      "symbol": "is_direct_exit_reject",
+      "visibility": "pub(in crate::mir::builder)"
+    }
+  ],
+  "token": "MIRBUILDER-LOOP-COND-UTILITY-PROJECTION-POLICY-001",
+  "utility_evidence": [
+    "DirectExitRejectReason",
+    "DIRECT_EXIT_REJECT_TAG",
+    "direct_exit_reason_text",
+    "Backward-compatible fallback for legacy message shapes.",
+    "BlockContainsDirectExit",
+    "ExitMustBeInsideIf",
+    "BreakMustBeLast",
+    "ReturnMustBeLast"
+  ]
+}
