@@ -1,0 +1,289 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "completed_other_shape_descriptors_excluded": 1,
+    "coverage_percentage_as_proof": 0,
+    "family_manifest_consumed": 1,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "input_other_owner_cluster_count": 185,
+    "input_shape_signature_count": 11,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "other_shape_signature_inventory_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "shape_clusters_evaluated_by_evidence_quality": 1,
+    "source_selfhost_claim": 0
+  },
+  "clusters": [
+    {
+      "blocked_by": [
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow"
+      ],
+      "candidate_count": 7,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "constructor_self"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_constructor_surface",
+      "subcluster_count": 7,
+      "type_transport_axes": [
+        "ConstructorCarrier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow",
+        "NoReturnedBorrowMutableReceiver",
+        "NoReturnedBorrowSharedReceiver"
+      ],
+      "candidate_count": 21,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "custom_carrier"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_custom_carrier_surface",
+      "subcluster_count": 14,
+      "type_transport_axes": [
+        "MissingTypeTransport"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "BorrowPolicyNeeded"
+      ],
+      "candidate_count": 1,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "iterator"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_iterator_borrow_surface",
+      "subcluster_count": 1,
+      "type_transport_axes": [
+        "ReturnedIteratorNeedsPolicy"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoReturnedBorrowMutableReceiver"
+      ],
+      "candidate_count": 42,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "result"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_mutating_result_surface",
+      "subcluster_count": 20,
+      "type_transport_axes": [
+        "ResultCarrierNeedsVerifier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoReturnedBorrowMutableReceiver"
+      ],
+      "candidate_count": 12,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "unit"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_mutation_unit_surface",
+      "subcluster_count": 9,
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow",
+        "NoReturnedBorrowMutableReceiver",
+        "NoReturnedBorrowSharedReceiver"
+      ],
+      "candidate_count": 37,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "option"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_optional_read_surface",
+      "subcluster_count": 25,
+      "type_transport_axes": [
+        "KnownOptionCarrier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow",
+        "NoReturnedBorrowMutableReceiver",
+        "NoReturnedBorrowSharedReceiver"
+      ],
+      "candidate_count": 20,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "bool"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_predicate_surface",
+      "subcluster_count": 13,
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow"
+      ],
+      "candidate_count": 13,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "result"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_result_helper_surface",
+      "subcluster_count": 12,
+      "type_transport_axes": [
+        "ResultCarrierNeedsVerifier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow",
+        "NoReturnedBorrowSharedReceiver"
+      ],
+      "candidate_count": 2,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "string"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_scalar_string_surface",
+      "subcluster_count": 2,
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "ProjectionPolicyDescriptorAlreadyLanded"
+      ],
+      "borrow_axes": [
+        "NoBorrow"
+      ],
+      "candidate_count": 26,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "unit"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_unit_observer_surface",
+      "subcluster_count": 17,
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "borrow_axes": [
+        "NoBorrow",
+        "NoReturnedBorrowMutableReceiver",
+        "NoReturnedBorrowSharedReceiver"
+      ],
+      "candidate_count": 4,
+      "reason_token": "OtherShapeSignatureClusterNotSelectable",
+      "return_families": [
+        "vec"
+      ],
+      "selection_eligible": false,
+      "shape_signature": "shape.other_vector_snapshot_surface",
+      "subcluster_count": 3,
+      "type_transport_axes": [
+        "KnownVecCarrier"
+      ]
+    }
+  ],
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoUnclosedOtherShapeSignatureClusterEligible",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_shape_signature": null
+  },
+  "input_state": {
+    "completed_other_shape_signatures": [
+      "shape.other_unit_observer_surface"
+    ],
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_other_owner_cluster_count": 185,
+    "input_shape_signature_count": 11,
+    "other_shape_signature_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-inventory-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyOtherShapeSignatureClusterResolutionV2",
+  "provenance": {
+    "family_manifest_hash": "db26919ea95704213268e510dc0954a2ff25c78bc388e5cd297d56a41b231fea",
+    "other_shape_signature_inventory_hash": "264b5a4ce417e01f4175d86ddee1647a73f17586b8861e4540ec594eda9f9cee"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": 0,
+    "exclude_completed_other_shape_descriptors": 1,
+    "requires_no_borrow_or_receiver_policy_gap": 1,
+    "requires_no_carrier_policy_gap": 1,
+    "requires_type_transport_known": 1
+  },
+  "summary": {
+    "completed_shape_signature_count": 1,
+    "input_other_owner_cluster_count": 185,
+    "input_shape_signature_count": 11,
+    "selected_shape_signature": null,
+    "selection_eligible_shape_count": 0
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-002"
+}

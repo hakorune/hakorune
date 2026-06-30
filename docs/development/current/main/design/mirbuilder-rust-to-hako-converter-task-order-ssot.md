@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001
-   status=next
-   boundary=rerun priority after Other unit observer descriptor landed
-   semantic_authority=cluster priority resolver + family guard manifest fixtures
-   non_authority=manual cluster selection, cluster size as proof, Hako generation
-
-3. MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-002
-   status=conditional
-   boundary=only if priority resolver cannot consume the descriptor-completed Other shape queue
+2. MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-002
+   status=green
+   boundary=descriptor-completed Other shape queue has no unclosed eligible shape
    semantic_authority=Other shape inventory/resolution fixtures
    non_authority=family-name policy, semantic projection inference, Source Selfhost claim
 
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=stop-line
+   boundary=no machine-derived projection-policy cluster remains selectable in this queue
+   semantic_authority=1947 rerun fixture and wider-route design stop
+   non_authority=manual shape selection, cluster size as proof, Source Selfhost claim
+
 next_documented_task =
-  MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
