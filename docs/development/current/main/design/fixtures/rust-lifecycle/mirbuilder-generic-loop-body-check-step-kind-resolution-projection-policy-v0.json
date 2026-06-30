@@ -1,0 +1,146 @@
+{
+  "claims": {
+    "dispatch_resolution_selected": 1,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "consumed_validator_descriptors": {
+    "break_else_if_descriptor": "generic_loop_body_check_break_else_if_step_validation_v1",
+    "continue_if_descriptor": "generic_loop_body_check_continue_if_step_validation_v1",
+    "in_body_descriptor": "generic_loop_body_check_in_body_step_validation_v1",
+    "tail_probe_descriptor": "generic_loop_body_check_tail_control_flow_probe_v1"
+  },
+  "decision": {
+    "kind": "SelectDispatchResolutionPolicy",
+    "reason_token": "StepKindResolutionMaterialized",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-CLOSEOUT-001"
+  },
+  "dispatch_resolution": {
+    "v0": {
+      "dispatch_table": [
+        {
+          "placement": "InBody",
+          "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-in-body-step-validation-projection-policy-v0.json",
+          "validator": "validate_in_body_step"
+        },
+        {
+          "placement": "InContinueIf",
+          "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-continue-if-step-validation-projection-policy-v0.json",
+          "validator": "validate_continue_if_step"
+        },
+        {
+          "placement": "InBreakElseIf",
+          "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-break-else-if-step-validation-projection-policy-v0.json",
+          "validator": "validate_break_else_if_step"
+        },
+        {
+          "placement": "LastOrOther",
+          "policy_fixture": null,
+          "validator": "accept_without_step_validator"
+        }
+      ],
+      "planner_required_in_body_probe": "has_control_flow_after_step(&flat_body, idx)",
+      "reject_reason_handoff": "reject_or_none(strict, reason.as_freeze_message())",
+      "source_markers": [
+        "StepPlacement::InBody(idx)",
+        "validate_in_body_step(&flat_body, idx, loop_var, &loop_increment, strict)",
+        "StepPlacement::InContinueIf(idx)",
+        "validate_continue_if_step(&flat_body, idx, strict)",
+        "StepPlacement::InBreakElseIf(idx)",
+        "validate_break_else_if_step(&flat_body, idx, strict)",
+        "_ => true"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v0.rs"
+    },
+    "v1": {
+      "dispatch_table": [
+        {
+          "placement": "InBody",
+          "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-in-body-step-validation-projection-policy-v0.json",
+          "validator": "validate_in_body_step_v1"
+        },
+        {
+          "placement": "InContinueIf",
+          "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-continue-if-step-validation-projection-policy-v0.json",
+          "validator": "validate_continue_if_step"
+        },
+        {
+          "placement": "InBreakElseIf",
+          "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-break-else-if-step-validation-projection-policy-v0.json",
+          "validator": "validate_break_else_if_step"
+        },
+        {
+          "placement": "LastOrOther",
+          "policy_fixture": null,
+          "validator": "accept_without_step_validator"
+        }
+      ],
+      "planner_required_in_body_probe": "has_control_flow_after_step(flat_body, idx)",
+      "reject_reason_handoff": "StepResolutionErr::Freeze",
+      "source_markers": [
+        "StepPlacement::InBody(idx)",
+        "validate_in_body_step_v1(flat_body, idx, loop_var, &loop_increment, strict)",
+        "StepPlacement::InContinueIf(idx)",
+        "validate_continue_if_step(flat_body, idx, strict)",
+        "StepPlacement::InBreakElseIf(idx)",
+        "validate_break_else_if_step(flat_body, idx, strict)",
+        "_ => true"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs"
+    }
+  },
+  "input_state": {
+    "break_else_if_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-break-else-if-step-validation-projection-policy-v0.json",
+    "continue_if_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-continue-if-step-validation-projection-policy-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "in_body_step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-in-body-step-validation-projection-policy-v0.json",
+    "tail_control_flow_probe_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-tail-control-flow-probe-projection-policy-v0.json"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckStepKindResolutionProjectionPolicyV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "dispatch_resolution_selected": true,
+    "hako_projection_selected": false,
+    "owner_edge": "mirbuilder::generic_loop_body_check_step_kind_resolution",
+    "policy": "SourceExtractedStepKindDispatchResolution",
+    "reason_token": "StepKindDispatchResolutionRequiredBeforeHakoProjection"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_step_kind_resolution",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "step_placement_variants": {
+    "source_markers": [
+      "enum StepPlacement",
+      "Last",
+      "InBody(usize)",
+      "InContinueIf(usize)",
+      "InBreakElseIf(usize)"
+    ],
+    "source_path": "src/mir/builder/control_flow/generic_loop_canon/types.rs",
+    "variants": [
+      "Last",
+      "InBody",
+      "InContinueIf",
+      "InBreakElseIf"
+    ]
+  },
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-KIND-RESOLUTION-PROJECTION-POLICY-001"
+}
