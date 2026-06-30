@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1896-MIRBUILDER-CALL-LOWERING-POLICY-SUBCLUSTER-DECOMPOSITION-001.md
+  1897-MIRBUILDER-CALL-LOWERING-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
