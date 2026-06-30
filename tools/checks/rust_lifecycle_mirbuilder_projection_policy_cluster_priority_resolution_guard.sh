@@ -32,27 +32,27 @@ if token not in card:
 summary = fixture["summary"]
 if summary["eligible_cluster_count"] != 41:
     raise SystemExit("eligible cluster count drift")
-if summary["excluded_existing_decision_cluster_count"] != 36:
+if summary["excluded_existing_decision_cluster_count"] != 38:
     raise SystemExit("excluded existing decision count drift")
-if summary["selectable_cluster_count"] != 5:
+if summary["selectable_cluster_count"] != 3:
     raise SystemExit("selectable cluster count drift")
-if summary["selected_candidate_count"] != 6:
+if summary["selected_candidate_count"] != 5:
     raise SystemExit("selected candidate count drift")
-expected_cluster = "projection_policy::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::LoopBreakPlanCluster::borrow=NoBorrow::control=StructuredLoop::type=Known::call=AllKnown::verifier=Present"
+expected_cluster = "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster::borrow=NoBorrow::control=PhiRequired::type=Known::call=AllKnown::verifier=Present"
 if summary["selected_cluster_id"] != expected_cluster:
     raise SystemExit("selected cluster drift")
 if summary["cluster_size_as_proof"] != 0:
     raise SystemExit("cluster size must not be proof")
 
 ranked = fixture["ranked_clusters"]
-if len(ranked) != 5:
+if len(ranked) != 3:
     raise SystemExit("ranked cluster count drift")
 if ranked[0]["cluster_id"] != expected_cluster:
     raise SystemExit("rank 1 cluster drift")
-if ranked[0]["next_card"] != "MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001":
+if ranked[0]["next_card"] != "MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001":
     raise SystemExit("rank 1 next card drift")
 excluded = fixture.get("excluded_existing_decision_clusters") or []
-if len(excluded) != 36:
+if len(excluded) != 38:
     raise SystemExit("excluded existing decision clusters drift")
 if excluded[0]["next_card"] != "MIRBUILDER-LOOP-COND-BC-CARRIER-SYNC-PROJECTION-POLICY-001":
     raise SystemExit("expected carrier sync to be excluded first")
@@ -64,7 +64,7 @@ if decision["kind"] != "SelectProjectionPolicyCluster":
     raise SystemExit("decision kind drift")
 if decision["selected_cluster_id"] != expected_cluster:
     raise SystemExit("decision cluster drift")
-if decision["selected_next_card"] != "MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001":
+if decision["selected_next_card"] != "MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001":
     raise SystemExit("decision next card drift")
 
 claims = fixture["claims"]
@@ -74,9 +74,9 @@ if claims.get("existing_decision_filter_enabled") != 1:
     raise SystemExit("existing decision filter claim missing")
 if claims.get("source_cluster_decomposition_filter_enabled") != 1:
     raise SystemExit("source cluster decomposition filter claim missing")
-if claims.get("excluded_existing_decision_cluster_count") != 36:
+if claims.get("excluded_existing_decision_cluster_count") != 38:
     raise SystemExit("excluded existing decision claim drift")
-if claims.get("selectable_cluster_count") != 5:
+if claims.get("selectable_cluster_count") != 3:
     raise SystemExit("selectable cluster count claim drift")
 if claims.get("cluster_size_tiebreaker_only") != 1:
     raise SystemExit("cluster size tiebreaker claim missing")
@@ -104,7 +104,7 @@ PY
 cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-projection-policy-cluster-priority-resolution-v0
 eligible_cluster_count=41
-selected_next_card=MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001
+selected_next_card=MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001
 cluster_size_as_proof=0
 manual_family_selection=0
 source_selfhost_claim=0

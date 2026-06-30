@@ -82,11 +82,52 @@ def decomposed_cluster_ids(family_manifest: dict[str, Any]) -> set[str]:
     return cluster_ids
 
 
+def landed_projection_cluster_ids_by_token(family_manifest: dict[str, Any]) -> dict[str, set[str]]:
+    cluster_ids_by_token: dict[str, set[str]] = {}
+    for row in family_manifest.get("rows", []):
+        token = row.get("token")
+        fixture_path = row.get("fixture") or ""
+        if not token or "PROJECTION-POLICY" not in token or not fixture_path:
+            continue
+        path = ROOT / fixture_path
+        if not path.exists() or path == OUTPUT:
+            continue
+        try:
+            fixture = read_json(path)
+        except json.JSONDecodeError:
+            continue
+        input_state = fixture.get("input_state") or {}
+        selected_cluster_ids = input_state.get("selected_cluster_ids") or []
+        selected_cluster_id = input_state.get("selected_cluster_id")
+        if selected_cluster_id:
+            selected_cluster_ids = [selected_cluster_id, *selected_cluster_ids]
+        if selected_cluster_ids:
+            cluster_ids_by_token.setdefault(token, set()).update(selected_cluster_ids)
+    return cluster_ids_by_token
+
+
 def cluster_matches_decomposition(cluster: dict[str, Any], decomposed_ids: set[str]) -> bool:
     return (
         cluster["cluster_id"] in decomposed_ids
         or cluster.get("legacy_cluster_id") in decomposed_ids
     )
+
+
+def cluster_matches_landed_decision(
+    cluster: dict[str, Any],
+    next_card: str,
+    existing_tokens: set[str],
+    landed_ids_by_token: dict[str, set[str]],
+) -> bool:
+    if next_card not in existing_tokens:
+        return False
+    landed_ids = landed_ids_by_token.get(next_card)
+    if landed_ids:
+        return (
+            cluster["cluster_id"] in landed_ids
+            or cluster.get("legacy_cluster_id") in landed_ids
+        )
+    return True
 
 
 def priority_tuple(cluster: dict[str, Any]) -> tuple[Any, ...]:
@@ -106,6 +147,7 @@ def build_resolution() -> dict[str, Any]:
     family_manifest = read_json(FAMILY_MANIFEST)
     existing_tokens = {row["token"] for row in family_manifest.get("rows", [])}
     existing_decomposed_cluster_ids = decomposed_cluster_ids(family_manifest)
+    landed_cluster_ids_by_token = landed_projection_cluster_ids_by_token(family_manifest)
     eligible = [
         cluster for cluster in cluster_resolution["clusters"]
         if cluster.get("selection_eligible") is True
@@ -117,13 +159,13 @@ def build_resolution() -> dict[str, Any]:
     excluded_existing = [
         (cluster, next_card)
         for cluster, next_card in eligible_with_cards
-        if next_card in existing_tokens
+        if cluster_matches_landed_decision(cluster, next_card, existing_tokens, landed_cluster_ids_by_token)
         or cluster_matches_decomposition(cluster, existing_decomposed_cluster_ids)
     ]
     selectable = [
         cluster
         for cluster, next_card in eligible_with_cards
-        if next_card not in existing_tokens
+        if not cluster_matches_landed_decision(cluster, next_card, existing_tokens, landed_cluster_ids_by_token)
         and not cluster_matches_decomposition(cluster, existing_decomposed_cluster_ids)
     ]
     ranked = sorted(selectable, key=priority_tuple)
@@ -178,6 +220,7 @@ def build_resolution() -> dict[str, Any]:
             "enabled": True,
             "excluded_cluster_count": len(excluded_existing),
             "reason_token": "ProjectionPolicyDecisionAlreadyLanded",
+            "exact_selected_cluster_filter_enabled": True,
             "source_cluster_decomposition_filter_enabled": True,
         },
         "excluded_existing_decision_clusters": [
@@ -215,6 +258,7 @@ def build_resolution() -> dict[str, Any]:
         "claims": {
             "eligible_cluster_count": len(eligible),
             "existing_decision_filter_enabled": 1,
+            "exact_selected_cluster_filter_enabled": 1,
             "source_cluster_decomposition_filter_enabled": 1,
             "excluded_existing_decision_cluster_count": len(excluded_existing),
             "selectable_cluster_count": len(selectable),
