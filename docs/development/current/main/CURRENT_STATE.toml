@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TAIL-CONTROL-FLOW-PROBE-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1914-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TAIL-CONTROL-FLOW-PROBE-PROJECTION-POLICY-001.md"
+latest_card = "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-IN-BODY-STEP-VALIDATION-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1915-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-IN-BODY-STEP-VALIDATION-PROJECTION-POLICY-001.md"
 latest_card_summary = """The latest card materializes the GenericLoop
-body-check tail control-flow probe descriptor and selects in-body step
-validation next."""
+in-body step validation descriptor and selects continue-if step validation
+next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1915 materializes the GenericLoop in-body step validation descriptor.",
   "2026-06-30: 1914 materializes the GenericLoop body-check tail control-flow probe descriptor.",
   "2026-06-30: 1913 decomposes GenericLoop body-check step validation into narrower subclusters.",
   "2026-06-30: 1912 records the GenericLoop trim-condition matcher as a composite descriptor.",
@@ -64,5 +65,4 @@ landed_tail = [
   "2026-06-30: 1892 keeps PlannerPolicy stable tag helper surfaces under their parent owner.",
   "2026-06-30: 1891 keeps PlanNormalizer local helper surfaces under their parent owner.",
   "2026-06-30: 1890 keeps PlanComposer CoreLoop gate predicates under their parent owner.",
-  "2026-06-30: 1889 keeps PlanLowerer span-formatting helper under its parent owner.",
 ]
