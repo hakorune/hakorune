@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003.
-  Rerun native-owner seed capability after borrow, carrier/type, and emission
-  evidence updates.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  The post-emission native-owner seed capability rerun found no machine-derived
+  native seed candidate. Implementation work stops here until the wider route
+  selection basis is updated by design consultation or new machine evidence.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -171,30 +172,23 @@ completed:
   projection descriptor queue exhausted
   Other shape queue exhausted
   strict-deny near-miss projection clusters exhausted
+  returned mutable borrow cluster -> BoundedWithMapOperation policy
+  current_bindings bounded mutation-frame descriptor
+  multi-axis diagnostic cluster resolution
+  carrier/type transport policy inventory
+  strict converter emission probe
+  native-owner seed capability rerun 003
 
-next_priority_1:
-  MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001
-  purpose = choose ExplicitMutationApiOnly / MutLease / Defer for selected mutable borrow cluster
-  output = policy decision or design stop with stable reason
-
-next_priority_2:
-  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
-  purpose = split 185 multi-axis denies into owner-edge / shape / type / borrow blockers
-  output = exactly one repair lane or KeepStopped with stable reason
-
-next_priority_3:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
-  purpose = inventory Result / Option / Vec / iterator / carrier transport gaps
-  output = policy lane candidates only, not Hako generation
-
-next_priority_4:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
-  purpose = measure which descriptor-covered surfaces can produce VerifiedHakoFamilyIR
-  output = diagnostic emission capability only, no adoption or fallback
-
-rerun_after_policy_delta:
+latest_rerun_result:
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
-  condition = a borrow/carrier/type policy or emission probe changes evidence
+  decision = KeepStopped
+  reason = NoMachineDerivedNativeOwnerSeedCandidateAfterStrictEmissionProbe
+  next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+
+next_action:
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  purpose = design consultation / basis update before further implementation
+  output = machine-checkable wider-route basis or remain stopped
 
 forbidden:
   strict rule weakening as executable conversion
