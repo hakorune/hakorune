@@ -1073,6 +1073,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-deny-near-miss-cluster-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_strict_deny_near_miss_cluster_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CONVERTER-COMPLETION-TASK-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1953-MIRBUILDER-CONVERTER-COMPLETION-TASK-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-converter-completion-task-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_converter_completion_task_inventory_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

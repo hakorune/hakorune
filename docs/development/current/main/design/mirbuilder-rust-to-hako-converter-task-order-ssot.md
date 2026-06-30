@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001.
-  Resolve diagnostic near-miss clusters against the projection descriptor
-  ledger without weakening strict conversion.
+  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001.
+  Classify the remaining unknown borrow surfaces before any new Hako emission
+  or native owner seed selection.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -149,188 +149,60 @@ latest design decision:
   pilot target selection now narrows progress to ReturnEmission, treating
   support-lane projectors as seed pilot targets but not HakoAdopted candidates.
 
-## Source Selfhost Adoption Plan Evidence
+## Converter Completion Task Inventory
 
 ```text
-candidate_pool_state = Blocked
-native_surface_candidate_state = CandidateEligible
-native_surface_id = VariableContextNativeSurfaceNoReturnedBorrowV1
-native_surface_adoption_decision = Adopt
-post_variable_context_surface_resolution = DesignConsultationRequired
-post_variable_context_surface_reason = NoRemainingMachineDerivedNativeSurfaceCandidate
-returned_read_repair_route = OwnedReadSnapshotProjection
-owned_read_snapshot_projection = OwnedReadSnapshotProjection
-returned_read_route_candidate_state = CandidateEligible
-route_matrix_rerun_surface = VariableContextNativeSurfaceOwnedReadSnapshotV1
-owned_read_snapshot_surface_adoption_decision = Adopt
-decision=Adopt
-post_owned_snapshot_resolution = DesignConsultationRequired
-post_owned_snapshot_resolution_reason = ReturnedMutableBorrowPolicyRequired
-returned_mutable_borrow_policy = ExplicitMutationApiOnly
-returned_mutable_borrow_owner_kind = VariableContextReturnedMutableBorrowPolicyDecision
-reference_projection_contract = MIRBUILDER-VARIABLE-CONTEXT-REFERENCE-PROJECTION-CONTRACT-001
-reference_projection_contract_output = rust-lifecycle-variable-context-reference-projection-contract-v0
-projection_model = SemanticOneToOneVerifiedProjection
-syntax_one_to_one_required = 0
-variable_map_projection = OwnedReadSnapshotProjection
-variable_map_mut_projection = ExplicitMutationApiOnly
-bounded_native_surface_readiness = ReadyForBoundedVariableContextNativeSurfaceConsumer
-  bounded_native_surface_readiness_contract = rust-lifecycle-mirbuilder-variable-context-bounded-native-surface-readiness-resolution-v0
-  bounded_native_surface_selected = VariableContextNativeSurfaceExplicitMutationApiOnlyV1
-entries_snapshot_state = NotNeededForBoundedNativeSurface
-next_route_family_selection_policy = SOURCE-SELFHOST-NEXT-ROUTE-FAMILY-SELECTION-POLICY-001
-next_route_family_selection_decision = KeepSourceSelfhostStopped
-next_route_family_selection_reason = NoEligibleNativeAdoptionCandidate
-next_route_family_selection_recovery = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-next_route_family_selection_recovery_contract = rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0
-consultation_gated_wider_route_selection = 1
-manual_family_selection = 0
-machine_derived_route_repair_allowed = 1
-classification_partition_complete = 1
-support_lane_projector_as_adoption_candidate = 0
-mut_lease_state = DeferredUntilLiveNeed
-mainline_readiness = Ready
-mainline_readiness_decision = ReadyForMinimalPathMainlinePilot
-mainline_next_unconsumed_edge = Closed
-mainline_generated_hako_executable_closure = Closed
-mainline_same_state_handoff_observed = 1
-mainline_pilot_next_slice = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
-artifact_selfhost_checkpoint = ARTIFACT-SELFHOST-CHECKPOINT-001
-mainline_pilot = MIRBUILDER-MINIMAL-PATH-MAINLINE-PILOT-001
-source_selfhost_adoption_plan = SOURCE-SELFHOST-ADOPTION-PLAN-001
-blocked_recovery_diagnostic = SOURCE-SELFHOST-BLOCKED-RECOVERY-DIAGNOSTIC-001
-native_surface_selection = VARIABLE-CONTEXT-NATIVE-SURFACE-ADOPTION-SELECTION-001
-native_surface_adoption = VARIABLE-CONTEXT-NATIVE-SURFACE-HAKO-ADOPTION-DECISION-001
-post_surface_resolution = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-SURFACE-RESOLUTION-001
-returned_read_snapshot_route = MIRBUILDER-VARIABLE-CONTEXT-RETURNED-READ-SNAPSHOT-ROUTE-001
-owned_read_snapshot_projection_card = MIRBUILDER-VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-PROJECTION-001
-route_matrix_rerun = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-001
-owned_read_snapshot_surface_adoption = VARIABLE-CONTEXT-OWNED-READ-SNAPSHOT-HAKO-ADOPTION-DECISION-001
-post_owned_snapshot_resolution_card = SOURCE-SELFHOST-POST-VARIABLE-CONTEXT-OWNED-SNAPSHOT-RESOLUTION-001
-explicit_mutation_surface_selection = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-SURFACE-SELECTION-001
-explicit_mutation_projection = MIRBUILDER-VARIABLE-CONTEXT-EXPLICIT-MUTATION-API-PROJECTION-001
-route_matrix_rerun_002 = MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-RERUN-002
-replace_owned_map_native_api = 1
-explicit_mutation_surface_state = Adopt
-post_explicit_mutation_resolution_contract = rust-lifecycle-source-selfhost-post-variable-context-explicit-mutation-resolution-v0
-next_action = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-resume_condition = ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair
-runner_task_breakdown = SOURCE-SELFHOST-RUNNER-AND-ROUTE-TASK-BREAKDOWN-001
-runner_task_breakdown_output = rust-lifecycle-source-selfhost-runner-and-route-task-breakdown-v0
-single_hako_meaning_source = 1
-runner_semantic_owner = 0
-future_interpreter_required_for_projector_migration = 0
-next_task_pack = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
-route_selection_basis = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
-route_selection_basis_output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-v0
-route_selection_resolution = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
-route_selection_resolution_output_contract = rust-lifecycle-source-selfhost-wider-route-selection-resolution-v0
-docs_guard_maintenance_reduction = SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001
-docs_guard_maintenance_output = rust-lifecycle-source-selfhost-docs-guard-maintenance-reduction-v0
-readiness_guard_realignment = MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001
-current_pointer_decouple = GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001
-source_selfhost_family_guard = GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001
-source_selfhost_family_guard_output = rust-lifecycle-source-selfhost-family-guard-manifest-v0
-compact_current_state = DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001
-task_order_thinning = DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001
-check_index_family_view = DOCS-CHECK-INDEX-FAMILY-VIEW-001
-post_maintenance_task_inventory = SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001
-maintenance_sequence_next =
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
-deferred_semantic_next =
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
-native_slice_decomposition =
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
-native_slice_decomposition_output =
-  rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0
-native_slice_decomposition_decision = KeepStopped
-native_slice_decomposition_reason = NoCandidateAfterNativeSliceDecomposition
-native_slice_decomposition_candidate_eligible_count = 0
-native_slice_decomposition_repairable_inconsistency_count = 0
-native_slice_decomposition_selected_next_card =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-native_slice_decomposition_manual_family_selection = 0
-native_slice_decomposition_source_selfhost_claim = 0
-native_owner_seed_inventory =
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001
-native_owner_seed_inventory_output =
-  rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0
-native_owner_seed_inventory_decision = KeepStopped
-native_owner_seed_inventory_reason = NoNativeOwnerSeedCandidate
-native_owner_seed_candidate_count = 0
-composition_owner_as_semantic_owner = 0
-generated_artifact_as_edit_authority = 0
-native_owner_seed_selected_next_card =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-generated_artifact_to_native_owner_seed_policy =
-  MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001
-generated_artifact_to_native_owner_seed_policy_output =
-  rust-lifecycle-mirbuilder-generated-artifact-to-native-owner-seed-policy-v0
-generated_artifact_to_native_owner_seed_policy_decision = PolicyDefined
-generated_artifact_to_native_owner_seed_next_resolution =
-  MIRBUILDER-GENERATED-ARTIFACT-NATIVE-OWNER-SEED-CANDIDATE-RESOLUTION-001
-seed_candidate_requires_leaf_semantic_owner = 1
-seed_candidate_requires_verified_artifact = 1
-seed_candidate_requires_deterministic_regeneration = 1
-seed_materialization_is_separate_card = 1
-hako_adoption_decision_is_separate_card = 1
-native_owner_seed_pilot_target_selection =
-  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001
-native_owner_seed_pilot_target_selection_output =
-  rust-lifecycle-mirbuilder-native-owner-seed-pilot-target-selection-v0
-native_owner_seed_pilot_selected_target = ReturnEmission
-native_owner_seed_pilot_next_card =
-  MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
-return_emission_native_source_seed =
-  MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001
-return_emission_native_source_seed_output =
-  rust-lifecycle-mirbuilder-return-emission-hako-native-source-seed-v0
-return_emission_native_source_path =
-  lang/src/compiler/lib/return_emission_native_seed.hako
-return_emission_generator_overwrite_guard = 1
-return_emission_hako_adoption_decision =
-  MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
-return_emission_hako_adoption_decision_output =
-  rust-lifecycle-mirbuilder-return-emission-hako-adoption-decision-v0
-return_emission_hako_adopted = 1
-return_emission_source_selfhost_claim = 0
-native_owner_seed_pilot_target_selection_002 =
-  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002
-native_owner_seed_pilot_002_selected_target = FunctionRegionStackPop
-native_owner_seed_pilot_002_next_card =
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
-function_region_stack_pop_native_source_seed =
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001
-function_region_stack_pop_native_source_path =
-  lang/src/compiler/lib/function_region_stack_pop_native_seed.hako
-function_region_stack_pop_generator_overwrite_guard = 1
-function_region_stack_pop_hako_adoption_decision =
-  MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001
-function_region_stack_pop_hako_adopted = 1
-function_region_stack_pop_source_selfhost_claim = 0
-native_owner_seed_pilot_target_selection_003 =
-  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003
-native_owner_seed_pilot_003_selected_target = SlotRegistryRelease
-native_owner_seed_pilot_003_next_card =
-  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001
-slot_registry_release_native_source_seed =
-  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001
-slot_registry_release_hako_adoption_decision =
-  MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001
-slot_registry_release_hako_adopted = 1
-current_seed_pilot_targets_all_adopted = 1
-support_lane_projector_as_hako_adoption_candidate = 0
-support_lane_projector_as_seed_pilot_target = 1
-conditional_route_matrix_repair =
-  <ROUTE-FAMILY>-ROUTE-MATRIX-REPAIR-001
-  only_after = ConcreteRouteMatrixInconsistency
-old_1650_design_stop = provenance_only
-```
+source_selfhost_status = Stopped
+source_selfhost_blocker = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+
+latest_diagnostics:
+  unconverted_surface_count = 1584
+  missing_projection_policy_count = 1384
+  borrow_surface_needs_policy_count = 112
+  needs_multiple_diagnostic_axes_count = 185
+  still_unsupported_count = 18
+  near_miss_projection_policy_only_count = 1199
+  unclosed_near_miss_projection_policy_cluster_count = 0
+
+completed:
+  VariableContext returned read borrow -> OwnedReadSnapshotProjection
+  VariableContext returned mutable borrow -> ExplicitMutationApiOnly
+  ReturnEmission / FunctionRegionStackPop / SlotRegistryRelease HakoAdopted
+  projection descriptor queue exhausted
+  Other shape queue exhausted
+  strict-deny near-miss projection clusters exhausted
+
+next_priority_1:
+  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
+  purpose = classify 112 unknown borrow surfaces by borrow kind and owner confidence
+  output = exactly one borrow policy lane or KeepStopped with stable reason
+
+next_priority_2:
+  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
+  purpose = split 185 multi-axis denies into owner-edge / shape / type / borrow blockers
+  output = exactly one repair lane or KeepStopped with stable reason
+
+next_priority_3:
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
+  purpose = inventory Result / Option / Vec / iterator / carrier transport gaps
+  output = policy lane candidates only, not Hako generation
+
+next_priority_4:
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
+  purpose = measure which descriptor-covered surfaces can produce VerifiedHakoFamilyIR
+  output = diagnostic emission capability only, no adoption or fallback
+
+rerun_after_policy_delta:
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
+  condition = a borrow/carrier/type policy or emission probe changes evidence
 
 forbidden:
-  callee-name branches; C-side ArrayBox inference; scalar fail-code
-  reinterpretation; mixed-runtime promotion; extern fallback; new route kind;
-  new canonical MIR instruction; runtime fallback
+  strict rule weakening as executable conversion
+  manual family / shape / axis selection
+  cluster size or coverage percentage as proof
+  generated artifact as native edit authority
+  runtime fallback, new backend route, new ABI, new Python SemanticProjector
+  Source Selfhost claim
 ```
 
 ## Evidence Pointers
@@ -373,23 +245,23 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001
-   status=green
-   boundary=diagnostic relaxed classification only; strict conversion unchanged
-   semantic_authority=near-miss diagnostic fixture and strict unconverted report
-   non_authority=Hako generation, relaxed executable conversion, Source Selfhost claim
+2. MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
+   status=next
+   boundary=classify 112 unknown borrow surfaces without selecting MutLease by default
+   semantic_authority=unconverted report and borrow projection SSOT
+   non_authority=raw borrow alias transport, runtime fallback, Hako generation
 
-3. MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
-   status=green
-   boundary=all near-miss projection-policy clusters are covered by existing descriptors
-   semantic_authority=near-miss resolution fixture and descriptor ledger
-   non_authority=manual cluster selection, cluster size as proof, Hako generation
+3. MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
+   status=queued
+   boundary=split 185 multi-axis denies after borrow policy clustering
+   semantic_authority=near-miss diagnostic fixture and unconverted report
+   non_authority=manual axis selection, cluster size as proof, Source Selfhost claim
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
 
 next_after_active_3 =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
 ```
 
 ## Landed Converter Capability Summary
