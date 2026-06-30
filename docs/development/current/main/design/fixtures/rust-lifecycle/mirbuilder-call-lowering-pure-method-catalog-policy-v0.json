@@ -1,0 +1,96 @@
+{
+  "catalog_descriptor": {
+    "box_count": 4,
+    "descriptor_kind": "PureMethodCatalogDescriptorV1",
+    "entries": [
+      {
+        "box_name": "BoolBox",
+        "method_count": 1,
+        "methods": [
+          "not"
+        ]
+      },
+      {
+        "box_name": "FloatBox",
+        "method_count": 3,
+        "methods": [
+          "ceil",
+          "floor",
+          "round"
+        ]
+      },
+      {
+        "box_name": "IntegerBox",
+        "method_count": 2,
+        "methods": [
+          "abs",
+          "toString"
+        ]
+      },
+      {
+        "box_name": "StringBox",
+        "method_count": 4,
+        "methods": [
+          "length",
+          "lower",
+          "trim",
+          "upper"
+        ]
+      }
+    ],
+    "entry_count": 10,
+    "source_extracted": true
+  },
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_extracted_catalog": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectCatalogDescriptor",
+    "reason_token": "PureMethodCatalogDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-CALL-LOWERING-VALUE-RETURN-AST-SCAN-PROJECTION-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "feature_predicates_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-feature-predicates-projection-policy-v0.json",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-unified-call-mode-gate-projection-policy-v0.json",
+    "selected_feature_subcluster_id": "PureMethodCatalog",
+    "source_count": 1
+  },
+  "kind": "MirBuilderCallLoweringPureMethodCatalogPolicyV1",
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::call_lowering_pure_method_catalog",
+    "policy": "MaterializeCatalogDescriptor",
+    "projection_surface_selected": false,
+    "reason_token": "PureMethodPredicateIsSourceCatalog",
+    "registry_descriptor_selected": true
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.catalog_predicate",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surface": {
+    "catalog_source": "match (box_name, method)",
+    "params": "box_name: &str, method: &str",
+    "return_type": "bool",
+    "source_id": "src/mir/builder/calls/effects_analyzer.rs::is_pure_method:L117",
+    "source_path": "src/mir/builder/calls/effects_analyzer.rs",
+    "symbol": "is_pure_method"
+  },
+  "token": "MIRBUILDER-CALL-LOWERING-PURE-METHOD-CATALOG-POLICY-001"
+}
