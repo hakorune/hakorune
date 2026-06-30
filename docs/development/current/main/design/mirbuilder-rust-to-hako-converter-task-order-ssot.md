@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1935-MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001.md
+  1936-MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -385,8 +385,11 @@ history, not in this task-order SSOT.
    semantic_authority=projection-policy cluster priority resolver fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
+next_documented_task =
+  MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001
+
 next_after_active_3 =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001
 ```
 
 ## Landed Converter Capability Summary
