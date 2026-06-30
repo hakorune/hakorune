@@ -49,8 +49,6 @@ for cluster in cluster_fixture["clusters"]:
 selected_cluster = priority_fixture["decision"]["selected_cluster_id"]
 if selected_cluster and "borrow=" not in selected_cluster:
     raise SystemExit("priority selected cluster must use axis-qualified cluster_id")
-if priority_fixture["decision"]["selected_next_card"] != "MIRBUILDER-RECIPE-TREE-MATCHER-PROJECTION-POLICY-001":
-    raise SystemExit("priority next card drift")
 
 claims = cluster_fixture["claims"]
 if claims.get("cluster_id_is_unique") != 1:

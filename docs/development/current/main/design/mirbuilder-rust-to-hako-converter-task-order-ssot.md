@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001.
-  Keep crate-wide projection-policy cluster IDs axis-qualified before opening
-  the next selected RecipeTreeMatcher projection policy. Legacy cluster IDs are
-  retained only for historical decomposition filters.
+  MIRBUILDER-UNCONVERTED-SURFACE-CFG-TEST-FILTER-REPAIR-001.
+  Keep cfg(test) Rust helper methods visible as TestOnlySurface diagnostics
+  while excluding them from projection-policy owner selection.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -343,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1921-MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001.md
+  1922-MIRBUILDER-UNCONVERTED-SURFACE-CFG-TEST-FILTER-REPAIR-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -374,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001
+2. MIRBUILDER-UNCONVERTED-SURFACE-CFG-TEST-FILTER-REPAIR-001
    status=green
-   boundary=axis-qualified cluster IDs with legacy ID compatibility
-   semantic_authority=missing-projection cluster fixture, priority resolver fixture
+   boundary=cfg(test) helpers remain diagnostics, not projection policy owners
+   semantic_authority=unconverted surface report, priority resolver fixture
    non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
 
-3. MIRBUILDER-RECIPE-TREE-MATCHER-PROJECTION-POLICY-001
+3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-PROJECTION-POLICY-001
    status=next
-   boundary=selected axis-qualified RecipeTreeMatcher cluster has 3 known-transport candidates
+   boundary=selected axis-qualified StatementValueConstruction cluster has 10 known-transport candidates
    semantic_authority=projection-policy priority resolver fixture
    non_authority=manual family selection, blocked sibling clusters, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-RECIPE-TREE-MATCHER-PROJECTION-POLICY-001
+  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary

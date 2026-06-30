@@ -309,6 +309,22 @@ def source_id(path: Path, symbol: str, line: int) -> str:
     return f"{rel(path)}::{symbol}:L{line}"
 
 
+def has_cfg_test_attribute(text: str, match_start: int) -> bool:
+    prefix = text[:match_start].splitlines()
+    for line in reversed(prefix[-8:]):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#[cfg(test"):
+            return True
+        if stripped.startswith("#[cfg_attr(") and "test" in stripped:
+            return True
+        if stripped.startswith("#["):
+            continue
+        break
+    return False
+
+
 def extract_surfaces() -> list[dict[str, Any]]:
     surfaces: list[dict[str, Any]] = []
     for root in SOURCE_ROOTS:
@@ -338,6 +354,7 @@ def extract_surfaces() -> list[dict[str, Any]]:
                         "return_type": ret,
                         "params": params,
                         "is_public_surface": visibility.startswith("pub"),
+                        "cfg_test_surface": has_cfg_test_attribute(text, match.start()),
                     }
                 )
     return surfaces
@@ -495,7 +512,7 @@ def classify(surface: dict[str, Any]) -> dict[str, Any]:
     next_owner_kind = "OwnerEdgeClassification"
     next_card = "<OWNER>-OWNER-EDGE-CLASSIFICATION-001"
 
-    if "/tests" in path or path.endswith("tests.rs") or "_test" in symbol:
+    if surface.get("cfg_test_surface") or "/tests" in path or path.endswith("tests.rs") or "_test" in symbol:
         classification = "TestOnlySurface"
         reason = "TestOnlySurfaceIgnored"
         next_owner_kind = "None"

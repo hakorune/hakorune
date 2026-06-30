@@ -35,15 +35,15 @@ if f"# 1875 - {token}" not in card:
 
 if fixture["input_state"]["selected_priority"] != "MissingProjectionPolicy":
     raise SystemExit("selected priority drift")
-if fixture["input_state"]["selected_priority_candidate_count"] != 1396:
+if fixture["input_state"]["selected_priority_candidate_count"] != 1384:
     raise SystemExit("selected priority count drift")
-if next_owner["candidate_pool"]["selected_priority_candidate_count"] != 1396:
+if next_owner["candidate_pool"]["selected_priority_candidate_count"] != 1384:
     raise SystemExit("next-owner selected count drift")
-if report["summary"]["missing_projection_policy_count"] != 1396:
+if report["summary"]["missing_projection_policy_count"] != 1384:
     raise SystemExit("report missing projection count drift")
 
 summary = fixture["summary"]
-if summary["input_candidate_count"] != 1396:
+if summary["input_candidate_count"] != 1384:
     raise SystemExit("input candidate count drift")
 if summary["cluster_count"] != len(fixture["clusters"]):
     raise SystemExit("cluster count mismatch")
@@ -51,15 +51,15 @@ if summary["duplicate_cluster_id_count"] != 0:
     raise SystemExit("cluster ids must be unique")
 if summary["legacy_cluster_id_collision_count"] < 1:
     raise SystemExit("legacy cluster id collisions should remain visible")
-if summary["selection_eligible_cluster_count"] != 42:
+if summary["selection_eligible_cluster_count"] != 41:
     raise SystemExit("selection eligible cluster count drift")
-if summary["owner_edge_confidence_counts"] != {"FixtureMapped": 1211, "None": 185}:
+if summary["owner_edge_confidence_counts"] != {"FixtureMapped": 1199, "None": 185}:
     raise SystemExit("owner edge confidence counts drift")
 if summary["heuristic_or_unmapped_count"] != 185:
     raise SystemExit("heuristic/unmapped count drift")
 if summary["exact_owner_confidence_count"] != 0:
     raise SystemExit("exact owner confidence must be zero")
-if summary["fixture_mapped_count"] != 1211:
+if summary["fixture_mapped_count"] != 1199:
     raise SystemExit("fixture mapped count drift")
 if summary["missing_stable_deny_reason_count"] != 0:
     raise SystemExit("stable deny reason count drift")
@@ -105,7 +105,7 @@ if decision["selected_cluster_id"] is not None:
     raise SystemExit("selected cluster must be null")
 
 claims = fixture["claims"]
-if claims["input_missing_projection_policy_count"] != 1396:
+if claims["input_missing_projection_policy_count"] != 1384:
     raise SystemExit("claim input count drift")
 for key in [
     "all_missing_projection_policy_items_clustered_exactly_once",
@@ -146,8 +146,8 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0
 decision=SelectProjectionPolicyClusterPriorityResolution
 reason_token=AmbiguousProjectionPolicyClusters
-input_missing_projection_policy_count=1396
-selection_eligible_cluster_count=42
+input_missing_projection_policy_count=1384
+selection_eligible_cluster_count=41
 manual_family_selection=0
 source_selfhost_claim=0
 runtime_fallback=0

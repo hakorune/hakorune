@@ -11,7 +11,7 @@
     "hako_adopted_decision": 0,
     "hako_emission": 0,
     "heuristic_or_none_owner_edge_not_selectable": 1,
-    "input_missing_projection_policy_count": 1396,
+    "input_missing_projection_policy_count": 1384,
     "legacy_cluster_id_preserved": 1,
     "manual_family_selection": 0,
     "native_source_seed_materialization": 0,
@@ -40,56 +40,6 @@
     "native_seed_or_adoption_proximity"
   ],
   "clusters": [
-    {
-      "blocked_by": [
-        "TypeTransportMissing"
-      ],
-      "borrow_axis": "NoBorrow",
-      "call_vocabulary_axis": "AllKnown",
-      "candidate_count": 91,
-      "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
-      "control_flow_axis": "StraightLine",
-      "evidence_refs": [
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
-      ],
-      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
-      "native_seed_or_adoption_proximity": "MinimalPath",
-      "next_card": null,
-      "next_owner_kind": "None",
-      "owner_edge_confidence": "FixtureMapped",
-      "selection_eligible": false,
-      "shape_signature": "shape.join_i_r_route_verify",
-      "source_cluster": "JoinIRRouteVerifyCluster",
-      "source_module_count": 62,
-      "source_modules": [
-        "src/mir/builder/control_flow/edgecfg/api/branch_stub.rs",
-        "src/mir/builder/control_flow/edgecfg/api/compose/cleanup.rs",
-        "src/mir/builder/control_flow/edgecfg/api/compose/loop_.rs",
-        "src/mir/builder/control_flow/edgecfg/api/compose/seq.rs",
-        "src/mir/builder/control_flow/edgecfg/api/edge_stub.rs",
-        "src/mir/builder/control_flow/edgecfg/api/frag.rs",
-        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs",
-        "src/mir/builder/control_flow/edgecfg/api/verify.rs",
-        "src/mir/builder/control_flow/facts/ast_feature_extractor.rs",
-        "src/mir/builder/control_flow/facts/canon/cond.rs",
-        "src/mir/builder/control_flow/facts/canon/cond_block_view.rs",
-        "src/mir/builder/control_flow/facts/escape_shape_recognizer.rs",
-        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
-        "src/mir/builder/control_flow/facts/extractors/common_helpers/increment.rs",
-        "src/mir/builder/control_flow/facts/extractors/if_phi_join.rs",
-        "src/mir/builder/control_flow/facts/extractors/loop_simple_while.rs",
-        "src/mir/builder/control_flow/facts/if_phi_join_facts.rs",
-        "src/mir/builder/control_flow/facts/loop_cond_continue_only.rs",
-        "src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs",
-        "src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs"
-      ],
-      "stable_deny_reason": "UnsupportedDirectShape",
-      "type_transport_axis": "Missing",
-      "verifier_or_oracle_state": "Present"
-    },
     {
       "blocked_by": [
         "NoExactOrFixtureMappedOwnerEdge",
@@ -137,6 +87,56 @@
         "src/mir/builder/fastmem_context.rs"
       ],
       "stable_deny_reason": "OwnerEdgeConfidenceMissing",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "call_vocabulary_axis": "AllKnown",
+      "candidate_count": 87,
+      "classification": "MissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+      "control_flow_axis": "StraightLine",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
+      "native_seed_or_adoption_proximity": "MinimalPath",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "FixtureMapped",
+      "selection_eligible": false,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_cluster": "JoinIRRouteVerifyCluster",
+      "source_module_count": 60,
+      "source_modules": [
+        "src/mir/builder/control_flow/edgecfg/api/branch_stub.rs",
+        "src/mir/builder/control_flow/edgecfg/api/compose/cleanup.rs",
+        "src/mir/builder/control_flow/edgecfg/api/edge_stub.rs",
+        "src/mir/builder/control_flow/edgecfg/api/frag.rs",
+        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs",
+        "src/mir/builder/control_flow/edgecfg/api/verify.rs",
+        "src/mir/builder/control_flow/facts/ast_feature_extractor.rs",
+        "src/mir/builder/control_flow/facts/canon/cond.rs",
+        "src/mir/builder/control_flow/facts/canon/cond_block_view.rs",
+        "src/mir/builder/control_flow/facts/escape_shape_recognizer.rs",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/increment.rs",
+        "src/mir/builder/control_flow/facts/extractors/if_phi_join.rs",
+        "src/mir/builder/control_flow/facts/extractors/loop_simple_while.rs",
+        "src/mir/builder/control_flow/facts/if_phi_join_facts.rs",
+        "src/mir/builder/control_flow/facts/loop_cond_continue_only.rs",
+        "src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs",
+        "src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs",
+        "src/mir/builder/control_flow/facts/no_exit_block.rs",
+        "src/mir/builder/control_flow/facts/route_shape_recognizers/parse_number.rs"
+      ],
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
@@ -226,7 +226,7 @@
       "blocked_by": [],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
-      "candidate_count": 53,
+      "candidate_count": 52,
       "classification": "MissingProjectionPolicyCluster",
       "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoBorrow::control=StraightLine::type=Known::call=AllKnown::verifier=Present",
       "control_flow_axis": "StraightLine",
@@ -243,7 +243,7 @@
       "selection_eligible": true,
       "shape_signature": "shape.join_i_r_route_verify",
       "source_cluster": "JoinIRRouteVerifyCluster",
-      "source_module_count": 28,
+      "source_module_count": 27,
       "source_modules": [
         "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs",
         "src/mir/builder/control_flow/facts/block_policies.rs",
@@ -259,12 +259,12 @@
         "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs",
         "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs",
         "src/mir/builder/control_flow/joinir/merge/dev_log.rs",
-        "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs",
         "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs",
         "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs",
         "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
         "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs",
-        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs"
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs"
       ],
       "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
@@ -696,56 +696,12 @@
       "verifier_or_oracle_state": "Present"
     },
     {
-      "blocked_by": [],
-      "borrow_axis": "NoReturnedBorrow",
-      "call_vocabulary_axis": "AllKnown",
-      "candidate_count": 32,
-      "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Known::call=AllKnown::verifier=Present",
-      "control_flow_axis": "StraightLine",
-      "evidence_refs": [
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
-      ],
-      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
-      "native_seed_or_adoption_proximity": "MinimalPath",
-      "next_card": "MIRBUILDER-JOINIRROUTEVERIFYCLUSTER-PROJECTION-POLICY-001",
-      "next_owner_kind": "ProjectionPolicy",
-      "owner_edge_confidence": "FixtureMapped",
-      "selection_eligible": true,
-      "shape_signature": "shape.join_i_r_route_verify",
-      "source_cluster": "JoinIRRouteVerifyCluster",
-      "source_module_count": 16,
-      "source_modules": [
-        "src/mir/builder/control_flow/edgecfg/api/exit_kind.rs",
-        "src/mir/builder/control_flow/edgecfg/api/frag.rs",
-        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs",
-        "src/mir/builder/control_flow/facts/loop_cond_break_continue.rs",
-        "src/mir/builder/control_flow/joinir/loop_context.rs",
-        "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs",
-        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs",
-        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs",
-        "src/mir/builder/control_flow/joinir/merge/rewriter/latch_incoming_recorder.rs",
-        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs",
-        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/tail_call_rewrite.rs",
-        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/terminator_rewrite.rs",
-        "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs",
-        "src/mir/builder/control_flow/joinir/trace.rs",
-        "src/mir/builder/control_flow/recipes/body.rs",
-        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs"
-      ],
-      "stable_deny_reason": "UnsupportedDirectShape",
-      "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "Present"
-    },
-    {
       "blocked_by": [
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
-      "candidate_count": 32,
+      "candidate_count": 31,
       "classification": "MissingProjectionPolicyCluster",
       "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
       "control_flow_axis": "StraightLine",
@@ -787,6 +743,49 @@
       ],
       "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "call_vocabulary_axis": "AllKnown",
+      "candidate_count": 30,
+      "classification": "MissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Known::call=AllKnown::verifier=Present",
+      "control_flow_axis": "StraightLine",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
+      "native_seed_or_adoption_proximity": "MinimalPath",
+      "next_card": "MIRBUILDER-JOINIRROUTEVERIFYCLUSTER-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "owner_edge_confidence": "FixtureMapped",
+      "selection_eligible": true,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_cluster": "JoinIRRouteVerifyCluster",
+      "source_module_count": 15,
+      "source_modules": [
+        "src/mir/builder/control_flow/edgecfg/api/exit_kind.rs",
+        "src/mir/builder/control_flow/edgecfg/api/frag_emit_session.rs",
+        "src/mir/builder/control_flow/facts/loop_cond_break_continue.rs",
+        "src/mir/builder/control_flow/joinir/loop_context.rs",
+        "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs",
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs",
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/latch_incoming_recorder.rs",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/rewrite_context.rs",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/tail_call_rewrite.rs",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/terminator_rewrite.rs",
+        "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs",
+        "src/mir/builder/control_flow/joinir/trace.rs",
+        "src/mir/builder/control_flow/recipes/body.rs",
+        "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs"
+      ],
+      "stable_deny_reason": "UnsupportedDirectShape",
+      "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
@@ -1712,37 +1711,6 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.edge_cfg_stub_feature::FixtureMapped::EdgeCfgStubFeatureCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
-      "control_flow_axis": "StraightLine",
-      "evidence_refs": [
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
-      ],
-      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.edge_cfg_stub_feature::FixtureMapped::EdgeCfgStubFeatureCluster",
-      "native_seed_or_adoption_proximity": "None",
-      "next_card": null,
-      "next_owner_kind": "None",
-      "owner_edge_confidence": "FixtureMapped",
-      "selection_eligible": false,
-      "shape_signature": "shape.edge_cfg_stub_feature",
-      "source_cluster": "EdgeCfgStubFeatureCluster",
-      "source_module_count": 1,
-      "source_modules": [
-        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs"
-      ],
-      "stable_deny_reason": "UnsupportedDirectShape",
-      "type_transport_axis": "Missing",
-      "verifier_or_oracle_state": "Present"
-    },
-    {
-      "blocked_by": [
-        "TypeTransportMissing"
-      ],
-      "borrow_axis": "NoBorrow",
-      "call_vocabulary_axis": "AllKnown",
-      "candidate_count": 7,
-      "classification": "MissingProjectionPolicyCluster",
       "cluster_id": "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster::borrow=NoBorrow::control=PhiRequired::type=Missing::call=AllKnown::verifier=Present",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
@@ -1931,6 +1899,37 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/carriers.rs",
         "src/mir/builder/control_flow/plan/features/carriers/continue_only.rs"
+      ],
+      "stable_deny_reason": "UnsupportedDirectShape",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "call_vocabulary_axis": "AllKnown",
+      "candidate_count": 6,
+      "classification": "MissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.edge_cfg_stub_feature::FixtureMapped::EdgeCfgStubFeatureCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+      "control_flow_axis": "StraightLine",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.edge_cfg_stub_feature::FixtureMapped::EdgeCfgStubFeatureCluster",
+      "native_seed_or_adoption_proximity": "None",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "FixtureMapped",
+      "selection_eligible": false,
+      "shape_signature": "shape.edge_cfg_stub_feature",
+      "source_cluster": "EdgeCfgStubFeatureCluster",
+      "source_module_count": 1,
+      "source_modules": [
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs"
       ],
       "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
@@ -2485,35 +2484,6 @@
       ],
       "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
-      "verifier_or_oracle_state": "Present"
-    },
-    {
-      "blocked_by": [],
-      "borrow_axis": "NoReturnedBorrow",
-      "call_vocabulary_axis": "AllKnown",
-      "candidate_count": 3,
-      "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Known::call=AllKnown::verifier=Present",
-      "control_flow_axis": "StraightLine",
-      "evidence_refs": [
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
-        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
-      ],
-      "legacy_cluster_id": "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster",
-      "native_seed_or_adoption_proximity": "None",
-      "next_card": "MIRBUILDER-RECIPETREEMATCHERCLUSTER-PROJECTION-POLICY-001",
-      "next_owner_kind": "ProjectionPolicy",
-      "owner_edge_confidence": "FixtureMapped",
-      "selection_eligible": true,
-      "shape_signature": "shape.recipe_tree_matcher",
-      "source_cluster": "RecipeTreeMatcherCluster",
-      "source_module_count": 1,
-      "source_modules": [
-        "src/mir/builder/control_flow/plan/recipe_tree/verified.rs"
-      ],
-      "stable_deny_reason": "UnsupportedDirectShape",
-      "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
@@ -4163,13 +4133,13 @@
     "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
     "next_owner_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-unconverted-surface-next-owner-resolution-v0.json",
     "selected_priority": "MissingProjectionPolicy",
-    "selected_priority_candidate_count": 1396,
+    "selected_priority_candidate_count": 1384,
     "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
   },
   "kind": "MirBuilderCrateWideMissingProjectionPolicyClusterResolutionV1",
   "provenance": {
-    "next_owner_resolution_hash": "9a0121f03d9982a4001f90c5f060cbd603611bdf271da23db95297921efef25f",
-    "source_report_hash": "06c1301dffd34a08f5dcc7e465d19d38238a5c030c1291e3566f437887a5aae6"
+    "next_owner_resolution_hash": "22cc5bc21952aba8c311d31c13342e2333bbaff26b22bc5f606703a5ab7aa86a",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
   },
   "recovery": {
     "do_not": [
@@ -4189,35 +4159,35 @@
   "schema_version": 0,
   "summary": {
     "borrow_policy_needed_count": 0,
-    "cluster_count": 120,
+    "cluster_count": 119,
     "duplicate_cluster_id_count": 0,
     "exact_owner_confidence_count": 0,
-    "fixture_mapped_count": 1211,
+    "fixture_mapped_count": 1199,
     "heuristic_or_unmapped_count": 185,
-    "input_candidate_count": 1396,
-    "legacy_cluster_id_collision_count": 65,
+    "input_candidate_count": 1384,
+    "legacy_cluster_id_collision_count": 64,
     "mapped_unknown_shape_count": 0,
     "missing_shape_signature_count": 185,
     "missing_stable_deny_reason_count": 0,
     "missing_verifier_or_oracle_count": 0,
     "owner_edge_confidence_counts": {
-      "FixtureMapped": 1211,
+      "FixtureMapped": 1199,
       "None": 185
     },
-    "selection_eligible_cluster_count": 42,
+    "selection_eligible_cluster_count": 41,
     "shape_signature_counts": {
       "shape.body_view_feature": 1,
       "shape.call_lowering": 88,
       "shape.carrier_feature": 13,
       "shape.context_registry": 114,
-      "shape.edge_cfg_stub_feature": 7,
+      "shape.edge_cfg_stub_feature": 6,
       "shape.emission_ssa_phi": 53,
       "shape.exit_if_feature": 2,
       "shape.fast_mem": 19,
       "shape.generic_loop_body_feature": 30,
       "shape.generic_loop_plan": 89,
       "shape.join_i_r_route_registry": 37,
-      "shape.join_i_r_route_verify": 213,
+      "shape.join_i_r_route_verify": 206,
       "shape.loop_break_plan": 57,
       "shape.loop_cond_bc_break_only_else_pattern": 2,
       "shape.loop_cond_bc_carrier_sync": 1,
@@ -4253,21 +4223,21 @@
       "shape.other_plan_feature": 4,
       "shape.phi_materializer_feature": 30,
       "shape.plan_composer": 6,
-      "shape.plan_facts": 42,
+      "shape.plan_facts": 41,
       "shape.plan_lowerer": 30,
       "shape.plan_normalizer": 39,
       "shape.plan_parts_assembly": 72,
       "shape.planner_policy": 9,
-      "shape.recipe_tree_matcher": 74,
+      "shape.recipe_tree_matcher": 71,
       "shape.statement_value_construction": 59,
       "unknown_shape": 185
     },
     "stable_deny_reason_counts": {
       "OwnerEdgeConfidenceMissing": 185,
-      "UnsupportedDirectShape": 1211
+      "UnsupportedDirectShape": 1199
     },
     "verifier_or_oracle_state_counts": {
-      "Present": 1396
+      "Present": 1384
     }
   },
   "token": "MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001"

@@ -1,21 +1,21 @@
 {
   "candidate_pool": {
     "candidate_counts_by_priority": {
-      "BorrowSurfaceNeedsPolicy": 113,
+      "BorrowSurfaceNeedsPolicy": 112,
       "CompositeNeedsDecomposition": 0,
       "CompositeSuspected": 1,
       "ConvertibleLeaf": 0,
-      "MissingProjectionPolicy": 1396,
+      "MissingProjectionPolicy": 1384,
       "MissingRouteOrArtifactEvidence": 0,
       "MissingVerifierOrOracle": 0,
       "NativeSeedReady": 0
     },
     "selected_priority": "MissingProjectionPolicy",
-    "selected_priority_candidate_count": 1396,
+    "selected_priority_candidate_count": 1384,
     "selected_priority_cluster_summary": [
       {
         "cluster": "JoinIRRouteVerifyCluster",
-        "count": 213
+        "count": 206
       },
       {
         "cluster": "OtherMissingProjectionPolicyCluster",
@@ -34,12 +34,12 @@
         "count": 88
       },
       {
-        "cluster": "RecipeTreeMatcherCluster",
-        "count": 74
-      },
-      {
         "cluster": "PlanPartsAssemblyCluster",
         "count": 72
+      },
+      {
+        "cluster": "RecipeTreeMatcherCluster",
+        "count": 71
       },
       {
         "cluster": "StatementValueConstructionCluster",
@@ -59,7 +59,7 @@
       },
       {
         "cluster": "PlanFactsCluster",
-        "count": 42
+        "count": 41
       },
       {
         "cluster": "PlanNormalizerCluster",
@@ -103,7 +103,7 @@
       },
       {
         "cluster": "EdgeCfgStubFeatureCluster",
-        "count": 7
+        "count": 6
       },
       {
         "cluster": "PlanComposerCluster",
@@ -266,7 +266,7 @@
   "kind": "MirBuilderUnconvertedSurfaceNextOwnerResolutionV1",
   "provenance": {
     "resolver_task_contract_hash": "80a14b9b1676d0af2bb3fb776398dd2083c2a1d4799d243c450e645fd50eb537",
-    "unconverted_surface_report_hash": "06c1301dffd34a08f5dcc7e465d19d38238a5c030c1291e3566f437887a5aae6"
+    "unconverted_surface_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
   },
   "recovery": {
     "do_not": [

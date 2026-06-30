@@ -57,7 +57,7 @@ if counts["CompositeSuspected"] != summary["composite_suspected_count"]:
     raise SystemExit("CompositeSuspected count drift")
 if pool["selected_priority"] != "MissingProjectionPolicy":
     raise SystemExit("selected priority drift")
-if pool["selected_priority_candidate_count"] != 1396:
+if pool["selected_priority_candidate_count"] != 1384:
     raise SystemExit("selected priority candidate count drift")
 if not pool["selected_priority_cluster_summary"]:
     raise SystemExit("cluster summary missing")
