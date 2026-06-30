@@ -1010,6 +1010,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-cluster-rerun-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_other_owner_cluster_rerun_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1944-MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_other_shape_signature_inventory_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

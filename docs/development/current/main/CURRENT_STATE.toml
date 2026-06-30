@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1943-MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-RERUN-001.md"
-latest_card_summary = """The latest card reruns the Other owner-cluster
-partition after owner-edge repair and selects shape-signature inventory as the
-next machine-derived task."""
+latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1944-MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-INVENTORY-001.md"
+latest_card_summary = """The latest card assigns 11 diagnostic shape
+signatures to the repaired Other owner rows and selects shape-cluster
+resolution as the next machine-derived task."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1944 assigns 11 diagnostic shape signatures to repaired Other owner rows.",
   "2026-06-30: 1943 reruns OtherMissingProjectionPolicyCluster after owner-edge repair and selects shape-signature inventory.",
   "2026-06-30: 1942 repairs owner-edge confidence for all 185 OtherMissingProjectionPolicyCluster rows.",
   "2026-06-30: 1941 partitions OtherMissingProjectionPolicyCluster into 123 subclusters and selects owner-edge confidence repair.",
