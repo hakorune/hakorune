@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-PLAN-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1887-MIRBUILDER-LOOP-COND-PLAN-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves the LoopCondPlan
-predicate helpers as KeepParentOwner: loop-condition shape recognizers do not
-open standalone Hako projection surfaces."""
+latest_card = "MIRBUILDER-CONTEXT-REGISTRY-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1888-MIRBUILDER-CONTEXT-REGISTRY-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card resolves the ContextRegistry
+plugin-signature constructor helper as KeepParentOwner: with_plugin_sigs does
+not open a standalone Hako projection surface."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1888 keeps ContextRegistry plugin-signature constructor helper under its parent owner.",
   "2026-06-30: 1887 keeps LoopCondPlan shape predicate helpers under their parent owner.",
   "2026-06-30: 1886 keeps LoopCondUtility direct-exit diagnostic tag helpers under their parent owner.",
   "2026-06-30: 1885 keeps LoopCondReturnInBody cleanup predicate under its parent owner.",
