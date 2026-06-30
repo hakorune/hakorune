@@ -1,0 +1,128 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "GenericLoopBodyFeatureDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "generic_loop_body_feature_evidence": [
+    "try_lower_blockexpr_loop_prelude_value",
+    "body_has_blockexpr_prelude_loop",
+    "expr_has_blockexpr_prelude_loop",
+    "can_attempt_conditional_update_branch",
+    "is_pure_value_expr_for_generic_loop",
+    "matches_loop_increment",
+    "Route-local terminality / continue-edge classification",
+    "plan_requires_continue_edge"
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.generic_loop_body_feature::FixtureMapped::GenericLoopBodyFeatureCluster",
+    "source_count": 8,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderGenericLoopBodyFeatureProjectionPolicyV1",
+  "role_counts": {
+    "blockexpr_prelude_loop_detector": 3,
+    "body_terminality_detector": 1,
+    "conditional_update_branch_gate": 1,
+    "continue_edge_detector": 1,
+    "loop_increment_matcher": 1,
+    "non_loop_assignment_detector": 1
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::generic_loop_body_feature",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "GenericLoopBodyFeaturePredicatesAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoReturnedOrMutableBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_feature",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "bool",
+      "role": "blockexpr_prelude_loop_detector",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::body_has_blockexpr_prelude_loop:L71",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+      "symbol": "body_has_blockexpr_prelude_loop",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "conditional_update_branch_gate",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::can_attempt_conditional_update_branch:L216",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+      "symbol": "can_attempt_conditional_update_branch",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "blockexpr_prelude_loop_detector",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::expr_has_blockexpr_prelude_loop:L121",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+      "symbol": "expr_has_blockexpr_prelude_loop",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "non_loop_assignment_detector",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::has_non_loop_assignment:L252",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+      "symbol": "has_non_loop_assignment",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "blockexpr_prelude_loop_detector",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::stmt_has_blockexpr_prelude_loop:L75",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+      "symbol": "stmt_has_blockexpr_prelude_loop",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "loop_increment_matcher",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::matches_loop_increment:L106",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs",
+      "symbol": "matches_loop_increment",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "body_terminality_detector",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs::body_plans_exit_on_all_paths:L9",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs",
+      "symbol": "body_plans_exit_on_all_paths",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "continue_edge_detector",
+      "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs::plans_require_continue_edge:L13",
+      "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs",
+      "symbol": "plans_require_continue_edge",
+      "visibility": "pub(in crate::mir::builder)"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-FEATURE-PROJECTION-POLICY-001"
+}
