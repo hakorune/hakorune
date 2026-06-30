@@ -1,0 +1,96 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_shadow_projector_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectHakoShadowParity",
+    "reason_token": "BoxFieldInitializationMutationFrameContractReady",
+    "selected_next_card": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PARITY-001"
+  },
+  "input_state": {
+    "projection_policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-projection-policy-v0.json",
+    "source_surfaces": [
+      {
+        "source_id": "src/mir/builder/builder_build.rs::build_new_expression_with_field_initializers:L393",
+        "source_path": "src/mir/builder/builder_build.rs",
+        "source_symbol": "build_new_expression_with_field_initializers"
+      },
+      {
+        "source_id": "src/mir/builder/fields.rs::build_box_field_initializers:L42",
+        "source_path": "src/mir/builder/fields.rs",
+        "source_symbol": "build_box_field_initializers"
+      }
+    ]
+  },
+  "kind": "MirBuilderStatementValueConstructionBoxFieldInitializationMutationFrameContractV1",
+  "mutation_frame_contract": {
+    "delegated_mutation_owner": "build_field_assignment_from_value",
+    "local_only_state": [
+      "seen initializer field set"
+    ],
+    "mutation_order": [
+      "RejectRecordConstructorFieldInitializers",
+      "CreateDestinationBox",
+      "InitializeSeenFieldSet",
+      "RejectDuplicateInitializerField",
+      "ValidateUserDefinedBoxFieldMembership",
+      "DelegateFieldAssignmentForInitializer",
+      "ReturnDestinationValue"
+    ],
+    "read_only_inputs": [
+      "record constructor classifier",
+      "MirBuilder.comp_ctx.user_defined_boxes"
+    ],
+    "state_inputs": [
+      "class",
+      "arguments",
+      "field_initializers",
+      "MirBuilder.comp_ctx.user_defined_boxes",
+      "MirBuilder.current_function_state",
+      "MirBuilder.type_ctx"
+    ],
+    "state_outputs": [
+      "dst ValueId",
+      "object field assignments through build_field_assignment_from_value",
+      "MirBuilder.current_function_state",
+      "MirBuilder.type_ctx"
+    ]
+  },
+  "schema_version": 0,
+  "source_order_sections": [
+    {
+      "markers": [
+        "!field_initializers.is_empty() && self.is_record_constructor_class(&class)",
+        "[box-init/record-reject]",
+        "let dst = self.build_new_expression(class.clone(), arguments)?;",
+        "self.build_box_field_initializers(dst, &class, field_initializers)?;\n        Ok(dst)"
+      ],
+      "source_path": "src/mir/builder/builder_build.rs"
+    },
+    {
+      "markers": [
+        "let mut seen = std::collections::BTreeSet::new();",
+        "for (field, value) in field_initializers",
+        "if !seen.insert(field.clone())",
+        "[box-init/duplicate-field]",
+        "self.comp_ctx.user_defined_boxes.contains_key(class)",
+        "let declared = self",
+        "[box-init/unknown-field]",
+        "self.build_field_assignment_from_value(object_value, field, value)?;",
+        "Ok(())"
+      ],
+      "source_path": "src/mir/builder/fields.rs"
+    }
+  ],
+  "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001"
+}

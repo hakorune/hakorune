@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1926-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card selects a mutation-frame contract
-for StatementValueConstruction box field initialization before any projection
-surface, HakoShadow projector, or native seed can be selected."""
+latest_card = "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1927-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001.md"
+latest_card_summary = """The latest card fixes the
+StatementValueConstruction box field initialization mutation-frame contract and
+selects HakoShadow parity as the next card."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1927 fixes the StatementValueConstruction box field initialization mutation-frame contract.",
   "2026-06-30: 1926 selects a mutation-frame contract for StatementValueConstruction box field initialization.",
   "2026-06-30: 1925 records the StatementValueConstruction block termination check as a read-only predicate descriptor.",
   "2026-06-30: 1924 keeps the StatementValueConstruction undefined-variable diagnostic helper parent-owned.",
