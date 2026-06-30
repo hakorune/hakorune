@@ -381,15 +381,15 @@ history, not in this task-order SSOT.
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=JoinIRRouteVerifyCluster split into 81 subclusters; 42 remain ambiguous
-   semantic_authority=JoinIRRouteVerifyCluster subcluster fixture
+   boundary=ContextRegistryCluster joined into 43 subclusters; 22 remain ambiguous
+   semantic_authority=ContextRegistryCluster context-surface join fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-CONTEXT-SURFACE-JOIN-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CALL-EMIT-SSA-CLUSTER-001
 
 next_after_active_3 =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-CONTEXT-SURFACE-JOIN-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CALL-EMIT-SSA-CLUSTER-001
 ```
 
 ## Landed Converter Capability Summary

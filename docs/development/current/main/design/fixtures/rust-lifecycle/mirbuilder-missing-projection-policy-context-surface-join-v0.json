@@ -1,0 +1,1080 @@
+{
+  "claims": {
+    "all_context_registry_items_joined_exactly_once": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "input_context_registry_cluster_count": 114,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "previous_parent_owned_policy_consumed": 1,
+    "projection_priority_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0,
+    "subcluster_ids_are_stable": 1,
+    "subcluster_reason_tokens_are_stable": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "AmbiguousContextSurfaceProjectionSubclusters",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_subcluster_id": null
+  },
+  "input_state": {
+    "cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_context_registry_cluster_count": 114,
+    "previous_parent_owned_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-context-registry-projection-policy-v0.json",
+    "previous_policy_decision": {
+      "kind": "KeepParentOwner",
+      "reason_token": "ContextRegistryDoesNotOpenStandaloneProjectionOwner",
+      "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+    },
+    "priority_decision": {
+      "kind": "KeepStopped",
+      "reason_token": "NoEligibleProjectionPolicyCluster",
+      "selected_cluster_id": null,
+      "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+    },
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyContextSurfaceJoinV1",
+  "provenance": {
+    "cluster_resolution_hash": "ac0059a9dc2bafab00e6d20dda10dc3b7f6468c9508a891f4de69257d779f2bb",
+    "previous_parent_owned_policy_hash": "539ea16847568d278d56a32fdaff81a625956a77405e1c5432a86ebe4819ef3e",
+    "priority_resolution_hash": "e574dbc276f39ca6a7404c9bbc8d6e2c0ce39126dc9d028d1fb93886c57fb3d2",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
+  },
+  "schema_version": 0,
+  "subcluster_axes": [
+    "context_surface",
+    "operation_role",
+    "shape_signature",
+    "borrow_axis",
+    "type_transport_axis",
+    "return_family",
+    "verifier_or_oracle_state",
+    "public_or_private_surface",
+    "native_authority_hint"
+  ],
+  "subclusters": [
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 17,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 17,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::add_method_tail_entry:L442",
+        "src/mir/builder/compilation_context.rs::enter_static_box:L311",
+        "src/mir/builder/compilation_context.rs::exit_static_box:L316",
+        "src/mir/builder/compilation_context.rs::register_lowered_method_ast:L244",
+        "src/mir/builder/compilation_context.rs::register_static_method:L397",
+        "src/mir/builder/compilation_context.rs::register_weak_field:L353",
+        "src/mir/builder/compilation_context.rs::reserve_value_id:L301",
+        "src/mir/builder/compilation_context/declarations.rs::propagate_record_local_value:L191",
+        "src/mir/builder/compilation_context/declarations.rs::propagate_record_local_value_from_phi:L197",
+        "src/mir/builder/compilation_context/declarations.rs::register_brand_decl:L11",
+        "src/mir/builder/compilation_context/declarations.rs::register_enum_decl:L116",
+        "src/mir/builder/compilation_context/declarations.rs::register_record_decl:L75",
+        "src/mir/builder/compilation_context/declarations.rs::register_record_local_value:L172",
+        "src/mir/builder/compilation_context/declarations.rs::register_user_box:L6",
+        "src/mir/builder/compilation_context/declarations.rs::register_user_box_declared_fields:L31",
+        "src/mir/builder/compilation_context/declarations.rs::register_user_box_with_field_decls:L65",
+        "src/mir/builder/compilation_context/declarations.rs::register_user_box_with_fields:L20"
+      ],
+      "subcluster_id": "context_surface::compilation_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 11,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 11,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::clear_fn_body_ast:L341",
+        "src/mir/builder/compilation_context.rs::clear_method_tail_index:L450",
+        "src/mir/builder/compilation_context.rs::clear_reserved_value_ids:L306",
+        "src/mir/builder/compilation_context.rs::clear_slot_registry:L471",
+        "src/mir/builder/compilation_context.rs::clear_using_import_boxes:L417",
+        "src/mir/builder/compilation_context.rs::set_field_origin_by_box:L392",
+        "src/mir/builder/compilation_context.rs::set_field_origin_class:L380",
+        "src/mir/builder/compilation_context.rs::set_fn_body_ast:L331",
+        "src/mir/builder/compilation_context.rs::set_slot_registry:L461",
+        "src/mir/builder/compilation_context.rs::set_using_import_boxes:L412",
+        "src/mir/builder/compilation_context/declarations.rs::clear_record_local_values:L221"
+      ],
+      "subcluster_id": "context_surface::compilation_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 10,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 10,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::clear_origin_boxes:L105",
+        "crates/hakorune_mir_builder/src/type_context.rs::set_kind:L90",
+        "crates/hakorune_mir_builder/src/type_context.rs::set_origin_box:L100",
+        "crates/hakorune_mir_builder/src/type_context.rs::set_type:L71",
+        "src/mir/builder/type_registry.rs::clear_all:L287",
+        "src/mir/builder/type_registry.rs::clear_origins:L276",
+        "src/mir/builder/type_registry.rs::record_newbox:L54",
+        "src/mir/builder/type_registry.rs::record_origin:L118",
+        "src/mir/builder/type_registry.rs::record_param:L72",
+        "src/mir/builder/type_registry.rs::record_type:L101"
+      ],
+      "subcluster_id": "context_surface::type_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 9,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 9,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::clear_source_file:L96",
+        "crates/hakorune_mir_builder/src/metadata_context.rs::push_region:L130",
+        "crates/hakorune_mir_builder/src/metadata_context.rs::record_value_caller:L162",
+        "crates/hakorune_mir_builder/src/metadata_context.rs::record_value_span:L150",
+        "crates/hakorune_mir_builder/src/metadata_context.rs::set_current_span:L82",
+        "src/mir/builder/builder_metadata.rs::clear_source_file_hint:L29",
+        "src/mir/builder/builder_metadata.rs::set_current_function_declared_capability_uses:L72",
+        "src/mir/builder/builder_metadata.rs::set_current_function_declared_signature:L79",
+        "src/mir/builder/builder_metadata.rs::set_current_function_runes:L65"
+      ],
+      "subcluster_id": "context_surface::metadata_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 6,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::is_in_static_box:L326",
+        "src/mir/builder/compilation_context.rs::is_reserved_value_id:L296",
+        "src/mir/builder/compilation_context.rs::is_user_defined_box:L240",
+        "src/mir/builder/compilation_context.rs::is_weak_field:L346",
+        "src/mir/builder/compilation_context/declarations.rs::is_brand_declared:L15",
+        "src/mir/builder/compilation_context/declarations.rs::is_record_decl:L112"
+      ],
+      "subcluster_id": "context_surface::compilation_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::bool::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 4,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 4,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::hint_scope_enter:L110",
+        "crates/hakorune_mir_builder/src/metadata_context.rs::hint_scope_leave:L116",
+        "src/mir/builder/builder_metadata.rs::hint_scope_enter:L9",
+        "src/mir/builder/builder_metadata.rs::hint_scope_leave:L13"
+      ],
+      "subcluster_id": "context_surface::metadata_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 4,
+      "context_surface": "scope_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/scope_context.rs::clear_for_function_entry:L128",
+        "src/mir/builder/scope_context.rs::push_fastmem_region:L138",
+        "src/mir/builder/scope_context.rs::push_if_merge:L98",
+        "src/mir/builder/scope_context.rs::push_lexical_scope:L78"
+      ],
+      "subcluster_id": "context_surface::scope_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::maybe_rebuild_method_tail_index:L432",
+        "src/mir/builder/compilation_context.rs::register_property_getter_method:L367",
+        "src/mir/builder/compilation_context.rs::register_static_scalar_method_fact_if_verified:L265"
+      ],
+      "subcluster_id": "context_surface::compilation_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::bool::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "context_surface": "core_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "allocator_counter",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 3,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/core_context.rs::next_binding:L71",
+        "crates/hakorune_mir_builder/src/core_context.rs::next_block:L63",
+        "crates/hakorune_mir_builder/src/core_context.rs::next_value:L58"
+      ],
+      "subcluster_id": "context_surface::core_context::allocator_counter::shape.context_registry::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 3,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 3,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::current_source_file:L102",
+        "crates/hakorune_mir_builder/src/metadata_context.rs::value_span:L156",
+        "src/mir/builder/builder_metadata.rs::current_source_file:L35"
+      ],
+      "subcluster_id": "context_surface::metadata_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "context_surface": "scope_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/scope_context.rs::pop_fastmem_region:L143",
+        "src/mir/builder/scope_context.rs::pop_if_merge:L104",
+        "src/mir/builder/scope_context.rs::pop_lexical_scope:L84"
+      ],
+      "subcluster_id": "context_surface::scope_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::KnownOptionCarrier::option::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "context_surface": "binding_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/binding_context.rs::clear_for_function_entry:L90",
+        "crates/hakorune_mir_builder/src/binding_context.rs::insert:L81"
+      ],
+      "subcluster_id": "context_surface::binding_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "context_surface": "binding_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/binding_context.rs::contains:L71",
+        "crates/hakorune_mir_builder/src/binding_context.rs::is_empty:L61"
+      ],
+      "subcluster_id": "context_surface::binding_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::bool::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::take_fn_body_ast:L336",
+        "src/mir/builder/compilation_context.rs::take_slot_registry:L466"
+      ],
+      "subcluster_id": "context_surface::compilation_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::KnownOptionCarrier::option::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::property_getter_method_name:L361",
+        "src/mir/builder/compilation_context/declarations.rs::resolve_enum_variant:L131"
+      ],
+      "subcluster_id": "context_surface::compilation_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "context_surface": "core_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/core_context.rs::peek_next_block:L104",
+        "crates/hakorune_mir_builder/src/core_context.rs::peek_next_value:L98"
+      ],
+      "subcluster_id": "context_surface::core_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::new:L60",
+        "src/mir/builder/type_registry.rs::new:L38"
+      ],
+      "subcluster_id": "context_surface::type_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::restore_snapshot:L122",
+        "src/mir/builder/type_registry.rs::propagate:L139"
+      ],
+      "subcluster_id": "context_surface::type_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::unit::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/type_registry.rs::dump_stats:L252",
+        "src/mir/builder/type_registry.rs::dump_trace:L237"
+      ],
+      "subcluster_id": "context_surface::type_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::unit::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 2,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::get_kind:L84",
+        "src/mir/builder/type_registry.rs::trace_origin:L227"
+      ],
+      "subcluster_id": "context_surface::type_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "aggregate_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/context.rs::new:L47"
+      ],
+      "subcluster_id": "context_surface::aggregate_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "aggregate_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/context.rs::size_info:L61"
+      ],
+      "subcluster_id": "context_surface::aggregate_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "aggregate_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/context.rs::is_empty:L53"
+      ],
+      "subcluster_id": "context_surface::aggregate_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::bool::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "binding_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/binding_context.rs::new:L54"
+      ],
+      "subcluster_id": "context_surface::binding_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "context_surface": "binding_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/binding_context.rs::remove:L86"
+      ],
+      "subcluster_id": "context_surface::binding_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::KnownOptionCarrier::option::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "binding_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "scalar",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/binding_context.rs::len:L66"
+      ],
+      "subcluster_id": "context_surface::binding_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::scalar::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "binding_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/binding_context.rs::lookup:L76"
+      ],
+      "subcluster_id": "context_surface::binding_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::new:L200"
+      ],
+      "subcluster_id": "context_surface::compilation_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "free_or_static_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::with_plugin_sigs:L232"
+      ],
+      "subcluster_id": "context_surface::compilation_context::free_or_static_context_operation::shape.context_registry::NoBorrow::Known::unit::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "scalar",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/compilation_context.rs::static_scalar_method_fact_count:L284"
+      ],
+      "subcluster_id": "context_surface::compilation_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::scalar::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport",
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "compilation_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/compilation_context/declarations.rs::enum_decls_for_module_metadata:L148"
+      ],
+      "subcluster_id": "context_surface::compilation_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "context_surface": "core_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "allocator_counter",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "scalar",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/core_context.rs::next_temp_slot:L83"
+      ],
+      "subcluster_id": "context_surface::core_context::allocator_counter::shape.context_registry::NoReturnedBorrowMutableReceiver::Known::scalar::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "core_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/core_context.rs::new:L44"
+      ],
+      "subcluster_id": "context_surface::core_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::new:L61"
+      ],
+      "subcluster_id": "context_surface::metadata_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "explicit_mutation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::pop_region:L136"
+      ],
+      "subcluster_id": "context_surface::metadata_context::explicit_mutation::shape.context_registry::NoReturnedBorrowMutableReceiver::KnownOptionCarrier::option::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_metadata.rs::intern_closure_body:L42"
+      ],
+      "subcluster_id": "context_surface::metadata_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::KnownOptionCarrier::option::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_metadata.rs::new_function_with_metadata:L55"
+      ],
+      "subcluster_id": "context_surface::metadata_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "metadata_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_query",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::current_span:L76"
+      ],
+      "subcluster_id": "context_surface::metadata_context::read_only_query::shape.context_registry::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "context_surface": "scope_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "constructor",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/scope_context.rs::new:L61"
+      ],
+      "subcluster_id": "context_surface::scope_context::constructor::shape.context_registry::NoBorrow::ConstructorCarrier::constructor_self::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NativeAuthorityEvidenceMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "scope_context",
+      "native_authority_hint": "RustPrimaryOrUnknown",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/scope_context.rs::current_fastmem_region:L148"
+      ],
+      "subcluster_id": "context_surface::scope_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public::RustPrimaryOrUnknown",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "mutable_context_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::take_snapshot:L110"
+      ],
+      "subcluster_id": "context_surface::type_context::mutable_context_operation::shape.context_registry::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "string",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/type_registry.rs::infer_class:L190"
+      ],
+      "subcluster_id": "context_surface::type_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::Known::string::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "context_surface": "type_context",
+      "native_authority_hint": "HasAdjacentNativeContextEvidence",
+      "operation_role": "read_only_operation",
+      "public_or_private_surface": "public",
+      "reason_token": "ContextRegistrySurfaceJoinedForFollowUp",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "shape.context_registry",
+      "source_id_count": 1,
+      "source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::try_get_kind:L76"
+      ],
+      "subcluster_id": "context_surface::type_context::read_only_operation::shape.context_registry::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public::HasAdjacentNativeContextEvidence",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    }
+  ],
+  "summary": {
+    "context_surface_counts": {
+      "aggregate_context": 3,
+      "binding_context": 8,
+      "compilation_context": 45,
+      "core_context": 7,
+      "metadata_context": 21,
+      "scope_context": 9,
+      "type_context": 21
+    },
+    "input_context_registry_cluster_count": 114,
+    "native_authority_hint_counts": {
+      "HasAdjacentNativeContextEvidence": 60,
+      "RustPrimaryOrUnknown": 54
+    },
+    "operation_role_counts": {
+      "allocator_counter": 4,
+      "constructor": 8,
+      "explicit_mutation": 41,
+      "free_or_static_context_operation": 1,
+      "mutable_context_operation": 30,
+      "read_only_operation": 19,
+      "read_only_query": 11
+    },
+    "selected_subcluster_id": null,
+    "selection_eligible_subcluster_count": 22,
+    "subcluster_count": 43,
+    "type_transport_axis_counts": {
+      "ConstructorCarrier": 8,
+      "Known": 78,
+      "KnownOptionCarrier": 16,
+      "MissingTypeTransport": 12
+    }
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CONTEXT-SURFACE-JOIN-001"
+}
