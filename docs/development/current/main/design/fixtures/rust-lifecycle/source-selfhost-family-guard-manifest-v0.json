@@ -877,6 +877,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-diagnostic-helpers-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_diagnostic_helpers_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1925-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-block-termination-predicate-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_block_termination_predicate_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

@@ -1,0 +1,78 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "mutation_owner_selected": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "registry_descriptor_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectNextStatementValueConstructionSubcluster",
+    "reason_token": "BlockTerminationPredicateDescriptorDoesNotOpenMutationOwner",
+    "selected_next_card": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-diagnostic-helpers-projection-policy-v0.json",
+    "selected_subcluster_id": "BlockTerminationPredicate",
+    "source_count": 1,
+    "subcluster_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-subcluster-decomposition-v0.json"
+  },
+  "kind": "MirBuilderStatementValueConstructionBlockTerminationPredicateProjectionPolicyV1",
+  "predicate_contract": {
+    "access": "ReadOnly",
+    "default_when_context_missing": false,
+    "mutates": [],
+    "reads": [
+      "MirBuilder.current_block",
+      "ScopeContext.current_function",
+      "Function.blocks[current_block]",
+      "BasicBlock.terminated"
+    ],
+    "result_type": "bool"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::statement_value_construction_block_termination_predicate",
+    "policy": "ReadOnlyPredicateDescriptor",
+    "projection_surface_selected": false,
+    "reason_token": "CurrentBlockTerminationPredicateIsReadOnlyDescriptor",
+    "registry_descriptor_selected": false
+  },
+  "selection_axes": {
+    "borrow_axis": "NoReturnedBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.statement_value_construction",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "params": "&self",
+      "predicate_role": "current_block_termination_read_predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/builder_build.rs::is_current_block_terminated:L412",
+      "source_markers": [
+        "Check if the current basic block is terminated",
+        "self.current_block",
+        "self.scope_ctx.current_function",
+        "function.get_block(block_id)",
+        "block.is_terminated()",
+        "false"
+      ],
+      "source_path": "src/mir/builder/builder_build.rs",
+      "symbol": "is_current_block_terminated"
+    }
+  ],
+  "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001"
+}

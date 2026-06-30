@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1924-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001.md
+  1925-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001
+2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001
    status=green
-   boundary=undefined-variable diagnostic helper remains parent-owned
-   semantic_authority=statement-value-construction diagnostic helper policy fixture
+   boundary=is_current_block_terminated stays read-only predicate descriptor
+   semantic_authority=statement-value-construction block termination predicate fixture
    non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
 
-3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001
+3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001
    status=next
-   boundary=is_current_block_terminated read-only predicate policy
-   semantic_authority=statement-value-construction decomposition and diagnostic policy fixtures
-   non_authority=manual family selection, mutation subclusters, Source Selfhost claim
+   boundary=box/new field initializer mutation-frame policy
+   semantic_authority=statement-value-construction decomposition and block predicate fixtures
+   non_authority=manual family selection, record construction, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001
+  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary
