@@ -18,6 +18,7 @@ OUTPUT = FIXTURES / "mirbuilder-strict-converter-emission-native-seed-candidate-
 
 BRIDGE = FIXTURES / "mirbuilder-strict-converter-emission-to-native-seed-bridge-policy-v0.json"
 STRICT_PROBE = FIXTURES / "mirbuilder-strict-converter-emission-probe-v0.json"
+FAMILY_MANIFEST = FIXTURES / "source-selfhost-family-guard-manifest-v0.json"
 TOKEN = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001"
 
 GAP_TOKENS = [
@@ -85,12 +86,26 @@ def seed_card_for(family_id: str) -> str:
     return f"MIRBUILDER-{slug_family_id(family_id).upper().replace('-', '-')}-HAKO-NATIVE-SOURCE-SEED-001"
 
 
-def adopted_family_ids() -> set[str]:
+def manifest_rows_until(token: str) -> list[dict[str, Any]]:
+    manifest = read_json(FAMILY_MANIFEST)
+    rows: list[dict[str, Any]] = []
+    for row in manifest.get("rows", []):
+        if row.get("token") == token:
+            break
+        rows.append(row)
+    return rows
+
+
+def adopted_family_ids(cutoff_token: str = TOKEN) -> set[str]:
     ids: set[str] = set()
-    for path in FIXTURES.glob("*adoption*decision-v0.json"):
+    for row in manifest_rows_until(cutoff_token):
+        fixture_path = row.get("fixture") or ""
+        if "adoption" not in fixture_path:
+            continue
+        path = ROOT / fixture_path
         try:
             data = read_json(path)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, FileNotFoundError):
             continue
         decision = data.get("decision")
         value = decision.get("value") if isinstance(decision, dict) else decision
@@ -102,12 +117,13 @@ def adopted_family_ids() -> set[str]:
     return ids
 
 
-def unscoped_adoption_slugs() -> set[str]:
+def unscoped_adoption_slugs(cutoff_token: str = TOKEN) -> set[str]:
     slugs: set[str] = set()
+    del cutoff_token
     for path in FIXTURES.glob("*adoption*decision-v0.json"):
         try:
             data = read_json(path)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, FileNotFoundError):
             continue
         decision = data.get("decision")
         value = decision.get("value") if isinstance(decision, dict) else decision
@@ -239,6 +255,8 @@ def build_fixture() -> dict[str, Any]:
         "provenance": {
             "bridge_policy_hash": sha256_file(BRIDGE),
             "strict_converter_emission_probe_hash": sha256_file(STRICT_PROBE),
+            "source_selfhost_family_guard_manifest": rel(FAMILY_MANIFEST),
+            "adoption_evidence_cutoff_token": TOKEN,
         },
         "selection_rule": {
             "manual_family_selection": False,

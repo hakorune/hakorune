@@ -1445,7 +1445,9 @@
   },
   "kind": "MirBuilderStrictConverterEmissionNativeSeedCandidateSelectionV1",
   "provenance": {
+    "adoption_evidence_cutoff_token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001",
     "bridge_policy_hash": "218cd631ed71744538d528b472cd42ac5a500d74440c97e1e93fe074a6456055",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
     "strict_converter_emission_probe_hash": "60209abdd157303ebeedc467c3d6f7d5f66f7eeba9c47c590864effef06d7e09"
   },
   "schema_version": 0,
