@@ -1,0 +1,494 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "JoinIRRouteVerifyDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "helper_bucket_summary": {
+    "edgecfg_compose": 1,
+    "facts_or_recognizer": 18,
+    "merge_contract_or_logging": 7,
+    "merge_rewriter": 7,
+    "recipe_index": 6,
+    "route_verify_helper": 3,
+    "verify_diagnostic": 5,
+    "verify_observability": 6
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
+    "source_count": 53,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderJoinIRRouteVerifyProjectionPolicyV1",
+  "route_verify_evidence": [
+    "ControlFlowDetector",
+    "is_supported_bool_expr_with_canon",
+    "detect_break_in_body",
+    "detect_continue_in_body",
+    "FlowboxVia",
+    "emit_flowbox_adopt_tag",
+    "Freeze::",
+    "planner_reject_detail",
+    "is_effect_only_stmt",
+    "should_skip_",
+    "start_index",
+    "end_index"
+  ],
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::join_i_r_route_verify",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "RouteVerifyFactsDiagnosticsAndMergeHelpersAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.join_i_r_route_verify",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "helper_bucket": "edgecfg_compose",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs::if_:L51",
+      "source_path": "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs",
+      "symbol": "if_",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/block_policies.rs::is_allowed_effect_stmt:L16",
+      "source_path": "src/mir/builder/control_flow/facts/block_policies.rs",
+      "symbol": "is_allowed_effect_stmt",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/expr_bool.rs::is_supported_bool_expr_with_canon:L10",
+      "source_path": "src/mir/builder/control_flow/facts/expr_bool.rs",
+      "symbol": "is_supported_bool_expr_with_canon",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/expr_value.rs::is_supported_value_expr:L5",
+      "source_path": "src/mir/builder/control_flow/facts/expr_value.rs",
+      "symbol": "is_supported_value_expr",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/expr_value.rs::value_expr_requires_canon:L31",
+      "source_path": "src/mir/builder/control_flow/facts/expr_value.rs",
+      "symbol": "value_expr_requires_canon",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs::is_true_literal:L8",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs",
+      "symbol": "is_true_literal",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue:L129",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+      "symbol": "branch_tail_is_continue",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue_flattened:L133",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+      "symbol": "branch_tail_is_continue_flattened",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_break_statement:L113",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+      "symbol": "has_break_statement",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_continue_statement:L118",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+      "symbol": "has_continue_statement",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_if_else_statement:L146",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+      "symbol": "has_if_else_statement",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_return_statement:L123",
+      "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+      "symbol": "has_return_statement",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/carrier_count.rs::count_carriers_in_body:L26",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/carrier_count.rs",
+      "symbol": "count_carriers_in_body",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_break_in_body:L38",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+      "symbol": "detect_break_in_body",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_continue_in_body:L25",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+      "symbol": "detect_continue_in_body",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_return_in_body:L45",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+      "symbol": "detect_return_in_body",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::has_continue_node:L50",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+      "symbol": "has_continue_node",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/if_else_phi.rs::detect_if_else_phi_in_body:L36",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/if_else_phi.rs",
+      "symbol": "detect_if_else_phi_in_body",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "facts_or_recognizer",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs::detect_infinite_loop:L18",
+      "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs",
+      "symbol": "detect_infinite_loop",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_boundary_info:L18",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs",
+      "symbol": "log_boundary_info",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_merge_complete:L100",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs",
+      "symbol": "log_merge_complete",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs::verify_carrier_inputs_complete:L25",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs",
+      "symbol": "verify_carrier_inputs_complete",
+      "visibility": "pub(in crate::mir::builder::control_flow::joinir::merge)"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs::is_entry_like_source:L8",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs",
+      "symbol": "is_entry_like_source",
+      "visibility": "pub(in crate::mir::builder::control_flow::joinir::merge)"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/dev_log.rs::dev_enabled:L6",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/dev_log.rs",
+      "symbol": "dev_enabled",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs::to_carrier_map:L249",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs",
+      "symbol": "to_carrier_map",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "merge_contract_or_logging",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs::remap_existing_phi_block_ids:L15",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs",
+      "symbol": "remap_existing_phi_block_ids",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs::is_skippable_continuation:L31",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs",
+      "symbol": "is_skippable_continuation",
+      "visibility": "pub(in crate::mir::builder::control_flow::joinir::merge)"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_boundary_input_const:L64",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
+      "symbol": "should_skip_boundary_input_const",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_copy_overwriting_phi:L28",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
+      "symbol": "should_skip_copy_overwriting_phi",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_function_name_const:L47",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
+      "symbol": "should_skip_function_name_const",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs::should_keep_return:L27",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs",
+      "symbol": "should_keep_return",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs::resolve_entry_func_name:L20",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs",
+      "symbol": "resolve_entry_func_name",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "merge_rewriter",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs::is_loop_entry_source:L16",
+      "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs",
+      "symbol": "is_loop_entry_source",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "recipe_index",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/recipes/body.rs::end_index:L85",
+      "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+      "symbol": "end_index",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "recipe_index",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/recipes/body.rs::index:L62",
+      "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+      "symbol": "index",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "recipe_index",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/recipes/body.rs::start_index:L81",
+      "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+      "symbol": "start_index",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "recipe_index",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/recipes/refs.rs::end_index:L57",
+      "source_path": "src/mir/builder/control_flow/recipes/refs.rs",
+      "symbol": "end_index",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "recipe_index",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/recipes/refs.rs::index:L19",
+      "source_path": "src/mir/builder/control_flow/recipes/refs.rs",
+      "symbol": "index",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "recipe_index",
+      "return_type": "usize",
+      "source_id": "src/mir/builder/control_flow/recipes/refs.rs::start_index:L53",
+      "source_path": "src/mir/builder/control_flow/recipes/refs.rs",
+      "symbol": "start_index",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "route_verify_helper",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::has_control_flow_effect:L27",
+      "source_path": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs",
+      "symbol": "has_control_flow_effect",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "route_verify_helper",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_effect_only_stmt:L36",
+      "source_path": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs",
+      "symbol": "is_effect_only_stmt",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "route_verify_helper",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_leaf_effect_plan:L10",
+      "source_path": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs",
+      "symbol": "is_leaf_effect_plan",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_diagnostic",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::clear_last_plan_reject_detail:L10",
+      "source_path": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs",
+      "symbol": "clear_last_plan_reject_detail",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_diagnostic",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail:L17",
+      "source_path": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs",
+      "symbol": "set_last_plan_reject_detail",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_diagnostic",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail_if_absent:L24",
+      "source_path": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs",
+      "symbol": "set_last_plan_reject_detail_if_absent",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_diagnostic",
+      "return_type": "String",
+      "source_id": "src/mir/builder/control_flow/verify/diagnostics/span_format.rs::normalize_span_line_col:L1",
+      "source_path": "src/mir/builder/control_flow/verify/diagnostics/span_format.rs",
+      "symbol": "normalize_span_line_col",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_observability",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag:L129",
+      "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+      "symbol": "emit_flowbox_adopt_tag",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_observability",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_for_coreplan:L108",
+      "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+      "symbol": "emit_flowbox_adopt_tag_for_coreplan",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_observability",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_from_coreplan:L99",
+      "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+      "symbol": "emit_flowbox_adopt_tag_from_coreplan",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_observability",
+      "return_type": "String",
+      "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_contract:L159",
+      "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+      "symbol": "emit_flowbox_freeze_contract",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_observability",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag:L169",
+      "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+      "symbol": "emit_flowbox_freeze_tag",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_observability",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag_from_facts:L149",
+      "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+      "symbol": "emit_flowbox_freeze_tag_from_facts",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "verify_diagnostic",
+      "return_type": "String",
+      "source_id": "src/mir/builder/control_flow/verify/verifier/primitives.rs::err:L69",
+      "source_path": "src/mir/builder/control_flow/verify/verifier/primitives.rs",
+      "symbol": "err",
+      "visibility": "pub(super)"
+    }
+  ],
+  "token": "MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-PROJECTION-POLICY-001"
+}
