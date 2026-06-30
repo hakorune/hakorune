@@ -1,0 +1,1996 @@
+{
+  "claims": {
+    "all_other_owner_rows_have_repair_attempt": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "file_scoped_owner_edge_derived_from_source_path": 1,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "input_other_owner_cluster_count": 185,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "other_owner_cluster_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "semantic_projection_inference": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectOtherOwnerClusterRerun",
+    "reason_token": "OtherOwnerEdgeConfidenceRepairComplete",
+    "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-RERUN-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_other_owner_cluster_count": 185,
+    "other_owner_cluster": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-cluster-v0.json",
+    "other_owner_cluster_decision": {
+      "kind": "SelectOwnerEdgeConfidenceRepair",
+      "reason_token": "OtherOwnerClusterRequiresOwnerEdgeConfidenceRepair",
+      "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "selected_subcluster_id": null
+    },
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyOtherOwnerEdgeConfidenceRepairV1",
+  "provenance": {
+    "other_owner_cluster_hash": "8e47540bd2c123468978e10c10bd649b121fc83ee543f598a33119cb87525aef",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
+  },
+  "repair_policy": {
+    "builder_prefix": "hakorune_mir_builder",
+    "policy": "FileScopedOwnerEdgeFromSourcePath",
+    "region_prefix": "hakorune_mir_region",
+    "selection_authority": "source_path_only",
+    "semantic_projection_inference": 0
+  },
+  "repaired_rows": [
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_emit",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_emit.rs::emit_extern_call:L392",
+      "source_path": "src/mir/builder/builder_emit.rs",
+      "symbol": "emit_extern_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_emit",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_emit.rs::emit_extern_call_with_effects:L373",
+      "source_path": "src/mir/builder/builder_emit.rs",
+      "symbol": "emit_extern_call_with_effects"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_emit",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_emit.rs::emit_instruction:L9",
+      "source_path": "src/mir/builder/builder_emit.rs",
+      "symbol": "emit_instruction"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_emit",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_emit.rs::update_phi_instruction:L412",
+      "source_path": "src/mir/builder/builder_emit.rs",
+      "symbol": "update_phi_instruction"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_init",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_init.rs::allocate_binding_id:L102",
+      "source_path": "src/mir/builder/builder_init.rs",
+      "symbol": "allocate_binding_id"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_init",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_init.rs::new:L12",
+      "source_path": "src/mir/builder/builder_init.rs",
+      "symbol": "new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_init",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_init.rs::pop_if_merge:L69",
+      "source_path": "src/mir/builder/builder_init.rs",
+      "symbol": "pop_if_merge"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_init",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_init.rs::push_if_merge:L65",
+      "source_path": "src/mir/builder/builder_init.rs",
+      "symbol": "push_if_merge"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_init",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_init.rs::suppress_next_entry_pin_copy:L75",
+      "source_path": "src/mir/builder/builder_init.rs",
+      "symbol": "suppress_next_entry_pin_copy"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_method_index",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_method_index.rs::method_candidates:L40",
+      "source_path": "src/mir/builder/builder_method_index.rs",
+      "symbol": "method_candidates"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_value_kind",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_value_kind.rs::get_value_kind:L18",
+      "source_path": "src/mir/builder/builder_value_kind.rs",
+      "symbol": "get_value_kind"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_value_kind",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_value_kind.rs::is_value_local:L35",
+      "source_path": "src/mir/builder/builder_value_kind.rs",
+      "symbol": "is_value_local"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_value_kind",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_value_kind.rs::is_value_loop_carrier:L42",
+      "source_path": "src/mir/builder/builder_value_kind.rs",
+      "symbol": "is_value_loop_carrier"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_value_kind",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_value_kind.rs::is_value_parameter:L28",
+      "source_path": "src/mir/builder/builder_value_kind.rs",
+      "symbol": "is_value_parameter"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_value_kind",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_value_kind.rs::new_typed_value:L11",
+      "source_path": "src/mir/builder/builder_value_kind.rs",
+      "symbol": "new_typed_value"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::builder_value_kind",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/builder_value_kind.rs::register_value_kind:L23",
+      "source_path": "src/mir/builder/builder_value_kind.rs",
+      "symbol": "register_value_kind"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::call_resolution",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/call_resolution.rs::is_builtin_function:L10",
+      "source_path": "src/mir/builder/call_resolution.rs",
+      "symbol": "is_builtin_function"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::call_resolution",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/call_resolution.rs::is_extern_function:L24",
+      "source_path": "src/mir/builder/call_resolution.rs",
+      "symbol": "is_extern_function"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::call_resolution",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/call_resolution.rs::suggest_resolution:L30",
+      "source_path": "src/mir/builder/call_resolution.rs",
+      "symbol": "suggest_resolution"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::collection_literals",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/collection_literals.rs::build_array_literal:L9",
+      "source_path": "src/mir/builder/collection_literals.rs",
+      "symbol": "build_array_literal"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::collection_literals",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/collection_literals.rs::build_map_literal:L68",
+      "source_path": "src/mir/builder/collection_literals.rs",
+      "symbol": "build_map_literal"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::cleanup::policies::balanced_depth_scan_policy_box",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs::decide:L16",
+      "source_path": "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs",
+      "symbol": "decide"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::cleanup::policies::cond_prelude_vocab",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs::classify_cond_prelude_stmt:L25",
+      "source_path": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs",
+      "symbol": "classify_cond_prelude_stmt"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::cleanup::policies::cond_prelude_vocab",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs::prelude_has_loop_like_stmt:L59",
+      "source_path": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs",
+      "symbol": "prelude_has_loop_like_stmt"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::cleanup::policies::cond_prelude_vocab",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs::stmt_has_loop_like_stmt:L40",
+      "source_path": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs",
+      "symbol": "stmt_has_loop_like_stmt"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::cleanup::policies::loop_simple_while_subset_policy",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/cleanup/policies/loop_simple_while_subset_policy.rs::is_loop_simple_while_step_only_body:L5",
+      "source_path": "src/mir/builder/control_flow/cleanup/policies/loop_simple_while_subset_policy.rs",
+      "symbol": "is_loop_simple_while_step_only_body"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::exception::throw",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/exception/throw.rs::cf_throw:L17",
+      "source_path": "src/mir/builder/control_flow/exception/throw.rs",
+      "symbol": "cf_throw"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::exception::try_catch",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/exception/try_catch.rs::cf_try_catch:L16",
+      "source_path": "src/mir/builder/control_flow/exception/try_catch.rs",
+      "symbol": "cf_try_catch"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::bound",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs::extract_bound_from_condition:L6",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs",
+      "symbol": "extract_bound_from_condition"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::candidates",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::collect_candidates_from_condition:L28",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs",
+      "symbol": "collect_candidates_from_condition"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::candidates",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::collect_candidates_from_top_level_comparison:L3",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs",
+      "symbol": "collect_candidates_from_top_level_comparison"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::candidates",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::extract_var_candidate:L73",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs",
+      "symbol": "extract_var_candidate"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::candidates",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::is_supported_comparison_operator:L97",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs",
+      "symbol": "is_supported_comparison_operator"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs::canon_condition_for_generic_loop_v0:L14",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs",
+      "symbol": "canon_condition_for_generic_loop_v0"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_extract::complex_step",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs::extract_complex_step_increment:L3",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs",
+      "symbol": "extract_complex_step_increment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_extract::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs::canon_loop_increment_for_var:L14",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs",
+      "symbol": "canon_loop_increment_for_var"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_extract::next_step",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step.rs::extract_next_i_increment:L6",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step.rs",
+      "symbol": "extract_next_i_increment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_extract::shared",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs::collect_assigned_var_names:L4",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs",
+      "symbol": "collect_assigned_var_names"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_extract::shared",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs::contains_var_name:L47",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs",
+      "symbol": "contains_var_name"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_extract::var_step",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step.rs::extract_var_step_increment:L6",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step.rs",
+      "symbol": "extract_var_step_increment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::collect_conditional_step_indices:L20",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+      "symbol": "collect_conditional_step_indices"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::collect_direct_step_indices:L3",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+      "symbol": "collect_direct_step_indices"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::is_break_else_if_with_increment:L140",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+      "symbol": "is_break_else_if_with_increment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::is_continue_if_with_increment:L109",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+      "symbol": "is_continue_if_with_increment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::matches_loop_increment:L92",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+      "symbol": "matches_loop_increment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::plan",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs::classify_step_placement:L8",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs",
+      "symbol": "classify_step_placement"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::update::literal_match",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs::match_update_literal:L5",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs",
+      "symbol": "match_update_literal"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::update::literal_step",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs::build_update_canon:L6",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs",
+      "symbol": "build_update_canon"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::update::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/update/mod.rs::canon_update_for_loop_var:L19",
+      "source_path": "src/mir/builder/control_flow/generic_loop_canon/update/mod.rs",
+      "symbol": "canon_update_for_loop_var"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::lower::expectations",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/lower/expectations.rs::should_expect_plan:L6",
+      "source_path": "src/mir/builder/control_flow/lower/expectations.rs",
+      "symbol": "should_expect_plan"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::lower::normalize::canonicalize",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/lower/normalize/canonicalize.rs::canonicalize_loop_facts:L21",
+      "source_path": "src/mir/builder/control_flow/lower/normalize/canonicalize.rs",
+      "symbol": "canonicalize_loop_facts"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::lower::planner_compat",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/lower/planner_compat.rs::loop_body_has_nested_loop:L31",
+      "source_path": "src/mir/builder/control_flow/lower/planner_compat.rs",
+      "symbol": "loop_body_has_nested_loop"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::lower::planner_compat",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/lower/planner_compat.rs::router_shadow_pre_plan_guard_error:L24",
+      "source_path": "src/mir/builder/control_flow/lower/planner_compat.rs",
+      "symbol": "router_shadow_pre_plan_guard_error"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/mod.rs::cf_block:L98",
+      "source_path": "src/mir/builder/control_flow/mod.rs",
+      "symbol": "cf_block"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/mod.rs::cf_if:L111",
+      "source_path": "src/mir/builder/control_flow/mod.rs",
+      "symbol": "cf_if"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/mod.rs::cf_loop:L135",
+      "source_path": "src/mir/builder/control_flow/mod.rs",
+      "symbol": "cf_loop"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/mod.rs::cf_throw:L201",
+      "source_path": "src/mir/builder/control_flow/mod.rs",
+      "symbol": "cf_throw"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/mod.rs::cf_try_catch:L189",
+      "source_path": "src/mir/builder/control_flow/mod.rs",
+      "symbol": "cf_try_catch"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::normalization::execute_box",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/normalization/execute_box.rs::execute:L32",
+      "source_path": "src/mir/builder/control_flow/normalization/execute_box.rs",
+      "symbol": "execute"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::normalization::plan",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/normalization/plan.rs::loop_only:L30",
+      "source_path": "src/mir/builder/control_flow/normalization/plan.rs",
+      "symbol": "loop_only"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::normalization::plan_box",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/normalization/plan_box.rs::plan_block_suffix:L32",
+      "source_path": "src/mir/builder/control_flow/normalization/plan_box.rs",
+      "symbol": "plan_block_suffix"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::control_flow::normalization::suffix_router_box",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/control_flow/normalization/suffix_router_box.rs::try_lower_loop_suffix:L40",
+      "source_path": "src/mir/builder/control_flow/normalization/suffix_router_box.rs",
+      "symbol": "try_lower_loop_suffix"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::declaration_indexer",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/declaration_indexer.rs::has_main_static:L21",
+      "source_path": "src/mir/builder/declaration_indexer.rs",
+      "symbol": "has_main_static"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::declaration_indexer",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/declaration_indexer.rs::index_declarations:L54",
+      "source_path": "src/mir/builder/declaration_indexer.rs",
+      "symbol": "index_declarations"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::decls",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/decls.rs::build_box_declaration:L190",
+      "source_path": "src/mir/builder/decls.rs",
+      "symbol": "build_box_declaration"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::decls",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/decls.rs::build_static_main_box:L11",
+      "source_path": "src/mir/builder/decls.rs",
+      "symbol": "build_static_main_box"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::emit_guard::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/emit_guard/mod.rs::finalize_call_operands:L274",
+      "source_path": "src/mir/builder/emit_guard/mod.rs",
+      "symbol": "finalize_call_operands"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::emit_guard::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/emit_guard/mod.rs::verify_after_call:L309",
+      "source_path": "src/mir/builder/emit_guard/mod.rs",
+      "symbol": "verify_after_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs.rs::build_expression_impl:L159",
+      "source_path": "src/mir/builder/exprs.rs",
+      "symbol": "build_expression_impl"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_call",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_call.rs::build_indirect_call_expression:L6",
+      "source_path": "src/mir/builder/exprs_call.rs",
+      "symbol": "build_indirect_call_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_check",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_check.rs::build_check_expression:L6",
+      "source_path": "src/mir/builder/exprs_check.rs",
+      "symbol": "build_check_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_enum_match",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_enum_match.rs::build_enum_match_expression:L22",
+      "source_path": "src/mir/builder/exprs_enum_match.rs",
+      "symbol": "build_enum_match_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_enum_match",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_enum_match.rs::try_build_enum_variant_constructor:L45",
+      "source_path": "src/mir/builder/exprs_enum_match.rs",
+      "symbol": "try_build_enum_variant_constructor"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_enum_match",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_enum_match.rs::try_build_guard_let_scopebox:L5",
+      "source_path": "src/mir/builder/exprs_enum_match.rs",
+      "symbol": "try_build_guard_let_scopebox"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_lambda",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_lambda.rs::build_lambda_expression:L6",
+      "source_path": "src/mir/builder/exprs_lambda.rs",
+      "symbol": "build_lambda_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_peek",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_peek.rs::build_peek_expression:L6",
+      "source_path": "src/mir/builder/exprs_peek.rs",
+      "symbol": "build_peek_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::exprs_qmark",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/exprs_qmark.rs::build_qmark_propagate_expression:L6",
+      "source_path": "src/mir/builder/exprs_qmark.rs",
+      "symbol": "build_qmark_propagate_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::fastmem",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/fastmem.rs::build_fastmem_region:L15",
+      "source_path": "src/mir/builder/fastmem.rs",
+      "symbol": "build_fastmem_region"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::fastmem_context",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/fastmem_context.rs::current_fastmem_region:L5",
+      "source_path": "src/mir/builder/fastmem_context.rs",
+      "symbol": "current_fastmem_region"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::fastmem_context",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/fastmem_context.rs::pop_fastmem_region:L15",
+      "source_path": "src/mir/builder/fastmem_context.rs",
+      "symbol": "pop_fastmem_region"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::fastmem_context",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/fastmem_context.rs::push_fastmem_region:L10",
+      "source_path": "src/mir/builder/fastmem_context.rs",
+      "symbol": "push_fastmem_region"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::field_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/field_facts.rs::declared_field_type_for_value:L10",
+      "source_path": "src/mir/builder/field_facts.rs",
+      "symbol": "declared_field_type_for_value"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::field_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/field_facts.rs::inferred_field_result_class:L22",
+      "source_path": "src/mir/builder/field_facts.rs",
+      "symbol": "inferred_field_result_class"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::field_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/field_facts.rs::is_weak_field_on_base:L79",
+      "source_path": "src/mir/builder/field_facts.rs",
+      "symbol": "is_weak_field_on_base"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::field_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/field_facts.rs::is_weak_field_on_result_class:L95",
+      "source_path": "src/mir/builder/field_facts.rs",
+      "symbol": "is_weak_field_on_result_class"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::field_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/field_facts.rs::publish_field_result_origin:L44",
+      "source_path": "src/mir/builder/field_facts.rs",
+      "symbol": "publish_field_result_origin"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::field_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/field_facts.rs::resolve_property_getter_name:L65",
+      "source_path": "src/mir/builder/field_facts.rs",
+      "symbol": "resolve_property_getter_name"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::if_form",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/if_form.rs::lower_if_form:L72",
+      "source_path": "src/mir/builder/if_form.rs",
+      "symbol": "lower_if_form"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::if_form",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/if_form.rs::lower_if_form_with_condition_value:L82",
+      "source_path": "src/mir/builder/if_form.rs",
+      "symbol": "lower_if_form_with_condition_value"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::indexing",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/indexing.rs::build_index_access_from_values:L32",
+      "source_path": "src/mir/builder/indexing.rs",
+      "symbol": "build_index_access_from_values"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::indexing",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/indexing.rs::build_index_assignment:L212",
+      "source_path": "src/mir/builder/indexing.rs",
+      "symbol": "build_index_assignment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::indexing",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/indexing.rs::build_index_expression:L161",
+      "source_path": "src/mir/builder/indexing.rs",
+      "symbol": "build_index_expression"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::collect_values_in_block:L53",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "collect_values_in_block"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::collect_values_in_instruction:L65",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "collect_values_in_instruction"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::get_block:L31",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "get_block"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::get_value:L38",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "get_value"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::new:L22",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::remap_instruction:L180",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "remap_instruction"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::remap_value:L497",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "remap_value"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::set_block:L43",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "set_block"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_id_remapper",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::set_value:L48",
+      "source_path": "src/mir/builder/joinir_id_remapper.rs",
+      "symbol": "set_value"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::joinir_inline_boundary_injector",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/joinir_inline_boundary_injector.rs::inject_boundary_copies:L55",
+      "source_path": "src/mir/builder/joinir_inline_boundary_injector.rs",
+      "symbol": "inject_boundary_copies"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::metadata::propagate",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/metadata/propagate.rs::propagate:L14",
+      "source_path": "src/mir/builder/metadata/propagate.rs",
+      "symbol": "propagate"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::metadata::propagate",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/metadata/propagate.rs::propagate_with_override:L56",
+      "source_path": "src/mir/builder/metadata/propagate.rs",
+      "symbol": "propagate_with_override"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::module_lifecycle",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/module_lifecycle.rs::lower_root:L110",
+      "source_path": "src/mir/builder/module_lifecycle.rs",
+      "symbol": "lower_root"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::module_lifecycle",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/module_lifecycle.rs::prepare_module:L64",
+      "source_path": "src/mir/builder/module_lifecycle.rs",
+      "symbol": "prepare_module"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::name_const",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/name_const.rs::make_name_const_result:L6",
+      "source_path": "src/mir/builder/name_const.rs",
+      "symbol": "make_name_const_result"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::observe::resolve",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/observe/resolve.rs::emit_choose:L32",
+      "source_path": "src/mir/builder/observe/resolve.rs",
+      "symbol": "emit_choose"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::observe::resolve",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/observe/resolve.rs::emit_try:L21",
+      "source_path": "src/mir/builder/observe/resolve.rs",
+      "symbol": "emit_try"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::observe::ssa",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/observe/ssa.rs::emit_phi:L5",
+      "source_path": "src/mir/builder/observe/ssa.rs",
+      "symbol": "emit_phi"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::observe::types",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/observe/types.rs::origin:L17",
+      "source_path": "src/mir/builder/observe/types.rs",
+      "symbol": "origin"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::observe::types",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/observe/types.rs::propagate:L37",
+      "source_path": "src/mir/builder/observe/types.rs",
+      "symbol": "propagate"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::observe::types",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/observe/types.rs::ty:L27",
+      "source_path": "src/mir/builder/observe/types.rs",
+      "symbol": "ty"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::origin::infer",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/origin/infer.rs::annotate_me_origin:L8",
+      "source_path": "src/mir/builder/origin/infer.rs",
+      "symbol": "annotate_me_origin"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::origin::phi",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/origin/phi.rs::propagate_phi_meta:L5",
+      "source_path": "src/mir/builder/origin/phi.rs",
+      "symbol": "propagate_phi_meta"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::phi_merge",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/phi_merge.rs::merge_all_vars:L176",
+      "source_path": "src/mir/builder/phi_merge.rs",
+      "symbol": "merge_all_vars"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::phi_merge",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/phi_merge.rs::merge_variable:L62",
+      "source_path": "src/mir/builder/phi_merge.rs",
+      "symbol": "merge_variable"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::phi_merge",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/phi_merge.rs::merge_with_dst:L115",
+      "source_path": "src/mir/builder/phi_merge.rs",
+      "symbol": "merge_with_dst"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::phi_merge",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/phi_merge.rs::new:L36",
+      "source_path": "src/mir/builder/phi_merge.rs",
+      "symbol": "new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::phi_type_inference",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi:L78",
+      "source_path": "src/mir/builder/phi_type_inference.rs",
+      "symbol": "infer_return_type_from_phi"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::plugin_sigs",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/plugin_sigs.rs::load_plugin_method_sigs:L8",
+      "source_path": "src/mir/builder/plugin_sigs.rs",
+      "symbol": "load_plugin_method_sigs"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::properties",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/properties.rs::from_getter_method_name:L17",
+      "source_path": "src/mir/builder/properties.rs",
+      "symbol": "from_getter_method_name"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::properties",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/properties.rs::getter_method_name:L29",
+      "source_path": "src/mir/builder/properties.rs",
+      "symbol": "getter_method_name"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::properties",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/properties.rs::getter_method_name:L53",
+      "source_path": "src/mir/builder/properties.rs",
+      "symbol": "getter_method_name"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::properties",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/properties.rs::new:L49",
+      "source_path": "src/mir/builder/properties.rs",
+      "symbol": "new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::properties",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/properties.rs::register_getter_method:L60",
+      "source_path": "src/mir/builder/properties.rs",
+      "symbol": "register_getter_method"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::property_reads",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/property_reads.rs::try_lower_property_read:L6",
+      "source_path": "src/mir/builder/property_reads.rs",
+      "symbol": "try_lower_property_read"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::receiver",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/receiver.rs::finalize_method_receiver:L11",
+      "source_path": "src/mir/builder/receiver.rs",
+      "symbol": "finalize_method_receiver"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::record_helper_args",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/record_helper_args.rs::try_inline_record_helper_call:L33",
+      "source_path": "src/mir/builder/record_helper_args.rs",
+      "symbol": "try_inline_record_helper_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::record_helper_args",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/record_helper_args.rs::try_inline_same_module_helper_setter_call:L63",
+      "source_path": "src/mir/builder/record_helper_args.rs",
+      "symbol": "try_inline_same_module_helper_setter_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::record_helper_args",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/record_helper_args.rs::try_inline_same_module_helper_setter_call_from_receiver:L130",
+      "source_path": "src/mir/builder/record_helper_args.rs",
+      "symbol": "try_inline_same_module_helper_setter_call_from_receiver"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::known",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/known.rs::try_known_or_unique:L397",
+      "source_path": "src/mir/builder/rewrite/known.rs",
+      "symbol": "try_known_or_unique"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::known",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/known.rs::try_known_or_unique_to_dst:L414",
+      "source_path": "src/mir/builder/rewrite/known.rs",
+      "symbol": "try_known_or_unique_to_dst"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::known",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/known.rs::try_known_rewrite:L99",
+      "source_path": "src/mir/builder/rewrite/known.rs",
+      "symbol": "try_known_rewrite"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::known",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/known.rs::try_known_rewrite_to_dst:L181",
+      "source_path": "src/mir/builder/rewrite/known.rs",
+      "symbol": "try_known_rewrite_to_dst"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::known",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/known.rs::try_unique_suffix_rewrite:L258",
+      "source_path": "src/mir/builder/rewrite/known.rs",
+      "symbol": "try_unique_suffix_rewrite"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::known",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/known.rs::try_unique_suffix_rewrite_to_dst:L325",
+      "source_path": "src/mir/builder/rewrite/known.rs",
+      "symbol": "try_unique_suffix_rewrite_to_dst"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::special",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/special.rs::try_early_str_like_to_dst:L21",
+      "source_path": "src/mir/builder/rewrite/special.rs",
+      "symbol": "try_early_str_like_to_dst"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::rewrite::special",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/rewrite/special.rs::try_special_equals_to_dst:L70",
+      "source_path": "src/mir/builder/rewrite/special.rs",
+      "symbol": "try_special_equals_to_dst"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::router::catalog",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/router/catalog.rs::is_core_box:L21",
+      "source_path": "src/mir/builder/router/catalog.rs",
+      "symbol": "is_core_box"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::router::policy",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/router/policy.rs::choose_route:L19",
+      "source_path": "src/mir/builder/router/policy.rs",
+      "symbol": "choose_route"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::schedule::block",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/schedule/block.rs::emit_before_call_copy:L162",
+      "source_path": "src/mir/builder/schedule/block.rs",
+      "symbol": "emit_before_call_copy"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::schedule::block",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/schedule/block.rs::ensure_after_phis_copy:L92",
+      "source_path": "src/mir/builder/schedule/block.rs",
+      "symbol": "ensure_after_phis_copy"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::schedule::block",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/schedule/block.rs::verify_order:L236",
+      "source_path": "src/mir/builder/schedule/block.rs",
+      "symbol": "verify_order"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::static_scalar_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/static_scalar_facts.rs::emit_static_scalar_fact_const:L57",
+      "source_path": "src/mir/builder/static_scalar_facts.rs",
+      "symbol": "emit_static_scalar_fact_const"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::static_scalar_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/static_scalar_facts.rs::infer_static_scalar_method_fact:L23",
+      "source_path": "src/mir/builder/static_scalar_facts.rs",
+      "symbol": "infer_static_scalar_method_fact"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::type_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/type_facts.rs::classify_operand_type:L54",
+      "source_path": "src/mir/builder/type_facts.rs",
+      "symbol": "classify_operand_type"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::type_facts",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/type_facts.rs::new:L30",
+      "source_path": "src/mir/builder/type_facts.rs",
+      "symbol": "new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::type_hint_providers",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/type_hint_providers.rs::annotate_missing_result_types_from_calls_and_await:L33",
+      "source_path": "src/mir/builder/type_hint_providers.rs",
+      "symbol": "annotate_missing_result_types_from_calls_and_await"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::annotation",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/annotation.rs::annotate_from_function:L16",
+      "source_path": "src/mir/builder/types/annotation.rs",
+      "symbol": "annotate_from_function"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::annotation",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/annotation.rs::infer_method_return_type:L77",
+      "source_path": "src/mir/builder/types/annotation.rs",
+      "symbol": "infer_method_return_type"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::annotation",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/annotation.rs::infer_return_type:L22",
+      "source_path": "src/mir/builder/types/annotation.rs",
+      "symbol": "infer_return_type"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::annotation",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/annotation.rs::set_type:L9",
+      "source_path": "src/mir/builder/types/annotation.rs",
+      "symbol": "set_type"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::array_element",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/array_element.rs::annotate_array_element_result:L63",
+      "source_path": "src/mir/builder/types/array_element.rs",
+      "symbol": "annotate_array_element_result"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::array_element",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/array_element.rs::observe_array_write_call:L24",
+      "source_path": "src/mir/builder/types/array_element.rs",
+      "symbol": "observe_array_write_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::array_element",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/array_element.rs::record_array_literal_elements:L9",
+      "source_path": "src/mir/builder/types/array_element.rs",
+      "symbol": "record_array_literal_elements"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::map_value",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/map_value.rs::annotate_map_get_result:L50",
+      "source_path": "src/mir/builder/types/map_value.rs",
+      "symbol": "annotate_map_get_result"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::types::map_value",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/types/map_value.rs::observe_map_write_call:L11",
+      "source_path": "src/mir/builder/types/map_value.rs",
+      "symbol": "observe_map_write_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::block_mgmt",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/block_mgmt.rs::ensure_block_exists:L9",
+      "source_path": "src/mir/builder/utils/block_mgmt.rs",
+      "symbol": "ensure_block_exists"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::block_mgmt",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/block_mgmt.rs::start_new_block:L22",
+      "source_path": "src/mir/builder/utils/block_mgmt.rs",
+      "symbol": "start_new_block"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::boxcall_emit",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/boxcall_emit.rs::emit_box_or_plugin_call:L95",
+      "source_path": "src/mir/builder/utils/boxcall_emit.rs",
+      "symbol": "emit_box_or_plugin_call"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::id_alloc",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/id_alloc.rs::alloc_typed:L49",
+      "source_path": "src/mir/builder/utils/id_alloc.rs",
+      "symbol": "alloc_typed"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::id_alloc",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/id_alloc.rs::next_block_id:L59",
+      "source_path": "src/mir/builder/utils/id_alloc.rs",
+      "symbol": "next_block_id"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::id_alloc",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/id_alloc.rs::next_value_id:L20",
+      "source_path": "src/mir/builder/utils/id_alloc.rs",
+      "symbol": "next_value_id"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::local_ssa",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_arg:L14",
+      "source_path": "src/mir/builder/utils/local_ssa.rs",
+      "symbol": "local_arg"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::local_ssa",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_cond:L24",
+      "source_path": "src/mir/builder/utils/local_ssa.rs",
+      "symbol": "local_cond"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::local_ssa",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_field_base:L19",
+      "source_path": "src/mir/builder/utils/local_ssa.rs",
+      "symbol": "local_field_base"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::local_ssa",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_recv:L9",
+      "source_path": "src/mir/builder/utils/local_ssa.rs",
+      "symbol": "local_recv"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::local_ssa",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_ssa_ensure:L30",
+      "source_path": "src/mir/builder/utils/local_ssa.rs",
+      "symbol": "local_ssa_ensure"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::pinning",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/pinning.rs::insert_copy_after_phis:L50",
+      "source_path": "src/mir/builder/utils/pinning.rs",
+      "symbol": "insert_copy_after_phis"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::pinning",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/pinning.rs::pin_to_slot:L21",
+      "source_path": "src/mir/builder/utils/pinning.rs",
+      "symbol": "pin_to_slot"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::weak_ref",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/weak_ref.rs::emit_barrier_read:L50",
+      "source_path": "src/mir/builder/utils/weak_ref.rs",
+      "symbol": "emit_barrier_read"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::weak_ref",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/weak_ref.rs::emit_barrier_write:L60",
+      "source_path": "src/mir/builder/utils/weak_ref.rs",
+      "symbol": "emit_barrier_write"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::weak_ref",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/weak_ref.rs::emit_weak_load:L34",
+      "source_path": "src/mir/builder/utils/weak_ref.rs",
+      "symbol": "emit_weak_load"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::utils::weak_ref",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/utils/weak_ref.rs::emit_weak_new:L9",
+      "source_path": "src/mir/builder/utils/weak_ref.rs",
+      "symbol": "emit_weak_new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::weak_field_validator",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/weak_field_validator.rs::annotate_read_result:L26",
+      "source_path": "src/mir/builder/weak_field_validator.rs",
+      "symbol": "annotate_read_result"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_builder::weak_field_validator",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/builder/weak_field_validator.rs::validate_assignment:L54",
+      "source_path": "src/mir/builder/weak_field_validator.rs",
+      "symbol": "validate_assignment"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::function_slot_registry",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/function_slot_registry.rs::ensure_slot:L52",
+      "source_path": "src/mir/region/function_slot_registry.rs",
+      "symbol": "ensure_slot"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::function_slot_registry",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/function_slot_registry.rs::get_slot:L86",
+      "source_path": "src/mir/region/function_slot_registry.rs",
+      "symbol": "get_slot"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::function_slot_registry",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/function_slot_registry.rs::iter_slots:L81",
+      "source_path": "src/mir/region/function_slot_registry.rs",
+      "symbol": "iter_slots"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::function_slot_registry",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/function_slot_registry.rs::new:L44",
+      "source_path": "src/mir/region/function_slot_registry.rs",
+      "symbol": "new"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::function_slot_registry",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/function_slot_registry.rs::set_ref_kind:L74",
+      "source_path": "src/mir/region/function_slot_registry.rs",
+      "symbol": "set_ref_kind"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::mod",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/mod.rs::classify_ref_kind:L62",
+      "source_path": "src/mir/region/mod.rs",
+      "symbol": "classify_ref_kind"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::observer",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/observer.rs::observe_control_form:L28",
+      "source_path": "src/mir/region/observer.rs",
+      "symbol": "observe_control_form"
+    },
+    {
+      "original_known_owner_edge": "",
+      "original_owner_edge_confidence": "None",
+      "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
+      "repaired_known_owner_edge": "hakorune_mir_region::observer",
+      "repaired_owner_edge_confidence": "FileScoped",
+      "source_id": "src/mir/region/observer.rs::observe_function_region:L89",
+      "source_path": "src/mir/region/observer.rs",
+      "symbol": "observe_function_region"
+    }
+  ],
+  "schema_version": 0,
+  "summary": {
+    "distinct_repaired_owner_edge_count": 85,
+    "input_other_owner_cluster_count": 185,
+    "repaired_row_count": 185,
+    "top_repaired_owner_edges": [
+      {
+        "count": 9,
+        "owner_edge": "hakorune_mir_builder::joinir_id_remapper"
+      },
+      {
+        "count": 6,
+        "owner_edge": "hakorune_mir_builder::builder_value_kind"
+      },
+      {
+        "count": 6,
+        "owner_edge": "hakorune_mir_builder::field_facts"
+      },
+      {
+        "count": 6,
+        "owner_edge": "hakorune_mir_builder::rewrite::known"
+      },
+      {
+        "count": 5,
+        "owner_edge": "hakorune_mir_builder::builder_init"
+      },
+      {
+        "count": 5,
+        "owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::step_placement::facts"
+      },
+      {
+        "count": 5,
+        "owner_edge": "hakorune_mir_builder::control_flow::mod"
+      },
+      {
+        "count": 5,
+        "owner_edge": "hakorune_mir_builder::properties"
+      },
+      {
+        "count": 5,
+        "owner_edge": "hakorune_mir_builder::utils::local_ssa"
+      },
+      {
+        "count": 5,
+        "owner_edge": "hakorune_mir_region::function_slot_registry"
+      },
+      {
+        "count": 4,
+        "owner_edge": "hakorune_mir_builder::builder_emit"
+      },
+      {
+        "count": 4,
+        "owner_edge": "hakorune_mir_builder::control_flow::generic_loop_canon::condition::candidates"
+      },
+      {
+        "count": 4,
+        "owner_edge": "hakorune_mir_builder::phi_merge"
+      },
+      {
+        "count": 4,
+        "owner_edge": "hakorune_mir_builder::types::annotation"
+      },
+      {
+        "count": 4,
+        "owner_edge": "hakorune_mir_builder::utils::weak_ref"
+      },
+      {
+        "count": 3,
+        "owner_edge": "hakorune_mir_builder::call_resolution"
+      },
+      {
+        "count": 3,
+        "owner_edge": "hakorune_mir_builder::control_flow::cleanup::policies::cond_prelude_vocab"
+      },
+      {
+        "count": 3,
+        "owner_edge": "hakorune_mir_builder::exprs_enum_match"
+      },
+      {
+        "count": 3,
+        "owner_edge": "hakorune_mir_builder::fastmem_context"
+      },
+      {
+        "count": 3,
+        "owner_edge": "hakorune_mir_builder::indexing"
+      }
+    ],
+    "unrepaired_row_count": 0
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+  "unrepaired_rows": []
+}

@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1941-MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001.md"
-latest_card_summary = """The latest card partitions
-OtherMissingProjectionPolicyCluster into 123 source-derived subclusters and
-selects owner-edge confidence repair as the next machine-derived task."""
+latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1942-MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001.md"
+latest_card_summary = """The latest card derives FileScoped owner-edge
+confidence for all 185 OtherMissingProjectionPolicyCluster rows without
+claiming projection semantics."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1942 repairs owner-edge confidence for all 185 OtherMissingProjectionPolicyCluster rows.",
   "2026-06-30: 1941 partitions OtherMissingProjectionPolicyCluster into 123 subclusters and selects owner-edge confidence repair.",
   "2026-06-30: 1940 audits owner-cluster fields and selects OtherMissingProjectionPolicyCluster decomposition.",
   "2026-06-30: 1939 partitions Call/Emit/SSA MissingProjectionPolicy into 61 subclusters.",
