@@ -373,23 +373,23 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001
-   status=green
-   boundary=PhiMaterializerFeature constructor descriptor materialized
-   semantic_authority=phi materializer feature projection-policy fixture
-   non_authority=Hako generation, native seed, Source Selfhost claim
+2. MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001
+   status=next
+   boundary=rerun priority after Other unit observer descriptor landed
+   semantic_authority=cluster priority resolver + family guard manifest fixtures
+   non_authority=manual cluster selection, cluster size as proof, Hako generation
 
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=stop-line
-   boundary=Other unit observer surface descriptor materialized
-   semantic_authority=other unit observer surface projection-policy fixture
-   non_authority=manual family selection, cluster size as proof, Source Selfhost claim
+3. MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-002
+   status=conditional
+   boundary=only if priority resolver cannot consume the descriptor-completed Other shape queue
+   semantic_authority=Other shape inventory/resolution fixtures
+   non_authority=family-name policy, semantic projection inference, Source Selfhost claim
 
 next_documented_task =
   MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001
 
 next_after_active_3 =
-  MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 ```
 
 ## Landed Converter Capability Summary
