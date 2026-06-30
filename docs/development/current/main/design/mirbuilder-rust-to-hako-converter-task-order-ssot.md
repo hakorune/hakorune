@@ -379,17 +379,17 @@ history, not in this task-order SSOT.
    semantic_authority=Other shape inventory/resolution fixtures
    non_authority=family-name policy, semantic projection inference, Source Selfhost claim
 
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=stop-line
-   boundary=no machine-derived projection-policy cluster remains selectable in this queue
-   semantic_authority=1947 rerun fixture and wider-route design stop
-   non_authority=manual shape selection, cluster size as proof, Source Selfhost claim
+3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-001
+   status=green
+   boundary=projection queues exhausted; unconverted surface report is stale
+   semantic_authority=1948 seed capability rerun fixture
+   non_authority=manual family selection, native seed selection, Source Selfhost claim
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001
 
 next_after_active_3 =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001
 ```
 
 ## Landed Converter Capability Summary

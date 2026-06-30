@@ -1,0 +1,412 @@
+{
+  "candidate_pool": {
+    "ambiguous_candidate_count": 0,
+    "generated_artifact_to_seed_candidate_count": 0,
+    "native_owner_seed_candidate_count": 0,
+    "native_seed_ready_count": 0,
+    "other_blocker_axis_candidate_count": 0,
+    "route_repairable_inconsistency_count": 0
+  },
+  "candidates": [
+    {
+      "blocked_by": [
+        "LeafSemanticOwner",
+        "NotCompositionOwner"
+      ],
+      "descriptor_state": "Present",
+      "native_authority_state": "GeneratedArtifactOnly",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "FixtureMapped",
+      "owner_edge_id": "minimal_path_composed_execution_closure",
+      "selection_eligible": false,
+      "source_state_after": "GeneratedArtifactOnly",
+      "source_state_before": "GeneratedArtifactOnly",
+      "verifier_or_oracle_state": "Present"
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "family_name_based_policy": 0,
+    "freshness_checked": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "global_projection_policy_exhaustion_consumed": 1,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "other_shape_queue_exhaustion_consumed": 1,
+    "projection_descriptor_ledger_hash_recorded": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "unconverted_surface_report_hash_recorded": 1
+  },
+  "decision": {
+    "kind": "SelectUnconvertedSurfaceReportRerun",
+    "reason_token": "UnconvertedSurfaceReportStaleAfterProjectionDescriptorCloseout",
+    "selected_next_card": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-001",
+    "selected_owner_edge_id": null
+  },
+  "freshness": {
+    "native_seed_survey_previous_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d",
+    "needs_unconverted_surface_report_rerun": true,
+    "projection_descriptor_ledger_hash": "f9516c5b7e3f585bd7dd6e69c6a228002e12e9528bd2cc85e303a6c5fbea4e7e",
+    "unconverted_surface_report_covers_landed_descriptors": false,
+    "unconverted_surface_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3",
+    "unconverted_surface_report_manifest_hash": "c3804fdf67a019e995421a63e12e1f73249dedb990e36aef88e57019eaddc4e5",
+    "unconverted_surface_report_survey_hash": "7c24468de26e282a5fd01da0f7f024e1457427ea1faeed716725a78bb92d2b0d"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "generated_artifact_to_native_owner_seed_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-to-native-owner-seed-policy-v0.json",
+    "global_projection_policy_priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "other_shape_signature_cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-cluster-resolution-002-v0.json",
+    "previous_native_owner_seed_capability_survey": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-v0.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderCrateWideNativeOwnerSeedCapabilitySurveyRerunV1",
+  "projection_descriptor_ledger": {
+    "row_count": 79,
+    "rows": [
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-break-only-else-pattern-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-BREAK-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-guard-break-else-pattern-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-GUARD-BREAK-ELSE-PATTERN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-return-only-else-pattern-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-RETURN-ONLY-ELSE-PATTERN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-continue-if-else-pattern-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-CONTINUE-IF-ELSE-PATTERN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-cleanup-application-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-CLEANUP-APPLICATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-cleanup-exit-predicate-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-CLEANUP-EXIT-PREDICATE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-item-dispatcher-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-ITEM-DISPATCHER-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-statement-lowering-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-STATEMENT-LOWERING-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-root-pipeline-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-ROOT-PIPELINE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-carrier-sync-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-CARRIER-SYNC-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-bc-nested-carrier-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-BC-NESTED-CARRIER-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-root-pipeline-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-ROOT-PIPELINE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-block-lowering-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-BLOCK-LOWERING-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-cleanup-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-CLEANUP-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-continue-if-prelude-span-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-PRELUDE-SPAN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-continue-if-no-else-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-NO-ELSE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-continue-if-group-prelude-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-CONTINUE-IF-GROUP-PRELUDE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-group-if-branch-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-GROUP-IF-BRANCH-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-group-if-nested-loop-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-GROUP-IF-NESTED-LOOP-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-helper-mutation-probe-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-HELPER-MUTATION-PROBE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-helper-carrier-sync-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-HELPER-CARRIER-SYNC-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-statement-dispatcher-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-STATEMENT-DISPATCHER-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-statement-lowering-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-AST-STATEMENT-LOWERING-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-co-ast-assignment-statement-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-CO-AST-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-merge-assignment-statement-projection-policy-v0.json",
+        "token": "MIRBUILDER-CARRIER-MERGE-ASSIGNMENT-STATEMENT-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+        "token": "MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+        "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+        "token": "MIRBUILDER-PROJECTION-POLICY-EXISTING-DECISION-FILTER-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-feature-projection-policy-v0.json",
+        "token": "MIRBUILDER-CARRIER-FEATURE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+        "token": "MIRBUILDER-OTHER-JOIN-I-R-PLAN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-registry-projection-policy-v0.json",
+        "token": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+        "token": "MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-return-in-body-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-utility-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-UTILITY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-plan-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-COND-PLAN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-context-registry-projection-policy-v0.json",
+        "token": "MIRBUILDER-CONTEXT-REGISTRY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-lowerer-projection-policy-v0.json",
+        "token": "MIRBUILDER-PLAN-LOWERER-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-composer-projection-policy-v0.json",
+        "token": "MIRBUILDER-PLAN-COMPOSER-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-normalizer-projection-policy-v0.json",
+        "token": "MIRBUILDER-PLAN-NORMALIZER-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-planner-policy-projection-policy-v0.json",
+        "token": "MIRBUILDER-PLANNER-POLICY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-feature-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-FEATURE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-facts-projection-policy-v0.json",
+        "token": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-parts-assembly-projection-policy-v0.json",
+        "token": "MIRBUILDER-PLAN-PARTS-ASSEMBLY-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-diagnostic-helpers-projection-policy-v0.json",
+        "token": "MIRBUILDER-CALL-LOWERING-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-feature-predicates-projection-policy-v0.json",
+        "token": "MIRBUILDER-CALL-LOWERING-FEATURE-PREDICATES-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-unified-call-mode-gate-projection-policy-v0.json",
+        "token": "MIRBUILDER-CALL-LOWERING-UNIFIED-CALL-MODE-GATE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-value-return-ast-scan-projection-policy-v0.json",
+        "token": "MIRBUILDER-CALL-LOWERING-VALUE-RETURN-AST-SCAN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-name-canonicalization-projection-policy-v0.json",
+        "token": "MIRBUILDER-CALL-LOWERING-NAME-CANONICALIZATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+        "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-DECOMPOSED-CLUSTER-FILTER-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-expr-matchers-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXPR-MATCHERS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-call-expr-matchers-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CALL-EXPR-MATCHERS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-compare-expr-matchers-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-COMPARE-EXPR-MATCHERS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-control-return-expr-matchers-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTROL-RETURN-EXPR-MATCHERS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-validation-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-tail-control-flow-probe-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TAIL-CONTROL-FLOW-PROBE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-in-body-step-validation-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-IN-BODY-STEP-VALIDATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-continue-if-step-validation-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTINUE-IF-STEP-VALIDATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-break-else-if-step-validation-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-BREAK-ELSE-IF-STEP-VALIDATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-kind-resolution-projection-policy-v0.json",
+        "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-KIND-RESOLUTION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-body-view-feature-projection-policy-v0.json",
+        "token": "MIRBUILDER-BODY-VIEW-FEATURE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+        "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-diagnostic-helpers-projection-policy-v0.json",
+        "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-block-termination-predicate-projection-policy-v0.json",
+        "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BLOCK-TERMINATION-PREDICATE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-projection-policy-v0.json",
+        "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-true-break-continue-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+        "token": "MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+        "token": "MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+        "token": "MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-joinir-plan-cluster-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-joinir-route-verify-cluster-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-ROUTE-VERIFY-CLUSTER-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-context-surface-join-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CONTEXT-SURFACE-JOIN-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-call-emit-ssa-cluster-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CALL-EMIT-SSA-CLUSTER-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-cluster-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-edge-confidence-repair-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-cluster-rerun-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-RERUN-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-inventory-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-INVENTORY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-cluster-resolution-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-unit-observer-surface-projection-policy-v0.json",
+        "token": "MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001"
+      },
+      {
+        "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-cluster-resolution-002-v0.json",
+        "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-002"
+      }
+    ]
+  },
+  "queue_exhaustion": {
+    "global_projection_policy": {
+      "eligible_cluster_count": 41,
+      "excluded_existing_decision_cluster_count": 41,
+      "reason_token": "NoEligibleProjectionPolicyCluster",
+      "selectable_cluster_count": 0
+    },
+    "other_shape_signature_queue": {
+      "completed_shape_signature_count": 1,
+      "input_other_owner_cluster_count": 185,
+      "input_shape_signature_count": 11,
+      "reason_token": "NoUnclosedOtherShapeSignatureClusterEligible",
+      "selection_eligible_shape_count": 0
+    }
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-001"
+}
