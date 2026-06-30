@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1888-MIRBUILDER-CONTEXT-REGISTRY-PROJECTION-POLICY-001.md
+  1889-MIRBUILDER-PLAN-LOWERER-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

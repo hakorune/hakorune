@@ -1,0 +1,57 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "PlanLowererDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_lowerer::FixtureMapped::PlanLowererCluster",
+    "source_count": 1,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderPlanLowererProjectionPolicyV1",
+  "lowerer_evidence": [
+    "current_span_location",
+    "metadata_ctx.current_span().location_string()"
+  ],
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::plan_lowerer",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "PlanLowererSpanFormattingHelperIsParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.plan_lowerer",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "String",
+      "source_id": "src/mir/builder/control_flow/plan/lowerer/span_fmt.rs::current_span_location:L3",
+      "source_path": "src/mir/builder/control_flow/plan/lowerer/span_fmt.rs",
+      "symbol": "current_span_location",
+      "visibility": "pub(super)"
+    }
+  ],
+  "token": "MIRBUILDER-PLAN-LOWERER-PROJECTION-POLICY-001"
+}

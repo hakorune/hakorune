@@ -625,6 +625,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-context-registry-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_context_registry_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-PLAN-LOWERER-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1889-MIRBUILDER-PLAN-LOWERER-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-lowerer-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_plan_lowerer_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
