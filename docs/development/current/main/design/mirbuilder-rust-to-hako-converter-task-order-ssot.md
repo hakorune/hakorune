@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1929-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001.md
+  1930-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001
+2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001
    status=green
-   boundary=box field initialization HakoShadow promoted to HakoMainline
-   semantic_authority=box field initialization shadow result and promotion decision fixtures
+   boundary=box field initialization native Hako source seed materialized
+   semantic_authority=promotion decision and native source seed fixtures
    non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
 
-3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001
+3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001
    status=next
-   boundary=materialize a native source seed for the HakoMainline box field initialization stage
-   semantic_authority=promotion decision fixture and box field initialization mutation-frame contract
-   non_authority=manual family selection, HakoAdopted decision, Source Selfhost claim
+   boundary=decide whether the native source seed becomes HakoAdopted
+   semantic_authority=native source seed and mutation-frame contract fixtures
+   non_authority=manual family selection, Rust deletion, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001
 ```
 
 ## Landed Converter Capability Summary

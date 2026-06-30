@@ -1,0 +1,63 @@
+{
+  "claims": {
+    "family_adoption_decision": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "manual_family_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "rust_deletion": 0,
+    "source_selfhost_claim": 0
+  },
+  "family_id": "hakorune_mir_builder::statement_value_construction_box_field_initialization",
+  "input_authority": {
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "hako_shadow_promotion_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/box-field-initialization-hako-shadow-promotion-decision-v0.json",
+    "mutation_frame_contract": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-mutation-frame-contract-v0.json"
+  },
+  "kind": "MirBuilderStatementValueConstructionBoxFieldInitializationHakoNativeSourceSeedV1",
+  "native_source_seed": {
+    "api": "BoxFieldInitializationApi.apply",
+    "generator_overwrite_guard": true,
+    "module_export": "lib.box_field_initialization_native_seed",
+    "native_seed_api": "BoxFieldInitializationNativeSeedApi.apply",
+    "outside_generated_tree": true,
+    "path": "lang/src/compiler/lib/box_field_initialization_native_seed.hako"
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "NativeSourceSeedMaterialized"
+  },
+  "schema_version": 0,
+  "seed_status": {
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "native_source_owner_seed_present": 1,
+    "source_selfhost_claim": 0
+  },
+  "selected_behavior": {
+    "denied_boundaries": [
+      "full_object_allocation_semantics",
+      "full_field_assignment_semantics",
+      "full_user_defined_box_metadata_semantics",
+      "route_selection",
+      "hako_adopted_decision",
+      "source_selfhost_claim",
+      "runtime_fallback"
+    ],
+    "mutation_frame": [
+      "destination_box_created",
+      "seen_field_set_initialized",
+      "duplicate_field_rejected",
+      "field_membership_validated",
+      "delegated_field_assignment_written",
+      "destination_value_returned"
+    ],
+    "operation": "BoxFieldInitializationMutationFrame"
+  },
+  "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001"
+}

@@ -29,6 +29,8 @@ Scope:
   - `slot_registry_release_native_seed.hako`
 - fourth native source seed:
   - `carrier_merge_assignment_native_seed.hako`
+- fifth native source seed:
+  - `box_field_initialization_native_seed.hako`
 - second shadow-projector support library:
   - `function_region_stack_pop_projector.hako`
 - third shadow-projector support library:

@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1929-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001.md"
-latest_card_summary = """The latest card promotes the StatementValueConstruction
-box field initialization HakoShadow projector to HakoMainline while keeping
-Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1930-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001.md"
+latest_card_summary = """The latest card materializes the StatementValueConstruction
+box field initialization native Hako source seed while keeping Source Selfhost
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1930 materializes the StatementValueConstruction box field initialization native Hako source seed.",
   "2026-06-30: 1929 promotes StatementValueConstruction box field initialization HakoShadow to HakoMainline.",
   "2026-06-30: 1928 adds HakoShadow parity for StatementValueConstruction box field initialization.",
   "2026-06-30: 1927 fixes the StatementValueConstruction box field initialization mutation-frame contract.",
@@ -72,5 +73,4 @@ landed_tail = [
   "2026-06-30: 1899 materializes the CallLowering extern prefix / env interface registry descriptor fixture.",
   "2026-06-30: 1898 materializes the CallLowering builtin/math registry descriptor fixture.",
   "2026-06-30: 1897 keeps CallLowering diagnostic message/warning helpers parent-owned.",
-  "2026-06-30: 1896 decomposes CallLoweringCluster into subclusters before any projection policy is selected.",
 ]
