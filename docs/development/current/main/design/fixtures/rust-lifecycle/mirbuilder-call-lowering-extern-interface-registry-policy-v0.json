@@ -1,0 +1,126 @@
+{
+  "claims": {
+    "ad_hoc_by_name_policy": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "method_spec_surface_selected": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "registry_descriptor_selected": 1,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectRegistryDescriptorPolicy",
+    "reason_token": "ExternInterfaceRegistryDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-CALL-LOWERING-STATIC-RECEIVER-METHOD-CATALOG-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-builtin-global-function-registry-policy-v0.json",
+    "selected_subcluster_id": "ExternInterfaceRegistry",
+    "source_count": 2,
+    "subcluster_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-policy-subcluster-decomposition-v0.json"
+  },
+  "kind": "MirBuilderCallLoweringExternInterfaceRegistryPolicyV1",
+  "registry_descriptor": {
+    "descriptor_id": "call_lowering_extern_interface_registry_v1",
+    "env_interface_count": 9,
+    "env_interfaces": [
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.canvas"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.codegen"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.console"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.fs"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.future"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.net"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.process"
+      },
+      {
+        "interface_root": "env",
+        "is_env_interface": true,
+        "name": "env.task"
+      }
+    ],
+    "extern_prefix_count": 3,
+    "extern_prefixes": [
+      "nyash.",
+      "env.",
+      "system."
+    ],
+    "method_spec_surface_selected": false,
+    "source_extraction": "rust_starts_with_and_matches_literals"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::call_lowering_extern_interface_registry",
+    "policy": "RegistryDescriptorFixture",
+    "projection_surface_selected": false,
+    "reason_token": "ExternInterfaceNamesRequireDescriptorFixture",
+    "registry_descriptor_selected": true
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.call_lowering",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "params": "name: &str",
+      "registry_role": "env_interface_membership_predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/extern_calls.rs::is_env_interface:L273",
+      "source_path": "src/mir/builder/calls/extern_calls.rs",
+      "symbol": "is_env_interface"
+    },
+    {
+      "params": "name: &str",
+      "registry_role": "extern_prefix_membership_predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/method_resolution.rs::is_extern_function:L81",
+      "source_path": "src/mir/builder/calls/method_resolution.rs",
+      "symbol": "is_extern_function"
+    }
+  ],
+  "token": "MIRBUILDER-CALL-LOWERING-EXTERN-INTERFACE-REGISTRY-POLICY-001"
+}
