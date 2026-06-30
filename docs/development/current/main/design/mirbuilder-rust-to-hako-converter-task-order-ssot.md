@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1880-MIRBUILDER-PROJECTION-POLICY-EXISTING-DECISION-FILTER-001.md
+  1881-MIRBUILDER-CARRIER-FEATURE-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
