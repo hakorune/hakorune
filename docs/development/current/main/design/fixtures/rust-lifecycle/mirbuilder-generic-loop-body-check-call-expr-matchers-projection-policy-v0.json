@@ -1,0 +1,120 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "matcher_descriptor_selected": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMatcherDescriptorPolicy",
+    "reason_token": "CallExpressionMatcherDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-COMPARE-EXPR-MATCHERS-PROJECTION-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "expr_matchers_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-expr-matchers-projection-policy-v0.json",
+    "selected_subcluster_id": "CallExprMatchers",
+    "source_count": 2,
+    "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckCallExprMatchersProjectionPolicyV1",
+  "matcher_descriptor": {
+    "ast_root": "ASTNode::MethodCall",
+    "descriptor_id": "generic_loop_body_check_call_expr_matchers_v1",
+    "entries": [
+      {
+        "argument_policy": "AnyArgumentMatchesSubstringLoopVar",
+        "ast_root": "ASTNode::MethodCall",
+        "depends_on": [
+          "matches_substring_call_with_loop_var"
+        ],
+        "method_name": "_is_space",
+        "rust_pattern": "MethodCall(method == \"_is_space\") with any substring(loop_var +/- 1) argument",
+        "source_markers": [
+          "method == \"_is_space\"",
+          "arguments",
+          "matches_substring_call_with_loop_var"
+        ],
+        "symbol": "matches_is_space_call"
+      },
+      {
+        "accepted_argument_shapes": [
+          [
+            "LoopVar",
+            "LoopVarPlusOne"
+          ],
+          [
+            "LoopVarMinusOne",
+            "LoopVar"
+          ]
+        ],
+        "argument_policy": "TwoArgumentLoopVarPlusMinusOneWindow",
+        "ast_root": "ASTNode::MethodCall",
+        "depends_on": [
+          "is_loop_var_plus_one",
+          "is_loop_var_minus_one"
+        ],
+        "method_name": "substring",
+        "rust_pattern": "MethodCall(method == \"substring\", arguments.len() == 2)",
+        "source_markers": [
+          "method != \"substring\"",
+          "arguments.len() != 2",
+          "is_loop_var_plus_one",
+          "is_loop_var_minus_one"
+        ],
+        "symbol": "matches_substring_call_with_loop_var"
+      }
+    ],
+    "entry_count": 2,
+    "source_extraction": "rust_method_call_patterns"
+  },
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "hako_projection_selected": false,
+    "matcher_descriptor_selected": true,
+    "owner_edge": "mirbuilder::generic_loop_body_check_call_expr_matchers",
+    "policy": "SourceExtractedCallMatcherDescriptor",
+    "reason_token": "CallExpressionMatchersRequireDescriptorBeforeHakoProjection"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_call_expr_matchers",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "line": 7,
+      "matcher_role": "method_call_predicate",
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_is_space_call:L7",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+      "symbol": "matches_is_space_call"
+    },
+    {
+      "line": 25,
+      "matcher_role": "method_call_predicate",
+      "params": "expr: &ASTNode,\n    loop_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_substring_call_with_loop_var:L25",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+      "symbol": "matches_substring_call_with_loop_var"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CALL-EXPR-MATCHERS-PROJECTION-POLICY-001"
+}
