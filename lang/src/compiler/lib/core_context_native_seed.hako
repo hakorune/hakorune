@@ -1,6 +1,7 @@
 // native-source-seed: MIRBUILDER-CORE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
 // source-family: hakorune_mir_builder::core_context
 // source-input-state: DerivedArtifactSeedDraftInput
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 box CoreContext {

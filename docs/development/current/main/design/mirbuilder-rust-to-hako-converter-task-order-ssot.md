@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CORE-CONTEXT-HAKO-ADOPTION-DECISION-001.
-  The native source seed for `hakorune_mir_builder::core_context` now exists
-  outside the generated tree. Next, decide Adopt / Defer / Reject without
-  claiming Source Selfhost.
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004.
+  `hakorune_mir_builder::core_context` is now a narrow HakoAdopted native
+  source owner. Next, rerun native-owner seed capability under the bridge
+  policy and keep Source Selfhost unclaimed.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CORE-CONTEXT-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -181,6 +181,7 @@ completed:
   strict-emission -> native seed bridge policy
   strict-emission native seed candidate selection
   core_context native source seed
+  core_context HakoAdopted decision
 
 latest_rerun_result:
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
@@ -189,9 +190,9 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  MIRBUILDER-CORE-CONTEXT-HAKO-ADOPTION-DECISION-001
-  purpose = decide whether core_context native seed becomes HakoAdopted
-  output = Adopt / Defer / Reject, no Source Selfhost claim
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004
+  purpose = recompute next bridge-eligible seed candidate after core_context adoption
+  output = next native seed candidate or KeepStopped with stable reason
 
 forbidden:
   strict rule weakening as executable conversion
