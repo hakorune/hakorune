@@ -1,0 +1,1039 @@
+{
+  "claims": {
+    "candidate_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0,
+    "whole_cluster_keep_parent_owner": 0,
+    "whole_cluster_projection_policy": 0
+  },
+  "decision": {
+    "kind": "SelectSubclusterProjectionPolicy",
+    "reason_token": "SelectNarrowExprMatchersBeforeValidationAndShapeDetectors",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXPR-MATCHERS-PROJECTION-POLICY-001",
+    "selected_subcluster_id": "BodyCheckExprMatchers"
+  },
+  "decomposition_policy": {
+    "candidate_count_as_proof": 0,
+    "path_role_decomposition": true,
+    "reason_token": "GenericLoopPlanClusterContainsMixedPathRoles",
+    "whole_cluster_keep_parent_owner_selected": false,
+    "whole_cluster_projection_policy_selected": false
+  },
+  "input_state": {
+    "cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_candidate_count": 66,
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "scanned_function_count": 88,
+    "source_cluster": "GenericLoopPlanCluster",
+    "source_cluster_id": "projection_policy::UnsupportedDirectShape::shape.generic_loop_plan::FixtureMapped::GenericLoopPlanCluster",
+    "source_module_count": 17
+  },
+  "kind": "MirBuilderGenericLoopPlanSubclusterDecompositionV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_plan",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_modules": [
+    "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/assign.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs",
+    "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs"
+  ],
+  "source_surfaces": [
+    {
+      "line": 7,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_is_space_call:L7",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_is_space_call"
+    },
+    {
+      "line": 25,
+      "params": "expr: &ASTNode,\n    loop_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_substring_call_with_loop_var:L25",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_substring_call_with_loop_var"
+    },
+    {
+      "line": 4,
+      "params": "expr: &ASTNode,\n    loop_var: &str,\n    value: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_less_than_literal:L4",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_loop_var_less_than_literal"
+    },
+    {
+      "line": 34,
+      "params": "expr: &ASTNode,\n    loop_var: &str,\n    value: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_equal_literal:L34",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_loop_var_equal_literal"
+    },
+    {
+      "line": 64,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_compare:L64",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_loop_var_compare"
+    },
+    {
+      "line": 6,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_literal:L6",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_if_return_literal"
+    },
+    {
+      "line": 42,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    return_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_var:L42",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_if_return_var"
+    },
+    {
+      "line": 72,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_local:L72",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_if_return_local"
+    },
+    {
+      "line": 105,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal:L105",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_if_else_return_literal"
+    },
+    {
+      "line": 154,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal_var:L154",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_if_else_return_literal_var"
+    },
+    {
+      "line": 204,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal_local:L204",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_if_else_return_literal_local"
+    },
+    {
+      "line": 14,
+      "params": "condition: &ASTNode,\n    loop_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs::matches_trim_cond_with_methodcall:L14",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs",
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbol": "matches_trim_cond_with_methodcall"
+    },
+    {
+      "line": 17,
+      "params": "body: &[ASTNode],\n    step_index: usize,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::has_control_flow_after_step:L17",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "subcluster_id": "BodyCheckStepValidation",
+      "symbol": "has_control_flow_after_step"
+    },
+    {
+      "line": 36,
+      "params": "body: &[ASTNode],\n    step_index: usize,\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    strict: bool,",
+      "return_type": "Result<bool, Freeze>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_in_body_step:L36",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "subcluster_id": "BodyCheckStepValidation",
+      "symbol": "validate_in_body_step"
+    },
+    {
+      "line": 111,
+      "params": "body: &[ASTNode],\n    step_index: usize,\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    strict: bool,",
+      "return_type": "Result<bool, Freeze>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_in_body_step_v1:L111",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "subcluster_id": "BodyCheckStepValidation",
+      "symbol": "validate_in_body_step_v1"
+    },
+    {
+      "line": 175,
+      "params": "body: &[ASTNode],\n    step_index: usize,\n    strict: bool,",
+      "return_type": "Result<bool, Freeze>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_continue_if_step:L175",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "subcluster_id": "BodyCheckStepValidation",
+      "symbol": "validate_continue_if_step"
+    },
+    {
+      "line": 203,
+      "params": "body: &[ASTNode],\n    step_index: usize,\n    strict: bool,",
+      "return_type": "Result<bool, Freeze>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_break_else_if_step:L203",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "subcluster_id": "BodyCheckStepValidation",
+      "symbol": "validate_break_else_if_step"
+    },
+    {
+      "line": 21,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::extract_next_i_var:L21",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "extract_next_i_var"
+    },
+    {
+      "line": 57,
+      "params": "body: &[ASTNode], loop_var: &str",
+      "return_type": "Vec<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::collect_next_step_vars:L57",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "collect_next_step_vars"
+    },
+    {
+      "line": 94,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::is_loop_var_plus_one:L94",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "is_loop_var_plus_one"
+    },
+    {
+      "line": 128,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::is_loop_var_minus_one:L128",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "is_loop_var_minus_one"
+    },
+    {
+      "line": 161,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::extract_local_init_var:L161",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "extract_local_init_var"
+    },
+    {
+      "line": 10,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_while_cap_accum_sum_shape:L10",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_while_cap_accum_sum_shape"
+    },
+    {
+      "line": 52,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_accum_add_loop_var:L52",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_accum_add_loop_var"
+    },
+    {
+      "line": 59,
+      "params": "stmt: &ASTNode, rhs_var: &str",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_accum_add_var:L59",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_accum_add_var"
+    },
+    {
+      "line": 98,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    _loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_div_countdown_by10_shape:L98",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_div_countdown_by10_shape"
+    },
+    {
+      "line": 123,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_modulo_by_10_local:L123",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_modulo_by_10_local"
+    },
+    {
+      "line": 137,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_div_by_10_assignment:L137",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_div_by_10_assignment"
+    },
+    {
+      "line": 14,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_usingcollector_line_scan_shape:L14",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_usingcollector_line_scan_shape"
+    },
+    {
+      "line": 59,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_scan_all_boxes_next_i_shape:L59",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_scan_all_boxes_next_i_shape"
+    },
+    {
+      "line": 110,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_rewriteknown_itoa_complex_step_shape:L110",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_rewriteknown_itoa_complex_step_shape"
+    },
+    {
+      "line": 130,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_rewriteknown_trim_and_methodcall_shape:L130",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_rewriteknown_trim_and_methodcall_shape"
+    },
+    {
+      "line": 148,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_itoa_digit_local:L148",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_itoa_digit_local"
+    },
+    {
+      "line": 167,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_itoa_digit_append_assignment:L167",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_itoa_digit_append_assignment"
+    },
+    {
+      "line": 204,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_scan_while_predicate_shape:L204",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_scan_while_predicate_shape"
+    },
+    {
+      "line": 237,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_effect_step_only_shape:L237",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_effect_step_only_shape"
+    },
+    {
+      "line": 10,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_peek_parse_shape:L10",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_peek_parse_shape"
+    },
+    {
+      "line": 91,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_decode_escapes_loop_shape:L91",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_decode_escapes_loop_shape"
+    },
+    {
+      "line": 124,
+      "params": "body: &[ASTNode], loop_var: &str, loop_increment: &ASTNode",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_parse_map_shape:L124",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_map_shape"
+    },
+    {
+      "line": 198,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_parse_block_expr_shape:L198",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_block_expr_shape"
+    },
+    {
+      "line": 10,
+      "params": "loop_stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_return_increment:L10",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_return_increment"
+    },
+    {
+      "line": 30,
+      "params": "loop_stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_return_var_increment:L30",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_return_var_increment"
+    },
+    {
+      "line": 50,
+      "params": "loop_stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_return_local_increment:L50",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_return_local_increment"
+    },
+    {
+      "line": 70,
+      "params": "loop_stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_return:L70",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_else_return"
+    },
+    {
+      "line": 87,
+      "params": "loop_stmt: &ASTNode,\n    loop_var: &str,\n    else_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_return_var:L87",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_else_return_var"
+    },
+    {
+      "line": 108,
+      "params": "loop_stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_return_local:L108",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_else_return_local"
+    },
+    {
+      "line": 125,
+      "params": "loop_stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_if_return:L125",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_inner_loop_if_else_if_return"
+    },
+    {
+      "line": 153,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    first_cond: i64,\n    second_cond: i64,\n    return_literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_if_else_if_return_literal:L153",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_if_else_if_return_literal"
+    },
+    {
+      "line": 214,
+      "params": "stmt: &ASTNode, literal: i64",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_return_literal:L214",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_return_literal"
+    },
+    {
+      "line": 10,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_return_shape:L10",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_return_shape"
+    },
+    {
+      "line": 38,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_else_return_shape:L38",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_else_return_shape"
+    },
+    {
+      "line": 60,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_return_var_shape:L60",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_return_var_shape"
+    },
+    {
+      "line": 88,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_return_local_shape:L88",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_return_local_shape"
+    },
+    {
+      "line": 110,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_else_return_var_shape:L110",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_else_return_var_shape"
+    },
+    {
+      "line": 135,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_else_return_local_shape:L135",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_else_return_local_shape"
+    },
+    {
+      "line": 157,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    condition: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs::matches_parse_program2_nested_loop_if_else_if_return_shape:L157",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/nested_loop_program2.rs",
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbol": "matches_parse_program2_nested_loop_if_else_if_return_shape"
+    },
+    {
+      "line": 4,
+      "params": "stmt: &ASTNode, loop_var: &str, value_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::matches_loop_var_assign_to:L4",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "matches_loop_var_assign_to"
+    },
+    {
+      "line": 21,
+      "params": "stmt: &ASTNode, loop_var: &str, value_vars: &[String]",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::matches_loop_var_assign_any:L21",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "matches_loop_var_assign_any"
+    },
+    {
+      "line": 41,
+      "params": "condition: &ASTNode, loop_var: &str, next_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::matches_next_le_loop_var:L41",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "matches_next_le_loop_var"
+    },
+    {
+      "line": 56,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::is_loop_var_plus_one:L56",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "is_loop_var_plus_one"
+    },
+    {
+      "line": 82,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::matches_mod_ten_of_loop_var:L82",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "matches_mod_ten_of_loop_var"
+    },
+    {
+      "line": 103,
+      "params": "stmt: &ASTNode, var: &str, literal: i64",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::matches_assignment_add_literal:L103",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "matches_assignment_add_literal"
+    },
+    {
+      "line": 143,
+      "params": "block: &ASTNode, loop_var: &str, next_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs::matches_debug_guard_block:L143",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/utils.rs",
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbol": "matches_debug_guard_block"
+    },
+    {
+      "line": 5,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::body_writes_non_loop_vars:L5",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "body_writes_non_loop_vars"
+    },
+    {
+      "line": 31,
+      "params": "body: &[ASTNode],",
+      "return_type": "Vec<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::collect_loop_var_candidates_from_body:L31",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "collect_loop_var_candidates_from_body"
+    },
+    {
+      "line": 35,
+      "params": "stmt: &ASTNode, out: &mut Vec<String>",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::walk:L35",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "walk"
+    },
+    {
+      "line": 103,
+      "params": "body: &[ASTNode],",
+      "return_type": "Vec<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::collect_increment_loop_var_candidates_from_body:L103",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "collect_increment_loop_var_candidates_from_body"
+    },
+    {
+      "line": 108,
+      "params": "stmt: &ASTNode, out: &mut Vec<String>",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::walk:L108",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "walk"
+    },
+    {
+      "line": 156,
+      "params": "value: &ASTNode, name: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::assignment_value_increments_var:L156",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "assignment_value_increments_var"
+    },
+    {
+      "line": 173,
+      "params": "object: &ASTNode",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::receiver_candidate_name:L173",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "receiver_candidate_name"
+    },
+    {
+      "line": 181,
+      "params": "stmt: &ASTNode",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::body_has_break_or_continue_stmt:L181",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs",
+      "subcluster_id": "BodyCheckExtractors",
+      "symbol": "body_has_break_or_continue_stmt"
+    },
+    {
+      "line": 5,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/assign.rs::is_simple_assignment:L5",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/assign.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_simple_assignment"
+    },
+    {
+      "line": 13,
+      "params": "stmt: &ASTNode",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_exit_if:L13",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_exit_if"
+    },
+    {
+      "line": 36,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_effect_if:L36",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_effect_if"
+    },
+    {
+      "line": 94,
+      "params": "stmt: &ASTNode",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_effect_if_pure:L94",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_effect_if_pure"
+    },
+    {
+      "line": 121,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_break_else_effect_if:L121",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_break_else_effect_if"
+    },
+    {
+      "line": 153,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    loop_increment: &ASTNode,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_effect_stmt:L153",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_effect_stmt"
+    },
+    {
+      "line": 174,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_conditional_update_if:L174",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_conditional_update_if"
+    },
+    {
+      "line": 200,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    saw_assignment: &mut bool,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_conditional_update_branch:L200",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_conditional_update_branch"
+    },
+    {
+      "line": 238,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    depth: usize,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_general_if_full:L238",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_general_if_full"
+    },
+    {
+      "line": 271,
+      "params": "body: &[ASTNode],\n    loop_var: &str,\n    loop_increment: &ASTNode,\n    depth: usize,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::body_is_general_if_branch:L271",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "body_is_general_if_branch"
+    },
+    {
+      "line": 306,
+      "params": "body: &[ASTNode]",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::body_has_continue:L306",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "body_has_continue"
+    },
+    {
+      "line": 309,
+      "params": "stmt: &ASTNode",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::stmt_has_continue:L309",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "stmt_has_continue"
+    },
+    {
+      "line": 5,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs::is_local_init:L5",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_local_init"
+    },
+    {
+      "line": 17,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs::is_local_decl:L17",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "is_local_decl"
+    },
+    {
+      "line": 5,
+      "params": "stmt: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs::stmt_uses_loop_var:L5",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "stmt_uses_loop_var"
+    },
+    {
+      "line": 60,
+      "params": "stmt: &ASTNode",
+      "return_type": "&'static str",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs::stmt_kind_name:L60",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "stmt_kind_name"
+    },
+    {
+      "line": 82,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,",
+      "return_type": "&'static str",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs::unsupported_stmt_detail:L82",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs",
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbol": "unsupported_stmt_detail"
+    }
+  ],
+  "subcluster_counts": {
+    "BodyCheckExprMatchers": 12,
+    "BodyCheckExtractors": 13,
+    "BodyCheckShapeDetectorUtils": 7,
+    "BodyCheckShapeDetectors": 34,
+    "BodyCheckStepValidation": 5,
+    "StatementClassifierPredicates": 17
+  },
+  "subclusters": [
+    {
+      "classification": "GenericLoopPlanSubcluster",
+      "module_count": 4,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXPR-MATCHERS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "ExpressionMatchersAreNarrowPurePredicates",
+      "selection_eligible": true,
+      "source_count": 12,
+      "subcluster_id": "BodyCheckExprMatchers",
+      "symbols": [
+        "matches_is_space_call",
+        "matches_substring_call_with_loop_var",
+        "matches_loop_var_less_than_literal",
+        "matches_loop_var_equal_literal",
+        "matches_loop_var_compare",
+        "matches_if_return_literal",
+        "matches_if_return_var",
+        "matches_if_return_local",
+        "matches_if_else_return_literal",
+        "matches_if_else_return_literal_var",
+        "matches_if_else_return_literal_local",
+        "matches_trim_cond_with_methodcall"
+      ]
+    },
+    {
+      "classification": "GenericLoopPlanSubcluster",
+      "module_count": 1,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "StepValidationRequiresSeparatePolicy",
+      "selection_eligible": false,
+      "source_count": 5,
+      "subcluster_id": "BodyCheckStepValidation",
+      "symbols": [
+        "has_control_flow_after_step",
+        "validate_in_body_step",
+        "validate_in_body_step_v1",
+        "validate_continue_if_step",
+        "validate_break_else_if_step"
+      ]
+    },
+    {
+      "classification": "GenericLoopPlanSubcluster",
+      "module_count": 2,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXTRACTORS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "BodyCheckExtractorsRequireSeparatePolicy",
+      "selection_eligible": false,
+      "source_count": 13,
+      "subcluster_id": "BodyCheckExtractors",
+      "symbols": [
+        "extract_next_i_var",
+        "collect_next_step_vars",
+        "is_loop_var_plus_one",
+        "is_loop_var_minus_one",
+        "extract_local_init_var",
+        "body_writes_non_loop_vars",
+        "collect_loop_var_candidates_from_body",
+        "walk",
+        "collect_increment_loop_var_candidates_from_body",
+        "walk",
+        "assignment_value_increments_var",
+        "receiver_candidate_name",
+        "body_has_break_or_continue_stmt"
+      ]
+    },
+    {
+      "classification": "GenericLoopPlanSubcluster",
+      "module_count": 5,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-SHAPE-DETECTORS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "ShapeDetectorsRequireSeparatePolicy",
+      "selection_eligible": false,
+      "source_count": 34,
+      "subcluster_id": "BodyCheckShapeDetectors",
+      "symbols": [
+        "matches_while_cap_accum_sum_shape",
+        "matches_accum_add_loop_var",
+        "matches_accum_add_var",
+        "matches_div_countdown_by10_shape",
+        "matches_modulo_by_10_local",
+        "matches_div_by_10_assignment",
+        "matches_usingcollector_line_scan_shape",
+        "matches_scan_all_boxes_next_i_shape",
+        "matches_rewriteknown_itoa_complex_step_shape",
+        "matches_rewriteknown_trim_and_methodcall_shape",
+        "matches_itoa_digit_local",
+        "matches_itoa_digit_append_assignment",
+        "matches_scan_while_predicate_shape",
+        "matches_effect_step_only_shape",
+        "matches_peek_parse_shape",
+        "matches_decode_escapes_loop_shape",
+        "matches_parse_map_shape",
+        "matches_parse_block_expr_shape",
+        "matches_inner_loop_if_return_increment",
+        "matches_inner_loop_if_return_var_increment",
+        "matches_inner_loop_if_return_local_increment",
+        "matches_inner_loop_if_else_return",
+        "matches_inner_loop_if_else_return_var",
+        "matches_inner_loop_if_else_return_local",
+        "matches_inner_loop_if_else_if_return",
+        "matches_if_else_if_return_literal",
+        "matches_return_literal",
+        "matches_parse_program2_nested_loop_if_return_shape",
+        "matches_parse_program2_nested_loop_if_else_return_shape",
+        "matches_parse_program2_nested_loop_if_return_var_shape",
+        "matches_parse_program2_nested_loop_if_return_local_shape",
+        "matches_parse_program2_nested_loop_if_else_return_var_shape",
+        "matches_parse_program2_nested_loop_if_else_return_local_shape",
+        "matches_parse_program2_nested_loop_if_else_if_return_shape"
+      ]
+    },
+    {
+      "classification": "GenericLoopPlanSubcluster",
+      "module_count": 1,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-SHAPE-DETECTOR-UTILS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "ShapeDetectorUtilsAreSharedPredicateHelpers",
+      "selection_eligible": false,
+      "source_count": 7,
+      "subcluster_id": "BodyCheckShapeDetectorUtils",
+      "symbols": [
+        "matches_loop_var_assign_to",
+        "matches_loop_var_assign_any",
+        "matches_next_le_loop_var",
+        "is_loop_var_plus_one",
+        "matches_mod_ten_of_loop_var",
+        "matches_assignment_add_literal",
+        "matches_debug_guard_block"
+      ]
+    },
+    {
+      "classification": "GenericLoopPlanSubcluster",
+      "module_count": 4,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-STMT-CLASSIFIER-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "StatementClassifierPredicatesRequireSeparatePolicy",
+      "selection_eligible": false,
+      "source_count": 17,
+      "subcluster_id": "StatementClassifierPredicates",
+      "symbols": [
+        "is_simple_assignment",
+        "is_exit_if",
+        "is_effect_if",
+        "is_effect_if_pure",
+        "is_break_else_effect_if",
+        "is_effect_stmt",
+        "is_conditional_update_if",
+        "is_conditional_update_branch",
+        "is_general_if_full",
+        "body_is_general_if_branch",
+        "body_has_continue",
+        "stmt_has_continue",
+        "is_local_init",
+        "is_local_decl",
+        "stmt_uses_loop_var",
+        "stmt_kind_name",
+        "unsupported_stmt_detail"
+      ]
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-PLAN-SUBCLUSTER-DECOMPOSITION-001"
+}
