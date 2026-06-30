@@ -758,6 +758,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-plan-subcluster-decomposition-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_generic_loop_plan_subcluster_decomposition_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXPR-MATCHERS-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1908-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXPR-MATCHERS-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-expr-matchers-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_generic_loop_body_check_expr_matchers_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

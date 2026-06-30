@@ -1,0 +1,282 @@
+{
+  "claims": {
+    "candidate_count_as_proof": 0,
+    "composite_trim_policy_selected": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0,
+    "whole_expr_matcher_projection": 0
+  },
+  "decision": {
+    "kind": "SelectExpressionMatcherSubcluster",
+    "reason_token": "SelectCallMatchersBeforeCompareControlAndCompositeTrim",
+    "selected_expr_matcher_subcluster_id": "CallExprMatchers",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CALL-EXPR-MATCHERS-PROJECTION-POLICY-001"
+  },
+  "decomposition_policy": {
+    "candidate_count_as_proof": 0,
+    "mixed_responsibility_reason": "CallCompareControlAndCompositeTrimMatchersMustNotShareOneProjectionPolicy",
+    "module_role_decomposition": true,
+    "whole_expr_matcher_projection_selected": false
+  },
+  "expr_matcher_subcluster_counts": {
+    "CallExprMatchers": 2,
+    "CompareExprMatchers": 3,
+    "CompositeTrimConditionMatcher": 1,
+    "ControlReturnExprMatchers": 6
+  },
+  "expr_matcher_subclusters": [
+    {
+      "classification": "BodyCheckExpressionMatcherSubcluster",
+      "expr_matcher_subcluster_id": "CallExprMatchers",
+      "module_count": 1,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CALL-EXPR-MATCHERS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "CallExpressionMatchersAreNarrowMethodCallPredicates",
+      "selection_eligible": true,
+      "source_count": 2,
+      "symbols": [
+        "matches_is_space_call",
+        "matches_substring_call_with_loop_var"
+      ]
+    },
+    {
+      "classification": "BodyCheckExpressionMatcherSubcluster",
+      "expr_matcher_subcluster_id": "CompareExprMatchers",
+      "module_count": 1,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-COMPARE-EXPR-MATCHERS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "CompareExpressionMatchersAreNarrowBinaryOpPredicates",
+      "selection_eligible": false,
+      "source_count": 3,
+      "symbols": [
+        "matches_loop_var_less_than_literal",
+        "matches_loop_var_equal_literal",
+        "matches_loop_var_compare"
+      ]
+    },
+    {
+      "classification": "BodyCheckExpressionMatcherSubcluster",
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "module_count": 1,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTROL-RETURN-EXPR-MATCHERS-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "ControlReturnMatchersRequireStatementShapePolicy",
+      "selection_eligible": false,
+      "source_count": 6,
+      "symbols": [
+        "matches_if_return_literal",
+        "matches_if_return_var",
+        "matches_if_return_local",
+        "matches_if_else_return_literal",
+        "matches_if_else_return_literal_var",
+        "matches_if_else_return_literal_local"
+      ]
+    },
+    {
+      "classification": "BodyCheckExpressionMatcherSubcluster",
+      "expr_matcher_subcluster_id": "CompositeTrimConditionMatcher",
+      "module_count": 1,
+      "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TRIM-CONDITION-MATCHER-DECOMPOSITION-001",
+      "next_owner_kind": "CompositeDecomposition",
+      "reason_token": "TrimConditionMatcherComposesCompareAndCallPredicates",
+      "selection_eligible": false,
+      "source_count": 1,
+      "symbols": [
+        "matches_trim_cond_with_methodcall"
+      ]
+    }
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "generic_loop_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-plan-subcluster-decomposition-v0.json",
+    "source_count": 12,
+    "source_parent_cluster": "GenericLoopPlanCluster",
+    "source_subcluster_id": "BodyCheckExprMatchers"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckExprMatchersProjectionPolicyV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_expr_matchers",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "expr_matcher_subcluster_id": "CallExprMatchers",
+      "line": 7,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_is_space_call:L7",
+      "source_markers": [
+        "_is_space",
+        "matches_substring_call_with_loop_var"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+      "symbol": "matches_is_space_call"
+    },
+    {
+      "expr_matcher_subcluster_id": "CallExprMatchers",
+      "line": 25,
+      "params": "expr: &ASTNode,\n    loop_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_substring_call_with_loop_var:L25",
+      "source_markers": [
+        "substring",
+        "is_loop_var_plus_one",
+        "is_loop_var_minus_one"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+      "symbol": "matches_substring_call_with_loop_var"
+    },
+    {
+      "expr_matcher_subcluster_id": "CompareExprMatchers",
+      "line": 4,
+      "params": "expr: &ASTNode,\n    loop_var: &str,\n    value: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_less_than_literal:L4",
+      "source_markers": [
+        "BinaryOperator::Less",
+        "LiteralValue::Integer"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "symbol": "matches_loop_var_less_than_literal"
+    },
+    {
+      "expr_matcher_subcluster_id": "CompareExprMatchers",
+      "line": 34,
+      "params": "expr: &ASTNode,\n    loop_var: &str,\n    value: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_equal_literal:L34",
+      "source_markers": [
+        "BinaryOperator::Equal",
+        "LiteralValue::Integer"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "symbol": "matches_loop_var_equal_literal"
+    },
+    {
+      "expr_matcher_subcluster_id": "CompareExprMatchers",
+      "line": 64,
+      "params": "expr: &ASTNode, loop_var: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_compare:L64",
+      "source_markers": [
+        "BinaryOperator::LessEqual",
+        "BinaryOperator::GreaterEqual"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+      "symbol": "matches_loop_var_compare"
+    },
+    {
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "line": 6,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_literal:L6",
+      "source_markers": [
+        "ASTNode::If",
+        "ASTNode::Return",
+        "LiteralValue::Integer"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "symbol": "matches_if_return_literal"
+    },
+    {
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "line": 42,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    return_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_var:L42",
+      "source_markers": [
+        "ASTNode::If",
+        "return_var"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "symbol": "matches_if_return_var"
+    },
+    {
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "line": 72,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_local:L72",
+      "source_markers": [
+        "matches_local_init_literal",
+        "ASTNode::Return"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "symbol": "matches_if_return_local"
+    },
+    {
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "line": 105,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal:L105",
+      "source_markers": [
+        "else_body",
+        "LiteralValue::Integer"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "symbol": "matches_if_else_return_literal"
+    },
+    {
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "line": 154,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal_var:L154",
+      "source_markers": [
+        "else_body",
+        "ASTNode::Variable"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "symbol": "matches_if_else_return_literal_var"
+    },
+    {
+      "expr_matcher_subcluster_id": "ControlReturnExprMatchers",
+      "line": 204,
+      "params": "stmt: &ASTNode,\n    loop_var: &str,\n    literal: i64,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal_local:L204",
+      "source_markers": [
+        "matches_local_init_literal",
+        "else_body"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs",
+      "symbol": "matches_if_else_return_literal_local"
+    },
+    {
+      "expr_matcher_subcluster_id": "CompositeTrimConditionMatcher",
+      "line": 14,
+      "params": "condition: &ASTNode,\n    loop_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs::matches_trim_cond_with_methodcall:L14",
+      "source_markers": [
+        "BinaryOperator::And",
+        "matches_loop_var_compare",
+        "matches_is_space_call"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs",
+      "symbol": "matches_trim_cond_with_methodcall"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-EXPR-MATCHERS-PROJECTION-POLICY-001"
+}
